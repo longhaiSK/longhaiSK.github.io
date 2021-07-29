@@ -1,0 +1,699 @@
+
+<html>
+    <head>
+		
+		<meta charset="utf-8">
+		<title>A2</title>
+		<script type="text/javascript" src="scripts/d3.v5.min.js"></script>
+		<script type="text/javascript" src="scripts/numeric.js"></script>
+		<script type="text/javascript" src="scripts/mds.js"></script>
+
+		<!-- color palet for the graphs -->
+		<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+
+		<!-- JQuery -->
+		<script
+			src="https://code.jquery.com/jquery-3.6.0.js"
+			integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+			crossorigin="anonymous"></script>
+					
+			<style  type="text/css">
+				.grid line{
+					stroke-opacity: 0.3;
+				}
+				
+				#my_chart{
+					/* position: absolute; */
+					margin-left: 500px;
+					text-align: center;
+				}
+	
+				.flex-container{
+					display: flex;
+				}
+				
+				.flex-child{
+					flex:1;
+				}
+	
+				li{
+					margin: 0 10px;
+				}
+				li:hover{
+					color: red;
+					
+				}
+	
+				#my_Visualization_vaccine{
+					margin-top: 100px;
+				}
+	
+				#vaccine_chart{
+					position: absolute;
+					margin-left: 550px;
+					text-align: center;
+	
+				}
+	
+				.area{
+					fill: lightsteelblue
+				}
+	
+				.area_full{
+					fill:blue
+				}
+				#userInput{
+					position: absolute;
+				}
+		
+		
+
+		</style>
+	</head>
+    
+    <body>
+
+		<div id="my_Visualization" class="flex-container">
+
+			<div id="userInput" class="flex-child"> </div>
+
+
+
+			<div id="my_chart" class="flex-child">
+				<h3 id="title">COVID-Visualization</h3>	
+			</div>
+
+
+		</div>
+
+		<div id="my_Visualization_vaccine">
+			<div id = "vaccine_chart" class="flex-child"> 
+				<h3>Covid Vaccine Visualization</h3>
+			</div>
+
+			<div id="VacuserInput" class="flex-child"> </div>
+
+
+		</div>
+
+
+    </body>
+
+    <script type="text/javascript">	
+		
+	// date formatter 
+	var format_date = d3.timeParse("%Y-%m-%d") 
+
+	var vaccine_dataset;
+	var dataset;
+	var max_R = 0.0;
+	var min_R = 100.0;
+	var max_date = format_date("2020-03-11");
+	var min_date = format_date("2020-03-11");
+	var legend_keys = []
+	var vac_legend_keys = []
+
+	var min_date_vac = format_date("2999-03-11");
+	var max_date_vac = format_date("2019-03-11");
+
+
+
+	var max_dose1 = 0;
+	var max_full_vacc = 0 
+
+
+	d3.csv("vaccination-coverage-map.csv").then(function(data){
+		vaccine_dataset = d3.nest()
+					.key(function(d){return(d.prename)})
+					.entries(data);
+		
+		data.forEach(function(d){
+
+
+			var temp_date = format_date(d.week_end)
+	
+
+			if (temp_date > max_date_vac){
+				max_date_vac = temp_date
+			}
+			
+			if (temp_date < min_date_vac){
+				min_date_vac = temp_date
+			}
+
+		})
+
+	})
+
+
+	// reading in the Data
+	d3.csv("estimated_R.csv").then(function(data){
+
+
+		dataset = d3.nest()
+					.key(function(d){return(d.province)})
+					.entries(data);
+
+		// finding the most and least recent date and
+		// finding the smallest and largest R value
+		data.forEach(function(d){
+
+			// temporary varibale to store the R and date
+			var float_R = parseFloat(d.R)
+			var temp_date = format_date(d.date)
+
+			if (float_R > max_R) {
+				max_R = float_R
+			}
+
+			if (float_R < min_R){
+				min_R = float_R
+			}
+
+			if (temp_date > max_date){
+				max_date = temp_date
+			}
+			
+			if (temp_date < min_date){
+				min_date = temp_date
+			}
+
+		})
+
+		console.log(max_R)
+		console.log(min_R)
+		console.log(max_date_vac)
+		console.log(min_date_vac)
+
+		generateVisualization()
+	})
+
+	function generateVisualization(){
+
+		var margin = {top: 10, right:150, bottom:100, left: 60},
+		width = 900 - margin.left - margin.right
+		height = 450 - margin.top - margin.bottom
+    
+
+		var svg = d3.select("#my_chart")
+			.append("svg")
+				.attr("width", width + margin.left + margin.right)
+				.attr("height", height + margin.top + margin.bottom)
+			.append("g")
+				.attr("transform","translate (" + margin.left + "," + margin.top + ")")
+
+
+		// adding all the province into an array to use in the legend
+		for (var i=0; i<dataset.length; i++){
+			legend_keys.push(dataset[i].key)
+		}
+
+		console.log(vaccine_dataset)
+		for (var i=0; i<vaccine_dataset.length; i++){
+			if(!(vaccine_dataset[i].key == "Nunavut" || vaccine_dataset[i].key == "Canada" || vaccine_dataset[i].key == "Northwest Territories") ){
+				vac_legend_keys.push(vaccine_dataset[i].key)
+			}
+		}
+	
+	
+		//TODO add a color palette
+		var color_palette = d3.scaleOrdinal().domain(legend_keys)
+							  .range(d3.schemePaired)
+
+		// TODO add an X axis
+		var xScale = d3.scaleTime()
+			.domain([min_date, max_date_vac])
+			.range([0,width])
+
+		
+		function make_y_gridlines(){
+			return d3.axisLeft(yScale).ticks(3)
+		}
+
+
+		svg.append("g")
+			.attr("transform","translate (0," + height+ ")") // move the axis down
+			.call(d3.axisBottom(xScale))
+			.selectAll("text")
+				.style("text-anchor","end")
+				.attr("dx","-.8em")
+				.attr("dy",".15em")
+				.attr("transform","rotate(-65)") 
+		
+		svg.append("text")
+			.attr("transform","translate ("+ (width/2)+" ," + 
+				(height + margin.top + 70) + ")")
+			.style("text-anchor","middle")
+			.text("Date")
+
+
+		//TODO add Y axis
+		var yScale = d3.scaleLinear()
+				.domain([0, Math.ceil(max_R)])
+				.range([height,0])
+			svg.append("g")
+			   .call(d3.axisLeft(yScale))
+		
+		// adding y-axis name
+		svg.append("text")
+			.attr("transform","rotate(-90)")
+			.attr("y", 0 - margin.left)
+			.attr("x", 0 - (height/2))
+			.attr("dy","1em")
+			.style("text-anchor","middle")
+			.text("R-value")
+
+		//  add grid
+		svg.append("g")
+			.attr("class","grid")
+			.call(make_y_gridlines()
+					.tickSize(-width)
+					.tickFormat("")	
+			)
+
+		//TODO add line
+
+		for(var i = 0; i<dataset.length; i++){
+			svg.append("path")
+				.datum(dataset[i].values)
+				// .attr("class","line")
+				.attr("fill", "none")
+				.attr("id", function(d){return d[i].province.split(" ").join("")}) // get rid of space so it's easier to get the id
+				.attr("stroke", function(d){return (color_palette(d[i].province))})
+				.attr("stroke-width",2)
+				// .style("opacity",1.0)
+				.style("display","none")
+				.attr("d", d3.line()
+					.x(function(d){return xScale(format_date(d.date))})
+					.y(function(d){return yScale(parseFloat(d.R))}))
+		}
+
+
+		
+		var lineLegend = svg.selectAll(".lineLegend").data(legend_keys)
+			.enter().append("g")
+			.attr("class","lineLegend")
+			.attr("transform", function(d,i){
+				return "translate (" + width + "," + (i*20) + ")"
+			})
+			.attr("id",function(d){return d.split(" ").join("")})
+			.style("display","none")
+			.style("position","absolute")
+
+		lineLegend.append("text").text(function(d){return d;})
+			.attr("transform","translate(30,9)") // alignning with the box
+
+		
+		lineLegend.append("rect")
+			.attr("fill", function(d,i){ return color_palette(d)})
+			.attr("transform","translate(15,0)")
+			.attr("width", 10)
+			.attr("height",10)
+		
+
+		//TODO Vaccine graph svg
+		var svg_vac = d3.select("#vaccine_chart")
+			.append("svg")
+				.attr("width", width + margin.left + margin.right+50)
+				.attr("height", height + margin.top + margin.bottom)
+			.append("g")
+				.attr("transform","translate (" + margin.left + "," + margin.top + ")")
+		
+
+		function make_y_gridlines(){
+			return d3.axisLeft(yScale).ticks(3)
+		}
+
+
+
+		// Sarting the plot for the Second Graphs
+
+		// //TODO add x-axis
+		// var xScale_vac = d3.scaleTime()
+		// 	.domain([min_date_vac, max_date_vac])
+		// 	.range([0,width])
+
+		svg_vac.append("g")
+			.attr("transform","translate (0," + height+ ")") // move the axis down
+			.call(d3.axisBottom(xScale))
+			.selectAll("text")
+				.style("text-anchor","end")
+				.attr("dx","-.8em")
+				.attr("dy",".15em")
+				.attr("transform","rotate(-65)") 
+
+
+
+		//TODO add Y axis for the R vale
+		var yScale = d3.scaleLinear()
+				.domain([0, Math.ceil(max_R)])
+				.range([height,0])
+			svg_vac.append("g")
+			   .call(d3.axisLeft(yScale))
+
+
+		//TODO add Y axis for Vaccine rate
+		var yScale_vacRate = d3.scaleLinear()
+				.domain([0,100])
+				.range([height,0])
+			svg_vac.append("g")
+				.attr("transform","translate (" + width + ",0)")
+				.call(d3.axisRight(yScale_vacRate))
+
+
+
+
+		svg_vac.append("text")
+			.attr("transform","translate ("+ (width/2)+" ," + 
+				(height + margin.top + 70) + ")")
+			.style("text-anchor","middle")
+			.text("Date")
+
+	
+
+
+		//TODO add Y axis for the R_value
+		var yScale = d3.scaleLinear()
+				.domain([0, Math.ceil(max_R)])
+				.range([height,0])
+			svg_vac.append("g")
+			   .call(d3.axisLeft(yScale))
+		
+		// adding y-axis name for R-value
+		svg_vac.append("text")
+			.attr("transform","rotate(-90)")
+			.attr("y", 0 - margin.left)
+			.attr("x", 0 - (height/2))
+			.attr("dy","1em")
+			.style("text-anchor","middle")
+			.text("R-value")
+
+		// adding y-axis name for Vaccine
+			svg_vac.append("text")
+			.attr("transform","rotate(-90)")
+			.attr("y", width+30 )
+			.attr("x", 0 - (height/2))
+			.attr("dy","1em")
+			.style("text-anchor","middle")
+			.text("Percentage Vaccinated")
+			
+
+			
+
+				// define the area
+		var area = d3.area()
+			.x(function(d){return xScale(format_date(d.week_end))})
+			.y0(height)
+			.y1(function(d){return yScale_vacRate(parseFloat(d.proptotal_atleast1dose))})
+
+		// area full vaccine dose
+		var area_full = d3.area()
+			.x(function(d){return xScale(format_date(d.week_end))})
+			.y0(height)
+			.y1(function(d){if (d.proptotal_fully==""){return yScale_vacRate(0)} else return yScale_vacRate(parseFloat(d.proptotal_fully))}) // the if condition is for empty data points
+		
+
+
+		// add the first dose vaccine line
+		for(var i=0; i<vaccine_dataset.length; i++){
+			svg_vac.append("path")
+				.datum(vaccine_dataset[i].values)
+				.attr("fill","none")
+				.attr("id", function(d){return "Vac1"+d[i].prename.split(" ").join("")})
+				.attr("stroke","lightsteelblue")
+				.attr("stroke-width",2)
+				.style("display","none")
+				.attr("class","area")
+				.attr("d", area)
+		}
+
+		for(var i=0; i<vaccine_dataset.length; i++){
+			svg_vac.append("path")
+					.datum(vaccine_dataset[i].values)
+					.attr("fill","none")
+					.attr("id", function(d){return "VacFull"+d[i].prename.split(" ").join("")})
+					.attr("stroke","blue")
+					.attr("stroke-width",2)
+					.style("display","none")
+					.attr("class","area_full")
+					.attr("d", area_full)
+		}
+
+				// add R-value lines
+		for(var i = 0; i<dataset.length; i++){
+			svg_vac.append("path")
+				.datum(dataset[i].values)
+				// .attr("class","line")
+				.attr("fill", "none")
+				.attr("id", function(d){return "R"+d[i].province.split(" ").join("")}) // get rid of space so it's easier to get the id
+				.attr("stroke", "red")
+				.attr("stroke-width",2)
+				// .style("opacity",1.0)
+				.style("display","none")
+				.attr("d", d3.line()
+					.x(function(d){return xScale(format_date(d.date))})
+					.y(function(d){return yScale(parseFloat(d.R))}))
+		
+			}
+
+				//  add grid
+			svg_vac.append("g")
+			.attr("class","grid")
+			.call(make_y_gridlines()
+					.tickSize(-width)
+					.tickFormat("")	
+			)
+
+
+
+		// add legend for second graphs
+			
+		svg_vac.append("rect")
+			.attr('x', width+margin.left)
+			.attr('y', 120)
+			.attr('width', 10)
+			.attr('height', 10)
+			.attr('stroke', 'black')
+			.attr('fill', 'red')
+			.append("g")
+		
+		svg_vac.append("text")
+			.attr('x', width+margin.left+20)
+			.attr('y', 130)
+			.attr("id","legend_label")
+			.text("Selected Province")
+
+		svg_vac.append("rect")
+			.attr('x', width+margin.left)
+			.attr('y', 140)
+			.attr('width', 10)
+			.attr('height', 10)
+			.attr('stroke', 'black')
+			.attr('fill', 'lightsteelblue')
+			.append("g")
+		
+		svg_vac.append("text")
+			.attr('x', width+margin.left+20)
+			.attr('y', 150)
+			.text("First dose")
+
+		svg_vac.append("rect")
+			.attr('x', width+margin.left)
+			.attr('y', 160)
+			.attr('width', 10)
+			.attr('height', 10)
+			.attr('stroke', 'black')
+			.attr('fill', 'blue')
+			.append("g")
+		
+		svg_vac.append("text")
+			.attr('x', width+margin.left+20)
+			.attr('y', 170)
+			.text("Fully Vaccinated")
+		}
+
+			
+		$(document).ready(function(){
+
+			var parentDiv = document.getElementById("userInput")
+			var vac_parentDiv = document.getElementById("VacuserInput")
+
+			// TODO creating all of the text for each selected province
+			var unOrderList = document.createElement("ul")
+			for (var i = 0; i<legend_keys.length; i++){
+				var list_item = document.createElement("li")
+				list_item.id="list" + legend_keys[i].split(" ").join("")
+				list_item.innerHTML = legend_keys[i]
+				list_item.style.display = "none"
+				list_item.onclick = function(){
+					hide_element(this.id)
+				}
+				unOrderList.append(list_item)
+			}
+
+			// add list to parentDiv
+
+
+
+			// adding the dropdown menu for the provinces		
+			var label = document.createElement("label")
+			label.for = "s"
+			label.innerHTML = "Choose a province: "
+
+			var select_province = document.createElement("select")
+			select_province.id = "province_select"
+			select_province.onchange = function(){
+				select_change(this.value)
+			}
+
+
+			for (var i=0; i<legend_keys.length; i++){
+				var new_opt = document.createElement("option")
+				new_opt.id = "select" + legend_keys[i]
+				new_opt.value = legend_keys[i]
+				new_opt.innerHTML =legend_keys[i]
+
+
+				select_province.append(new_opt)
+			}
+
+			// add dropdown menu 
+			parentDiv.append(label)
+			parentDiv.append(select_province)
+			parentDiv.append(unOrderList)
+
+
+			var label_vac = document.createElement("label")
+			label_vac.for = "s"
+			label_vac.innerHTML = "Choose a province: "
+
+			var select_province_vac = document.createElement("select")
+			select_province_vac.id = "province_select_vac"
+			select_province_vac.onchange = function(){
+				select_vac_change(this.value)
+
+			}
+
+
+			for (var i=0; i<legend_keys.length; i++){
+				var new_opt = document.createElement("option")
+				new_opt.id = "select_vac" + legend_keys[i]
+				new_opt.value = legend_keys[i]
+				new_opt.innerHTML =legend_keys[i]
+
+
+				select_province_vac.append(new_opt)
+			}
+
+
+			vac_parentDiv.append(label_vac)
+			vac_parentDiv.append(select_province_vac)
+
+			
+			/**
+			 * Function to display the slected province
+			 * R value
+			*/
+			function select_change(selected_value){
+				var select_path = d3.select("path#"+selected_value.split(" ").join(""))
+				var select_legend = d3.select("g#"+selected_value.split(" ").join(""))
+
+				select_path.style("display","block")
+				select_legend.style("display","block")
+
+				province_name = document.getElementById("list"+selected_value.split(" ").join(""))
+				province_name.style.display = "block"
+
+			}
+
+			console.log(legend_keys)
+			console.log(vac_legend_keys)
+
+
+			var vac_dict = {
+				"Alberta": "Alberta",
+				"BC":"British Columbia",
+				"Manitoba": "Manitoba",
+				"NL": "Newfoundland and Labrador",
+				"New Brunswick": "New Brunswick",
+				"Nova Scotia": "Nova Scotia",
+				"Ontario": "Ontario",
+				"PEI": "Prince Edward Island",
+				"Quebec":"Quebec",
+				"Saskatchewan":"Saskatchewan",
+				"Yukon": "Yukon"
+			}
+
+			function select_vac_change(selected_value){
+				var legendValue = d3.select("text#legend_label")
+				console.log(legendValue)
+				legendValue.text(selected_value)
+				
+				console.log(selected_value)
+				for (var i = 0; i<legend_keys.length; i++){
+					var path = d3.select("path#R"+legend_keys[i].split(" ").join(""))
+					
+					if(selected_value == legend_keys[i]){
+						path.style("display","block")
+					}
+					else{
+						path.style("display","none")
+
+					}
+				}
+				var vac1_path = vac_dict[selected_value]
+				
+				for(var i = 0; i<vac_legend_keys.length;i++){
+					var dose1_path = d3.select("path#Vac1"+vac_legend_keys[i].split(" ").join(""))
+					var fullVac_path = d3.select("path#VacFull"+vac_legend_keys[i].split(" ").join(""))
+				
+
+					if(vac1_path == vac_legend_keys[i]){
+						dose1_path.style("display","block")
+						fullVac_path.style("display","block")
+					}
+
+					else{
+						dose1_path.style("display","none")
+						fullVac_path.style("display","none")
+					}
+				}
+			}
+
+			function hide_element(selected_ele){
+				var ele = selected_ele.slice(4)
+
+				var select_path = d3.select("path#"+ele)
+				var select_legend = d3.select("g#"+ele)
+
+				select_path.style("display","none")
+				select_legend.style("display","none")
+
+				province_name = document.getElementById("list"+ele)
+				province_name.style.display = "none"
+
+			}
+		
+		})
+		
+    </script>
+		<script type = "module">
+
+			import {selectAll} from "https://cdn.skypack.dev/d3-selection@3";
+	
+	</script>
+
+	<!-- The core Firebase JS SDK is always required and must be listed first -->
+	<script src="/__/firebase/8.7.1/firebase-app.js"></script>
+
+	<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+	<script src="/__/firebase/8.7.1/firebase-analytics.js"></script>
+
+	<!-- Initialize Firebase -->
+	<script src="/__/firebase/init.js"></script>
+		
+
+
+</html>
