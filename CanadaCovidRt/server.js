@@ -16,8 +16,6 @@ app.use(bodyParser.json());
 
 app.use(express.static(__dirname + '/public/'))
 
-app.set('views', path.join(__dirname, 'views'));
-
 app.get("/index", function(req, res){
     console.log("from index")
     res.sendFile(PATH  + '/index.html')
