@@ -14,13 +14,11 @@ app.use(bodyParser.urlencoded({extended:true}))
 // app.use(bodyParser.urlencoded());
 app.use(bodyParser.json());
 
-app.use(express.static(__dirname + '/public/'))
+app.use(express.static(__dirname))
 
-// app.get("/index", function(req, res){
-//     console.log("from index")
-//     res.sendFile(PATH  + '/index.html')
-// })
-
-
+app.get("/index", function(req, res){
+    console.log("from index")
+    res.sendFile(PATH  + '/index.html')
+})
 
 app.listen(PORT,HOST);
