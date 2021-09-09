@@ -5,7 +5,7 @@ const bodyParser = require ('body-parser');
 
 const PORT = 80;
 const HOST = '0.0.0.0';
-const PATH = __dirname + '/views'
+//const PATH = __dirname + '/public'
 var path = require('path');
 const { time } = require('console');
 
@@ -16,10 +16,10 @@ app.use(bodyParser.json());
 
 app.use(express.static(__dirname + '/public/'))
 
-app.get("/index", function(req, res){
-    console.log("from index")
-    res.sendFile(PATH  + '/index.html')
-})
+// app.get("/index", function(req, res){
+//     console.log("from index")
+//     res.sendFile(PATH  + '/index.html')
+// })
 
 
 
