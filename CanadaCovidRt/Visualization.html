@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html style="font-size: 16px;">
-  <head>
+<head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="utf-8">
     <meta name="keywords" content="Branddesign, INTUITIVE">
@@ -8,96 +8,789 @@
     <meta name="page_type" content="np-template-header-footer-from-plugin">
     <title>Visualization</title>
     <link rel="stylesheet" href="nicepage.css" media="screen">
-<link rel="stylesheet" href="Visualization.css" media="screen">
+    <link rel="stylesheet" href="Visualization.css" media="screen">
     <script class="u-script" type="text/javascript" src="jquery.js" defer=""></script>
     <script class="u-script" type="text/javascript" src="nicepage.js" defer=""></script>
     <meta name="generator" content="Nicepage 3.25.0, nicepage.com">
     <link id="u-theme-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i|Open+Sans:300,300i,400,400i,600,600i,700,700i,800,800i">
     <link id="u-page-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Condensed:300,300i,400,400i,700,700i">
-    
-    
-    
-    
-    <script type="application/ld+json">{
-		"@context": "http://schema.org",
-		"@type": "Organization",
-		"name": "CanadaCovidRt",
-		"logo": "images/IMG_8180.jpg"
-}</script>
+    <script type="application/ld+json">
+        {
+                "@context": "http://schema.org",
+                "@type": "Organization",
+                "name": "CanadaCovidRt",
+                "logo": "images/IMG_8180.jpg"
+        }</script>
     <meta name="theme-color" content="#478ac9">
     <meta property="og:title" content="Visualization">
     <meta property="og:description" content="">
     <meta property="og:type" content="website">
-  </head>
-  <body class="u-body"><header class="u-clearfix u-header u-palette-5-dark-2 u-sticky u-header" id="sec-3ca1"><div class="u-clearfix u-sheet u-sheet-1">
-        <h4 class="u-align-center u-text u-text-1"><b></b>Real-Time Estimates of the Effective Reproduction Rate (<i>R</i>) of COVID-19 of Canada<br>
-        </h4>
-        <a href="https://nicepage.com" class="u-image u-logo u-image-1" data-image-width="1258" data-image-height="1132">
-          <img src="images/IMG_8180.jpg" class="u-logo-image u-logo-image-1">
-        </a>
-        <nav class="u-menu u-menu-dropdown u-offcanvas u-menu-1">
-          <div class="menu-collapse" style="font-size: 1.125rem; letter-spacing: 0px; font-weight: 700;">
-            <a class="u-button-style u-custom-active-border-color u-custom-active-color u-custom-border u-custom-border-color u-custom-borders u-custom-hover-border-color u-custom-hover-color u-custom-left-right-menu-spacing u-custom-padding-bottom u-custom-text-active-color u-custom-text-color u-custom-text-hover-color u-custom-top-bottom-menu-spacing u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base" href="#">
-              <svg><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#menu-hamburger"></use></svg>
-              <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><defs><symbol id="menu-hamburger" viewBox="0 0 16 16" style="width: 16px; height: 16px;"><rect y="1" width="16" height="2"></rect><rect y="7" width="16" height="2"></rect><rect y="13" width="16" height="2"></rect>
-</symbol>
-</defs></svg>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--<title>Canada COVID-19 Visualization</title>-->
+    <!-- D3 -->
+    <script type="text/javascript" src="scripts/d3.v5.min.js"></script>
+    <script type="text/javascript" src="scripts/numeric.js"></script>
+    <script type="text/javascript" src="scripts/mds.js"></script>
+    <!-- color palet for the graphs -->
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+    <!-- For inputting selection of province -->
+    <script src="https://code.jquery.com/jquery-3.6.0.js"
+            integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+            crossorigin="anonymous">
+    </script>
+    <script type="module">
+        import { selectAll } from "https://cdn.skypack.dev/d3-selection@3";
+    </script>
+    <!-- Functions for plotting two graphs -->
+    <script type="text/javascript">
+        // date formatter
+        var format_date = d3.timeParse("%Y-%m-%d")
+        var vaccine_dataset;
+        var dataset;
+        var max_R = 0.0;
+        var min_R = 100.0;
+        var max_date = format_date("2019-03-11");
+        var min_date = format_date("2999-03-11");
+        var legend_keys = []
+        var vac_legend_keys = []
+        var min_date_vac = format_date("2999-03-11");
+        var max_date_vac = format_date("2019-03-11");
+        var max_dose1 = 0;
+        var max_full_vacc = 0
+        // Plotting for graph #1
+        d3.csv("vaccination-coverage-map.csv").then(function (data) {
+            vaccine_dataset = d3.nest()
+                .key(function (d) { return (d.prename) })
+                .entries(data);
+            data.forEach(function (d) {
+                var temp_date = format_date(d.week_end)
+                if (temp_date > max_date_vac) {
+                    max_date_vac = temp_date
+                }
+                if (temp_date < min_date_vac) {
+                    min_date_vac = temp_date
+                }
+            })
+        })
+        // reading in the Data
+        d3.csv("estimated_R.csv").then(function (data) {
+            // group provinces together
+            dataset = d3.nest()
+                .key(function (d) {
+                    return (d.province)
+                })
+                .entries(data);
+            // finding the most and least recent date and
+            // finding the smallest and largest R value
+            data.forEach(function (d) {
+                // temporary varibale to store the R and date
+                var float_R = parseFloat(d.R)
+                var temp_date = format_date(d.date)
+                if (float_R > max_R) {
+                    max_R = float_R
+                }
+                if (float_R < min_R) {
+                    min_R = float_R
+                }
+                if (temp_date > max_date) {
+                    max_date = temp_date
+                }
+
+                if (temp_date < min_date) {
+                    min_date = temp_date
+                }
+            })
+            console.log(max_R)
+            console.log(min_R)
+            console.log(max_date_vac)
+            console.log(min_date_vac)
+            generateVisualization()
+        })
+        function generateVisualization() {
+            var margin = { top: 10, right: 150, bottom: 100, left: 200 },
+                width = 900 - margin.left - margin.right
+            height = 450 - margin.top - margin.bottom
+            var svg = d3.select("#my_chart")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate (" + margin.left + "," + margin.top + ")")
+            // adding all the province into an array to use in the legend
+            for (var i = 0; i < dataset.length; i++) {
+                legend_keys.push(dataset[i].key)
+            }
+            console.log(vaccine_dataset)
+            // Adding all province for second graph, ignoring proivnces not included in graph 1.
+            for (var i = 0; i < vaccine_dataset.length; i++) {
+                vac_legend_keys.push(vaccine_dataset[i].key)
+            }
+            //TODO add a color palette
+            var color_palette = d3.scaleOrdinal().domain(legend_keys)
+                .range(d3.schemePaired)
+            // TODO add an X axis
+            var xScale = d3.scaleTime()
+                .domain([min_date, max_date])
+                .range([0, width])
+            // add in the X axis label
+            svg.append("g")
+                .attr("transform", "translate (0," + height + ")") // move the axis down
+                .call(d3.axisBottom().scale(xScale).ticks(30))// Maximum number of months
+                .selectAll("text")
+                .style("text-anchor", "end")
+                .attr("dx", "-.8em")
+                .attr("dy", ".15em")
+                .attr("transform", "rotate(-65)")
+            svg.append("text")
+                .attr("transform", "translate (" + (width / 2) + " ," +
+                    (height + margin.top + 70) + ")")
+                .style("text-anchor", "middle")
+            //TODO add Y axis
+            var yScale = d3.scaleLinear()
+                .domain([-0.6, Math.ceil(max_R) + 0.5])
+                .range([height, 0])
+            svg.append("g")
+                .call(d3.axisLeft(yScale))
+            // adding y-axis Name
+            svg.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 0 - 50)
+                .attr("x", 0 - (height / 2))
+                .attr("dy", "1em")
+                .style("text-anchor", "middle")
+            // area for creditable Bounds 65
+            var ci65 = d3.area()
+                .x(function (d) {
+                    return xScale(format_date(d.date))
+                })
+                .y0(function (d) {
+                    return yScale(parseFloat(d.ci_65_u))
+                })
+                .y1(function (d) {
+                    return yScale(parseFloat(d.ci_65_l))
+                }) // the if condition is for empty data points
+            // area for creditable Bounds 95
+            var ci95 = d3.area()
+                .x(function (d) {
+                    return xScale(format_date(d.date))
+                })
+                .y0(function (d) {
+                    return yScale(parseFloat(d.ci_95_u))
+                })
+                .y1(function (d) {
+                    return yScale(parseFloat(d.ci_95_l))
+                }) // the if condition is for empty data points
+            // add line area for credit_boundary 95
+            for (var i = 0; i < dataset.length; i++) {
+                svg.append("path")
+                    .datum(dataset[i].values)
+                    .attr("fill", "none")
+                    .attr("id", function (d) {
+                        return "ci95" + d[i].province.split(" ").join("")
+                    })
+                    .attr("stroke", "blue")
+                    .attr("stroke-width", 0)
+                    .style("display", "none")
+                    .attr("class", "area95")
+                    .attr("d", ci95)
+            }
+            // add line area for credit_boundary 65
+            for (var i = 0; i < dataset.length; i++) {
+                svg.append("path")
+                    .datum(dataset[i].values)
+                    .attr("fill", "none")
+                    .attr("id", function (d) {
+                        return "ci65" + d[i].province.split(" ").join("")
+                    })
+                    .attr("stroke", "lightsteelblue")
+                    .attr("stroke-width", 0)
+                    .style("display", "none")
+                    .attr("class", "area65")
+                    .attr("d", ci65)
+            }
+            //TODO add line
+            for (var i = 0; i < dataset.length; i++) {
+                svg.append("path")
+                    .datum(dataset[i].values)
+                    // .attr("class","line")
+                    .attr("fill", "none")
+                    .attr("id", function (d) {
+                        return d[i].province.split(" ").join("")
+                    }) // get rid of space so it's easier to get the id
+                    .attr("stroke", function (d) {
+                        return (color_palette(d[i].province))
+                    })
+                    .attr("stroke-width", 2)
+                    .style("display", "none")
+                    .attr("d", d3.line()
+                        .x(function (d) {
+                            return xScale(format_date(d.date))
+                        })
+                        .y(function (d) {
+                            return yScale(parseFloat(d.R))
+                        }))
+            }
+            // adding an line at y=1
+            svg.append("line")
+                .attr("x1", 0)
+                .attr("x2", width)
+                .attr("y1", yScale(1))
+                .attr("y2", yScale(1))
+                .attr("stroke", 'orange')
+                .attr("stroke-width", 1.5)
+                .style("stroke-dasharray", ("3, 3"))
+                .attr("fill", "black");
+
+            var lineLegend = svg.selectAll(".lineLegend").data(legend_keys)
+                .enter().append("g")
+                .attr("class", "lineLegend")
+                .attr("transform", function (d, i) {
+                    return "translate (" + width + "," + (i * 20) + ")"
+                })
+                .attr("id", function (d) {
+                    return d.split(" ").join("")
+                })
+                .style("display", "none")
+                .style("position", "absolute")
+            // generate the provinces name
+            lineLegend.append("text").text(function (d) {
+                return d;
+            })
+                .attr("transform", "translate(30,9)") // alignning with the box
+            // generate the colored squares
+            lineLegend.append("rect")
+                .attr("fill", function (d, i) {
+                    return color_palette(d)
+                })
+                .attr("transform", "translate(15,0)")
+                .attr("width", 10)
+                .attr("height", 10)
+            // adding a small legend for graph 1 for the credit boundary
+            svg.append("rect")
+                .attr('x', -190)
+                .attr('y', 80)
+                .attr('width', 10)
+                .attr('height', 10)
+                .attr('stroke', 'none')
+                .attr('fill', 'darkred')
+                .style('opacity', 0.5)
+                .append("g")
+            svg.append("text")
+                .attr('x', -170)
+                .attr('y', 90)
+                .attr("id", "creditbounday")
+                .text("95% Credible Bounds")
+            svg.append("rect")
+                .attr('x', -190)
+                .attr('y', 100)
+                .attr('width', 10)
+                .attr('height', 10)
+                .attr('stroke', 'none')
+                .attr('fill', 'red')
+                .style('opacity', 0.5)
+                .append("g")
+            svg.append("text")
+                .attr('x', -170)
+                .attr('y', 110)
+                .text("65% Credible Bounds")
+            // -------------------------------------------
+            // Sarting the plot for the Second Graphs
+            //TODO Vaccine graph svg
+            var svg_vac = d3.select("#vaccine_chart")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right + 50)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate (" + margin.left + "," + margin.top + ")")
+            //TODO add x-axis
+            maxD = Math.min(max_date, max_date_vac)
+            var xScale_vac = d3.scaleTime()
+                .domain([min_date, maxD])
+                .range([0, width])
+            svg_vac.append("g")
+                .attr("transform", "translate (0," + height + ")") // move the axis down
+                .call(d3.axisBottom().scale(xScale_vac).ticks(30))//Ticks = maximum # of months
+                .selectAll("text")
+                .style("text-anchor", "end")
+                .attr("dx", "-.8em")
+                .attr("dy", ".15em")
+                .attr("transform", "rotate(-65)")
+            //TODO add Y axis for the R vale
+            var yScale = d3.scaleLinear()
+                .domain([0, Math.ceil(max_R)])
+                .range([height, 0])
+            svg_vac.append("g")
+                .call(d3.axisLeft(yScale))
+            //TODO add Y axis for Vaccine rate
+            var yScale_vacRate = d3.scaleLinear()
+                .domain([0, 100])
+                .range([height, 0])
+            svg_vac.append("g")
+                .attr("transform", "translate (" + width + ",0)")
+                .call(d3.axisRight(yScale_vacRate))
+            svg_vac.append("text")
+                .attr("transform", "translate (" + (width / 2) + " ," +
+                    (height + margin.top + 70) + ")")
+                .style("text-anchor", "middle")
+            //TODO add Y axis for the R_value
+            var yScale = d3.scaleLinear()
+                .domain([0, Math.ceil(max_R)])
+                .range([height, 0])
+            svg_vac.append("g")
+                .call(d3.axisLeft(yScale))
+            // adding y-axis name for R-value
+            svg_vac.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 0 - 50)
+                .attr("x", 0 - (height / 2))
+                .attr("dy", "1em")
+                .style("text-anchor", "middle")
+            // adding y-axis name for Vaccine
+            svg_vac.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", width + 30)
+                .attr("x", 0 - (height / 2))
+                .attr("dy", "1em")
+                .style("text-anchor", "middle")
+                .text("Vaccination")
+            // define the area of 1st dose
+            var area = d3.area()
+                .x(function (d) {
+                    return xScale_vac(format_date(d.week_end))
+                })
+                .y0(height)
+                .y1(function (d) {
+                    return yScale_vacRate(parseFloat(d.proptotal_atleast1dose))
+                })
+            // area of fully vaccinated
+            var area_full = d3.area()
+                .x(function (d) {
+                    return xScale_vac(format_date(d.week_end))
+                })
+                .y0(height)
+                .y1(function (d) {
+                    if (d.proptotal_fully == "") {
+                        return yScale_vacRate(0)
+                    }
+                    else return yScale_vacRate(parseFloat(d.proptotal_fully))
+                }) // the if condition is for empty data points
+            // add the first dose vaccine line
+            for (var i = 0; i < vaccine_dataset.length; i++) {
+                svg_vac.append("path")
+                    .datum(vaccine_dataset[i].values)
+                    .attr("fill", "none")
+                    .attr("id", function (d) { return "Vac1" + d[i].prename.split(" ").join("") })
+                    .attr("stroke", "lightsteelblue")
+                    .attr("stroke-width", 2)
+                    .style("display", "none")
+                    .attr("class", "area")
+                    .attr("d", area)
+            }
+            for (var i = 0; i < vaccine_dataset.length; i++) {
+                svg_vac.append("path")
+                    .datum(vaccine_dataset[i].values)
+                    .attr("fill", "none")
+                    .attr("id", function (d) { return "VacFull" + d[i].prename.split(" ").join("") })
+                    .attr("stroke", "blue")
+                    .attr("stroke-width", 2)
+                    .style("display", "none")
+                    .attr("class", "area_full")
+                    .attr("d", area_full)
+            }
+            // add R-value lines
+            for (var i = 0; i < dataset.length; i++) {
+                svg_vac.append("path")
+                    .datum(dataset[i].values)
+                    // .attr("class","line")
+                    .attr("fill", "none")
+                    .attr("id", function (d) {
+                        return "R" + d[i].province.split(" ").join("")
+                    }) // get rid of space so it's easier to get the id
+                    .attr("stroke", "red")
+                    .attr("stroke-width", 2)
+                    // .style("opacity",1.0)
+                    .style("display", "none")
+                    .attr("d", d3.line()
+                        .x(function (d) {
+                            return xScale(format_date(d.date))
+                        })
+                        .y(function (d) {
+                            return yScale(parseFloat(d.R))
+                        }))
+            }
+            svg_vac.append("line")
+                .attr("x1", 0)
+                .attr("x2", width)
+                .attr("y1", yScale(1))
+                .attr("y2", yScale(1))
+                .attr("stroke", 'orange')
+                .attr("stroke-width", 1.5)
+                .style("stroke-dasharray", ("3, 3"))
+                .attr("fill", "black");
+            // add legend for second graphs
+            svg_vac.append("rect")
+                .attr('x', -190)
+                .attr('y', 120)
+                .attr('width', 10)
+                .attr('height', 10)
+                .attr('stroke', 'black')
+                .attr('fill', 'red')
+                .append("g")
+            svg_vac.append("text")
+                .attr('x', -170)
+                .attr('y', 130)
+                .attr("id", "legend_label")
+                .text("Selected Province")
+            svg_vac.append("rect")
+                .attr('x', -190)
+                .attr('y', 140)
+                .attr('width', 10)
+                .attr('height', 10)
+                .attr('stroke', 'black')
+                .attr('fill', 'lightsteelblue')
+                .append("g")
+            svg_vac.append("text")
+                .attr('x', -170)
+                .attr('y', 150)
+                .text("At least One Dose")
+            svg_vac.append("rect")
+                .attr('x', -190)
+                .attr('y', 160)
+                .attr('width', 10)
+                .attr('height', 10)
+                .attr('stroke', 'black')
+                .attr('fill', 'blue')
+                .append("g")
+            svg_vac.append("text")
+                .attr('x', -170)
+                .attr('y', 170)
+                .text("Fully Vaccinated")
+        }
+        $(document).ready(function () {
+            var parentDiv = document.getElementById("userInput")
+            var vac_parentDiv = document.getElementById("VacuserInput")
+            // TODO creating all of the text for each selected province
+            var unOrderList = document.createElement("ul")
+            for (var i = 0; i < legend_keys.length; i++) {
+                var list_item = document.createElement("li")
+                list_item.id = "list" + legend_keys[i].split(" ").join("")
+                list_item.innerHTML = legend_keys[i]
+                list_item.style.display = "none"
+                list_item.onclick = function () {
+                    hide_element(this.id)
+                }
+                unOrderList.append(list_item)
+            }
+            // add list to parentDiv
+            // adding the text to choice a province for dropdown menu
+            var label = document.createElement("label")
+            label.for = "s"
+            label.innerHTML = "Choose a province:"
+            // adding in a dropdown menu
+            var select_province = document.createElement("select")
+            select_province.id = "province_select"
+            select_province.onchange = function () {
+                select_change(this.value)
+            }
+            // adding in all the provinces for the drop down menu
+            for (var i = 0; i < legend_keys.length; i++) {
+                var new_opt = document.createElement("option")
+                new_opt.id = "select" + legend_keys[i]
+                new_opt.value = legend_keys[i]
+                new_opt.innerHTML = legend_keys[i]
+                select_province.append(new_opt)
+            }
+            // add dropdown menu
+            parentDiv.append(label)
+            parentDiv.append(select_province)
+            parentDiv.append(unOrderList)
+            //---------------------------------------------
+            // Drowp down menu for the Second graph
+            var label_vac = document.createElement("label")
+            label_vac.for = "s"
+            label_vac.innerHTML = "Choose a province: "
+            var select_province_vac = document.createElement("select")
+            select_province_vac.id = "province_select_vac"
+            select_province_vac.onchange = function () {
+                select_vac_change(this.value)
+            }
+            var new_opt = document.createElement("option")
+            new_opt.id = "select_vac" + legend_keys[i]
+            new_opt.value = "None"
+            new_opt.innerHTML = "None"
+            select_province_vac.append(new_opt)
+            for (var i = 0; i < legend_keys.length; i++) {
+                var new_opt = document.createElement("option")
+                new_opt.id = "select_vac" + legend_keys[i]
+                new_opt.value = legend_keys[i]
+                new_opt.innerHTML = legend_keys[i]
+                select_province_vac.append(new_opt)
+            }
+            vac_parentDiv.append(label_vac)
+            vac_parentDiv.append(select_province_vac)
+            // ----------------------------------------------------
+            /**
+             * Function to display the slected province for graph 1
+             * R value
+            */
+            function select_change(selected_value) {
+                var select_path = d3.select("path#" + selected_value.split(" ").join(""))
+                var select_legend = d3.select("g#" + selected_value.split(" ").join(""))
+                var select_65 = d3.select("path#ci65" + selected_value.split(" ").join(""))
+                var select_95 = d3.select("path#ci95" + selected_value.split(" ").join(""))
+
+                select_path.style("display", "block")
+                select_legend.style("display", "block")
+                select_65.style("display", "block")
+                select_95.style("display", "block")
+
+                province_name = document.getElementById("list" + selected_value.split(" ").join(""))
+                province_name.style.display = "block"
+            }
+            console.log(legend_keys)
+            console.log(vac_legend_keys)
+            var vac_dict = {
+                "Alberta": "Alberta",
+                "BC": "British Columbia",
+                "Manitoba": "Manitoba",
+                "NL": "Newfoundland and Labrador",
+                "New Brunswick": "New Brunswick",
+                "Nova Scotia": "Nova Scotia",
+                "Ontario": "Ontario",
+                "PEI": "Prince Edward Island",
+                "Quebec": "Quebec",
+                "Saskatchewan": "Saskatchewan",
+                "Yukon": "Yukon",
+                "Canada": "Canada",
+                "Nunavut": "Nunavut",
+                "NWT": "Northwest Territories"
+            }
+            // Function to hide everything but the Selected Province
+            function select_vac_change(selected_value) {
+                var legendValue = d3.select("text#legend_label")
+                console.log(legendValue)
+                legendValue.text(selected_value)
+                // hiding all R-value line expect the selected value
+                console.log(selected_value)
+                for (var i = 0; i < legend_keys.length; i++) {
+                    var path = d3.select("path#R" + legend_keys[i].split(" ").join(""))
+                    if (selected_value == legend_keys[i]) {
+                        path.style("display", "block")
+                    }
+                    else {
+                        path.style("display", "none")
+                    }
+                }
+                var vac1_path = vac_dict[selected_value]
+                // changing all the 1st does and fully vaccinated plot, so that everything is
+                // hidden expect for the selected province
+                for (var i = 0; i < vac_legend_keys.length; i++) {
+                    var dose1_path = d3.select("path#Vac1" + vac_legend_keys[i].split(" ").join(""))
+                    var fullVac_path = d3.select("path#VacFull" + vac_legend_keys[i].split(" ").join(""))
+                    if (vac1_path == vac_legend_keys[i]) {
+                        dose1_path.style("display", "block")
+                        fullVac_path.style("display", "block")
+                    }
+                    else {
+                        dose1_path.style("display", "none")
+                        fullVac_path.style("display", "none")
+                    }
+                }
+            }
+            // function to hide the selected elements
+            function hide_element(selected_ele) {
+                var ele = selected_ele.slice(4)
+                var select_path = d3.select("path#" + ele)
+                var select_legend = d3.select("g#" + ele)
+                var select_95 = d3.select("path#ci95" + ele)
+                var select_65 = d3.select("path#ci65" + ele)
+                select_path.style("display", "none")
+                select_legend.style("display", "none")
+                select_95.style("display", "none")
+                select_65.style("display", "none")
+                province_name = document.getElementById("list" + ele)
+                province_name.style.display = "none"
+            }
+        })
+    </script>
+    <!-- Styling for the title, and two graphs -->
+    <style type="text/css">
+        .grid line {
+            stroke-opacity: 0.3;
+        }
+
+        #my_chart {
+            /* position: absolute; */
+            margin-left: 500px;
+            text-align: center;
+        }
+
+        .flex-container {
+            display: flex;
+        }
+
+        .flex-child {
+            flex: 1;
+        }
+
+        li {
+            margin: 0 10px;
+        }
+
+            li:hover {
+                color: red;
+            }
+
+        #my_Visualization_vaccine {
+            margin-top: 100px;
+        }
+
+        #vaccine_chart {
+            position: absolute;
+            margin-left: 500px;
+            text-align: center;
+        }
+
+        .area {
+            fill: lightsteelblue
+        }
+
+        .area_full {
+            fill: blue
+        }
+
+        #userInput {
+            position: absolute;
+            margin-left: 200px;
+            margin-top: 100px;
+        }
+
+        #Tittle {
+            text-align: center;
+        }
+
+        .area65 {
+            fill: red;
+            opacity: 20%;
+        }
+
+        .area95 {
+            fill: darkred;
+            opacity: 20%;
+        }
+
+        #VacuserInput {
+            margin-left: 200px;
+            margin-top: 100px
+        }
+    </style>
+</head>
+<body data-home-page="Visualization.html" data-home-page-title="Visualization" class="u-body">
+    <header class="u-clearfix u-header u-palette-5-dark-2 u-sticky u-header" id="sec-3ca1">
+        <div class="u-clearfix u-sheet u-sheet-1">
+            <h4 class="u-align-center u-text u-text-1">
+                <b></b>Real-Time Estimates of the Effective Reproduction Rate (<i>R</i>) of COVID-19 of Canada<br>
+            </h4>
+            <a href="https://nicepage.com" class="u-image u-logo u-image-1" data-image-width="1258" data-image-height="1132">
+                <img src="images/IMG_8180.jpg" class="u-logo-image u-logo-image-1">
             </a>
-          </div>
-          <div class="u-custom-menu u-nav-container">
-            <ul class="u-custom-font u-heading-font u-nav u-spacing-20 u-unstyled u-nav-1"><li class="u-nav-item"><a class="u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-base u-text-grey-90 u-text-hover-palette-2-base" href="Visualization.html" style="padding: 10px;">Visualization</a>
-</li><li class="u-nav-item"><a class="u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-base u-text-grey-90 u-text-hover-palette-2-base" href="Sources.html" style="padding: 10px;">Sources</a>
-</li><li class="u-nav-item"><a class="u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-base u-text-grey-90 u-text-hover-palette-2-base" href="Our-Team.html" style="padding: 10px;">Our Team</a>
-</li></ul>
-          </div>
-          <div class="u-custom-menu u-nav-container-collapse">
-            <div class="u-black u-container-style u-inner-container-layout u-opacity u-opacity-95 u-sidenav">
-              <div class="u-sidenav-overflow">
-                <div class="u-menu-close"></div>
-                <ul class="u-align-center u-nav u-popupmenu-items u-unstyled u-nav-2"><li class="u-nav-item"><a class="u-button-style u-nav-link" href="Visualization.html" style="padding: 10px 20px;">Visualization</a>
-</li><li class="u-nav-item"><a class="u-button-style u-nav-link" href="Sources.html" style="padding: 10px 20px;">Sources</a>
-</li><li class="u-nav-item"><a class="u-button-style u-nav-link" href="Our-Team.html" style="padding: 10px 20px;">Our Team</a>
-</li></ul>
-              </div>
-            </div>
-            <div class="u-black u-menu-overlay u-opacity u-opacity-70"></div>
-          </div>
-        </nav>
-      </div></header>
+            <nav class="u-menu u-menu-dropdown u-offcanvas u-menu-1">
+                <div class="menu-collapse" style="font-size: 1.125rem; letter-spacing: 0px; font-weight: 700;">
+                    <a class="u-button-style u-custom-active-border-color u-custom-active-color u-custom-border u-custom-border-color u-custom-borders u-custom-hover-border-color u-custom-hover-color u-custom-left-right-menu-spacing u-custom-padding-bottom u-custom-text-active-color u-custom-text-color u-custom-text-hover-color u-custom-top-bottom-menu-spacing u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base" href="#">
+                        <svg><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#menu-hamburger"></use></svg>
+                        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                            <defs>
+                                <symbol id="menu-hamburger" viewBox="0 0 16 16" style="width: 16px; height: 16px;">
+                                    <rect y="1" width="16" height="2"></rect>
+                                    <rect y="7" width="16" height="2"></rect>
+                                    <rect y="13" width="16" height="2"></rect>
+                                </symbol>
+                            </defs>
+                        </svg>
+                    </a>
+                </div>
+                <div class="u-custom-menu u-nav-container">
+                    <ul class="u-custom-font u-heading-font u-nav u-spacing-20 u-unstyled u-nav-1">
+                        <li class="u-nav-item">
+                            <a class="u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-base u-text-grey-90 u-text-hover-palette-2-base" href="Visualization.html" style="padding: 10px;">Visualization</a>
+                        </li>
+                        <li class="u-nav-item">
+                            <a class="u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-base u-text-grey-90 u-text-hover-palette-2-base" href="Sources.html" style="padding: 10px;">Sources</a>
+                        </li>
+                        <li class="u-nav-item">
+                            <a class="u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-base u-text-grey-90 u-text-hover-palette-2-base" href="Our-Team.html" style="padding: 10px;">Our Team</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="u-custom-menu u-nav-container-collapse">
+                    <div class="u-black u-container-style u-inner-container-layout u-opacity u-opacity-95 u-sidenav">
+                        <div class="u-sidenav-overflow">
+                            <div class="u-menu-close"></div>
+                            <ul class="u-align-center u-nav u-popupmenu-items u-unstyled u-nav-2">
+                                <li class="u-nav-item">
+                                    <a class="u-button-style u-nav-link" href="Visualization.html" style="padding: 10px 20px;">Visualization</a>
+                                </li>
+                                <li class="u-nav-item">
+                                    <a class="u-button-style u-nav-link" href="Sources.html" style="padding: 10px 20px;">Sources</a>
+                                </li>
+                                <li class="u-nav-item">
+                                    <a class="u-button-style u-nav-link" href="Our-Team.html" style="padding: 10px 20px;">Our Team</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="u-black u-menu-overlay u-opacity u-opacity-70"></div>
+                </div>
+            </nav>
+        </div>
+    </header>
     <section class="u-clearfix u-grey-15 u-section-1" id="sec-8bbd">
-      <div class="u-clearfix u-sheet u-sheet-1">
-        <h5 class="u-text u-text-1">What is <span style="font-style: italic;">R</span> ?
-        </h5>
-        <p class="u-align-justify u-custom-font u-font-roboto-condensed u-text u-text-2">The effective reproductive
-number <span style="font-style: italic;">R</span>
-          <span style="font-style: italic;">t</span> is the average number of secondary cases per infectious case in a
-population made up of both susceptible and non-susceptible hosts. It also is
-the number of people in a population who can be infected by an individual at
-any specific time. If R&gt;1, the number of cases will increase, such as at the
-start of an epidemic. Where R=1, the disease is endemic, and where R&lt;1 there
-will be a decline in the number of cases.<br>
-        </p>
-      </div>
+        <div class="u-clearfix u-sheet u-sheet-1">
+            <h5 class="u-text u-text-1">
+                What is <span style="font-style: italic;">R</span> ?
+            </h5>
+            <p class="u-align-justify u-custom-font u-font-roboto-condensed u-text u-text-2">
+                The effective reproductive
+                number <span style="font-style: italic;">R</span>
+                <span style="font-style: italic;">t</span> is the average number of secondary cases per infectious case in a
+                population made up of both susceptible and non-susceptible hosts. It also is
+                the number of people in a population who can be infected by an individual at
+                any specific time. If R&gt;1, the number of cases will increase, such as at the
+                start of an epidemic. Where R=1, the disease is endemic, and where R&lt;1 there
+                will be a decline in the number of cases.<br>
+            </p>
+        </div>
     </section>
     <section class="u-clearfix u-section-2" id="sec-54f0">
-      <div class="u-clearfix u-sheet u-sheet-1">
-        <h1 class="u-text u-text-default u-text-1"> The Effective Reproduction Rate (<i>R</i>) of COVID-19 
-        </h1>
-      </div>
+        <div class="u-clearfix u-sheet u-sheet-1">
+            <h1 class="u-text u-text-default u-text-1">
+                The Effective Reproduction Rate (<i>R</i>) of COVID-19
+            </h1>
+        </div>
     </section>
+    <div id="my_Visualization" class="flex-container">
+        <div id="userInput" class="flex-child"> </div>
+        <div id="my_chart" class="flex-child">
+        </div>
+    </div>
+    <div id="my_Visualization_vaccine">
+        <div id="vaccine_chart" class="flex-child">
+        </div>
+        <div id="VacuserInput" class="flex-child"> </div>
+    </div>
     <section class="u-clearfix u-section-3" id="sec-170b">
-      <div class="u-clearfix u-sheet u-sheet-1">
-        <h1 class="u-text u-text-default u-text-1"> Effective Reproduction Rate (<i>R</i>) VS Vaccination Rate
-        </h1>
-        <div class="u-image u-image-circle u-image-1" alt="" data-image-width="1300" data-image-height="600"></div>
-        <p class="u-align-left u-custom-font u-heading-font u-small-text u-text u-text-variant u-text-2">
-          <span style="font-style: italic;">Last updated on 16 September 2021</span>
-          <br>
-        </p>
-      </div>
+        <div class="u-clearfix u-sheet u-sheet-1">
+            <h1 class="u-text u-text-default u-text-1">
+                Effective Reproduction Rate (<i>R</i>) VS Vaccination Rate
+            </h1>
+            <div class="u-image u-image-circle u-image-1" alt="" data-image-width="1300" data-image-height="600"></div>
+            <p class="u-align-left u-custom-font u-heading-font u-small-text u-text u-text-variant u-text-2">
+                <span style="font-style: italic;">Last updated on 16 September 2021</span>
+                <br>
+            </p>
+        </div>
     </section>
-    
-    
     <footer class="u-align-center u-clearfix u-footer u-palette-5-dark-2 u-footer" id="sec-bc06"><div class="u-clearfix u-sheet u-sheet-1"></div></footer>
-  </body>
+</body>
 </html>
