@@ -92,13 +92,6 @@
             console.log(min_date_vac)
             generateVisualization()
         })
-
-
-
-
-
-
-
         /* Graph #2 : Rt vs. Vax */
         var vaccine_dataset;
         var vac_legend_keys = [];
@@ -128,9 +121,10 @@
                 }
             })
         })
- 
+        // Master function to plot both graphs
         function generateVisualization() 
         {
+            // Graph canvas/div reserved for plotting
             var margin = { top: 10, right: 150, bottom: 100, left: 200 },
                 width = 900 - margin.left - margin.right
                 height = 450 - margin.top - margin.bottom
@@ -151,14 +145,14 @@
             {
                 vac_legend_keys.push(vaccine_dataset[i].key)
             }
-            //TODO add a color palette
+            //TODO add a color palette for provinces selected
             var color_palette = d3.scaleOrdinal().domain(legend_keys)
                 .range(d3.schemePaired)
             // TODO add an X axis
             var xScale = d3.scaleTime()
                 .domain([min_date, max_date])
                 .range([0, width])
-            // add in the X axis label
+            // add in the X axis label, which means the first date of each month
             svg.append("g")
                 .attr("transform", "translate (0," + height + ")") // move the axis down
                 .call(d3.axisBottom().scale(xScale).ticks(30).tickFormat(
@@ -180,55 +174,71 @@
                 .attr("dy", "0.50em")
                 .attr("transform", "rotate(25)") // No rotation of x axis labels??
             //   .attr("transform")
-            svg.append("text")
-                .attr("transform", "translate (" + (width / 2) + " ," +
-                    (height + margin.top + 70) + ")")
-                .style("text-anchor", "middle")
+
+            // DON'T NEED NAME FOR X AXIS AT THE BOTTOM FOR NOW: Graph 1
+            // svg.append("text")
+            //     .attr("transform", "translate (" + (width / 2) + " ," +
+            //         (height + margin.top + 70) + ")")
+            //     .style("text-anchor", "middle")
+
             //TODO add Y axis
             var yScale = d3.scaleLinear()
                 .domain([-0.6, Math.ceil(max_R) + 0.5])
                 .range([height, 0])
             svg.append("g")
                 .call(d3.axisLeft(yScale))
+            
                 // Added Y axis to the right as Per Professor Li, Longhai
             svg.append("g")
                 .attr("transform", "translate (" + width + ",0)")    
                 .call(d3.axisRight(yScale))
+
+            // DON'T NEED NAME FOR Y AXIS ON THE LEFT FOR NOW: Graph 1
             // adding y-axis Name
-            svg.append("text")
-                .attr("transform", "rotate(-90)")
-                .attr("y", 0 - 50)
-                .attr("x", 0 - (height / 2))
-                .attr("dy", "1em")
-                .style("text-anchor", "middle")
+            // svg.append("text")
+            //     .attr("transform", "rotate(-90)")
+            //     .attr("y", 0 - 50)
+            //     .attr("x", 0 - (height / 2))
+            //     .attr("dy", "1em")
+            //     .style("text-anchor", "middle")
+
             // area for creditable Bounds 65
             var ci65 = d3.area()
-                .x(function (d) {
+                .x(function (d) 
+                {
                     return xScale(format_date(d.date))
                 })
-                .y0(function (d) {
+                .y0(function (d) 
+                {
                     return yScale(parseFloat(d.ci_65_u))
                 })
-                .y1(function (d) {
+                .y1(function (d) 
+                {
                     return yScale(parseFloat(d.ci_65_l))
                 }) // the if condition is for empty data points
             // area for creditable Bounds 95
             var ci95 = d3.area()
-                .x(function (d) {
+                .x(function (d) 
+                {
                     return xScale(format_date(d.date))
                 })
-                .y0(function (d) {
+                .y0(function (d) 
+                {
                     return yScale(parseFloat(d.ci_95_u))
                 })
-                .y1(function (d) {
+                .y1(function (d) 
+                {
                     return yScale(parseFloat(d.ci_95_l))
                 }) // the if condition is for empty data points
+
             // add line area for credit_boundary 95
-            for (var i = 0; i < dataset.length; i++) {
+            for (var i = 0; i < dataset.length; i++) 
+            {
                 svg.append("path")
                     .datum(dataset[i].values)
                     .attr("fill", "none")
-                    .attr("id", function (d) {
+                    .attr("id", function (d) 
+                    {
                         return "ci95" + d[i].province.split(" ").join("")
                     })
                     .attr("stroke", "blue")
@@ -238,11 +248,13 @@
                     .attr("d", ci95)
             }
             // add line area for credit_boundary 65
-            for (var i = 0; i < dataset.length; i++) {
+            for (var i = 0; i < dataset.length; i++)
+             {
                 svg.append("path")
                     .datum(dataset[i].values)
                     .attr("fill", "none")
-                    .attr("id", function (d) {
+                    .attr("id", function (d)
+                     {
                         return "ci65" + d[i].province.split(" ").join("")
                     })
                     .attr("stroke", "lightsteelblue")
@@ -251,8 +263,9 @@
                     .attr("class", "area65")
                     .attr("d", ci65)
             }
-            //TODO add line
-            for (var i = 0; i < dataset.length; i++) {
+            //TODO add Rt line for each selected province
+            for (var i = 0; i < dataset.length; i++) 
+            {
                 svg.append("path")
                     .datum(dataset[i].values)
                     // .attr("class","line")
@@ -273,7 +286,7 @@
                             return yScale(parseFloat(d.R))
                         }))
             }
-            // adding an line at y=1
+            // adding an orange dash line at y=1 for Graph 1 
             svg.append("line")
                 .attr("x1", 0)
                 .attr("x2", width)
@@ -283,11 +296,12 @@
                 .attr("stroke-width", 1.5)
                 .style("stroke-dasharray", ("3, 3"))
                 .attr("fill", "black");
-
+            // Generate legend for each Rt line of each province
             var lineLegend = svg.selectAll(".lineLegend").data(legend_keys)
                 .enter().append("g")
                 .attr("class", "lineLegend")
-                .attr("transform", function (d, i) {
+                .attr("transform", function (d, i) 
+                {
                     return "translate (" + width + "," + (i * 20) + ")"
                 })
                 .attr("id", function (d) {
@@ -295,20 +309,22 @@
                 })
                 .style("display", "none")
                 .style("position", "absolute")
-            // generate the provinces name
-            lineLegend.append("text").text(function (d) {
+            // Generate the province name accordingly for each Rt line as part of the legend
+            lineLegend.append("text").text(function (d) 
+            {
                 return d;
             })                           //x, y in translate
                 .attr("transform", "translate(55,19)") // alignning with the box
-            // generate the colored squares
+            // Generate the colored squares accordingly for each Rt line as part of the legend
             lineLegend.append("rect")
-                .attr("fill", function (d, i) {
+                .attr("fill", function (d, i) 
+                {
                     return color_palette(d)
                 })                       //x, y in translate
                 .attr("transform", "translate(35,10)")
                 .attr("width", 10)
                 .attr("height", 10)
-            // adding a small legend for graph 1 for the credit boundary
+            // Adding a small legend for graph 1 for the 65 & 95 credit boundary
             svg.append("rect")
                 .attr('x', 390)
                 .attr('y', 30)
@@ -337,15 +353,15 @@
                 .attr('y', 20)
                 .text("65% Credible Bounds")
             // -------------------------------------------
-            // Sarting the plot for the Second Graphs
-            //TODO Vaccine graph svg
+            // Sarting the plot for the Second Graph
+            //TODO Vax Graph
             var svg_vac = d3.select("#vaccine_chart")
                 .append("svg")
                 .attr("width", width + margin.left + margin.right + 50)
                 .attr("height", height + margin.top + margin.bottom)
                 .append("g")
                 .attr("transform", "translate (" + margin.left + "," + margin.top + ")")
-            //TODO add x-axis
+            //TODO add x-axis of Vax Graph
             maxD = Math.min(max_date, max_date_vac)
             var xScale_vac = d3.scaleTime()
                 .domain([min_date, maxD])
@@ -370,13 +386,13 @@
                 .attr("dx", "4.75em")
                 .attr("dy", "0.50em")
                 .attr("transform", "rotate(30)")//same rotation degree as graph 1
-            //TODO add Y axis for the R vale
+            //TODO add Y axis for the Rt vale
             var yScale = d3.scaleLinear()
                 .domain([0, Math.ceil(max_R)])
                 .range([height, 0])
             svg_vac.append("g")
                 .call(d3.axisLeft(yScale))
-            //TODO add Y axis for Vaccine rate
+            //TODO add Y axis for Vax rate
             var yScale_vacRate = d3.scaleLinear()
                 .domain([0, 100])
                 .range([height, 0])
@@ -393,7 +409,7 @@
             //     .range([height, 0])
             svg_vac.append("g")
                 .call(d3.axisLeft(yScale))
-            // adding y-axis name for R-value
+            // adding y-axis name for Rt
             svg_vac.append("text")
                 .attr("transform", "rotate(-90)")
                 .attr("y", 0 - 50)
@@ -429,7 +445,7 @@
                 .attr("dy", "1em")
                 .style("text-anchor", "middle")
                 .text(")")
-            // adding y-axis name for Vaccine
+            // adding y-axis name for Vax Rate
             svg_vac.append("text")
                 .attr("transform", "rotate(-90)")
                 .attr("y", width + 30)
@@ -455,27 +471,33 @@
                 .text(")")
             // define the area of 1st dose
             var area = d3.area()
-                .x(function (d) {
+                .x(function (d) 
+                {
                     return xScale_vac(format_date(d.week_end))
                 })
                 .y0(height)
-                .y1(function (d) {
+                .y1(function (d) 
+                {
                     return yScale_vacRate(parseFloat(d.proptotal_atleast1dose))
                 })
             // area of fully vaccinated
             var area_full = d3.area()
-                .x(function (d) {
+                .x(function (d) 
+                {
                     return xScale_vac(format_date(d.week_end))
                 })
                 .y0(height)
-                .y1(function (d) {
-                    if (d.proptotal_fully == "") {
+                .y1(function (d) 
+                {
+                    if (d.proptotal_fully == "") 
+                    {
                         return yScale_vacRate(0)
                     }
                     else return yScale_vacRate(parseFloat(d.proptotal_fully))
                 }) // the if condition is for empty data points
             // add the first dose vaccine line
-            for (var i = 0; i < vaccine_dataset.length; i++) {
+            for (var i = 0; i < vaccine_dataset.length; i++)
+             {
                 svg_vac.append("path")
                     .datum(vaccine_dataset[i].values)
                     .attr("fill", "none")
@@ -486,7 +508,9 @@
                     .attr("class", "area")
                     .attr("d", area)
             }
-            for (var i = 0; i < vaccine_dataset.length; i++) {
+            // add the second dose vaccine line
+            for (var i = 0; i < vaccine_dataset.length; i++)
+             {
                 svg_vac.append("path")
                     .datum(vaccine_dataset[i].values)
                     .attr("fill", "none")
@@ -497,13 +521,15 @@
                     .attr("class", "area_full")
                     .attr("d", area_full)
             }
-            // add R-value lines
-            for (var i = 0; i < dataset.length; i++) {
+            // add Rt lines
+            for (var i = 0; i < dataset.length; i++)
+             {
                 svg_vac.append("path")
                     .datum(dataset[i].values)
                     // .attr("class","line")
                     .attr("fill", "none")
-                    .attr("id", function (d) {
+                    .attr("id", function (d)
+                     {
                         return "R" + d[i].province.split(" ").join("")
                     }) // get rid of space so it's easier to get the id
                     .attr("stroke", "red")
@@ -511,13 +537,16 @@
                     // .style("opacity",1.0)
                     .style("display", "none")
                     .attr("d", d3.line()
-                        .x(function (d) {
+                        .x(function (d) 
+                        {
                             return xScale(format_date(d.date))
                         })
-                        .y(function (d) {
+                        .y(function (d) 
+                        {
                             return yScale(parseFloat(d.R))
                         }))
             }
+            // adding an orange dash line at y=1 for Graph 2 
             svg_vac.append("line")
                 .attr("x1", 0)
                 .attr("x2", width)
@@ -568,16 +597,19 @@
         }
         $(document).ready(function () 
         {
+            /* Graph 1 Dropdown Menu */
             var parentDiv = document.getElementById("userInput")
-            var vac_parentDiv = document.getElementById("VacuserInput")
             // TODO creating all of the text for each selected province
             var unOrderList = document.createElement("ul")
-            for (var i = 0; i < legend_keys.length; i++) {
+            for (var i = 0; i < legend_keys.length; i++) 
+            {
                 var list_item = document.createElement("li")
                 list_item.id = "list" + legend_keys[i].split(" ").join("")
                 list_item.innerHTML = legend_keys[i]
                 list_item.style.display = "none"
-                list_item.onclick = function () {
+                // Click to hide elements
+                list_item.onclick = function () 
+                {
                     hide_element(this.id)
                 }
                 unOrderList.append(list_item)
@@ -587,10 +619,11 @@
             var label = document.createElement("label")
             label.for = "s"
             label.innerHTML = " ✓ "
-            // adding in a dropdown menu
+            // Adding in a dropdown menu for Graph 1
             var select_province = document.createElement("select")
             select_province.id = "province_select"
-            select_province.onchange = function () {
+            select_province.onchange = function () 
+            {
                 select_change(this.value)
             }
             //Added "None" as a default selection when index.html is loaded by WL
@@ -609,40 +642,16 @@
                 new_opt.innerHTML = legend_keys[i]
                 select_province.append(new_opt)
             }
-            // add dropdown menu
+            // Adding text label, drop down list, and provinces chosen in textbox?
             parentDiv.append(label)
             parentDiv.append(select_province)
             parentDiv.append(unOrderList)
-            //---------------------------------------------
-            // Drowp down menu for the Second graph
-            var label_vac = document.createElement("label")
-            label_vac.for = "s"
-            label_vac.innerHTML = " ← "
-            var select_province_vac = document.createElement("select")
-            select_province_vac.id = "province_select_vac"
-            select_province_vac.onchange = function () {
-                select_vac_change(this.value)
-            }
-            var new_opt = document.createElement("option")
-            new_opt.id = "select_vac" + legend_keys[i]
-            new_opt.value = "None"
-            new_opt.innerHTML = "None"
-            select_province_vac.append(new_opt)
-            for (var i = 0; i < legend_keys.length; i++) {
-                var new_opt = document.createElement("option")
-                new_opt.id = "select_vac" + legend_keys[i]
-                new_opt.value = legend_keys[i]
-                new_opt.innerHTML = legend_keys[i]
-                select_province_vac.append(new_opt)
-            }
-            vac_parentDiv.append(label_vac)
-            vac_parentDiv.append(select_province_vac)
-            // ----------------------------------------------------
             /**
              * Function to display the slected province for graph 1
              * R value
             */
-            function select_change(selected_value) {
+            function select_change(selected_value) 
+            {
                 var select_path = d3.select("path#" + selected_value.split(" ").join(""))
                 var select_legend = d3.select("g#" + selected_value.split(" ").join(""))
                 var select_65 = d3.select("path#ci65" + selected_value.split(" ").join(""))
@@ -656,9 +665,62 @@
                 province_name = document.getElementById("list" + selected_value.split(" ").join(""))
                 province_name.style.display = "block"
             }
+
+            // What does this one do?
             console.log(legend_keys)
+
+            // function to hide the selected elements
+            function hide_element(selected_ele) 
+            {
+                var ele = selected_ele.slice(4)
+                var select_path = d3.select("path#" + ele)
+                var select_legend = d3.select("g#" + ele)
+                var select_95 = d3.select("path#ci95" + ele)
+                var select_65 = d3.select("path#ci65" + ele)
+                select_path.style("display", "none")
+                select_legend.style("display", "none")
+                select_95.style("display", "none")
+                select_65.style("display", "none")
+                province_name = document.getElementById("list" + ele)
+                province_name.style.display = "none"
+            }
+
+            //---------------------------------------------
+            // Drowp down menu for the Second graph
+            var vac_parentDiv = document.getElementById("VacuserInput")
+            var label_vac = document.createElement("label")
+            label_vac.for = "s"
+            label_vac.innerHTML = " ← "
+            var select_province_vac = document.createElement("select")
+            select_province_vac.id = "province_select_vac"
+            select_province_vac.onchange = function () 
+            {
+                select_vac_change(this.value)
+            }
+            var new_opt = document.createElement("option")
+            new_opt.id = "select_vac" + legend_keys[i]
+            //Added "None" as a default selection when index.html is loaded 
+            new_opt.value = "None"
+            new_opt.innerHTML = "None"
+            select_province_vac.append(new_opt)
+            for (var i = 0; i < legend_keys.length; i++) 
+            {
+                var new_opt = document.createElement("option")
+                new_opt.id = "select_vac" + legend_keys[i]
+                new_opt.value = legend_keys[i]
+                new_opt.innerHTML = legend_keys[i]
+                select_province_vac.append(new_opt)
+            }
+            // Adding text label and dropdown list
+            vac_parentDiv.append(label_vac)
+            vac_parentDiv.append(select_province_vac)
+
+            // What does this one do?
             console.log(vac_legend_keys)
-            var vac_dict = {
+
+            // Vax dictionary to matach Rt csv
+            var vac_dict = 
+            {
                 "Alberta": "Alberta",
                 "BC": "British Columbia",
                 "Manitoba": "Manitoba",
@@ -675,28 +737,34 @@
                 "NWT": "Northwest Territories"
             }
             // Function to hide everything but the Selected Province
-            function select_vac_change(selected_value) {
+            function select_vac_change(selected_value) 
+            {
                 var legendValue = d3.select("text#legend_label")
                 console.log(legendValue)
                 legendValue.text(selected_value)
-                // hiding all R-value line expect the selected value
+                // hiding all Rt lines expect the selected value
                 console.log(selected_value)
-                for (var i = 0; i < legend_keys.length; i++) {
+                for (var i = 0; i < legend_keys.length; i++) 
+                {
                     var path = d3.select("path#R" + legend_keys[i].split(" ").join(""))
-                    if (selected_value == legend_keys[i]) {
+                    if (selected_value == legend_keys[i]) 
+                    {
                         path.style("display", "block")
                     }
-                    else {
+                    else 
+                    {
                         path.style("display", "none")
                     }
                 }
                 var vac1_path = vac_dict[selected_value]
                 // changing all the 1st does and fully vaccinated plot, so that everything is
                 // hidden expect for the selected province
-                for (var i = 0; i < vac_legend_keys.length; i++) {
+                for (var i = 0; i < vac_legend_keys.length; i++) 
+                {
                     var dose1_path = d3.select("path#Vac1" + vac_legend_keys[i].split(" ").join(""))
                     var fullVac_path = d3.select("path#VacFull" + vac_legend_keys[i].split(" ").join(""))
-                    if (vac1_path == vac_legend_keys[i]) {
+                    if (vac1_path == vac_legend_keys[i]) 
+                    {
                         dose1_path.style("display", "block")
                         fullVac_path.style("display", "block")
                     }
@@ -705,21 +773,6 @@
                         fullVac_path.style("display", "none")
                     }
                 }
-            }
-            // function to hide the selected elements
-            function hide_element(selected_ele) 
-            {
-                var ele = selected_ele.slice(4)
-                var select_path = d3.select("path#" + ele)
-                var select_legend = d3.select("g#" + ele)
-                var select_95 = d3.select("path#ci95" + ele)
-                var select_65 = d3.select("path#ci65" + ele)
-                select_path.style("display", "none")
-                select_legend.style("display", "none")
-                select_95.style("display", "none")
-                select_65.style("display", "none")
-                province_name = document.getElementById("list" + ele)
-                province_name.style.display = "none"
             }
         })
     </script>
