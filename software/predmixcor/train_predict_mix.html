@@ -1,0 +1,236 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>R: Classification rule based on Bayesian  mixture models with feature
+selection bias corrected</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" type="text/css" href="../../R.css">
+</head><body>
+
+<table width="100%" summary="page for train_predict_mix {predmixcor}"><tr><td>train_predict_mix {predmixcor}</td><td align="right">R Documentation</td></tr></table>
+<h2>Classification rule based on Bayesian  mixture models with feature
+selection bias corrected</h2>
+
+
+<h3>Description</h3>
+
+<p>
+<code>train_predict_mix</code> predicts the binary response based on
+high dimemsional binary features modeled with Bayesian mixture 
+models. The model is trained with Gibbs sampling. A smaller number
+of features can be selected based on the correlations with the
+response. The bias due to the selection procedure can be corrected.
+The software is written entirely with R language.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+
+train_predict_mix(
+         test,train,k,
+         theta0=0,alpha.shape=0.5,alpha.rate=5,no.alpha=30,
+         common.alpha=FALSE,no.alpha0=100,
+         mc.iters=200,iters.labeltheta=10,
+         iters.theta=20,width.theta=0.1,
+         correction=TRUE,no.theta.adj=30,approxim=TRUE,
+         pred.start=100)
+
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>test</code></td>
+<td>
+a binary test data, a matrix, i.e. the data for which we want to
+predict the responses. The row stands for the cases. The first column is
+the binary response, which could be NA if they are missing.</td></tr>
+<tr valign="top"><td><code>train</code></td>
+<td>
+a training data, of the same format as <code>test</code></td></tr>
+<tr valign="top"><td><code>k</code></td>
+<td>
+the number of features retained</td></tr>
+<tr valign="top"><td><code>theta0</code></td>
+<td>
+the prior of "theta" is uniform over (<code>theta0</code>,
+<code>1-theta0</code>) </td></tr>
+<tr valign="top"><td><code>alpha.shape</code></td>
+<td>
+the shape parameter of the Inverse Gamma, which is the prior
+distribution of  "alpha"</td></tr>
+<tr valign="top"><td><code>alpha.rate</code></td>
+<td>
+the rate parameter of the Inverse Gamma, as above</td></tr>
+<tr valign="top"><td><code>no.alpha</code></td>
+<td>
+the number of "alpha"'s used in mid-point rule, which is used to
+approximate the integral with respect to "alpha".</td></tr>
+<tr valign="top"><td><code>common.alpha</code></td>
+<td>
+Indicator whether the parameter "alpha" for the response
+(i.e "alpha0" in the reference) and the parameter "alpha"
+for the features are the same. By default they are two
+independent paramters with the same prior distribution, i.e,
+<code>common.alpha=FALSE</code>.</td></tr>
+<tr valign="top"><td><code>no.alpha0</code></td>
+<td>
+the number of "alpha0"'s used in mid-point rule, which is used to
+approximate the integral with respect to "alpha0".. This parameter
+takes effect only when <code>common.alpha=FALSE</code>. Otherwise ``alpha''
+and ``alpha0'' are the same.</td></tr>
+<tr valign="top"><td><code>mc.iters</code></td>
+<td>
+iterations of Gibbs sampling used to train the model.</td></tr>
+<tr valign="top"><td><code>iters.labeltheta</code></td>
+<td>
+In each Gibbs iteration, the combination of updating the 
+``labels'' once and updating the ``theta'' is repeated
+<code>iters.labeltheta</code> times, and then ``alpha'' and
+``alpha0'' are updated once.</td></tr>
+<tr valign="top"><td><code>iters.theta</code></td>
+<td>
+iterations of updating "theta" using M-H method.</td></tr>
+<tr valign="top"><td><code>width.theta</code></td>
+<td>
+the proposal distribution used to update "theta" with
+Metropolis-Hastings method is uniform over the interval
+(current "theta" +- <code>width.theta</code>).</td></tr>
+<tr valign="top"><td><code>correction</code></td>
+<td>
+Indicator whether the correction method shall be applied</td></tr>
+<tr valign="top"><td><code>no.theta.adj</code></td>
+<td>
+the parameter in Simpson's rule used to evaluate the integration
+w.r.t. "theta", which is needed in calculating the adjustment
+factor. The integrant is evaluated at 2*(<code>no.theta.adj</code>)+1 
+points. </td></tr>
+<tr valign="top"><td><code>approxim</code></td>
+<td>
+Indicator whether the adjustment factor is ignored in 
+updating the labels (laten values). In theory it should be
+considered. However, it has little actual effect, but costs
+much computation, since we need to recompute the adjustment
+factor when updating the label of each case. By default,
+<code>approxim=TRUE</code></td></tr>
+<tr valign="top"><td><code>pred.start</code></td>
+<td>
+The Markov chain iterations after <code>pred.start</code> will be used to
+make Monte Carlo estimation</td></tr>
+</table>
+
+<h3>Value</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>prediction</code></td>
+<td>
+a matrix showing the detailed prediction result:  the 1st column
+being the true responses,  the 2nd being the predicted responses, 
+the 3rd being the predictive probabilities of class 1  and the 4th
+being the indicator whether wrong prediction  is made.</td></tr>
+<tr valign="top"><td><code>aml</code></td>
+<td>
+the average minus log probabilities </td></tr>
+<tr valign="top"><td><code>error.rate</code></td>
+<td>
+the ratio of wrong prediction </td></tr>
+<tr valign="top"><td><code>mse</code></td>
+<td>
+the average square error of the predictive probabilities </td></tr>
+<tr valign="top"><td><code>summary.pred</code></td>
+<td>
+tabular display of the predictive probabilities 
+and the actual fraction of class 1. </td></tr>
+<tr valign="top"><td><code>features.selected</code></td>
+<td>
+The features selected using correlation criterion</td></tr>
+<tr valign="top"><td><code>label</code></td>
+<td>
+the Markov chain samples of latent values, with each column for an
+iteration. The number of rows of <code>label</code> is equal to the number of
+training cases.</td></tr>
+<tr valign="top"><td><code>I1</code></td>
+<td>
+the number of ``1''s of features (columns) in those cases labeled by 
+``1'', counted for each Markov chain iterations (row).</td></tr>
+<tr valign="top"><td><code>I2</code></td>
+<td>
+Similar as <code>I1</code>, but for those cases labeled by ``2''.</td></tr>
+<tr valign="top"><td><code>N1</code></td>
+<td>
+a vector recording the number of cases labeled by ``1'' for each Markov 
+chain iteration.</td></tr>
+<tr valign="top"><td><code>N2</code></td>
+<td>
+a vector recording the number of cases labeled by ``2'' for each Markov 
+chain iteration.</td></tr>
+<tr valign="top"><td><code>theta</code></td>
+<td>
+Markov chain samples of ``theta". Each row is an iteration.</td></tr>
+<tr valign="top"><td><code>alpha</code></td>
+<td>
+a vector storing the Markov chain samples of ``alpha''.</td></tr>
+<tr valign="top"><td><code>alpha0</code></td>
+<td>
+a vector storing the Markov chain samples of ``alpha0''.</td></tr>
+<tr valign="top"><td><code>alpha_set</code></td>
+<td>
+all the possible values the ``alpha'' can take. The prior of 
+``alpha'' is approximated by the uniform over this set.</td></tr>
+<tr valign="top"><td><code>alpha0_set</code></td>
+<td>
+all the possible values the ``alpha0'' can take. The prior of 
+``alpha0'' is approximated by the uniform over this set.</td></tr>
+</table>
+
+<h3>References</h3>
+
+<p>
+http://math.usask.ca/~longhai/publication.html
+</p>
+
+
+<h3>See Also</h3>
+
+<p>
+<code><a href="gendata.html">gendata.mix</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+#simulating data set from a Bayesian mixture model
+data &lt;- gendata.mix(20,20,50,50,101,10,c(0.9,0.1))
+
+#training the model using Gibbs sampling, without correcting for the feature
+#selection bias, then testing on predicting the responses of the test cases, 
+
+predict.uncor &lt;- train_predict_mix(
+            test=data$test,train=data$train,k=5,    
+            theta0=0,alpha.shape=0.5,alpha.rate=5,no.alpha=5,
+            common.alpha=FALSE,no.alpha0=100,
+            mc.iters=30,iters.labeltheta=1,
+            iters.theta=10,width.theta=0.1,
+            correction=FALSE,no.theta.adj=5,approxim=TRUE,
+            pred.start=10)
+
+#As above, but with the feature selection bias corrected
+predict.cor &lt;-   train_predict_mix(
+            test=data$test,train=data$train,k=5,    
+            theta0=0,alpha.shape=0.5,alpha.rate=5,no.alpha=5,
+            common.alpha=FALSE,no.alpha0=100,
+            mc.iters=30,iters.labeltheta=1,
+            iters.theta=10,width.theta=0.1,
+            correction=TRUE,no.theta.adj=5,approxim=TRUE,
+            pred.start=10)
+
+</pre>
+
+
+
+<hr><div align="center">[Package <em>predmixcor</em> version 1.1-1 <a href="00Index.html">Index]</a></div>
+
+</body></html>
