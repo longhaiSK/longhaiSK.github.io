@@ -1,0 +1,161 @@
+---
+title: "[STAT 812: Computational Statistics](../stat812.html)"
+subtitle: "Introduction to Markov Chain Convergence"
+date: "September 2018"
+author: "Longhai Li"
+output:
+  pdf_document:
+    toc: yes
+    fig_height: 6
+    fig_width: 10
+    number_sections: yes
+  html_document:
+       theme: united
+       toc: true
+       toc_float: true
+       number_sections: true
+       highlight: tango
+       fig_width: 10
+       fig_height: 8
+editor_options: 
+  chunk_output_type: console
+---
+
+# Demonstration of the Convergence Theorem for MCMC
+## A function for simulating Markov chain
+```{r}
+## a function that similates a markov chain
+sim_one_mc <- function (ini, iters, n = 10)
+{
+    forward <- function(i) 
+    {  if( i == n - 1) 0 
+       else i + 1
+    }
+    backward <- function(i)
+    {  if( i == 0 ) n - 1
+       else i - 1
+    }
+    
+    mc <- rep (0, iters + 1)
+    mc[1] <- ini
+    for (i in 2: (iters+1))
+    {
+        
+        u <- runif(1)
+        if(u < 0.45)  mc[i] <- forward(mc[i-1])
+        else if( u > 0.55 ) mc[i] <- backward(mc[i-1])
+        else mc[i] <- mc[i-1]
+        
+    }
+    mc
+}
+
+```
+
+## Simulate Multiple Chains
+
+```{r}
+plot(one_mc <- sim_one_mc (2,100) , type = "l", xlab = "MCMC Iteration")
+abline (h = 0:9, lty = 2)
+
+## simulate 1000 chain
+multiple_mc <- replicate (10000, sim_one_mc (2, 100))
+#head (multiple_mc)
+matplot (multiple_mc[, 1:10], type = "b", xlab = "MCMC Iteration")
+
+## look at iteration 1
+barplot(table (multiple_mc[1,])) 
+
+## look at iteration 2
+barplot(table (multiple_mc[2,])) 
+
+## look at iteration 3
+barplot(table (multiple_mc[3,])) 
+
+## look at iteration 4
+barplot(table (multiple_mc[4,])) 
+
+## look at iteration 5
+barplot(table (multiple_mc[5,])) 
+
+## look at iteration 10
+barplot(table (multiple_mc[10,])) 
+
+## look at iteration 20
+barplot(table (multiple_mc[20,])) 
+
+## look at iteration 90
+barplot(table (multiple_mc[90,])) 
+```
+
+## Simulate a long chain
+
+```{r}
+plot(one_mc <- sim_one_mc (2,5000) , type = "l")
+## barplot of state distribution
+barplot(table (one_mc[-(1:20)]))
+## time correlation
+acf (one_mc)
+
+```
+
+# Simulate Another MC with Different Transition
+
+```{r}
+## a function that similates a markov chain
+sim_one_mc2 <- function (ini, iters, n = 10)
+{
+    forward <- function(i) 
+    {  if( i == n - 1) n-1 
+       else i + 1
+    }
+    backward <- function(i)
+    {  if( i == 0 ) 0
+       else i - 1
+    }
+    
+    mc <- rep (0, iters + 1)
+    mc[1] <- ini
+    for (i in 2: (iters+1))
+    {
+        
+        u <- runif(1)
+        if(u < 0.4)  mc[i] <- forward(mc[i-1])
+        else if( u > 0.8 ) mc[i] <- backward(mc[i-1])
+        else mc[i] <- mc[i-1]
+        
+    }
+    mc
+}
+
+a.short.chain <- sim_one_mc2 (2, 100)
+
+plot (a.short.chain,type = "b")
+
+
+## simulate 1000 chain
+
+multiple_mc <- replicate (1000, sim_one_mc2 (2, 500))
+#head (multiple_mc)
+matplot (multiple_mc[, 1:10], type = "b", xlab = "MCMC Iteration")
+
+## look at iteration 1
+barplot(table (multiple_mc[1,])/1000) 
+
+## look at iteration 2
+barplot(table (multiple_mc[2,])/1000) 
+
+## look at iteration 10
+barplot(table (multiple_mc[10,])/1000) 
+
+## look at iteration 500
+barplot(table (multiple_mc[500,])/1000)
+
+a.long.chain <- sim_one_mc2 (2, 5000)
+
+plot (a.long.chain,type = "b")
+
+barplot(table(a.long.chain)/5000)
+
+```
+

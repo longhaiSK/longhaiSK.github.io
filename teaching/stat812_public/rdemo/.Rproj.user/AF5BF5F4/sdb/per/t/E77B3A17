@@ -1,0 +1,17 @@
+{
+    "contents" : "#install.packages (\"ars\") \n\nlibrary (ars) \n\n## a direct rejection sampling for truncated normal\nsample_tnorm_drs <- function (n, lb = -Inf, ub = Inf)\n{\n    x <- rep (0, n)\n    for (i in 1:n)\n    {\n        rej <- TRUE\n        while (rej)\n        {\n            x[i] <- rnorm (1)\n            if (x[i] >= lb & x[i] <= ub) rej <- FALSE\n        }\n    }\n    x\n}\n\n## sample from truncated normal using ars package\nsample_tnorm_ars <- function (n, lb, ub)\n{\n    logf <- function (x) dnorm (x, log = TRUE) ## define log density\n    fprima <- function (x) -x ## define derivative of log density\n    \n    ars (10000, f = logf, fprima = fprima, \n         x = c(lb, (lb + ub )/2, ub), # starting points\n         lb = TRUE, ub = TRUE, xlb = lb, xub = ub) # boundary of log density\n}\n\nsystem.time (\n    rn_tnorm_ars <- sample_tnorm_ars (n, -5, -2)\n)\nsystem.time(\nrn_tnorm_rej <- sample_tnorm_drs (10000, -5, -2)\n)\n\npar (mfrow = c(1,3))\nhist (rn_tnorm_ars, main = \"ars\")\nhist (rn_tnorm_rej, main = \"naive rejection\")\nqqplot (rn_tnorm_ars, rn_tnorm_rej)\n\n## remark: a C implementation of ars by L. Li can be found from \n## http://math.usask.ca/~longhai/software/ars/ars.html\n",
+    "created" : 1478100738769.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3520014722",
+    "id" : "E77B3A17",
+    "lastKnownWriteTime" : 1477677705,
+    "path" : "T:/ownCloud/files/teaching/stat812-1609/rdemo/ars_tnorm.R",
+    "project_path" : "ars_tnorm.R",
+    "properties" : {
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "type" : "r_source"
+}
