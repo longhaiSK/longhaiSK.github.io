@@ -1,0 +1,203 @@
+---
+title: "[STAT 812: Computational Statistics](../stat812.html)"
+subtitle: "Laplace Method for Approximating Marginal Likelihood of Gaussian"
+date: "March 2020"
+author: "Longhai Li"
+output:
+  html_document:
+       theme: united
+       toc: true
+       toc_float: no
+       number_sections: true
+       highlight: tango
+       fig_width: 10
+       fig_height: 8
+  pdf_document:
+    toc: yes
+    fig_height: 6
+    fig_width: 10
+    number_sections: yes
+---
+
+
+# Laplace Approximation
+```{r}
+## the generic function for finding laplace approximation of integral of 'f'
+## neg_log_f    --- the negative log of the intergrand function
+## p0           --- initial value in searching mode
+## ...          --- other arguments needed by neg_log_f
+bayes_inference_lap <- function(neg_log_f,p0,...)
+{   ## looking for the mode and hessian of the log likehood function
+    result_min <- nlm(f=neg_log_f,p=p0, hessian=TRUE,...)
+    hessian <- result_min$hessian
+    neg_log_like_mode <- result_min$minimum
+    
+    
+    estimates <- result_min$estimate ## posterior mode
+    SIGMA <- solve(result_min$hessian) ## covariance matrix of posterior mode
+    sds <- sqrt (diag(SIGMA)) ## standard errors of each estimate
+    log_mar_lik <- ## log marginalized likelihood
+        - neg_log_like_mode + 0.5 * ( sum(log(2*pi) - log(svd(hessian)$d) ))
+    
+    list (estimates = estimates, sds = sds, SIGMA = SIGMA, log_mar_lik = log_mar_lik)
+}
+
+## the function for computing log likelihood of normal data
+## mu is the unknown mean, and w is the log of standard deviation (sd)
+log_lik <- function(x,mu,w)
+{   sum(dnorm(x,mu,exp(w),log=TRUE))
+}
+
+## the function for computing log prior
+log_prior <- function(mu,w, mu_0,sigma_mu,w_0,sigma_w)
+{   dnorm(mu,mu_0,sigma_mu,log=TRUE) + dnorm(w,w_0,sigma_w,log=TRUE)
+}
+
+## the function for computing the negative log of likelihood * prior
+neg_log_post <- function(x, theta, mu_0,sigma_mu,w_0,sigma_w)
+{   - log_lik(x,theta[1], theta[2]) - log_prior(theta[1],theta[2],mu_0,sigma_mu,w_0,sigma_w)
+}
+
+
+
+## approximating the log of integral of likelihood * prior
+bayes_inference_lap_gaussian <- function(x,mu_0,sigma_mu,w_0,sigma_w)
+{   bayes_inference_lap(
+                neg_log_post,p0=c(mean(x),log(sqrt(var(x)))),
+                x=x,mu_0=mu_0,sigma_mu=sigma_mu,w_0=w_0,sigma_w=sigma_w
+    )
+}
+```
+
+# Mid-point Rule
+
+```{r}
+## the function for computing log likelihood of normal data
+log_lik <- function(x,mu,w)
+{   sum(dnorm(x,mu,exp(w),log=TRUE))
+}
+
+## the function for computing log prior
+log_prior <- function(mu,w, mu_0,sigma_mu,w_0,sigma_w)
+{   dnorm(mu,mu_0,sigma_mu,log=TRUE) + dnorm(w,w_0,sigma_w,log=TRUE)
+}
+
+## the function for computing the unormalized log posterior 
+## given transformed mu and w 
+log_post_tran <- function(x, mu_t, w_t, mu_0,sigma_mu,w_0,sigma_w)
+{
+    #log likelihood
+    log_lik(x,logi(mu_t), logi(w_t)) +
+    #log prior 
+    log_prior(logi(mu_t), logi(w_t), mu_0,sigma_mu,w_0,sigma_w) + 
+    #log derivative of transformation
+    log_der_logi(mu_t) + log_der_logi(w_t)
+}
+
+## the logistic function for transforming (0,1) value to (-inf,+inf)
+logi <- function(x)
+{  log(x) - log(1-x)
+}
+
+## the log derivative of logistic function 
+log_der_logi <- function(x)
+{  -log(x) - log(1-x)
+}
+
+## the generic function for approximating 1-D integral with midpoint rule
+## the logarithms of the function values are passed in
+## the log of the integral result is returned
+
+## log_f  --- a function computing the logarithm of the integrant function
+## range  --- the range of integral varaible, a vector of two elements
+## n      --- the number of points at which the integrant is evaluated
+## ...    --- other parameters needed by log_f
+log_int_mid <- function(log_f, range, n,...)
+{   if(range[1] >= range[2]) 
+        stop("Wrong ranges")
+    h <- (range[2]-range[1]) / n
+    v_log_f <- sapply(range[1] + (1:n - 0.5) * h, log_f,...)
+    log_sum_exp(v_log_f) + log(h)       
+}
+
+## a function computing the sum of numbers represented with logarithm
+## lx     --- a vector of numbers, which are the log of another vector x.
+## the log of sum of x is returned
+log_sum_exp <- function(lx)
+{   mlx <- max(lx)
+    mlx + log(sum(exp(lx-mlx)))
+}
+
+## a function computing the normalization constant
+log_mar_gaussian_mid <- function(x,mu_0,sigma_mu,w_0,sigma_w,n)
+{
+    ## function computing the normalization constant of with mu_t fixed
+    log_int_gaussian_mu <- function(mu_t)
+    {   log_int_mid(log_f=log_post_tran,range=c(0,1),n=n,
+                    x=x,mu_t=mu_t,mu_0=mu_0,sigma_mu=sigma_mu,
+                    w_0=w_0,sigma_w=sigma_w)
+    }
+    
+    log_int_mid(log_f=log_int_gaussian_mu,range=c(0,1), n=n)
+}
+
+
+```
+
+# Naive Monte Carlo For Computinglog  Marginalized Likelihood
+```{r}
+## we use Monte Carlo method to debug the above function
+log_mar_gaussian_mc <- function(x,mu_0,sigma_mu,w_0,sigma_w,iters_mc)
+{
+    ## draw samples from the priors
+    mus <- rnorm(iters_mc,mu_0,sigma_mu)
+    ws <- rnorm(iters_mc,w_0,sigma_w)
+    one_log_lik <- function(i)
+    {  log_lik(x,mus[i],ws[i])
+    }
+    v_log_lik <- sapply(1:iters_mc,one_log_lik)
+    log_sum_exp(v_log_lik) - log(iters_mc)
+}
+
+```
+
+# Testing and comparing Laplace and Mid-point Approximation
+
+```{r cache=TRUE}
+## test with a data set with mean 5
+x <- rnorm(50, mean = 5)
+## True values for mu and log (sigma)
+5; log(1)
+bayes_inference_lap_gaussian(x,0,100,0,5)
+## compare with naive Monte carlo and midpoint rule for computing log mar lik.
+log_mar_gaussian_mc(x,0,100,0,5,1000000)
+log_mar_gaussian_mid(x,0,100,0,5,100)
+
+
+x <- rnorm(50, mean = -5)
+## True values for mu and log (sigma)
+-5; log(1)
+
+bayes_inference_lap_gaussian(x,0,100,0,5)
+log_mar_gaussian_mc(x,0,100,0,5,1000000)
+log_mar_gaussian_mid(x,0,100,0,5,100)
+
+x <- rnorm(50, mean = -50, sd = 4)
+## True values for mu and log (sigma)
+5; log(4)
+
+bayes_inference_lap_gaussian(x,0,100,0,5)
+log_mar_gaussian_mc(x,0,100,0,5,10000000)
+log_mar_gaussian_mid(x,0,100,0,5,100)
+
+x <- rnorm(50, mean = -50, sd = 10)
+## True values for mu and log (sigma)
+5; log(10)
+
+bayes_inference_lap_gaussian(x,0,100,0,5)
+log_mar_gaussian_mc(x,0,100,0,5,1000000)
+log_mar_gaussian_mid(x,0,100,0,5,100)
+  
+```
+
+We see that mid point rule may not work well. The reason is that in applying mid-point numerical quadrature, we use "logistic" transformation which assigns more points around "zero" but the integrant function has high density in the region around -50 for $\mu$, and $\log(10)= 2.3$ for $w$. 

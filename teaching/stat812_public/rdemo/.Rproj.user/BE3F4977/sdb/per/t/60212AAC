@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "source (\"ars_tnorm.R\")\n\n######################### estimate P(a < X < b) ##############################\n## estimating the probability P(X in A) for X ~ N(0,1) \n## by sampling from N(0,1)\nest_normprob_mc <- function(A,iters_mc)\n{\n     X <- rnorm(iters_mc)\n     mean((X > A[1]) * (X<A[2]))\n}\n\n## estimating the probability P(X in A) for X ~ N(0,1) \n## by sampling from Unif(A[1],A[2])\nest_normprob_imps <- function(A, iters_mc)\n{\n     X <- runif(iters_mc,A[1],A[2])\n     mean(dnorm(X))*(A[2]-A[1])\n}\n \nA <- c(1,2)\ntp <- pnorm (A[2]) - pnorm (A[1])\nprobs_mc <- replicate(1000,est_normprob_mc(A,100))\nprobs_imps <- replicate(1000,est_normprob_imps(A,100))\nvar(probs_mc)\nvar(probs_imps)\n\nA <- c(-3,3)\ntp <- pnorm (A[2]) - pnorm (A[1])\n\nprobs_mc <- replicate(1000,est_normprob_mc(A,100))\nprobs_imps <- replicate(1000,est_normprob_imps(A,100))\nmean((probs_mc-tp)^2)\nmean((probs_imps-tp)^2)\n\n######################### Estimate E(X^2) ####################################\n\n## compute E(a) with importance sampling\nest_tnorm_imps <- function(a, A, iters_mc)\n{\n    X <- runif(iters_mc,A[1],A[2])\n    W <- dnorm (X)\n    ahat <- sum (a(X) * W) / sum (W)\n    attr(ahat, \"effective sample size\") <- 1/sum((W/sum(W))^2)\n    ahat\n}\n\n## a function computing the sum of numbers represented with logarithm\n## lx     --- a vector of numbers, which are the log of another vector x.\n## the log of sum of x is returned\nlog_sum_exp <- function(lx)\n{   mlx <- max(lx)\n    mlx + log(sum(exp(lx-mlx)))\n}\n\n## a generic function for approximating 1-D integral with midpoint rule\n## the logarithms of the function values are passed in\n## the log of the integral result is returned\n## log_f  --- a function computing the logarithm of the integrant function\n## range  --- the range of integral varaible, a vector of two elements\n## n      --- the number of points at which the integrant is evaluated\n## ...    --- other parameters needed by log_f\nlog_int_mid <- function(log_f, range, n,...)\n{   if(range[1] >= range[2]) \n    stop(\"Wrong ranges\")\n    h <- (range[2]-range[1]) / n\n    v_log_f <- sapply(range[1] + (1:n - 0.5) * h, log_f,...)\n    log_sum_exp(v_log_f) + log(h)       \n}\n\n## compute E(a) with midpoint rule\nest_tnorm_mid <- function (a, A, iters_mc)\n{\n    log_f <- function (x) dnorm (x, log = T) + log (a(x))\n    exp(log_int_mid (log_f, A, iters_mc) ) / (pnorm (A[2]) - pnorm (A[1]))\n}\n\n## define the function a\na <- function (x) x^2\n\nA <- est_tnorm_mid (a, c(1,2), 100000) ## midpoint rule\n\n## estimate E(a) with rejection sampling\nsystem.time(\n    {\n        rn_tnorm_ars <- sample_tnorm_ars (1000, 1,2) # draw samples from tnorm\n        mean (a (rn_tnorm_ars)) \n    }\n)\n\nsystem.time(\nest_tnorm_imps (a, c(1,2), 1000000) ## importance sampling\n)\n\n\n## simulation comparison of importance sampling and rejection sampling\ntimes.imps <- system.time(\nEA_imps <- replicate (100, est_tnorm_imps (a, c(1,2), 1000000)) \n)\n\ntimes.imps\n\ntimes.rej <- system.time (\nEA_rej <- replicate (100,\n    {   rn_tnorm_ars <- sample_tnorm_ars (1000, 1,2)\n        mean (a (rn_tnorm_ars))\n    }\n    )\n)\ntimes.rej\n\npar (mfrow = c(1,2))\nxlim <- range (EA_imps, EA_rej)\nhist (EA_imps, xlim = xlim); mean ((EA_imps-A)^2);\nabline (v = A)\nhist (EA_rej, xlim = xlim); mean ((EA_rej-A)^2)\nabline (v = A)\n\nsave.image (\"normprob.RData\")\n\n",
+    "created" : 1479750858941.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1190128119",
+    "id" : "60212AAC",
+    "lastKnownWriteTime" : 1479743739,
+    "last_content_update" : 1479743739,
+    "path" : "~/ownCloud/teaching/stat812-1609/rdemo/normprob-imps.R",
+    "project_path" : "normprob-imps.R",
+    "properties" : {
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

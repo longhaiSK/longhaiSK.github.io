@@ -1,0 +1,281 @@
+---
+title: "[STAT 812: Computational Statistics](../stat812.html)"
+subtitle: "EM Algorithm"
+date: "Feb 2020"
+author: "Longhai Li"
+output:
+  html_document:
+       theme: united
+       toc: true
+       toc_float: false
+       number_sections: true
+       highlight: tango
+       fig_width: 10
+       fig_height: 8
+  pdf_document:
+    toc: yes
+    fig_height: 6
+    fig_width: 10
+    number_sections: yes
+editor_options: 
+  chunk_output_type: console
+---
+
+# Fitting a Normal Mixture Model with EM
+```{r}
+log_sum_exp <- function(log_x)
+{
+    max_log_x <- max(log_x)
+    
+    max_log_x + log( sum(exp(log_x - max_log_x) ))
+}
+log_like_obs <- function(theta,Y)
+{
+    log_jointlike <- cbind(log( theta[1]) + dnorm(Y,theta[2],1,log = TRUE),
+                       log(1 - theta[1]) + dnorm(Y,theta[3],1, log = TRUE))
+    sum(apply(log_jointlike,1,log_sum_exp))
+}
+
+
+em_mixnorm <- function(theta0,Y,no_iters)
+{   col_weigh <- cm.colors(100)
+    result <- matrix(0,no_iters + 1,4)
+    colnames(result) <- c("p","mu1","mu0","log_lik")
+    result[1,1:3] <- theta0
+    result[1,4] <- log_like_obs(theta0,Y)
+    for(i in 1:no_iters + 1) {
+        log_like1 <- dnorm(Y,result[i-1,2],1,log = TRUE) + log(result[i-1,1])
+        log_like0 <- dnorm(Y,result[i-1,3],1,log = TRUE) + log(1-result[i-1,1])
+        log_like_average <- apply(cbind(log_like1, log_like0),1,log_sum_exp)
+        weighs <-   exp(log_like1 - log_like_average)
+        
+        ## making plots showing steps
+        xlim <- range (Y, result[i-1,2:3])+c(-2,2)
+        plot(function(x) dnorm(x, result[i-1,2])*result[i-1,1], ylim=c(0,0.4), 
+             xlim[1], xlim[2], col=col_weigh[100])
+        title(main = sprintf("Step %g: p=%4.2f, mu1=%5.2f, mu0=%5.2f",
+              i-1, result[i-1,1],result[i-1,2],result[i-1,3]))
+        plot(function(x) dnorm(x, result[i-1,3])*(1-result[i-1,1]),
+             xlim[1], xlim[2], col=col_weigh[1], add=TRUE)
+        points(Y, rep(0, length(Y)), col=col_weigh[ceiling(weighs*100)] )
+        
+        #update p
+        result[i,1] <- mean(weighs)
+        #update u1
+        result[i,2] <- sum(Y*weighs)/sum(weighs)
+        result[i,3] <- sum(Y*(1-weighs))/sum(1-weighs)
+        result[i,4] <- log_like_obs(result[i,1:3],Y)
+        #plot the change of mu
+        arrows(result[i-1,2], 0.01,result[i,2],0.01,
+               length = 0.05,col=col_weigh[100])
+        arrows(result[i-1,3], 0.01,result[i,3],0.01,
+               length = 0.05,col=col_weigh[1])
+    }
+    invisible(result)
+}
+```
+
+
+```{r}
+gen_mixnorm <- function(theta,n)
+{
+    Z <- 1*(runif(n) < theta[1])
+    Y <- rep(0,n)
+    for(i in 1:n){
+        if(Z[i]==1) Y[i] <- rnorm(1,theta[2],1)
+        else Y[i] <- rnorm(1,theta[3],1)
+    }
+    col_weigh <- cm.colors(2)
+    plot (Y, Z, col = col_weigh[Z+1])
+    Y
+}
+
+```
+```{r}
+data <- gen_mixnorm(c(0.3,0,3),200)
+```
+
+
+```{r fig.show="animate", cache=TRUE, warning=FALSE}
+em_mixnorm(c(0.5,-10,5),data,20)
+```
+
+
+```{r fig.show="animate", cache=TRUE, warning=FALSE}
+em_mixnorm(c(0.5,5,10),data,40)
+```
+
+
+```{r fig.show="animate", cache=TRUE, warning=FALSE}
+em_mixnorm(c(0.5,0.1,0.2),data,40)
+```
+
+
+```{r fig.show="animate", cache=TRUE, warning=FALSE}
+random_label <- rbinom(length(data), size=1, prob = 0.5)
+em_mixnorm(c(0.5, mean(data[random_label==1]),mean(data[random_label==0])),
+           data,40)
+
+```
+
+```{r fig.show="animate", cache=TRUE, warning=FALSE}
+data2 <- gen_mixnorm(c(0.3,0,5),200)
+random_label <- rbinom(length(data2), size=1, prob = 0.5)
+em_mixnorm(c(0.5, mean(data2[random_label==1]),
+                  mean(data2[random_label==0])),
+           data2,40)
+
+```
+
+
+**Compare with other optimization methods**
+
+```{r warning=FALSE}
+log_like_obs <- function(theta,Y)
+{
+    log_joint <- cbind(log(theta[1]) + dnorm(Y,theta[2],1,log = TRUE),
+                       log(1 - theta[1]) + dnorm(Y,theta[3],1, log = TRUE))
+    sum(apply(log_joint,1,log_sum_exp))
+}
+## define negative log likelihood function
+neg_loglike_obs <- function (theta,Y)
+{
+  -log_like_obs(theta,Y)
+}
+## define negative log likelihood function with a transformed parametrization
+
+neg_loglike_obs_transf <-  function(ttheta,Y)
+{
+  theta <- ttheta
+  theta[1] <- 1/(1+exp(-ttheta[1]))
+  neg_loglike_obs(theta,Y)
+}
+
+## applying optimization algorithms
+
+try (nlm (neg_loglike_obs, p = c(0.3,0,3), Y = data))
+try (nlm (neg_loglike_obs, p = c(0.5, -10, 5), Y = data))
+
+log(0.3/0.7)
+## Newton method
+try (nlm (neg_loglike_obs_transf, p = c(log(0.3/0.7),0,3), Y = data))
+try (nlm (neg_loglike_obs_transf, p = c(0,-10,5), Y = data))
+## Nelder-Mead
+try (optim (p = c(log(0.3/0.7),0,3),neg_loglike_obs_transf, Y = data, method="Nelder-Mead"))
+try (optim (p = c(0,-10,5),neg_loglike_obs_transf, Y = data, method="Nelder-Mead"))
+
+## Conjugate Gradient
+try (optim (p = c(0,0,3),neg_loglike_obs_transf, Y = data, method="CG"))
+try (optim (p = c(0,-10,5),neg_loglike_obs_transf, Y = data, method="CG"))
+
+
+```
+
+We see that these optimization algorithms applied to the observed log likelihood are more fragile when the initial values are not well chosen. Nelder-mead algorithm is more stable. 
+
+# Fitting a censored poisson model with EM
+
+**Define EM algorithms**
+```{r}
+# The data consists of n observed counts, whose mean is m, plus c counts
+# that are observed to be less than 2 (ie, 0 or 1), but whose exact value
+# is not known.  The counts are assumed to be Poisson distributed with 
+# unknown mean, lambda.  
+#
+# The function below finds the maximum likelihood estimate for lambda given
+# the data, using the EM algorithm started from the specified guess at lambda
+# (default being the mean count with censored counts set to 1), run for the
+# specified number of iterations (default 20).  The log likelihood is printed 
+# at each iteration.  It should never decrease.
+
+#n is the number of observed poisson counts
+#c is the number of missed poisson counts
+#y_bar is is the mean of observed poisson counts
+EM.censored.poisson <- function (n, y_bar, c, lambda0=(n*y_bar+c)/(n+c),
+iterations=20)
+{
+  # Set initial guess, and print it and its log likelihood.
+
+  lambda <- lambda0
+
+  cat (0, lambda, log.likelihood_obs(n,y_bar,c,lambda), "\n")
+
+  # Do EM iterations.
+
+  for (i in 1:iterations)
+  {
+    # The E step: Figure out the distribution of the unobserved data.  For 
+    # this model, we need the probability that an unobserved count that is 
+    # either 0 or 1 is actually equal to 1, which is p1 below.
+
+    y_mis <- lambda / (1+lambda)
+    
+    # The M step: Find the lambda that maximizes the expected log likelihood
+    # with unobserved data filled in according to the distribution found in
+    # the E step.
+
+    lambda <- (n*y_bar + c*y_mis) / (n+c)
+
+    # Print the new guess for lambda and its log likelihood.
+
+    cat (i, lambda, log.likelihood_obs(n,y_bar,c,lambda), "\n")
+  }
+
+  # Return the value for lambda from the final EM iteration.
+
+  lambda
+}
+
+log.likelihood_obs <- function (n, y_bar, c, lambda)
+{
+  n*y_bar*log(lambda) - (n+c)*lambda + c*log(1+lambda)
+}
+```
+
+**Generate a dataset**
+
+```{r}
+y <- rpois(200,3)
+
+c<- sum(y < 2)
+y_bar <- mean(y[y >=2]); y_bar
+
+```
+
+We see that the naive mean with y >=2 is an upward biased estimate of the true mean 3
+
+**Implementing EM**
+
+```{r}
+EM.censored.poisson(length(y)-c,y_bar,c,lambda0=100, iterations = 10) -> lambda.em
+
+EM.censored.poisson(length(y)-c,y_bar,c,lambda0=y_bar, iterations = 10) -> lambda.em
+```
+
+**Compare with Other Optimization Methods**
+
+
+```{r warning=FALSE}
+log.likelihood_obs <- function (n, y_bar, c, lambda)
+{
+  n*y_bar*log(lambda) - (n+c)*lambda + c*log(1+lambda)
+}
+
+neg_loglike_obs <- function (n, y_bar, c, lambda)
+{
+  - log.likelihood_obs (n, y_bar, c, lambda)
+}
+
+try (nlm (neg_loglike_obs, p = y_bar, n=length(y)-c, y_bar= y_bar, c=c))
+try (nlm (neg_loglike_obs, p = 100, n=length(y)-c, y_bar= y_bar, c=c))
+
+
+try (optim (p = y_bar, neg_loglike_obs, method="CG", n=length(y)-c, y_bar= y_bar, c=c))
+try (optim (p = 100, neg_loglike_obs, method="CG", n=length(y)-c, y_bar= y_bar, c=c))
+
+try (optim (p = y_bar, neg_loglike_obs, method="Nelder-Mead", n=length(y)-c, y_bar= y_bar, c=c))
+try (optim (p = 100, neg_loglike_obs, method="Nelder-Mead", n=length(y)-c, y_bar= y_bar, c=c))
+
+
+```
+

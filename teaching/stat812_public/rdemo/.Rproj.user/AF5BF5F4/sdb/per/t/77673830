@@ -1,0 +1,17 @@
+{
+    "contents" : "## the generic function for finding laplace approximation of integral of 'f'\n## neg_log_f    --- the negative log of the intergrand function\n## p0           --- initial value in searching mode\n## ...          --- other arguments needed by neg_log_f\nbayes_inference_lap <- function(neg_log_f,p0,...)\n{   ## looking for the mode and hessian of the log likehood function\n    result_min <- nlm(f=neg_log_f,p=p0, hessian=TRUE,...)\n    hessian <- result_min$hessian\n    neg_log_like_mode <- result_min$minimum\n    \n    \n    estimates <- result_min$estimate ## posterior mode\n    SIGMA <- solve(result_min$hessian) ## covariance matrix of posterior mode\n    sds <- sqrt (diag(SIGMA)) ## standard errors of each estimate\n    log_mar_lik <- ## log marginalized likelihood\n        - neg_log_like_mode + 0.5 * ( sum(log(2*pi) - log(svd(hessian)$d) ))\n    \n    list (estimates = estimates, sds = sds, SIGMA = SIGMA, log_mar_lik = log_mar_lik)\n}\n\n## the function for computing log likelihood of normal data\n## mu is the unknown mean, and w is the log of standard deviation (sd)\nlog_lik <- function(x,mu,w)\n{   sum(dnorm(x,mu,exp(w),log=TRUE))\n}\n\n## the function for computing log prior\nlog_prior <- function(mu,w, mu_0,sigma_mu,w_0,sigma_w)\n{   dnorm(mu,mu_0,sigma_mu,log=TRUE) + dnorm(w,w_0,sigma_w,log=TRUE)\n}\n\n## the function for computing the negative log of likelihood * prior\nneg_log_post <- function(x, theta, mu_0,sigma_mu,w_0,sigma_w)\n{   - log_lik(x,theta[1], theta[2]) - log_prior(theta[1],theta[2],mu_0,sigma_mu,w_0,sigma_w)\n}\n\n\n\n## approximating the log of integral of likelihood * prior\nbayes_inference_lap_gaussian <- function(x,mu_0,sigma_mu,w_0,sigma_w)\n{   bayes_inference_lap(\n                neg_log_post,p0=c(mean(x),log(sqrt(var(x)))),\n                x=x,mu_0=mu_0,sigma_mu=sigma_mu,w_0=w_0,sigma_w=sigma_w\n    )\n}\n\n\nsource(\"gaussian-midpoint.R\")\n\n## test with a data set with mean 5\nx <- rnorm(50, mean = 5)\nbayes_inference_lap_gaussian(x,0,100,0,5)\n## compare with naive Monte carlo and midpoint rule for computing log mar lik.\nlog_mar_gaussian_mc(x,0,100,0,5,1000000)\nlog_mar_gaussian_mid(x,0,100,0,5,100)\n\n\nx <- rnorm(50, mean = -5)\nbayes_inference_lap_gaussian(x,0,100,0,5)\nlog_mar_gaussian_mc(x,0,100,0,5,1000000)\nlog_mar_gaussian_mid(x,0,100,0,5,100)\n\nx <- rnorm(50, mean = -50, sd = 4)\nbayes_inference_lap_gaussian(x,0,100,0,5)\nlog_mar_gaussian_mc(x,0,100,0,5,10000000)\nlog_mar_gaussian_mid(x,0,100,0,5,100)\n\nx <- rnorm(50, mean = -50, sd = 10)\nbayes_inference_lap_gaussian(x,0,100,0,5)\nlog_mar_gaussian_mc(x,0,100,0,5,1000000)\nlog_mar_gaussian_mid(x,0,100,0,5,100)\n## we see that mid point rule may not work well  \n",
+    "created" : 1477930944468.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1494278193",
+    "id" : "77673830",
+    "lastKnownWriteTime" : 1477933454,
+    "path" : "T:/ownCloud/files/teaching/stat812-1609/rdemo/gaussian-lap.R",
+    "project_path" : "gaussian-lap.R",
+    "properties" : {
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "type" : "r_source"
+}
