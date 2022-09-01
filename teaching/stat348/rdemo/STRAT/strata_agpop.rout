@@ -1,0 +1,98 @@
+> library ("sampling")
+> 
+> pdf ("strata.pdf")
+> 
+> agpop <- read.csv ("agpop.csv")
+> head (agpop)
+                 county state acres92 acres87 acres82 farms92 farms87 farms82
+1 ALEUTIAN ISLANDS AREA    AK  683533  726596  764514      26      27      28
+2        ANCHORAGE AREA    AK   47146   59297  256709     217     245     223
+3        FAIRBANKS AREA    AK  141338  154913  204568     168     175     170
+4           JUNEAU AREA    AK     210     214     127       8       8      12
+5  KENAI PENINSULA AREA    AK   50810   85712   98035      93     119     137
+6        AUTAUGA COUNTY    AL  107259  116050  145044     322     388     453
+  largef92 largef87 largef82 smallf92 smallf87 smallf82 region
+1       14       16       20        6        4        1      W
+2        9       10       11       41       52       38      W
+3       25       28       21       12       18       25      W
+4        0        0        0        5        4        8      W
+5        9       18       17       12       18       19      W
+6       25       32       32        8       19       17      S
+> unique (agpop$region)
+[1] W  S  NE NC
+Levels: NC NE S W
+> 
+> # doing one stratified sampling
+> strsample <- strata (
++   agpop, "region", size = c (41, 135, 21, 103),  method = "srswor")
+> table (strsample [,1])
+
+ NC  NE   S   W 
+103  21 135  41 
+> # doing survey
+> strdata <- agpop [strsample$ID_unit, "acres92"]
+> # doing analysis (find total)
+> N_str <- table (agpop$region)
+> t_str <- sum (tapply(strdata, strsample$region, mean) * N_str )
+> nres <- 2000
+> res_str <- rep (0, nres)
+> for (i in 1:nres)
++ {
++ 	# doing sampling
++ 	strsample <- strata (agpop, "region", size = c (41, 135, 21, 103), 
++ 			 method = "srswor")
++ 	# doing survey
++ 	strdata <- agpop [strsample$ID_unit, "acres92"]
++ 	# doing analysis (find total)
++ 	N_str <- table (agpop$region)
++ 	res_str [i] <- sum (tapply(strdata, strsample$region, mean) * N_str )
++ }
+> 
+> # stratified sampling with more samples to western region
+> nres <- 2000
+> res_str2 <- rep (0, nres)
+> for (i in 1:nres)
++ {
++ 	# doing sampling
++ 	strsample <- strata (agpop, "region", size = c (101, 95, 21, 83), 
++ 			 method = "srswor")
++ 	# doing survey
++ 	strdata <- agpop [strsample$ID_unit, "acres92"]
++ 	# doing analysis (find total)
++ 	N_str <- table (agpop$region)
++ 	res_str2 [i] <- sum (tapply(strdata, strsample$region, mean) * N_str )
++ }
+> 
+> # simple random sampling
+> nres <- 2000
+> res_srs <- rep (0, nres)
+> for (i in 1:nres)
++ {
++ 	srssample <- srswor (300, 3078)
++ 	sdata <- agpop [srssample == 1, "acres92"]
++ 	res_srs [i] <- mean (sdata) * 3078
++ 
++ }
+> 
+> all.sim <- data.frame(res_srs, res_str, res_str2)
+> boxplot (all.sim)
+> abline (h = sum (agpop$acres92))
+> 
+> summary (all.sim)
+    res_srs             res_str             res_str2        
+ Min.   :7.331e+08   Min.   :7.565e+08   Min.   :7.815e+08  
+ 1st Qu.:8.950e+08   1st Qu.:8.972e+08   1st Qu.:9.061e+08  
+ Median :9.414e+08   Median :9.392e+08   Median :9.428e+08  
+ Mean   :9.464e+08   Mean   :9.442e+08   Mean   :9.449e+08  
+ 3rd Qu.:9.934e+08   3rd Qu.:9.873e+08   3rd Qu.:9.815e+08  
+ Max.   :1.219e+09   Max.   :1.190e+09   Max.   :1.169e+09  
+> 
+> apply (all.sim, 2, var)
+     res_srs      res_str     res_str2 
+5.283999e+15 4.260934e+15 2.960746e+15 
+> 
+> dev.off ()
+null device 
+          1 
+> 
+> 

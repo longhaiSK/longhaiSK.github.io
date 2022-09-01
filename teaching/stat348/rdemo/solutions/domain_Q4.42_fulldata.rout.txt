@@ -1,0 +1,127 @@
+
+R version 3.3.1 (2016-06-21) -- "Bug in Your Hair"
+Copyright (C) 2016 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> 
+> source ("estimates.r")
+> 
+> 
+> ## analysis with data in the whole US
+> 
+> trucks <- read.csv ("data/vius.csv", header = T, na = ".")
+> ################# a) Find total miles per business type ###################
+> ## summing the sampling weights gives N
+> ## note that we should do this before removing NA
+> N <- sum(trucks [, 5]); N
+[1] 85174776
+> 
+> ## remove rows with NA in miles_annl or business type
+> sel <- !is.na(trucks[,27]) & !is.na (trucks[, 10]) 
+> trucks_sel <- trucks [sel, ]
+> 
+> ## create a data frame to save the results
+> mean_miles_2002 <- data.frame (matrix (0, 14, 5))
+> names (mean_miles_2002) <- c("BType", "Est", "SE", "ci.low", "ci.upp" )
+> 
+> mean_miles_2002 [,1] <- 1:14
+> total_miles_2002 <- mean_miles_2002
+> 
+> for (i in 1:14)
++ {
++   ## define a domain as business == i
++   busi <- 1 * (trucks_sel[,27] == i) 
++   mean_miles_2002[i, 2:5] <- 
++ 	srs_ratio_est (trucks_sel[,10] * busi, busi, N = N) 
++   total_miles_2002[i, 2:5] <- 
++ 	srs_mean_est (trucks_sel[,10] * busi, N = N) * N 
++ 		
++ }
+> 
+> mean_miles_2002
+   BType       Est        SE    ci.low    ci.upp
+1      1 67381.608  418.6580 66561.039 68202.176
+2      2 41298.892  629.1627 40065.734 42532.049
+3      3 11731.296  193.3237 11352.382 12110.210
+4      4 23927.944  722.6277 22511.595 25344.293
+5      5 13544.376  361.2768 12836.274 14252.478
+6      6 15732.346  147.1592 15443.915 16020.778
+7      7 27821.445  608.9379 26627.928 29014.962
+8      8 29437.204  477.7086 28500.896 30373.512
+9      9 23702.625  420.8442 22877.771 24527.479
+10    10 11338.908  407.7691 10539.681 12138.134
+11    11 20350.942  350.6473 19663.674 21038.210
+12    12  8301.769  572.2106  7180.237  9423.301
+13    13 31235.154 1058.9501 29159.614 33310.694
+14    14 15379.050  327.7854 14736.591 16021.509
+> 
+> total_miles_2002
+   BType          Est          SE       ci.low       ci.upp
+1      1 1.136268e+12 11185842413 1.114344e+12 1.158193e+12
+2      2 1.772493e+11  3976636389 1.694551e+11 1.850435e+11
+3      3 1.826272e+11  3347242885 1.760666e+11 1.891878e+11
+4      4 4.852937e+10  1880869700 4.484287e+10 5.221587e+10
+5      5 3.551321e+10  1211961669 3.313777e+10 3.788865e+10
+6      6 2.964714e+11  3484751420 2.896413e+11 3.033015e+11
+7      7 1.074926e+11  3005894234 1.016011e+11 1.133842e+11
+8      8 1.432799e+11  3206506245 1.369951e+11 1.495646e+11
+9      9 1.440136e+11  3228698181 1.376853e+11 1.503418e+11
+10    10 8.736898e+09   468052290 7.819516e+09 9.654279e+09
+11    11 9.887946e+10  2286668223 9.439760e+10 1.033613e+11
+12    12 4.013223e+09   342243103 3.342427e+09 4.684019e+09
+13    13 3.924370e+10  1802976911 3.570987e+10 4.277754e+10
+14    14 4.277671e+10  1269424791 4.028864e+10 4.526478e+10
+> 
+> ################# b) Find mean MPG per Tranmission type ###################
+> 
+> sel <- !is.na(trucks[, 19]) & !is.na (trucks[, 12])
+> trucks_sel <- trucks [sel, ]
+> 
+> ## create a data frame to save the results
+> mean_MPG <- data.frame (matrix (0, 4, 5))
+> names (mean_MPG) <- c("TransType", "Est.", "S.E.", "ci.low", "ci.upp" )
+> mean_MPG[,1] <- 1:4
+> 
+> for (i in 1:4)
++ {
++   trans <- 1 * (trucks_sel[, 19] == i) 
++   mean_MPG [i, 2:5] <- 
++ 	srs_ratio_est (trucks_sel[,12] * trans, trans, N = N) 		
++ }
+> 
+> mean_MPG
+  TransType      Est.       S.E.    ci.low    ci.upp
+1         1 13.489937 0.03155973 13.428080 13.551794
+2         2  7.767717 0.02003806  7.728443  7.806992
+3         3  6.871671 0.16520898  6.547863  7.195480
+4         4  7.773077 0.33325776  7.119893  8.426261
+> 
+> 
+> ############ c) Find mean miles in 2002/life time miles ###################
+> sel <- !is.na(trucks[, 10]) & !is.na (trucks[, 11])
+> trucks_sel <- trucks [sel, ]
+> 
+> ## Find ratio of miles driven in 2002 to miles driven in life time
+> srs_ratio_est (trucks_sel [,10], trucks_sel [,11], N = N)
+        Est.         S.E.       ci.low       ci.upp 
+0.0971874830 0.0004542253 0.0962972068 0.0980777592 
+> 
+> ######################## final note ######################## ##################
+> ## The answers given by the above R code are different from what's provided by 
+> ## the SAS code. The difference may be in the procedure of handling missing data. 
+> ## The solution didn't say clearly how they handle missing data. 
+> 
