@@ -1,0 +1,43 @@
+> ############################# inference with SRS sample ########################
+> source ("estimates.r")
+
+> agsrs <- read.csv ("agsrs.csv")
+
+> # inference for mean of variable acres92
+> srs_mean_est (agsrs[,"acres92"], N = 3078)
+     Est.      S.E.    ci.low    ci.upp 
+297897.05  18898.43 260706.26 335087.84 
+
+> # inference for mean of variable acres92
+> srs_mean_est (agsrs[,"acres92"], N = 3078) * 3078
+      Est.       S.E.     ci.low     ci.upp 
+ 916927110   58169381  802453859 1031400361 
+
+> # inference for proportion of counties with fewer than 200K acres for farming in 1992
+> acres92.is.fewer.200k <- 1*(agsrs[,"acres92"] < 200000)
+
+> srs_mean_est (acres92.is.fewer.200k, N = 3078) 
+      Est.       S.E.     ci.low     ci.upp 
+0.51000000 0.02746498 0.45595084 0.56404916 
+
+> # inference for total number of counties with fewer than 200K acres for farming in 1992
+> srs_mean_est (acres92.is.fewer.200k, N = 3078) * 3078
+      Est.       S.E.     ci.low     ci.upp 
+1569.78000   84.53722 1403.41670 1736.14330 
+
+> ####################### compare with true value ################################
+> agpop <- read.csv ("agpop.csv")
+
+> #true mean
+> mean (agpop[, "acres92"])
+[1] 306677
+
+> # true total
+> sum (agpop[, "acres92"])
+[1] 943951718
+
+> mean (agpop[, "acres92"] < 200000)
+[1] 0.5175439
+
+> sum (agpop[, "acres92"] < 200000)
+[1] 1593

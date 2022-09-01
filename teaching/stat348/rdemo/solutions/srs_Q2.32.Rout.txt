@@ -1,0 +1,116 @@
+
+R version 3.3.1 (2016-06-21) -- "Bug in Your Hair"
+Copyright (C) 2016 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> 
+> pdf ("solutions/srs_Q2.32.pdf") # save graph output to srsQ32.pdf
+> 
+> # a function for doing data analysis for srs sample
+> # sdata -- a vector of sampling survey data
+> # N -- population size 
+> srs_estimate <- function (sdata, N)
++ {
++ 	n <- length (sdata)
++ 	ybar <- mean (sdata)
++ 	seybar <- sqrt((1 - n / N)) * sd (sdata) / sqrt(n)  
++ 	mem <- qt (0.975, df = n - 1) * seybar
++ 	c (ybar = ybar, se = seybar, ci.low = ybar - mem, ci.upp = ybar + mem)
++ }
+> 
+> # read population data 
+> baseball <- read.csv ("data/baseball.csv", header = F, na = ".")
+> 
+> # sample size
+> n <- 150
+> # population size
+> N <- nrow (baseball)
+> 
+> # a) 
+> ## one srs sampling
+> # srs sampling
+> set.seed (1986555)
+> srs <- sample (N, n)
+> write.csv (srs, file = "solutions/Q32_savedsrs.csv")
+> # survey data of variable 4
+> salary_srs <- baseball [srs, 4]
+> 
+> # b)
+> 
+> logsal <- log (salary_srs)
+> 
+> hist (logsal)
+> hist (salary_srs)
+> 
+> # c) 
+> 
+> srs_estimate  (logsal, N)
+       ybar          se      ci.low      ci.upp 
+13.81827134  0.08785552 13.64466768 13.99187500 
+> 
+> # d)
+> 
+> is.pitcher <- 1 * (na.omit (baseball[srs, 5]) == "P")
+> # if a student takes this as sample value, count it right.
+> # is.pitcher <- na.omit ( 1 * (baseball[srsinclude == 1, 27] > 0) )
+> 
+> srs_estimate (is.pitcher, N)
+      ybar         se     ci.low     ci.upp 
+0.49333333 0.03690296 0.42041259 0.56625408 
+> 
+> # e)
+> mean (na.omit (baseball[, 5]) == "P")
+[1] 0.4717691
+> 
+> # f)
+> 
+> 
+> ## repeated srs sampling
+> nres <- 2000 # number of repeated sampling
+> res_sal <- numeric (nres) # matrix recording repeated results
+> 
+> for (i in 1:nres)
++ {
++ 	srs_salary <- baseball [sample(N,n), 4]
++ 	res_sal [i] <- mean (na.omit (srs_salary))
++ }
+> 
+> hist (res_sal, main = "Histogram of 2000 Estimates of Salary Mean")
+> abline (v = mean (na.omit (baseball[,4])))
+> 
+> boxplot (res_sal, main = "Boxplot of 2000 Estimates of Salary Mean")
+> abline (h = mean (na.omit (baseball[,4])))
+> 
+> qqnorm (res_sal)
+> 
+> mean (res_sal)
+[1] 2494061
+> sd (res_sal)
+[1] 258102.5
+> 
+> # true values are
+> ybarU <- mean (baseball[, 4])
+> ybarU
+[1] 2497669
+> seybar <- sqrt (1- n/N) * sd (baseball[,4]) / sqrt (n)
+> seybar
+[1] 260124
+> 
+> dev.off () 
+null device 
+          1 
+> 

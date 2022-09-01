@@ -1,0 +1,197 @@
+---
+title: "[STAT 812: Computational Statistics](../stat812.html)"
+subtitle: "Midpoint Rule Approximating Marginal Likelihood of Gaussian"
+date: "March 2020"
+author: "Longhai Li"
+output:
+  html_document:
+       theme: united
+       toc: true
+       toc_float: no
+       number_sections: true
+       highlight: tango
+       fig_width: 10
+       fig_height: 8
+  pdf_document:
+    toc: yes
+    fig_height: 6
+    fig_width: 10
+    number_sections: yes
+editor_options: 
+  chunk_output_type: console
+---
+```{r}
+library ("metRology")
+```
+
+# Using Midpoint Rule to Compute Marginal Likelihood of t distribution
+
+```{r}
+## the function for computing log likelihood of normal data
+log_lik <- function(x,mu,w,df=Inf)
+{   sum(dt.scaled(x,df,mu,exp(w),log=TRUE))
+}
+
+## the function for computing log prior
+log_prior <- function(mu,w, mu_0,sigma_mu,w_0,sigma_w)
+{   dnorm(mu,mu_0,sigma_mu,log=TRUE) + dnorm(w,w_0,sigma_w,log=TRUE)
+}
+
+## the function for computing the unormalized log posterior 
+## given transformed mu and w 
+log_post_tran <- function(x, mu_t, w_t, mu_0,sigma_mu,w_0,sigma_w, df=Inf)
+{
+    #log likelihood
+    log_lik(x,logi(mu_t), logi(w_t),df) +
+    #log prior 
+    log_prior(logi(mu_t), logi(w_t), mu_0,sigma_mu,w_0,sigma_w) + 
+    #log derivative of transformation
+    log_der_logi(mu_t) + log_der_logi(w_t)
+}
+
+## the logistic function for transforming (0,1) value to (-inf,+inf)
+logi <- function(x)
+{  log(x) - log(1-x)
+}
+
+## the log derivative of logistic function 
+log_der_logi <- function(x)
+{  -log(x) - log(1-x)
+}
+
+## the generic function for approximating 1-D integral with midpoint rule
+## the logarithms of the function values are passed in
+## the log of the integral result is returned
+
+## log_f  --- a function computing the logarithm of the integrant function
+## range  --- the range of integral varaible, a vector of two elements
+## n      --- the number of points at which the integrant is evaluated
+## ...    --- other parameters needed by log_f
+log_int_mid <- function(log_f, range, n,...)
+{   if(range[1] >= range[2]) 
+        stop("Wrong ranges")
+    h <- (range[2]-range[1]) / n
+    v_log_f <- sapply(range[1] + (1:n - 0.5) * h, log_f,...)
+    log_sum_exp(v_log_f) + log(h)       
+}
+
+## a function computing the sum of numbers represented with logarithm
+## lx     --- a vector of numbers, which are the log of another vector x.
+## the log of sum of x is returned
+log_sum_exp <- function(lx)
+{   mlx <- max(lx)
+    mlx + log(sum(exp(lx-mlx)))
+}
+
+## a function computing the normalization constant
+log_marlik_mid <- function(x,mu_0,sigma_mu,w_0,sigma_w, n, df=Inf)
+{
+    ## function computing the normalization constant of with mu_t fixed
+    log_int_gaussian_mu <- function(mu_t)
+    {   log_int_mid(log_f=log_post_tran,range=c(0,1),n=n,
+                    x=x,mu_t=mu_t,mu_0=mu_0,sigma_mu=sigma_mu,
+                    w_0=w_0,sigma_w=sigma_w, df=df)
+    }
+    
+    log_int_mid(log_f=log_int_gaussian_mu,range=c(0,1), n=n)
+}
+
+## we use Monte Carlo method to debug the above function
+log_marlik_mc <- function(x,mu_0,sigma_mu,w_0,sigma_w,iters_mc, df=Inf)
+{
+    ## draw samples from the priors
+    mus <- rnorm(iters_mc,mu_0,sigma_mu)
+    ws <- rnorm(iters_mc,w_0,sigma_w)
+    one_log_lik <- function(i)
+    {  log_lik(x,mus[i],ws[i], df)
+    }
+    v_log_lik <- sapply(1:iters_mc,one_log_lik)
+    log_sum_exp(v_log_lik) - log(iters_mc)
+}
+```
+# Test with simulated datasets
+
+## Checking the accuracy of numerical quadrature
+```{r}
+x <- rt.scaled(50, mean=2, sd = 2, df=2)
+log_marlik_mid(x,0,10,0,10,100)
+log_marlik_mc(x,0,10,0,10,100000)
+```
+
+Another test
+```{r}
+x <- rt.scaled(100, mean=2, sd = 2, df=Inf)
+log_marlik_mid(x,0,10,0,10,100)
+log_marlik_mc(x,0,10,0,10,100000)
+
+## looking at the convergence
+
+for(i in seq(10,90,by=10))
+{ cat("n = ",i,",")
+    cat(" Estimated Log Marginal Likelihood =", 
+        log_marlik_mid(x,0,10,0,10,i),"\n")
+}
+
+```
+
+## Comparing log marginal likelihoods of different models
+
+### Comparing Priors
+```{r}
+x <- rnorm(100)
+```
+
+When the mean of the prior is reasonable
+```{r}
+log_marlik_mid(x,mu_0=0,sigma_mu=0.1,w_0=0,sigma_w=1,100)
+log_marlik_mid(x,mu_0=0,sigma_mu=0.01,w_0=0,sigma_w=1,100)
+log_marlik_mid(x,mu_0=0,sigma_mu=1,w_0=0,sigma_w=1,100)
+log_marlik_mid(x,mu_0=0,sigma_mu=10,w_0=0,sigma_w=1,100)
+log_marlik_mid(x,mu_0=0,sigma_mu=100,w_0=0,sigma_w=1,100)
+log_marlik_mid(x,mu_0=0,sigma_mu=1000,w_0=0,sigma_w=1,100)
+```
+
+When the mean of the prior is unreasonable
+
+```{r}
+log_marlik_mid(x,mu_0=-5,sigma_mu=0.1,w_0=0,sigma_w=1,100)
+log_marlik_mid(x,mu_0=-5,sigma_mu=1,w_0=0,sigma_w=1,100)
+log_marlik_mid(x,mu_0=-5,sigma_mu=10,w_0=0,sigma_w=1,100)
+log_marlik_mid(x,mu_0=-5,sigma_mu=100,w_0=0,sigma_w=1,100)
+log_marlik_mid(x,mu_0=-5,sigma_mu=1000,w_0=0,sigma_w=1,100)
+
+
+```
+### Comparing Models for Data
+**Data from Normal**
+```{r}
+x <- rt.scaled(100, mean=2, sd = 2, df=Inf)
+log_marlik_mid(x,0,10,0,10,100, df = Inf)
+log_marlik_mid(x,0,10,0,10,100, df = 2)
+log_marlik_mid(x,0,10,0,10,100, df = 1)
+log_marlik_mid(x,0,10,0,10,100, df = 0.5)
+log_marlik_mid(x,0,0.1,0,10,100, df = Inf) # if prior is too narrow
+log_marlik_mid(x,0,100,0,100,100, df = Inf) # if prior is too diffuse
+log_marlik_mid(x,0,1000,0,1000,100, df = Inf) # if prior is too diffuse
+```
+
+**Data from t**
+```{r}
+x <- rt.scaled(100, mean=2, sd = 2, df=2)
+log_marlik_mid(x,0,10,0,10,100, df = Inf)
+log_marlik_mid(x,0,10,0,10,100, df = 2)
+log_marlik_mid(x,0,0.1,0,10,100, df =2) # if prior is too narrow
+log_marlik_mid(x,0,100,0,100,100, df = 2) # if prior is too diffuse
+log_marlik_mid(x,0,1000,0,1000,100, df = 2) # if prior is too diffuse
+```
+We see that although the prior impacts marginal likelihood, the error in mis-specification in data model can be still detected. 
+
+### A Case when numerical quadrature fails
+
+```{r}
+x <- rt.scaled(100, mean=50, sd = 2, df=Inf)
+log_marlik_mid(x,0,100,0,100,100, df = Inf)
+log_marlik_mc(x,0,100,0,100,10000, df = Inf)
+
+```
+What has gone wrong? The inverse-logistic transformation maps most points between (0,1) to the region around 0.5. But the likelihood function has its mode around 50!

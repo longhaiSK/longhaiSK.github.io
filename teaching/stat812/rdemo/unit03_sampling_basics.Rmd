@@ -1,0 +1,150 @@
+---
+title: "STAT 812: Computational Statistics"
+subtitle: "Random Number Generator and Monte Carlo"
+date: "Jan 2020"
+author: "Longhai Li"
+output:
+  html_document:
+       theme: united
+       toc: true
+       toc_float: false
+       number_sections: true
+       highlight: tango
+       fig_width: 10
+       fig_height: 8
+  pdf_document:
+    toc: yes
+    fig_height: 6
+    fig_width: 10
+    number_sections: yes
+    cache: yes
+---
+
+# Pseudo random numbers
+
+```{r}
+
+
+A <- 7^5
+M <-  2^31-1
+
+N <- 100000
+rn <- rep (0, N)
+rn[1] <- 10
+for (i in 2:length (rn))
+{
+    rn[i] <- (A * rn[i-1] ) %% M
+}
+
+nrn <- rn/(M-2)
+plot (nrn[1:100])
+acf (nrn)
+hist (nrn)
+
+
+n <- 100000
+a <- runif(n)
+par(mfrow=c(1,2),mar=c(4,4,3,1))
+hist(a,xlab="Random Numbers",main="")
+
+acf(a,main="")
+
+```
+
+# Inverting CDF 
+
+```{r}
+# generate exponenail random numbers
+
+#use method of inverse cdf to generate iid sample from exp(1)
+gen_exp <- function(n)
+{
+    #generate unif(0,) random numbers
+    u <- runif(n)
+    #transform the random numbers
+    -log(1-u)
+}
+
+b <- gen_exp (10000)
+hist (b)
+acf (b)
+
+## r built in generators
+hist (rexp (10000))
+
+```
+
+# A Special Transformation for Generating Normal Sample
+
+```{r}
+gen_normal <- function(n)
+{
+    #calculates size of random samples, which is greater than half of n
+    size_sample <- ceiling(n/2)
+    
+    R <- sqrt(2*rexp(size_sample))
+    theta <- runif(size_sample,0,2*pi)
+    
+    X <- R*cos(theta)  
+    Y <- R*sin(theta)
+    
+    c(X,Y)[1:n]  
+}
+
+normal_sample <- gen_normal(10000)
+
+par(mfrow=c(1,2),mar=c(4,4,1,1))
+
+hist(normal_sample,main="")
+
+qqnorm(normal_sample)
+
+nsample2 <- rnorm (10000) 
+hist (nsample2)
+qqnorm (nsample2)
+
+```
+
+# Demonstration of CLT and LLN
+```{r}
+
+n <- 10000
+rn <- rgamma (n, shape = 2)
+
+par (mfcol = c(2,2))
+plot (rn[1:100])
+hist (rn)
+
+plot (cumsum(rn)/(1:n), main = "Demonstrating LLN", log = "x"); abline (h = 2)
+plot ((cumsum(rn)/(1:n) - 2) / sqrt(2/(1:n)), ylim = c(-3,3), main="Demonstrating CLT")
+abline (h = c(0, -2,2), lty = c(1,2,2))
+
+
+
+```
+
+# An Example of Monte Carlo for Estimating $\pi$
+```{r}
+
+#### an application of monte carlo method in estimating pi
+
+# n is the number of samples drawn uniformly from the rectangle (-1,1)  * (-1,1)
+# an estimate of pi is returned
+pi_est_mc <- function(n)
+{
+    #X and Y are independent, each with marginal distribution unif(-1,1)
+    X <- runif(n,-1,1)
+    Y <- runif(n,-1,1)
+    
+    Z <- 4 * (X^2 + Y^2 <= 1)
+    mu <- mean (Z)
+    error <- 1.96 * sd (Z) /sqrt (n)
+    list (pi.est = mu, error.95perc = error, ci.95perc = mu + c(-error, error))
+}  
+
+pi_est_mc (100)
+pi_est_mc (10000)
+pi_est_mc (100000)
+pi_est_mc (10000000)
+```
+

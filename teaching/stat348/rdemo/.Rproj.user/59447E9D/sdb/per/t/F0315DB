@@ -1,0 +1,16 @@
+{
+    "contents" : "\nsource (\"estimates.r\")\n\n\nagpop <- read.csv (\"agpop.csv\", na = \"-99\")\nN <- nrow (agpop)\ntotcares92<- sum (na.omit(agpop$acres92))\n\n################## use acres87 to construct sampling probability #############\nplot (agpop$acres87, agpop$acres92)\n\n\nacres87 <- agpop[, \"acres87\"]\nacres87 [is.na (acres87)] <- 0\n\nest_srs300 <- est_ups15_acres87 <- rep (0, 5000)\nfor (i in 1:5000)\n{\n  ## srs sample\n  srs300 <- sample (1:N, size = 300)\n  ## survey\n  acres92_srs300 <- agpop[srs300, \"acres92\"]\n  ## estimate\n  est_srs300 [i] <-  (srs_mean_est (na.omit (acres92_srs300), N = N) * N) [1] \n  \n  ## ups sample\n  ups15 <- sample (1:N, size = 15, prob = acres87, replace = TRUE)\n\n  ## survey\n  acres92_ups15 <- agpop[ups15, \"acres92\"]\n\n  ## estimate\n  psi <- (acres87 / sum (acres87)) [ups15]\n  nona <- (!is.na (acres92_ups15) & !is.na (psi) )\n  est_ups15_acres87 [i] <-  upswr_total_est (acres92_ups15[nona], psi[nona]) [1] \n\n}\n\nboxplot (data.frame(est_srs300, est_ups15_acres87))\n\n################## use smallf87 to construct sampling probability #############\n\nplot (agpop$smallf92, agpop$acres92)\n\nsmallf87 <- agpop[, \"smallf87\"]\nsmallf87 [is.na (smallf87)] <- 0\n\nest_ups300_smallf <- rep (0, 5000)\n\nfor (i in 1:5000)\n{\n\n    ## ups sample\n    ups300 <- sample (1:N, size = 15, prob = smallf87, replace = TRUE)\n    \n    ## survey\n    acres92_ups300 <- agpop[ups300, \"acres92\"]\n    \n    ## estimate\n    psi <- (smallf87 / sum (smallf87)) [ups300]\n    nona <- (!is.na (acres92_ups300) & !is.na (psi) )\n    est_ups300_smallf [i] <-  upswr_total_est (acres92_ups300[nona], psi[nona]) [1] \n    \n}\n\nboxplot (data.frame(est_srs300, est_ups300_smallf), log = \"y\")\n\n\n################## use largef87 to construct sampling probability #############\n\nplot (agpop$largef87, agpop$acres92)\n\nnona <- !is.na (agpop$largef87) & !is.na (agpop$acres92)\ncor (agpop$largef87[nona], agpop$acres92[nona])\n\nlargef87 <- agpop[, \"largef87\"]\nlargef87 [is.na (largef87)] <- 0\n\nest_ups300_largef <- rep (0, 5000)\n\nfor (i in 1:5000)\n{\n    \n    ## ups sample\n    ups300 <- sample (1:N, size = 15, prob = largef87, replace = TRUE)\n    \n    ## survey\n    acres92_ups300 <- agpop[ups300, \"acres92\"]\n    \n    ## estimate\n    psi <- (largef87 / sum (largef87)) [ups300]\n    nona <- (!is.na (acres92_ups300) & !is.na (psi) )\n    est_ups300_largef [i] <-  upswr_total_est (acres92_ups300[nona], psi[nona]) [1] \n    \n}\n\n\nboxplot (data.frame(est_srs300, est_ups15_acres87, \n                    est_ups300_smallf,est_ups300_largef)\n        , log= \"y\")\n",
+    "created" : 1427474562326.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3958177067",
+    "id" : "F0315DB",
+    "lastKnownWriteTime" : 1427477087,
+    "path" : "Z:/public_html/teaching/stat348_1501/rdemo/ups_ex6.10(agpopdemo).R",
+    "project_path" : "ups_ex6.10(agpopdemo).R",
+    "properties" : {
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}
