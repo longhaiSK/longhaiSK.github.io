@@ -36,7 +36,8 @@ for (i in 2:length (rn))
     rn[i] <- (A * rn[i-1] ) %% M
 }
 
-nrn <- rn/(M-2)
+nrn <- rn/(M-1)
+par(mfrow=c(1,3),mar=c(4,4,3,1))
 plot (nrn[1:100])
 acf (nrn)
 hist (nrn)
@@ -66,6 +67,7 @@ gen_exp <- function(n)
 }
 
 b <- gen_exp (10000)
+par(mfrow=c(1,3),mar=c(4,4,3,1))
 hist (b)
 acf (b)
 
@@ -98,25 +100,30 @@ par(mfrow=c(1,2),mar=c(4,4,1,1))
 hist(normal_sample,main="")
 
 qqnorm(normal_sample)
+qqline(normal_sample)
 
 nsample2 <- rnorm (10000) 
 hist (nsample2)
 qqnorm (nsample2)
+qqline(nsample2)
 
 ```
 
 # Demonstration of CLT and LLN
 ```{r}
 
-n <- 500
+n <- 200
 rn <- rgamma (n, shape = 2)
 
 par (mfrow = c(2,2))
 plot (rn[1:100])
 hist (rn)
-
-matplot(replicate(10, cumsum(rgamma (n, shape = 2))/(1:n)), main = "Demonstrating LLN", log = "x", type = "b"); abline (h = 2)
-matplot(replicate(10, (cumsum(rgamma (n, shape = 2))/(1:n) - 2) / sqrt(2/(1:n))), ylim = c(-3,3), type="b", main="Demonstrating CLT")
+xbar.rep <- replicate(10, cumsum(rgamma (n, shape = 2))/(1:n))
+se.rep <- replicate(10, (cumsum(rgamma (n, shape = 2))/(1:n) - 2) / sqrt(2/(1:n)))
+plot(xbar.rep[,1], main = "Demonstrating LLN", log = "x", type = "b", ylim = c(0, 6)); abline (h = 2)
+for (i in 2:ncol(xbar.rep)) points(xbar.rep[,i], col = i, pch = i, type = "b")
+plot(se.rep[,1], ylim = c(-3,3), type="b",log = "x",  main="Demonstrating CLT")
+for (i in 2:ncol(se.rep)) points(se.rep[,i], col = i, pch = i, type = "b")
 abline (h = c(0, -2,2), lty = c(1,2,2))
 
 
