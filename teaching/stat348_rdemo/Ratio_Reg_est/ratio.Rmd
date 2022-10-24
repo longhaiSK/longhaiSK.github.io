@@ -11,6 +11,7 @@ output:
     highlight: tango
     fig_width: 10
     fig_height: 8
+    df_print: paged
   word_document:
     toc: yes
     number_sections: yes
@@ -219,17 +220,12 @@ srs_ratio_est (ydata = cherry$volume, xdata = cherry$diameter, N = 2967) * total
 cat(1-(ratio_mean_volume[2]/srs_mean_volume[2])^2)
 ```
 
-
-
 # Simulation study with agpop.csv
 
 ## Information of population data 
 ```{r }
-
 agpop <- read.csv ("data/agpop.csv")
 agpop <- agpop[agpop$acres92 != -99, ] ## remove those counties with na
-
-
 
 # sample size
 n <- 300
@@ -272,7 +268,7 @@ for (i in 1:nsim)
   sim_rat$ratio [i] <-  sim_rat$B [i] * txU
 }
 
-head(sim_rat)
+sim_rat[1:100,]
 boxplot (sim_rat [, 1:2])
 abline (h = tyU, col = "red")
 
@@ -285,16 +281,16 @@ data.frame (sim_var, ratio_sim_var,percentage_reduction)
 
 ```
 
-# Domain and Post-stratification with agsrs.csv example
-## Domain Analysis
+# Estimating Domain Means and Post-stratification with agsrs.csv example
+## Estimating Domain Means
 ```{r}
 agsrs <- read.csv("data/agsrs.csv")
 unique (agsrs$region)
-region_agsrs <- rbind(
+region_agsrs <- data.frame(rbind(
     NC = srs_mean_est(agsrs$acres92[agsrs$region=="NC"], N = 3078),
     NE = srs_mean_est(agsrs$acres92[agsrs$region=="NE"], N = 3078),
     S = srs_mean_est(agsrs$acres92[agsrs$region=="S"], N = 3078),
-    W = srs_mean_est(agsrs$acres92[agsrs$region=="W"], N = 3078)
+    W = srs_mean_est(agsrs$acres92[agsrs$region=="W"], N = 3078))
 )
 region_agsrs
 
@@ -308,10 +304,15 @@ sh <- tapply (agsrs[, "acres92"], agsrs[,"region"], sd)
 ybarh <- tapply (agsrs[, "acres92"], agsrs[,"region"], mean)
 # create a vector with external information
 Nh <- c(NC = 1054, NE = 220, S= 1382, W = 422)
+```
+
+**Create nh proportional to Nh, instead of using observed nh**
+
+```{r}
 nh_post <- Nh/sum(Nh)* n
 
 ## regional summary for stratified sampling estimation
-cbind(ybarh, sh, nh, prop_obs=nh/sum(nh), Nh, nh_post, prop_post = nh_post/sum(nh_post))
+data.frame(cbind(ybarh, sh, nh, prop_obs=nh/sum(nh), Nh, nh_post, prop_post = nh_post/sum(nh_post)))
 
 ## strata mean estimate
 str_mean_estimate (ybarh, sh, nh_post, Nh)
@@ -325,13 +326,13 @@ mean(agpop$acres92)
 ```
 
 
-# Domain and Post-stratification with teacher example
+# Estimating Domain Means and Post-stratification with teacher example
 
-## Reading Data
+## Importing Data
 ```{r}
 teacher <- read.csv ("data/college_teacher.csv")
-table(teacher)
-prop.table(table(teacher),2)
+t(table(teacher))
+t(prop.table(table(teacher),2))
 ```
 
 ## Domain Summary
@@ -339,29 +340,28 @@ prop.table(table(teacher),2)
 n <- nrow (teacher)
 yh <- tapply (teacher$teacher, INDEX = teacher$gender, FUN = mean); yh
 sh <- tapply (teacher$teacher, INDEX = teacher$gender, FUN = sd); sh
-
 nh_obs <- tapply (teacher$teacher, INDEX = teacher$gender, FUN = length)
 ph_obs <- nh_obs/sum (nh_obs); ph_obs
 data.frame(yh, sh, nh_obs, ph_obs)
 ```
 
-## Domain Analysis
+## Estimating Domain Means
 
 ```{r}
 Nh <- c(3000, 1000)
 rbind(
     female=srs_mean_est(subset(teacher, gender==1)$teacher, N=3000),
-    male = srs_mean_est(subset(teacher, gender==2)$teacher, N=3000)
+    male = srs_mean_est(subset(teacher, gender==2)$teacher, N=1000)
 )
 ```
 
-## Post-stratified Analysis
+## Post-stratification Analysis
 ```{r}
 Nh <- c(3000, 1000)
 ph_post <- Nh/sum (Nh); ph_post
 ```
 
-**Create nh proportional to Nh, instead of observed nh**
+**Create nh proportional to Nh, instead of using observed nh**
 
 ```{r}
 nh_post <- Nh/sum (Nh) * n
@@ -388,6 +388,7 @@ srs_mean_est (teacher$teacher, N=sum(Nh))
 
 ## Importing data
 ```{r}
+cherry <- read.csv ("data/cherry.csv", header = T)
 ydata <- cherry$volume 
 xdata <- cherry$diameter
 t_diameters <- 41835
@@ -409,6 +410,9 @@ efit <- ydata - (Bhat[1] + Bhat[2] * xdata)
 data.frame (cherry, residual=efit) ## for visualization
 
 SSe <- sum (efit^2) / (n - 2) 
+SSe
+## SSe can be obtained directly from lm fitting output
+anova(lmfit)
 ```
 
 ### Estiamte the mean
