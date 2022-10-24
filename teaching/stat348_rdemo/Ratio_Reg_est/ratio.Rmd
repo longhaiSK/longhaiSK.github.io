@@ -1,0 +1,488 @@
+---
+title: "Data Analysis and Simulation for Ratio and Regression Estimation"
+author: "Longhai Li"
+output:
+  html_document:
+    theme: united
+    toc: yes
+    toc_float: no
+    toc_depth: 2
+    number_sections: yes
+    highlight: tango
+    fig_width: 10
+    fig_height: 8
+  word_document:
+    toc: yes
+    number_sections: yes
+    highlight: tango
+    fig_width: 10
+    fig_height: 8
+  pdf_document: 
+    toc: yes
+    number_sections: yes
+    highlight: tango
+    fig_width: 10
+    fig_height: 8
+    toc_depth: 2
+editor_options:
+  chunk_output_type: inline
+---
+
+
+# Functions and packages for Analyzing Data
+```{r}
+## ydata --- observations of the variable of interest
+## xdata --- observations of the auxilliary variable
+## N --- population size
+## xbarU --- population mean of auxilliary variable
+
+## the output is the estimate mean or total (est.total=TRUE)
+srs_reg_est <- function (ydata, xdata, xbarU, N = Inf, est.total = FALSE)
+{
+  n <- length (ydata)
+  lmfit <- lm (ydata ~ xdata)
+  Bhat <- lmfit$coefficients
+  efit <- lmfit$residuals
+  SSe <- sum (efit^2) / (n - 2) 
+  yhat_reg <- Bhat[1] + Bhat[2] * xbarU
+  se_yhat_reg <- sqrt ((1-n/N) * SSe / n)
+  mem <- qt (0.975, df = n - 2) * se_yhat_reg
+  output <- c(yhat_reg, se_yhat_reg, yhat_reg - mem, yhat_reg + mem)
+  
+  if (est.total) {
+      if(!is.finite(N)) stop("N must be finite for estimating population total" )
+      output <- output * N
+  }
+
+  names (output) <- c("Est.", "S.E.", "ci.low", "ci.upp" )
+  output
+}
+
+
+## ydata --- observations of the variable of interest
+## xdata --- observations of the auxilliary variable
+## N --- population size
+
+## the output is the ratio of ybarU/xbarU
+srs_ratio_est <- function (ydata, xdata, N = Inf)
+{	
+  n <- length (xdata)
+  xbar <- mean (xdata)
+  ybar <- mean (ydata)
+  B_hat <- ybar / xbar
+  d <- ydata - B_hat * xdata
+  var_d <- sum (d^2) / (n - 1)
+  sd_B_hat <- sqrt ((1 - n/N) * var_d / n) / xbar
+  mem <- qt (0.975, df = n - 1) * sd_B_hat
+  output <- c (B_hat, sd_B_hat, B_hat - mem, B_hat + mem )
+  
+  
+  names (output) <- c("Est.", "S.E.", "ci.low", "ci.upp" )
+  output
+}
+
+
+## sdata --- a vector of original survey data
+## N --- population size
+## to find total, multiply N to the estimate returned by this function
+
+srs_mean_est <- function (sdata, N = Inf)
+{
+	n <- length (sdata)
+	ybar <- mean (sdata)
+	se.ybar <- sqrt((1 - n / N)) * sd (sdata) / sqrt(n)  
+	mem <- qt (0.975, df = n - 1) * se.ybar
+	c (Est. = ybar, S.E. = se.ybar, ci.low = ybar - mem, ci.upp = ybar + mem)
+}
+
+## to find total, multiply N to the estimate returned by this function
+## for poststratification, use nh = n * Nh/N
+str_mean_estimate <- function (ybarh, sh, nh, Nh)
+{
+    N <- sum (Nh)
+    Pi_h <- Nh/N
+    ybar <- sum(ybarh * Pi_h)
+    seybar <- sqrt(sum((1-nh/Nh)*Pi_h^2*sh^2/nh))
+    mem <- 1.96 * seybar
+    c(Est. = ybar, S.E. = seybar, ci.low = ybar - mem, ci.upp = ybar + mem)
+}
+
+
+```
+
+
+
+
+# Ratio  Estimation for cherry.csv dataset 
+## Importing data
+```{r}
+cherry <- read.csv ("data/cherry.csv", header = T)
+cherry
+plot (cherry$volume ~ cherry$diameter)
+summary (lm(cherry$volume ~ 0+cherry$diameter))
+```
+
+
+## SRS estimate 
+
+```{r}
+N <- 2967
+## estimating the mean of volume
+srs_mean_volume <- srs_mean_est(cherry$volume, N = N)
+srs_mean_volume
+## estimating the total of volume
+srs_total_volume <- srs_mean_est(cherry$volume, N = N) * N
+srs_total_volume
+```
+
+## Step-by-step calculation with Ratio Estimation
+
+### Estimating B and calculating residuals
+```{r}
+## input
+ydata <- cherry$volume
+xdata <- cherry$diameter
+N <- 2967
+
+## calculation
+n <- length (xdata)
+xbar <- mean (xdata)
+ybar <- mean (ydata)
+B_hat <- ybar / xbar ## ratio estimate
+
+
+plot (cherry$volume ~ cherry$diameter)
+abline (a = 0, b = B_hat)
+
+d <- ydata - B_hat * xdata ## errors
+data.frame (cherry, d = d)
+```
+
+### Estimating SE of B
+```{r}
+## estimating S^2_e
+var_d <- sum (d^2) / (n - 1) ## variance of errors
+sd_B_hat <- sqrt ((1 - n/N) * var_d / n) / xbar ## SE for B
+mem <- qt (0.975, df = n - 1) * sd_B_hat ## margin error for B
+
+## output
+output_B <- c (B_hat, sd_B_hat, B_hat - mem, B_hat + mem )
+names (output_B) <- c("Est.", "S.E.", "ci.low", "ci.upp" )
+output_B
+
+```
+
+### Estimating the mean volume of wood
+```{r}
+
+mean_diameters <- 41835/N
+output_B * mean_diameters
+
+```
+
+### Estimating the total volume of wood
+```{r}
+
+t_diameters <- 41835
+output_B * t_diameters
+
+```
+
+
+## Ratio estimation with a function 
+### Estimating the ratio of volume to diameter
+```{r}
+B_v2d <- srs_ratio_est (ydata = cherry$volume, xdata = cherry$diameter,  N = 2967)
+B_v2d
+
+```
+
+
+### Estimating the mean of volume
+```{r}
+xbarU <- 41835/N
+ratio_mean_volume <- srs_ratio_est (ydata = cherry$volume, xdata = cherry$diameter, N = 2967) * xbarU
+ratio_mean_volume
+
+
+```
+
+### Estimating the total of volume
+```{r}
+total_diameters <- 41835
+srs_ratio_est (ydata = cherry$volume, xdata = cherry$diameter, N = 2967) * total_diameters
+
+```
+
+### Percentage of Variance Reduction
+```{r}
+cat(1-(ratio_mean_volume[2]/srs_mean_volume[2])^2)
+```
+
+
+
+# Simulation study with agpop.csv
+
+## Information of population data 
+```{r }
+
+agpop <- read.csv ("data/agpop.csv")
+agpop <- agpop[agpop$acres92 != -99, ] ## remove those counties with na
+
+
+
+# sample size
+n <- 300
+# population size
+N <- nrow (agpop)
+
+# true values that we want to estimate
+tyU <- sum (agpop [,"acres92"])
+# suppose known for ratio estimate
+txU <- sum (agpop [,"acres87"]) 
+B <- tyU/txU
+plot (agpop [, "acres87"], agpop [, "acres92"])
+abline(a=0,b=B)
+# expected reduction of variance of ratio estimate to srs
+
+1-var(agpop$acres92-B*agpop$acres87)/var(agpop$acres92)
+
+# linear model output
+
+summary(lm(agpop$acres92 ~ agpop$acres87))
+```
+
+## Simulation Studies
+```{r cache=TRUE}
+
+nsim <- 2000
+sim_rat <- data.frame (
+	SRS = rep (0, nsim), ratio = rep (0, nsim), B = rep (0, nsim))
+
+for (i in 1:nsim)
+{
+  srs <- sample (N,n)
+  y_srs <- agpop[srs, "acres92"]
+  x_srs <- agpop[srs, "acres87"]
+
+  # SRS estimate
+  sim_rat$SRS [i] <- mean (y_srs) * N 
+  # ratio estimate
+  sim_rat$B [i] <- mean (y_srs) / mean (x_srs)
+  sim_rat$ratio [i] <-  sim_rat$B [i] * txU
+}
+
+head(sim_rat)
+boxplot (sim_rat [, 1:2])
+abline (h = tyU, col = "red")
+
+sim_var <- sapply (sim_rat[,1:2], var)
+
+ratio_sim_var <- sim_var/sim_var[1]
+percentage_reduction <- 1-ratio_sim_var
+data.frame (sim_var, ratio_sim_var,percentage_reduction)
+
+
+```
+
+# Domain and Post-stratification with agsrs.csv example
+## Domain Analysis
+```{r}
+agsrs <- read.csv("data/agsrs.csv")
+unique (agsrs$region)
+region_agsrs <- rbind(
+    NC = srs_mean_est(agsrs$acres92[agsrs$region=="NC"], N = 3078),
+    NE = srs_mean_est(agsrs$acres92[agsrs$region=="NE"], N = 3078),
+    S = srs_mean_est(agsrs$acres92[agsrs$region=="S"], N = 3078),
+    W = srs_mean_est(agsrs$acres92[agsrs$region=="W"], N = 3078)
+)
+region_agsrs
+
+```
+## Post-stratifiation Analysis
+```{r}
+nh <- tapply (1:nrow(agsrs), agsrs[,"region"], length)
+n <- sum (nh)
+n
+sh <- tapply (agsrs[, "acres92"], agsrs[,"region"], sd)
+ybarh <- tapply (agsrs[, "acres92"], agsrs[,"region"], mean)
+# create a vector with external information
+Nh <- c(NC = 1054, NE = 220, S= 1382, W = 422)
+nh_post <- Nh/sum(Nh)* n
+
+## regional summary for stratified sampling estimation
+cbind(ybarh, sh, nh, prop_obs=nh/sum(nh), Nh, nh_post, prop_post = nh_post/sum(nh_post))
+
+## strata mean estimate
+str_mean_estimate (ybarh, sh, nh_post, Nh)
+
+## compare with SRS estimate
+
+srs_mean_est(agsrs$acres92, N = 3087)
+
+## true mean
+mean(agpop$acres92)
+```
+
+
+# Domain and Post-stratification with teacher example
+
+## Reading Data
+```{r}
+teacher <- read.csv ("data/college_teacher.csv")
+table(teacher)
+prop.table(table(teacher),2)
+```
+
+## Domain Summary
+```{r}
+n <- nrow (teacher)
+yh <- tapply (teacher$teacher, INDEX = teacher$gender, FUN = mean); yh
+sh <- tapply (teacher$teacher, INDEX = teacher$gender, FUN = sd); sh
+
+nh_obs <- tapply (teacher$teacher, INDEX = teacher$gender, FUN = length)
+ph_obs <- nh_obs/sum (nh_obs); ph_obs
+data.frame(yh, sh, nh_obs, ph_obs)
+```
+
+## Domain Analysis
+
+```{r}
+Nh <- c(3000, 1000)
+rbind(
+    female=srs_mean_est(subset(teacher, gender==1)$teacher, N=3000),
+    male = srs_mean_est(subset(teacher, gender==2)$teacher, N=3000)
+)
+```
+
+## Post-stratified Analysis
+```{r}
+Nh <- c(3000, 1000)
+ph_post <- Nh/sum (Nh); ph_post
+```
+
+**Create nh proportional to Nh, instead of observed nh**
+
+```{r}
+nh_post <- Nh/sum (Nh) * n
+
+## show the differences
+data.frame(p_hat = yh, sh, nh_obs, prop_obs=ph_obs, nh_post, prop_post=ph_post)
+```
+
+
+```{r}
+## poststratification estimation of mean
+str_mean_estimate (yh, sh, nh_post, Nh)
+```
+
+## Analysis with SRS
+```{r}
+srs_mean_est (teacher$teacher, N=sum(Nh))
+
+```
+
+
+
+# Regression Estimation for the cherry.csv dataset 
+
+## Importing data
+```{r}
+ydata <- cherry$volume 
+xdata <- cherry$diameter
+t_diameters <- 41835
+xbarU <- t_diameters/2967 
+N <- 2967
+```
+
+## Step-by-step calculation
+
+### Fitting a linear regression model
+```{r}
+n <- length (ydata)
+lmfit <- lm (ydata ~ xdata)
+summary (lmfit)
+plot (xdata, ydata)
+abline (lmfit)
+Bhat <- lmfit$coefficients
+efit <- ydata - (Bhat[1] + Bhat[2] * xdata)
+data.frame (cherry, residual=efit) ## for visualization
+
+SSe <- sum (efit^2) / (n - 2) 
+```
+
+### Estiamte the mean
+```{r}
+
+yhat_reg <- Bhat[1] + Bhat[2] * xbarU
+se_yhat_reg <- sqrt ((1-n/N) * SSe / n)
+mem <- qt (0.975, df = n - 2) * se_yhat_reg
+output <- c(yhat_reg, se_yhat_reg, yhat_reg - mem, yhat_reg + mem)
+names (output) <- c("Est.", "S.E.", "ci.low", "ci.upp" )
+output
+```
+### Estiamte the total
+
+```{r}
+output * N 
+
+```
+
+## Regression estimation Using the function 
+### Estimating the mean
+```{r}
+
+reg_mean_volume <- srs_reg_est(ydata = cherry$volume, xdata = cherry$diameter, 
+                 xbarU=t_diameters/2967, N = 2967) 
+reg_mean_volume
+```
+
+### Estimating the total
+```{r}
+
+t_diameters <- 41835
+srs_reg_est(ydata = cherry$volume, xdata = cherry$diameter, 
+                 xbarU=t_diameters/2967, N = 2967, est.total = TRUE)
+
+```
+
+### Percentage of Variance Reduction 
+```{r}
+cat(1-(reg_mean_volume[2]/srs_mean_volume[2])^2)
+```
+
+
+# Regression estimation for photo counts of dead trees
+To estimate the number of dead trees in an area, we divide the area into 100 square plots and count the number of dead trees on a photograph of each plot. Photo counts can be made quickly, but sometimes a tree is misclassiﬁed or not detected. So we select an SRS of 25 of the plots for ﬁeld counts of dead trees. We know that the population mean number of dead trees per plot from the photo count is 11.3.
+
+```{r}
+photocounts <- c (10,12,7, 13,13, 6,17, 16, 15, 10, 14, 12, 10, 5,12, 10,
+10, 9, 6, 11, 7, 9, 11, 10, 10)
+
+fieldcounts <- c (15, 14, 9, 14, 8, 5, 18, 15, 13, 15, 11, 15, 12, 8, 13,
+9, 11, 12, 9, 12, 13, 11, 10, 9, 8)
+
+
+lmfit <- lm (fieldcounts ~ photocounts)
+summary (lmfit)
+plot (photocounts, fieldcounts)
+abline (lmfit)
+
+# estimate for the mean number of dead trees per plot
+srs_reg_est (ydata = fieldcounts, xdata = photocounts, xbarU = 11.3, N = 100)
+
+# estimate for the total number of dead trees in the area
+srs_reg_est (ydata = fieldcounts, xdata = photocounts, xbarU = 11.3, N = 100, est.total = TRUE)
+
+
+
+
+# compare to simple estimate
+srs_mean_est (sdata = fieldcounts, N = 100)
+
+# compare to ratio estimate 
+srs_ratio_est (ydata = fieldcounts, xdata = photocounts, N = 100) * 11.3
+
+```
+
+

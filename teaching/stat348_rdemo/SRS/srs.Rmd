@@ -1,0 +1,192 @@
+---
+title: "Data Analysis and Simulation for Simple Random Sampling"
+author: "Longhai Li"
+output:
+  html_document:
+    theme: united
+    toc: yes
+    toc_float: no
+    number_sections: yes
+    highlight: tango
+    fig_width: 10
+    fig_height: 8
+  word_document:
+    toc: yes
+---
+```{r}
+library(latex2exp)
+```
+
+
+# Analysis of agsrs.csv Data
+## Step by step calculation without using a function 
+```{r}
+## read survey data
+agsrs <- read.csv ("data/agsrs.csv")
+head(agsrs)
+
+## extract the variable of interest
+sdata <- agsrs$acres92
+N <- 3078
+
+## do calculation
+n <- length (sdata)
+ybar <- mean (sdata)
+se.ybar <- sqrt((1 - n / N)) * sd (sdata) / sqrt(n)  
+mem <- qt (0.975, df = n - 1) * se.ybar
+## return estimate vector for pop mean
+c (Est. = ybar, S.E. = se.ybar, ci.low = ybar - mem, ci.upp = ybar + mem)
+
+## return estimate vector for pop total
+c (Est. = ybar, S.E. = se.ybar, ci.low = ybar - mem, ci.upp = ybar + mem) * N
+```
+
+## Write a function for repeated use
+### A function for doing data analysis for srs sample
+```{r }
+# 
+# sdata -- a vector of sampling survey data
+# N -- population size 
+# to find total, multiply N to the estimate returned by this function
+srs_mean_est <- function (sdata, N)
+{
+	n <- length (sdata)
+	ybar <- mean (sdata)
+	se.ybar <- sqrt((1 - n / N)) * sd (sdata) / sqrt(n)  
+	mem <- qt (0.975, df = n - 1) * se.ybar
+	c (ybar = ybar, se = se.ybar, ci.low = ybar - mem, ci.upp = ybar + mem)
+}
+```
+
+### Apply srs_mean_est to agsrs.csv data
+*Import Data*
+```{r}
+agsrs <- read.csv ("data/agsrs.csv")
+```
+*Estimating the mean of acre92*
+```{r}
+srs_mean_est (agsrs[,"acres92"], N = 3078)
+```
+
+*Estimating the total of acre92*
+```{r}
+srs_mean_est (agsrs[,"acres92"], N = 3078) * 3078
+```
+
+*Estimating the proportion of counties with fewer than 200K acres for farming in 1992*
+```{r}
+acres92.is.fewer.200k <- as.numeric (agsrs[,"acres92"] < 200000)
+head(acres92.is.fewer.200k)
+srs_mean_est (acres92.is.fewer.200k, N = 3078)
+```
+
+*Estimating the total number of counties with fewer than 200K acres for farming in 1992*
+```{r}
+srs_mean_est (acres92.is.fewer.200k, N = 3078) * 3078
+```
+
+## Comparing with true value
+
+```{r}
+agpop <- read.csv ("data/agpop.csv", na = "-99")
+#true mean
+mean (agpop[, "acres92"], na.rm = T)
+# true total
+sum (agpop[, "acres92"], na.rm = T)
+
+# true proportion of counties with less than 200K acres for farming
+mean (agpop[, "acres92"] < 200000, na.rm = T)
+# true number of counties with less than 200K acres for farming
+sum (agpop[, "acres92"] < 200000, na.rm = T)
+
+```
+
+# A Simulation Demonstration of SRS Inference
+```{r }
+# read population data 
+agpop <- read.csv ("data/agpop.csv")
+# remove those counties with na
+agpop <- subset( agpop, acres92 != -99)
+```
+
+## Simulation
+
+### True Values
+```{r }
+# sample size
+n <- 300
+# population size
+N <- nrow (agpop); N
+
+# true value of population mean
+ybarU <- mean (agpop[,"acres92"]); ybarU
+# true value of deviation of sample mean
+true.se.ybar <- sqrt (1- n/N) * sd (agpop[,"acres92"]) / sqrt (n); true.se.ybar
+```
+
+### One SRS sampling
+
+```{r }
+## 
+# srs sampling
+srs <- sample (1:N,n)
+head(agpop [srs, ])
+# get data of variable "acres92"
+sdata <- agpop [srs, "acres92"]
+# analysis
+srs_mean_est (sdata, N)
+```
+
+### Repeating SRS sampling 5000 times
+```{r fig.height=10}
+nres <- 5000 # number of repeated sampling
+simulation.results <- matrix (0, nres, 4) # matrix recording repeated results
+colnames(simulation.results) <- c( "Est.",   "S.E.",   "ci.low", "ci.upp")
+
+for (i in 1:nres)
+{
+    srs <- sample (N, n)
+	sdata <- agpop [srs, "acres92"]
+	simulation.results [i,] <- srs_mean_est (sdata, N)
+}
+
+head(simulation.results)
+# look at the distribution of sample mean
+par (mfrow= c(2,2))
+hist (agpop$acres92,main = "Population Distribution of acre92")
+hist (simulation.results[,1], main = "Sampling Distribution of Sample Mean for acre92")
+abline (v = ybarU, col = "red")
+qqnorm (simulation.results[,1], main="QQ plot of Sample Mean"); qqline(simulation.results[,1])
+boxplot (simulation.results[,1], main = "Boxplot of Sample Mean")
+abline (h = ybarU, col = "red")
+
+mean (simulation.results[,1])
+ybarU
+sd (simulation.results [,1])
+true.se.ybar
+```
+
+
+### Empirical Coverage Rate of CIs
+
+```{r fig.height=10}
+simulation.results <- cbind (simulation.results, (simulation.results[,3] < ybarU) * (ybarU < simulation.results[,4] ))
+colnames(simulation.results)[5] <- "Covered?"
+head(simulation.results)
+
+library("plotrix") 
+par(mfrow=c(1,1))
+plotCI(x=1:100,
+       y=simulation.results[1:100,1],
+       li = simulation.results[1:100,3],
+       ui = simulation.results[1:100,4],
+       col = 2-simulation.results[,5])
+abline(h=ybarU, col = "blue")
+
+# Empirical coverage rate 
+mean (simulation.results[,5])
+
+```
+
+
+
