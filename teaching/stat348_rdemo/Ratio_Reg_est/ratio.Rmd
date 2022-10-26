@@ -82,6 +82,18 @@ srs_ratio_est <- function (ydata, xdata, N = Inf)
   output
 }
 
+## sdata --- a vector of original survey data in a domain
+## N --- population size
+## n --- total sample size (not the sample size in the domain)
+## to find total, multiply domain size N_d to the estimate returned by this function
+srs_domain_mean_est <- function (sdata, n, N = Inf)
+{
+	n_d <- length (sdata)
+	ybar <- mean (sdata)
+	se.ybar <- sqrt((1 - n / N)) * sd (sdata) / sqrt(n_d)  
+	mem <- qt (0.975, df = n_d - 1) * se.ybar
+	c (Est. = ybar, S.E. = se.ybar, ci.low = ybar - mem, ci.upp = ybar + mem)
+}
 
 ## sdata --- a vector of original survey data
 ## N --- population size
@@ -284,17 +296,28 @@ data.frame (sim_var, ratio_sim_var,percentage_reduction)
 ## Estimating Domain Means
 ```{r}
 agsrs <- read.csv("data/agsrs.csv")
-unique (agsrs$region)
-region_agsrs <- data.frame(rbind(
+n <- nrow (agsrs)
+n
+## naively applying SRS estimation to each domain
+region_agsrs_domain <- data.frame(rbind(
+    NC = srs_domain_mean_est(agsrs$acres92[agsrs$region=="NC"], n=n, N = 3078),
+    NE = srs_domain_mean_est(agsrs$acres92[agsrs$region=="NE"], n=n,N = 3078),
+    S = srs_domain_mean_est(agsrs$acres92[agsrs$region=="S"], n=n,N = 3078),
+    W = srs_domain_mean_est(agsrs$acres92[agsrs$region=="W"], n=n,N = 3078))
+)
+region_agsrs_domain
+
+## naively applying SRS estimation to each domain gives similar results
+region_agsrs_srs <- data.frame(rbind(
     NC = srs_mean_est(agsrs$acres92[agsrs$region=="NC"], N = 3078),
     NE = srs_mean_est(agsrs$acres92[agsrs$region=="NE"], N = 3078),
     S = srs_mean_est(agsrs$acres92[agsrs$region=="S"], N = 3078),
     W = srs_mean_est(agsrs$acres92[agsrs$region=="W"], N = 3078))
 )
-region_agsrs
+region_agsrs_srs
 
 ```
-## Post-stratifiation Analysis
+## Post-stratification Analysis
 ```{r}
 nh <- tapply (1:nrow(agsrs), agsrs[,"region"], length)
 n <- sum (nh)
@@ -330,8 +353,10 @@ mean(agpop$acres92)
 ## Importing Data
 ```{r}
 teacher <- read.csv ("data/college_teacher.csv")
-t(table(teacher))
-t(prop.table(table(teacher),2))
+teacher
+table(teacher[,2:1])
+addmargins(table(teacher[,2:1]), 2)
+prop.table(table(teacher[,2:1]), margin = "gender")
 ```
 
 ## Domain Summary
@@ -340,24 +365,25 @@ n <- nrow (teacher)
 yh <- tapply (teacher$teacher, INDEX = teacher$gender, FUN = mean); yh
 sh <- tapply (teacher$teacher, INDEX = teacher$gender, FUN = sd); sh
 nh_obs <- tapply (teacher$teacher, INDEX = teacher$gender, FUN = length)
-ph_obs <- nh_obs/sum (nh_obs); ph_obs
-data.frame(yh, sh, nh_obs, ph_obs)
+prop_h_obs <- nh_obs/sum (nh_obs); prop_h_obs
+data.frame(yh, sh, nh_obs, prop_h_obs)
 ```
 
 ## Estimating Domain Means
 
 ```{r}
 Nh <- c(3000, 1000)
+n <- nrow(teacher)
 rbind(
-    female=srs_mean_est(subset(teacher, gender==1)$teacher, N=3000),
-    male = srs_mean_est(subset(teacher, gender==2)$teacher, N=1000)
+    female=srs_domain_mean_est(subset(teacher, gender==1)$teacher, n=n, N=3000),
+    male = srs_domain_mean_est(subset(teacher, gender==2)$teacher, n=n, N=1000)
 )
 ```
 
 ## Post-stratification Analysis
 ```{r}
 Nh <- c(3000, 1000)
-ph_post <- Nh/sum (Nh); ph_post
+prop_h_post <- Nh/sum (Nh); prop_h_post
 ```
 
 **Create nh proportional to Nh, instead of using observed nh**
@@ -366,7 +392,7 @@ ph_post <- Nh/sum (Nh); ph_post
 nh_post <- Nh/sum (Nh) * n
 
 ## show the differences
-data.frame(p_hat = yh, sh, nh_obs, prop_obs=ph_obs, nh_post, prop_post=ph_post)
+data.frame(p_hat = yh, sh, nh_obs, prop_obs=prop_h_obs, nh_post, prop_post=prop_h_post)
 ```
 
 
@@ -414,7 +440,7 @@ SSe
 anova(lmfit)
 ```
 
-### Estiamte the mean
+### Estimate the mean
 ```{r}
 
 yhat_reg <- Bhat[1] + Bhat[2] * xbarU
@@ -424,7 +450,7 @@ output <- c(yhat_reg, se_yhat_reg, yhat_reg - mem, yhat_reg + mem)
 names (output) <- c("Est.", "S.E.", "ci.low", "ci.upp" )
 output
 ```
-### Estiamte the total
+### Estimate the total
 
 ```{r}
 output * N 
