@@ -11,6 +11,7 @@
 
 <meta name="author" content="Longhai Li" />
 
+<meta name="date" content="2022-10-28" />
 
 <title>Data Analysis and Simulation for Stratified Random Sampling</title>
 
@@ -1703,6 +1704,7 @@ pre code {
 <h1 class="title toc-ignore">Data Analysis and Simulation for Stratified
 Random Sampling</h1>
 <h4 class="author">Longhai Li</h4>
+<h4 class="date">2022-10-28</h4>
 
 </div>
 
@@ -1754,7 +1756,7 @@ for Analyzing Data</h1>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># weight --- name of variable indicating sampling weight</span></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># post = TRUE is to indicate that we will do post-stratification analysis (ignoring it for the moment)</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># note: from weights we can find Nh (see the code for formula)</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>str_mean_estimate_data <span class="ot">&lt;-</span> <span class="cf">function</span> (stratdata, y, stratum, weight, <span class="at">post=</span><span class="cn">FALSE</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>str_mean_estimate_data <span class="ot">&lt;-</span> <span class="cf">function</span> (stratdata, y, stratum, weight)</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>{</span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="do">## compute stratum-wise data</span></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    n <span class="ot">&lt;-</span> <span class="fu">nrow</span> (stratdata)</span>
@@ -1762,49 +1764,44 @@ for Analyzing Data</h1>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    ybarh <span class="ot">&lt;-</span> <span class="fu">tapply</span> (stratdata[, y], stratdata[,stratum], mean)</span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="do">## find population stratum size using sampling weight included in the data set</span></span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    Nh <span class="ot">&lt;-</span> <span class="fu">tapply</span> (stratdata[, weight], stratdata[,stratum], sum)</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span>post)    </span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>        nh <span class="ot">&lt;-</span> <span class="fu">tapply</span> (<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(stratdata), stratdata[,stratum], length)</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span> </span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>        nh <span class="ot">&lt;-</span> n <span class="sc">*</span> Nh<span class="sc">/</span><span class="fu">sum</span> (Nh)</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="do">## find mean estimates</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    N <span class="ot">&lt;-</span> <span class="fu">sum</span> (Nh)</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    Pi_h <span class="ot">&lt;-</span> Nh<span class="sc">/</span>N</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    ybar <span class="ot">&lt;-</span> <span class="fu">sum</span>(ybarh <span class="sc">*</span> Pi_h)</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    seybar <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">sum</span>((<span class="dv">1</span><span class="sc">-</span>nh<span class="sc">/</span>Nh)<span class="sc">*</span>Pi_h<span class="sc">^</span><span class="dv">2</span><span class="sc">*</span>sh<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>nh))</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    mem <span class="ot">&lt;-</span> <span class="fl">1.96</span> <span class="sc">*</span> seybar</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(<span class="at">Est. =</span> ybar, <span class="at">S.E. =</span> seybar, <span class="at">ci.low =</span> ybar <span class="sc">-</span> mem, <span class="at">ci.upp =</span> ybar <span class="sc">+</span> mem)</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="do">## to find total, multiply N to the estimate returned by this function</span></span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="do">## for poststratification, use nh = n * Nh/N</span></span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>str_mean_estimate <span class="ot">&lt;-</span> <span class="cf">function</span> (ybarh, sh, nh, Nh)</span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>{</span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    N <span class="ot">&lt;-</span> <span class="fu">sum</span> (Nh)</span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    Pi_h <span class="ot">&lt;-</span> Nh<span class="sc">/</span>N</span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    ybar <span class="ot">&lt;-</span> <span class="fu">sum</span>(ybarh <span class="sc">*</span> Pi_h)</span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    seybar <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">sum</span>((<span class="dv">1</span><span class="sc">-</span>nh<span class="sc">/</span>Nh)<span class="sc">*</span>Pi_h<span class="sc">^</span><span class="dv">2</span><span class="sc">*</span>sh<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>nh))</span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    mem <span class="ot">&lt;-</span> <span class="fl">1.96</span> <span class="sc">*</span> seybar</span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(<span class="at">Est. =</span> ybar, <span class="at">S.E. =</span> seybar, <span class="at">ci.low =</span> ybar <span class="sc">-</span> mem, <span class="at">ci.upp =</span> ybar <span class="sc">+</span> mem)</span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    nh <span class="ot">&lt;-</span> <span class="fu">tapply</span> (<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(stratdata), stratdata[,stratum], length)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="do">## find mean estimates</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    N <span class="ot">&lt;-</span> <span class="fu">sum</span> (Nh)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    Pi_h <span class="ot">&lt;-</span> Nh<span class="sc">/</span>N</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    ybar <span class="ot">&lt;-</span> <span class="fu">sum</span>(ybarh <span class="sc">*</span> Pi_h)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    seybar <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">sum</span>((<span class="dv">1</span><span class="sc">-</span>nh<span class="sc">/</span>Nh)<span class="sc">*</span>Pi_h<span class="sc">^</span><span class="dv">2</span><span class="sc">*</span>sh<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>nh))</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    mem <span class="ot">&lt;-</span> <span class="fl">1.96</span> <span class="sc">*</span> seybar</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(<span class="at">Est. =</span> ybar, <span class="at">S.E. =</span> seybar, <span class="at">ci.low =</span> ybar <span class="sc">-</span> mem, <span class="at">ci.upp =</span> ybar <span class="sc">+</span> mem)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="do">## to find total, multiply N to the estimate returned by this function</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="do">## for poststratification, use nh = n * Nh/N</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>str_mean_estimate <span class="ot">&lt;-</span> <span class="cf">function</span> (ybarh, sh, nh, Nh)</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    N <span class="ot">&lt;-</span> <span class="fu">sum</span> (Nh)</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    Pi_h <span class="ot">&lt;-</span> Nh<span class="sc">/</span>N</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    ybar <span class="ot">&lt;-</span> <span class="fu">sum</span>(ybarh <span class="sc">*</span> Pi_h)</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    seybar <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">sum</span>((<span class="dv">1</span><span class="sc">-</span>nh<span class="sc">/</span>Nh)<span class="sc">*</span>Pi_h<span class="sc">^</span><span class="dv">2</span><span class="sc">*</span>sh<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>nh))</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    mem <span class="ot">&lt;-</span> <span class="fl">1.96</span> <span class="sc">*</span> seybar</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(<span class="at">Est. =</span> ybar, <span class="at">S.E. =</span> seybar, <span class="at">ci.low =</span> ybar <span class="sc">-</span> mem, <span class="at">ci.upp =</span> ybar <span class="sc">+</span> mem)</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="do">## sdata --- a vector of original survey data</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a><span class="do">## N --- population size</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="do">## to find total, multiply N to the estimate returned by this function</span></span>
 <span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a><span class="do">## sdata --- a vector of original survey data</span></span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a><span class="do">## N --- population size</span></span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a><span class="do">## to find total, multiply N to the estimate returned by this function</span></span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>srs_mean_est <span class="ot">&lt;-</span> <span class="cf">function</span> (sdata, <span class="at">N =</span> <span class="cn">Inf</span>)</span>
-<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>{</span>
-<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>    n <span class="ot">&lt;-</span> <span class="fu">length</span> (sdata)</span>
-<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>    ybar <span class="ot">&lt;-</span> <span class="fu">mean</span> (sdata)</span>
-<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>    se.ybar <span class="ot">&lt;-</span> <span class="fu">sqrt</span>((<span class="dv">1</span> <span class="sc">-</span> n <span class="sc">/</span> N)) <span class="sc">*</span> <span class="fu">sd</span> (sdata) <span class="sc">/</span> <span class="fu">sqrt</span>(n)  </span>
-<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>    mem <span class="ot">&lt;-</span> <span class="fu">qt</span> (<span class="fl">0.975</span>, <span class="at">df =</span> n <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> se.ybar</span>
-<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span> (<span class="at">Est. =</span> ybar, <span class="at">S.E. =</span> se.ybar, <span class="at">ci.low =</span> ybar <span class="sc">-</span> mem, <span class="at">ci.upp =</span> ybar <span class="sc">+</span> mem)</span>
-<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>srs_mean_est <span class="ot">&lt;-</span> <span class="cf">function</span> (sdata, <span class="at">N =</span> <span class="cn">Inf</span>)</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>    n <span class="ot">&lt;-</span> <span class="fu">length</span> (sdata)</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>    ybar <span class="ot">&lt;-</span> <span class="fu">mean</span> (sdata)</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>    se.ybar <span class="ot">&lt;-</span> <span class="fu">sqrt</span>((<span class="dv">1</span> <span class="sc">-</span> n <span class="sc">/</span> N)) <span class="sc">*</span> <span class="fu">sd</span> (sdata) <span class="sc">/</span> <span class="fu">sqrt</span>(n)  </span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>    mem <span class="ot">&lt;-</span> <span class="fu">qt</span> (<span class="fl">0.975</span>, <span class="at">df =</span> n <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> se.ybar</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span> (<span class="at">Est. =</span> ybar, <span class="at">S.E. =</span> se.ybar, <span class="at">ci.low =</span> ybar <span class="sc">-</span> mem, <span class="at">ci.upp =</span> ybar <span class="sc">+</span> mem)</span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 </div>
 <div id="analysis-of-agstrat.csv-data" class="section level1" number="2">
 <h1><span class="header-section-number">2</span> Analysis of
@@ -2019,7 +2016,7 @@ with P2S allocation</h3>
 <span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(strsample)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["stratum"],"name":[1],"type":["chr"],"align":["left"]},{"label":["ID_unit"],"name":[2],"type":["int"],"align":["right"]},{"label":["Prob"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["Stratum"],"name":[4],"type":["int"],"align":["right"]}],"data":[{"1":"NC","2":"11","3":"0.09790875","4":"1","_rn_":"11"},{"1":"NC","2":"21","3":"0.09790875","4":"1","_rn_":"21"},{"1":"NC","2":"27","3":"0.09790875","4":"1","_rn_":"27"},{"1":"NC","2":"35","3":"0.09790875","4":"1","_rn_":"35"},{"1":"NC","2":"36","3":"0.09790875","4":"1","_rn_":"36"},{"1":"NC","2":"43","3":"0.09790875","4":"1","_rn_":"43"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["stratum"],"name":[1],"type":["chr"],"align":["left"]},{"label":["ID_unit"],"name":[2],"type":["int"],"align":["right"]},{"label":["Prob"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["Stratum"],"name":[4],"type":["int"],"align":["right"]}],"data":[{"1":"NC","2":"14","3":"0.09790875","4":"1","_rn_":"14"},{"1":"NC","2":"18","3":"0.09790875","4":"1","_rn_":"18"},{"1":"NC","2":"28","3":"0.09790875","4":"1","_rn_":"28"},{"1":"NC","2":"30","3":"0.09790875","4":"1","_rn_":"30"},{"1":"NC","2":"55","3":"0.09790875","4":"1","_rn_":"55"},{"1":"NC","2":"62","3":"0.09790875","4":"1","_rn_":"62"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="do">## checking sampling results</span></span>
@@ -2032,8 +2029,8 @@ with P2S allocation</h3>
 <span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>agstrat<span class="sc">$</span>weight <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">/</span>strsample<span class="sc">$</span>Prob</span>
 <span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a><span class="fu">str_mean_estimate_data</span> (agstrat, <span class="st">&quot;acres92&quot;</span>, <span class="st">&quot;stratum&quot;</span>, <span class="st">&quot;weight&quot;</span>)</span></code></pre></div>
-<pre><code>##      Est.      S.E.    ci.low    ci.upp 
-## 325281.81  28262.01 269888.26 380675.35</code></pre>
+<pre><code>##     Est.     S.E.   ci.low   ci.upp 
+## 276061.7  17545.3 241672.9 310450.5</code></pre>
 <p>Estimate with spreadsheet method for a double checking</p>
 <div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="do">## double checking the estimates</span></span>
 <span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>nh <span class="ot">&lt;-</span> <span class="fu">tapply</span> (<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(agstrat), agstrat[,<span class="st">&quot;region&quot;</span>], length)</span>
@@ -2043,8 +2040,8 @@ with P2S allocation</h3>
 <span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>Nh <span class="ot">&lt;-</span> <span class="fu">tapply</span> (<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(agpop), agpop[,<span class="st">&quot;region&quot;</span>], length)</span>
 <span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a><span class="do">## strata mean estimate</span></span>
 <span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a><span class="fu">str_mean_estimate</span> (ybarh, sh, nh, Nh)</span></code></pre></div>
-<pre><code>##      Est.      S.E.    ci.low    ci.upp 
-## 325281.81  28262.01 269888.26 380675.35</code></pre>
+<pre><code>##     Est.     S.E.   ci.low   ci.upp 
+## 276061.7  17545.3 241672.9 310450.5</code></pre>
 </div>
 <div id="repeat-stratified-sampling-with-p2s-allocation-2000-times" class="section level3" number="4.1.4">
 <h3><span class="header-section-number">4.1.4</span> Repeat stratified

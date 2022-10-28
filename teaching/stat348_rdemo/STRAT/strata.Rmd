@@ -1,6 +1,7 @@
 ---
 title: "Data Analysis and Simulation for Stratified Random Sampling"
 author: "Longhai Li"
+date: "`r Sys.Date()`"
 output:
   html_document:
     theme: united
@@ -41,7 +42,7 @@ library(plyr)
 # weight --- name of variable indicating sampling weight
 # post = TRUE is to indicate that we will do post-stratification analysis (ignoring it for the moment)
 # note: from weights we can find Nh (see the code for formula)
-str_mean_estimate_data <- function (stratdata, y, stratum, weight, post=FALSE)
+str_mean_estimate_data <- function (stratdata, y, stratum, weight)
 {
     ## compute stratum-wise data
     n <- nrow (stratdata)
@@ -49,12 +50,7 @@ str_mean_estimate_data <- function (stratdata, y, stratum, weight, post=FALSE)
     ybarh <- tapply (stratdata[, y], stratdata[,stratum], mean)
     ## find population stratum size using sampling weight included in the data set
     Nh <- tapply (stratdata[, weight], stratdata[,stratum], sum)
-    if (!post)    
-        nh <- tapply (1:nrow(stratdata), stratdata[,stratum], length)
-    
-    else 
-        nh <- n * Nh/sum (Nh)
-    
+    nh <- tapply (1:nrow(stratdata), stratdata[,stratum], length)
     ## find mean estimates
     N <- sum (Nh)
     Pi_h <- Nh/N
