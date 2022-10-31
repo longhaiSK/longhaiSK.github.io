@@ -1,0 +1,122 @@
+---
+title: "Data Analysis for Cluster Samping"
+author: "Longhai Li"
+date: "`r format(Sys.time(), '%B %Y')`"
+output:
+  html_document:
+    theme: united
+    toc: yes
+    toc_float: no
+    toc_depth: 2
+    number_sections: yes
+    highlight: tango
+    fig_width: 10
+    fig_height: 8
+    df_print: paged
+  word_document:
+    toc: yes
+    number_sections: yes
+    highlight: tango
+    fig_width: 10
+    fig_height: 8
+  pdf_document: 
+    toc: yes
+    number_sections: yes
+    highlight: tango
+    fig_width: 10
+    fig_height: 8
+    toc_depth: 2
+editor_options:
+  chunk_output_type: inline
+---
+
+
+# Functions and packages for Analyzing Data
+```{r}
+## data --- original data frame for holding data
+## cname --- variable recording cluster (psu) identity
+## csize --- variable recording cluster (psu) population size (not sample size)
+## yvar --- variable of interest
+## N --- total number of clusters (psus)
+cluster_ratio_est <- function (data, cname, csize, yvar, N = Inf, show.steps=FALSE)
+{
+  clust <- data[,cname]
+  ydata <- data [, yvar]  
+  
+  ## cluster-wise summary
+  ybari <- tapply (ydata, clust, mean)
+  Mi <- tapply (data [,csize], clust, function (x) x[1])
+  ## the same as total in cluster if Mi = mi
+  t_hat_cls <- ybari * Mi 
+  
+  if (show.steps == TRUE){
+      cat ("Summary of Clusters:\n")
+      print(data.frame (Mi=Mi, yhari=ybari, ti = t_hat_cls))
+  }
+  ## apply ratio estimate to t_hat_cls and Mi
+  srs_ratio_est (t_hat_cls, Mi, N = N)
+  
+}
+
+## ydata --- observations of the variable of interest
+## xdata --- observations of the auxilliary variable
+## N --- population size
+
+## the output is the ratio of ybarU/xbarU
+srs_ratio_est <- function (ydata, xdata, N = Inf)
+{	
+  n <- length (xdata)
+  xbar <- mean (xdata)
+  ybar <- mean (ydata)
+  B_hat <- ybar / xbar
+  d <- ydata - B_hat * xdata
+  var_d <- sum (d^2) / (n - 1)
+  sd_B_hat <- sqrt ((1 - n/N) * var_d / n) / xbar
+  mem <- qt (0.975, df = n - 1) * sd_B_hat
+  output <- c (B_hat, sd_B_hat, B_hat - mem, B_hat + mem )
+  
+  
+  names (output) <- c("Est.", "S.E.", "ci.low", "ci.upp" )
+  output
+}
+
+
+srs_mean_est <- function (sdata, N = Inf)
+{
+	n <- length (sdata)
+	ybar <- mean (sdata)
+	se.ybar <- sqrt((1 - n / N)) * sd (sdata) / sqrt(n)  
+	mem <- qt (0.975, df = n - 1) * se.ybar
+	c (Est. = ybar, S.E. = se.ybar, ci.low = ybar - mem, ci.upp = ybar + mem)
+}
+
+
+```
+
+# Estimating for One-stage cluster sampling: analysis of algebra.csv
+
+```{r}
+algebra <- read.csv ("data/algebra.csv")
+
+head(algebra)
+
+
+cluster_ratio_est (data = algebra, 
+				   cname = "class", csize = "Mi", 
+				   yvar = "score", N = 187)
+
+
+```
+
+
+# Estimating for two-stage cluster sampling: analysis of coots.csv
+```{r}
+coots <- read.csv ("data/coots.csv")
+coots
+cluster_ratio_est (data = coots, 
+				   cname = "clutch", csize = "csize", 
+				   yvar = "volume", show.steps = TRUE)
+
+```
+
+
