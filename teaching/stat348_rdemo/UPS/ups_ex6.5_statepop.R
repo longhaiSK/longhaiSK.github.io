@@ -2,7 +2,7 @@ source ("estimates.r")
 ## true value of total number of physicians is 532638 in 1990
 ################### Hanzen-Hurvitz analysis with UPS sample ##############
 # read ups sample of size 100
-statepop <- read.csv ("statepop.csv")
+statepop <- read.csv ("data/statepop.csv")
 
 M0 <- 255077536 ## pop of USA in 1992
 popn <- statepop$popn ## pop per county in 1992

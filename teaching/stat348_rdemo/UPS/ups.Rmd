@@ -1,0 +1,175 @@
+---
+title: "Unequal Probability Sampling"
+author: "Longhai Li"
+date: "`r format(Sys.time(), '%B %Y')`"
+output:
+  html_document:
+    theme: united
+    toc: yes
+    toc_float: no
+    toc_depth: 2
+    number_sections: yes
+    highlight: tango
+    fig_width: 10
+    fig_height: 8
+    df_print: paged
+  word_document:
+    toc: yes
+    number_sections: yes
+    highlight: tango
+    fig_width: 10
+    fig_height: 8
+  pdf_document: 
+    toc: yes
+    number_sections: yes
+    highlight: tango
+    fig_width: 10
+    fig_height: 8
+    toc_depth: 2
+editor_options:
+  chunk_output_type: inline
+---
+
+
+\section{Used Functions or Packages}
+# Functions and Packages
+```{r}
+## ydata --- observations of the variable of interest
+## xdata --- observations of the auxilliary variable
+## N --- population size
+
+## the output is the ratio of ybarU/xbarU
+srs_ratio_est <- function (ydata, xdata, N = Inf)
+{	
+  n <- length (xdata)
+  xbar <- mean (xdata)
+  ybar <- mean (ydata)
+  B_hat <- ybar / xbar
+  d <- ydata - B_hat * xdata
+  var_d <- sum (d^2) / (n - 1)
+  sd_B_hat <- sqrt ((1 - n/N) * var_d / n) / xbar
+  mem <- qt (0.975, df = n - 1) * sd_B_hat
+  output <- c (B_hat, sd_B_hat, B_hat - mem, B_hat + mem )
+  
+  
+  names (output) <- c("Est.", "S.E.", "ci.low", "ci.upp" )
+  output
+}
+
+## ydata --- observations of the variable of interest
+## xdata --- observations of the auxilliary variable
+## N --- population size
+## xbarU --- population mean of auxilliary variable
+
+## the output is the estimate mean or total (est.total=TRUE)
+srs_reg_est <- function (ydata, xdata, xbarU, N = Inf, est.total = FALSE)
+{
+  n <- length (ydata)
+  lmfit <- lm (ydata ~ xdata)
+  Bhat <- lmfit$coefficients
+  efit <- lmfit$residuals
+  SSe <- sum (efit^2) / (n - 2) 
+  yhat_reg <- Bhat[1] + Bhat[2] * xbarU
+  se_yhat_reg <- sqrt ((1-n/N) * SSe / n)
+  mem <- qt (0.975, df = n - 2) * se_yhat_reg
+  output <- c(yhat_reg, se_yhat_reg, yhat_reg - mem, yhat_reg + mem)
+  
+  if (est.total) {
+      if(!is.finite(N)) stop("N must be finite for estimating population total" )
+      output <- output * N
+  }
+
+  names (output) <- c("Est.", "S.E.", "ci.low", "ci.upp" )
+  output
+}
+
+## sdata --- a vector of original survey data
+## N --- population size
+## to find total, multiply N to the estimate returned by this function
+
+srs_mean_est <- function (sdata, N = Inf)
+{
+	n <- length (sdata)
+	ybar <- mean (sdata)
+	se.ybar <- sqrt((1 - n / N)) * sd (sdata) / sqrt(n)  
+	mem <- qt (0.975, df = n - 1) * se.ybar
+	c (Est. = ybar, S.E. = se.ybar, ci.low = ybar - mem, ci.upp = ybar + mem)
+}
+
+# total estimation for datasets collected with UPS with Replacement
+upswr_total_est <- function (total, psi)
+{	
+  srs_mean_est (total/psi, N = Inf)
+}
+# ratio estimation for datasets collected with UPS with Replacement
+upswr_ratio_est <- function (total, M, psi)
+{
+  srs_ratio_est (total/psi, M/psi, N = Inf)
+}
+
+```
+
+# Hours on Studying (analysis of a dataset collected by UPSWR)
+```{r}
+
+psi <- c(24, 100, 100, 76, 44) / 647
+Mi <- c(24, 100, 100, 76, 44)
+hrs <- c(75, 203, 203, 191, 168)
+
+plot(hrs~Mi)
+summary (lm(hrs~Mi))
+
+## total hrs spent by all students
+
+upswr_total_est (total = hrs, psi = psi)
+
+## mean hrs spent by each student
+upswr_ratio_est (total = hrs, M = Mi, psi = psi)
+
+```
+
+# Analysis of statepop.csv data (collected with UPSWR)
+
+The file "statepop.csv" is a dataset from an unequal-probability sample of 100 counties in the United States. Counties were chosen using the cumulative-size method from the listings in the County and City Data Book (U.S. Census Bureau, 1994) with probabilities proportional to their populations. The total population for all counties is $M_0 = \sum_{i=1} M_i = 255,077,536$. Sampling was done with replacement, so very large counties occur multiple times in the sample. For example, Los Angeles County, with the largest population in the United States, occurs four times.
+
+```{r}
+statepop <- read.csv ("data/statepop.csv")
+
+M0 <- 255077536 ## pop of USA in 1992
+popn <- statepop$popn ## pop per county in 1992
+psi <- popn / M0
+phys <- statepop$phys
+
+plot (popn, phys, log="xy")
+
+summary(lm (phys~psi))
+# estimate the total number of physicians in USA
+upswr_total_est (phys, psi)
+
+# estimate number of physicians per capita
+upswr_ratio_est (phys, popn, psi)
+```
+
+**Compare with an estimate based on an SRS sample (Assignment 3 Question 3)**
+
+```{r}
+# read srs sample of size 100
+counties <- read.csv ("data/counties.csv", na = "-99")
+plot(physician~totpop, data=counties, log="xy")
+
+summary (lm(physician~totpop, data=counties))
+totpop <-  255077536
+N <- 3141 # total number of counties
+# naive estimate 
+srs_mean_est (counties$physician, N = 3141) * 3141
+
+# ratio estimate
+srs_ratio_est (counties$physician, counties$totpop, N = 3141) * totpop
+
+# regression estimate
+srs_reg_est (counties$physician, counties$totpop, totpop/N, N = N) * N 
+
+# From the textbook by Lohr, the true value is: 
+total_physician <- 532638
+```
+
