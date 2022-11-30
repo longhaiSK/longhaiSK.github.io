@@ -173,3 +173,113 @@ srs_reg_est (counties$physician, counties$totpop, totpop/N, N = N) * N
 total_physician <- 532638
 ```
 
+# Simulation Studies for UPSWR using agpop data
+
+
+```{r}
+# Read population data
+agpop <- read.csv ("data/agpop.csv", na = "-99")
+## removing the counties with NA in either acres92 or acres87
+agpop <- subset(agpop, subset = !is.na(agpop$acres92) & !is.na(agpop$acres87))
+
+N <- nrow (agpop); N
+totcares92<- sum (agpop$acres92)
+
+```
+
+## Using acres87 to construct sampling probabilities
+```{r cache=TRUE}
+plot (agpop$acres87, agpop$acres92)
+summary(lm(agpop$acres92~agpop$acres87))
+acres87 <- agpop[, "acres87"]
+est_srs300 <- est_ups15_acres87 <- rep (0, 2000)
+for (i in 1:2000)
+{
+  ## srs sample
+  srs300 <- sample (1:N, size = 300)
+  ## survey
+  acres92_srs300 <- agpop[srs300, "acres92"]
+  ## estimate
+  est_srs300 [i] <-  (srs_mean_est (acres92_srs300, N = N) * N) [1] 
+  
+  ## upswr sample
+  ups15 <- sample (1:N, size = 15, prob = acres87, replace = TRUE)
+
+  ## survey (obtaining measurements on acres92)
+  acres92_ups15 <- agpop[ups15, "acres92"]
+
+  ## estimate
+  psi <- (acres87 / sum (acres87)) [ups15]
+  est_ups15_acres87 [i] <-  upswr_total_est (acres92_ups15, psi) [1] 
+
+}
+
+boxplot (data.frame(est_srs300, est_ups15_acres87))
+abline(h=totcares92, col="red")
+```
+
+
+## Using largef87 to construct sampling probabilities
+
+```{r cache=TRUE}
+plot (agpop$largef92, agpop$acres92)
+largef87 <- agpop[, "largef87"]
+summary(lm(agpop$acres92~agpop$largef87))
+
+est_ups300_largef87 <- rep (0, 2000)
+
+for (i in 1:2000)
+{
+
+    ## ups sample
+    ups300 <- sample (1:N, size = 300, prob = largef87, replace = TRUE)
+    ## survey
+    acres92_ups300 <- agpop[ups300, "acres92"]
+    
+    ## estimate
+    psi <- (largef87 / sum (largef87)) [ups300]
+    est_ups300_largef87 [i] <-  upswr_total_est (acres92_ups300, psi) [1] 
+    
+}
+
+boxplot (data.frame(est_srs300, est_ups15_acres87, est_ups300_largef87))
+abline(h=totcares92, col="red")
+
+```
+
+# An Example of UPS without replacement
+
+```{r}
+
+## data --- original data frame for holding data
+## cname --- variable recording cluster (psu) identity
+## csize --- variable recording cluster (psu) population size (not sample size)
+## cpik --- sampling probability for each cluster
+## yvar --- variable of interest
+## N --- total number of clusters (psus)
+
+cluster_upswo_ratio_est <- function (data, cname, csize, cpik, yvar)
+{
+  clust <- data[,cname]
+  ydata <- data [, yvar]  
+  
+  ## cluster-wise summary
+  ybari <- tapply (ydata, clust, mean)
+  Mi <- tapply (data [,csize], clust, function (x) x[1])
+  pik <- tapply (data [,cpik], clust, function (x) x[1])
+  ## the same as total in cluster if Mi = mi
+  t_hat_cls <- ybari * Mi 
+  
+  ## apply ratio estimate to t_hat_cls and Mi
+  srs_ratio_est (t_hat_cls/pik, Mi/pik)
+}
+
+classpps <- read.csv ("data/classpps.csv")
+
+classpps
+
+cluster_upswo_ratio_est (classpps, "class", "clssize", "clssize", "hours")
+
+
+```
+

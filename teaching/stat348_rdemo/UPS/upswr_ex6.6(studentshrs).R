@@ -1,5 +1,6 @@
 source ("estimates.r")
 
+#This demonstration uses a dataset collected with UPSWR about students' hours on studying
 studenthrs <- read.table ("studentshrs.txt", header = T)
 
 ## add sampling probability to the data
