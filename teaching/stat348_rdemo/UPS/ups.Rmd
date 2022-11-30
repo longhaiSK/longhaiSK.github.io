@@ -109,7 +109,7 @@ upswr_ratio_est <- function (total, M, psi)
 
 ```
 
-# Hours on Studying (analysis of a dataset collected by UPSWR)
+# Analysis of a dataset (student study hours) collected by UPSWR
 ```{r}
 
 psi <- c(24, 100, 100, 76, 44) / 647
@@ -128,12 +128,13 @@ upswr_ratio_est (total = hrs, M = Mi, psi = psi)
 
 ```
 
-# Analysis of statepop.csv data (collected with UPSWR)
+# Analysis of a dataset (statepop.csv) collected with one-stage UPSWR
 
 The file "statepop.csv" is a dataset from an unequal-probability sample of 100 counties in the United States. Counties were chosen using the cumulative-size method from the listings in the County and City Data Book (U.S. Census Bureau, 1994) with probabilities proportional to their populations. The total population for all counties is $M_0 = \sum_{i=1} M_i = 255,077,536$. Sampling was done with replacement, so very large counties occur multiple times in the sample. For example, Los Angeles County, with the largest population in the United States, occurs four times.
 
 ```{r}
 statepop <- read.csv ("data/statepop.csv")
+statepop
 
 M0 <- 255077536 ## pop of USA in 1992
 popn <- statepop$popn ## pop per county in 1992
@@ -155,6 +156,7 @@ upswr_ratio_est (phys, popn, psi)
 ```{r}
 # read srs sample of size 100
 counties <- read.csv ("data/counties.csv", na = "-99")
+counties
 plot(physician~totpop, data=counties, log="xy")
 
 summary (lm(physician~totpop, data=counties))
@@ -172,6 +174,48 @@ srs_reg_est (counties$physician, counties$totpop, totpop/N, N = N) * N
 # From the textbook by Lohr, the true value is: 
 total_physician <- 532638
 ```
+
+# Analysis of a dataset (studenthrs.csv) collected with two-stage UPSWR
+```{r}
+studenthrs <- read.table ("data/studentshrs.txt", header = T)
+
+
+## add sampling probability to the data
+studenthrs$cpsi <- studenthrs$class_size/647
+studenthrs
+## data --- original data frame for holding data
+## sid --- variable recording sample id of psu, note that, 
+## sid must be different when the same psu is surveyed multiple times
+## csize --- variable recording cluster (psu) population size (not sample size)
+## cpik --- sampling probability for each cluster
+## yvar --- variable of interest
+## N --- total number of clusters (psus)
+
+cluster_upswr_ratio_est <- function (data, sid, csize, cpsi, yvar,show.cluster.summary=TRUE)
+{
+    clust <- data[, sid]
+    ydata <- data [, yvar]  
+    
+    ## cluster-wise summary
+    ybari <- tapply (ydata, clust, mean)
+    Mi <- tapply (data [,csize], clust, function (x) x[1])
+    psi <- tapply (data [,cpsi], clust, function (x) x[1])
+    ## the same as total in cluster if Mi = mi
+    t_hat_cls <- ybari * Mi 
+    
+    if(show.cluster.summary){
+        cat ("Cluster level Summary:\n")
+        print(data.frame(Mi,psi,ybari, ti=t_hat_cls, ti_psi=t_hat_cls/psi,Mi_psi=Mi/psi))
+    }
+    
+    ## apply ratio estimate to t_hat_cls and Mi
+    
+    srs_ratio_est (t_hat_cls/psi, Mi/psi)
+}
+
+cluster_upswr_ratio_est (studenthrs, "sid" , "class_size", "cpsi", "hrs")
+```
+
 
 # Simulation Studies for UPSWR using agpop data
 
@@ -192,7 +236,7 @@ totcares92<- sum (agpop$acres92)
 plot (agpop$acres87, agpop$acres92)
 summary(lm(agpop$acres92~agpop$acres87))
 acres87 <- agpop[, "acres87"]
-est_srs300 <- est_ups15_acres87 <- rep (0, 2000)
+est_srs300 <- est_ups300_acres87 <- rep (0, 2000)
 for (i in 1:2000)
 {
   ## srs sample
@@ -203,18 +247,18 @@ for (i in 1:2000)
   est_srs300 [i] <-  (srs_mean_est (acres92_srs300, N = N) * N) [1] 
   
   ## upswr sample
-  ups15 <- sample (1:N, size = 15, prob = acres87, replace = TRUE)
+  ups300 <- sample (1:N, size = 300, prob = acres87, replace = TRUE)
 
   ## survey (obtaining measurements on acres92)
-  acres92_ups15 <- agpop[ups15, "acres92"]
+  acres92_ups300 <- agpop[ups300, "acres92"]
 
   ## estimate
-  psi <- (acres87 / sum (acres87)) [ups15]
-  est_ups15_acres87 [i] <-  upswr_total_est (acres92_ups15, psi) [1] 
+  psi <- (acres87 / sum (acres87)) [ups300]
+  est_ups300_acres87 [i] <-  upswr_total_est (acres92_ups300, psi) [1] 
 
 }
 
-boxplot (data.frame(est_srs300, est_ups15_acres87))
+boxplot (data.frame(est_srs300, est_ups300_acres87))
 abline(h=totcares92, col="red")
 ```
 
@@ -242,12 +286,12 @@ for (i in 1:2000)
     
 }
 
-boxplot (data.frame(est_srs300, est_ups15_acres87, est_ups300_largef87))
+boxplot (data.frame(est_srs300, est_ups300_acres87, est_ups300_largef87))
 abline(h=totcares92, col="red")
 
 ```
 
-# An Example of UPS without replacement
+# Analysis of a dataset (student study hours) collected by UPSWO (without replacement)
 
 ```{r}
 
