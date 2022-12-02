@@ -227,7 +227,8 @@ agpop <- read.csv ("data/agpop.csv", na = "-99")
 agpop <- subset(agpop, subset = !is.na(agpop$acres92) & !is.na(agpop$acres87))
 
 N <- nrow (agpop); N
-totcares92<- sum (agpop$acres92)
+total_acres92<- sum (agpop$acres92)
+total_acres87 <- sum (agpop$acres87)
 
 ```
 
@@ -236,15 +237,18 @@ totcares92<- sum (agpop$acres92)
 plot (agpop$acres87, agpop$acres92)
 summary(lm(agpop$acres92~agpop$acres87))
 acres87 <- agpop[, "acres87"]
-est_srs300 <- est_ups300_acres87 <- rep (0, 2000)
+est_srs300 <- est_ups300_acres87 <- est_srs300_reg_acres87 <- rep (0, 2000)
 for (i in 1:2000)
 {
   ## srs sample
   srs300 <- sample (1:N, size = 300)
   ## survey
   acres92_srs300 <- agpop[srs300, "acres92"]
+  acres87_srs300 <- agpop[srs300, "acres87"]
   ## estimate
   est_srs300 [i] <-  (srs_mean_est (acres92_srs300, N = N) * N) [1] 
+  est_srs300_reg_acres87[i] <- srs_reg_est(
+      acres92_srs300, acres87_srs300, total_acres87/N, N = N, est.total = TRUE )[1]
   
   ## upswr sample
   ups300 <- sample (1:N, size = 300, prob = acres87, replace = TRUE)
@@ -257,9 +261,16 @@ for (i in 1:2000)
   est_ups300_acres87 [i] <-  upswr_total_est (acres92_ups300, psi) [1] 
 
 }
+```
 
-boxplot (data.frame(est_srs300, est_ups300_acres87))
-abline(h=totcares92, col="red")
+
+```{r fig.height=15}
+par (mfrow = c(2,1))
+boxplot (data.frame(est_srs300, est_srs300_reg_acres87, est_ups300_acres87))
+abline(h=total_acres92, col="red")
+boxplot (data.frame(est_srs300_reg_acres87, est_ups300_acres87))
+
+abline(h=total_acres92, col="red")
 ```
 
 
@@ -286,8 +297,8 @@ for (i in 1:2000)
     
 }
 
-boxplot (data.frame(est_srs300, est_ups300_acres87, est_ups300_largef87))
-abline(h=totcares92, col="red")
+boxplot (data.frame(est_srs300,est_srs300_reg_acres87, est_ups300_acres87, est_ups300_largef87))
+abline(h=total_acres92, col="red")
 
 ```
 
