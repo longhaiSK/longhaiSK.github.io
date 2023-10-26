@@ -1,0 +1,181 @@
+---
+title: "Introduction to Statistical Methods"
+subtitle: "Topic 2: Frequency Graph and Scatterplot"
+author: "Longhai Li"
+date: "`r Sys.Date()`"
+output: 
+   html_document: 
+     toc: yes
+     number_sections: yes
+     highlight: tango
+     fig_width: 10
+     fig_height: 8
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r include=FALSE}
+knitr::opts_chunk$set(cache = TRUE, echo = TRUE)
+```
+
+
+# Load the dataset
+
+```{r }
+survey <-  read.csv ("survey.csv", stringsAsFactors = TRUE)
+library("rmarkdown")
+paged_table(survey)
+```
+# Frequency 
+get frequency table of variable 'Smoke' of data set 'survey' 
+
+```{r }
+smoke_freq <- table (survey$Smoke)
+smoke_freq
+```
+
+# Bar graph
+Draw bar graph of variable 'Smoke' of data set 'survey'
+
+```{r }
+barplot (smoke_freq)
+```
+
+we can also use a compact expression
+
+```{r }
+barplot (table (survey$Smoke))
+```
+
+Sort in the order of frequency
+
+```{r }
+barplot(sort(smoke_freq))
+```
+
+barplot can produce barplot of any named vector as we created
+
+```{r }
+afreq <- c(10,20,30,40,60); names(afreq) <- paste0("A", 1:5);afreq
+barplot(afreq)
+```
+
+# Pie chart
+Draw pie chart
+
+```{r }
+pie (smoke_freq)
+```
+
+or you can use a compact expression
+
+```{r }
+pie (table (survey$Smoke))
+```
+
+# Relative frequency and percentage
+
+```{r }
+smoke_relfreq <- smoke_freq / nrow (survey)
+smoke_freq
+```
+
+
+```{r }
+smoke_perc <- smoke_freq / nrow (survey) * 100
+smoke_perc
+```
+
+find angles used in pie chart
+
+```{r }
+smoke_pie <- smoke_freq / nrow (survey) * 360
+smoke_pie
+```
+# Histogram
+
+draw histogram of variable 'Pulse' of data set 'survey'
+
+```{r }
+hist (survey$Pulse)
+hist (survey$Pulse, nclass = 20)
+hist (survey$Pulse, breaks = seq (35, 110, by = 5)) 
+```
+
+
+work with a vector of numbers 
+
+```{r }
+
+x <- scan (text = "2 3 4 2 1 2 3 4 4 2 2 2 2 2 1 1 1 2 4 5 5")
+hist (x)
+
+x <- scan ("numbers.txt")
+hist (x)
+```
+
+
+# Cumulative frequency for a histogram
+
+```{r }
+pulse_hist <- hist (survey$Pulse, breaks = seq (35, 110, by = 5))
+```
+
+look at the results of hist function
+
+```{r }
+pulse_hist
+```
+
+draw culumative frequency
+
+```{r }
+plot (pulse_hist$mids, cumsum(pulse_hist$counts), type = "b")
+```
+
+draw culumative relative frequency
+
+```{r }
+n <- sum (pulse_hist$counts)
+plot (pulse_hist$mids, cumsum(pulse_hist$counts)/n, type = "b")
+```
+
+# Empirical distribution function
+
+Empirical distribution function computed with observations $x_1,\ldots,x_n$ is defined as
+$$
+\hat{F}(x) = \frac{\sum_{i=1}^n I(x_i\leq x)}{n} = \frac{\mbox{number of } x_i\leq x }{n}
+$$
+where, $I()$ is the indicator function, equal to 1 if the condition in () is true and 0 otherwise. 
+
+
+```{r }
+x <- c(1,2,3,4,5)
+
+plot (ecdf(x))
+
+plot(ecdf (survey$Pulse))
+abline (h = seq (0,1, by = 0.05), v = seq(0,100,by=5), 
+        lty = 2, col = "grey")
+
+```
+
+# Stem-leaf plot
+
+```{r }
+stem (survey$Pulse)
+```
+
+# Scatterplot of two or three variables 
+
+```{r }
+plot(survey$Height)
+plot(survey$Height, col = as.factor(survey$Sex))
+plot(survey$Pulse, col = survey$Sex)
+plot(survey$Height~survey$Pulse)
+plot(survey$Height~survey$Pulse, col = survey$Sex)
+plot(survey$Wr.Hnd, col = survey$Sex)
+plot(survey$Wr.Hnd~survey$Height, col = survey$Sex)
+plot(survey$Wr.Hnd~survey$NW.Hnd, col = survey$Sex)
+```
+

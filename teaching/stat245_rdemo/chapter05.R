@@ -1,0 +1,104 @@
+#' ---
+#' title: "Introduction to Statistical Methods"
+#' subtitle: "Binomial Distribution"
+#' author: "Longhai Li"
+#' date: "September 2019"
+#' output: 
+#'    html_document:
+#'        toc: true
+#'        number_sections: true
+#'        highlight: tango
+#'        fig_width: 10
+#'        fig_height: 8
+#' ---
+
+#' # Factorials 
+factorial (10)
+
+#' Find number of combindations of choosing 40 out of 400 ##########
+choose (400,40)
+
+choose (49, 6)
+
+#' Find number of permuation of choosing 40 out of 400 #############
+
+choose (400, 40) * factorial (40)
+
+#' # Binomial probability distribution 
+
+n <- 20; p <- 0.1
+x <- 0:n
+
+binom.x <- dbinom (x, size = n, p = p) # compute binomial probability
+binom.x
+breaks <-  c(x - 0.5, n + 0.5)
+breaks
+hist.binom <- list (breaks = breaks, counts = binom.x) 
+class (hist.binom) <- "histogram"
+plot (hist.binom, main = sprintf("Binomial (n=%g, p=%.1f)", n,p), xlab = "x")
+
+
+
+n <- 20; p <- 0.3
+x <- 0:n
+
+
+binom.x <- dbinom (x, size = n, p = p) # compute binomial probability
+binom.x
+breaks <-  c(x - 0.5, n + 0.5)
+breaks
+hist.binom <- list (breaks = breaks, counts = binom.x) 
+class (hist.binom) <- "histogram"
+plot (hist.binom, main = sprintf("Binomial (n=%g, p=%.1f)", n,p), xlab = "x")
+
+
+
+n <- 20; p <- 0.5
+x <- 0:n
+
+binom.x <- dbinom (x, size = n, p = p) # compute binomial probability
+binom.x
+breaks <-  c(x - 0.5, n + 0.5)
+breaks
+hist.binom <- list (breaks = breaks, counts = binom.x) 
+class (hist.binom) <- "histogram"
+plot (hist.binom, main = sprintf("Binomial (n=%g, p=%.1f)", n,p), xlab = "x")
+
+
+n <- 20; p <- 0.7
+x <- 0:n
+
+binom.x <- dbinom (x, size = n, p = p) # compute binomial probability
+binom.x
+breaks <-  c(x - 0.5, n + 0.5)
+breaks
+hist.binom <- list (breaks = breaks, counts = binom.x) 
+class (hist.binom) <- "histogram"
+plot (hist.binom, main = sprintf("Binomial (n=%g, p=%.1f)", n,p), xlab = "x")
+
+#' # Hypergeometric Distribution for 6/49
+
+#' Calculate the PMFs in three ways
+
+lotto.hyper <- dhyper(0:6, 6, 43, 6) # Exact Method
+lotto.binomial <- dbinom (0:6, 6, 6/49)
+lotto.poisson <- dpois(0:6, lambda = 6*6/49)
+
+#' Comparision of probability functions
+round(data.frame (x=0:6,  lotto.hyper, lotto.binomial, lotto.poisson), digits = 8)
+
+plot(0:6, lotto.hyper, type = "h", ylim = c(0, 0.5),
+     main = "Distribution of the Number of Winning Numbers in 6/49",
+     xlab = "Number of Winning Numbers")
+lines(0:6+0.1, lotto.binomial, type = "h", col = "red")
+lines(0:6+0.2, lotto.poisson, type = "h", col = "blue")
+
+legend("topright",
+       legend = c("Hypergeometric Calculation",
+                  "Binomial Calculation", 
+                  "Poisson Calculation"), 
+       lty = c(1,1,1),
+       col = c(1,2,"blue"))
+
+
+

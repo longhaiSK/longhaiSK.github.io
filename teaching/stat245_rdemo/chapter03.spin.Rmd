@@ -1,0 +1,111 @@
+---
+title: "Introduction to Statistical Methods"
+subtitle: "Topic 3: Numerical Measures and Boxplots"
+author: "Longhai Li"
+date: "`r Sys.Date()`"
+output: 
+   html_document:
+       toc: true
+       number_sections: true
+       highlight: tango
+       fig_width: 10
+       fig_height: 8
+---
+ Researcher was interested in the side effects of radiation therapy on
+ patents suffering cancerous lesions. In particular he was interested in the
+ effect of radiation therapy on Mental dexterity. Each patient was scored
+ (Pre.test) on a mental dexterity test prior to treatment. They were again
+ scored on a similar test (Post.Test) one month after treatment began.  
+ 
+ N1 = 16 were not given radiation and served as controls,
+ 
+ N2 = 19 were given radiation dosage in the range 25-50, 
+ 
+ N3 = 18 were given radiation dosage in the range 75-125, and 
+ 
+ N4 = 21 were given radiation dosage in the range 125-250. 
+ 
+ In the data set,
+ 
+ Pre.test: mental dexterity score before test
+ 
+ Post.test: mental dexterity score after test
+ Treat: indicator of dosage level 
+
+# Import a dataset called "mental.csv"
+```{r }
+mental <- read.csv ("mental.csv", stringsAsFactors = TRUE)
+```
+
+# Preview the dataset
+
+```{r }
+library(rmarkdown)
+paged_table(mental)
+plot(mental$Pre.test, col=as.numeric(mental$Treat))
+plot(mental$Post.test, col=as.numeric(mental$Treat))
+
+```
+
+# Numerical measures 
+
+```{r }
+mean (mental$Pre.test)
+
+median (mental$Pre.test)
+
+range (mental$Pre.test)
+
+var (mental$Pre.test)
+
+sd (mental$Pre.test)
+
+IQR (mental$Pre.test)
+
+x <- c(1,2,3,4,5)
+
+plot (ecdf(x))
+
+plot (ecdf (mental$Pre.test))
+abline (h = seq (0,1, by = 0.05), lty = 1, col = "grey")
+
+
+quantile (mental$Pre.test)
+
+quantile (mental$Pre.test, probs = 0.34)
+
+quantile (mental$Pre.test, probs = seq (0, 1, by = 0.1))
+
+quantile (mental$Pre.test, probs = seq (0, 1, by = 0.01))
+```
+
+# Boxplot
+
+```{r }
+boxplot (mental$Post.test)
+
+boxplot (Post.test ~ Treat, data = mental)
+```
+
+# Change the default order of treatment
+
+```{r }
+levels(mental$Treat)
+mental$Treat2 <- factor(mental$Treat, levels =  levels(mental$Treat)[c(4,1:3)])
+levels(mental$Treat2)
+
+paged_table(mental[, c("Treat", "Treat2")])
+```
+
+# Comparison Boxplot for Looking at the Treatment Effect
+
+```{r }
+
+boxplot (Pre.test ~ Treat2, data = mental)
+boxplot (Post.test ~ Treat2, data = mental)
+plot ( mental$Pre.test,mental$Post.test)
+mental$dex.reduction <- mental$Pre.test - mental$Post.test
+paged_table(mental)
+boxplot (dex.reduction ~ Treat2, data = mental)
+```
+
