@@ -1,0 +1,206 @@
+---
+title: "Introduction to Regression with Multiple Variables and Logistic Regression"
+subtitle: A Final 'Complex' Example for 'Introduction to Statistical Methods'
+author: "Longhai Li"
+date: "December 2019"
+output:
+  html_document:
+    fig_height: 8
+    fig_width: 10
+    highlight: tango
+    number_sections: yes
+    toc: yes
+  pdf_document:
+    toc: yes
+editor_options:
+  chunk_output_type: console
+---
+# Packages and Functions {-}
+```{r }
+
+library("plyr")
+# A function for computing anova $R^2$
+anova.R2 <- function (obj.lm)
+{
+    obj.anova <- anova (obj.lm)
+    sq <- obj.anova[,"Sum Sq"]
+    R2 <- sq/sum(sq)
+    obj.anova[, "R2"] <- R2
+    obj.anova
+}
+```
+
+# Read a data set 
+
+```{r }
+temperature <- read.table("~/OneDrive - University of Saskatchewan/teaching/stat245_1909/rdemo/data/normtemp.dat.txt")
+colnames(temperature) <- c("Temp", "Gender", "HR")
+temperature$Gender <- mapvalues(temperature$Gender, c(2,1), c("Male", "Female"))
+temperature$Gender <- as.factor(temperature$Gender)
+head(temperature)
+```
+
+# Analysis of body temperatures VS gender
+
+```{r }
+boxplot(Temp~Gender, data = temperature)
+t.test(Temp~Gender,data = temperature) 
+```
+
+We can also use lm for comparing two means:
+```{r}
+lm_temp_gender <- lm (Temp~Gender, data = temperature)
+summary (lm_temp_gender)
+anova.R2(lm_temp_gender)
+```
+**A note**:
+
+The results by lm are not exactly equal to the results of t.test. In t.test, we do not assume the equality of variances in two populations, but in lm, we assume that the equality of variances in male and female groups. This is equivalent to the pooled t test, which I did not cover in this class. 
+
+**Conlusions:**
+
+We see that the difference between male and female mean temperatures is statistical significant at the level of 0.05. That is, we have strong statistical evidence to support that the two temperature means are different between female and male. However, the difference may not be practically significant. 
+
+# Regression Analysis of heart rates with gender
+
+```{r }
+boxplot(HR~Gender, data = temperature)
+t.test(HR~Gender,data = temperature) 
+```
+
+We can also use lm for comparing two means:
+```{r}
+summary (lm (HR~Gender, data = temperature))
+```
+
+# Regression Analysis of body temperatures with heart rates
+
+```{r }
+plot(Temp~HR, data=temperature, col = as.numeric(temperature$Gender))
+
+lm_temp_hr <- lm (Temp~HR, data = temperature)
+
+summary (lm_temp_hr)
+anova(lm_temp_hr)
+```
+
+We see that the p-value of HR is significant. A practical significance measure is the $R^2$: 
+
+```{r }
+anova.R2(lm_temp_hr)
+```
+
+We see that the variation of temperature explained by HR is very small.
+
+# Regression Analysis of body temperatures with heart rates and gender
+
+We may be wondering whether the temperature still diff in female and male after the effects of HR is considered. We will fit such a multiple regression model:
+
+```{r }
+lm_temp_hr_gender <- lm (Temp~HR + Gender, data = temperature)
+# What model is fitted?
+model.matrix(lm_temp_hr_gender)[c(1:3,1:3+70),]
+# the coefficients:
+betas <- lm_temp_hr_gender$coefficients; betas
+# visualize the fitting results:
+gender.n <- as.numeric(temperature$Gender)
+plot(Temp~HR, data=temperature, col = gender.n, pch = gender.n )
+abline(a= betas[1], b = betas["HR"], col=1)
+abline(a= betas[1]+betas["GenderMale"], b = betas["HR"], col=2)
+legend("topleft", col=1:2,lty=c(1,1), legend = c("Female", "Male"))
+
+summary (lm_temp_hr_gender)
+anova.R2(lm_temp_hr_gender)
+```
+
+**Conclusions**
+
+After we remove the influence of HR, the gender is still statistically significant at the level of 0.05, but the practical significance measured with $R^2$ may be minor. 
+
+# A Webpage about Body Temperature Difference
+
+https://www.fatherly.com/health-science/why-women-are-colder-than-men/
+
+# Logistic Regression for Gender with body temperatures
+
+Fit a logistic model:
+```{r}
+model_gender_temp <- glm (Gender~Temp, family=binomial(link="logit"),data=temperature)
+```
+
+Looking at the fitted model with data
+```{r}
+prob_pred <- predict(model_gender_temp, type = "response")
+with(temperature,
+{
+  n.gender <- as.numeric(Gender)
+  o.temp <- order(Temp)
+  plot(n.gender-1~jitter(Temp), col=n.gender,pch=n.gender)  
+  lines(prob_pred[o.temp]~Temp[o.temp])  
+}
+)
+```
+Looking at the predictions
+```{r}
+predicted.gender <- mapvalues(prob_pred > 0.5, c(1,0), c("Male", "Female"))
+pred.error <- (predicted.gender != temperature$Gender)*1
+pred.table <- cbind(temperature,
+                          data.frame(predicted.gender, 
+                                     "Prob of Male"=prob_pred, 
+                                     pred.error)
+)
+pred.table
+```
+Error rate in prediction
+
+```{r}
+er <- mean(pred.table$pred.error); er
+er0<-min(table(temperature$Gender)/nrow(temperature));er0
+R2.err <- (er0-er)/er0; R2.err
+```
+
+# Logistic Regression for Gender with modified body temperatures
+
+Create a fake dataset by adding 1F to the temperatures of males
+```{r}
+temperature2 <- temperature
+indicator.male <- temperature$Gender=="Male"
+temperature2$Temp[indicator.male] <- temperature$Temp[indicator.male] + 1
+```
+
+Fit a logistic model:
+```{r}
+model_gender_temp <- glm (Gender~Temp, family=binomial(link="logit"),data=temperature2)
+```
+Looking at the fitted model
+```{r}
+prob_pred <- predict(model_gender_temp, type = "response")
+with(temperature2,
+{
+  n.gender <- as.numeric(Gender)
+  o.temp <- order(Temp)
+  plot(n.gender-1~jitter(Temp), col=n.gender,pch=n.gender)  
+  lines(prob_pred[o.temp]~Temp[o.temp])  
+}
+)
+
+```
+Looking at the predictions
+```{r}
+predicted.gender <- mapvalues(prob_pred > 0.5, c(1,0), c("Male", "Female"))
+pred.error <- (predicted.gender != temperature$Gender)*1
+pred.table <- cbind(temperature,
+                          data.frame(predicted.gender, 
+                                     "Prob of Male"=prob_pred, 
+                                     pred.error)
+)
+pred.table
+```
+Error rate in prediction
+
+```{r}
+er <- mean(pred.table$pred.error); er
+er0<-min(table(temperature$Gender)/nrow(temperature));er0
+R2.err <- (er0-er)/er0; R2.err
+```
+

@@ -1,0 +1,155 @@
+---
+title: "Linear Regression with a Categorical Variable"
+subtitle: "Revisiting ANOVA with Linear Modelling"
+author: "Longhai Li"
+date: "September 2019"
+output: 
+   html_document:
+       toc: true
+       number_sections: true
+       highlight: tango
+       fig_width: 10
+       fig_height: 8
+---
+```{r setup, include=FALSE, echo=FALSE}
+options(digits = 4)
+require("knitr")
+opts_knit$set(root.dir = "~/OneDrive - University of Saskatchewan/teaching/stat245_1909/rdemo")
+```
+
+
+# Read a dataset of animal coagulation time vs diet 
+
+```{r }
+coagulation <- read.table("data/coagulation.txt", header=T)
+
+coagulation
+
+coag <- coagulation$coag
+diet <- coagulation$diet
+```
+
+# Visualize the data using scatterplot and boxplot
+
+```{r }
+plot (as.numeric(diet), coag, 
+      col = diet, 
+      pch = as.numeric(diet), 
+      xaxt="n", xlab = "Diet")
+axis (1, 1:4, LETTERS[1:4])
+
+boxplot(coag~diet)
+```
+
+# Fit a Linear Model
+
+## Fit a linear model  with no intercept:
+
+```{r }
+
+# 
+g1 <- lm(coag~0+diet)
+summary(g1)
+# What model is fitted?
+data.frame(model.matrix(g1))
+
+
+```
+This model is written as:
+$$
+y_i = \mu_A I(x_i=A)+\mu_B I(x_i=B)+\mu_C I(x_i=C)+\mu_D I(x_i=D)+\epsilon_i
+$$
+
+## Fit a linear model with an intercept:
+
+```{r }
+
+# 
+g <- lm(coag~diet)
+summary(g)
+# What model is fitted?
+data.frame(model.matrix(g))
+
+
+```
+
+This model is written as:
+$$
+y_i = \beta_0+\beta_B I(x_i=B)+\beta_CI(x_i=C)+\beta_D I(x_i=D)+\epsilon_i
+$$
+where, $\beta_0=\mu_A, \beta_B=\mu_B-\mu_A, \beta_C=\mu_C-\mu_A, \beta_D=\mu_D-\mu_A$.
+
+# Predictive (fitted) values and Residuals
+This section is for illustrating prediction and residuals 
+
+```{r }
+y <- coag
+y_hat_h0 <- rep (mean (y), length (y)); y_hat_h0
+y_hat_h1 <- predict (lm (y~diet)); y_hat_h1;
+resid_h0 <- y - y_hat_h0 # residual (error) from h0 model
+resid_h1 <- y - y_hat_h1 # residual (error) from h1 model
+data.frame (diet, y=y, y_hat_h0, resid_h0, y_hat_h1, resid_h1, y_hat_h1-y_hat_h0 )
+
+# Visulize the predictive values and residuals
+plot (y, col = diet,pch = as.numeric(diet),
+      main="Coaglution time versus Run Order (Sample ID)")
+lines (1:4,g$fitted.values[1:4], col = 1)
+lines (5:10,g$fitted.values[5:10], col = 2)
+lines (11:16,g$fitted.values[11:16], col = 3)
+lines (17:24,g$fitted.values[17:24], col = 4)
+abline(h=mean(y))
+
+# compute SS
+SSt <-sum((y - y_hat_h0)^2); SSt
+SSe <- sum((y - y_hat_h1)^2); SSe
+SStr <- SSt - SSe; SStr # alternatively we can compute SStr by
+SStr2 <- sum((y_hat_h0-y_hat_h1)^2); SStr2
+```
+
+# Short-cut Formulae for Computing Sum Squares 
+
+```{r }
+ybar_i. <- tapply (y, mean, INDEX = diet); ybar_i.
+ybar_.. <- mean (y); ybar_..
+n_i <- table (diet); n_i
+n <- length (y)
+SSy <- sum (y^2)
+# the above values will be provided in test question
+
+# compute SSt,SSe, SStr
+SSt <- SSy-n*ybar_..^2; SSt
+SStr <- sum(n_i*ybar_i.^2) - n*ybar_..^2; SStr
+SSe <- SSt - SStr; SSe
+
+# compute F and output anova table
+k <- length (unique (diet));k
+n <- length (y);n
+df1 <- k - 1
+df2 <- n - k
+MStr <- SStr/df1
+MSe <- SSe/df2
+f <- MStr /MSe
+pvalue <- 1-pf (f, df1=df1, df2=df2); pvalue
+
+anova_table <- data.frame (Df = c(df1,df2), 
+                           SS = c(SStr,SSe), 
+                           MS = c(MStr, MSe), 
+                           F = c(f,NA), 
+                           pvalue = c(pvalue, NA)); 
+row.names(anova_table) <- c("diet", "Residuals")
+anova_table
+```
+
+# R function for ANOVA with Linear Model
+
+Compute ANOVA with the fitting result with intercept
+```{r}
+g <- lm(coag~diet)
+anova (g)
+```
+
+Do not compute ANOVA with the fitting result w/o intercept
+```{r}
+g1 <- lm(coag~0+diet)
+anova (g1)
+```
