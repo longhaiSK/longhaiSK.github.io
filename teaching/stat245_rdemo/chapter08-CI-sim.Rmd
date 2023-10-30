@@ -2,7 +2,7 @@
 title: "Introduction to Statistical Methods"
 subtitle: "Confidence Interval"
 author: "Longhai Li"
-date: "September 2019"
+date: "`r Sys.Date()`"
 output: 
    html_document:
        toc: true
@@ -11,8 +11,10 @@ output:
        fig_width: 10
        fig_height: 8
 ---
-# Generate a population data
 
+
+# Simulating Confidence Intervals
+## Generate a population data
 
 ```{r }
 X <- rgamma (1000000, 10, .08)
@@ -24,9 +26,10 @@ mu
 sigma <- sd (X) # population sd
 sigma
 hist (X, main = "Population Distribution")
+abline(v=mu,col="green")
 ```
 
-# Draw sample of sample mean
+## Draw sample of sample mean
 
 
 ```{r }
@@ -35,7 +38,7 @@ n_rep <- 2000
 CI_rep <- matrix (0, n_rep, 3) 
 
 xbar <- replicate (n_rep, mean(sample (X, size = n, replace = T) ) )
-data.frame(xbar = xbar[1:50])
+data.frame(xbar = xbar[1:10])
 ```
 
 Look at the distribution of sample mean in comparison with the population
@@ -43,9 +46,10 @@ Look at the distribution of sample mean in comparison with the population
 
 ```{r }
 xbar.hist <- hist (xbar, nclass=20, xlim = range (X))
+abline(v=mu,col="green")
 ```
 
-# Find 95% confidence intervals for each sample mean 
+## Find 95% confidence intervals for each sample mean 
 
 ```{r }
 # find margin error (me)
@@ -63,15 +67,19 @@ for (i in 1:n_rep)
     CI_rep [i,1:2] <- c(xbar[i] - me, xbar[i] + me)
     CI_rep [i, 3] <- CI_rep [i,1] < mu & mu < CI_rep [i,2] 
 }
-
-data.frame("true mean"= mu,
-           "sample mean"=xbar[1:50], 
-           "lower bound" = CI_rep[1:50,1],
-           "upper bound" = CI_rep[1:50,2],
-           "true mean covered"=CI_rep[1:50,3])
+library("rmarkdown")
+paged_table(
+round(
+  data.frame("true mean"= mu,
+             "sample mean"=xbar[1:50], 
+             "lower bound" = CI_rep[1:50,1],
+             "upper bound" = CI_rep[1:50,2],
+             "true mean covered"=CI_rep[1:50,3])
+,2)
+)
 ```
 
-# Plot CI 
+## Plot CI 
 
 
 ```{r }
@@ -93,9 +101,32 @@ for (i in 1:n_plot)
 mean (CI_rep [,3])
 ```
 
+# Finding Confidence Interval for a Population Mean with t Quantile
+```{r}
+
+survey <- read.csv("survey.csv")
+colnames(survey)
+t.test(survey$Height) # for two-sided symmetric CI
+# alternatively
+confint (lm(survey$Height~1))
+```
+
+# Finding Confidence Interval for a Population Proportion with Z Quantile
+```{r}
+survey <- read.csv("survey.csv")
+freq.sex <- table(survey$Sex); freq.sex
+# Confidence interval for probability of female
+prop.test (freq.sex[1], sum(freq.sex), conf.level = 0.95, correct = FALSE)
+# conputing it directly
+p.female <- freq.sex[1]/sum(freq.sex)
+ME <- sqrt(p.female*(1 - p.female)/sum(freq.sex))*qnorm(0.975)
+# CI 
+p.female + c(-ME, ME)
+
+```
+Note that for 95\% CI, should use 0.975 lower tail quantile or 0.025 upper tail quantile of standard normal
+
 # Margin Errors of Proportions
-
-
 
 ```{r }
 p<- seq (0,1, by=0.05)
