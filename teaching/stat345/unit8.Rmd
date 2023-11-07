@@ -1,0 +1,168 @@
+---
+title: '[STAT 345/834: Design and Analysis of Experiments](.)'
+author: "Longhai Li"
+date: "March 2018"
+output:
+  html_document:
+    fig_height: 6
+    fig_width: 10
+    highlight: tango
+    number_sections: yes
+    theme: united
+    toc: yes
+    toc_float: no
+  pdf_document:
+    toc: yes
+    number_sections: yes
+    fig_height: 6
+    fig_width: 10
+subtitle: 'Unit 8: Introduction Response Surface Design'
+---
+# Draw Some Response Surfaces
+## An Additive Model
+```{r }
+add.model = function(x1,x2)
+{ 
+  x1+x2
+}
+
+# response surface plot
+x2<- x1 <- seq(0,1,by=0.01)
+z <- outer(x1,x2, add.model)
+
+persp (x1, x2, z, theta = 30)
+# contour plot
+contour(x1,x2,z)
+```
+
+## An Interaction Model
+```{r }
+inter.model = function(x1,x2)
+{ 
+  x1+x2+5*x1*x2
+}
+
+# response surface plot
+x2<- x1 <- seq(0,1,by=0.01)
+z <- outer(x1,x2, inter.model)
+
+persp(x1, x2, z, theta=45)
+# contour plot
+contour(x1,x2,z)
+```
+
+## A Circular Quadratic Model
+```{r fig.height=8, fig.width=8}
+quad.model = function(x1,x2)
+{ 
+  x1+x2-10*(x1-0.5)^2-10*(x2-0.5)^2
+}
+
+# response surface plot
+x2<- x1 <- seq (0,1,by=0.01)
+z <- outer (x1,x2, quad.model)
+
+persp(x1, x2, z, theta=45)
+# contour plot
+contour(x1,x2,z)
+```
+
+## An Elliptical Quadratic Model
+```{r fig.height=8, fig.width=8}
+quad.model = function(x1,x2)
+{ 
+  -x1-x2-10*(x1-0.5)^2-40*(x2-0.5)^2
+}
+
+# response surface plot
+x2<- x1 <- seq(0,1,by=0.01)
+z <- outer(x1,x2, quad.model)
+
+persp(x1, x2, z, theta=45)
+# contour plot
+contour(x1,x2,z)
+```
+
+
+## A Complex Model
+```{r fig.height=8, fig.width=8}
+quad.model = function(x1,x2)
+{ 
+  x1+x2+5*x1*x2-10*(x1-.5)^2-20*(x2-.5)^2
+}
+
+# response surface plot
+x2<- x1 <- seq (0,1,by=0.01)
+z <- outer (x1,x2, quad.model)
+
+persp (x1, x2, z, theta = 45)
+# contour plot
+contour (x1,x2,z)
+```
+
+# Design and Analysis of Second-order response surface around optimum
+
+## Read in the data
+```{r}
+yield<- read.table("data/yield.txt", header=T)
+yield
+attach(yield)
+```
+
+## Without Central Composite Design
+### Fit a 2nd-order model
+```{r}
+
+
+# define x1 and x2
+x1<-c(-1,-1,1,1,rep(0,5))
+x2<-c(-1,1,-1,1,rep(0,5))
+data.frame (x1,x2, y=y[1:9]) # using only the first 9 observations
+
+g<-lm(y[1:9]~x1+x2+I(x1^2)+x1*x2,data=yield)
+summary(g)
+
+```
+### ANOVA
+```{r}
+anova (g)
+
+```
+
+
+
+## Analysis of Central Composite Design
+
+In CCD,we take 4 more observations so that we can estimate pure quadratic effect of $x_2$. 
+
+### Fit a 2nd order model with pure quadratic terms
+```{r}
+
+x1<-c(-1,-1,1,1,rep(0,5),1.414,-1.414,0,0)
+x2<-c(-1,1,-1,1,rep(0,5),0,0,1.414,-1.414)
+
+data.frame (x1,x2, y)
+
+h<-lm(y~x1+x2+I(x1^2)+I(x2^2)+x1*x2,data=yield)
+
+summary(h)
+
+```
+### ANOVA
+
+```{r}
+anova (h)
+
+```
+
+### Analysis after removing interaction term (non-significant)
+```{r}
+h2<-lm(y~x1+x2+I(x1^2)+I(x2^2),data=yield)
+summary(h2)
+anova(h2)
+```
+
+```{r}
+detach ("yield")
+```
+

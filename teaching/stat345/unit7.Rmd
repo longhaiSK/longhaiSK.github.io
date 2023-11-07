@@ -1,0 +1,263 @@
+---
+title: "Unit 7: Two-Level Fractional Factorial Design"
+author: "Longhai Li"
+date: "March 2020"
+output: 
+  html_document:
+       theme: united
+       toc: true
+       toc_float: no
+       number_sections: true
+       highlight: tango
+       fig_width: 10
+       fig_height: 6
+       df_print: default
+  pdf_document:
+    toc: yes
+    keep_tex: no
+    number_sections: yes
+    latex_engine: xelatex
+editor_options: 
+  chunk_output_type: console
+---
+
+# Functions and Package{-}
+
+```{r include=TRUE}
+library(BsMD)## LenthPlot function from this package
+library (FrF2)## FrF2 function is provided by this package
+
+qqnorm.lenth <- function (effects)
+{
+    abseffects<- abs(effects)
+    m <- length (abseffects)
+    # Psuedo sd based all abs(effect)
+    s0<-1.5*median(abseffects) 
+    non.sig <- abseffects<2.5*s0
+    # Refined estimate of sd 
+    pse<-1.5*median(abseffects[non.sig]) 
+
+    sme<-qt(1- (1-0.95^(1/m))/2,m/3)*pse;
+    sig <- abseffects>sme
+    
+    hqq<-qqnorm(effects, type = "n")
+    text(hqq$x, hqq$y, labels = names (effects), col = sig + 1)
+    qqline(effects)
+    cat ("Significant Factors Selected by Lenth's Method:\n",
+         names(abseffects)[sig], "\n")
+
+    names(effects)[sig]
+}
+
+```
+# One Half Factorial Design and Analysis
+
+## Full $2^5$ Factorial  Design
+```{r}
+
+
+des1 <- FrF2 (nfactors = 5, nruns = 32); des1
+
+## look at the full design matrix
+model.des1 <- data.frame( model.matrix(~A*B*C*D*E, des1))
+
+model.des1 [with(model.des1, order (-A1.B1.C1.D1.E1, D1, C1, B1, A1)), 
+            c("A1","B1", "C1", "D1", "E1", "A1.B1.C1.D1", "A1.C1.D1.E1",
+            "A1.B1.C1", "D1.E1", "A1.B1.C1.D1.E1" ) ]
+
+```
+## $2^{5-1}$ design with E = ABCD (ABCDE=I)
+```{r}
+des2 <- FrF2 (nfactors = 5, nruns=16, generators = c("ABCD"), alias.info = 3)
+des2 [with (des2, order (D,C,B,A)), ]
+design.info(des2)$aliased
+```
+
+
+Aliase Structure: 
+E = ABCD, A = BCDE, B=ACDE, C = ABDE, D = ABCE,   
+AE = BCD, BE = ACD, CE = ABD, AB = CDE, AC = BDE, AD = BCE, BC = ADE, BD = ACE, CD = ABE, that is, all third order interactions are confounded with 2nd order interactions. Fourth-order interactions are also confounded with 1st-order main effect. 
+
+## $2^{5-1}$ design with E = -ABCD (ABCDE=-I)
+```{r}
+des3 <- FrF2 (nfactors = 5, nruns=16, generators = c("-ABCD"), alias.info = 3)
+des3[with (des3, order (D,C,B,A)), ]
+design.info(des3)$aliased
+```
+
+Aliase Structure: 
+E = -ABCD, A = -BCDE, B = -ACDE, C = -ABDE, D = -ABCE,   
+AE = -BCD, BE = -ACD, CE = -ABD, AB = -CDE, AC = -BDE, AD = -BCE, BC = - ADE, BD = - ACE, CD = - ABE, that is, all third order interactions are confounded with 2nd order interactions. Fourth-order interactions are also confounded with 1st-order main effect. 
+
+## Analysis of a Dataset Collected with $2^{5-1}$ Design
+
+
+A $2^{5-1}$ design used for process improvement
+Five factors in a manufacturing process for an integrated circuit were investigated in a $2^{5−1}$ design with the objective of improving the process yield. The five factors.
+
+
+
+```{r }
+# read in the data
+process<- read.table("data/process.txt", header=T)
+
+process
+
+attach(process)
+```
+```{r}
+# define the design matrix
+A<-rep(c(-1,1),8)
+B<-rep(c(-1,-1,1,1),4)
+C<-rep(c(rep(-1,4),rep(1,4)),2)
+D<-c(rep(-1,8),rep(1,8))
+E<-A*B*C*D
+```
+
+ 
+
+```{r}
+
+# alternatively, we can generate these design with FrF2:
+
+des2 <- FrF2 (nfactors = 5, nruns=16, generators = c("ABCD"), alias.info = 3)
+des2 [with (des2, order (D,C,B,A)), ]
+design.info(des2)$aliased
+
+```
+
+```{r}
+
+g <- lm(y~(A+B+C+D+E)^2, data = process)
+summary(g)
+anova(g)
+effects<-g$coef[-1]
+
+# using lenth method to screen effects 
+qqnorm.lenth(effects)
+LenthPlot(effects)
+
+# Fit the model with significant effects
+h<-lm(y~A+B+C+A*B,data=process)
+anova(h)
+summary(h)
+par (mfrow = c(2,2))
+boxplot(y~A)
+boxplot(y~B)
+boxplot(y~C)
+
+
+interaction.plot (factor (A), factor(B), y, ylim = range (y)) #
+points (factor(A), y, pch = B+2)
+
+```
+
+```{r}
+detach ("process")
+```
+
+# One Quarter Factorial Design and Analysis
+
+## $2^{6-2}$ design with E=ABC and F=BCD
+
+```{r}
+
+des5<- FrF2 (nfactors = 6, nruns=16, generators = c("ABC", "BCD"), 
+             alias.info = 3); 
+des5[with (des5,order(D,C,B,A)),]
+design.info(des5)$aliased
+
+
+```
+
+```{r}
+#Let's look at the full factorial
+des6<- FrF2 (nfactors = 6, nruns=64)
+model_des6 <- data.frame(model.matrix (~A*B*C*D*E*F, des6))
+model_des6[ with(model_des6, order (-B1.C1.D1.F1, -A1.B1.C1.E1,  D1, C1, B1, A1)),
+            c("A1","B1", "C1","D1", "A1.B1.C1.E1", "B1.C1.D1.F1")]
+
+
+```
+
+```{r include=FALSE}
+## you may try this package too
+library(dplyr)
+model_des6 %>% arrange(desc(B1.C1.D1.F1), desc(A1.B1.C1.E1),  D1, C1, B1, A1) %>% select(c("A1","B1", "C1","D1", "A1.B1.C1.E1", "B1.C1.D1.F1")) 
+```
+
+## Analysis of a Dataset Collected with $2^{6-2}$ Design
+
+```{r }
+# read in the data
+shrinkage<- read.table("data/shrinkage.txt", header=T)
+knitr::kable(shrinkage, align="c")
+
+attach(shrinkage)
+
+# define the design matrix
+A<-rep(c(-1,1),8)
+B<-rep(c(-1,-1,1,1),4)
+C<-rep(c(rep(-1,4),rep(1,4)),2)
+D<-c(rep(-1,8),rep(1,8))
+E<-A*B*C
+F<-B*C*D
+
+g <- lm(y~(A+B+C+D+E+F)^2+A*B*D+A*B*F,data=shrinkage)
+anova(g)
+summary(g)
+effects<-g$coef[-1]
+```
+
+
+
+```{r}
+# using lenth's method to screen effect
+qqnorm.lenth(effects[!is.na(effects)])
+```
+```{r}
+# Fit the model with significant effects
+h<-lm(y~(A+B+D)^2,data=shrinkage)
+anova(h)
+```
+```{r fig.height=8}
+## look at the fitting results
+
+par (mfrow = c(2,2))
+
+plot (y~factor(A))
+plot (y~factor(B))
+
+interaction.plot(factor (A), factor (B), y, ylim = range (y))
+points (factor(A), y, pch = B + 2)
+
+interaction.plot(factor (A), factor (D), y, ylim = range (y))
+points (factor(A), y, pch = D + 2)
+
+```
+
+```{r}
+## residual analysis
+qqnorm(h$res)
+qqline(h$res)
+plot(h$fit,h$res,xlab="fitted value",ylab="residual")
+```
+
+```{r fig.height=12}
+
+par(mfrow=c(3,2))
+plot(A,h$res,xlab="A",ylab="residual")
+plot(B,h$res,xlab="B",ylab="residual")
+plot(C,h$res,xlab="C",ylab="residual")
+plot(D,h$res,xlab="D",ylab="residual")
+plot(E,h$res,xlab="E",ylab="residual")
+plot(F,h$res,xlab="F",ylab="residual")
+
+
+
+```
+
+```{r}
+detach ("shrinkage")
+```
+
