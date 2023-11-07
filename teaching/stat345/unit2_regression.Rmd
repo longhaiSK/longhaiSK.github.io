@@ -1,0 +1,215 @@
+---
+title: "Review of Simple Linear Regression"
+author: "Longhai Li"
+date: "Jan 2020"
+output: 
+   html_document:
+       toc: true
+       number_sections: true
+       highlight: tango
+       fig_width: 10
+       fig_height: 8
+editor_options: 
+  chunk_output_type: console
+---
+```{r setup, echo=TRUE}
+require("knitr")
+
+knitr::opts_chunk$set(
+    comment = "#",
+    fig.width=8, 
+    fig.height=6, 
+    cache = TRUE
+)
+```
+
+```{r include=FALSE}
+library ("latex2exp")
+```
+
+# Input data
+
+```{r}
+issu <- data.frame (
+    driving = c(5, 2, 12, 9, 15, 6, 25, 16),
+    premium = c(64, 87, 50, 71, 44, 56, 42, 60)
+)
+
+y <- issu$premium
+x <- issu$driving
+xbar <- mean(x)
+ybar <- mean(y)
+n <- length(y)
+plot(x,y, xlab = "Driving", ylab = "Premium")
+```
+
+# Estimating regression coefficients
+
+```{r }
+fit.issu <- lm(y~x)
+plot(x,y)
+abline (fit.issu)
+```
+
+# Fitted Values, Residuals and Sum Squares
+
+
+```{r }
+beta0 <- fit.issu$coefficients[1]
+beta1 <- fit.issu$coefficients[2]
+fitted1 <- beta0+beta1*x
+fitted0 <- rep(ybar, n)
+residual1 <- y - fitted1
+residual0 <- y - fitted0
+
+data.frame (y, fitted0, residual0, fitted1, residual1, diff.residual=fitted1-fitted0)
+```
+
+Visualize the fitted line, fitted values, and residuals
+
+```{r fig.height= 5, echo=FALSE}
+par (mfrow = c(1,3))
+plot (premium ~ driving, data = issu, ylim = range(y, fitted1, fitted0))
+abline (h=mean(y))
+points(x, fitted0, pch = 4,col=4)
+for (i in 1: length(y)){
+    arrows( x[i],fitted0[i],x[i], y[i], length=0.1, col = 4)
+}
+title(main= TeX("Residuals of Fitting Model 0: $y_i-\\bar{y}$"))
+
+
+plot (premium ~ driving, data = issu, ylim = range(y, fitted1, fitted0))
+abline (h=mean(y))
+abline(a=beta0, b=beta1)
+points(x, fitted1, pch = 3,col=3)
+for (i in 1: length(y)){
+    arrows( x[i],fitted1[i],x[i], y[i], length=0.1, col = 3)
+    
+}
+title(main= TeX("Residuals of Fitting Model 1: $y_i-\\hat{y}_i$"))
+
+
+plot (premium ~ driving, data = issu, ylim = range(y, fitted1, fitted0))
+abline (h=mean(y))
+abline(a=beta0, b=beta1)
+points(x, fitted0, pch = 4,col=4)
+points(x, fitted1, pch = 3,col=3)
+
+for (i in 1: length(y)){
+    arrows( x[i],fitted0[i],x[i], fitted1[i], length=0.1, col = 2)
+    
+}
+title(main= TeX("Differences in Residuals: $\\hat{y}_i-\\bar{y}$"))
+
+```
+
+**Definitions of SSR, SSE, SST**:
+
+```{r}
+SST <- sum((y-fitted0)^2); SST
+SSE <- sum ((y-fitted1)^2);SSE
+SSR <- SST-SSE;SSR
+
+```
+SSR can be computed directly with
+```{r}
+sum((fitted1-fitted0)^2)
+```
+
+**Plot of Residual Sum Squares**
+
+```{r}
+num.pars <- c(1,2,n)
+rss <- c(SST, SSE, 0)
+par(mfrow= c(1,1))
+plot(rss~num.pars, type="b", 
+     xlab = "Number of Parameters",
+     ylab = "Residual Sum Squares")
+abline(v=1:10, h=seq(0,1600,by=100), lty=3,col="grey")
+```
+
+
+**Coefficient of Determination: $R^2$** 
+
+```{r }
+R2 <- SSR/SST; R2
+```
+
+**Mean Sum Squares and F statististic**
+
+```{r }
+f <- (SSR/1)/(SSE/(n-2)); f
+```
+
+p-value to assess whether the relationship exists (statistical significance measure)
+
+```{r }
+pvf <- pf(f, df1=1, df2=n-2, lower.tail = FALSE); pvf
+```
+
+**ANOVA table**
+
+```{r }
+Ftable <- data.frame(df = c(1,n-2), SS=c(SSR,SSE), 
+                     MSS = c(SSR/1, SSE/(n-2)), Fstat=c(f,NA),
+                     p.value = c(pvf, NA),
+                     R2 = c(SSR, SSE)/SST)
+Ftable
+
+# A single function to compute F table:
+
+anova(fit.issu)
+```
+
+# Understanding the Sampling Distributions of SS and F
+
+When the slope is 0
+```{r cache=FALSE}
+fit.issu <- lm (y~x)
+fit.issu$coefficients
+fit.issu$coefficients[2] <- 0
+fit.issu
+
+# Simulate a dataset with modified coeffients
+sim.y <- predict(fit.issu, newdata = data.frame(x))+rnorm(n,0, sigma(fit.issu))
+
+# Fit linear Model with Simulated Data
+par(mfrow=c(1,2))
+fit.sim.y <- lm(sim.y~x)
+plot(sim.y~x, ylim=c(0,100)) 
+abline(fit.sim.y,col=2)
+abline(h=mean(sim.y),col=1)
+
+anova.fit.sim.y <- anova(fit.sim.y); anova.fit.sim.y
+ss.sim.y <- anova.fit.sim.y$`Sum Sq`
+rss.sim.y <- rev(cumsum(c(0, rev(ss.sim.y))))
+num.par <- cumsum(c(1,anova.fit.sim.y$Df))
+plot(rss.sim.y~num.par,xlab="Number of Parameters", ylab = "Residual Sum Squares", type ="b")
+abline(v=1:25, h=(0:50)*100,lty=3,col="grey")
+```
+
+When the slope is non-zero
+```{r cache=FALSE}
+fit.issu <- lm (y~x)
+fit.issu$coefficients
+fit.issu$coefficients[2] <- -2
+fit.issu
+
+# Simulate a dataset with modified coeffients
+sim.y <- predict(fit.issu, newdata = data.frame(x))+rnorm(n,0, sigma(fit.issu))
+
+# Fit linear Model with Simulated Data
+par(mfrow=c(1,2))
+fit.sim.y <- lm(sim.y~x)
+plot(sim.y~x, ylim=c(0,80)) 
+abline(fit.sim.y,col=2)
+abline(h=mean(sim.y),col=1)
+
+anova.fit.sim.y <- anova(fit.sim.y); anova.fit.sim.y
+ss.sim.y <- anova.fit.sim.y$`Sum Sq`
+rss.sim.y <- rev(cumsum(c(0, rev(ss.sim.y))))
+num.par <- cumsum(c(1,anova.fit.sim.y$Df))
+plot(rss.sim.y~num.par,xlab="Number of Parameters", ylab = "Residual Sum Squares", type ="b")
+abline(v=1:25, h=(0:50)*100,lty=3,col="grey")
+```
+

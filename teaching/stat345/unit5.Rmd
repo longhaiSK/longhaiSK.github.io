@@ -1,0 +1,280 @@
+---
+title: 'Unit 5: Full $2^k$ Factorial Design'
+author: "Longhai Li"
+date: "March 2020"
+output:
+  html_document:
+    df_print: kable
+    fig_height: 6
+    fig_width: 10
+    highlight: tango
+    number_sections: yes
+    theme: united
+    toc: yes
+    toc_float: no
+  pdf_document:
+    toc: yes
+    number_sections: yes
+  word_document:
+    toc: yes
+editor_options: 
+  chunk_output_type: console
+---
+
+# Functions and Package{-}
+
+```{r include=TRUE}
+library(BsMD)
+qqnorm.lenth <- function (effects)
+{
+    abseffects<- abs(effects)
+    m <- length (abseffects)
+    # Psuedo sd based all abs(effect)
+    s0<-1.5*median(abseffects) 
+    non.sig <- abseffects<2.5*s0
+    # Refined estimate of sd 
+    pse<-1.5*median(abseffects[non.sig]) 
+
+    sme<-qt(1- (1-0.95^(1/m))/2,m/3)*pse;
+    sig <- abseffects>sme
+    
+    hqq<-qqnorm(effects, type = "n")
+    text(hqq$x, hqq$y, labels = names (effects), col = sig + 1)
+    qqline(effects)
+    cat ("Significant Factors Selected by Lenth's Method:\n",
+         names(abseffects)[sig], "\n")
+
+    names(effects)[sig]
+}
+```
+
+# An Example
+A chemical product is produced in a pressure vessel. A factorial experiment is carried out in the pilot plant to study the factors to study the factors thought to influence the filtration rate of this product. The four factors are temperature (A), pressure (B), concentration of formaldehyde (C), and stirring rate (D). Each factor is present at two levels. A single replicate of the 24 experiment is carried out and the 16 runs are made in random order. The process engineer is interested in maximizing the filtration rate. Current process conditions give filtration rates of around 75 gal/h. The process also currently uses factor C at the high level. The engineer would like to reduce formaldehyde concentration as much as possible but has been unable to do so because it always results in lower filtration rates.
+
+# Read and Create Data Frame
+
+```{r }
+options(digits=2)
+
+filtration <- data.frame(
+  y= scan(text="45 71 48 65 68 60 80 65 43  100 45 104 75 86 70 96"),
+  A = rep(rep (c(-1,1),each = 1),8),
+  B = rep(rep (c(-1,1),each = 2),4),
+  C = rep(rep (c(-1,1),each = 4),2),
+  D = rep(rep (c(-1,1),each = 8),1)
+)
+                
+filtration
+
+```
+
+
+
+
+# Visualize the Data
+
+Attach the dataset for assssing y, A,B,C,D, directly without typing filtration$
+
+```{r}
+attach (filtration)
+```
+
+```{r fig.height=8}
+par (mfrow = c(2,2))
+boxplot (y~A)
+boxplot (y~B)
+boxplot (y~C)
+boxplot (y~D)
+```
+```{r fig.height=12}
+par (mfrow = c(3,2))
+
+interaction.plot(A, B, y, ylim=range (y), col = 1:2)
+
+interaction.plot(C, D, y, ylim=range (y), col = 1:2)
+
+interaction.plot(A, C, y, ylim=range (y), col = 1:2)
+
+interaction.plot(B, C, y, ylim=range (y), col = 1:2)
+
+interaction.plot(D, C, y, ylim=range (y), col = 1:2)
+
+interaction.plot(A, D, y, ylim=range (y), col = 1:2)
+```
+
+# Fit a Linear Model 
+
+
+```{r }
+g <- lm(y~(A+B+C+D)^4,data=filtration)
+summary (g)
+```
+
+## Computing and Understanding the Coefficients
+
+### Design Matrix
+
+```{r }
+X <- model.matrix(g)
+data.frame (filtration$y,X)
+```
+
+###  Contrasts 
+Signed $y$ with $X_j$, the jth column in the design matrix:
+```{r }
+data.frame(y * X) # note that * perform vectorized multiplication.
+```
+
+Contrasts are the column-wise sum of y*X, that is the sum of $y_i$ at high level ($y_{X_j+}$) minus the sum of $y_i$ at low level ($y_{X_j-}$). For "intercept", it is the sum of all $y_i$. In matrix language, 
+$$\mbox{Contrast}_j=X_j'y=y_{X_j+}-y_{X_j-},$$
+where $N$ is the total sample size. Here $N=16$.
+```{r }
+contrasts_filtration<- data.frame(colSums(y*X)); contrasts_filtration
+```
+
+### Regression coefficients $\hat \tau_j$
+
+
+In matrix language, $\hat\tau = (X'X)^{-1}X'y$. The differences between means (such as A, B, ABC) are $2\times \hat\tau$. The formula for coefficients can be written as:
+$$\mbox{Contrast}_j=X_j'y=y_{X_j+}-y_{X_j-}$$
+$$\hat \tau_j ={\mbox{Contrast}_j\over N}=\frac{\bar y_{X_j+}-\bar y_{X_j-}}{2}$$
+
+```{r }
+
+contrasts_filtration / 16
+
+#
+```
+
+The linear model is written as:
+
+$$y = 70 + 11 x_A + 1.6 x_B + 4.9 x_C + 7.3 x_D +\\ 0.062  x_Ax_B -9.1 x_Ax_C + 
+1.2x_Bx_C +	8.3x_Ax_D-0.19 x_Bx_D -0.56 x_Cx_D + \\ 0.94x_Ax_Bx_C+2.1x_Ax_Bx_D	-0.81 x_Ax_Cx_D	-1.3x_Bx_Cx_D+\\0.69x_Ax_Bx_Cx_D +\\ \epsilon,$$
+where $x_j=1$ if factor $j$ at high level, and $x_j=-1$ is factor $j$ at low level, for $j = A,B,C,D$. 
+
+# ANOVA
+
+## Output from ANOVA Function
+```{r }
+
+anova.filtration <- anova(g); anova.filtration
+```
+
+## How to compute SS by hand? 
+
+The sum squares can be computed by $$SS_j=N \times \hat \tau_j^2=\frac{\mbox{Contrast}^2_j}{N},$$ where $N=2^k\times n$ is the total number of observations. In this example, $N=16$ since $k=4, n=1$. This formular is also a specialization of the general formular for SS:
+$$SS_\mbox{treatment}=\sum_{i=1}^a n_i (\bar y_i-\bar y)^2$$ with 
+$$n_i=N/2, \bar y_{X_j+}-\bar y = \hat\tau_j,\bar y_{X_j-}-\bar y = -\hat\tau_j, a = 2.$$ Therefore,
+$$SS_j=(N/2)\times\hat\tau_j^2 + (N/2)\times\hat \tau_j^2=N\times \hat\tau_j^2.$$
+
+
+
+```{r }
+SS <- (g$coefficients)^2*16; 
+data.frame(t(SS))
+```
+
+
+$SS_j$ is just the Sum square of $X_j\hat \tau_j$:
+```{r include=TRUE }
+
+pred.each.submodel <- sweep(X, 2,  g$coefficients, FUN = "*")
+data.frame(pred.each.submodel)
+```
+
+# Selecting Significant Effects
+
+## Normal Probability Plot of Effects (Coefficients)
+
+```{r }
+g <- lm(y~(A+B+C+D)^4,data=filtration) # fit linear model
+effects <- g$coefficients[-1] # exluding intercept which is of no interest
+qq<-qqnorm(effects, type = "n")
+qqline(effects)
+text(qq$x, qq$y, labels = names(effects))
+```
+
+
+## Lenth Method to Determine "Significant" Effects
+
+
+**Understand Psuedo Standard deviation**
+
+```{r}
+1.5*median (abs(rnorm (1000, sd = 2)))
+1.5*median (abs(rnorm (1000, sd = 10)))
+1.5*median (abs(rnorm (1000, sd = 100)))
+```
+
+**Lenth Method**
+
+
+QQ plot of effects with lenth significance 
+```{r }
+qqnorm.lenth(effects)
+```
+
+Line plots with lenth significance
+```{r, fig.width=12 }
+library(BsMD)
+par(mfrow=c(1,1))
+LenthPlot(effects, las=3)
+```
+# Analysis with selected interactions
+
+
+```{r}
+# Removing factor CD and ACD
+h2 <- lm(y~A+C+D+A*C+A*D, data=filtration)
+anova(h2)
+```
+**Important note: the Sum Squares for the residuals are equal to the sum of sum squares of those "removed" terms. **
+
+```{r}
+summary (h2)
+
+```
+The final linear model for relating y to x based on the above "lm" output is written as follows:
+$$y=70.06 + 10.81 x_A + 4.94 x_C + 7.31 x_D - 9.06 x_Ax_C + 8.31 x_Ax_D + \epsilon $$
+
+#  What can we learn from the linear model (How do the factors interact)?
+
+When $x_A=1$, the coefficient for $x_C$ is 4.94-9.1 =  -4.2, implying that filtration rate decreases about 8% when C increases from low level to high level; when $x_A=-1$, the coefficient for $x_C$ is 4.94+9.1 = 14.01. We see that high C factor (formaldehyde) on average increases filtration rate, but can decrease filtration rate when temperature (A) high (+1). Look at the interaction plot:
+
+
+```{r}
+interaction.plot(C,A, y)
+```
+
+When $x_A=1$, the coefficient for $x_D$ is 7.31+8.31 =  16; when $x_A=-1$, the coefficient for $x_D$ is  7.31-8.31=-1. High D (stiring rates) increases filtration rate on average, but increases filtration rate when A (temperatre) is high (+1), and decreases slightly filtration rate a little bit. 
+
+
+
+
+```{r}
+interaction.plot (D,A,y)
+```
+
+Prediction of $y_i$ in each combination of $A,C,D$:
+
+```{r}
+newdata <- data.frame (
+A = rep(c(-1,1), each =4),
+C = rep(rep(c(-1,1), each =2),2),
+D = rep(c(-1,1),4)
+)
+
+predicted.filtration <- predict(h2, newdata=newdata)
+
+data.frame(newdata,predicted.filtration)
+
+```
+
+The combination high temperature (A+), low formaldehye (C-) and high stiring (D+) can provide good filtration rate. 
+
+
+```{r }
+detach ("filtration")
+```
+
+

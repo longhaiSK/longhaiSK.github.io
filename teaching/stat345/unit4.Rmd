@@ -1,0 +1,249 @@
+---
+title: 'Unit 4: General Factorial Design'
+author: "Longhai Li"
+date: "March 2020"
+output:
+  html_document:
+    df_print: kable
+    fig_height: 8
+    fig_width: 10
+    highlight: tango
+    number_sections: yes
+    theme: united
+    toc: yes
+    toc_float: no
+  pdf_document:
+    toc: yes
+    number_sections: yes
+editor_options: 
+  chunk_output_type: console
+---
+
+# Packages and Functions
+
+```{r }
+library(agricolae)
+# the "nonadditivity" is provided by this package.
+anova.R2 <- function (obj.lm)
+{
+    obj.anova <- anova (obj.lm)
+    sq <- obj.anova[,"Sum Sq"]
+    R2 <- sq/sum(sq)
+    obj.anova[, "R2"] <- R2
+    obj.anova
+}
+
+
+```
+
+# Two-factor Factorial Design
+An engineer is designing a battery for use in a device that will be subjected to some extreme variations in temperature. The only design parameter that he can select at this point is the plate material for the battery, and he has three possible choices. When the devices is manufactured and is shipped to the filed, the engineer has no control over the temperature extremes that the device will encounter, and he knows from experience that temperature will probably affect the effective battery life. However, temperature can be controlled in the product development laboratory for the purpose of a test. The engineer decides to test all three plate materials at three temperature levels – 15, 90, and 1250F because these temperature levels are consistent with the product end-use environment.
+
+The engineer wants to answer the following questions:
+
+   - What effects do material type and temperature have on the life of the battery?
+   - Is there a choice of material that would give uniformly long life regardless of temperature?
+
+```{r }
+battery <- read.table("data/battery.txt", header=T)
+
+## change level order in temperature for better visualization
+battery$temperature <- factor (battery$temperature, levels = c("15F", "70F", "125F"))
+attach(battery)
+battery
+
+## look at factor combination
+table (temperature, material)
+```
+
+##Visualize the data
+
+```{r }
+par(mfrow=c(1,2))
+plot(response ~ material, data=battery)
+plot(response ~ temperature, data=battery)
+
+par(mfrow=c(1,1))
+interaction.plot(temperature,material,response,col = 1:3, ylim = range (response) )
+points (temperature, response, col = material, pch = as.numeric(material))
+```
+
+Tabular summary of the dataset:
+
+```{r}
+tapply(response, INDEX = list (material,temperature), mean) -> battery.means
+cbind(battery.means, rowMeans(battery.means)) -> battery.means1
+rbind(battery.means1, colMeans(battery.means1)) -> battery.means2
+battery.means2
+```
+
+
+## Fit Additive Models without Interaction Term
+
+```{r }
+# fit the model without interaction (wrong analysis)
+g_additive <- lm(response ~ material+temperature, battery)
+interaction.plot(temperature,material,  g_additive$fitted.values, col = 1:3, 
+                 ylim = range (response), main = "Without Interaction", type = "b")
+points (temperature, response,  col = material,   pch = as.numeric(material))
+```
+
+## Fit Interaction Models using "Effect Parametrization" 
+
+In this parametrization, the coefficients for "material1, material2, temperature1, temperature2 are main effects (ie, $\tau_i,\beta_j$) in the textbook, and the interaction coefficients are $(\tau\beta)_{ij}$ in the textbook. 
+
+
+```{r }
+g <- lm(response ~ material*temperature, battery, 
+        contrasts = list(material = contr.sum, temperature=contr.sum))
+interaction.plot(temperature,material,  g$fitted.values, col = 1:3, 
+                 ylim = range (response),main = "With Interaction",
+                 type = "b")
+points (temperature, response, col = material, pch = as.numeric(material))
+
+# look at coefficients
+summary(g)
+
+# look at model matrix
+data.frame(battery, model.matrix(g))
+
+```
+
+## Fit Interaction Models using "baseline/treatment parametrization" 
+
+In this parametrization, the coefficients for "materialM2, materialM3, temperature70F, temperature125F" are **NOT** difference of main effects to the level 1. The coefficient interpretation is confusing. 
+
+```{r }
+g2 <- lm(response ~ material*temperature, battery)
+interaction.plot(temperature,material,  g2$fitted.values, col = 1:3, 
+                 ylim = range (response),main = "With Interaction",
+                 type = "b")
+points (temperature, response, col = material, pch = as.numeric(material))
+
+summary(g2)
+
+data.frame(model.matrix(g2))
+
+```
+
+
+
+## ANOVA
+
+```{r }
+# ANOVA table for additive models
+anova.R2(g_additive)
+
+# ANOVA table for interaction models
+anova.R2(g)
+
+# ANOVA for g2 for interaction models
+
+anova.R2(g2)
+
+# The interaction SS is the difference of RSS from g_additive to g
+anova (g_additive, g)
+```
+
+
+
+## Effect Comparison with Tukey Method
+
+
+```{r fig.width=20}
+TukeyHSD(aov(response ~ material*temperature, battery))
+par (mfrow=c(1,3), mar=c(4,4,4,4))
+plot(TukeyHSD(aov(response ~ material*temperature, battery)), las=2)
+```
+
+### Computing Tukey's CIs
+$$se(\hat \mu_i-\hat \mu_j)=\hat\sigma\times \sqrt{1/n_i+1/n_j}$$
+where $\hat\sigma=\sqrt{MSE}$ from the interaction model, where $n_i$ and $n_j$ are the sample sizes in $\hat \mu_i$ and $\hat \mu_j$. This SE will be multiplied by the t quantile or Tukey quantiles to obtain the LSD CI or family-wise CI. 
+# Comparing Main Effects of Materials
+
+Tabular summary of the dataset:
+
+```{r}
+tapply(response, INDEX = list ( material, temperature), mean) -> battery.means
+cbind(battery.means, rowMeans(battery.means)) -> battery.means1
+rbind(battery.means1, colMeans(battery.means1)) -> battery.means2
+battery.means2
+
+table(material,temperature)
+```
+
+Computing SE and ME:
+```{r}
+
+se <- sigma (g) * sqrt(1/12+1/12); se
+
+# number of means to select is 3
+ME <- se * qtukey(0.95, 3, g$df.residual) / sqrt(2)
+
+# Comparing means between temperatures
+
+# CI for main effects between temperature 15F to temperature 70F
+battery.means2[4,1] -battery.means2[4,2]  + c (-ME, +ME)
+
+# Comparing means between materials
+
+# CI for main effects between material 1 and material 2
+battery.means2[1,4] -battery.means2[2,4]  + c (-ME, +ME)
+
+# for comparing means for all combinations of "material" and "temperature"
+# 4 is number of replicates
+se2 <- sigma (g) * sqrt(1/4+1/4); se2
+ME2 <- se2 * qtukey (0.95, 9, g$df.residual) / sqrt(2)
+
+
+battery.means[2,3]-battery.means[1,1] + c(-ME2, ME2)
+
+```
+
+
+## Model Checking
+
+```{r }
+par(mfrow=c(1,2))
+qqnorm(g$residuals)
+qqline(g$residuals)
+shapiro.test(g$residuals)
+plot(g$fit,g$res,xlab="fitted vlaue", ylab="Residuals", 
+     col = temperature,  pch = as.numeric(material),
+     main = "Residuals vs Fitted in Interaction Model"); 
+abline (h = 0)
+
+
+```
+```{r}
+detach ("battery")
+```
+
+# Tukey's Nonadditive Test for Factorial Experiments with a Single Replicate
+
+```{r }
+
+tukeydata <- read.table("data/tukeydata.txt", header=T)
+tukeydata
+attach(tukeydata)
+
+par (mfrow=c(1,1))
+interaction.plot(temperature, pressure,y, type = "b")
+table (temperature, pressure)
+names(tukeydata)
+
+g<-lm(y~temperature+pressure)
+anova(g)
+library(agricolae)
+#We need to supply the degree freedom and values of MSE from the additive model, which are 8 and 0.25 respectively. 
+nonadditivity(y, temperature, pressure, 8, 0.25)
+
+detach ("tukeydata")
+```
+
+
+---
+title: "unit4.R"
+author: "longhai"
+date: "Wed Feb 28 14:15:40 2018"
+---

@@ -1,0 +1,604 @@
+---
+title: "Unit3: Design and Analysis of Experiments with Block Factors"
+author: "Longhai Li"
+date: "Feburary 2020"
+output:
+  html_document: 
+    df_print: kable
+    fig_height: 6
+    fig_width: 10
+    highlight: tango
+    number_sections: yes
+    theme: united
+    toc: yes
+  pdf_document:
+    toc: yes
+    keep_tex: no
+    df_print: kable
+    number_sections: yes
+  word_document:
+    toc: yes
+editor_options: 
+  chunk_output_type: console
+---
+# Packages and Functions {-}
+
+```{r echo=TRUE,message=FALSE}
+if (!require("lawstat")) {install.packages("lawstat"); library ("lawstat")}
+if (!require("agricolae")) {install.packages("agricolae"); library ("agricolae")}
+```
+
+**A function with $R^2$ added to anova table output**
+
+```{r echo=TRUE,message=FALSE}
+
+anova.R2 <- function (obj.lm)
+{
+    obj.anova <- anova (obj.lm)
+    sq <- obj.anova[,"Sum Sq"]
+    R2 <- sq/sum(sq)
+    obj.anova[, "R2"] <- R2
+    obj.anova
+}
+```
+
+# Generate Designs with Computer
+## Randomized Complete Block Design
+
+```{r }
+treatments <- LETTERS[1:4]
+design.rcbd(treatments, r=5)[c("book", "sketch")]
+treatments2 <- c(LETTERS[1:4], LETTERS[1:4])
+design.rcbd(treatments2, r=3)[c("book", "sketch")]
+```
+
+## Latin-Square Design
+
+```{r }
+treatments <- LETTERS[1:4]
+design.lsd(treatments)[c("book", "sketch")]
+
+## each treatment has been combined with each level of each block
+lsd_des <- design.lsd(treatments)$book
+lsd_des [order(lsd_des[,"treatments"]), ]
+## look at combination of factors
+with (lsd_des, table(row, col))
+with (lsd_des, table(row, treatments))
+with (lsd_des, table(col, treatments))
+```
+
+## Graeco-Latin Design
+
+```{r }
+treat1 <- LETTERS[1:4]
+treat2 <- letters[1:4]
+gld <- design.graeco(treat1, treat2)[c("book", "sketch")]; gld
+## look at combination of factors
+with(gld$book, table(row, col))
+with(gld$book, table(row, treat1))
+with(gld$book, table(row, treat2))
+with(gld$book, table(col, treat1))
+with(gld$book, table(col, treat2))
+```
+
+## Balanced Incomplete Block Design
+
+```{r }
+treatments <-  LETTERS[1:4]
+bib.des <- design.bib (treatments, k=3)[c("book", "sketch")]; bib.des
+with (bib.des$book, table (block))
+with (bib.des$book, table (treatments))
+with (bib.des$book, table (block, treatments))
+
+treatments <-  LETTERS[1:4]
+bib.des2 <- design.bib (treatments, k=2)[c("book", "sketch")]; bib.des2
+with (bib.des2$book, table (block))
+with (bib.des2$book, table (treatments))
+with (bib.des2$book, table (block, treatments))
+```
+
+
+# Analyzing Randomized Complete Block Design
+This is the example 4.1 from the textbook. A medical device manufacturer produces vascular grafts (artificial veins). These grafts are produced by extruding billets of polytetrafluoroethylene (PTFE) resin combined with a lubricant into tubes. Frequently, some of the tubes in a production run contain small, hard protrusions on the external surface. These defects are known as “flicks.” The defect is cause for rejection of the unit. The product developer responsible for the vascular grafts suspects that the extrusion pressure affects the occur- rence of yield and therefore intends to conduct an experi- ment to investigate this hypothesis. However, the resin is manufactured by an external supplier and is delivered to the medical device manufacturer in batches. The engineer also suspects that there may be significant batch-to-batch variation. Therefore, the product developer decided to investigate the effect of four different levels of extrusion pressure on yield using a randomized com- plete block design considering batches of resin as blocks.  Note that there are four levels of extrusion pressure (treatments) and six batches of resin (blocks). Remember that the order in which the extrusion pressures are tested within each block is random. The response variable is yield, or the percentage of tubes in the production run that did not contain any flicks.
+
+## Read Data
+
+```{r }
+vascular <- data.frame (yield = scan ("data/vasculargraft.txt"),
+                        batch = as.factor(rep(1:6,4)),
+                        pressure = as.factor(rep (1:4, each = 6)) 
+)
+attach (vascular)## this command allows assessing values in vascular directly
+
+vascular
+
+## table display the data
+tvascular <- tapply(yield, INDEX = list(batch, pressure), mean); tvascular
+tvascular <- cbind(tvascular, rowMeans(tvascular))
+tvascular <- rbind (tvascular, colMeans(tvascular))
+colnames(tvascular) <- c(paste0("Pressure", 1:4), "Average")
+rownames(tvascular) <- c(paste0("Batch", 1:6), "Average")
+tvascular
+
+
+
+```
+
+## Visualize the Data
+
+```{r }
+par (mfrow = c(2,2))
+#boxplot
+plot(yield ~ batch, data=vascular, main = "Block")
+plot(yield ~ pressure, data=vascular, main = "Pressure")
+#interaction plot
+with (vascular, interaction.plot(batch, pressure, yield, type = "b"))
+with (vascular, interaction.plot( pressure,batch, yield, type = "b"))
+```
+
+## Linear Models
+
+### Effect Model
+
+```{r }
+fit_vas_effect <- lm (yield ~  batch + pressure, 
+                      contrasts = list(batch=contr.sum, pressure=contr.sum),
+                      data = vascular)
+
+data.frame(batch,pressure,model.matrix(fit_vas_effect))
+
+summary(fit_vas_effect)
+
+tvascular
+
+mu <- tvascular["Average", "Average"]
+mu
+tau_pressure <- tvascular["Average",1:4]-tvascular["Average", "Average"]
+tau_pressure
+tau_Batch <- tvascular[1:6,"Average"]-tvascular["Average", "Average"]
+tau_Batch
+
+
+```
+
+
+### Treatment Difference Model
+
+```{r }
+fit_vas <- lm (yield ~  batch + pressure, data = vascular)
+data.frame(batch,pressure,model.matrix(fit_vas))
+summary(fit_vas)
+tvascular
+tvascular["Average",2:4]-tvascular["Average", 1]
+tvascular[2:6,"Average"]-tvascular[1,"Average"]
+
+## The intercept of treatment difference model is:
+mu + tau_Batch[1] + tau_pressure[1]
+
+
+```
+
+
+### Visualize the fitted model
+
+```{r}
+
+summary(fit_vas)
+
+par (mfrow = c(1,2))
+
+with (vascular, 
+      interaction.plot(batch, pressure, yield, type = "b", col = "black",
+                       main = "Original Data", ylim = c(78,100))
+)
+with (vascular, 
+      interaction.plot(batch, pressure, fit_vas$fitted.values, type = "b", col = "red",
+                       main = "Predicted/Fitted Values", ylim = c(78,100)))
+
+```
+
+
+## ANOVA 
+
+### Formulae
+The formula for computing block and treatment sum squares is the same as in one-way ANOVA.
+```{r}
+tvascular
+
+## Total sum squares:
+
+sum(tvascular[1:6,1:4]^2) - 24 * mu^2->SST; SST
+
+## pressure sum squares:
+
+sum(tvascular["Average",1:4]^2 * 6)-24*mu^2->SStr; SStr
+
+## batch sum squares:
+
+sum(tvascular[1:6, "Average"]^2 * 4)-24*mu^2->SSblock; SSblock
+
+## SSE:
+
+SST - SStr - SSblock
+```
+
+### Using lm and anova functions
+
+```{r}
+fit_pressure <- lm (yield~pressure, data = vascular)
+anova (fit_pressure)
+
+fit_batch <- lm (yield~batch, data = vascular)
+
+anova (fit_batch)
+## Due to the orthogonality in pressure and batch, the following two ways for anova are the same:
+fit_batch_pressure <- lm (yield~batch+pressure, data = vascular)
+
+anova (fit_batch_pressure)
+
+
+fit_pressure_batch <- lm (yield~pressure + batch, data = vascular)
+
+anova (fit_pressure_batch)
+```
+
+
+## Effect Comparison
+
+
+### Standard Error of the Difference Between Two Means
+$$se(\hat \mu_i-\hat \mu_j)=\hat\sigma\times \sqrt{1/n_i+1/n_j}$$
+where $\hat\sigma=\sqrt{MSE}$ from the treatment+block model. This SE will be multiplied by the t quantile or Tukey quantiles to obtain the LSD CI or family-wise CI. 
+
+### Effect Comparison for Fixed Pair with LSD 
+
+```{r }
+cbind(summary (fit_vas)$coef, confint(fit_vas))
+
+## hand calculation of SE
+SE_diff_blocks <- sigma (fit_vas) * sqrt(1/4+1/4); SE_diff_blocks # 4 is number of treatment levels
+SE_diff_treats <- sigma (fit_vas) * sqrt (1/6+1/6); SE_diff_treats # 6 is number of block levels
+
+## ME in LSD (without correction for multiple comparison bias, illustration for hand calculation)
+SE_diff_blocks* qt (0.975, df = 15) ## for blocks
+SE_diff_treats* qt (0.975, df = 15) ## for treatments
+
+```
+
+### Tukey Multiple Comparison of Effects
+
+```{r }
+TukeyHSD(aov (yield~pressure + batch, vascular))
+par (mfrow = c(1,2))
+plot(TukeyHSD(aov (yield~pressure + batch, vascular)))
+
+## ME for Tukey CI (illustration for hand computing)
+SE_diff_blocks * qtukey(0.95, 6, df = 15)/sqrt(2) ## for blocks
+SE_diff_treats * qtukey(0.95, 4, df = 15)/sqrt(2) ## for treatments
+```
+
+## Model  Checking 
+### Checking the treatment or block only model
+```{r}
+par(mfrow=c(2,2))
+plot(fit_pressure$residuals ~vascular$batch)
+plot(fit_batch$residuals ~vascular$pressure)
+qqnorm(fit_batch$residuals)
+qqline(fit_batch$residuals)
+qqnorm(fit_pressure$residuals)
+qqline(fit_pressure$residuals)
+shapiro.test(fit_batch$residuals)
+shapiro.test(fit_pressure$residuals)
+
+```
+From the boxplots of residuals versus un-accounted variables, we can see clearly that there are still signals uncaptured. However, the normality test for the residuals of each model may tell you that the model is not bad good. To compare (not check) the goodness of fits of different models, another criteria, AIC, is often used. AIC is a criterion related to sum squares of residuals and the number of parameters. 
+```{r}
+AIC(fit_batch)
+AIC(fit_pressure)
+AIC(fit_batch_pressure)
+```
+Note: AIC is not required for this course.
+### Checking the treatment+block model
+```{r }
+#overall normality
+par (mfrow =c(1,3))
+qqnorm(fit_vas$res)
+qqline(fit_vas$res)
+shapiro.test(fit_vas$res)
+#independence
+plot(fit_vas$res,xlab="Run order",ylab="Residuals")
+#constant variance
+plot(fit_vas$fitted,fit_vas$res,xlab="Fitted",ylab="Residuals")
+
+#residual plots of residuals vs. pressurement labels, block labels
+par (mfrow = c(1,2))
+with(vascular,plot(fit_vas$res~as.numeric(pressure), pch = as.numeric(pressure) ) )
+abline(h=0)  
+
+with(vascular,plot(fit_vas$res~as.numeric(batch), pch = as.numeric(batch) ) )
+abline(h=0)  
+
+# levene test for constant variances within each pressurement or each block
+par (mfrow = c(1,2))
+
+anova (lm(abs(fit_vas$residuals)~vascular$batch))
+anova (lm(abs(fit_vas$residuals)~vascular$pressure))
+
+#detach the dataset
+#detach ("vascular")
+```
+
+# Analyzing Latin Square Design Experiments
+A hardness testing machine presses a pointed rod (the ‘tip’) into a metal specimen (a ‘coupon’), with a known force. The depth of the depression is a measure of the hardness of the specimen. It is feared that, depending on the kind of tip used, the machine might give different readings. The experimenter wants 4 observations on each of the 4 types of tips. Suppose that the ‘coupon’ and the ‘operator’ of the testing machine are thought to be factors. Suppose there are p = 4 operators, p = 4 coupons, and p = 4 tips. The first two are nuisance factors, the last is the treatment factor.
+
+```{r }
+# read data
+hardness <- read.table("data/hardness.txt", 
+                       header=T, 
+                       colClasses=c("factor","factor","factor","numeric"))
+
+attach(hardness)
+hardness
+
+## verifying a latin square design
+table (operator, tip)
+table (operator, coupon)
+table (coupon, tip)
+
+## look at the data
+
+par (mfrow = c(1,3))
+with (hardness, interaction.plot(tip,operator,y, type = "b"))
+with (hardness, interaction.plot(tip,coupon,y, type = "b"))
+with (hardness, interaction.plot(operator,tip,y, type = "b"))
+
+par (mfrow = c(1,3))
+plot (y~operator)
+plot (y~coupon)
+plot (y~tip)
+
+## fit the model and anova
+g <- lm(y ~ operator + coupon + tip, hardness)
+summary (g)
+anova.R2(g)
+
+## Tukey Multiple Comparison
+plot(TukeyHSD(aov(g)))
+
+## model diagnosis
+#plot(g)
+plot (g$residuals~ g$fitted.values)
+plot (g$residuals~ as.numeric(hardness$operator))
+plot (g$residuals~ as.numeric(hardness$coupon))
+plot (g$residuals~ as.numeric(hardness$tip))
+qqnorm (g$residuals); qqline(g$residuals)
+##
+detach ("hardness")
+```
+
+# Analyzing Balanced Incomplete Block Design 
+
+Suppose that a chemical engineer thinks that the time of reaction for a chemical process is a function of the type of catalyst employed. Four catalysts are currently being investigated. The experimental procedure consists of selecting a batch of raw material, loading the pilot plant, applying each catalyst in a separate run of the pilot plant, and observing the reaction time. Because variations in the batches of raw material may affect the performance of the catalysts, the engineer decides to use batches of raw material as blocks. However, each batch is only large enough to permit three catalysts to be run. Therefore a randomized incomplete block design must be used.
+
+```{r }
+catalyst <- read.table("data/catalyst.txt", header=T, colClasses=c("factor","factor","numeric"))
+catalyst
+attach(catalyst)
+
+## check the design
+table (Block, Treatment)
+
+## look at the dataset
+par (mfrow = c(1,3))
+plot (y~Block)
+plot (y~Treatment)
+interaction.plot(Block, Treatment, y, type ="p", main = "Original Data")
+```
+
+## Fitting Linear Model and ANOVA
+
+
+```{r }
+## fit linear model (block then treatment)
+g<-lm(y ~ Block + Treatment, catalyst)
+## anova
+anova.R2(g)
+
+
+## making new predictions on complete grid of blocks and treatment (for understanding the estimating process)
+new.treat <- rep (as.character(1:4), 4)
+new.block <- rep (as.character(1:4), each = 4)
+new.data <- data.frame (Treatment=new.treat, Block = new.block)
+new.pred <- predict (g, newdata = new.data)
+
+
+## drawing interaction plots to look at the prediction
+par (mfrow = c(1,2))
+interaction.plot(Block, Treatment, y, type ="p", main = "Original Data",ylim = range (y, new.pred))
+
+## plot predicted values
+interaction.plot(new.block, new.treat, new.pred, 
+                 type = "b",col ="red", ylim = range (y, new.pred),
+                 xlab = "Block", ylab = "y", main = "Predicted Values in BIBD")
+## show original points on the previous plot
+points (as.numeric(Block), y, pch = as.character(Treatment ))
+
+## fit another model (treatment then block)
+g2<-lm(y ~  Treatment + Block, catalyst)
+anova(g2)
+```
+
+We see that the ordering makes differences in anova, although it does not change least square regression fitting. 
+
+## Effect Comparison in BIBD
+BIBD Effect Estimations is not exactly equal to treatment and block mean differences
+
+```{r }
+means.treat <- tapply(y, Treatment, mean); means.treat - means.treat[1]
+means.block <- tapply(y, Block, mean); means.block - means.block[1]
+
+
+
+## fixed pair means comparison (effect estimate differences)
+summary (g)
+confint (g)
+
+## multiple comparison
+catalyst.tukeyci <- TukeyHSD(aov(y~Block+Treatment, data = catalyst)); catalyst.tukeyci
+
+par (mfrow = c(1,2))
+plot (catalyst.tukeyci)
+
+catalyst.tukeyci2 <- TukeyHSD(aov(y~Treatment+Block, data = catalyst)); 
+catalyst.tukeyci2
+## compare to the analysis that considers Block first then Treatment
+catalyst.tukeyci
+
+detach ("catalyst")
+```
+
+# Analysis of Covariance (Accounting for Uncontrollable Continuous Covariates)
+**Textbook section 15.3**
+
+Consider an experiment (Flurry, 1939) to study the breaking strength (y) in grams of three types of starch film. The breaking strength is also known to depend on the thickness of the film (x) as measured in 10-4 inches. Because film thickness varies from run to run and its values cannot be controlled or chosen prior to the experiment, it should be treated as a covariate whose effect on strength needs to be accounted for before comparing the three types of starch.
+
+```{r, fig.height=6 }
+starch <- read.csv("data/starch2.txt")
+starch$type <- factor (starch$type, levels = c("corn", "canna", "potato"))
+knitr::kable(starch)
+attach (starch)
+
+## look at data
+par (mfrow=c(1,3))
+plot (strength~thickness,pch = as.numeric(type), col =type);
+legend (5.5,1700,  legend=levels(type), pch = 1:3, col=1:3 )
+plot (strength~type)
+plot (thickness~type)
+```
+
+## Analysis 1-1: Considering 'Type' only, no 'thickness'
+
+```{r }
+fit1_typeonly <- lm (strength~type)
+anova.R2 (fit1_typeonly)
+par (mfrow = c(1,1))
+plot(TukeyHSD(aov(strength~type)))
+## we see that there is great difference in thickness between starch types
+```
+
+## Analysis 1-2: Considering 'thickness' only, no 'Type'
+
+```{r, fig.height= 8 }
+#fit_starch0 <- lm (strength~1)
+fit_starch1 <- lm (strength~thickness)
+coefficients(fit_starch1)
+
+
+
+## looking at the prediction
+plot (strength~thickness,pch = as.numeric(type), col =type, main = "One Intercept, One Slope");
+legend (5.5,1700,  legend=levels(type), pch = 1:3, col=1:3 )
+abline (fit_starch1)
+
+anova.R2 (fit_starch1)
+```
+
+## Analysis 2-1: Considering "thickness" and then "type" 
+
+```{r, fig.height=8 }
+#anova (fit_starch0, fit_starch1, fit_starch2)
+## anova itself uses the above sequence in producing the anova table
+fit_starch2<-lm(strength~thickness+type)
+coefficients(fit_starch2)
+
+## look at the design matrix to understand the coefficients
+
+model.matrix(fit_starch2)
+
+## look at the prediction to understand the fitting
+plot (strength~thickness,pch = as.numeric(type), col =type, 
+      main = "Varying Intercept, One Slope");
+legend (5.5,1700,  legend= levels(type), pch = 1:3, col=1:3)
+#abline (fit_starch1, lwd=2)
+coef.fit2 <- coefficients(fit_starch2)
+abline (a = coef.fit2[1], b= coef.fit2[2], col = 1)
+abline (a = coef.fit2[1]+ coef.fit2[3], b = coef.fit2[2] ,col =2)
+abline (a = coef.fit2[1]+ coef.fit2[4], b = coef.fit2[2] ,col =3)
+
+## anova
+anova.R2 (fit_starch2)
+```
+
+## Analysis 2-2: Considering "type" then "thickness" (wrong for this question)
+
+```{r }
+fit_starch4<-lm(strength~type+thickness)
+coefficients(fit_starch4)
+```
+**Note that linear model estimation is the same as analysis 2-1, but anova will be different**
+```{r }
+anova.R2 (fit_starch4)
+```
+
+Note that the ordering of variables matters in producing ANOVA table. 
+
+## Analyzing Starch Data Again: Varying Slopes (Interaction) 
+
+```{r, fig.height=8}
+## we can fit better if allow intercept and slope both varying (interaction)
+
+fit_starch5<-lm(strength~thickness*type)
+summary (fit_starch5)
+coef.fit5 <- coefficients(fit_starch5); knitr::kable(coef.fit5)
+
+## look at the design matrix to understand the coefficient
+
+data.frame(model.matrix (fit_starch5))
+
+
+## looking at the prediction to understand the fitting
+par (mfrow = c(1,1))
+plot (strength~thickness,pch = as.numeric(type), col =type, 
+      main = "Varying Intercept, Varying Slope");
+legend (5.5,1700,  legend=levels(type), pch = 1:3, col=1:3 )
+#abline (fit_starch1, lwd=2)
+coef.fit2 <- coefficients(fit_starch2)
+abline (a = coef.fit5[1], b= coef.fit5[2], col = 1)
+abline (a = coef.fit5[1]+ coef.fit5[3], b = coef.fit5[2] + coef.fit5[5] ,col =2)
+abline (a = coef.fit5[1]+ coef.fit5[4], b = coef.fit5[2] + coef.fit5[6],col =3)
+
+anova.R2 (fit_starch5)-> anova.fit5; anova.fit5
+```
+
+**The most resonable way to account for the contribution of "type" should be comparing these two models.**
+
+```{r}
+fit_starch_thicknessonly <- lm (strength~thickness)
+fit_startch_thickness.type.interaction <- lm (strength~thickness*type)
+anova (fit_starch_thicknessonly, fit_startch_thickness.type.interaction)
+## R^2 (percentage of reduction of RSS) after considering "type" is about 19%
+248063 / 1276665
+```
+
+## Which model should we choose to interpret? Using AIC
+**Notes: not required for this course**
+
+AIC is an estimate of the leave-one-out predictive accuracy, a value related to SSE but penalized by the number of model parameters. 
+
+
+```{r}
+AIC (fit_startch_thickness.type.interaction) # thickness*type
+AIC( fit_starch4) # thickness+type
+AIC( fit_starch1) # thickness only
+AIC( fit1_typeonly) # type only
+```
+The model considering the interaction between thickness and type has the lowest AIC value, which means that it has the best out-of-sample predictive ability. Our conclusion should be based on this model. 
+
+The model considering thickness+type has lower predictive accuracy than the model considering thickness only. This is another approach to conclude that the type of starch does not affect the mean of the strengthness of films. After considering the interaction between the thickness and the type of starch, we discover that the type of starch affects the slope between the strengthness and thickness. 
+
+
+```{r}
+detach ("starch")
+```
+
+

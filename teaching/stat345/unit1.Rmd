@@ -1,0 +1,113 @@
+---
+title: "Unit 1: Analysis of Simple Comparative Experiments"
+date: "Jan 2020"
+author: "Longhai Li"
+output:
+  html_document:
+       theme: united
+       df_print: kable
+       toc: true
+       toc_float: false
+       number_sections: true
+       highlight: tango
+       fig_width: 10
+       fig_height: 8
+editor_options: 
+  chunk_output_type: console
+---
+# Unpaired Design
+Example of Comparing Modified and Unmodified Cement 
+
+## Input Data for Analysis
+
+```{r }
+mod <- c(16.85, 16.40, 17.21, 16.35, 16.52, 17.04, 16.96, 17.15, 16.59, 16.57)
+unmod <- c(17.50, 17.63, 18.25, 18.00, 17.86, 17.75, 18.22, 17.90, 17.96, 18.15)
+```
+
+## Draw boxplot 
+
+```{r }
+boxplot(mod,unmod)
+```
+
+## Perform two sample t-test (with equal variance assumption)
+
+```{r }
+t.test(mod,unmod,var.equal=TRUE)
+t.test(mod,unmod) #(Welch approximation)
+```
+
+
+## Checking normality assumptions
+
+```{r }
+# normality check
+qqnorm(mod)
+qqline(mod,col=2)
+qqnorm(unmod)
+qqline(unmod,col=4)
+```
+
+## Testing equality of variance
+
+```{r }
+var.test(mod,unmod)
+
+# alternatively we can using these two steps
+f <- var (mod)/var (unmod);f
+pv <- 2* pf (f, df1 = 9, df2=9, lower.tail = F); pv
+```
+
+#  Paired Design
+Consider an experiment to compare two methods, MSI and SIB, to determine chlorine content in sewage effluents. Eight samples were collected at different doses and contact times. Two methods were applied to each of the eight samples. It is a paired comparison design because the pair of treatments are applied to the same samples (or units).
+
+## Read Data
+
+```{r }
+chlorine <- read.table ("data/chlorine.txt", header = T)
+
+chlorine
+
+MSI <- chlorine$MSI
+SIB <- chlorine$SIB
+Sample <- chlorine$Sample
+```
+
+## Drawing boxplot
+
+```{r }
+boxplot (MSI, SIB)
+```
+
+## Drawing matplot
+
+```{r }
+matplot(chlorine[,c("MSI","SIB")],
+        type = "b", xlab = "Sample", ylab = "Chlorine")
+```
+
+## Drawing difference vs sample
+
+```{r }
+plot (SIB - MSI ~ Sample, type = "h")
+abline (h = 0)
+```
+
+## Testing for the difference in means
+
+```{r }
+t.test (MSI, SIB)
+
+t.test (MSI, SIB, paired = T)
+
+t.test (MSI-SIB)
+
+```
+
+
+---
+title: "unit1.R"
+author: "longhaili"
+date: "Mon Mar  5 22:02:27 2018"
+---

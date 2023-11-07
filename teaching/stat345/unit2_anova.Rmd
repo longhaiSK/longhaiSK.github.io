@@ -1,0 +1,518 @@
+---
+title: "One-way ANOVA with Animation Illustration"
+subtitle: "Unit2: Analyzing Completely Randomized Design with a Single Categorial Factor"
+date: January 2020
+author: "Longhai Li, University of Saskatchewan"
+output: 
+   html_document: 
+     df_print: kable
+     fig_height: 8
+     fig_width: 10
+     highlight: tango
+     number_sections: yes
+     toc: yes
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE, echo=TRUE}
+options(digits = 4)
+library ("lawstat")
+library ("knitr")
+#opts_knit$set(root.dir = "~/OneDrive - University of Saskatchewan/teaching/stat345-2001/rdemo")
+
+knitr::opts_chunk$set(
+    comment = "#",
+    fig.width=8, 
+    fig.height=8, 
+    cache = TRUE
+)
+```
+
+
+# Read a dataset of animal coagulation time vs diet 
+
+```{r }
+coagulation <- read.table("data/coagulation.txt", header=T)
+coagulation
+coag <- coagulation$coag
+diet <- coagulation$diet
+```
+
+# Visualize the data using scatterplot and boxplot
+
+```{r }
+plot (as.numeric(diet), coag, 
+      col = diet, 
+      pch = as.numeric(diet), 
+      xaxt="n", xlab = "Diet")
+axis (1, 1:4, LETTERS[1:4])
+
+boxplot(coag~diet)
+```
+
+# Fit a Linear Model
+
+## Fit a linear model  with cell means
+
+```{r }
+
+# 
+g0 <- lm(coag~0+diet)
+# What model is fitted?
+data.frame(coag,model.matrix(g0))
+
+
+```
+This model is written as:
+$$
+y_k = \mu_A x_k^A+\mu_B x_k^B+\mu_C x_k^C+\mu_D x_k^D+\epsilon_k
+$$
+where $x_k^i=I(x_k=i)$ for $i=A,B,C,D$.
+
+```{r}
+# The model fitting results:
+summary(g0)
+
+```
+
+
+## Fit a linear model with centralized effects
+
+```{r }
+
+# 
+g3 <- lm(coag~diet, contrasts = list(diet=contr.sum))
+
+# What model is fitted?
+data.frame(coag, model.matrix(g3))
+
+
+```
+This model is written as:
+$$
+y_k = \mu+\tau_A (x_k^A-x_k^D)+\tau_B (x_k^B-x_k^D)+\tau_C (x_k^C-x_k^D)+\epsilon_k
+$$
+where $$\mu=(\mu_A+\ldots+\mu_D)/4, \tau_A=\mu_A-\mu,\ldots,\tau_D=\mu_D-\mu$$
+
+```{r}
+## fitting results
+summary(g3)
+```
+
+## Fit a linear model with treatment differences
+
+```{r }
+
+# 
+g <- lm(coag~diet, contrasts = list(diet=contr.treatment(n=4,base = 1)))
+
+# What model is fitted?
+data.frame(model.matrix(g))
+
+
+```
+
+This model is written as:
+$$
+y_k = \beta_0+\beta_B x_k^B+\beta_Cx_k^C+\beta_D x_k^D+\epsilon_k
+$$
+where, $$\beta_0=\mu_A, \beta_B=\mu_B-\mu_A, \beta_C=\mu_C-\mu_A, \beta_D=\mu_D-\mu_A.$$ Note that $$\beta_B=\tau_B-\tau_A,\beta_C=\tau_C-\tau_A,\beta_D=\tau_D-\tau_A.$$
+```{r}
+## fitting results
+summary(g)
+
+## by default, R uses this mean difference parametrization
+gd <- lm(coag~diet)
+
+summary(gd)
+```
+
+# Analysis of Variance
+
+## Fitted values, Residuals, and Sum Squares
+This section is for illustrating prediction and residuals 
+
+```{r }
+y <- coag
+y_hat_h0 <- rep (mean (y), length (y)); y_hat_h0
+y_hat_h1 <- predict (lm (y~diet)); y_hat_h1;
+# residual (error) from h0 model (equal means)
+resid_h0 <- y - y_hat_h0
+# residual (error) from h1 model (unequal means)
+resid_h1 <- y - y_hat_h1 
+data.frame (diet, y=y, y_hat_h0, resid_h0, y_hat_h1, resid_h1, diff.residual=y_hat_h1-y_hat_h0 )
+```
+
+**Visulize the predictive values and residuals**
+
+```{r }
+plot (y, col = diet,pch = as.numeric(diet),
+      main="Coaglution time versus Run Order (Sample ID)")
+lines (1:4,g$fitted.values[1:4], col = 1)
+lines (5:10,g$fitted.values[5:10], col = 2)
+lines (11:16,g$fitted.values[11:16], col = 3)
+lines (17:24,g$fitted.values[17:24], col = 4)
+abline(h=mean(y))
+
+# compute SS
+SSt <-sum((y - y_hat_h0)^2); SSt
+SSe <- sum((y - y_hat_h1)^2); SSe
+SStr <- SSt - SSe; SStr # alternatively we can compute SStr by
+SStr2 <- sum((y_hat_h0-y_hat_h1)^2); SStr2
+```
+
+
+**Plot of Sum Square Against Degree Freedom**
+
+```{r}
+rss <- c(SSt, SSe,0)
+num.par <- c(1, 4, n=nrow(coagulation))
+plot(rss~num.par, xlab = "Number of Parameters", ylab = "Residual Sum Squares", type="b")
+grid(nx=5*5)
+```
+
+
+## ANOVA by Hand (Short-cut Formula)
+Let $n=n_1+\ldots,n_a$ with $n_i$ is the number of observation in group $i$. Formulae for computing SS:
+$$RSS_0 = SST = \sum_{i,j} y_{ij}^2-n\bar{y_{..}}^2 $$
+$$RSS_0-RSS_1 = SS_{tr} = \sum_i^a n_i\bar{y}_{i.}^2-n\bar{y_{..}}^2$$
+$$RSS_1 = SSE=SST-SS_{tr}=\sum_{i,j} y_{ij}^2 - \sum_i^a n_i\bar{y}_{i.}^2 = \sum_i^a SS_i$$
+
+```{r }
+ybar_i. <- tapply (y, mean, INDEX = diet); ybar_i.
+ybar_.. <- mean (y); ybar_..
+n_i <- table (diet); n_i
+n <- length (y)
+SSy <- sum (y^2)
+# the above values will be provided in test question
+
+# compute SSt,SSe, SStr
+SSt <- SSy-n*ybar_..^2; SSt
+n_i*ybar_i.^2 # vectoized calculation
+SStr <- sum(n_i*ybar_i.^2) - n*ybar_..^2; SStr
+SSe <- SSt - SStr; SSe
+
+# compute F and output anova table
+k <- length (unique (diet));k
+n <- length (y);n
+df1 <- k - 1
+df2 <- n - k
+MStr <- SStr/df1
+MSe <- SSe/df2
+f <- MStr /MSe
+pvalue <- 1-pf (f, df1=df1, df2=df2); pvalue
+
+anova_table <- data.frame (Df = c(df1,df2), 
+                           SS = c(SStr,SSe), 
+                           MS = c(MStr, MSe), 
+                           F = c(f,NA), 
+                           pvalue = c(pvalue, NA)); 
+row.names(anova_table) <- c("diet", "Residuals")
+anova_table
+```
+
+## ANOVA with R Function
+
+Compute ANOVA with the fitting result with intercept
+```{r}
+g <- lm(coag~diet)
+anova (g)
+```
+
+## Understanding Sampling Distribution of SS and F
+We will use simulation to understand the sampling distributions of sum squares and F statistics in ANOVA.
+
+**When treat difference is 0**
+
+```{r}
+g <- lm (coag~diet)
+n <- nrow (coagulation)
+g$coefficients[2:4] <- 0
+ylim0 <- range (coag) + c(-2,2)
+```
+
+
+```{r fig.show="animate", interval=0.5, aniopts="controls,loop", fig.width=8,fig.height=8, cache=TRUE}
+# Simulate datasets with modified coeffients
+for(i in 1:100){
+  sim.coag <- predict(g, newdata = coagulation)+rnorm(n,0,2.37)
+  par(mfrow=c(1,2))
+  plot(sim.coag~as.numeric(diet),
+       col=as.numeric(diet),
+       xlab = "Diet",
+       ylab = "Simulated Response",
+       ylim = ylim0)    
+  fit.sim.coag <- lm(sim.coag~diet)
+  anova.fit.sim.coag <- anova(fit.sim.coag)
+  ss.sim.coag <- anova.fit.sim.coag$`Sum Sq`
+  rss.sim.coag <- rev(cumsum(c(0, rev(ss.sim.coag))))
+  num.par <- cumsum(c(1,anova.fit.sim.coag$Df))
+  plot(rss.sim.coag~num.par,
+       xlab="Number of Parameters", 
+       ylab = "Residual Sum Squares", 
+       type ="b",
+       main=sprintf("F=%.2f",anova.fit.sim.coag$`F value`[1])
+       )
+
+  grid(nx=25)
+}
+```
+
+**When treat difference is non-zero**
+
+
+```{r}
+g <- lm (coag~diet)
+n <- nrow (coagulation)
+g$coefficients[2:4] <- c(1,2,3)*3
+ylim0 <- range (coag) + c(-2,5)
+```
+
+
+```{r fig.show="animate", interval=0.5, aniopts="controls,loop", fig.width=8,fig.height=8, cache=TRUE}
+# Simulate datasets with modified coeffients
+for(i in 1:100){
+  sim.coag <- predict(g, newdata = coagulation)+rnorm(n,0,2.37)
+  par(mfrow=c(1,2))
+  plot(sim.coag~as.numeric(diet),
+       col=as.numeric(diet),
+       xlab = "Diet",
+       ylab = "Simulated Response",
+       ylim = ylim0)    
+  fit.sim.coag <- lm(sim.coag~diet)
+  anova.fit.sim.coag <- anova(fit.sim.coag)
+  ss.sim.coag <- anova.fit.sim.coag$`Sum Sq`
+  rss.sim.coag <- rev(cumsum(c(0, rev(ss.sim.coag))))
+  num.par <- cumsum(c(1,anova.fit.sim.coag$Df))
+  plot(rss.sim.coag~num.par,
+       xlab="Number of Parameters", 
+       ylab = "Residual Sum Squares", 
+       type ="b",
+       main=sprintf("F=%.2f",anova.fit.sim.coag$`F value`[1])
+  )
+  grid(nx=25)
+}
+```
+
+# Model Checking 
+
+```{r }
+## fit lm model
+g <- lm(coag~diet)
+summary (g)
+
+
+## plot residuals vs run order
+plot(g$residuals,
+     xlab="Run order", ylab="Residuals", 
+     main="Plot of the residuals versus Run Order",  
+     col = diet, pch = as.numeric(diet))
+abline (h=0)
+
+# check the constant variance assumption
+plot(g$fit,g$residuals,
+     xlab="Fitted",ylab="Residuals",
+     main="Plot of the residuals versus fitted values",
+     col = diet,
+     pch = as.numeric(diet))
+## add some jitter since the fitted value for diet A and D are the same
+plot(jitter(g$fit), g$residuals, xlab="Fitted",ylab="Residuals",
+     main="Jittered plot of the residuals versus fitted values",
+     col = diet,
+     pch = as.numeric(diet))
+
+## draw qq plot to check normality of residuals
+qqnorm(g$residuals)
+qqline(g$residuals)
+## testing normality of residuals
+shapiro.test(g$residuals)
+
+
+# checking equality of variances 
+## an illustration
+abs.res <- abs(g$residuals)
+plot (abs.res, pch = as.numeric(diet), col = diet)
+boxplot (abs.res~diet)
+anova (lm (abs.res~diet))
+
+## traditional levene test is as above
+levene.test(coagulation$coag, coagulation$diet, location = "mean")
+
+## modified levene test is to substitute the means by medians
+levene.test(coagulation$coag, coagulation$diet, location = "median")
+
+#Bartlette's test
+bartlett.test(coag~diet, coagulation)
+```
+
+# Comparing Effects
+
+## Estimate Treatment Means
+
+```{r}
+g <- lm (coag~0+diet)
+cbind(summary(g)$coefficients,confint (g))
+```
+Computing formular for standard error:
+$$\hat\sigma=\sqrt{MSE}$$
+$$se(\hat \mu_i)=\hat\sigma\times \sqrt{1/n_i}$$
+
+```{r}
+## get MSE from ANOVA output
+anova(g)
+
+table(diet)
+
+sigma <- sqrt(5.6); sigma
+
+se_mu1 <- sigma * sqrt(1/4)
+me_mu1 <- se_mu1 * qt(0.975, df = 20)
+CI <- 61 + c(-me_mu1,me_mu1); CI
+
+se_mu2 <- sigma * sqrt(1/6)
+me_mu2 <- se_mu2 * qt(0.975, df = 20)
+CI <- 66 + c(-me_mu2,me_mu2); CI
+
+
+```
+
+## Effect Comparison with Least Significant Difference
+
+Simply using confidence intervals from lm model, which uses t quantile without using multiple comparison adjustment, and use "A" as the baseline level (intercept)
+
+```{r }
+g <- lm (coag~diet)
+cbind(summary(g)$coefficients,confint (g))
+
+```
+
+Computing formula for standard error:
+$$se(\hat \mu_i-\hat \mu_j)=\hat\sigma\times \sqrt{1/n_i+1/n_j}$$
+
+```{r}
+anova(g)
+
+table(diet)
+
+sigma <- sqrt(5.6); sigma
+
+se_mu1_to_mu2 <- sigma * sqrt(1/4+1/6)
+me_mu1_to_mu2 <- se_mu1_to_mu2 * qt(0.975, df = 20)
+CI <- 66-61 + c(-me_mu1_to_mu2,me_mu1_to_mu2); CI
+
+se_mu1_to_mu4 <- sigma * sqrt(1/4+1/8)
+me_mu1_to_mu4 <- se_mu1_to_mu4 * qt(0.975, df = 20)
+CI <- 61-61 + c(-me_mu1_to_mu4,me_mu1_to_mu4); CI
+
+```
+
+
+
+## A Simulation Illustration for Multiple Comparison Bias
+
+```{r }
+k <- 6 ## number of means
+rep_means <- replicate (k, rnorm(10000))/sqrt(rchisq(10000, df =20)/20)
+rep_means[1:10,]
+ranget <- function (x) {max (x)-min(x)}
+rep_means_max <- apply(rep_means, 1, ranget) 
+sim.diff.means <- data.frame (dmeans=abs(rep_means[,-1]-rep_means[,1]), 
+                              max_difference=rep_means_max)
+#sim.data[1:10,]
+ylim <- c(0, max (sim.diff.means)+4)
+boxplot (sim.diff.means, ylim = ylim)
+abline (h = qt(0.975,df = 20)* sqrt(2))
+abline (h = qtukey(0.95, nmeans = k, df = 20), col = "red")
+legend(0.5, ylim[2],
+       c("t", "Tukey"), lty = c(1,1),col = 1:2)
+```
+
+## Quantiles in Tukey, Bonferroni Correction and t
+In hand calculation,considering multiple comparison, the t quantile should be replaced by tukey quantile/sqrt(2)
+
+tukey quantile is always larger than t quantile
+
+```{r }
+qt0 <- qt (0.975, df = 20)
+qk <- qb <- rep (0,4)
+qk [1]  <- qtukey(0.95, nmeans = 2, df =20 )/sqrt(2) ## nmeans is number of means
+qk [2]  <- qtukey(0.95, nmeans = 4, df =20 )/sqrt(2) ## nmeans is number of means
+qk [3]  <- qtukey(0.95, nmeans = 40, df =20 )/sqrt(2) ## nmeans is number of means
+qk [4]  <- qtukey(0.95, nmeans = 100, df =20 )/sqrt(2) ## nmeans is number of means
+## comparing to bonferroni correction
+qb[1] <- qt (1-0.025/choose (2,2), df = 20) 
+qb[2] <- qt (1-0.025/choose (4,2), df = 20) 
+qb[3] <- qt (1-0.025/choose (40,2), df = 20) 
+qb[4] <- qt (1-0.025/choose (100,2), df = 20) 
+
+comp.qtb <- data.frame(t = qt0,  Tukey = qk, Bonferroni = qb )
+row.names(comp.qtb) <- paste0("number of means = ", c(2,4,40,100))
+comp.qtb
+```
+
+## Procedure for Computing Tukey Confidence Intervals
+
+```{r }
+## explanation for how to compute the tukey CI for dietA - diet B
+g <- lm (coag~diet)
+anova.g <- anova (g)
+dietMeans <- g$coefficients[1] + c(0, g$coefficients[-1]) ## or using
+dietMeans <- tapply (coag, INDEX = diet, mean)
+sigma <- sigma (g); sigma
+diet_n <- table (diet); diet_n
+```
+Formula for Tukey Margin Error with confidence level $1-\alpha$:
+
+$$\hat\sigma \times \sqrt {1/n_i+1/n_j} \times q_{\alpha, k, df}/\sqrt{2}$$
+where $q_{\alpha, k, df}$ is the **upper** tukey quantile with $k$ means and $df$ degrees freedom.
+```{r }
+ME_tukey <- sigma * sqrt (1/diet_n[1]+1/diet_n[2]) * qtukey(0.95, 4, 20)/sqrt(2)
+CI <- (dietMeans[2]-dietMeans[1]) + c(-ME_tukey,ME_tukey); names (CI) = c("lower", "upper"); CI
+
+## In R, you can use this function
+dmeans.tukey <- TukeyHSD(aov (coag~diet)); dmeans.tukey
+## Comparing with LSD CIs
+g <- lm (coag~diet)
+cbind(summary(g)$coefficients,confint (g))
+
+plot (dmeans.tukey)
+```
+
+# A complete R Procedure for Example 3.1 from Textbook
+
+```{r }
+## create data frame
+poweretch <- data.frame (etch = scan ("data/etchrate.txt"), 
+                         power = as.factor(rep(c(160, 180, 200, 220),each = 5)))
+poweretch
+## scatterplot
+with (poweretch, plot(as.numeric(power), etch, pch = as.numeric (power)))
+## boxplot
+boxplot (etch~power, data = poweretch)
+## anova analysis
+fit.etch <- lm (etch~power, data = poweretch)
+summary (fit.etch)
+anova(fit.etch)
+## visualize residuals
+plot (fit.etch$residuals, pch = as.numeric(poweretch$power))
+plot (fit.etch$fitted.values, fit.etch$residuals,
+      pch = as.numeric(poweretch$power))
+## checking normality of residuals
+qqnorm (fit.etch$residuals)
+qqline(fit.etch$residuals)
+shapiro.test(fit.etch$residuals)
+
+## testing equality of variances
+with (poweretch, levene.test (etch, power))
+bartlett.test (etch~power, data = poweretch)
+## multiple comparison for assessing pair difference
+plot(TukeyHSD(aov(etch~power, data = poweretch)))
+## look at the difference of a fixed pair of treatments
+confint (fit.etch)
+## change baseline level
+poweretch$n.power <- factor(poweretch$power, levels = paste0(c(200, 180, 160, 220)))
+fit.etch2 <- with(poweretch,lm (etch~n.power))
+summary (fit.etch2)## looking at test result
+confint(fit.etch2)
+```
