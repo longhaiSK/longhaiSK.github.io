@@ -106,8 +106,6 @@ for( n in n_set )
 
 
 ```{r}
-
-
 # SIMULATE T TESTS ON DATA FROM A T DISTRIBUTION.  Simulates k data
 # sets, each consisting of n data points that are drawn independently
 # from the t distribution with df degrees of freedom.  For each data
@@ -153,64 +151,96 @@ t.test.pvalue <- function (x, mu=0)
     
     2 * pt (-abs(t), n-1)
 }
+```
 
-par (mfrow=c(3,2))
+## Distribution of p-value of t.test under $H_0$
 
-# Tests with 100 degrees of freedom, with 2 and 20 data points.
+```{r}
 
-k <- 2000
+N <- 2000
 
 bins <- 20
+```
 
-hist (t.test.sim(k,2,100), nclass=bins, prob=T, 
-      main="", xlab=paste(k,"pvalues for n=2, df=100"))
+### Tests with 100 degrees of freedom, with 2 and 20 data points.
 
-hist (t.test.sim(k,20,100), nclass=bins, prob=T, 
-      main="", xlab=paste(k,"pvalues for n=20, df=100"))
+```{r}
+par (mfrow = c(1,2))
 
-# Tests with 3 degrees of freedom, with 2 and 20 data points.
+hist (t.test.sim(N,2,100), nclass=bins, prob=T, 
+      main="", xlab=paste(N,"pvalues for n=2, df=100"))
 
-hist (t.test.sim(k,2,3), nclass=bins, prob=T, 
-      main="", xlab=paste(k,"pvalues for n=2, df=3"))
+hist (t.test.sim(N,20,100), nclass=bins, prob=T, 
+      main="", xlab=paste(N,"pvalues for n=20, df=100"))
+```
 
-hist (t.test.sim(k,20,3), nclass=bins, prob=T, 
-      main="", xlab=paste(k,"pvalues for n=20, df=3"))
+### Tests with 3 degrees of freedom, with 2 and 20 data points.
 
-# Tests with 1 degree of freedom, with 2 and 20 data points.
+```{r}
+par (mfrow = c(1,2))
 
-hist (t.test.sim(k,2,1), nclass=bins, prob=T, 
-      main="", xlab=paste(k,"pvalues for n=2, df=1"))
+hist (t.test.sim(N,2,3), nclass=bins, prob=T, 
+      main="", xlab=paste(N,"pvalues for n=2, df=3"))
 
-hist (t.test.sim(k,20,1), nclass=bins, prob=T, 
-      main="", xlab=paste(k,"pvalues for n=20, df=1"))
+hist (t.test.sim(N,20,3), nclass=bins, prob=T, 
+      main="", xlab=paste(N,"pvalues for n=20, df=3"))
+```
+
+### Tests with 1 degree of freedom, with 2 and 20 data points.
+
+```{r}
+par (mfrow = c(1,2))
+
+hist (t.test.sim(N,2,1), nclass=bins, prob=T, 
+      main="", xlab=paste(N,"pvalues for n=2, df=1"))
+
+hist (t.test.sim(N,20,1), nclass=bins, prob=T, 
+      main="", xlab=paste(N,"pvalues for n=20, df=1"))
+```
+
+### Tests with 10 and 5 degrees of freedom, with 30 data points.
+
+```{r}
 
 par (mfrow = c(1,2))
-hist (t.test.sim(k,30,10), nclass=bins, prob=T, 
-      main="")
+hist (t.test.sim(N,30,10), nclass=bins, prob=T, 
+      main="",xlab=paste(N,"pvalues for n=30, df=10"))
 
-hist (t.test.sim(k,30,5), nclass=bins, prob=T, 
-      main="")
+hist (t.test.sim(N,30,5), nclass=bins, prob=T, 
+      main="", xlab=paste(N,"pvalues for n=30, df=5"))
+```
+
+## Find the power of t.test
+
+## Find the power of t.test for df = 5
+
+```{r}
+pvaues_H1_30 <- t.test.sim(N,30,5, mu.true = 0.5, mu = 0 )
+pvaues_H1_60 <- t.test.sim(N,60,5, mu.true = 0.5, mu = 0 )
 
 par (mfrow = c(1,2))
-## find power of a test
-hist(pvaues_H1 <- t.test.sim(k,30,5, mu.true = 0.5, mu = 0 ), nclass = 20, main = "")
-mean (pvaues_H1 < 0.05)
 
-hist(pvaues_H1 <- t.test.sim(k,60,5, mu.true = 0.5, mu = 0 ), nclass = 20, main = "")
-mean (pvaues_H1 < 0.05)
+hist(pvaues_H1_30, nclass = 20, main = paste ("The power is", mean (pvaues_H1_30 < 0.05)), xlab=paste(N,"pvalues for n=30, df=5, mu=0.5"))
+hist(pvaues_H1_60, nclass = 20, main = paste ("The power is", mean (pvaues_H1_60 < 0.05)), xlab=paste(N,"pvalues for n=60, df=5, mu=0.5"))
 
+```
 
-hist(pvaues_H1 <- t.test.sim(k,70,5, mu.true = 0.5, mu = 0 ), nclass = 20, main = "")
-mean (pvaues_H1 < 0.05)
+## Find the power of t.test for df = 3
 
+```{r}
+pvaues_H1_30 <- t.test.sim(N,30,3, mu.true = 0.5, mu = 0 )
+pvaues_H1_60 <- t.test.sim(N,60,3, mu.true = 0.5, mu = 0 )
+
+par (mfrow = c(1,2))
+
+hist(pvaues_H1_30, nclass = 20, main = paste ("The power is", mean (pvaues_H1_30 < 0.05)), xlab=paste(N,"pvalues for n=30, df=3, mu=0.5"))
+hist(pvaues_H1_60, nclass = 20, main = paste ("The power is", mean (pvaues_H1_60 < 0.05)),xlab=paste(N,"pvalues for n=60, df=3, mu=0.5"))
 
 ```
 
 # Using simulation to study a permuation test
 
-```{r}
-
-
+```{r permuted correlation, cache=TRUE}
 
 # COMPUTE THE P-VALUE FOR A PERMUTATION TEST OF CORRELATION.  Tests the null
 # hypothesis that the the vectors x and y are independent, versus the 
@@ -218,29 +248,19 @@ mean (pvaues_H1 < 0.05)
 # The vectors x and y are given as the first and second arguments; they
 # must be of equal length.
 #
-# The p-value returned is computed by simulating permutations of how the
-# elements of the vectors are paired up, with the simulation sample 
-# size being given as the third argument, n, which defaults to 999.  The 
-# p-values returned are integer multiples of 1/(n+1), and have the property 
-# that if the null hypothesis is true, the probability of obtaining a p-value 
-# of k/(n+1) or smaller is equal to k/(n+1), unless there is exact equality 
-# for the correlations obtained with different permutations, in which case the
-# probability may differ slightly from this.
 
-perm.cor.test <- function (x, y, n=999)
+perm.cor.test <- function (x, y, no.perm=100)
 { 
     real.abs.cor <- abs(cor(x,y))
-    
-    number.as.big <- 0
-    for (i in 1:n)
-    { if (abs(cor(x,sample(y))) >= real.abs.cor)
-    { number.as.big <- number.as.big + 1
+    permuted.abs.cor <- rep (0, no.perm)
+    for (i in 1:no.perm)
+    { 
+      permuted.abs.cor[i] <- abs(cor(x,sample(y)))
+     
     }
-    }
     
-    (number.as.big + 1) / (n + 1)
+    mean (permuted.abs.cor > real.abs.cor)
 }
-
 
 # TEST ON NORMALLY-DISTRIBUTED DATA, COMPARED TO TEST BASED ON NORMAL DIST.
 
@@ -260,19 +280,16 @@ test.perm.norm <- function(no.sim,no.perm)
 }
 
 
-pv <- test.perm.norm(5000,100)
+pv <- test.perm.norm(2000,100)
 par (mfrow = c(1,1))
-hist(pv,20, xlab="5000 pvalues from permuation test",main="")
+hist(pv,20, xlab="2000 pvalues from permuation test",main="")
 
 ```
 
-#Using simulation to study a power regression test
-
-```{r cache=TRUE}
-
-
-
-# REGRESSION USING BEST POWER TRANSFORMATION.  Takes as arguments a
+# Using simulation to study a power regression test
+## R Functions for REGRESSION USING BEST POWER TRANSFORMATION
+```{r Power Regression, cache=TRUE}
+# Takes as arguments a
 # vector of predictor values and a vector of response values (of equal
 # length).  The predictor values must be non-negative.  Finds the
 # power transformation for the predictors that produces the highest
@@ -284,11 +301,13 @@ pvalue.lm.pow <- function (x, y, powers=seq(0.1,4.0,by=0.1))
 {
     if (!is.vector(x,"numeric") || !is.vector(y,"numeric") 
         || length(x)!=length(y))
-    { stop("Arguments should be numeric vectors of equal length")
+    { 
+      stop("Arguments should be numeric vectors of equal length")
     }
     
     if (any(x<0))
-    { stop("Predictors must be non-negative")
+    { 
+      stop("Predictors must be non-negative")
     }
     
     n <- length(x)
@@ -298,11 +317,13 @@ pvalue.lm.pow <- function (x, y, powers=seq(0.1,4.0,by=0.1))
     best.r <- 0
     
     for (p in powers)
-    { r <- cor(x^p,y)
-    if (abs(r)>=abs(best.r))
-    { power <- p
-    best.r <- r
-    }
+    { 
+      r <- cor(x^p,y)
+      if (abs(r)>=abs(best.r))
+      { 
+        power <- p
+        best.r <- r
+      }
     }
     
     # Return the best power and the linear model using that power.
@@ -349,17 +370,17 @@ test.lm.power <- function (x, N, ...)
 # FIND PERMUTATION PVALUE FOR REGRESSION USING BEST POWER TRANSFORM.
 # Takes as arguments the vectors of predictors (x) and responses (y),
 # as for pvalue.lm.pow, the number of permutations to use in finding the
-# p-value (default is 999), and possible further arguments that are
+# p-value (default is 100), and possible further arguments that are
 # passed on to pvalue.lm.pow.  Returns the p-value from the permutation
 # test, which is (roughly) the fraction of times that reg.pow applied
 # to a randomly shuffled data sets gives a smaller p-value than reg.pow
 # gives when applied to the actual dataset.  In detail, the pvalue is
-# (count+1)/(perms+1), with count being the number of smaller p-values
+# count/perms, with count being the number of smaller p-values
 # obtained from permuted datasets.  If the null hypothesis of no
 # relationship is true, these p-values will be uniformly distributed
 # over the possible values (ie, roughly uniform between 0 and 1).
 
-pvalue.perm.lm.pow <- function (x, y, perms=999, ...)
+pvalue.perm.lm.pow <- function (x, y, no.perm=100, ...)
 {
     # Find the naive p-value using pvalue.lm.pow for the actual data.
     
@@ -368,21 +389,16 @@ pvalue.perm.lm.pow <- function (x, y, perms=999, ...)
     # Count how many times pvalue.lm.pow applied to a random permutation finds 
     # a model with as small a naive p-value as for the actual data.
     
-    count <- 0
-    
-    for (k in 1:perms)
-    { pvalue <- pvalue.lm.pow(x,sample(y),...)
-    if (pvalue<=actual)
-    { count <- count + 1
-    }
+    permuted_pvalue <- rep(0, no.perm)
+    for (k in 1:no.perm)
+    { 
+      permuted_pvalue[k] <- pvalue.lm.pow(x,sample(y),...)
     }
     
-    # Return the p-value from the permutation test, based on the count found.
-    
-    (count+1) / (perms+2)
+    mean (permuted_pvalue < actual)
 }
 
-# TEST VALIDITY OF THE PERMUATION PVALUES. The method is the same as for 
+#TEST VALIDITY OF THE PERMUATION PVALUES. The method is the same as for 
 #test.lm.power. When power.sim is not 0, it can be used to calculate the power
 #of the test
 
@@ -393,41 +409,53 @@ test.perm.power <- function (x, power.sim, N=100, resid.std.dev=1, ...)
     pvalues <- rep(0,N)
     
     for (k in 1:N)
-    { y <- x^power.sim + rnorm(n,0,resid.std.dev)
-    pvalues[k] <- pvalue.perm.lm.pow(x,y,...)
+    { 
+      y <- x^power.sim + rnorm(n,0,resid.std.dev)
+      pvalues[k] <- pvalue.perm.lm.pow(x,y,...)
     }
     pvalues
 }
+```
 
+## Checking the uniformity of p-values under $H_0$
 
-par(mfrow=c(2,2),mar=c(4,4,3,1))
+```{r Power Regression under H0, cache=TRUE}
+par(mfrow=c(1,2),mar=c(4,4,3,1))
 
 x <- exp(rnorm(20))
+
 naive.pv <- test.lm.power(x, 1000)
+perm.pv <- test.perm.power(x,0,1000, no.perm=99)
 
 hist(naive.pv,nclass=20,xlab="1000 naive pvalues from power regression",
-     main="null hypothesis is true, naive test")
-
-perm.pv <- test.perm.power(x,0,1000,perms=99)
-
+     main=paste("H0 is true, naive test, rejection rate=", mean (naive.pv< 0.05)))
 hist(perm.pv,nclass=20,
      xlab="1000 permuation pvalues from power regression",
-     main="null hypothesis is true,permutation test")
+     main=paste("H0 is true, Permutation test, rejection rate=", mean (perm.pv< 0.05)))
+```
 
-#p-value when the true power in function is 1.5
-perm.pv.alt1 <- test.perm.power(x,1.5,1000,perms=49)
+## The statistical power of the permuation test
 
-hist(perm.pv.alt1,nclass=20,
-     xlab="1000 permuation pvalues from power regression",
-     main="true relationship: y = x^1.5 + e,permutation test")
+```{r Power Regression power, cache=TRUE}
+perm.pv.alt1 <- test.perm.power(x,1.5,1000,no.perm=99)
 
 
 #p-value when the true power in function is 0.5
-perm.pv.alt2 <- test.perm.power(x,0.5,1000,perms=49)
+perm.pv.alt2 <- test.perm.power(x,0.5,1000,no.perm=99)
+
+par(mfrow=c(1,2),mar=c(4,4,3,1))
+
+hist(perm.pv.alt1,nclass=20,
+     xlab="1000 permuation pvalues from power regression",
+     main= paste0("H1: y = x^1.5 + e, permutation test, rej. rate=", 
+          mean (perm.pv.alt1< 0.05))
+)
 
 hist(perm.pv.alt2,nclass=20,
      xlab="1000 permuation pvalues from power regression",
-     main="true relationship: y = x^0.5 + e, permutation test")
+     main= paste0("H1: y = x^0.5 + e, permutation test, rej. rate=", 
+          mean (perm.pv.alt2< 0.05))
+)
 
 
 ```
