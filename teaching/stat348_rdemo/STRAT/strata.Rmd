@@ -19,12 +19,13 @@ output:
     highlight: tango
     fig_width: 10
     fig_height: 8
-  pdf_document:
-    toc: yes
-    number_sections: yes
+  pdf_document: 
+    toc: true
+    number_sections: true
     highlight: tango
     fig_width: 10
     fig_height: 8
+    fig_caption: true
 editor_options:
   chunk_output_type: inline
 ---
@@ -118,13 +119,33 @@ data.frame (Nh, nh, ybarh, sh)
 ```{r}
 N <- sum (Nh)
 pi_h <- Nh/N
-ybar <- sum(ybarh * pi_h)
-data.frame (Nh, nh=nh,pi_h, ybarh, sh=sh, "var component"=(1-nh/Nh)*pi_h^2*sh^2/nh)
+weighted_ybar_h <- ybarh * pi_h
+var_ybarh <- (1-nh/Nh)*sh^2/nh
+var_h=var_ybarh*pi_h^2
+
+workingtable <- data.frame ("$N_h$"=Nh, 
+                            "$n_h$"=nh,  
+                            "$\\bar y_h$"= ybarh, 
+                            "$s_h$"= sh, 
+                            "$s^2_h$" = sh^2, 
+                            "$\\pi_h={N_h/N}$"= pi_h,
+                            "$\\bar y_h\\cdot \\pi_h$"= weighted_ybar_h,
+                            "${\\hat V} (\\bar y_h)=(1-n_h/N_h)s^2_h/n_h$"=var_ybarh,
+                            "${\\hat V} (\\bar y_h)\\cdot \\pi^2_h$"=var_h,
+                            check.names = FALSE)
+
+workingtable <- rbind (workingtable, colSums(workingtable))
+row.names(workingtable)[5] <- "Sum"
+library(knitr)
+library(kableExtra)
+kableExtra::kable(workingtable, escape=FALSE)
 ```
 
 
 ```{r}
-seybar <- sqrt(sum((1-nh/Nh)*pi_h^2*sh^2/nh))
+ybar <- sum(weighted_ybar_h); ybar
+var_ybar <- sum((1-nh/Nh)*pi_h^2*sh^2/nh); var_ybar
+seybar <- sqrt(var_ybar)
 mem <- 1.96 * seybar
 c(Est. = ybar, S.E. = seybar, ci.low = ybar - mem, ci.upp = ybar + mem)
 ```
@@ -363,7 +384,7 @@ sim_var/sim_var[1] -> sim_var_relative
 
 1-sim_var/sim_var[1] -> sim_var_reduction
 
-cbind("Mean"=sim_means, "Variance"=sim_var, "Relative Variance"= sim_var_relative, "Percentage of Variance Reduction"=sim_var_reduction)
+data.frame("Mean"=sim_means, "Variance"=sim_var, "Relative Variance"= sim_var_relative, "Percentage of Variance Reduction"=sim_var_reduction, check.names = FALSE)
 
 ```
 
@@ -501,7 +522,7 @@ sim_var/sim_var[1] -> sim_var_relative
 
 1-sim_var/sim_var[1] -> sim_var_reduction
 
-cbind("Mean"=sim_means, "Variance"=sim_var, "Relative Variance"= sim_var_relative, "Percentage of Variance Reduction"=sim_var_reduction)
+data.frame("Mean"=sim_means, "Variance"=sim_var, "Relative Variance"= sim_var_relative, "Percentage of Variance Reduction"=sim_var_reduction, check.names = FALSE)
 
 ```
 
