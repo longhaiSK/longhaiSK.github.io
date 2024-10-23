@@ -108,9 +108,12 @@ srs_mean_est <- function (sdata, N = Inf)
 	mem <- qt (0.975, df = n - 1) * se.ybar
 	c (Est. = ybar, S.E. = se.ybar, ci.low = ybar - mem, ci.upp = ybar + mem)
 }
+```
 
+## Post-stratification
+For poststratification, plug in $n_h = n * {N_h \over N}$ in the estimator for a real stratified sample
+```{r}
 ## to find total, multiply N to the estimate returned by this function
-## for poststratification, use nh = n * Nh/N
 str_mean_estimate <- function (ybarh, sh, nh, Nh)
 {
     N <- sum (Nh)
@@ -294,6 +297,7 @@ data.frame (sim_var, ratio_sim_var,percentage_reduction)
 ```
 
 # Estimating Domain Means and Post-stratification with agsrs.csv example
+
 ## Estimating Domain Means
 ```{r}
 agsrs <- read.csv("data/agsrs.csv")
@@ -308,7 +312,10 @@ region_agsrs_domain <- data.frame(rbind(
     W = srs_domain_mean_est(agsrs$acres92[agsrs$region=="W"], n=n,N = 3078))
 )
 region_agsrs_domain
+```
 
+
+```{r}
 ## Compared to the results of naively applying SRS estimation to each domain
 region_agsrs_srs <- data.frame(rbind(
     NC = srs_mean_est(agsrs$acres92[agsrs$region=="NC"], N = 1054),
@@ -321,7 +328,7 @@ region_agsrs_srs
 ```
 ## Post-stratification Analysis
 ```{r}
-nh <- tapply (1:nrow(agsrs), agsrs[,"region"], length)
+nh <- tapply (agsrs[, "acres92"], agsrs[,"region"], length)
 n <- sum (nh)
 n
 sh <- tapply (agsrs[, "acres92"], agsrs[,"region"], sd)
@@ -330,14 +337,26 @@ ybarh <- tapply (agsrs[, "acres92"], agsrs[,"region"], mean)
 Nh <- c(NC = 1054, NE = 220, S= 1382, W = 422)
 ```
 
-**Create nh proportional to Nh, instead of using observed nh**
+**Create $n_h^{\mbox{post-strat}}=n\times \frac{N_h}{N}$, instead of using observed $n_h$
 
 ```{r}
 nh_post <- Nh/sum(Nh)* n
 
 ## regional summary for stratified sampling estimation
-data.frame(cbind(ybarh, sh, nh, prop_obs=nh/sum(nh), Nh, nh_post, prop_post = nh_post/sum(nh_post)))
+knitr::kable(
+    data.frame(
+    "$y_h$"=ybarh, 
+    "$s_h$"=sh, "$n_h$"=nh, 
+    "$\\pi^{\\mbox{obs}}_h=n_h/n$"=nh/n, 
+    "$N_h$"=Nh, 
+    "$\\pi^{\\mbox{pop}}_h=N_h/N$"=Nh/sum(Nh),  
+     "$n_h^{\\mbox{post-strat}}$=n N_h/N"=nh_post,
+    check.names = FALSE ),
+    )
+```
 
+
+```{r}
 ## strata mean estimate
 str_mean_estimate (ybarh, sh, nh_post, Nh)
 
@@ -345,7 +364,7 @@ str_mean_estimate (ybarh, sh, nh_post, Nh)
 
 srs_mean_est(agsrs$acres92, N = 3087)
 
-## true mean
+## compare with true mean
 mean(agpop$acres92)
 ```
 
@@ -388,19 +407,23 @@ Nh <- c(3000, 1000)
 prop_h_post <- Nh/sum (Nh); prop_h_post
 ```
 
-**Create nh proportional to Nh, instead of using observed nh**
+**Create $n_h^{\mbox{post-strat}}=n\times \frac{N_h}{N}$, instead of using observed $n_h$
 
 ```{r}
 nh_post <- Nh/sum (Nh) * n
 
 ## show the differences
-data.frame(p_hat = yh, sh, nh_obs, prop_obs=prop_h_obs, nh_post, prop_post=prop_h_post)
+data.frame(p_hat = yh, sh, nh_obs, prop_h_obs, Nh, prop_h_post, nh_post)
 ```
 
 
 ```{r}
 ## poststratification estimation of mean
 str_mean_estimate (yh, sh, nh_post, Nh)
+```
+This post-stratification estimate can be also calculated with:
+```{r}
+0.35*0.75+0.25*0.25 
 ```
 
 ## Comparing to the Analysis with SRS
@@ -409,6 +432,14 @@ srs_mean_est (teacher$teacher, N=sum(Nh))
 
 ```
 
+This answer will be the same as using the observed (sample) gender proportions (0.6 and 0.4) to weight the $\bar y_h$, that is, 
+```{r}
+0.35*0.6+0.25*0.4
+```
+It is also equal to naive sample proportion: 
+```{r}
+mean (teacher$teacher==1)
+```
 
 
 # Regression Estimation for the cherry.csv dataset 
