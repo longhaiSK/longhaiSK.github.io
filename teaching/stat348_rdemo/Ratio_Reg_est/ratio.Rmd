@@ -316,7 +316,7 @@ region_agsrs_domain
 
 
 ```{r}
-## Compared to the results of naively applying SRS estimation to each domain
+## Compared to the results of naively applying SRS estimation to each domain (wrong analysis)
 region_agsrs_srs <- data.frame(rbind(
     NC = srs_mean_est(agsrs$acres92[agsrs$region=="NC"], N = 1054),
     NE = srs_mean_est(agsrs$acres92[agsrs$region=="NE"], N = 220),
@@ -345,12 +345,13 @@ nh_post <- Nh/sum(Nh)* n
 ## regional summary for stratified sampling estimation
 knitr::kable(
     data.frame(
-    "$y_h$"=ybarh, 
-    "$s_h$"=sh, "$n_h$"=nh, 
+    "${\\bar y}_h$"=ybarh, 
+    "$s_h$"=sh, 
+    "$n_h$"=nh, 
     "$\\pi^{\\mbox{obs}}_h=n_h/n$"=nh/n, 
     "$N_h$"=Nh, 
     "$\\pi^{\\mbox{pop}}_h=N_h/N$"=Nh/sum(Nh),  
-     "$n_h^{\\mbox{post-strat}}$=n N_h/N"=nh_post,
+     "$n_h^{\\mbox{post-strat}}=n\\times N_h/N$"=nh_post,
     check.names = FALSE ),
     )
 ```
@@ -371,23 +372,24 @@ mean(agpop$acres92)
 
 # Estimating Domain Means and Post-stratification with teacher example
 
-## Importing Data
+## Importing Data and Calculating Contingency Table
 ```{r}
-teacher <- read.csv ("data/college_teacher.csv")
-head(teacher)
+teacher <- read.csv ("data/college_teacher.csv"); teacher
+
 table(teacher[,2:1])
 addmargins(table(teacher[,2:1]), 2)
+# Proportions of students who want to become a teacher in two domains (female and male)
 prop.table(table(teacher[,2:1]), margin = "gender")
 ```
 
 ## Domain Summary
 ```{r}
 n <- nrow (teacher)
-yh <- tapply (teacher$teacher, INDEX = teacher$gender, FUN = mean); yh
+ybarh <- tapply (teacher$teacher, INDEX = teacher$gender, FUN = mean); ybarh
 sh <- tapply (teacher$teacher, INDEX = teacher$gender, FUN = sd); sh
-nh_obs <- tapply (teacher$teacher, INDEX = teacher$gender, FUN = length)
-prop_h_obs <- nh_obs/sum (nh_obs); prop_h_obs
-data.frame(yh, sh, nh_obs, prop_h_obs)
+nh <- tapply (teacher$teacher, INDEX = teacher$gender, FUN = length)
+prop_h_obs <- nh/sum (nh); prop_h_obs
+data.frame(ybarh, sh, nh, prop_h_obs)
 ```
 
 ## Estimating Domain Means
@@ -413,13 +415,23 @@ prop_h_pop <- Nh/sum (Nh); prop_h_pop
 nh_post <- Nh/sum (Nh) * n
 
 ## show the differences
-data.frame(p_hat = yh, sh, nh_obs, prop_h_obs, Nh, prop_h_pop, nh_post)
+knitr::kable(
+    data.frame(
+    "${\\hat p}_h$"=ybarh, 
+    "$s_h$"=sh, 
+    "$n_h$"=nh, 
+    "$\\pi^{\\mbox{obs}}_h=n_h/n$"=nh/n, 
+    "$N_h$"=Nh, 
+    "$\\pi^{\\mbox{pop}}_h=N_h/N$"=Nh/sum(Nh),  
+     "$n_h^{\\mbox{post-strat}}=n\\times N_h/N$"=nh_post,
+    check.names = FALSE ),
+    )
 ```
 
 
 ```{r}
 ## poststratification estimation of mean
-str_mean_estimate (yh, sh, nh_post, Nh)
+str_mean_estimate (ybarh, sh, nh_post, Nh)
 ```
 This post-stratification estimate can be also calculated with:
 ```{r}
