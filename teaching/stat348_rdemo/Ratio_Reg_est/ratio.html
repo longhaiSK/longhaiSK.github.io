@@ -1737,7 +1737,8 @@ Analysis</a></li>
 <li><a href="#estimating-domain-means-and-post-stratification-with-teacher-example" id="toc-estimating-domain-means-and-post-stratification-with-teacher-example"><span class="toc-section-number">5</span> Estimating Domain Means and
 Post-stratification with teacher example</a>
 <ul>
-<li><a href="#importing-data-1" id="toc-importing-data-1"><span class="toc-section-number">5.1</span> Importing Data</a></li>
+<li><a href="#importing-data-and-calculating-contingency-table" id="toc-importing-data-and-calculating-contingency-table"><span class="toc-section-number">5.1</span> Importing Data and Calculating
+Contingency Table</a></li>
 <li><a href="#domain-summary" id="toc-domain-summary"><span class="toc-section-number">5.2</span> Domain Summary</a></li>
 <li><a href="#estimating-domain-means-1" id="toc-estimating-domain-means-1"><span class="toc-section-number">5.3</span> Estimating Domain Means</a></li>
 <li><a href="#post-stratification-analysis-1" id="toc-post-stratification-analysis-1"><span class="toc-section-number">5.4</span> Post-stratification
@@ -1748,7 +1749,7 @@ SRS</a></li>
 <li><a href="#regression-estimation-for-the-cherry.csv-dataset" id="toc-regression-estimation-for-the-cherry.csv-dataset"><span class="toc-section-number">6</span> Regression Estimation for the
 cherry.csv dataset</a>
 <ul>
-<li><a href="#importing-data-2" id="toc-importing-data-2"><span class="toc-section-number">6.1</span> Importing data</a></li>
+<li><a href="#importing-data-1" id="toc-importing-data-1"><span class="toc-section-number">6.1</span> Importing data</a></li>
 <li><a href="#step-by-step-calculation" id="toc-step-by-step-calculation"><span class="toc-section-number">6.2</span> Step-by-step calculation</a></li>
 <li><a href="#regression-estimation-using-the-function" id="toc-regression-estimation-using-the-function"><span class="toc-section-number">6.3</span> Regression estimation Using the
 function</a></li>
@@ -2109,7 +2110,7 @@ Means</h2>
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Est."],"name":[1],"type":["dbl"],"align":["right"]},{"label":["S.E."],"name":[2],"type":["dbl"],"align":["right"]},{"label":["ci.low"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["ci.upp"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"323416.4","2":"30008.35","3":"263662.18","4":"383170.7","_rn_":"NC"},{"1":"106549.0","2":"28957.56","3":"45453.89","4":"167644.1","_rn_":"NE"},{"1":"246185.8","2":"23503.62","3":"199766.28","4":"292605.4","_rn_":"S"},{"1":"518977.6","2":"70298.69","3":"377206.82","4":"660748.5","_rn_":"W"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" tabindex="-1"></a><span class="do">## Compared to the results of naively applying SRS estimation to each domain</span></span>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" tabindex="-1"></a><span class="do">## Compared to the results of naively applying SRS estimation to each domain (wrong analysis)</span></span>
 <span id="cb38-2"><a href="#cb38-2" tabindex="-1"></a>region_agsrs_srs <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">rbind</span>(</span>
 <span id="cb38-3"><a href="#cb38-3" tabindex="-1"></a>    <span class="at">NC =</span> <span class="fu">srs_mean_est</span>(agsrs<span class="sc">$</span>acres92[agsrs<span class="sc">$</span>region<span class="sc">==</span><span class="st">&quot;NC&quot;</span>], <span class="at">N =</span> <span class="dv">1054</span>),</span>
 <span id="cb38-4"><a href="#cb38-4" tabindex="-1"></a>    <span class="at">NE =</span> <span class="fu">srs_mean_est</span>(agsrs<span class="sc">$</span>acres92[agsrs<span class="sc">$</span>region<span class="sc">==</span><span class="st">&quot;NE&quot;</span>], <span class="at">N =</span> <span class="dv">220</span>),</span>
@@ -2141,35 +2142,37 @@ Analysis</h2>
 <span id="cb42-3"><a href="#cb42-3" tabindex="-1"></a><span class="do">## regional summary for stratified sampling estimation</span></span>
 <span id="cb42-4"><a href="#cb42-4" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
 <span id="cb42-5"><a href="#cb42-5" tabindex="-1"></a>    <span class="fu">data.frame</span>(</span>
-<span id="cb42-6"><a href="#cb42-6" tabindex="-1"></a>    <span class="st">&quot;$y_h$&quot;</span><span class="ot">=</span>ybarh, </span>
-<span id="cb42-7"><a href="#cb42-7" tabindex="-1"></a>    <span class="st">&quot;$s_h$&quot;</span><span class="ot">=</span>sh, <span class="st">&quot;$n_h$&quot;</span><span class="ot">=</span>nh, </span>
-<span id="cb42-8"><a href="#cb42-8" tabindex="-1"></a>    <span class="st">&quot;$</span><span class="sc">\\</span><span class="st">pi^{</span><span class="sc">\\</span><span class="st">mbox{obs}}_h=n_h/n$&quot;</span><span class="ot">=</span>nh<span class="sc">/</span>n, </span>
-<span id="cb42-9"><a href="#cb42-9" tabindex="-1"></a>    <span class="st">&quot;$N_h$&quot;</span><span class="ot">=</span>Nh, </span>
-<span id="cb42-10"><a href="#cb42-10" tabindex="-1"></a>    <span class="st">&quot;$</span><span class="sc">\\</span><span class="st">pi^{</span><span class="sc">\\</span><span class="st">mbox{pop}}_h=N_h/N$&quot;</span><span class="ot">=</span>Nh<span class="sc">/</span><span class="fu">sum</span>(Nh),  </span>
-<span id="cb42-11"><a href="#cb42-11" tabindex="-1"></a>     <span class="st">&quot;$n_h^{</span><span class="sc">\\</span><span class="st">mbox{post-strat}}$=n N_h/N&quot;</span><span class="ot">=</span>nh_post,</span>
-<span id="cb42-12"><a href="#cb42-12" tabindex="-1"></a>    <span class="at">check.names =</span> <span class="cn">FALSE</span> ),</span>
-<span id="cb42-13"><a href="#cb42-13" tabindex="-1"></a>    )</span></code></pre></div>
+<span id="cb42-6"><a href="#cb42-6" tabindex="-1"></a>    <span class="st">&quot;${</span><span class="sc">\\</span><span class="st">bar y}_h$&quot;</span><span class="ot">=</span>ybarh, </span>
+<span id="cb42-7"><a href="#cb42-7" tabindex="-1"></a>    <span class="st">&quot;$s_h$&quot;</span><span class="ot">=</span>sh, </span>
+<span id="cb42-8"><a href="#cb42-8" tabindex="-1"></a>    <span class="st">&quot;$n_h$&quot;</span><span class="ot">=</span>nh, </span>
+<span id="cb42-9"><a href="#cb42-9" tabindex="-1"></a>    <span class="st">&quot;$</span><span class="sc">\\</span><span class="st">pi^{</span><span class="sc">\\</span><span class="st">mbox{obs}}_h=n_h/n$&quot;</span><span class="ot">=</span>nh<span class="sc">/</span>n, </span>
+<span id="cb42-10"><a href="#cb42-10" tabindex="-1"></a>    <span class="st">&quot;$N_h$&quot;</span><span class="ot">=</span>Nh, </span>
+<span id="cb42-11"><a href="#cb42-11" tabindex="-1"></a>    <span class="st">&quot;$</span><span class="sc">\\</span><span class="st">pi^{</span><span class="sc">\\</span><span class="st">mbox{pop}}_h=N_h/N$&quot;</span><span class="ot">=</span>Nh<span class="sc">/</span><span class="fu">sum</span>(Nh),  </span>
+<span id="cb42-12"><a href="#cb42-12" tabindex="-1"></a>     <span class="st">&quot;$n_h^{</span><span class="sc">\\</span><span class="st">mbox{post-strat}}=n</span><span class="sc">\\</span><span class="st">times N_h/N$&quot;</span><span class="ot">=</span>nh_post,</span>
+<span id="cb42-13"><a href="#cb42-13" tabindex="-1"></a>    <span class="at">check.names =</span> <span class="cn">FALSE</span> ),</span>
+<span id="cb42-14"><a href="#cb42-14" tabindex="-1"></a>    )</span></code></pre></div>
 <table>
 <colgroup>
 <col width="2%" />
-<col width="7%" />
-<col width="7%" />
+<col width="9%" />
+<col width="6%" />
 <col width="4%" />
-<col width="22%" />
+<col width="20%" />
 <col width="4%" />
-<col width="22%" />
-<col width="28%" />
+<col width="20%" />
+<col width="30%" />
 </colgroup>
 <thead>
 <tr class="header">
 <th align="left"></th>
-<th align="right"><span class="math inline">\(y_h\)</span></th>
+<th align="right"><span class="math inline">\({\bar y}_h\)</span></th>
 <th align="right"><span class="math inline">\(s_h\)</span></th>
 <th align="right"><span class="math inline">\(n_h\)</span></th>
 <th align="right"><span class="math inline">\(\pi^{\mbox{obs}}_h=n_h/n\)</span></th>
 <th align="right"><span class="math inline">\(N_h\)</span></th>
 <th align="right"><span class="math inline">\(\pi^{\mbox{pop}}_h=N_h/N\)</span></th>
-<th align="right"><span class="math inline">\(n_h^{\mbox{post-strat}}\)</span>=n N_h/N</th>
+<th align="right"><span class="math inline">\(n_h^{\mbox{post-strat}}=n\times
+N_h/N\)</span></th>
 </tr>
 </thead>
 <tbody>
@@ -2232,13 +2235,13 @@ Analysis</h2>
 <div id="estimating-domain-means-and-post-stratification-with-teacher-example" class="section level1" number="5">
 <h1><span class="header-section-number">5</span> Estimating Domain Means
 and Post-stratification with teacher example</h1>
-<div id="importing-data-1" class="section level2" number="5.1">
-<h2><span class="header-section-number">5.1</span> Importing Data</h2>
-<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" tabindex="-1"></a>teacher <span class="ot">&lt;-</span> <span class="fu">read.csv</span> (<span class="st">&quot;data/college_teacher.csv&quot;</span>)</span>
-<span id="cb49-2"><a href="#cb49-2" tabindex="-1"></a><span class="fu">head</span>(teacher)</span></code></pre></div>
+<div id="importing-data-and-calculating-contingency-table" class="section level2" number="5.1">
+<h2><span class="header-section-number">5.1</span> Importing Data and
+Calculating Contingency Table</h2>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" tabindex="-1"></a>teacher <span class="ot">&lt;-</span> <span class="fu">read.csv</span> (<span class="st">&quot;data/college_teacher.csv&quot;</span>); teacher</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["teacher"],"name":[1],"type":["int"],"align":["right"]},{"label":["gender"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"0","2":"1","_rn_":"1"},{"1":"0","2":"1","_rn_":"2"},{"1":"1","2":"1","_rn_":"3"},{"1":"0","2":"1","_rn_":"4"},{"1":"1","2":"1","_rn_":"5"},{"1":"0","2":"1","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["teacher"],"name":[1],"type":["int"],"align":["right"]},{"label":["gender"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"1"},{"1":"0","2":"1"},{"1":"1","2":"1"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"1","2":"2"},{"1":"1","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"},{"1":"1","2":"2"},{"1":"1","2":"2"},{"1":"0","2":"2"},{"1":"0","2":"2"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" tabindex="-1"></a><span class="fu">table</span>(teacher[,<span class="dv">2</span><span class="sc">:</span><span class="dv">1</span>])</span></code></pre></div>
@@ -2251,7 +2254,8 @@ and Post-stratification with teacher example</h1>
 ## gender   0   1 Sum
 ##      1 156  84 240
 ##      2 120  40 160</code></pre>
-<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" tabindex="-1"></a><span class="fu">prop.table</span>(<span class="fu">table</span>(teacher[,<span class="dv">2</span><span class="sc">:</span><span class="dv">1</span>]), <span class="at">margin =</span> <span class="st">&quot;gender&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" tabindex="-1"></a><span class="co"># Proportions of students who want to become a teacher in two domains (female and male)</span></span>
+<span id="cb54-2"><a href="#cb54-2" tabindex="-1"></a><span class="fu">prop.table</span>(<span class="fu">table</span>(teacher[,<span class="dv">2</span><span class="sc">:</span><span class="dv">1</span>]), <span class="at">margin =</span> <span class="st">&quot;gender&quot;</span>)</span></code></pre></div>
 <pre><code>##       teacher
 ## gender    0    1
 ##      1 0.65 0.35
@@ -2260,20 +2264,20 @@ and Post-stratification with teacher example</h1>
 <div id="domain-summary" class="section level2" number="5.2">
 <h2><span class="header-section-number">5.2</span> Domain Summary</h2>
 <div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">nrow</span> (teacher)</span>
-<span id="cb56-2"><a href="#cb56-2" tabindex="-1"></a>yh <span class="ot">&lt;-</span> <span class="fu">tapply</span> (teacher<span class="sc">$</span>teacher, <span class="at">INDEX =</span> teacher<span class="sc">$</span>gender, <span class="at">FUN =</span> mean); yh</span></code></pre></div>
+<span id="cb56-2"><a href="#cb56-2" tabindex="-1"></a>ybarh <span class="ot">&lt;-</span> <span class="fu">tapply</span> (teacher<span class="sc">$</span>teacher, <span class="at">INDEX =</span> teacher<span class="sc">$</span>gender, <span class="at">FUN =</span> mean); ybarh</span></code></pre></div>
 <pre><code>##    1    2 
 ## 0.35 0.25</code></pre>
 <div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" tabindex="-1"></a>sh <span class="ot">&lt;-</span> <span class="fu">tapply</span> (teacher<span class="sc">$</span>teacher, <span class="at">INDEX =</span> teacher<span class="sc">$</span>gender, <span class="at">FUN =</span> sd); sh</span></code></pre></div>
 <pre><code>##         1         2 
 ## 0.4779664 0.4343722</code></pre>
-<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" tabindex="-1"></a>nh_obs <span class="ot">&lt;-</span> <span class="fu">tapply</span> (teacher<span class="sc">$</span>teacher, <span class="at">INDEX =</span> teacher<span class="sc">$</span>gender, <span class="at">FUN =</span> length)</span>
-<span id="cb60-2"><a href="#cb60-2" tabindex="-1"></a>prop_h_obs <span class="ot">&lt;-</span> nh_obs<span class="sc">/</span><span class="fu">sum</span> (nh_obs); prop_h_obs</span></code></pre></div>
+<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" tabindex="-1"></a>nh <span class="ot">&lt;-</span> <span class="fu">tapply</span> (teacher<span class="sc">$</span>teacher, <span class="at">INDEX =</span> teacher<span class="sc">$</span>gender, <span class="at">FUN =</span> length)</span>
+<span id="cb60-2"><a href="#cb60-2" tabindex="-1"></a>prop_h_obs <span class="ot">&lt;-</span> nh<span class="sc">/</span><span class="fu">sum</span> (nh); prop_h_obs</span></code></pre></div>
 <pre><code>##   1   2 
 ## 0.6 0.4</code></pre>
-<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" tabindex="-1"></a><span class="fu">data.frame</span>(yh, sh, nh_obs, prop_h_obs)</span></code></pre></div>
+<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" tabindex="-1"></a><span class="fu">data.frame</span>(ybarh, sh, nh, prop_h_obs)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["yh"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["sh"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["nh_obs"],"name":[3],"type":["int"],"align":["right"]},{"label":["prop_h_obs"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"0.35","2":"0.4779664","3":"240","4":"0.6","_rn_":"1"},{"1":"0.25","2":"0.4343722","3":"160","4":"0.4","_rn_":"2"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["ybarh"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["sh"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["nh"],"name":[3],"type":["int"],"align":["right"]},{"label":["prop_h_obs"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"0.35","2":"0.4779664","3":"240","4":"0.6","_rn_":"1"},{"1":"0.25","2":"0.4343722","3":"160","4":"0.4","_rn_":"2"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
@@ -2303,14 +2307,62 @@ Analysis</h2>
 <div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" tabindex="-1"></a>nh_post <span class="ot">&lt;-</span> Nh<span class="sc">/</span><span class="fu">sum</span> (Nh) <span class="sc">*</span> n</span>
 <span id="cb66-2"><a href="#cb66-2" tabindex="-1"></a></span>
 <span id="cb66-3"><a href="#cb66-3" tabindex="-1"></a><span class="do">## show the differences</span></span>
-<span id="cb66-4"><a href="#cb66-4" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">p_hat =</span> yh, sh, nh_obs, prop_h_obs, Nh, prop_h_pop, nh_post)</span></code></pre></div>
-<div data-pagedtable="false">
-<script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["p_hat"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["sh"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["nh_obs"],"name":[3],"type":["int"],"align":["right"]},{"label":["prop_h_obs"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["Nh"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["prop_h_pop"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["nh_post"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"0.35","2":"0.4779664","3":"240","4":"0.6","5":"3000","6":"0.75","7":"300","_rn_":"1"},{"1":"0.25","2":"0.4343722","3":"160","4":"0.4","5":"1000","6":"0.25","7":"100","_rn_":"2"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
-</div>
+<span id="cb66-4"><a href="#cb66-4" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb66-5"><a href="#cb66-5" tabindex="-1"></a>    <span class="fu">data.frame</span>(</span>
+<span id="cb66-6"><a href="#cb66-6" tabindex="-1"></a>    <span class="st">&quot;${</span><span class="sc">\\</span><span class="st">hat p}_h$&quot;</span><span class="ot">=</span>ybarh, </span>
+<span id="cb66-7"><a href="#cb66-7" tabindex="-1"></a>    <span class="st">&quot;$s_h$&quot;</span><span class="ot">=</span>sh, </span>
+<span id="cb66-8"><a href="#cb66-8" tabindex="-1"></a>    <span class="st">&quot;$n_h$&quot;</span><span class="ot">=</span>nh, </span>
+<span id="cb66-9"><a href="#cb66-9" tabindex="-1"></a>    <span class="st">&quot;$</span><span class="sc">\\</span><span class="st">pi^{</span><span class="sc">\\</span><span class="st">mbox{obs}}_h=n_h/n$&quot;</span><span class="ot">=</span>nh<span class="sc">/</span>n, </span>
+<span id="cb66-10"><a href="#cb66-10" tabindex="-1"></a>    <span class="st">&quot;$N_h$&quot;</span><span class="ot">=</span>Nh, </span>
+<span id="cb66-11"><a href="#cb66-11" tabindex="-1"></a>    <span class="st">&quot;$</span><span class="sc">\\</span><span class="st">pi^{</span><span class="sc">\\</span><span class="st">mbox{pop}}_h=N_h/N$&quot;</span><span class="ot">=</span>Nh<span class="sc">/</span><span class="fu">sum</span>(Nh),  </span>
+<span id="cb66-12"><a href="#cb66-12" tabindex="-1"></a>     <span class="st">&quot;$n_h^{</span><span class="sc">\\</span><span class="st">mbox{post-strat}}=n</span><span class="sc">\\</span><span class="st">times N_h/N$&quot;</span><span class="ot">=</span>nh_post,</span>
+<span id="cb66-13"><a href="#cb66-13" tabindex="-1"></a>    <span class="at">check.names =</span> <span class="cn">FALSE</span> ),</span>
+<span id="cb66-14"><a href="#cb66-14" tabindex="-1"></a>    )</span></code></pre></div>
+<table>
+<colgroup>
+<col width="10%" />
+<col width="7%" />
+<col width="4%" />
+<col width="20%" />
+<col width="4%" />
+<col width="20%" />
+<col width="31%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="right"><span class="math inline">\({\hat p}_h\)</span></th>
+<th align="right"><span class="math inline">\(s_h\)</span></th>
+<th align="right"><span class="math inline">\(n_h\)</span></th>
+<th align="right"><span class="math inline">\(\pi^{\mbox{obs}}_h=n_h/n\)</span></th>
+<th align="right"><span class="math inline">\(N_h\)</span></th>
+<th align="right"><span class="math inline">\(\pi^{\mbox{pop}}_h=N_h/N\)</span></th>
+<th align="right"><span class="math inline">\(n_h^{\mbox{post-strat}}=n\times
+N_h/N\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.35</td>
+<td align="right">0.4779664</td>
+<td align="right">240</td>
+<td align="right">0.6</td>
+<td align="right">3000</td>
+<td align="right">0.75</td>
+<td align="right">300</td>
+</tr>
+<tr class="even">
+<td align="right">0.25</td>
+<td align="right">0.4343722</td>
+<td align="right">160</td>
+<td align="right">0.4</td>
+<td align="right">1000</td>
+<td align="right">0.25</td>
+<td align="right">100</td>
+</tr>
+</tbody>
+</table>
 <div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" tabindex="-1"></a><span class="do">## poststratification estimation of mean</span></span>
-<span id="cb67-2"><a href="#cb67-2" tabindex="-1"></a><span class="fu">str_mean_estimate</span> (yh, sh, nh_post, Nh)</span></code></pre></div>
+<span id="cb67-2"><a href="#cb67-2" tabindex="-1"></a><span class="fu">str_mean_estimate</span> (ybarh, sh, nh_post, Nh)</span></code></pre></div>
 <pre><code>##       Est.       S.E.     ci.low     ci.upp 
 ## 0.32500000 0.02217306 0.28154080 0.36845920</code></pre>
 <p>This post-stratification estimate can be also calculated with:</p>
@@ -2336,7 +2388,7 @@ y_h\)</span>, that is,</p>
 <div id="regression-estimation-for-the-cherry.csv-dataset" class="section level1" number="6">
 <h1><span class="header-section-number">6</span> Regression Estimation
 for the cherry.csv dataset</h1>
-<div id="importing-data-2" class="section level2" number="6.1">
+<div id="importing-data-1" class="section level2" number="6.1">
 <h2><span class="header-section-number">6.1</span> Importing data</h2>
 <div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" tabindex="-1"></a>cherry <span class="ot">&lt;-</span> <span class="fu">read.csv</span> (<span class="st">&quot;data/cherry.csv&quot;</span>, <span class="at">header =</span> T)</span>
 <span id="cb77-2"><a href="#cb77-2" tabindex="-1"></a>ydata <span class="ot">&lt;-</span> cherry<span class="sc">$</span>volume </span>
