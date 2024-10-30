@@ -32,6 +32,7 @@ editor_options:
 
 
 # Functions and packages for Analyzing Data
+## General functions for ratio and regression estimation
 ```{r}
 ## ydata --- observations of the variable of interest
 ## xdata --- observations of the auxilliary variable
@@ -475,11 +476,17 @@ lmfit <- lm (ydata ~ xdata)
 summary (lmfit)
 plot (xdata, ydata)
 abline (lmfit)
-Bhat <- lmfit$coefficients
-efit <- ydata - (Bhat[1] + Bhat[2] * xdata)
-data.frame (cherry, residual=efit) ## for visualization
+```
 
-SSe <- sum (efit^2) / (n - 2) 
+Calculation of $\hat{y}_i=\hat{B}_0 + \hat{B}_1\times x_i$ and $e_i=y_i-\hat{y}_i$:
+```{r}
+Bhat <- lmfit$coefficients
+yhat <- Bhat[1] + Bhat[2] * xdata
+residuals <- ydata - yhat
+knitr::kable(data.frame ("$x_i$"=cherry$diameter, "$y_i$"=cherry$volume,"$\\hat y_i$"=yhat,
+                         "$e_i$"=residuals,check.names=FALSE)) ## for visualization
+
+SSe <- sum (residuals^2) / (n - 2) 
 SSe
 ## SSe can be obtained directly from lm fitting output
 anova(lmfit)
