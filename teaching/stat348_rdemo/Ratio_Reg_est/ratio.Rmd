@@ -173,7 +173,11 @@ plot (cherry$volume ~ cherry$diameter)
 abline (a = 0, b = B_hat)
 
 d <- ydata - B_hat * xdata ## errors
-data.frame (cherry, d = d)
+knitr::kable(data.frame ("$y_i$"=cherry$volume, 
+                         "$x_i$"=cherry$diameter,
+                         "$\\hat y_i=\\hat B\\times x_i$"=B_hat*xdata,
+                         "$e_i=y_i - \\hat y_i$" = d,
+                         check.names = FALSE))
 ```
 
 ### Estimating SE of B
@@ -390,7 +394,13 @@ ybarh <- tapply (teacher$teacher, INDEX = teacher$gender, FUN = mean); ybarh
 sh <- tapply (teacher$teacher, INDEX = teacher$gender, FUN = sd); sh
 nh <- tapply (teacher$teacher, INDEX = teacher$gender, FUN = length)
 prop_h_obs <- nh/sum (nh); prop_h_obs
-data.frame(ybarh, sh, nh, prop_h_obs)
+knitr::kable(
+    data.frame('$\\bar y_h$'=ybarh, 
+               "$s_h$"=sh, 
+               "$n^{\\mbox{obs}}_h$"=nh, 
+               "$\\pi^{\\mbox{obs}}_h$"=prop_h_obs,
+               check.names = FALSE)
+)
 ```
 
 ## Estimating Domain Means
@@ -425,7 +435,7 @@ knitr::kable(
     "$N_h$"=Nh, 
     "$\\pi^{\\mbox{pop}}_h=N_h/N$"=Nh/sum(Nh),  
      "$n_h^{\\mbox{post-strat}}=n\\times N_h/N$"=nh_post,
-    check.names = FALSE ),
+    check.names = FALSE )
     )
 ```
 
@@ -483,14 +493,29 @@ Calculation of $\hat{y}_i=\hat{B}_0 + \hat{B}_1\times x_i$ and $e_i=y_i-\hat{y}_
 Bhat <- lmfit$coefficients
 yhat <- Bhat[1] + Bhat[2] * xdata
 residuals <- ydata - yhat
-knitr::kable(data.frame ("$x_i$"=cherry$diameter, "$y_i$"=cherry$volume,"$\\hat y_i$"=yhat,
-                         "$e_i$"=residuals,check.names=FALSE)) ## for visualization
-
-SSe <- sum (residuals^2) / (n - 2) 
-SSe
-## SSe can be obtained directly from lm fitting output
-anova(lmfit)
+knitr::kable(data.frame ("$x_i$"=cherry$diameter, 
+                         "$y_i$"=cherry$volume,
+                         "$\\hat y_i=\\hat B_0+\\hat B_1\\times x_i$"=yhat,
+                         "$e_i=y_i-\\hat y_i$"=residuals,
+                         check.names=FALSE)) ## for visualization
 ```
+
+We can then estimate $s^2_e$ by this expression:
+
+```{r}
+SSe <- sum (residuals^2) / (n - 2); SSe 
+```
+
+$e_i$ and $s^2_e$ can be obtained directly from lm fitting output
+
+```{r}
+
+# e_i can be obtained from lm() fitting outputs too
+lmfit$residuals # for e_i
+anova(lmfit)
+
+```
+The Mean Sq for "Residuals" is the $s^2_e$.
 
 ### Estimate the mean
 ```{r}
