@@ -2,4 +2,4 @@
 viewer<-getOption("viewer")
 
 # preview localhost
-viewer("http://localhost")
+viewer("http://localhost/publications.html")
