@@ -15,4 +15,4 @@
     const formattedDate = currentDate.toLocaleDateString('en-CA', canadaOptions); 
 
     // Display the date in the HTML
-    document.getElementById('file-date').textContent = `This page was last modified on  ${formattedDate}. `; 
+    document.getElementById('file-date').textContent = `Last modified:  ${formattedDate}. `; 
