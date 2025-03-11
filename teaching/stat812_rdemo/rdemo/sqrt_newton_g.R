@@ -1,4 +1,5 @@
 library(shiny)
+library(rhandsontable) # Add rhandsontable library
 library(knitr)
 library(kableExtra)
 library(latex2exp)
@@ -70,53 +71,49 @@ plot_traces_single <- function(results) {
            lty = line_types[1:length(traces_padded)], pch = 16, title = "Approximations")
 }
 
+
+
 # Define UI
 ui <- fluidPage(
     withMathJax(),
-    titlePanel("Newton's Method for Finding Square Roots"),
+    titlePanel("Understanding Newton's Method for Finding Square Roots"),
     sidebarLayout(
         sidebarPanel(
-            numericInput("num_rows", "Number of rows:", value = 5, min = 1),
-            uiOutput("input_table"),  
+            rHandsontableOutput("input_table"), # Use rHandsontableOutput
+            actionButton("clearTable", "Clear Table"), # Add clear table Button
             selectInput("tol", "Select tolerance (tol) btw successive steps:",
                         choices = c("10" = 10, "1" = 1, "0.1" = 0.1, "0.01" = 0.01, "0.001" = 0.001),
                         selected = 0.001
             )
+            
         ),
         mainPanel(
-            h3("Results:"),
+            h3("Results of Sqrt:"),
             uiOutput("result_table"),
             plotOutput("convergence_plot"),
             hr()
         )
     ),
     h3("Newton's Method Explained"),
-    p("Newton's method is an iterative approach to find increasingly accurate approximations to the roots (or zeroes) of a real-valued function. It is derived from the general Newton-Raphson formula:"),
-    p("$$x_{n+1} = x_n - \\frac{f(x_n)}{f'(x_n)}$$"),
-    p(HTML("For the square root problem, we want to find the root of the function <span>\\( f(x) = x^2 - S \\)</span>, where <span>\\( S \\)</span> is the number whose square root we want to compute. The derivative of <span>\\( f(x) \\)</span> is <span>\\( f'(x) = 2x \\)</span>. Substituting into the Newton-Raphson formula, we get:")),
-    p("$$x_{n+1} = x_n - \\frac{x_n^2 - S}{2x_n}$$"),
-    p(HTML("Simplifying this expression, we obtain the formula used in this app:")),
-    p("$$x_{n+1} = \\frac{1}{2} \\left( x_n + \\frac{S}{x_n} \\right)$$"),
-    p("This process continues until the difference between successive approximations is smaller than a predefined tolerance, indicating convergence."),
-    h4(HTML("Example: <span>\\( S = 19 \\)</span>")),
-    p(HTML("Let's compute the square root of <span>\\( S = 19 \\)</span> using Newton's method with two different initial guesses:")),
-    p(HTML("<b>Case 1: Initial guess <span>\\( x_0 = 7 \\)</span></b>")),
+    # ...
+    h4(HTML("Example: <span>\\( S = 29 \\)</span>")),
+    p(HTML("Let's compute the square root of <span>\\( S = 29 \\)</span> using Newton's method with the initial guess <span>\\( x_0 = 11 \\)</span>:")),
     p("1. First iteration:"),
-    p("$$x_1 = \\frac{1}{2} \\left( 7 + \\frac{19}{7} \\right) = \\frac{1}{2} \\left( 7 + 2.714 \\right) = 4.857$$"),
+    p("$$x_1 = \\frac{1}{2} \\left( 11 + \\frac{29}{11} \\right) \\approx 7.136$$"), # Three digits
     p("2. Second iteration:"),
-    p("$$x_2 = \\frac{1}{2} \\left( 4.857 + \\frac{19}{4.857} \\right) = \\frac{1}{2} \\left( 4.857 + 3.913 \\right) = 4.385$$"),
+    p("$$x_2 = \\frac{1}{2} \\left( 7.136 + \\frac{29}{7.136} \\right) \\approx 5.697$$"), # Three digits
     p("3. Third iteration:"),
-    p("$$x_3 = \\frac{1}{2} \\left( 4.385 + \\frac{19}{4.385} \\right) = \\frac{1}{2} \\left( 4.385 + 4.334 \\right) = 4.360$$"),
-    p(HTML("<b>Case 2: Initial guess <span>\\( x_0 = \\frac{19}{2} = 9.5 \\)</span></b>")),
-    p("1. First iteration:"),
-    p("$$x_1 = \\frac{1}{2} \\left( 9.5 + \\frac{19}{9.5} \\right) = \\frac{1}{2} \\left( 9.5 + 2 \\right) = 5.75$$"),
-    p("2. Second iteration:"),
-    p("$$x_2 = \\frac{1}{2} \\left( 5.75 + \\frac{19}{5.75} \\right) = \\frac{1}{2} \\left( 5.75 + 3.304 \\right) = 4.527$$"),
-    p("3. Third iteration:"),
-    p("$$x_3 = \\frac{1}{2} \\left( 4.527 + \\frac{19}{4.527} \\right) = \\frac{1}{2} \\left( 4.527 + 4.2 \\right) = 4.363$$"),
-    p(HTML("After a few more iterations, in both cases, the approximation converges to the true value of <span>\\( \\sqrt{19} \\approx 4.359 \\)</span>. Notice that with the better initial guess, the convergence is faster."))
+    p("$$x_3 = \\frac{1}{2} \\left( 5.697 + \\frac{29}{5.697} \\right) \\approx 5.391$$"), # Three digits
+    p("4. Fourth iteration:"),
+    p("$$x_4 = \\frac{1}{2} \\left( 5.391 + \\frac{29}{5.391} \\right) \\approx 5.385$$"), # Three digits
+    p("5. Fifth iteration:"),
+    p("$$x_5 = \\frac{1}{2} \\left( 5.385 + \\frac{29}{5.385} \\right) \\approx 5.385$$"), # Three digits
     
-    
+    p(
+        HTML(
+            "After a few more iterations, the approximation converges to the true value of <span>\\( \\sqrt{29} \\approx 5.385 \\)</span>."
+        )
+    )
 )
 
 # Define server logic
@@ -124,64 +121,49 @@ server <- function(input, output) {
     
     # Reactive values to store input data
     input_data <- reactiveValues(
-        Squares = c(2,5, 50, 500,1000),
-        InitialValues = c(1, 5 / 2, 50 / 2, 500 / 2, 500)
-    )
-    
-    # Create the input table
-    output$input_table <- renderUI({
-        num_rows <- input$num_rows
-        
-        # Update input_data if num_rows increased
-        if (num_rows > length(input_data$Squares)) {
-            new_squares <- rep(1000, num_rows - length(input_data$Squares))
-            new_initial_values <- rep(500, num_rows - length(input_data$InitialValues))
-            input_data$Squares <- c(input_data$Squares, new_squares)
-            input_data$InitialValues <- c(input_data$InitialValues, new_initial_values)
-        }
-        
-        table_output <- lapply(1:num_rows, function(i) {
-            fluidRow(
-                column(6, numericInput(paste0("number_", i), label = NULL, value = input_data$Squares[i])),
-                column(6, numericInput(paste0("initial_value_", i), label = NULL, value = input_data$InitialValues[i]))
-            )
-        })
-        
-        # Add headers to the table
-        tagList(
-            fluidRow(
-                column(6, h5("Squares (S)")),
-                column(6, h5("Initial Values (\\(x_0\\) )"))
-            ),
-            table_output
+        data = data.frame(
+            S = c(2, 5, 7, 8, 9,11),
+            x0 = c(1,2.5,3.5,4,4.5,5.5)
         )
+    )   
+    # Create the input table
+    # Create the input table using rhandsontable
+    output$input_table <- renderRHandsontable({
+        rhandsontable(input_data$data)
     })
     
-    # Reactive expression to get numbers and initial values
-    get_input_data <- reactive({
-        req(input$num_rows)
-        num_rows <- input$num_rows
-        numbers <- sapply(1:num_rows, function(i) input[[paste0("number_", i)]])
-        initial_values <- sapply(1:num_rows, function(i) input[[paste0("initial_value_", i)]])
-        list(numbers = numbers, initial_values = initial_values)
+    # Observe changes in the rhandsontable
+    observeEvent(input$input_table$data, {
+        if (!is.null(input$input_table$data)) {
+            input_data$data <- hot_to_r(input$input_table)
+        }
     })
-    
-    # Calculate results reactively
+    # Clear Table Button Functionality
+    observeEvent(input$clearTable, {
+        input_data$data <- data.frame(S = rep(0, 6), x0 = rep(1,6))
+    })
+
+    # Reactive expression to calculate results
     results <- reactive({
-        data <- get_input_data()
-        numbers <- data$numbers
-        initial_values <- data$initial_values
+        data <- input_data$data
+        numbers <- data$S
+        initial_values <- data$x0
         
         # Validate inputs
         if (any(is.na(numbers)) || any(numbers < 0)) {
-            showNotification("Invalid input: Please enter non-negative numbers for 'Number' in the table.", type = "error")
+            showNotification("Invalid input: Please enter non-negative numbers for 'S' in the table.", type = "error")
             return(NULL)
+        }
+        # Remove empty rows
+        valid_rows <- !is.na(numbers) & numbers >= 0 & !is.na(initial_values) & initial_values > 0
+        numbers <- numbers[valid_rows]
+        initial_values <- initial_values[valid_rows]
+        
+        # Validate inputs
+        if (any(numbers < 0, na.rm = TRUE) | any(initial_values <= 0, na.rm = TRUE)) {
+            showNotification("Non-negative numbers for 'S'or `Initial Values' are ignored", type = "warning")
         }
         
-        if (any(is.na(initial_values)) || any(initial_values <= 0)) {
-            showNotification("Invalid input: Please enter positive numbers for 'Initial Value' in the table.", type = "error")
-            return(NULL)
-        }
         
         # Use initial values if provided, otherwise use default (S/2)
         results_list <- mapply(
@@ -210,3 +192,4 @@ server <- function(input, output) {
 
 # Run the Shiny App
 shinyApp(ui, server)
+
