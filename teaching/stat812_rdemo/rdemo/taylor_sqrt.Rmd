@@ -1,0 +1,61 @@
+---
+title: "taylor_sqrt"
+author: "Longhai Li"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Got it! Let's modify the `plot_partial_sums` function to take the output of `compute_sqrt_taylor` as its argument. Here's the updated code:
+
+1. **Function to compute the square root using Taylor series:**
+
+```r
+compute_sqrt_taylor <- function(S, a = 1, terms = 3) {
+  if (S < 0) {
+    stop("Cannot compute the square root of a negative number")
+  }
+  
+  sqrt_approx <- sqrt(a)
+  term <- (S - a)
+  
+  coef <- 1 / (2 * sqrt(a))  # Initial coefficient for the first term
+  sqrt_approx <- sqrt_approx + coef * term
+  
+  partial_sums <- c(sqrt(a), sqrt_approx)  # Initialize partial sums
+  
+  for (n in 2:terms) {
+    coef <- coef * (-1) * (2 * n - 3) / (2 * n * a)  # Recursive computation of the coefficient
+    sqrt_approx <- sqrt_approx + coef * term^n
+    partial_sums <- c(partial_sums, sqrt_approx)  # Store the partial sum
+  }
+  
+  attr(sqrt_approx, "partial_sums") <- partial_sums  # Add partial sums as a hidden attribute
+  
+  return(sqrt_approx)
+}
+```
+
+2. **Function to plot the partial sum trace:**
+
+```r
+plot_partial_sums <- function(result, S) {
+  partial_sums <- attr(result, "partial_sums")
+  
+  plot(1:length(partial_sums), partial_sums, type = "b", pch = 19, col = "blue",
+       xlab = "Term Number", ylab = "Partial Sum", main = "Partial Sum Trace of sqrt_approx")
+  abline(h = sqrt(S), col = "red", lty = 2)
+  legend("topright", legend = c("Partial Sums", "True sqrt(S)"), col = c("blue", "red"), lty = c(1, 2), pch = c(19, NA))
+}
+
+# Example usage:
+result <- compute_sqrt_taylor(16)
+plot_partial_sums(result, 16)
+```
+
+Now, the `plot_partial_sums` function takes the result of `compute_sqrt_taylor` and the original number \( S \) as arguments. This way, you can compute the square root and plot the partial sum trace separately.
+
+Let me know if you have any questions or need further assistance!
