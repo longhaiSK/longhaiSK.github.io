@@ -208,6 +208,11 @@ server <- function(input, output) {
         req(input_data$data)
         rhandsontable(input_data$data, colHeaders = c("\\(S\\)", "\\(x_0\\)"))
     })
+    observeEvent(input$input_table$data, {
+        if (!is.null(input$input_table$data)) {
+            input_data$data <- hot_to_r(input$input_table)
+        }
+    })
     
     results <- reactive({
         req(input_data$data)
