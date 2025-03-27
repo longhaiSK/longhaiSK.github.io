@@ -120,7 +120,7 @@ def format_abbreviations(abbreviations_dict, format_type):
 
 # --- Define Default Example Text ---
 # Using r""" allows multi-line string and handles backslashes well
-example_text = r"""In this paper, we propose utilizing $Z$-residuals (ZR) to diagnose Cox PH models. The recent studies by Li et al. 2021 \cite{LiLonghai2021Mdfc} and Wu et al. 2024 \cite{WuTingxuan2024Zdtf} introduced the concept of randomized survival probabilities (RSP) to define $Z$-residuals for diagnosing model assumptions in accelerated failure time (AFT) and shared frailty models. The RSP approach involves replacing the survival probability of a censored failure time with a uniform random number between 0 and the survival probability of the censored time \cite{WuTingxuan2024Zdtf}."""
+example_text = r"""In this paper, we propose utilizing $\beta$-Z-residuals ($\beta$ZR) to diagnose Cox PH models. The recent studies by Li et al. 2021 \cite{LiLonghai2021Mdfc} and Wu et al. 2024 \cite{WuTingxuan2024Zdtf} introduced the concept of randomized survival probabilities (RSP) to define Z-residuals for diagnosing model assumptions in accelerated failure time (AFT) and shared frailty models. The RSP approach involves replacing the survival probability of a censored failure time (SPCFT) with uniformly distributed random numbers (UFN) between 0 and the survival probability of the censored time (SPCT) \cite{WuTingxuan2024Zdtf}."""
 
 
 # --- Streamlit Interface ---
