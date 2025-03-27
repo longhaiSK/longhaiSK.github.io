@@ -6,6 +6,31 @@ from datetime import datetime # Import datetime for current date example
 # (Same as before - greek_map, get_abbr_repr_letters, extract_abbreviations,
 #  escape_latex, format_abbreviations)
 
+def normalize_latex_math(text):
+    """
+    Converts LaTeX inline math \( ... \) to $ ... $.
+    Handles optional space after \( and before \).
+    Strips leading/trailing space within the math content.
+    """
+    # Regex:
+    # \\\(  : literal \(
+    # \s* : zero or more whitespace chars
+    # (.*?) : non-greedily capture content (group 1)
+    # \s* : zero or more whitespace chars
+    # \\\)  : literal \)
+    # Replacement uses group 1, strips it, and wraps with $
+    try:
+        # Using a lambda function for replacement to strip internal whitespace
+        normalized_text = re.sub(
+            r'\\\(\s*(.*?)\s*\\\)',
+            lambda match: f"${match.group(1).strip()}$",
+            text
+        )
+        return normalized_text
+    except Exception as e:
+        st.error(f"Error during LaTeX math normalization: {e}")
+        return text # Return original text on error
+        
 greek_map = {
     'alpha': 'a', 'beta': 'b', 'gamma': 'g', 'delta': 'd', 'epsilon': 'e',
     'zeta': 'z', 'eta': 'e', 'theta': 't', 'iota': 'i', 'kappa': 'k',
@@ -26,6 +51,33 @@ def get_abbr_repr_letters(abbr_string):
         elif upper_letter:
             representative_letters.append(upper_letter.lower())
     return representative_letters
+    
+    
+def get_abbr_repr_letters(abbr_string):
+        """
+        Parses an abbreviation string containing potential LaTeX Greek letters
+        and ALSO now regular upper/lower case letters.
+        Returns a list of representative lowercase chars.
+        e.g., "$\alpha$-SP" -> ['a', 's', 'p']
+        e.g., "$u$-RN" -> ['u', 'r', 'n'] # Assumes $u$ contributes 'u'
+        e.g., "CPU" -> ['c', 'p', 'u']
+        """
+        representative_letters = []
+        # Pattern finds \command OR single Letter (Upper or Lower)
+        # Captures command name in group 1 OR the letter in group 2
+        # MODIFIED REGEX to capture [a-zA-Z]
+        findings = re.findall(r'\\([a-zA-Z]+)|([a-zA-Z])', abbr_string)
+
+        for greek_cmd, any_letter in findings:
+            if greek_cmd: # Matched \command (e.g., greek_cmd == 'alpha')
+                if greek_cmd in greek_map:
+                    representative_letters.append(greek_map[greek_cmd]) # Add lowercase greek representation
+                # Optional: Add handling for non-greek commands if needed
+            elif any_letter: # Matched single letter (e.g., any_letter == 'S' or 'u')
+                representative_letters.append(any_letter.lower()) # Add lowercase representation
+
+        return representative_letters
+
 
 def extract_abbreviations(text, require_first_last_match=True):
     pattern = re.compile(r'((?:[\w\-\$\\]+\s+){1,10})\(([A-Za-z\-\$\\]{2,})\)')
@@ -78,22 +130,53 @@ def extract_abbreviations(text, require_first_last_match=True):
                 abbreviation_dict[abbr_string] = full_name
     return abbreviation_dict
 
+def get_sort_key_from_abbr(abbr_string):
+    """
+    Generates a lowercase string key for sorting abbreviations,
+    handling common LaTeX math/greek commands via get_abbr_repr_letters.
+    e.g., '$\alpha$-RM' -> 'arm', 'CPU' -> 'cpu'
+    """
+    # Use the existing function to get representative letters
+    repr_letters = get_abbr_repr_letters(abbr_string)
+    sort_key = "".join(repr_letters).lower()
+
+    # If get_abbr_repr_letters returns empty (e.g., abbreviation has no letters/commands?)
+    # provide a fallback using the original string, lowercased, maybe stripped of leading symbols.
+    if not sort_key:
+         # Fallback: lowercase, remove non-alphanumeric start chars for sorting robustness
+         fallback_key = re.sub(r"^[^\w]+", "", abbr_string.lower())
+         return fallback_key
+    return sort_key
 
 def format_abbreviations(abbreviations_dict, format_type):
     """Formats the extracted abbreviations based on the specified type.
+       Sorts abbreviations alphabetically, handling LaTeX commands in keys.
        ASSUMES extracted abbr and full_name are valid LaTeX snippets
        for 'tabular' and 'nomenclature' formats. No escaping is applied.
     """
     if not abbreviations_dict:
         return "No abbreviations found."
 
+    # --- ADD SORTING STEP HERE ---
+    # Sort the dictionary items based on a generated key from the abbreviation (item[0])
+    try:
+        sorted_items = sorted(
+            abbreviations_dict.items(),
+            key=lambda item: get_sort_key_from_abbr(item[0])
+        )
+    except Exception as e:
+        # Basic error handling for sorting, fallback to unsorted
+        st.error(f"Error during abbreviation sorting: {e}. Displaying unsorted.")
+        sorted_items = abbreviations_dict.items()
+    # --- END SORTING STEP ---
+
+
     if format_type == "nomenclature":
-        # NOTE: \usepackage{nomencl} usually belongs in the LaTeX preamble.
-        latex_output = ""
-        for abbr, full_name in abbreviations_dict.items():
-            # --- NO ESCAPING APPLIED ---
+        latex_output = "\\usepackage{nomencl}\n"
+        latex_output += "\\makenomenclature\n"
+        # Loop through the SORTED items
+        for abbr, full_name in sorted_items:
             latex_output += f"\\nomenclature{{{abbr}}}{{{full_name}}}\n"
-        # latex_output += "\n% Add \\printnomenclature where you want the list in your LaTeX doc\n"
         return latex_output
 
     elif format_type == "tabular":
@@ -101,26 +184,28 @@ def format_abbreviations(abbreviations_dict, format_type):
         latex_output += "\\hline\n"
         latex_output += "\\textbf{Abbreviation} & \\textbf{Full Name} \\\\\n"
         latex_output += "\\hline\n"
-        for abbr, full_name in abbreviations_dict.items():
-            # --- NO ESCAPING APPLIED ---
+        # Loop through the SORTED items
+        for abbr, full_name in sorted_items:
             latex_output += f"{abbr} & {full_name} \\\\\n"
         latex_output += "\\hline\n"
         latex_output += "\\end{tabular}\n"
         return latex_output
 
-    # Default is 'plain' format (no escaping ever needed here)
+    # Default is 'plain' format
     else:
         output = ""
-        items = list(abbreviations_dict.items())
-        for i, (abbr, full_name) in enumerate(items):
+        # Loop through the SORTED items
+        items_list = list(sorted_items) # Convert to list for index access if needed
+        for i, (abbr, full_name) in enumerate(items_list):
             output += f"{abbr}: {full_name}"
-            if i < len(items) - 1:
+            if i < len(items_list) - 1:
                  output += "; \n"
         return output
 
+
 # --- Define Default Example Text ---
 # Using r""" allows multi-line string and handles backslashes well
-example_text = r"""In this paper, we propose utilizing $\beta$-Z-residuals ($\beta$ZR) to diagnose Cox PH models. The recent studies by Li et al. 2021 \cite{LiLonghai2021Mdfc} and Wu et al. 2024 \cite{WuTingxuan2024Zdtf} introduced the concept of randomized survival probabilities (RSP) to define Z-residuals for diagnosing model assumptions in accelerated failure time (AFT) and shared frailty models. The RSP approach involves replacing the survival probability of a censored failure time (SPCFT) with uniformly distributed random numbers (UFN) between 0 and the survival probability of the censored time (SPCT) \cite{WuTingxuan2024Zdtf}."""
+example_text = r"""This is an example of an input text  (EIT). In this paper, we propose utilizing $\beta$-\( Z \)-residuals ($\beta$$Z$R) to diagnose Cox PH models. The recent studies by Li et al. 2021 \cite{LiLonghai2021Mdfc} and Wu et al. 2024 \cite{WuTingxuan2024Zdtf} introduced the concept of randomized survival probabilities (RSP) to define Z-residuals for diagnosing model assumptions in accelerated failure time (AFT) and shared frailty models. The RSP approach involves replacing the survival probability of a censored failure time (SPCFT) with $u$ random numbers ($u$RN) between 0 and the survival probability of the censored time (SPCT) \cite{WuTingxuan2024Zdtf}."""
 
 
 # --- Streamlit Interface ---
@@ -159,12 +244,16 @@ if input_text != st.session_state.last_input_text:
 if st.button("Extract Abbreviations", type="primary"):
     if input_text:
         with st.spinner("Processing..."):
-            # Store the extracted abbreviations in session state
-            st.session_state.abbreviations_dict = extract_abbreviations(input_text)
+            # --- ADD NORMALIZATION STEP HERE ---
+            normalized_text = normalize_latex_math(input_text)
+            # --- END NORMALIZATION STEP ---
+
+            # Call extraction with the NORMALIZED text
+            st.session_state.abbreviations_dict = extract_abbreviations(normalized_text)
     else:
         st.warning("Please enter some text in the input box above.")
-        st.session_state.abbreviations_dict = None # Clear results if input is empty
-
+        st.session_state.abbreviations_dict = None
+        
 # --- Output Section ---
 #if st.session_state.abbreviations_dict is not None:
 st.markdown("---")
@@ -174,7 +263,7 @@ with col1:
 with col2:
     selected_format = st.selectbox(
         "Select Format:",
-        options=['tabular', 'plain', 'nomenclature'],
+        options=['plain','tabular',  'nomenclature'],
         index=0, # Default to 'tabular'
         key='format_selector'
     )
