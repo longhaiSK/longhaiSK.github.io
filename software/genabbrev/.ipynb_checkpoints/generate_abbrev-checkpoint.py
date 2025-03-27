@@ -137,18 +137,18 @@ if 'last_input_text' not in st.session_state:
     st.session_state.last_input_text = example_text # <<< Set default example here
 
 # Text input area - Value defaults to example text on first load
-st.subheader("Paste your text:")
+st.subheader("Paste your text")
 
 # Modify st.text_area to remove/hide the built-in label
 input_text = st.text_area(
     label="input_text_main", # Provide a unique label string for internal use/accessibility
     label_visibility="collapsed", # Hide the label visually
     value=st.session_state.last_input_text, # Uses session state value
-    height=250,
+    height=150,
     placeholder="Paste your text here...",
     key="input_text_area"
 )
-
+st.caption("Privacy note: this app does not save your text and only serves your need. Latex code is allowed.")
 # Update session state whenever the text area changes
 # This ensures if user types something, it's remembered over the default
 if input_text != st.session_state.last_input_text:
@@ -184,7 +184,7 @@ formatted_output = format_abbreviations(st.session_state.abbreviations_dict, sel
 st.text_area(
     f"List of Abbreviations ({selected_format}):",
     value=formatted_output,
-    height=300,
+    height=200,
     #disabled=True,
     help="Copy the output above."
 )
