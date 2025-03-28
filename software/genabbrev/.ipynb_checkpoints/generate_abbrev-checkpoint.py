@@ -207,91 +207,50 @@ def format_abbreviations(abbreviations_dict, format_type):
 # Using r""" allows multi-line string and handles backslashes well
 example_text = r"""This is an example of an input text  (EIT). In this paper, we propose utilizing $\beta$-\( Z \)-residuals ($\beta$$Z$R) to diagnose Cox PH models. The recent studies by Li et al. 2021 \cite{LiLonghai2021Mdfc} and Wu et al. 2024 \cite{WuTingxuan2024Zdtf} introduced the concept of randomized survival probabilities (RSP) to define Z-residuals for diagnosing model assumptions in accelerated failure time (AFT) and shared frailty models. The RSP approach involves replacing the survival probability of a censored failure time (SPCFT) with $u$ random numbers ($u$RN) between 0 and the survival probability of the censored time (SPCT) \cite{WuTingxuan2024Zdtf}."""
 
+def get_abbreviation_output(input_text_string):
+    """
+    Processes input text to extract abbreviations and returns them
+    formatted as a string using the default 'tabular' format.
 
-# --- Streamlit Interface ---
+    Args:
+        input_text_string (str): The text to process.
 
-# st.set_page_config(layout="wide")
-# st.title("Extracting Abbreviations for Your Papers")
-# #st.markdown("Enter text below: ")
+    Returns:
+        str: The formatted string of abbreviations (defaulting to tabular),
+             or an error/info message if no text provided or no abbreviations found.
+    """
+    # Default format chosen from our Streamlit app setup
+    default_format_type = 'plain'
 
-# # Initialize session state
-# if 'abbreviations_dict' not in st.session_state:
-#     st.session_state.abbreviations_dict = None
-# # Initialize last_input_text with example if not already set
-# if 'last_input_text' not in st.session_state:
-#     st.session_state.last_input_text = example_text # <<< Set default example here
+    if not input_text_string:
+        return "Input text cannot be empty."
 
-# # Text input area - Value defaults to example text on first load
-# st.subheader("Paste your text")
+    try:
+        # 1. Normalize LaTeX math input (e.g., \(...\) -> $...$)
+        normalized_text = normalize_latex_math(input_text_string)
 
-# # Modify st.text_area to remove/hide the built-in label
-# input_text = st.text_area(
-#     label="input_text_main", # Provide a unique label string for internal use/accessibility
-#     label_visibility="collapsed", # Hide the label visually
-#     value=st.session_state.last_input_text, # Uses session state value
-#     height=150,
-#     placeholder="Paste your text here...",
-#     key="input_text_area"
-# )
-# st.caption("Privacy note: this app does not save your text and only serves your need. Latex code is allowed.")
-# # Update session state whenever the text area changes
-# # This ensures if user types something, it's remembered over the default
-# if input_text != st.session_state.last_input_text:
-#      st.session_state.last_input_text = input_text
+        # 2. Extract abbreviations using the core logic
+        #    (This assumes extract_abbreviations uses require_first_last_match=True by default)
+        abbreviations_dict = extract_abbreviations(normalized_text)
 
+        # 3. Handle cases where no abbreviations are found
+        if not abbreviations_dict:
+            return "No abbreviations found in the text."
 
-# # Button to trigger processing
-# if st.button("Extract Abbreviations", type="primary"):
-#     if input_text:
-#         with st.spinner("Processing..."):
-#             # --- ADD NORMALIZATION STEP HERE ---
-#             normalized_text = normalize_latex_math(input_text)
-#             # --- END NORMALIZATION STEP ---
+        # 4. Format the results using the default format type
+        formatted_output = format_abbreviations(abbreviations_dict, default_format_type)
 
-#             # Call extraction with the NORMALIZED text
-#             st.session_state.abbreviations_dict = extract_abbreviations(normalized_text)
-#     else:
-#         st.warning("Please enter some text in the input box above.")
-#         st.session_state.abbreviations_dict = None
-        
-# # --- Output Section ---
-# #if st.session_state.abbreviations_dict is not None:
-# st.markdown("---")
-# col1, col2 = st.columns([3, 1])
-# with col1:
-#     st.subheader("Formatted Output")
-# with col2:
-#     selected_format = st.selectbox(
-#         "Select Format:",
-#         options=['plain','tabular',  'nomenclature'],
-#         index=0, # Default to 'tabular'
-#         key='format_selector'
-#     )
+        # 5. Return the result (or a message if formatting failed)
+        return formatted_output if formatted_output else "Formatting resulted in empty output."
 
-# formatted_output = format_abbreviations(st.session_state.abbreviations_dict, selected_format)
-
-# st.text_area(
-#     f"List of Abbreviations ({selected_format}):",
-#     value=formatted_output,
-#     height=200,
-#     #disabled=True,
-#     help="Copy the output above."
-# )
+    except Exception as e:
+        # Basic error handling
+        # Consider more specific logging or error handling if needed
+        print(f"Error processing text: {e}") # Log error to console/logs
+        return f"An error occurred during processing."
 
 
 
-# --- ADD THE COPY BUTTON HERE ---
-#st_copy_to_clipboard(formatted_output, "Copy Output to Clipboard")
-
-# --- Footer ---
-# st.markdown("---")
-# #current_date_param = st.query_params.get('current_date', 'N/A')
-# #st.caption(f"Current date: {current_date_param}")
-# # Display the actual current server time using Python's datetime
-# # Note: This uses the server's time where Streamlit is running.
-# #st.caption(f"Actual current server time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-# # Display approximate user location based on context (if relevant/desired)
-# 
 
 import streamlit as st
 import re
@@ -301,14 +260,37 @@ from datetime import datetime
 
 st.set_page_config(layout="wide")
 st.title(r"Extracting Abbreviations from $\LaTeX$ Source Text")
-
-# Initialize session state (Keep this near the top)
+# --- Initialize Session State (Add 'processed_url_param') ---
 if 'abbreviations_dict' not in st.session_state:
     st.session_state.abbreviations_dict = None
 if 'last_input_text' not in st.session_state:
-    # Make sure example_text is defined before this line
-    example_text = example_text # Your example text
     st.session_state.last_input_text = example_text
+if 'processed_url_param' not in st.session_state:
+     st.session_state.processed_url_param = False # Flag to process URL text only once
+
+# --- Handle URL Query Parameter (Place this *before* UI rendering) ---
+# Use "text" as the parameter name, default to None if not present
+url_text_param = st.query_params.get("text", None)
+
+if url_text_param and not st.session_state.processed_url_param:
+    # If param exists AND we haven't processed it automatically yet
+    print(f"Processing text from URL parameter: {url_text_param[:50]}...") # Debug print
+    st.session_state.last_input_text = url_text_param # Pre-fill text area state
+    try:
+        # Use a spinner just like the button press
+        with st.spinner("Processing text from URL..."):
+             normalized_text = normalize_latex_math(url_text_param)
+             # Run extraction and store result directly in session state
+             st.session_state.abbreviations_dict = extract_abbreviations(normalized_text)
+             st.session_state.processed_url_param = True # Mark as processed
+    except Exception as e:
+        st.error(f"Error processing text from URL: {e}")
+        st.session_state.abbreviations_dict = None
+        st.session_state.processed_url_param = True # Mark as processed even if error
+elif not url_text_param:
+     # If no URL text parameter on this run, reset the flag
+     # Allows reprocessing if user navigates away and back without param
+     st.session_state.processed_url_param = False
 
 # --- Create two main columns for side-by-side layout ---
 col_input, col_output = st.columns([1.5,1]) # Create two equal-width columns
