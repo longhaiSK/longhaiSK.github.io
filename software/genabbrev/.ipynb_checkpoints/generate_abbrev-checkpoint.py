@@ -210,83 +210,223 @@ example_text = r"""This is an example of an input text  (EIT). In this paper, we
 
 # --- Streamlit Interface ---
 
-st.set_page_config(layout="wide")
-st.title("Extracting Abbreviations for Your Papers")
-#st.markdown("Enter text below: ")
+# st.set_page_config(layout="wide")
+# st.title("Extracting Abbreviations for Your Papers")
+# #st.markdown("Enter text below: ")
 
-# Initialize session state
-if 'abbreviations_dict' not in st.session_state:
-    st.session_state.abbreviations_dict = None
-# Initialize last_input_text with example if not already set
-if 'last_input_text' not in st.session_state:
-    st.session_state.last_input_text = example_text # <<< Set default example here
+# # Initialize session state
+# if 'abbreviations_dict' not in st.session_state:
+#     st.session_state.abbreviations_dict = None
+# # Initialize last_input_text with example if not already set
+# if 'last_input_text' not in st.session_state:
+#     st.session_state.last_input_text = example_text # <<< Set default example here
 
-# Text input area - Value defaults to example text on first load
-st.subheader("Paste your text")
+# # Text input area - Value defaults to example text on first load
+# st.subheader("Paste your text")
 
-# Modify st.text_area to remove/hide the built-in label
-input_text = st.text_area(
-    label="input_text_main", # Provide a unique label string for internal use/accessibility
-    label_visibility="collapsed", # Hide the label visually
-    value=st.session_state.last_input_text, # Uses session state value
-    height=150,
-    placeholder="Paste your text here...",
-    key="input_text_area"
-)
-st.caption("Privacy note: this app does not save your text and only serves your need. Latex code is allowed.")
-# Update session state whenever the text area changes
-# This ensures if user types something, it's remembered over the default
-if input_text != st.session_state.last_input_text:
-     st.session_state.last_input_text = input_text
+# # Modify st.text_area to remove/hide the built-in label
+# input_text = st.text_area(
+#     label="input_text_main", # Provide a unique label string for internal use/accessibility
+#     label_visibility="collapsed", # Hide the label visually
+#     value=st.session_state.last_input_text, # Uses session state value
+#     height=150,
+#     placeholder="Paste your text here...",
+#     key="input_text_area"
+# )
+# st.caption("Privacy note: this app does not save your text and only serves your need. Latex code is allowed.")
+# # Update session state whenever the text area changes
+# # This ensures if user types something, it's remembered over the default
+# if input_text != st.session_state.last_input_text:
+#      st.session_state.last_input_text = input_text
 
 
-# Button to trigger processing
-if st.button("Extract Abbreviations", type="primary"):
-    if input_text:
-        with st.spinner("Processing..."):
-            # --- ADD NORMALIZATION STEP HERE ---
-            normalized_text = normalize_latex_math(input_text)
-            # --- END NORMALIZATION STEP ---
+# # Button to trigger processing
+# if st.button("Extract Abbreviations", type="primary"):
+#     if input_text:
+#         with st.spinner("Processing..."):
+#             # --- ADD NORMALIZATION STEP HERE ---
+#             normalized_text = normalize_latex_math(input_text)
+#             # --- END NORMALIZATION STEP ---
 
-            # Call extraction with the NORMALIZED text
-            st.session_state.abbreviations_dict = extract_abbreviations(normalized_text)
-    else:
-        st.warning("Please enter some text in the input box above.")
-        st.session_state.abbreviations_dict = None
+#             # Call extraction with the NORMALIZED text
+#             st.session_state.abbreviations_dict = extract_abbreviations(normalized_text)
+#     else:
+#         st.warning("Please enter some text in the input box above.")
+#         st.session_state.abbreviations_dict = None
         
-# --- Output Section ---
-#if st.session_state.abbreviations_dict is not None:
-st.markdown("---")
-col1, col2 = st.columns([3, 1])
-with col1:
-    st.subheader("Formatted Output")
-with col2:
-    selected_format = st.selectbox(
-        "Select Format:",
-        options=['plain','tabular',  'nomenclature'],
-        index=0, # Default to 'tabular'
-        key='format_selector'
-    )
+# # --- Output Section ---
+# #if st.session_state.abbreviations_dict is not None:
+# st.markdown("---")
+# col1, col2 = st.columns([3, 1])
+# with col1:
+#     st.subheader("Formatted Output")
+# with col2:
+#     selected_format = st.selectbox(
+#         "Select Format:",
+#         options=['plain','tabular',  'nomenclature'],
+#         index=0, # Default to 'tabular'
+#         key='format_selector'
+#     )
 
-formatted_output = format_abbreviations(st.session_state.abbreviations_dict, selected_format)
+# formatted_output = format_abbreviations(st.session_state.abbreviations_dict, selected_format)
 
-st.text_area(
-    f"List of Abbreviations ({selected_format}):",
-    value=formatted_output,
-    height=200,
-    #disabled=True,
-    help="Copy the output above."
-)
+# st.text_area(
+#     f"List of Abbreviations ({selected_format}):",
+#     value=formatted_output,
+#     height=200,
+#     #disabled=True,
+#     help="Copy the output above."
+# )
+
+
 
 # --- ADD THE COPY BUTTON HERE ---
 #st_copy_to_clipboard(formatted_output, "Copy Output to Clipboard")
 
 # --- Footer ---
+# st.markdown("---")
+# #current_date_param = st.query_params.get('current_date', 'N/A')
+# #st.caption(f"Current date: {current_date_param}")
+# # Display the actual current server time using Python's datetime
+# # Note: This uses the server's time where Streamlit is running.
+# #st.caption(f"Actual current server time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+# # Display approximate user location based on context (if relevant/desired)
+# 
+
+import streamlit as st
+import re
+from datetime import datetime
+# Assuming your functions (normalize_latex_math, extract_abbreviations, format_abbreviations, etc.)
+# and the example_text variable are defined above this point.
+
+st.set_page_config(layout="wide")
+st.title(r"Extracting Abbreviations from $\LaTeX$ Source Text")
+
+# Initialize session state (Keep this near the top)
+if 'abbreviations_dict' not in st.session_state:
+    st.session_state.abbreviations_dict = None
+if 'last_input_text' not in st.session_state:
+    # Make sure example_text is defined before this line
+    example_text = example_text # Your example text
+    st.session_state.last_input_text = example_text
+
+# --- Create two main columns for side-by-side layout ---
+col_input, col_output = st.columns([1.5,1]) # Create two equal-width columns
+
+# --- Column 1: Input Area ---
+with col_input:
+    st.subheader("Paste your text")
+    input_text = st.text_area(
+        label="input_text_main",
+        label_visibility="collapsed",
+        value=st.session_state.last_input_text,
+        height=350,  # Adjust height as needed for side-by-side view
+        placeholder="Paste your text here...",
+        key="input_text_area"
+    )
+    st.caption("Privacy note: this app does not save your text and only serves your need. Latex code is allowed.")
+
+    # --- Use THREE columns in ONE row for Button, Label, Selector ---
+    # Adjust the ratios as needed for desired visual spacing
+    sub_col_label, sub_col_widget, sub_col_btn = st.columns([0.5, 2, 3])
+
+
+    with sub_col_label:
+        # Place label text in the second sub-column
+        # Using markdown allows potential styling. Adjust padding/margin for vertical alignment.
+        st.markdown("<div style='margin-top: 0.6rem; text-align: left;'>Format:</div>", unsafe_allow_html=True)
+        # Simpler alternative: st.text("Format:") - may not align vertically as well
+
+    with sub_col_widget:
+        # Place selectbox in the third sub-column (hide its own label)
+        selected_format = st.selectbox(
+            label="format_select_internal_label", # Internal label, not displayed
+            label_visibility="collapsed", # Hide label above the widget
+            options=['plain', 'tabular', 'nomenclature'],
+            index=0,  # Default to 'tabular'
+            key='format_selector', # Key allows state to persist
+            help="Select the format for the abbreviation list output."
+        )
+    with sub_col_btn:
+        # Place button in the first sub-column
+        extract_pressed = st.button("Extract Abbreviations", type="primary", use_container_width=True)
+
+    # sub_col_btn, sub_col_select = st.columns([1, 1]) # Equal width for button and selector
+
+    # with sub_col_btn:
+    #     # Button and its logic now in the nested column
+    #     extract_pressed = st.button("Extract Abbreviations", type="primary", use_container_width=True)
+
+    # with sub_col_select:
+    #     # # Selector now in the nested column
+    #     # selected_format = st.selectbox(
+    #     #     "Select Output Format:", # Slightly revised label
+    #     #     options=['plain', 'tabular', 'nomenclature'],
+    #     #     index=0,  # Default to 'tabular'
+    #     #     key='format_selector' # Key allows state to persist
+    #     # )
+    #     selected_format = st.selectbox(
+    #     label="format_select_internal_label", # Internal label, not displayed
+    #     options=['plain', 'tabular', 'nomenclature'],
+    #     index=0,  # Default to 'plain'
+    #     key='format_selector', # Key allows state to persist
+    #     help="Select the format for the abbreviation list output.", # ADDED help tooltip
+    #     label_visibility="collapsed" # ADDED this to hide the label
+    # )
+    # --- End Nested Columns ---
+
+    # Processing Logic (triggered by button state)
+    if extract_pressed: # Check the state of the button variable
+        if input_text:
+            with st.spinner("Processing..."):
+                normalized_text = normalize_latex_math(input_text)
+                st.session_state.abbreviations_dict = extract_abbreviations(normalized_text)
+        else:
+            st.warning("Please enter some text in the input box above.")
+            st.session_state.abbreviations_dict = None
+
+    # Update session state for input text (placement fine here)
+    if input_text != st.session_state.last_input_text:
+        st.session_state.last_input_text = input_text
+        
+
+# --- Column 2: Output Area (Modified Layout) ---
+with col_output:
+    # --- Output Header and Selector (Now Vertical) ---
+    st.subheader(f"List of Abbreviations") # Directly under col_output
+
+    # --- Prepare Output Value ---
+    output_value_placeholder = "Output will appear here after clicking 'Extract Abbreviations'."
+    formatted_output_display = output_value_placeholder
+    if st.session_state.abbreviations_dict is not None:
+        if not st.session_state.abbreviations_dict:
+             formatted_output_display = "No abbreviations found in the text."
+        else:
+            formatted_output = format_abbreviations(st.session_state.abbreviations_dict, selected_format)
+            if formatted_output:
+                formatted_output_display = formatted_output
+            else:
+                formatted_output_display = "Formatting resulted in empty output."
+
+    # --- Display Output Text Area ---
+    st.text_area(
+        label="output_text_main",
+        label_visibility="collapsed",
+        value=formatted_output_display,
+        height=350,  # Explicit Height (Match input column)
+        help="Copy the output from this box.",
+        key="output_text_area"
+    )
+    
+    
+
+# Note: Copy button logic was removed previously due to issues.
+
+# --- Footer (outside columns) ---
 st.markdown("---")
-#current_date_param = st.query_params.get('current_date', 'N/A')
-#st.caption(f"Current date: {current_date_param}")
-# Display the actual current server time using Python's datetime
-# Note: This uses the server's time where Streamlit is running.
-#st.caption(f"Actual current server time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-# Display approximate user location based on context (if relevant/desired)
+
 st.caption("Author: Longhai Li, https://longhaisk.github.io, Saskatoon, SK, Canada")
+# current_date_param = st.query_params.get('current_date', 'N/A')
+# st.caption(f"Current date (from URL param 'current_date', if provided): {current_date_param}")
+# st.caption(f"Actual current server time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} (CST)") # Indicate CST
+# st.caption("Location context: Saskatoon, SK, Canada")

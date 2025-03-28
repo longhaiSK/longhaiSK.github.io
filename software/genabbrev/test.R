@@ -43,11 +43,11 @@ extract_abbreviations <- function(text) {
 cat("Test Case 1:\n")
 text1 <- "Cox proportional-hazard (PH) regression models are widely used.\n"
 cat("Input:\n", text1)
-cat("Output:\n", format_abbreviations_r(extract_abbreviations(text1)), "\n\n")
+cat("Output:\n", format_abbreviations_r(extract_abbreviations_r(text1)), "\n\n")
 cat("Test Case 1:\n")
 text1 <- "Cox proportional hazard (PH) regression models are widely used.\n"
 cat("Input:\n", text1)
-cat("Output:\n", format_abbreviations_r(extract_abbreviations(text1)), "\n\n")
+cat("Output:\n", format_abbreviations_r(extract_abbreviations_r(text1)), "\n\n")
 
 
 
