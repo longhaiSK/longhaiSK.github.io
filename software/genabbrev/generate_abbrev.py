@@ -334,7 +334,10 @@ with col_input:
         extract_pressed = st.button("Extract Abbreviations", type="primary", use_container_width=True)
 
     # Processing Logic (triggered by button state)
-    if extract_pressed: # Check the state of the button variable
+    if "first_run_done" not in st.session_state:
+        st.session_state.first_run_done = True  # Mark that the first run has happened
+
+    if extract_pressed or st.session_state.first_run_done = True: # Check the state of the button variable
         if input_text:
             with st.spinner("Processing..."):
                 normalized_text = normalize_latex_math(input_text)
@@ -351,7 +354,7 @@ with col_input:
 # --- Column 2: Output Area (Modified Layout) ---
 with col_output:
     # --- Output Header and Selector (Now Vertical) ---
-    st.subheader(f"List of Abbreviations") # Directly under col_output
+    st.subheader(f"Formatted Abbreviations") # Directly under col_output
 
     # --- Prepare Output Value ---
     output_value_placeholder = "Output will appear here after clicking 'Extract Abbreviations'."
