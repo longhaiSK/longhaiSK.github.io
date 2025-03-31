@@ -259,7 +259,7 @@ from datetime import datetime
 # and the example_text variable are defined above this point.
 
 st.set_page_config(layout="wide")
-st.title(r"Extracting Abbreviations from $\LaTeX$ Source Text")
+st.title(r"Extracting Abbreviations from $\LaTeX$ Text")
 # --- Initialize Session State (Add 'processed_url_param') ---
 if 'abbreviations_dict' not in st.session_state:
     st.session_state.abbreviations_dict = None
@@ -332,30 +332,6 @@ with col_input:
     with sub_col_btn:
         # Place button in the first sub-column
         extract_pressed = st.button("Extract Abbreviations", type="primary", use_container_width=True)
-
-    # sub_col_btn, sub_col_select = st.columns([1, 1]) # Equal width for button and selector
-
-    # with sub_col_btn:
-    #     # Button and its logic now in the nested column
-    #     extract_pressed = st.button("Extract Abbreviations", type="primary", use_container_width=True)
-
-    # with sub_col_select:
-    #     # # Selector now in the nested column
-    #     # selected_format = st.selectbox(
-    #     #     "Select Output Format:", # Slightly revised label
-    #     #     options=['plain', 'tabular', 'nomenclature'],
-    #     #     index=0,  # Default to 'tabular'
-    #     #     key='format_selector' # Key allows state to persist
-    #     # )
-    #     selected_format = st.selectbox(
-    #     label="format_select_internal_label", # Internal label, not displayed
-    #     options=['plain', 'tabular', 'nomenclature'],
-    #     index=0,  # Default to 'plain'
-    #     key='format_selector', # Key allows state to persist
-    #     help="Select the format for the abbreviation list output.", # ADDED help tooltip
-    #     label_visibility="collapsed" # ADDED this to hide the label
-    # )
-    # --- End Nested Columns ---
 
     # Processing Logic (triggered by button state)
     if extract_pressed: # Check the state of the button variable
