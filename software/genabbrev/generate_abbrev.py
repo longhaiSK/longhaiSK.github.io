@@ -3,34 +3,64 @@ import re
 from datetime import datetime # Import datetime for current date example
 #from streamlit_extras.keyboard_url import st_copy_to_clipboard
 
-# (Same as before - greek_map, get_abbr_repr_letters, extract_abbreviations,
-#  escape_latex, format_abbreviations)
+   
+def normalize_latex_math(text): # Consider renaming to preprocess_latex_text
+    """
+    Preprocesses LaTeX text:
+    1. Converts LaTeX inline math \( ... \) to $ ... $.
+    2. Removes LaTeX comments (% to end of line), respecting \%.
+    3. Removes preamble if \begin{document} is found.
 
-def normalize_latex_math(text):
+    Args:
+        text (str): The input LaTeX text.
+
+    Returns:
+        str: The processed text, or the original text if an error occurs.
     """
-    Converts LaTeX inline math \( ... \) to $ ... $.
-    Handles optional space after \( and before \).
-    Strips leading/trailing space within the math content.
-    """
-    # Regex:
-    # \\\(  : literal \(
-    # \s* : zero or more whitespace chars
-    # (.*?) : non-greedily capture content (group 1)
-    # \s* : zero or more whitespace chars
-    # \\\)  : literal \)
-    # Replacement uses group 1, strips it, and wraps with $
+    if not isinstance(text, str):
+        print("Warning: Input to normalize_latex_math was not a string.")
+        return text # Or raise TypeError
+
+    processed_text = text
     try:
-        # Using a lambda function for replacement to strip internal whitespace
-        normalized_text = re.sub(
+        # 1. Normalize math \(...\) to $...$
+        processed_text = re.sub(
             r'\\\(\s*(.*?)\s*\\\)',
             lambda match: f"${match.group(1).strip()}$",
-            text
+            processed_text
         )
-        return normalized_text
+
+        # 2. Remove LaTeX comments (handles inline %, respects \%)
+        # Replaces from an unescaped % to the end of the line with nothing.
+        processed_text = re.sub(r'(?<!\\)%.*$', '', processed_text, flags=re.MULTILINE)
+
+        # 3. Remove preamble IF \begin{document} exists
+        begin_doc_marker = r'\begin{document}'
+        begin_doc_index = processed_text.find(begin_doc_marker)
+        if begin_doc_index != -1:
+            # If marker found, keep only the text *after* the marker
+            processed_text = processed_text[begin_doc_index + len(begin_doc_marker):]
+
+        # 4. Clean up potential excessive blank lines resulting from removals
+        processed_text = re.sub(r'(\n\s*){2,}', '\n', processed_text)
+        # Remove leading/trailing whitespace from the whole result
+        processed_text = processed_text.strip()
+
+        return processed_text
+
     except Exception as e:
-        st.error(f"Error during LaTeX math normalization: {e}")
-        return text # Return original text on error
+        # Basic error handling - logs to console or Streamlit interface if available
+        error_message = f"Error during LaTeX text preprocessing: {e}"
+        try:
+            # Attempt to use Streamlit's error reporting if running in Streamlit
+            import streamlit as st
+            st.error(error_message)
+        except ImportError:
+            # Fallback to print if not in Streamlit environment
+            print(error_message)
+        return text # Return original text to avoid breaking downstream processing
         
+
 greek_map = {
     'alpha': 'a', 'beta': 'b', 'gamma': 'g', 'delta': 'd', 'epsilon': 'e',
     'zeta': 'z', 'eta': 'e', 'theta': 't', 'iota': 'i', 'kappa': 'k',
@@ -42,94 +72,84 @@ greek_map = {
 }
 
 def get_abbr_repr_letters(abbr_string):
-    representative_letters = []
-    findings = re.findall(r'\\([a-zA-Z]+)|([A-Z])', abbr_string)
-    for greek_cmd, upper_letter in findings:
-        if greek_cmd:
-            if greek_cmd in greek_map:
-                representative_letters.append(greek_map[greek_cmd])
-        elif upper_letter:
-            representative_letters.append(upper_letter.lower())
+    # 1. Replace Greek letter commands
+    for greek_cmd, letter in greek_map.items():
+        abbr_string = re.sub(r'\\' + greek_cmd, letter, abbr_string)
+
+    # 2. Remove all other LaTeX commands (starting with \), curly braces, and division symbols
+    abbr_string = re.sub(r'\\(?:[a-zA-Z]+|\{.*?\}|\}|/)', '', abbr_string)
+
+    # 3. Remove dollar signs
+    abbr_string = abbr_string.replace('$', '')
+
+    # 4. Extract remaining letters
+    representative_letters = re.findall(r'[a-zA-Z]', abbr_string)
+    representative_letters = [letter.lower() for letter in representative_letters]
+
     return representative_letters
-    
-    
-def get_abbr_repr_letters(abbr_string):
-        """
-        Parses an abbreviation string containing potential LaTeX Greek letters
-        and ALSO now regular upper/lower case letters.
-        Returns a list of representative lowercase chars.
-        e.g., "$\alpha$-SP" -> ['a', 's', 'p']
-        e.g., "$u$-RN" -> ['u', 'r', 'n'] # Assumes $u$ contributes 'u'
-        e.g., "CPU" -> ['c', 'p', 'u']
-        """
-        representative_letters = []
-        # Pattern finds \command OR single Letter (Upper or Lower)
-        # Captures command name in group 1 OR the letter in group 2
-        # MODIFIED REGEX to capture [a-zA-Z]
-        findings = re.findall(r'\\([a-zA-Z]+)|([a-zA-Z])', abbr_string)
 
-        for greek_cmd, any_letter in findings:
-            if greek_cmd: # Matched \command (e.g., greek_cmd == 'alpha')
-                if greek_cmd in greek_map:
-                    representative_letters.append(greek_map[greek_cmd]) # Add lowercase greek representation
-                # Optional: Add handling for non-greek commands if needed
-            elif any_letter: # Matched single letter (e.g., any_letter == 'S' or 'u')
-                representative_letters.append(any_letter.lower()) # Add lowercase representation
-
-        return representative_letters
-
-
-def extract_abbreviations(text, require_first_last_match=True):
-    pattern = re.compile(r'((?:[\w\-\$\\]+\s+){1,10})\(([A-Za-z\-\$\\]{2,})\)')
+def extract_abbreviations(text, require_first_last_match=True, debug=True):
+    pattern = re.compile(r'((?:[\w\-\$\\\{\}]+\s+){1,10})\(\s*([\w\s\$\-\\\{\}]+)\s*\)')
     matches = pattern.findall(text)
     abbreviation_dict = {}
-    # ...(rest of the function remains the same)...
+
+    if debug:
+        print("\nDebugging extract_abbreviations")
+
     for match in matches:
         words_before_abbr_text = match[0].strip()
         words_ahead = [word for word in re.split(r'\s+|(?<=-)(?=[A-Za-z])', words_before_abbr_text) if word]
         abbr_string = match[1]
         abbr_letters = get_abbr_repr_letters(abbr_string)
+
+        if debug:
+            print(f"Captured Abbr String: '{abbr_string}'")
+            print(f"Generated abbr_letters: {abbr_letters}")
+            print(f"Captured Full Name: {words_ahead}")
+
         num_abbr_letters = len(abbr_letters)
 
-        if not abbr_letters or not words_ahead or num_abbr_letters == 0: continue
+        if not abbr_letters or not words_ahead or num_abbr_letters == 0:
+            continue
+
         match_indices = [-1] * num_abbr_letters
         unmatched_abbr_indices = set(range(num_abbr_letters))
+
         for i, word in enumerate(reversed(words_ahead)):
             original_idx = len(words_ahead) - 1 - i
-            if not unmatched_abbr_indices: break
+            if not unmatched_abbr_indices:
+                break
+
             effective_char = None
-            m_dollar = re.match(r'\$\\([a-zA-Z]+)', word)
-            if m_dollar and m_dollar.group(1) in greek_map: effective_char = greek_map[m_dollar.group(1)]
-            else:
-                m_slash = re.match(r'\\([a-zA-Z]+)', word)
-                if m_slash and m_slash.group(1) in greek_map: effective_char = greek_map[m_slash.group(1)]
-                else:
-                    m_first_letter = re.search(r'[a-zA-Z]', word)
-                    if m_first_letter: effective_char = m_first_letter.group(0).lower()
+            m_first_letter = re.search(r'[a-zA-Z]', word)
+            if m_first_letter:
+                effective_char = m_first_letter.group(0).lower()
+
             if effective_char is not None:
                 best_match_abbr_idx = -1
                 for abbr_idx in sorted(list(unmatched_abbr_indices), reverse=True):
                     if effective_char == abbr_letters[abbr_idx]:
                         best_match_abbr_idx = abbr_idx
                         break
+
                 if best_match_abbr_idx != -1:
                     match_indices[best_match_abbr_idx] = original_idx
                     unmatched_abbr_indices.remove(best_match_abbr_idx)
+
         successful_match_indices = [idx for idx in match_indices if idx != -1]
-        if not successful_match_indices: continue
-        valid_match = True
-        if require_first_last_match:
-            if match_indices[0] == -1 or match_indices[num_abbr_letters - 1] == -1: valid_match = False
-        if valid_match:
+
+        if successful_match_indices:
             min_idx_py = min(successful_match_indices)
             max_idx_py = max(successful_match_indices)
+
             if min_idx_py <= max_idx_py:
-                full_phrase_words_slice = words_ahead[min_idx_py : max_idx_py + 1]
-                full_name = ''.join(word if i == 0 else (' ' + word if not full_phrase_words_slice[i - 1].endswith('-') else word)
-                                    for i, word in enumerate(full_phrase_words_slice))
+                # modified full name generation
+                full_name = ' '.join(words_ahead[min_idx_py : max_idx_py + 1])
                 abbreviation_dict[abbr_string] = full_name
+
     return abbreviation_dict
 
+    
 def get_sort_key_from_abbr(abbr_string):
     """
     Generates a lowercase string key for sorting abbreviations,
@@ -205,7 +225,23 @@ def format_abbreviations(abbreviations_dict, format_type):
 
 # --- Define Default Example Text ---
 # Using r""" allows multi-line string and handles backslashes well
-example_text = r"""This is an example of an input text  (EIT). In this paper, we propose utilizing $\beta$-\( Z \)-residuals ($\beta$$Z$R) to diagnose Cox PH models. The recent studies by Li et al. 2021 \cite{LiLonghai2021Mdfc} and Wu et al. 2024 \cite{WuTingxuan2024Zdtf} introduced the concept of randomized survival probabilities (RSP) to define Z-residuals for diagnosing model assumptions in accelerated failure time (AFT) and shared frailty models. The RSP approach involves replacing the survival probability of a censored failure time (SPCFT) with $u$ random numbers ($u$RN) between 0 and the survival probability of the censored time (SPCT) \cite{WuTingxuan2024Zdtf}."""
+# $\frac{\gamma}{Z}$-residuals ($\frac{\gamma}{Z}$R)
+example_text = r"""
+\begin{document}
+The full name and abbrievation can contain equations, for example, 
+$\alpha$-\( Z \)-residuals ($\alphaZ$R), or 
+$\beta$-\( Z \)-residuals ($\beta$$Z$R), or
+$\gamma$-\( Z \)-residuals ($\gamma Z$R), or,
+
+
+The abbreviations like randomized survival probabilities (RSP) and  accelerated failure time (AFT) will be caught. 
+
+The citations and explanations in brackets, for example, this one (Wu et al. 2024),  will be omitted. %The comment text (CT) will be omitted.
+
+Paste your \LaTex text (LT) and enjoy the app. 
+\end{document}
+
+""".strip()
 
 def get_abbreviation_output(input_text_string):
     """
