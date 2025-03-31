@@ -337,7 +337,7 @@ with col_input:
     if "first_run_done" not in st.session_state:
         st.session_state.first_run_done = True  # Mark that the first run has happened
 
-    if extract_pressed or st.session_state.first_run_done = True: # Check the state of the button variable
+    if extract_pressed or st.session_state.first_run_done: # Check the state of the button variable
         if input_text:
             with st.spinner("Processing..."):
                 normalized_text = normalize_latex_math(input_text)
