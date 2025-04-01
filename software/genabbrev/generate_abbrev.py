@@ -314,14 +314,16 @@ example_text = r"""
 The full name and abbrievation can contain equations, for example, 
 $\alpha$-\( Z \)-residuals ($\alphaZ$R), or 
 $\beta$-\( Z \)-residuals ($\beta$$Z$R), or
-$\gamma$-\( Z \)-residuals ($\gamma Z$R), or,
+$\gamma$-\( Z \)-residuals ($\gamma Z$R).
 
+This is not an abbreviation (acronym).
 
 The abbreviations like randomized survival probabilities (RSP) and  accelerated failure time (AFT) will be caught. 
 
 The citations and explanations in brackets, for example, this one (Wu et al. 2024),  will be omitted. %The comment text (CT) will be omitted.
 
 Paste your \LaTex text (LT) and enjoy the app. 
+
 \end{document}
 
 """.strip()
