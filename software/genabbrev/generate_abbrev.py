@@ -149,6 +149,89 @@ def extract_abbreviations(text, require_first_last_match=True, debug=False):
 
     return abbreviation_dict
 
+def extract_abbreviations(text, require_first_last_match=True, debug=False):
+    """Extracts abbreviations defined as (Abbr) following their definition."""
+    # Pattern allows spaces inside abbr, requires lookahead for uppercase/$/\
+    pattern = re.compile(
+        r'('                     # Start Group 1: Preceding words
+          r'(?:[\w\-\$\\\{\}]+\s+){1,10}' # Word pattern
+        r')'                     # End Group 1
+        r'\(\s*'                 # Literal opening parenthesis, optional space
+        # --- Group 2: Abbreviation ---
+        r'('                     # Start Group 2 capture
+          r'(?=.*[A-Z\\\$])'     # Positive lookahead: Must contain uppercase, \ or $
+          r'[\w\s\$\-\\\{\}]+'   # Match allowed characters (incl. space, {})
+        r')'                     # End Group 2 capture
+        # --- End Group 2 ---
+        r'\s*\)'                 # Optional space, literal closing parenthesis
+    )
+    matches = pattern.findall(text)
+    abbreviation_dict = {}
+    if debug: print(f"\nDebugging extract_abbreviations: Found {len(matches)} potential matches.")
+    for match in matches:
+        # ... (inner logic as provided in your last code block, using correct full_name join) ...
+        words_before_abbr_text = match[0].strip()
+        words_ahead = [word for word in re.split(r'\s+|(?<=-)(?=[A-Za-z])', words_before_abbr_text) if word]
+        abbr_string = match[1].strip()
+        abbr_letters = get_abbr_repr_letters(abbr_string)
+
+        if debug: # Print statements if needed
+             print(f"\n---\nCandidate Found:")
+             print(f"  Captured Abbr String: '{abbr_string}'")
+             print(f"  Generated abbr_letters: {abbr_letters}")
+             print(f"  Preceding Text for Split: '{words_before_abbr_text}'")
+             print(f"  Split words_ahead: {words_ahead}")
+
+        num_abbr_letters = len(abbr_letters)
+        if not abbr_letters or not words_ahead or num_abbr_letters == 0: continue
+
+        match_indices = [-1] * num_abbr_letters
+        unmatched_abbr_indices = set(range(num_abbr_letters))
+
+        for i, word in enumerate(reversed(words_ahead)):
+            original_idx = len(words_ahead) - 1 - i
+            if not unmatched_abbr_indices: break
+            effective_char = None
+            m_first_letter = re.search(r'[a-zA-Z]', word)
+            if m_first_letter: effective_char = m_first_letter.group(0).lower()
+
+            if debug and effective_char is not None: print(f"  Word: '{word}' (idx {original_idx}), Effective Char: '{effective_char}'")
+
+            if effective_char is not None:
+                best_match_abbr_idx = -1
+                for abbr_idx in sorted(list(unmatched_abbr_indices), reverse=True):
+                    if effective_char == abbr_letters[abbr_idx]: best_match_abbr_idx = abbr_idx; break
+                if best_match_abbr_idx != -1:
+                    if debug: print(f"    -> Matched letter '{abbr_letters[best_match_abbr_idx]}' at abbr_idx {best_match_abbr_idx}")
+                    match_indices[best_match_abbr_idx] = original_idx
+                    unmatched_abbr_indices.remove(best_match_abbr_idx)
+
+        successful_match_indices = [idx for idx in match_indices if idx != -1]
+        if debug: print(f"  Successful match indices: {successful_match_indices}")
+        if not successful_match_indices: continue
+
+        valid_match = True
+        if require_first_last_match:
+            if match_indices[0] == -1 or match_indices[num_abbr_letters - 1] == -1:
+                valid_match = False
+                if debug: print(f"  Validation Failed: First or last letter not matched (Indices: {match_indices})")
+
+        if valid_match:
+            min_idx_py = min(successful_match_indices)
+            max_idx_py = max(successful_match_indices)
+            if min_idx_py <= max_idx_py:
+                full_phrase_words_slice = words_ahead[min_idx_py : max_idx_py + 1]
+                # Use the join logic that handles hyphens correctly
+                full_name = ''.join(word if i == 0 else (' ' + word if not full_phrase_words_slice[i - 1].endswith('-') else word)
+                                    for i, word in enumerate(full_phrase_words_slice))
+                if debug: print(f"  Validation Passed. Storing: '{abbr_string}': '{full_name}'")
+                abbreviation_dict[abbr_string] = full_name
+            elif debug: print(f"  Skipping: min_idx > max_idx issue.")
+        elif debug: print(f"  Skipping: Match deemed invalid.")
+
+    if debug: print(f"--- Debugging End ---\nFinal Dict: {abbreviation_dict}")
+    return abbreviation_dict
+
     
 def get_sort_key_from_abbr(abbr_string):
     """
