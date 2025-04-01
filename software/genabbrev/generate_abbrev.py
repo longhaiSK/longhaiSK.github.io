@@ -88,7 +88,7 @@ def get_abbr_repr_letters(abbr_string):
 
     return representative_letters
 
-def extract_abbreviations(text, require_first_last_match=True, debug=True):
+def extract_abbreviations(text, require_first_last_match=True, debug=False):
     pattern = re.compile(r'((?:[\w\-\$\\\{\}]+\s+){1,10})\(\s*([\w\s\$\-\\\{\}]+)\s*\)')
     matches = pattern.findall(text)
     abbreviation_dict = {}
