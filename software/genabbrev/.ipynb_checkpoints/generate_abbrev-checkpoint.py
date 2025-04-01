@@ -59,7 +59,7 @@ def normalize_latex_math(text):
         processed_text = re.sub(r'\{', r'{ ', processed_text)
 
         # 5. Add space after lowercase commands (\cmd) if not followed by space
-        processed_text = re.sub(r'(\\[a-z]+)(?!\s)', r'\1 ', processed_text)
+        processed_text = re.sub(r'(\\[a-z]+)(?=[A-Z][^a-z])', r'\1 ', processed_text)
 
         # --- NEW STEP 6 ---
         # 6. Add space after specific uppercase Greek commands (\Cmd) if not followed by space
@@ -362,6 +362,57 @@ def format_abbreviations(abbreviations_dict, format_type):
             if i < len(items_list) - 1:
                  output += "; \n"
         return output
+def format_abbreviations(abbreviations_dict, format_type):
+    """Formats the extracted abbreviations based on the specified type.
+       Sorts abbreviations alphabetically, handling LaTeX commands in keys.
+       ASSUMES extracted abbr and full_name are valid LaTeX snippets
+       for 'tabular' and 'nomenclature' formats. No escaping is applied.
+    """
+    if not abbreviations_dict:
+        return "No abbreviations found."
+
+    # --- ADD SORTING STEP HERE ---
+    try:
+        # Sort the dictionary items alphabetically based on the abbreviation (item[0])
+        sorted_items = sorted(
+            abbreviations_dict.items(),
+            key=lambda item: get_sort_key_from_abbr(item[0])
+        )
+    except Exception as e:
+        # Error handling for sorting, fallback to unsorted
+        st.error(f"Error during abbreviation sorting: {e}. Displaying unsorted.")
+        sorted_items = abbreviations_dict.items()
+    # --- END SORTING STEP ---
+
+    if format_type == "nomenclature":
+        # LaTeX nomenclature package format
+        latex_output = "\\usepackage{nomencl}\n"
+        latex_output += "\\makenomenclature\n"
+        for abbr, full_name in sorted_items:
+            latex_output += f"\\nomenclature{{{abbr}}}{{{full_name}}}\n"
+        return latex_output
+
+    elif format_type == "tabular":
+        # LaTeX tabular format for a table
+        latex_output = "\\begin{tabular}{ll}\n"
+        latex_output += "\\hline\n"
+        latex_output += "\\textbf{Abbreviation} & \\textbf{Full Name} \\\\\n"
+        latex_output += "\\hline\n"
+        for abbr, full_name in sorted_items:
+            latex_output += f"{abbr} & {full_name} \\\\\n"
+        latex_output += "\\hline\n"
+        latex_output += "\\end{tabular}\n"
+        return latex_output
+
+    else:
+        # Default format: plain list of abbreviations and full names
+        output = ""
+        items_list = list(sorted_items)  # Convert to list for index access if needed
+        for i, (abbr, full_name) in enumerate(items_list):
+            output += f"{abbr}: {full_name}"
+            if i < len(items_list) - 1:
+                output += "; \n"  # Adds a semicolon between items
+        return output
 
 
 # --- Define Default Example Text ---
@@ -369,7 +420,11 @@ def format_abbreviations(abbreviations_dict, format_type):
 # $\frac{\gamma}{Z}$-residuals ($\frac{\gamma}{Z}$R)
 example_text = r"""
 \begin{document}
-The full name and abbrievation can contain greek symbols, for example, $\beta$-\( Z \)-residuals ($\beta$$Z$R), or $\gamma$-\( Z \)-residuals ($\gammaZ$R).
+The full name and abbrievation can contain greek symbols, for example, 
+$\alpha$-\( Z \)-residuals ($\alphaZ$R
+$\beta$-\( Z \)-residuals ($\beta$$Z$R), or 
+$\gamma$-\( Z \)-residuals ($\gammaZ$R), or
+$\frac{\gamma}{Z}$-residuals ($frac{\gamma}{Z}-R)
 
 The abbreviations like randomized survival probabilities (RSP) and  accelerated failure time (AFT), or \textbf{Time-Constant (TC) Data} will be caught. 
 
@@ -483,32 +538,76 @@ with col_input:
         
 
 # --- Column 2: Output Area (Modified Layout) ---
+def display_formatted_output(output_text, format_type):
+    """
+    Displays formatted output based on the selected format type.
+    - If 'plain', show as a simple list.
+    - If 'tabular', render LaTeX-style table properly.
+    - If 'nomenclature', format appropriately.
+    """
+    if not output_text or output_text == "No abbreviations found in the text.":
+        st.markdown(f"**{output_text}**")  # Show message if no output
+        return
+
+    if format_type == "plain":
+        st.markdown(f"```\n{output_text}\n```")  # Display as a code block
+
+    elif format_type == "tabular":
+        # Wrap in $$ to ensure Streamlit renders it using MathJax
+        st.markdown(f"$$\n{output_text}\n$$", unsafe_allow_html=True)
+
+    elif format_type == "nomenclature":
+        # Render nomenclature in a preformatted block
+        st.markdown(f"<pre>{output_text}</pre>", unsafe_allow_html=True)
+
+    else:
+        st.markdown(f"```\n{output_text}\n```")  # Fallback plain text
+
+# --- Column 2: Output Area (Modified Layout) ---
 with col_output:
-    # --- Output Header and Selector (Now Vertical) ---
-    st.subheader(f"Formatted Abbreviations") # Directly under col_output
+    st.subheader("Formatted Abbreviations")  # Header
 
     # --- Prepare Output Value ---
-    output_value_placeholder = "Output will appear here after clicking 'Extract Abbreviations'."
-    formatted_output_display = output_value_placeholder
+    output_placeholder = "Output will appear here after clicking 'Extract Abbreviations'."
+    
+    formatted_output_display = output_placeholder
     if st.session_state.abbreviations_dict is not None:
         if not st.session_state.abbreviations_dict:
-             formatted_output_display = "No abbreviations found in the text."
+            formatted_output_display = "No abbreviations found in the text."
         else:
-            formatted_output = format_abbreviations(st.session_state.abbreviations_dict, selected_format)
-            if formatted_output:
-                formatted_output_display = formatted_output
-            else:
-                formatted_output_display = "Formatting resulted in empty output."
+            formatted_output_display = format_abbreviations(st.session_state.abbreviations_dict, selected_format)
 
-    # --- Display Output Text Area ---
-    st.text_area(
-        label="output_text_main",
-        label_visibility="collapsed",
-        value=formatted_output_display,
-        height=350,  # Explicit Height (Match input column)
-        help="Copy the output from this box.",
-        key="output_text_area"
-    )
+    # --- Display formatted text dynamically ---
+    display_formatted_output(formatted_output_display, selected_format)  # Call function to display output
+
+# --- Function to Display Formatted Output ---
+
+# with col_output:
+#     # --- Output Header and Selector (Now Vertical) ---
+#     st.subheader(f"Formatted Abbreviations") # Directly under col_output
+
+#     # --- Prepare Output Value ---
+#     output_value_placeholder = "Output will appear here after clicking 'Extract Abbreviations'."
+#     formatted_output_display = output_value_placeholder
+#     if st.session_state.abbreviations_dict is not None:
+#         if not st.session_state.abbreviations_dict:
+#              formatted_output_display = "No abbreviations found in the text."
+#         else:
+#             formatted_output = format_abbreviations(st.session_state.abbreviations_dict, selected_format)
+#             if formatted_output:
+#                 formatted_output_display = formatted_output
+#             else:
+#                 formatted_output_display = "Formatting resulted in empty output."
+
+#     # --- Display Output Text Area ---
+#     st.text_area(
+#         label="output_text_main",
+#         label_visibility="collapsed",
+#         value=formatted_output_display,
+#         height=350,  # Explicit Height (Match input column)
+#         help="Copy the output from this box.",
+#         key="output_text_area"
+#     )
    
    # --- Footer (outside columns) ---
 st.markdown("---")
