@@ -12,6 +12,12 @@ from datetime import datetime # Import datetime for current date example
 # In[ ]:
 
 
+
+
+
+# In[ ]:
+
+
 upper_greek_cmds = ['Gamma', 'Delta', 'Theta', 'Lambda', 'Xi', 'Pi', 'Sigma', 'Upsilon', 'Phi', 'Psi', 'Omega']
 
 greek_map = {
@@ -23,10 +29,6 @@ greek_map = {
     'Gamma': 'g', 'Delta': 'd', 'Theta': 't', 'Lambda': 'l', 'Xi': 'x',
     'Pi': 'p', 'Sigma': 's', 'Upsilon': 'u', 'Phi': 'p', 'Psi': 'p', 'Omega': 'o'
 }
- 
-
-
-# In[ ]:
 
 
 def normalize_latex_math(text):
@@ -156,26 +158,28 @@ def get_abbr_repr_letters_v2(abbr_string):
     return representative_items
 
 
+
 def extract_abbreviations(text, require_first_last_match=True, debug=True):
     """
     Extracts abbreviations defined as (Abbr) following their definition.
     Attempts to handle various LaTeX math/command formats, including stripping
     leading formatting locally when determining the matching character.
+    Matches abbreviation command strings (like \frac) if they appear in the words.
     """
     # Pattern allows spaces inside abbr, requires lookahead for uppercase/$/\
     # Allows {} in preceding words and abbreviation content
     pattern = re.compile(
-        r'('                     # Start Group 1: Preceding words
-          r'(?:[\w\-\$\\\{\}]+\s+){1,10}' # Word pattern
-        r')'                     # End Group 1
-        r'\(\s*'                 # Literal opening parenthesis, optional space
+        r'('                      # Start Group 1: Preceding words
+         r'(?:[\w\-\$\\\{\}]+\s+){1,10}' # Word pattern
+        r')'                      # End Group 1
+        r'\(\s*'                  # Literal opening parenthesis, optional space
         # --- Group 2: Abbreviation ---
-        r'('                     # Start Group 2 capture
-          r'(?=.*[A-Z\\\$])'     # Positive lookahead: Must contain uppercase, \ or $
-          r'[\w\s\$\-\\\{\}]+'   # Match allowed characters (incl. space, {})
-        r')'                     # End Group 2 capture
+        r'('                      # Start Group 2 capture
+         r'(?=.*[A-Z\\\$])'       # Positive lookahead: Must contain uppercase, \ or $
+         r'[\w\s\$\-\\\{\}]+'   # Match allowed characters (incl. space, {})
+        r')'                      # End Group 2 capture
         # --- End Group 2 ---
-        r'\s*\)'                 # Optional space, literal closing parenthesis
+        r'\s*\)'                  # Optional space, literal closing parenthesis
     )
     matches = pattern.findall(text)
     abbreviation_dict = {}
@@ -187,35 +191,27 @@ def extract_abbreviations(text, require_first_last_match=True, debug=True):
         # Use the split that handles hyphens between letters
         words_ahead = [word for word in re.split(r'\s+|(?<=-)(?=[A-Za-z])', words_before_abbr_text) if word]
         abbr_string = match[1].strip() # Strip leading/trailing space from captured abbr
-        abbr_letters = get_abbr_repr_letters_v2(abbr_string)
-
-        
-        
-        # Handle LaTeX-style abbreviations correctly (raw string handling)
+        # Use the version that keeps command strings
         abbr_letters = get_abbr_repr_letters_v2(abbr_string)
 
         if debug: # Print statements if needed
-            # print(text)
             print(f"\n---\nCandidate Found:")
-            # print(match) # Raw match tuple if needed
             print(f"  Captured Abbr String: '{abbr_string}'")
             print(f"  Generated abbr_letters: {abbr_letters}")
             print(f"  Preceding Text for Split: '{words_before_abbr_text}'")
-            
             print(f"  Split words_ahead (elements):")
-            if words_ahead: # Avoid error if list is empty
+            if words_ahead:
                 for i, word in enumerate(words_ahead):
-                # Now 'word' is a string directly in the f-string, so it uses str()
                     print(f"    [{i}]: '{word}'")
-                else:
-                    print("    (list is empty)")   
+            else:
+                print("    (list is empty)")
 
         # Check if words_ahead list exists and if abbr_letters has at least 2 items
         if not words_ahead or len(abbr_letters) < 2:
-            if debug: print(f"  Skipping: Not enough words ahead ({bool(words_ahead)}) or less than 2 abbr letters found ({len(abbr_letters)}).")
+            if debug: print(f"  Skipping: Not enough words ahead ({bool(words_ahead)}) or less than 2 abbr items found ({len(abbr_letters)}).")
             continue
 
-        # If we passed the check, we know we have at least 2 letters
+        # If we passed the check, we know we have at least 2 items
         num_abbr_letters = len(abbr_letters)
         match_indices = [-1] * num_abbr_letters
         unmatched_abbr_indices = set(range(num_abbr_letters))
@@ -225,91 +221,105 @@ def extract_abbreviations(text, require_first_last_match=True, debug=True):
             original_idx = len(words_ahead) - 1 - i
             if not unmatched_abbr_indices: break
 
-            # --- REVISED effective_char Logic v3 ---
+            # --- REVISED effective_char Logic v3 (as provided before) ---
             effective_char = None
             word_to_check = word # Start with the original token
 
             # 1. Attempt to strip ONLY LEADING markup heuristically
             try:
                 stripped_something = False # Flag to track if changes were made
-                # Pattern: Optional whitespace, \command, optional space, { ? -> Group 1 has cmd, Group 2 has content after {
                 m1 = re.match(r'^\s*\\([a-zA-Z]+)\s*\{(.*)', word_to_check)
                 if m1:
-                    word_to_check = m1.group(2) # Use content starting after {
+                    word_to_check = m1.group(2)
                     stripped_something = True
                     if debug: print(f"    Stripped '\\cmd{{' prefix -> CheckAs: '{word_to_check}'")
                 else:
-                    # Pattern: Optional whitespace, {\command ... -> Group 1 has cmd, Group 2 has content after space
                     m2 = re.match(r'^\s*\{\s*\\([a-zA-Z]+)\s+(.*)', word_to_check)
                     if m2:
-                         content = m2.group(2)
-                         # Remove potential trailing brace from this pattern
-                         if content.endswith('}'): content = content[:-1].rstrip()
-                         word_to_check = content
-                         stripped_something = True
-                         if debug: print(f"    Stripped '{{\\cmd ' prefix -> CheckAs: '{word_to_check}'")
+                        content = m2.group(2)
+                        if content.endswith('}'): content = content[:-1].rstrip()
+                        word_to_check = content
+                        stripped_something = True
+                        if debug: print(f"    Stripped '{{\\cmd ' prefix -> CheckAs: '{word_to_check}'")
                     else:
-                         # Pattern: \command (not Greek) followed by space+content -> Group 1 is cmd, Group 2 is content after space
-                         m3 = re.match(r'^\s*\\([a-zA-Z]+)(\s+.*)', word_to_check)
-                         if m3:
-                             cmd_name = m3.group(1)
-                             # Only strip if it's NOT a mapped greek command we need later
-                             if cmd_name not in greek_map:
-                                 word_to_check = m3.group(2).lstrip() # Use content after command+space
-                                 stripped_something = True
-                                 if debug: print(f"    Stripped '\\cmd ' prefix -> CheckAs: '{word_to_check}'")
+                        m3 = re.match(r'^\s*\\([a-zA-Z]+)(\s+.*)', word_to_check)
+                        if m3:
+                            cmd_name = m3.group(1)
+                            # Only strip if it's NOT a mapped greek command we need later
+                            # Check existence of greek_map defensively
+                            if 'greek_map' in globals() and cmd_name not in greek_map:
+                                word_to_check = m3.group(2).lstrip()
+                                stripped_something = True
+                                if debug: print(f"    Stripped '\\cmd ' prefix -> CheckAs: '{word_to_check}'")
 
-                # Remove purely structural leading brace if it exists after other steps
                 if word_to_check.startswith('{'):
-                     word_to_check = word_to_check[1:].lstrip()
-                     stripped_something = True # Mark potentially changed
-                     if debug: print(f"    Stripped leading '{{' -> CheckAs: '{word_to_check}'")
+                    word_to_check = word_to_check[1:].lstrip()
+                    stripped_something = True
+                    if debug: print(f"    Stripped leading '{{' -> CheckAs: '{word_to_check}'")
 
-                # Revert if stripping resulted in empty string
                 if stripped_something and not word_to_check.strip():
-                     word_to_check = word # Use original word
-                     if debug: print(f"    Reverted stripping as it resulted in empty string.")
+                    word_to_check = word
+                    if debug: print(f"    Reverted stripping as it resulted in empty string.")
 
             except Exception as e:
                 if debug: print(f"    Error during word stripping: {e}")
-                word_to_check = word # Use original word if stripping fails
+                word_to_check = word
 
             # 2. Now find effective char using the potentially cleaned word_to_check
-            # Check for $\command... first
             m_dollar = re.match(r'\$\\([a-zA-Z]+)', word_to_check)
-            if m_dollar and m_dollar.group(1) in greek_map:
+            # Check existence of greek_map defensively
+            if 'greek_map' in globals() and m_dollar and m_dollar.group(1) in greek_map:
                 effective_char = greek_map[m_dollar.group(1)]
             else:
-                # Check for \command... second (only if not stripped above and is greek)
                 m_slash = re.match(r'\\([a-zA-Z]+)', word_to_check)
-                # Only use if it's a known greek command we need for matching
-                if m_slash and m_slash.group(1) in greek_map:
-                     effective_char = greek_map[m_slash.group(1)]
+                if 'greek_map' in globals() and m_slash and m_slash.group(1) in greek_map:
+                    effective_char = greek_map[m_slash.group(1)]
                 else:
-                    # Standard word handling: find the first ASCII letter in potentially stripped word
                     m_first_letter = re.search(r'[a-zA-Z]', word_to_check)
                     if m_first_letter:
                         effective_char = m_first_letter.group(0).lower()
             # --- END REVISED effective_char Logic v3 ---
 
-
             if debug: print(f"  Word: '{word}' (CheckAs: '{word_to_check}'), Effective Char: '{effective_char}'")
 
-            # Compare effective char with remaining abbreviation letters
-            if effective_char is not None:
+            # --- MODIFIED COMPARISON LOGIC ---
+            # Compare effective char OR command string with remaining abbreviation items
+            # Check if word could potentially match either via effective char or command prefix
+            if effective_char is not None or word.startswith('\\'):
                 best_match_abbr_idx = -1
+                # Iterate through remaining unmatched abbr indices, highest first
                 for abbr_idx in sorted(list(unmatched_abbr_indices), reverse=True):
-                    if effective_char == abbr_letters[abbr_idx]:
+                    target_abbr = abbr_letters[abbr_idx]
+                    match_found = False
+
+                    if target_abbr.startswith('\\'):
+                        # If abbr item is a command, check if the original word starts with it
+                        if word.startswith(target_abbr):
+                            match_found = True
+                            if debug: print(f"    -> Matched command '{target_abbr}' by prefix in word '{word}'")
+                    elif effective_char is not None:
+                        # If abbr item is a letter, use effective_char comparison
+                        if effective_char == target_abbr:
+                            match_found = True
+                            if debug: print(f"    -> Matched letter '{target_abbr}' via effective_char '{effective_char}' in word '{word}'")
+
+                    if match_found:
                         best_match_abbr_idx = abbr_idx
-                        break
+                        break # Found best match for this word, move to next word
+
                 if best_match_abbr_idx != -1:
-                    if debug: print(f"    -> Matched letter '{abbr_letters[best_match_abbr_idx]}' at abbr_idx {best_match_abbr_idx}")
+                    # Store the original index of the matched word
                     match_indices[best_match_abbr_idx] = original_idx
+                    # Remove the matched index from the set of those needing matches
                     unmatched_abbr_indices.remove(best_match_abbr_idx)
+            # --- END MODIFIED COMPARISON LOGIC ---
+
 
         # --- Post-loop checks and reconstruction ---
         successful_match_indices = [idx for idx in match_indices if idx != -1]
-        if debug: print(f"  Successful match indices: {successful_match_indices}")
+        if debug: print(f"  Successful match indices for words: {successful_match_indices}")
+        if debug: print(f"  Final match_indices map (abbr_idx -> word_idx): {match_indices}")
+
 
         if not successful_match_indices:
              if debug: print("  Skipping: No successful matches found during backward search.")
@@ -320,7 +330,7 @@ def extract_abbreviations(text, require_first_last_match=True, debug=True):
         if require_first_last_match:
             if match_indices[0] == -1 or match_indices[num_abbr_letters - 1] == -1:
                 valid_match = False
-                if debug: print(f"  Validation Failed: First or last letter not matched (Indices: {match_indices})")
+                if debug: print(f"  Validation Failed: First or last letter not matched (Indices map: {match_indices})")
 
         if valid_match:
             min_idx_py = min(successful_match_indices)
@@ -330,13 +340,15 @@ def extract_abbreviations(text, require_first_last_match=True, debug=True):
                 # Slice uses original words_ahead tokens
                 full_phrase_words_slice = words_ahead[min_idx_py : max_idx_py + 1]
                 # Use the join logic that handles hyphens correctly
+                # Join words, adding space unless previous word ended with hyphen
                 full_name = ''.join(word if i == 0 else (' ' + word if not full_phrase_words_slice[i - 1].endswith('-') else word)
                                     for i, word in enumerate(full_phrase_words_slice))
+
 
                 if debug: print(f"  Validation Passed. Storing: '{abbr_string}': '{full_name}'")
                 # Store original abbreviation string and reconstructed full name
                 abbreviation_dict[abbr_string] = full_name
-            elif debug: print(f"  Skipping: min_idx > max_idx issue.")
+            elif debug: print(f"  Skipping: min_idx ({min_idx_py}) > max_idx ({max_idx_py}) issue.") # Should not happen if successful_match_indices not empty
         elif debug: print(f"  Skipping: Match deemed invalid by require_first_last_match.")
 
     if debug: print(f"--- Debugging End ---\nFinal Dict: {abbreviation_dict}")
