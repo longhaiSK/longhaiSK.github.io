@@ -158,13 +158,51 @@ def get_abbr_repr_letters_v2(abbr_string):
     return representative_items
 
 
+def get_abbr_repr_letters_v3(abbr_string):
+    """
+    Parses abbreviation string, returns list of representative items.
+    - Maps known Greek letters (from greek_map) to lowercase.
+    - Keeps unknown LaTeX commands (like \frac) as strings.
+    - Takes the uppercase letter from sequences like 'Cp' or 'CPs', ignoring trailing lowercase.
+    - Includes standalone lowercase letters.
+    """
+    representative_items = []
+
+    # Regex captures: \cmd | Upper | OptionalLowerSuffix | StandaloneLower
+    findings = re.findall(r'(\\[a-zA-Z]+)|([A-Z])([a-z]+)?|([a-z])', abbr_string)
+
+    # The tuple returned by findall will have 4 elements corresponding to the groups
+    for command, upper, trailing_lower, standalone_lower in findings:
+        if command:  # Group 1: \command
+            command_name = command[1:]
+            if command_name in greek_map:
+                mapped_value = greek_map[command_name]
+                representative_items.append(mapped_value.lower()) # Ensure result is lowercase
+            else:
+                representative_items.append(command) # Keep unknown command
+
+        elif upper:  # Group 2: An uppercase letter was found
+            # We use the uppercase letter (group 2) and explicitly ignore
+            # the trailing lowercase letters (group 3, 'trailing_lower')
+            representative_items.append(upper.lower())
+
+        elif standalone_lower: # Group 4: A standalone lowercase letter
+            # This handles cases like 'etc' or the 'a' in 'NaCl' if not captured above
+            representative_items.append(standalone_lower)
+        # Note: We don't need an 'elif trailing_lower:' because group 3 is only
+        # captured *with* group 2, and we intentionally ignore it when group 2 matches.
+
+    return representative_items
+# Assume get_abbr_repr_letters_v2 and greek_map are defined as previously provided
+# (e.g., from your earlier messages)
 
 def extract_abbreviations(text, require_first_last_match=True, debug=True):
     """
     Extracts abbreviations defined as (Abbr) following their definition.
     Attempts to handle various LaTeX math/command formats, including stripping
     leading formatting locally when determining the matching character.
-    Matches abbreviation command strings (like \frac) if they appear in the words.
+    Matches abbreviation command strings (like \frac) if they appear in the words,
+    accounting for potential leading '$'.
     """
     # Pattern allows spaces inside abbr, requires lookahead for uppercase/$/\
     # Allows {} in preceding words and abbreviation content
@@ -192,7 +230,7 @@ def extract_abbreviations(text, require_first_last_match=True, debug=True):
         words_ahead = [word for word in re.split(r'\s+|(?<=-)(?=[A-Za-z])', words_before_abbr_text) if word]
         abbr_string = match[1].strip() # Strip leading/trailing space from captured abbr
         # Use the version that keeps command strings
-        abbr_letters = get_abbr_repr_letters_v2(abbr_string)
+        abbr_letters = get_abbr_repr_letters_v3(abbr_string)
 
         if debug: # Print statements if needed
             print(f"\n---\nCandidate Found:")
@@ -282,10 +320,10 @@ def extract_abbreviations(text, require_first_last_match=True, debug=True):
 
             if debug: print(f"  Word: '{word}' (CheckAs: '{word_to_check}'), Effective Char: '{effective_char}'")
 
-            # --- MODIFIED COMPARISON LOGIC ---
+            # --- V3 COMPARISON LOGIC ---
             # Compare effective char OR command string with remaining abbreviation items
             # Check if word could potentially match either via effective char or command prefix
-            if effective_char is not None or word.startswith('\\'):
+            if effective_char is not None or '\\' in word: # Make check slightly broader
                 best_match_abbr_idx = -1
                 # Iterate through remaining unmatched abbr indices, highest first
                 for abbr_idx in sorted(list(unmatched_abbr_indices), reverse=True):
@@ -293,10 +331,17 @@ def extract_abbreviations(text, require_first_last_match=True, debug=True):
                     match_found = False
 
                     if target_abbr.startswith('\\'):
-                        # If abbr item is a command, check if the original word starts with it
-                        if word.startswith(target_abbr):
+                        # If abbr item is a command...
+                        word_to_compare = word # Use the original word token
+                        # Account for potential leading '$' from math mode
+                        if word_to_compare.startswith('$'):
+                            word_to_compare = word_to_compare[1:] # Compare part after '$'
+
+                        # Check if the (potentially stripped) word starts with the command
+                        if word_to_compare.startswith(target_abbr):
                             match_found = True
                             if debug: print(f"    -> Matched command '{target_abbr}' by prefix in word '{word}'")
+
                     elif effective_char is not None:
                         # If abbr item is a letter, use effective_char comparison
                         if effective_char == target_abbr:
@@ -312,7 +357,7 @@ def extract_abbreviations(text, require_first_last_match=True, debug=True):
                     match_indices[best_match_abbr_idx] = original_idx
                     # Remove the matched index from the set of those needing matches
                     unmatched_abbr_indices.remove(best_match_abbr_idx)
-            # --- END MODIFIED COMPARISON LOGIC ---
+            # --- END V3 COMPARISON LOGIC ---
 
 
         # --- Post-loop checks and reconstruction ---
@@ -328,9 +373,10 @@ def extract_abbreviations(text, require_first_last_match=True, debug=True):
         # Validation Step
         valid_match = True
         if require_first_last_match:
+            # Check if first or last abbreviation item was matched
             if match_indices[0] == -1 or match_indices[num_abbr_letters - 1] == -1:
                 valid_match = False
-                if debug: print(f"  Validation Failed: First or last letter not matched (Indices map: {match_indices})")
+                if debug: print(f"  Validation Failed: First or last item not matched (Indices map: {match_indices})")
 
         if valid_match:
             min_idx_py = min(successful_match_indices)
@@ -353,6 +399,7 @@ def extract_abbreviations(text, require_first_last_match=True, debug=True):
 
     if debug: print(f"--- Debugging End ---\nFinal Dict: {abbreviation_dict}")
     return abbreviation_dict
+
 
 
 # In[11]:
@@ -430,8 +477,7 @@ def get_sort_key_from_abbr(abbr_string):
 
 
 # example_text
-example_text = r"""
-\begin{document}
+example_text = r"""\begin{document}
 Paste your \LaTex text (LT) and enjoy the app. 
 
 The abbreviations like randomized survival probabilities (RSP) and  accelerated failure time (AFT), 
@@ -444,7 +490,7 @@ The full name and abbrievation can contain greek symbols, for example,
 $\alpha$-\( Z \)-residuals ($\alphaZ$R)
 $\beta$-\( Z \)-residuals ($\beta$$Z$R), or 
 $\gamma$-\( Z \)-residuals ($\gammaZ$R)
-
+$\frac{\gamma}{Z}$-residuals ($\frac{\gamma}{Z}$-R)
 \end{document}
 """
 #print(example_text)
