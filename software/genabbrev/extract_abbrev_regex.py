@@ -267,178 +267,128 @@ def find_abbreviation_matches(words_ahead, abbr_items, debug=True):
 
     return match_indices
 
+import re
+# Assume find_abbreviation_matches, get_abbr_repr_items, and get_effective_char
+# are defined as previously provided.
+# Assume normalize_latex_math is also available if you use it beforehand.
 
-def extract_abbreviations(text, require_first_last_match=True, debug=True):
+# --- Updated Extraction function with Threshold Validation & Reduced Debug ---
+
+def extract_abbreviations(text, match_threshold=0.7, debug=True):
     """
     Extracts abbreviations defined as (Abbr) following their definition.
-    Separates the core matching logic into find_abbreviation_matches.
-    Relies on get_abbr_repr_items (no Greek mapping).
+    Validates match if a certain threshold of abbreviation items are matched
+    to corresponding words.
+
+    Args:
+        text (str): The input text potentially containing definitions.
+        match_threshold (float): The minimum fraction (e.g., 0.7 for 70%) of
+                                 abbreviation items that must be successfully
+                                 matched to words for the definition to be
+                                 considered valid.
+        debug (bool): Flag to enable extensive debug printing.
+
+    Returns:
+        dict: A dictionary mapping abbreviation strings to their extracted full definitions.
     """
-    # Pattern (same as before)
+    # Main pattern (same as before - restricted to same line)
     pattern = re.compile(
         r'('                      # Start Group 1: Preceding words
-         r'(?:[\w\-\$\\\{\}]+\s+){1,10}' # Word pattern
+         r'(?:[\w\-\$\\\{\}]+[ \t]+){1,10}' # Words separated by space/tab on same line
         r')'                      # End Group 1
-        r'\(\s*'                  # Literal opening parenthesis, optional space
-        r'('                      # Start Group 2 capture (Abbreviation)
-         r'(?=.*[A-Z\\\$])'       # Positive lookahead: Must contain uppercase, \ or $
-         r'[\w\s\$\-\\\{\}]+'   # Match allowed characters (incl. space, {})
+        r'\(\s*'                  # Literal opening parenthesis
+        r'('                      # Start Group 2: Abbreviation
+         r'(?=.*[A-Z\\\$])'       # Positive lookahead
+         r'[\w\s\$\-\\\{\}]+'   # Allowed characters
         r')'                      # End Group 2 capture
-        r'\s*\)'                  # Optional space, literal closing parenthesis
+        r'\s*\)'                  # Literal closing parenthesis
     )
     matches = pattern.findall(text)
     abbreviation_dict = {}
 
+    # Get current time and location context for potential use
+    current_time_str = "Thursday, April 3, 2025 at 5:42:20 PM CST" # Replace with dynamic time if needed
+    current_location = "Saskatoon, Saskatchewan, Canada"
+
     if debug: print(f"\nDebugging extract_abbreviations: Found {len(matches)} potential matches.")
+    if debug: print(f"(Context: {current_time_str}, {current_location})")
+
 
     for match in matches:
         words_before_abbr_text = match[0].strip()
-        #words_ahead = [word for word in re.split(r'\s+|(?<=-)(?=[A-Za-z])', words_before_abbr_text) if word]
-        words_ahead = list(filter(None, re.split(r'([ -]+)', words_before_abbr_text)))
         abbr_string = match[1].strip()
-        abbr_items = get_abbr_repr_items(abbr_string) # Call function without Greek mapping
+        abbr_items = get_abbr_repr_items(abbr_string)
+
+        # Split preceding text using space/hyphen, retaining delimiters
+        words_ahead = [item for item in re.split(r'([ -]+)', words_before_abbr_text) if item]
 
         if debug:
-            # Debug printing for candidate (same as before)
+            # Debug printing for candidate
             print(f"\n---\nCandidate Found:")
             print(f"  Captured Abbr String: '{abbr_string}'")
             print(f"  Generated abbr_items: {abbr_items}")
             print(f"  Preceding Text for Split: '{words_before_abbr_text}'")
-            # print(f"  Split words_ahead (elements):")
+            # --- BLOCK REMOVED ---
+            # print(f"  Split words_ahead (elements - includes separators):")
             # if words_ahead:
             #     for i, word in enumerate(words_ahead):
             #         print(f"    [{i}]: '{word}'")
             # else:
             #     print("    (list is empty)")
+            # --- END BLOCK REMOVED ---
+            # You could optionally print the whole list if needed, e.g.:
+            # print(f"  Split words_ahead list: {words_ahead}")
 
-        # Initial check (same as before)
-        if not words_ahead or len(abbr_items) < 2:
-            if debug: print(f"  Skipping: Not enough words ahead ({bool(words_ahead)}) or less than 2 abbr items found ({len(abbr_items)}).")
-            continue
 
-        # *** CALL THE NEW MATCHING FUNCTION ***
-        match_indices = find_abbreviation_matches(words_ahead, abbr_items, debug)
-        # *** END CALL ***
-
-        # --- Post-match checks and reconstruction (using result from find_abbreviation_matches) ---
-        successful_match_indices = [idx for idx in match_indices if idx != -1]
-        #if debug: print(f"  Successful match indices for words: {successful_match_indices}")
-        #if debug: print(f"  Final match_indices map (abbr_idx -> word_idx): {match_indices}")
-
-        if not successful_match_indices:
-             #if debug: print("  Skipping: No successful matches found by find_abbreviation_matches.")
+        # Initial check: Need words and abbreviation items to proceed
+        if not words_ahead or not abbr_items:
+             if debug: print(f"  Skipping: No words ahead ({bool(words_ahead)}) or no abbr items found ({bool(abbr_items)}).")
              continue
 
-        # Validation Step (same as before, using num_abbr_items)
-        num_abbr_items = len(abbr_items)
-        valid_match = True
-        if require_first_last_match:
-            # Check if first or last abbreviation item was matched
-            if match_indices[0] == -1 or match_indices[num_abbr_items - 1] == -1:
-                valid_match = False
-                if debug: print(f"  Validation Failed: First or last item not matched (Indices map: {match_indices})")
-
-        if valid_match:
-            # Reconstruction (same as before)
-            min_idx_py = min(successful_match_indices)
-            max_idx_py = max(successful_match_indices)
-
-            if min_idx_py <= max_idx_py:
-                full_phrase_words_slice = words_ahead[min_idx_py : max_idx_py + 1]
-                full_name = ''.join(word if i == 0 else (' ' + word if not full_phrase_words_slice[i - 1].endswith('-') else word)
-                                    for i, word in enumerate(full_phrase_words_slice))
-
-                if debug: print(f"  Validation Passed. Storing: '{abbr_string}': '{full_name}'")
-                abbreviation_dict[abbr_string] = full_name
-            elif debug: print(f"  Skipping: min_idx ({min_idx_py}) > max_idx ({max_idx_py}) issue.")
-        elif debug: print(f"  Skipping: Match deemed invalid by require_first_last_match.")
-
-    #if debug: print(f"--- Debugging End ---\nFinal Dict: {abbreviation_dict}")
-    return abbreviation_dict
-
-import re
-# Assume find_abbreviation_matches and get_abbr_repr_items are defined as previously provided.
-# Assume normalize_latex_math is also available if you use it beforehand.
-
-def extract_abbreviations(text, require_first_last_match=True, debug=True):
-    """
-    Extracts abbreviations defined as (Abbr) following their definition.
-    Splits preceding words ONLY on whitespace (keeps hyphens within words).
-    Relies on find_abbreviation_matches for core matching logic.
-    Relies on get_abbr_repr_items (no Greek mapping).
-    """
-    # Pattern (same as before)
-    pattern = re.compile(
-        r'('                      # Start Group 1: Preceding words
-         # MODIFIED: Match word chars followed by space/tab ONLY (no newline), repeated 1-10 times
-         r'(?:[\w\-\$\\\{\}]+[ \t]+){1,10}'
-        r')'                      # End Group 1
-        r'\(\s*'                  # Literal opening parenthesis, optional space
-        r'('                      # Start Group 2 capture (Abbreviation)
-         r'(?=.*[A-Z\\\$])'       # Positive lookahead: Must contain uppercase, \ or $
-         r'[\w\s\$\-\\\{\}]+'   # Match allowed characters (incl. space, {})
-        r')'                      # End Group 2 capture
-        r'\s*\)'                  # Optional space, literal closing parenthesis
-    )
-    matches = pattern.findall(text)
-    abbreviation_dict = {}
-
-    if debug: print(f"\nDebugging extract_abbreviations: Found {len(matches)} potential matches.")
-
-    for match in matches:
-        words_before_abbr_text = match[0].strip()
-        # *** MODIFIED SPLIT LOGIC ***
-        words_ahead = [item for item in re.split(r'([ -]+)', words_before_abbr_text) if item]
-        # *** END MODIFIED SPLIT LOGIC ***
-        abbr_string = match[1].strip()
-        abbr_items = get_abbr_repr_items(abbr_string) # Call function without Greek mapping
-
-        if debug:
-            # Debug printing for candidate (same as before)
-            print(f"\n---\nCandidate Found:")
-            print(f"  Captured Abbr String: '{abbr_string}'")
-            print(f"  Generated abbr_items: {abbr_items}")
-            print(f"  Preceding Text for Split: '{words_before_abbr_text}'")
-            
-        # Initial check (same as before)
-        if not words_ahead or len(abbr_items) < 2:
-            if debug: print(f"  Skipping: Not enough words ahead ({bool(words_ahead)}) or less than 2 abbr items found ({len(abbr_items)}).")
-            continue
-
         # Call the matching function (assuming it's defined)
+        # Ensure find_abbreviation_matches is defined elsewhere using the latest logic
         match_indices = find_abbreviation_matches(words_ahead, abbr_items, debug)
 
         # Post-match checks and reconstruction
         successful_match_indices = [idx for idx in match_indices if idx != -1]
-        if debug: print(f"  Successful match indices for words: {successful_match_indices}")
-        if debug: print(f"  Final match_indices map (abbr_idx -> word_idx): {match_indices}")
-
-        if not successful_match_indices:
-             if debug: print("  Skipping: No successful matches found by find_abbreviation_matches.")
-             continue
-
-        # Validation Step
+        count_matched = len(successful_match_indices)
         num_abbr_items = len(abbr_items)
-        valid_match = True
-        if require_first_last_match:
-            if match_indices[0] == -1 or match_indices[num_abbr_items - 1] == -1:
-                valid_match = False
-                if debug: print(f"  Validation Failed: First or last item not matched (Indices map: {match_indices})")
 
+        if debug:
+             # Keep these summary debug prints
+             print(f"  Successful match indices for words: {successful_match_indices}")
+             print(f"  Final match_indices map (abbr_idx -> word_idx): {match_indices}")
+             print(f"  Items matched: {count_matched} out of {num_abbr_items}")
+
+        # Validation Logic (using threshold)
+        valid_match = False
+        if num_abbr_items > 0:
+             ratio_matched = count_matched / num_abbr_items
+             if ratio_matched >= match_threshold:
+                 valid_match = True
+             elif debug:
+                 print(f"  Validation Failed: Match ratio {ratio_matched:.2f} "
+                       f"is less than threshold {match_threshold:.2f}")
+        elif debug:
+             print("  Validation Failed: No abbreviation items were generated.")
+
+        # Reconstruction Logic
         if valid_match:
+            if not successful_match_indices:
+                 if debug: print("  Skipping: Match deemed valid by ratio, but no word indices found?")
+                 continue
+
             min_idx_py = min(successful_match_indices)
             max_idx_py = max(successful_match_indices)
 
             if min_idx_py <= max_idx_py:
                 full_phrase_words_slice = words_ahead[min_idx_py : max_idx_py + 1]
-                # *** MODIFIED RECONSTRUCTION LOGIC ***
                 full_name = ''.join(full_phrase_words_slice)
-                # *** END MODIFIED RECONSTRUCTION LOGIC ***
 
-                if debug: print(f"  Validation Passed. Storing: '{abbr_string}': '{full_name}'")
+                if debug: print(f"  Validation Passed (Ratio >= {match_threshold:.2f}). Storing: '{abbr_string}': '{full_name}'")
                 abbreviation_dict[abbr_string] = full_name
             elif debug: print(f"  Skipping: min_idx ({min_idx_py}) > max_idx ({max_idx_py}) issue.")
-        elif debug: print(f"  Skipping: Match deemed invalid by require_first_last_match.")
+
 
     if debug: print(f"--- Debugging End ---\nFinal Dict: {abbreviation_dict}")
     return abbreviation_dict
