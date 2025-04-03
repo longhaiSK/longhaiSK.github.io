@@ -136,6 +136,34 @@ with col_output:
             key="output_text_area"
         )
 
+
+# Add a visual separator before the explanation
+st.divider()
+
+# --- Collapsed Explanation Section ---
+
+# The text that will be clickable to expand/collapse
+expander_label = "ⓘ How Abbreviation Extraction Works"
+
+# The detailed explanation text (using Markdown formatting)
+# Note: Backslashes for LaTeX commands need to be escaped (e.g., \\gamma)
+# inside the Python string literal.
+explanation_text = """
+This tool attempts to find abbreviations defined within parentheses, like `Full Definition (Abbr)`, even in text containing LaTeX formatting. Here's the basic process:
+
+1.  **Finding Candidates:** It scans the text using regular expressions to locate potential `Definition (Abbr)` patterns. It focuses on the words immediately preceding the parentheses on the same line.
+2.  **Parsing Abbreviation:** It breaks down the abbreviation (e.g., `GRs`, `\\gamma R`) into its core components (like `g`, `r` or `\\gamma`, `r`), ignoring plural 's' after capitals.
+3.  **Matching Backwards:** Starting from the last component of the abbreviation, it looks backward through the preceding words to find a word that likely corresponds (e.g., matching 'R' to 'Residuals'). It tries to intelligently handle common LaTeX commands within words when matching letters. LaTeX commands in the abbreviation (like `\\gamma`) must match words starting with that command.
+4.  **Reconstructing Definition:** If it finds a consistent match for the abbreviation components in the preceding words, it reconstructs the most likely full phrase for the definition using the original spacing and hyphens.
+5.  **Validation:** By default, it only considers a match valid if both the first and last parts of the abbreviation could be linked to words in the definition.
+
+*(This process uses heuristics, especially for LaTeX, so results may vary with complex formatting.)*
+"""
+
+# Create the expander
+with st.expander(expander_label):
+    st.markdown(explanation_text)
+
 # --- Function to Display Formatted Output ---
 
 # with col_output:
