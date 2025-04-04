@@ -8,16 +8,14 @@ import pandas as pd
 hostname = socket.gethostname()
 DEBUG = "streamlit" not in hostname.lower()  # Assume cloud has "streamlit" in hostname
 
-
 import pandas as pd
 from IPython.display import HTML, display
-
 import html # Used for escaping, though might not be strictly needed depending on content
 
 def render_dataframe_with_latex(df):
     """
     Generates an IPython HTML object to display a Pandas DataFrame
-    with LaTeX rendering via MathJax.
+    with LaTeX rendering via MathJax. Corrected f-string syntax.
 
     Args:
         df (pd.DataFrame): The Pandas DataFrame to render. Assumes LaTeX
@@ -31,7 +29,7 @@ def render_dataframe_with_latex(df):
     # Also add some basic Bootstrap classes for better table styling
     table_html = df.to_html(escape=False, classes=['table', 'table-striped', 'table-bordered'], border=0, index=False)
 
-    # Full HTML document including MathJax configuration
+    # Full HTML document including MathJax configuration - with corrected f-string syntax
     full_html = f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -39,39 +37,39 @@ def render_dataframe_with_latex(df):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DataFrame with LaTeX</title>
-    {/* */}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    {/* */}
     <script>
-      MathJax = {{
+      MathJax = {{ // Start Escaped Braces for JS Object
         tex: {{
           inlineMath: [['$', '$'], ['\\(', '\\)']], // Recognize $...$ and \(...\)
           displayMath: [['$$', '$$'], ['\\[', '\\]']], // Recognize $$...$$ and \[...\]
           processEscapes: true
-        }},
+        }}, // End tex config
         svg: {{
           fontCache: 'global'
-        }}
-      }};
+        }} // End svg config
+      }}; // End MathJax config
     </script>
-    {/* */}
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         /* Optional: Add some padding */
-        .dataframe {{ margin: 20px; }}
-        th, td {{ text-align: left; padding: 8px; }}
+        .dataframe {{ margin: 20px; }} /* Escaped braces for CSS */
+        th, td {{ text-align: left; padding: 8px; }} /* Escaped braces for CSS */
     </style>
 </head>
 <body>
 
 <div class="container-fluid">
-{table_html}
+{table_html} {/* This is the actual variable interpolation */}
 </div>
 
 </body>
 </html>
     """
     return HTML(full_html)
+
+# --- Example Usage ---
+# (This part would typically be run in a Jupyter Notebook cell)
 
 
 # Assuming your functions (normalize_latex_math, extract_abbreviations, format_abbreviations, etc.)
