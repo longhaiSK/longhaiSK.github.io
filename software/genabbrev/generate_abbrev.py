@@ -7,9 +7,6 @@ import socket
 hostname = socket.gethostname()
 DEBUG = "streamlit" not in hostname.lower()  # Assume cloud has "streamlit" in hostname
 
-# --- Define Default Example Text ---
-# Using r""" allows multi-line string and handles backslashes well
-# $\frac{\gamma}{Z}$-residuals ($\frac{\gamma}{Z}$R)
 
 
 
@@ -68,10 +65,8 @@ with col_input:
 
 with col_btn:
     # Place button in the first sub-column
-    st.markdown (" 
-    
-    
-    ")
+    st.markdown (" ")
+    st.markdown (" ")
     extract_pressed = st.button("Extract Abbreviations", type="primary", use_container_width=True)
 
     # --- Use THREE columns in ONE row for Button, Label, Selector ---
@@ -164,7 +159,7 @@ This tool attempts to find abbreviations defined within parentheses, like `Full 
 """
 
 # 2. Detailed Description Content
-detailed_expander_label = "Detailed Algorithm Explanation"
+detailed_expander_label = "ⓘ Detailed Algorithm Explanation"
 detailed_description_text = """
 This algorithm identifies abbreviations defined as `Full Definition Phrase (Abbr)` within text, including LaTeX, and extracts the phrase.
 
