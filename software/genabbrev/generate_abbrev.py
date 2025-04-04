@@ -182,6 +182,16 @@ with col_output:
             formatted_output_display = format_abbreviations(st.session_state.abbreviations_dict, selected_format)
 
     # --- Display Output Text Area ---
+	
+    df_abbr = pd.DataFrame(st.session_state.abbreviations_dict.items(), columns=['Abbreviation', 'Full Name'])
+
+    # Convert to Markdown table string
+    #markdown_table = df_abbr.to_markdown(index=False)
+    #html_table = render_dataframe_with_latex(df_abbr)
+    # Display using st.markdown - LaTeX should render automatically
+    st.markdown(markdown_table)
+	#st.markdown(html_table, unsafe_allow_html=True)
+
     st.text_area(
             label="output_text_main",
             label_visibility="collapsed",
@@ -190,15 +200,6 @@ with col_output:
             help="Copy the output from this box.",
             key="output_text_area"
         )
-	
-    df_abbr = pd.DataFrame(st.session_state.abbreviations_dict.items(), columns=['Abbreviation', 'Full Name'])
-
-    # Convert to Markdown table string
-    #markdown_table = df_abbr.to_markdown(index=False)
-    html_table = render_dataframe_with_latex(df_abbr)
-    # Display using st.markdown - LaTeX should render automatically
-    #st.markdown(markdown_table)
-	st.markdown(html_table, unsafe_allow_html=True)
 
 
 # Add a visual separator before the explanations
