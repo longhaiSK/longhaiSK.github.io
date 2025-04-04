@@ -63,11 +63,6 @@ with col_input:
     )
     st.caption("Privacy note: this app does not save your text.")
 
-with col_btn:
-    # Place button in the first sub-column
-    st.markdown (" ")
-    st.markdown (" ")
-    extract_pressed = st.button("Extract Abbreviations", type="primary", use_container_width=True)
 
     # --- Use THREE columns in ONE row for Button, Label, Selector ---
     # Adjust the ratios as needed for desired visual spacing
@@ -89,6 +84,10 @@ with col_btn:
             key='format_selector', # Key allows state to persist
             help="Select the format for the abbreviation list output."
         )
+with col_btn:
+    # Place button in the first sub-column
+    st.subheader(" ")
+    extract_pressed = st.button("Extract Abbreviations with Regex", type="primary", use_container_width=True)
 
     # Processing Logic (triggered by button state)
     if "first_run_done" not in st.session_state:
@@ -107,11 +106,6 @@ with col_btn:
     if input_text != st.session_state.last_input_text:
         st.session_state.last_input_text = input_text
         
-
-# --- Column 2: Output Area (Modified Layout) ---
-
-
-# --- Column 2: Output Area (Modified Layout) ---
 with col_output:
     st.subheader("Formatted Abbreviations")  # Header
 
