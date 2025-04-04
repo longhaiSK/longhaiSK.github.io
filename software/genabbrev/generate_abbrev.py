@@ -74,25 +74,41 @@ with col_input:
         
 with col_output:
     #st.subheader("Formatted Abbreviations")  # Header
-    st.session_state.selected_method = st.selectbox(
-        label="Choose a method:", # 
-        label_visibility="collapsed", 
-        options=['regex', 'Gemini', 'ChatGPT'],
-        index=0,  # Default to 'tabular'
-        key='method_selector', # Key allows state to persist
-        help="Select the method for extracting abbreviations."
-    )
+
+    extract_pressed = st.button("Extract Abbreviations with Regex", type="primary", use_container_width=True)
+
+    # Processing Logic (triggered by button state)
+    if "first_run_done" not in st.session_state:
+        st.session_state.first_run_done = True  # Mark that the first run has happened
+
+    if extract_pressed or st.session_state.first_run_done: # Check the state of the button variable
+        if input_text:
+            with st.spinner("Processing..."):
+                normalized_text = normalize_latex_math(input_text)
+                st.session_state.abbreviations_dict = extract_abbreviations(normalized_text, debug=False)
+        else:
+            st.warning("Please enter some text in the input box above.")
+            st.session_state.abbreviations_dict = None
+  
+    # st.session_state.selected_method = st.selectbox(
+    #     label="Choose a method:", # 
+    #     label_visibility="collapsed", 
+    #     options=['regex', 'Gemini', 'ChatGPT'],
+    #     index=0,  # Default to 'tabular'
+    #     key='method_selector', # Key allows state to persist
+    #     help="Select the method for extracting abbreviations."
+    # )
     # Update session state for input text (placement fine here)
     if input_text != st.session_state.last_input_text:
         st.session_state.last_input_text = input_text
-    # if st.session_state.first_run_done: # Check the state of the button variable
-    if st.session_state.selected_method:
-        with st.spinner("Processing..."):
-            normalized_text = normalize_latex_math(input_text)
-            st.session_state.abbreviations_dict = extract_abbreviations(normalized_text, debug=DEBUG)
-    else:
-        st.warning("Other method is not implemented yet.")
-        st.session_state.abbreviations_dict = None
+    # # if st.session_state.first_run_done: # Check the state of the button variable
+    # if st.session_state.selected_method:
+    #     with st.spinner("Processing..."):
+    #         normalized_text = normalize_latex_math(input_text)
+    #         st.session_state.abbreviations_dict = extract_abbreviations(normalized_text, debug=DEBUG)
+    # else:
+    #     st.warning("Other method is not implemented yet.")
+    #     st.session_state.abbreviations_dict = None
         
     #--- Prepare Output Value ---
     output_placeholder = "Output will appear here after clicking 'Extract Abbreviations'."

@@ -9,64 +9,6 @@ hostname = socket.gethostname()
 DEBUG = "streamlit" not in hostname.lower()  # Assume cloud has "streamlit" in hostname
 
 import pandas as pd
-from IPython.display import HTML, display
-import html # Used for escaping, though might not be strictly needed depending on content
-
-def render_dataframe_with_latex(df):
-    """
-    Generates an IPython HTML object to display a Pandas DataFrame
-    with LaTeX rendering via MathJax. Corrected f-string syntax (v3).
-
-    Args:
-        df (pd.DataFrame): The Pandas DataFrame to render. Assumes LaTeX
-                           is enclosed in $...$ or \(...\).
-
-    Returns:
-        IPython.display.HTML: An HTML object ready for display in notebooks.
-    """
-
-    # Convert DataFrame to HTML, ensuring LaTeX characters are not escaped
-    # Also add some basic Bootstrap classes for better table styling
-    table_html = df.to_html(escape=False, classes=['table', 'table-striped', 'table-bordered'], border=0, index=False)
-
-    # Full HTML document including MathJax configuration - with corrected f-string syntax
-    full_html = f"""
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DataFrame with LaTeX</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <script>
-      MathJax = {{{{ // Start Escaped Braces for JS Object
-        tex: {{{{
-          inlineMath: [['$', '$'], ['\\(', '\\)']], // Recognize $...$ and \(...\)
-          displayMath: [['$$', '$$'], ['\\[', '\\]']], // Recognize $$...$$ and \[...\]
-          processEscapes: true
-        }}}}, // End tex config
-        svg: {{{{
-          fontCache: 'global'
-        }}}} // End svg config
-      }}}}; // End MathJax config
-    </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <style>
-        /* Optional: Add some padding */
-        .dataframe {{{{ margin: 20px; }}}} /* Escaped braces for CSS */
-        th, td {{{{ text-align: left; padding: 8px; }}}} /* Escaped braces for CSS */
-    </style>
-</head>
-<body>
-
-<div class="container-fluid">
-{table_html}
-</div>
-
-</body>
-</html>
-    """
-    return HTML(full_html)
 
 # --- Example Usage ---
 # (This part would typically be run in a Jupyter Notebook cell)
@@ -132,25 +74,41 @@ with col_input:
         
 with col_output:
     #st.subheader("Formatted Abbreviations")  # Header
-    st.session_state.selected_method = st.selectbox(
-        label="Choose a method:", # 
-        label_visibility="collapsed", 
-        options=['regex', 'Gemini', 'ChatGPT'],
-        index=0,  # Default to 'tabular'
-        key='method_selector', # Key allows state to persist
-        help="Select the method for extracting abbreviations."
-    )
+
+    extract_pressed = st.button("Extract Abbreviations with Regex", type="primary", use_container_width=True)
+
+    # Processing Logic (triggered by button state)
+    if "first_run_done" not in st.session_state:
+        st.session_state.first_run_done = True  # Mark that the first run has happened
+
+    if extract_pressed or st.session_state.first_run_done: # Check the state of the button variable
+        if input_text:
+            with st.spinner("Processing..."):
+                normalized_text = normalize_latex_math(input_text)
+                st.session_state.abbreviations_dict = extract_abbreviations(normalized_text, debug=False)
+        else:
+            st.warning("Please enter some text in the input box above.")
+            st.session_state.abbreviations_dict = None
+  
+    # st.session_state.selected_method = st.selectbox(
+    #     label="Choose a method:", # 
+    #     label_visibility="collapsed", 
+    #     options=['regex', 'Gemini', 'ChatGPT'],
+    #     index=0,  # Default to 'tabular'
+    #     key='method_selector', # Key allows state to persist
+    #     help="Select the method for extracting abbreviations."
+    # )
     # Update session state for input text (placement fine here)
     if input_text != st.session_state.last_input_text:
         st.session_state.last_input_text = input_text
-    # if st.session_state.first_run_done: # Check the state of the button variable
-    if st.session_state.selected_method:
-        with st.spinner("Processing..."):
-            normalized_text = normalize_latex_math(input_text)
-            st.session_state.abbreviations_dict = extract_abbreviations(normalized_text, debug=DEBUG)
-    else:
-        st.warning("Other method is not implemented yet.")
-        st.session_state.abbreviations_dict = None
+    # # if st.session_state.first_run_done: # Check the state of the button variable
+    # if st.session_state.selected_method:
+    #     with st.spinner("Processing..."):
+    #         normalized_text = normalize_latex_math(input_text)
+    #         st.session_state.abbreviations_dict = extract_abbreviations(normalized_text, debug=DEBUG)
+    # else:
+    #     st.warning("Other method is not implemented yet.")
+    #     st.session_state.abbreviations_dict = None
         
     #--- Prepare Output Value ---
     output_placeholder = "Output will appear here after clicking 'Extract Abbreviations'."
