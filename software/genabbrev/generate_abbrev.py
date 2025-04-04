@@ -137,61 +137,60 @@ with col_output:
         )
 
 
-# Add a visual separator before the explanation
+
+
+# Add a visual separator before the explanations
 st.divider()
+st.subheader("About the Algorithm") # Optional subheader for the section
 
-# --- Collapsed Explanation Section ---
+# --- Define Content for Both Expanders ---
 
-# The text that will be clickable to expand/collapse
-expander_label = "ⓘ How Abbreviation Extraction Works"
-
-# The detailed explanation text (using Markdown formatting)
-# Note: Backslashes for LaTeX commands need to be escaped (e.g., \\gamma)
-# inside the Python string literal.
-explanation_text = """
+# 1. Conceptual Summary Content
+summary_expander_label = "ⓘ How Abbreviation Extraction Works (Summary)"
+summary_explanation_text = """
 This tool attempts to find abbreviations defined within parentheses, like `Full Definition (Abbr)`, even in text containing LaTeX formatting. Here's the basic process:
 
-1.  **Finding Candidates:** It scans the text using regular expressions to locate potential `Definition (Abbr)` patterns. It focuses on the words immediately preceding the parentheses on the same line.
-2.  **Parsing Abbreviation:** It breaks down the abbreviation (e.g., `GRs`, `\\gamma R`) into its core components (like `g`, `r` or `\\gamma`, `r`), ignoring plural 's' after capitals.
-3.  **Matching Backwards:** Starting from the last component of the abbreviation, it looks backward through the preceding words to find a word that likely corresponds (e.g., matching 'R' to 'Residuals'). It tries to intelligently handle common LaTeX commands within words when matching letters. LaTeX commands in the abbreviation (like `\\gamma`) must match words starting with that command.
-4.  **Reconstructing Definition:** If it finds a consistent match for the abbreviation components in the preceding words, it reconstructs the most likely full phrase for the definition using the original spacing and hyphens.
-5.  **Validation:** By default, it only considers a match valid if both the first and last parts of the abbreviation could be linked to words in the definition.
+1.  **Finding Candidates:** It scans the text using regular expressions to locate potential `Definition (Abbr)` patterns, focusing on words on the same line just before the parentheses.
+2.  **Parsing Abbreviation:** It breaks down the abbreviation (e.g., `GRs`, `\\gamma R`) into core components (like `g`, `r` or `\\gamma`, `r`), ignoring plural 's' after capitals.
+3.  **Matching Backwards:** It looks backward from the abbreviation's components through the preceding words/separators to find likely corresponding words (e.g., matching 'R' to 'Residuals'). It handles letters and LaTeX commands differently during matching.
+4.  **Reconstructing Definition:** If a consistent match is found, it rebuilds the definition phrase, preserving original spacing and hyphens.
+5.  **Validation:** A match is considered valid only if a high enough percentage (e.g., >= 70%) of the abbreviation's components were matched.
 
-*(This process uses heuristics, especially for LaTeX, so results may vary with complex formatting.)*
+*(This process uses heuristics, especially for LaTeX, so results may vary.)*
 """
 
-# Create the expander
-with st.expander(expander_label):
-    st.markdown(explanation_text)
+# 2. Detailed Description Content
+detailed_expander_label = "Detailed Algorithm Explanation"
+detailed_description_text = """
+This algorithm identifies abbreviations defined as `Full Definition Phrase (Abbr)` within text, including LaTeX, and extracts the phrase.
 
-# --- Function to Display Formatted Output ---
+**Core Steps:**
 
-# with col_output:
-#     # --- Output Header and Selector (Now Vertical) ---
-#     st.subheader(f"Formatted Abbreviations") # Directly under col_output
+1.  **Optional Preprocessing (`normalize_latex_math`):** Standardizes LaTeX comments, math delimiters (`\\(...\\)` to `\$...\$`), spacing around braces/commands.
+2.  **Candidate Identification (Regex):** Finds `Definition (Abbr)` patterns. Captures preceding words (Group 1, same line only) and the abbreviation (Group 2).
+3.  **Abbreviation Parsing (`get_abbr_repr_items`):** Creates a list (`abbr_items`) from the abbreviation. Keeps `\\commands` as strings, uses initial uppercase letters (ignoring trailing lowercase, e.g., `CPs` -> `c`, `p`), includes standalone lowercase. No Greek mapping.
+4.  **Preceding Text Tokenization (Split):** Splits preceding words into `words_ahead` using `re.split(r'([ -]+)', ...)`, retaining spaces/hyphens as separate tokens (empty strings removed).
+5.  **Backward Matching (`find_abbreviation_matches`):** Matches `abbr_items` to `words_ahead` tokens in reverse.
+    * **Word Analysis (`get_effective_char`):** Derives a single effective character (first letter after heuristic LaTeX stripping) from word tokens for letter-matching.
+    * **Comparison:** Matches command `abbr_items` if a word token starts with the command (allows leading `\$`). Matches letter `abbr_items` against a word token's `effective_char`. Skips separator tokens.
+    * Records `match_indices` (word index for each abbr index, or -1).
+6.  **Validation:** Calculates the ratio of successfully matched items (`count_matched / num_abbr_items`). Considers the definition valid if this ratio meets/exceeds a `match_threshold` (default 0.7).
+7.  **Phrase Reconstruction:** If valid, finds the min/max matched word indices, slices `words_ahead` (getting words and separators), and reconstructs the `full_name` using `"".join(slice)` to preserve original spacing/hyphens.
+8.  **Output:** Returns a dictionary mapping abbreviations to their reconstructed definitions.
+"""
 
-#     # --- Prepare Output Value ---
-#     output_value_placeholder = "Output will appear here after clicking 'Extract Abbreviations'."
-#     formatted_output_display = output_value_placeholder
-#     if st.session_state.abbreviations_dict is not None:
-#         if not st.session_state.abbreviations_dict:
-#              formatted_output_display = "No abbreviations found in the text."
-#         else:
-#             formatted_output = format_abbreviations(st.session_state.abbreviations_dict, selected_format)
-#             if formatted_output:
-#                 formatted_output_display = formatted_output
-#             else:
-#                 formatted_output_display = "Formatting resulted in empty output."
+# --- Create Columns and Display Expanders ---
 
-#     # --- Display Output Text Area ---
-#     st.text_area(
-#         label="output_text_main",
-#         label_visibility="collapsed",
-#         value=formatted_output_display,
-#         height=350,  # Explicit Height (Match input column)
-#         help="Copy the output from this box.",
-#         key="output_text_area"
-#     )
+col1, col2 = st.columns(2)
+
+with col1:
+    with st.expander(summary_expander_label):
+        st.markdown(summary_explanation_text)
+
+with col2:
+    with st.expander(detailed_expander_label):
+        st.markdown(detailed_description_text)
+
    
    # --- Footer (outside columns) ---
 st.markdown("---")
