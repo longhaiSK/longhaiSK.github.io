@@ -67,7 +67,7 @@ def render_dataframe_with_latex(df):
 </html>
     """
     return HTML(full_html)
-    =
+
 # --- Example Usage ---
 # (This part would typically be run in a Jupyter Notebook cell)
 
