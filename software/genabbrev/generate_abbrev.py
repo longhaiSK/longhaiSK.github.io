@@ -11,7 +11,8 @@ DEBUG = "streamlit" not in hostname.lower()  # Assume cloud has "streamlit" in h
 
 import pandas as pd
 from IPython.display import HTML, display
-import html
+
+import html # Used for escaping, though might not be strictly needed depending on content
 
 def render_dataframe_with_latex(df):
     """
@@ -63,12 +64,14 @@ def render_dataframe_with_latex(df):
 </head>
 <body>
 
+<div class="container-fluid">
 {table_html}
+</div>
 
 </body>
 </html>
-
-
+    """
+    return HTML(full_html)
 
 
 # Assuming your functions (normalize_latex_math, extract_abbreviations, format_abbreviations, etc.)
