@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
+# In[5]:
 
 
 import streamlit as st
@@ -10,7 +10,7 @@ from datetime import datetime # Import datetime for current date example
 import pandas as pd
 
 
-# In[35]:
+# In[53]:
 
 
 # Functions for normalizing and extracting abbrs
@@ -91,9 +91,10 @@ def normalize_latex_math(text):
 
         # 8. Clean up potential excessive blank lines and trim overall whitespace
         processed_text = re.sub(r'(\n\s*){2,}', '\n', processed_text) # Collapse blank lines
-        processed_text = processed_text.strip() # Trim leading/trailing whitespace
+        #processed_text = processed_text.strip() # Trim leading/trailing whitespace
 
-        # Optional final step: Collapse multiple spaces into one IF NEEDED
+        # 9. Join non-empty newline to the previous line
+        #processed_text = re.sub(r'(\r\n|\r|\n)', ' ', processed_text)       # Optional final step: Collapse multiple spaces into one IF NEEDED
         # processed_text = re.sub(r' +', ' ', processed_text)
 
         return processed_text
@@ -108,6 +109,10 @@ def normalize_latex_math(text):
             # Fallback to print if streamlit is not available
             print(error_message)
         return text # Return original text on error
+
+
+# In[ ]:
+
 
 ## convert the abbreviation into a lower case letter for comparison
 def get_abbr_repr_items(abbr_string):
@@ -180,7 +185,7 @@ def get_effective_char(word: str, debug: bool = False) -> str:
         return match.group(0).lower() if match else ''
 
 
-
+# In[66]:
 
 
 def find_abbreviation_matches(words_ahead, abbr_items, debug=True):
@@ -274,7 +279,7 @@ import re
 
 # --- Updated Extraction function with Threshold Validation & Reduced Debug ---
 
-def extract_abbreviations(text, match_threshold=0.7, debug=True):
+def extract_abbreviations(text, match_threshold=0.6, debug=True):
     """
     Extracts abbreviations defined as (Abbr) following their definition.
     Validates match if a certain threshold of abbreviation items are matched
@@ -294,7 +299,7 @@ def extract_abbreviations(text, match_threshold=0.7, debug=True):
     # Main pattern (same as before - restricted to same line)
     pattern = re.compile(
         r'('                      # Start Group 1: Preceding words
-         r'(?:[\w\-\$\\\{\}]+[ \t]+){1,10}' # Words separated by space/tab on same line
+         r'(?:[\w\-\$\\\{\}]+[ \t]?){1,10}' # Words separated by space/tab on same line
         r')'                      # End Group 1
         r'\(\s*'                  # Literal opening parenthesis
         r'('                      # Start Group 2: Abbreviation
@@ -394,7 +399,7 @@ def extract_abbreviations(text, match_threshold=0.7, debug=True):
     return abbreviation_dict
 
 
-# In[ ]:
+# In[7]:
 
 
 # Functions for formatting abbrs
@@ -467,39 +472,34 @@ def get_sort_key_from_abbr(abbr_string):
     
 
 
-# In[2]:
+# In[70]:
 
 
 # example_text
-example_text = r"""\begin{document}
-Paste your \LaTex text (LT) and enjoy the app. 
+example_text = r"""Paste your \LaTex text (LT) and enjoy the app. 
 
-The abbreviations like randomized survival probabilities (RSP) and  accelerated failure time (AFT), 
-or \textbf{Time-Constant (TC) Data} will be caught. 
+The abbreviations like randomized survival probabilities (RSP) and  accelerated failure time(AFT), or \textbf{Time-Constant (TC) Data} will be caught. 
 
-The citations and explanations in brackets will be omitted, for example, 
-this one (Wu et al. 2024), regression coeficcient ($\beta$). This is not an abbreviation (acronym) either. %The comment text (CT) will be omitted.
+The citations and explanations in brackets will be omitted, for example, this one (Wu et al. 2024), regression coeficcient ($\beta$). This is not an abbreviation (acronym) either. 
 
-The full name and abbrievation can contain greek symbols, for example, 
-$\alpha$-\( Z \)-residuals ($\alphaZ$R)
-$\beta$-\( Z \)-residuals ($\beta$$Z$R), or 
-$\gamma$-\( Z \)-residuals ($\gammaZ$R)
-$\frac{\gamma}{Z}$-residuals ($\frac{\gamma}{Z}$-R)
-\end{document}
+%The comment text (CT) or line will be omitted.
+
+The full name and abbrievation can contain greek symbols, for example,  $\alpha$-\( Z \)-residuals($\alpha Z$R), $\frac{\gamma}{Z}$-residuals($\frac{\gamma}{Z}$-R)
 """
 #print(example_text)
+#extract_abbreviations(normalize_latex_math(example_text),debug=False)
 
 
-# In[ ]:
+# In[56]:
 
 
 # normalize_latex_math Example with example_text
-normtext = normalize_latex_math(example_text)
-print(normtext)
+#normtext = normalize_latex_math(example_text)
+#print(normtext)
 
 
-# In[36]:
+# In[62]:
 
 
-extract_abbreviations(normalize_latex_math(example_text))
+#extract_abbreviations(normalize_latex_math(example_text),debug=False)
 

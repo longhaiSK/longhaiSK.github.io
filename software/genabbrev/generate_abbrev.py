@@ -9,64 +9,6 @@ hostname = socket.gethostname()
 DEBUG = "streamlit" not in hostname.lower()  # Assume cloud has "streamlit" in hostname
 
 import pandas as pd
-from IPython.display import HTML, display
-import html # Used for escaping, though might not be strictly needed depending on content
-
-def render_dataframe_with_latex(df):
-    """
-    Generates an IPython HTML object to display a Pandas DataFrame
-    with LaTeX rendering via MathJax. Corrected f-string syntax (v3).
-
-    Args:
-        df (pd.DataFrame): The Pandas DataFrame to render. Assumes LaTeX
-                           is enclosed in $...$ or \(...\).
-
-    Returns:
-        IPython.display.HTML: An HTML object ready for display in notebooks.
-    """
-
-    # Convert DataFrame to HTML, ensuring LaTeX characters are not escaped
-    # Also add some basic Bootstrap classes for better table styling
-    table_html = df.to_html(escape=False, classes=['table', 'table-striped', 'table-bordered'], border=0, index=False)
-
-    # Full HTML document including MathJax configuration - with corrected f-string syntax
-    full_html = f"""
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DataFrame with LaTeX</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <script>
-      MathJax = {{{{ // Start Escaped Braces for JS Object
-        tex: {{{{
-          inlineMath: [['$', '$'], ['\\(', '\\)']], // Recognize $...$ and \(...\)
-          displayMath: [['$$', '$$'], ['\\[', '\\]']], // Recognize $$...$$ and \[...\]
-          processEscapes: true
-        }}}}, // End tex config
-        svg: {{{{
-          fontCache: 'global'
-        }}}} // End svg config
-      }}}}; // End MathJax config
-    </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <style>
-        /* Optional: Add some padding */
-        .dataframe {{{{ margin: 20px; }}}} /* Escaped braces for CSS */
-        th, td {{{{ text-align: left; padding: 8px; }}}} /* Escaped braces for CSS */
-    </style>
-</head>
-<body>
-
-<div class="container-fluid">
-{table_html}
-</div>
-
-</body>
-</html>
-    """
-    return HTML(full_html)
 
 # --- Example Usage ---
 # (This part would typically be run in a Jupyter Notebook cell)
@@ -110,11 +52,11 @@ elif not url_text_param:
      st.session_state.processed_url_param = False
 
 # --- Create two main columns for side-by-side layout ---
-col_input, col_btn, col_output = st.columns([1.5,0.5, 1]) # Create two equal-width columns
+col_input, col_output = st.columns([3, 1]) # Create two equal-width columns
 
 # --- Column 1: Input Area ---
 with col_input:
-    st.subheader("Paste your text")
+    st.subheader("Paste Your text")
     input_text = st.text_area(
         label="input_text_main",
         label_visibility="collapsed",
@@ -123,79 +65,87 @@ with col_input:
         placeholder="Paste your text here...",
         key="input_text_area"
     )
-    st.caption("Privacy note: this app does not save your text.")
+    st.caption("Privacy: this app does not save your text.")
 
 
     # --- Use THREE columns in ONE row for Button, Label, Selector ---
     # Adjust the ratios as needed for desired visual spacing
-    sub_col_label, sub_col_widget = st.columns([0.5, 3])
-
-    with sub_col_label:
-        # Place label text in the second sub-column
-        # Using markdown allows potential styling. Adjust padding/margin for vertical alignment.
-        st.markdown("<div style='margin-top: 0.6rem; text-align: left;'>Format:</div>", unsafe_allow_html=True)
-        # Simpler alternative: st.text("Format:") - may not align vertically as well
-
-    with sub_col_widget:
-        # Place selectbox in the third sub-column (hide its own label)
-        selected_format = st.selectbox(
-            label="format_select_internal_label", # Internal label, not displayed
-            label_visibility="collapsed", # Hide label above the widget
-            options=['plain', 'tabular', 'nomenclature'],
-            index=0,  # Default to 'tabular'
-            key='format_selector', # Key allows state to persist
-            help="Select the format for the abbreviation list output."
-        )
-with col_btn:
-    # Place button in the first sub-column
-    st.subheader(" ")
-    extract_pressed = st.button("Extract Abbreviations with Regex", type="primary", use_container_width=True)
-
-    # Processing Logic (triggered by button state)
-    if "first_run_done" not in st.session_state:
-        st.session_state.first_run_done = True  # Mark that the first run has happened
-
-    if extract_pressed or st.session_state.first_run_done: # Check the state of the button variable
-        if input_text:
-            with st.spinner("Processing..."):
-                normalized_text = normalize_latex_math(input_text)
-                st.session_state.abbreviations_dict = extract_abbreviations(normalized_text, debug=DEBUG)
-        else:
-            st.warning("Please enter some text in the input box above.")
-            st.session_state.abbreviations_dict = None
-
+  
+        
+with col_output:
+    #st.subheader("Formatted Abbreviations")  # Header
+    st.session_state.selected_method = st.selectbox(
+        label="Choose a method:", # 
+        label_visibility="collapsed", 
+        options=['regex', 'Gemini', 'ChatGPT'],
+        index=0,  # Default to 'tabular'
+        key='method_selector', # Key allows state to persist
+        help="Select the method for extracting abbreviations."
+    )
     # Update session state for input text (placement fine here)
     if input_text != st.session_state.last_input_text:
         st.session_state.last_input_text = input_text
+    # if st.session_state.first_run_done: # Check the state of the button variable
+    if st.session_state.selected_method:
+        with st.spinner("Processing..."):
+            normalized_text = normalize_latex_math(input_text)
+            st.session_state.abbreviations_dict = extract_abbreviations(normalized_text, debug=DEBUG)
+    else:
+        st.warning("Other method is not implemented yet.")
+        st.session_state.abbreviations_dict = None
         
-with col_output:
-    st.subheader("Formatted Abbreviations")  # Header
-
-    # --- Prepare Output Value ---
+    #--- Prepare Output Value ---
     output_placeholder = "Output will appear here after clicking 'Extract Abbreviations'."
     
     formatted_output_display = output_placeholder
     if st.session_state.abbreviations_dict is not None:
-        if not st.session_state.abbreviations_dict:
-            formatted_output_display = "No abbreviations found in the text."
-        else:
-            formatted_output_display = format_abbreviations(st.session_state.abbreviations_dict, selected_format)
+        formatted_output_display = "No abbreviations found in the text."
+    else:
+        formatted_output_display = format_abbreviations(st.session_state.abbreviations_dict, format_type="plain")
 
     # --- Display Output Text Area ---
 	
-    df_abbr = pd.DataFrame(st.session_state.abbreviations_dict.items(), columns=['Abbreviation', 'Full Name'])
+    
 
     # Convert to Markdown table string
+    df_abbr = pd.DataFrame(st.session_state.abbreviations_dict.items(), columns=['Abbreviation', 'Full Phrase'])
     markdown_table = df_abbr.to_markdown(index=False)
     #html_table = render_dataframe_with_latex(df_abbr)
     # Display using st.markdown - LaTeX should render automatically
-    st.markdown(markdown_table)
+    with st.container(height=350, border=False): # Adjust height in pixels as needed
+        st.markdown(markdown_table)
 	#st.markdown(html_table, unsafe_allow_html=True)
+    
+#sub_col_label, sub_col_widget = st.columns([0.5, 3])
+#with sub_col_label:
+    # Place label text in the second sub-column
+    # Using markdown allows potential styling. Adjust padding/margin for vertical alignment.
+#    st.markdown("<div style='margin-top: 0.6rem; text-align: left;'>Format:</div>", unsafe_allow_html=True)
+    # Simpler alternative: st.text("Format:") - may not align vertically as well
 
+#with sub_col_widget:
+    # Place selectbox in the third sub-column (hide its own label)
+col_exp, _ = st.columns([1, 1])
+with col_exp:
+    st.subheader("Export")        
+    selected_format = st.selectbox(
+        label="Choose an exportting format:", # 
+        label_visibility="collapsed", 
+        options=['plain', 'tabular', 'nomenclature'],
+        index=0,  # Default to 'tabular'
+        key='format_selector', # Key allows state to persist
+        help="Select the format for the abbreviation list output."
+    )
+        
+    if st.session_state.abbreviations_dict is not None:
+            if not st.session_state.abbreviations_dict:
+                formatted_output = "No abbreviations found in the text."
+            else:
+                formatted_output = format_abbreviations(st.session_state.abbreviations_dict, format_type=selected_format)    
     st.text_area(
             label="output_text_main",
             label_visibility="collapsed",
-            value=formatted_output_display,
+            value=formatted_output,
             height=150,  # Explicit Height (Match input column)
             help="Copy the output from this box.",
             key="output_text_area"
