@@ -124,11 +124,18 @@ with col_output:
             label="output_text_main",
             label_visibility="collapsed",
             value=formatted_output_display,
-            height=350,  # Explicit Height (Match input column)
+            height=150,  # Explicit Height (Match input column)
             help="Copy the output from this box.",
             key="output_text_area"
         )
+	
+    df_abbr = pd.DataFrame(st.session_state.abbreviations_dict.items(), columns=['Abbreviation', 'Full Name'])
 
+    # Convert to Markdown table string
+    markdown_table = df_abbr.to_markdown(index=False)
+
+    # Display using st.markdown - LaTeX should render automatically
+    st.markdown(markdown_table)
 
 
 
