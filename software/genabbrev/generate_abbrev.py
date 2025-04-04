@@ -4,6 +4,7 @@ import re
 from datetime import datetime
 from extract_abbrev_regex import *
 import socket
+import pandas as pd
 hostname = socket.gethostname()
 DEBUG = "streamlit" not in hostname.lower()  # Assume cloud has "streamlit" in hostname
 
@@ -97,7 +98,7 @@ with col_btn:
         if input_text:
             with st.spinner("Processing..."):
                 normalized_text = normalize_latex_math(input_text)
-                st.session_state.abbreviations_dict = extract_abbreviations(normalized_text)
+                st.session_state.abbreviations_dict = extract_abbreviations(normalized_text, debug=DEBUG)
         else:
             st.warning("Please enter some text in the input box above.")
             st.session_state.abbreviations_dict = None
