@@ -15,7 +15,7 @@ import html # Used for escaping, though might not be strictly needed depending o
 def render_dataframe_with_latex(df):
     """
     Generates an IPython HTML object to display a Pandas DataFrame
-    with LaTeX rendering via MathJax. Corrected f-string syntax.
+    with LaTeX rendering via MathJax. Corrected f-string syntax (v3).
 
     Args:
         df (pd.DataFrame): The Pandas DataFrame to render. Assumes LaTeX
@@ -39,35 +39,35 @@ def render_dataframe_with_latex(df):
     <title>DataFrame with LaTeX</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script>
-      MathJax = {{ // Start Escaped Braces for JS Object
-        tex: {{
+      MathJax = {{{{ // Start Escaped Braces for JS Object
+        tex: {{{{
           inlineMath: [['$', '$'], ['\\(', '\\)']], // Recognize $...$ and \(...\)
           displayMath: [['$$', '$$'], ['\\[', '\\]']], // Recognize $$...$$ and \[...\]
           processEscapes: true
-        }}, // End tex config
-        svg: {{
+        }}}}, // End tex config
+        svg: {{{{
           fontCache: 'global'
-        }} // End svg config
-      }}; // End MathJax config
+        }}}} // End svg config
+      }}}}; // End MathJax config
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         /* Optional: Add some padding */
-        .dataframe {{ margin: 20px; }} /* Escaped braces for CSS */
-        th, td {{ text-align: left; padding: 8px; }} /* Escaped braces for CSS */
+        .dataframe {{{{ margin: 20px; }}}} /* Escaped braces for CSS */
+        th, td {{{{ text-align: left; padding: 8px; }}}} /* Escaped braces for CSS */
     </style>
 </head>
 <body>
 
 <div class="container-fluid">
-{table_html} {/* This is the actual variable interpolation */}
+{table_html}
 </div>
 
 </body>
 </html>
     """
     return HTML(full_html)
-
+    =
 # --- Example Usage ---
 # (This part would typically be run in a Jupyter Notebook cell)
 
