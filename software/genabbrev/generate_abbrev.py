@@ -186,7 +186,7 @@ with col_output:
     df_abbr = pd.DataFrame(st.session_state.abbreviations_dict.items(), columns=['Abbreviation', 'Full Name'])
 
     # Convert to Markdown table string
-    #markdown_table = df_abbr.to_markdown(index=False)
+    markdown_table = df_abbr.to_markdown(index=False)
     #html_table = render_dataframe_with_latex(df_abbr)
     # Display using st.markdown - LaTeX should render automatically
     st.markdown(markdown_table)
