@@ -68,11 +68,15 @@ with col_input:
 
 with col_btn:
     # Place button in the first sub-column
+    st.markdown (" 
+    
+    
+    ")
     extract_pressed = st.button("Extract Abbreviations", type="primary", use_container_width=True)
 
     # --- Use THREE columns in ONE row for Button, Label, Selector ---
     # Adjust the ratios as needed for desired visual spacing
-    sub_col_label, sub_col_widget, sub_col_btn = st.columns([0.5, 3])
+    sub_col_label, sub_col_widget = st.columns([0.5, 3])
 
     with sub_col_label:
         # Place label text in the second sub-column
