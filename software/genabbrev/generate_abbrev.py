@@ -76,7 +76,8 @@ with col_output:
     #st.subheader("Formatted Abbreviations")  # Header
 
     extract_pressed = st.button("Extract Abbreviations with Regex", type="primary", use_container_width=True)
-
+    if input_text != st.session_state.last_input_text:
+         st.session_state.last_input_text = input_text
     # Processing Logic (triggered by button state)
     if "first_run_done" not in st.session_state:
         st.session_state.first_run_done = True  # Mark that the first run has happened
@@ -99,8 +100,8 @@ with col_output:
     #     help="Select the method for extracting abbreviations."
     # )
     # Update session state for input text (placement fine here)
-    if input_text != st.session_state.last_input_text:
-        st.session_state.last_input_text = input_text
+    # if input_text != st.session_state.last_input_text:
+    #     st.session_state.last_input_text = input_text
     # # if st.session_state.first_run_done: # Check the state of the button variable
     # if st.session_state.selected_method:
     #     with st.spinner("Processing..."):

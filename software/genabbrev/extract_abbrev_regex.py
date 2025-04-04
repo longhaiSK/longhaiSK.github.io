@@ -299,7 +299,7 @@ def extract_abbreviations(text, match_threshold=0.6, debug=True):
     # Main pattern (same as before - restricted to same line)
     pattern = re.compile(
         r'('                      # Start Group 1: Preceding words
-         r'(?:[\w\-\$\\\{\}]+[ \t]?){1,10}' # Words separated by space/tab on same line
+         r'(?:[\w\-\$\\\{\}]+[ \t]+){1,10}' # Words separated by space/tab on same line
         r')'                      # End Group 1
         r'\(\s*'                  # Literal opening parenthesis
         r'('                      # Start Group 2: Abbreviation
