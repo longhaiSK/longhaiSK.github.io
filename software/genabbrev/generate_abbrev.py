@@ -51,7 +51,7 @@ elif not url_text_param:
      st.session_state.processed_url_param = False
 
 # --- Create two main columns for side-by-side layout ---
-col_input, col_output = st.columns([1.5,1]) # Create two equal-width columns
+col_input, col_btn, col_output = st.columns([1.5,0.5, 1]) # Create two equal-width columns
 
 # --- Column 1: Input Area ---
 with col_input:
@@ -64,12 +64,15 @@ with col_input:
         placeholder="Paste your text here...",
         key="input_text_area"
     )
-    st.caption("Privacy note: this app does not save your text and only serves your need. Latex code is allowed.")
+    st.caption("Privacy note: this app does not save your text.")
+
+with col_btn:
+    # Place button in the first sub-column
+    extract_pressed = st.button("Extract Abbreviations", type="primary", use_container_width=True)
 
     # --- Use THREE columns in ONE row for Button, Label, Selector ---
     # Adjust the ratios as needed for desired visual spacing
-    sub_col_label, sub_col_widget, sub_col_btn = st.columns([0.5, 2, 3])
-
+    sub_col_label, sub_col_widget, sub_col_btn = st.columns([0.5, 3])
 
     with sub_col_label:
         # Place label text in the second sub-column
@@ -87,9 +90,6 @@ with col_input:
             key='format_selector', # Key allows state to persist
             help="Select the format for the abbreviation list output."
         )
-    with sub_col_btn:
-        # Place button in the first sub-column
-        extract_pressed = st.button("Extract Abbreviations", type="primary", use_container_width=True)
 
     # Processing Logic (triggered by button state)
     if "first_run_done" not in st.session_state:
