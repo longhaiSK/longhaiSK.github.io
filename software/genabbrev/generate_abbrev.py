@@ -9,6 +9,66 @@ hostname = socket.gethostname()
 DEBUG = "streamlit" not in hostname.lower()  # Assume cloud has "streamlit" in hostname
 
 
+import pandas as pd
+from IPython.display import HTML, display
+import html
+
+def render_dataframe_with_latex(df):
+    """
+    Generates an IPython HTML object to display a Pandas DataFrame
+    with LaTeX rendering via MathJax.
+
+    Args:
+        df (pd.DataFrame): The Pandas DataFrame to render. Assumes LaTeX
+                           is enclosed in $...$ or \(...\).
+
+    Returns:
+        IPython.display.HTML: An HTML object ready for display in notebooks.
+    """
+
+    # Convert DataFrame to HTML, ensuring LaTeX characters are not escaped
+    # Also add some basic Bootstrap classes for better table styling
+    table_html = df.to_html(escape=False, classes=['table', 'table-striped', 'table-bordered'], border=0, index=False)
+
+    # Full HTML document including MathJax configuration
+    full_html = f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataFrame with LaTeX</title>
+    {/* */}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    {/* */}
+    <script>
+      MathJax = {{
+        tex: {{
+          inlineMath: [['$', '$'], ['\\(', '\\)']], // Recognize $...$ and \(...\)
+          displayMath: [['$$', '$$'], ['\\[', '\\]']], // Recognize $$...$$ and \[...\]
+          processEscapes: true
+        }},
+        svg: {{
+          fontCache: 'global'
+        }}
+      }};
+    </script>
+    {/* */}
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        /* Optional: Add some padding */
+        .dataframe {{ margin: 20px; }}
+        th, td {{ text-align: left; padding: 8px; }}
+    </style>
+</head>
+<body>
+
+{table_html}
+
+</body>
+</html>
+
+
 
 
 # Assuming your functions (normalize_latex_math, extract_abbreviations, format_abbreviations, etc.)
@@ -133,11 +193,11 @@ with col_output:
     df_abbr = pd.DataFrame(st.session_state.abbreviations_dict.items(), columns=['Abbreviation', 'Full Name'])
 
     # Convert to Markdown table string
-    markdown_table = df_abbr.to_markdown(index=False)
-
+    #markdown_table = df_abbr.to_markdown(index=False)
+    html_table = render_dataframe_with_latex(df_abbr)
     # Display using st.markdown - LaTeX should render automatically
-    st.markdown(markdown_table)
-
+    #st.markdown(markdown_table)
+	st.markdown(html_table, unsafe_allow_html=True)
 
 
 # Add a visual separator before the explanations
