@@ -72,10 +72,11 @@ def normalize_latex_math(text):
         # --- Spacing Adjustments ---
         # 4a. Add space BEFORE and AFTER { (handles existing spaces robustly)
         processed_text = re.sub(r'\s*\{\s*', r' { ', processed_text)
-
         # 4b. Add space BEFORE and AFTER } (handles existing spaces robustly)
         processed_text = re.sub(r'\s*\}\s*', r' } ', processed_text)
-
+        # 4c. Add space BEFORE ( (handles no space before ()
+        processed_text = re.sub(r'\s*\(', r' (', processed_text)
+        
         # 5. Add space after specific uppercase Greek commands (\Cmd) if not followed by space
         pattern_part = '|'.join(upper_greek_cmds)
         # Using corrected pattern (no space after \\)
