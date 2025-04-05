@@ -313,7 +313,7 @@ def extract_abbreviations(text, match_threshold=0.6, debug=True):
     #
     pattern = r'((?:[\w\\\$\{\}]+[ -]){1,10}(?:[\w\\\$\{\}]+)[ -]?)\(([^\(\)]*[A-Z]+[^\(\)]*)\)'
     #matches = pattern.findall(text)
-    matches = re.findall((pattern, text)
+    matches = re.findall(pattern, text)
     abbreviation_dict = {}
 
     # Get current time and location context for potential use
