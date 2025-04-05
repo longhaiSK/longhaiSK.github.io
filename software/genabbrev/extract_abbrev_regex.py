@@ -324,7 +324,7 @@ def extract_abbreviations(text, match_threshold=0.6, debug=True):
 
     for match in matches:
         words_before_abbr_text = match[0].strip()
-        abbr_string = match[1].strip()
+        abbr_string = match[2].strip()
         abbr_items = get_abbr_repr_items(abbr_string)
 
         # Split preceding text using space/hyphen, retaining delimiters
