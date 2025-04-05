@@ -280,7 +280,7 @@ import re
 
 # --- Updated Extraction function with Threshold Validation & Reduced Debug ---
 
-def extract_abbreviations(text, match_threshold=0.6, debug=True):
+def extract_abbreviations(text, match_threshold=0.7, debug=True):
     """
     Extracts abbreviations defined as (Abbr) following their definition.
     Validates match if a certain threshold of abbreviation items are matched
