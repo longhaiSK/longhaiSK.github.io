@@ -297,17 +297,20 @@ def extract_abbreviations(text, match_threshold=0.6, debug=True):
         dict: A dictionary mapping abbreviation strings to their extracted full definitions.
     """
     # Main pattern (same as before - restricted to same line)
-    pattern = re.compile(
-        r'('                      # Start Group 1: Preceding words
-         r'(?:[\w\-\$\\\{\}]+[ \t]+){1,10}' # Words separated by space/tab on same line
-        r')'                      # End Group 1
-        r'\(\s*'                  # Literal opening parenthesis
-        r'('                      # Start Group 2: Abbreviation
-         r'(?=.*[A-Z\\\$])'       # Positive lookahead
-         r'[\w\s\$\-\\\{\}]+'   # Allowed characters
-        r')'                      # End Group 2 capture
-        r'\s*\)'                  # Literal closing parenthesis
-    )
+    #pattern = re.compile(
+    #    r'('                      # Start Group 1: Preceding words
+    #     r'(?:[\w\-\$\\\{\}]+[ \t]+){1,10}' # Words separated by space/tab on same line
+    #    r')'                      # End Group 1
+    #    r'\(\s*'                  # Literal opening parenthesis
+    #    r'('                      # Start Group 2: Abbreviation
+    #     r'(?=.*[A-Z\\\$])'       # Positive lookahead
+    #     r'[\w\s\$\-\\\{\}]+'   # Allowed characters
+    #    r')'                      # End Group 2 capture
+    #    r'\s*\)'                  # Literal closing parenthesis
+    #)
+    
+    #
+    pattern = (((?:[\w\\\$\{\}]+[ -]){1,10})(?:[\w\\\$\{\}]+)[ -]?)\(([^\(\)]*[A-Z]+[^\(\)]*)\)
     matches = pattern.findall(text)
     abbreviation_dict = {}
 
