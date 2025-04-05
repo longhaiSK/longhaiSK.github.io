@@ -311,7 +311,7 @@ def extract_abbreviations(text, match_threshold=0.6, debug=True):
     )
     
     #
-    pattern = r'((?:[\w\\\$\{\}]+[ -]){1,10}(?:[\w\\\$\{\}]+)[ -]?)\(([^\(\)]*[A-Z]+[^\(\)]*)\)
+    pattern = r'((?:[\w\\\$\{\}]+[ -]){1,10}(?:[\w\\\$\{\}]+)[ -]?)\(([^\(\)]*[A-Z]+[^\(\)]*)\)'
     #matches = pattern.findall(text)
     matches = re.findall((pattern, text)
     abbreviation_dict = {}
