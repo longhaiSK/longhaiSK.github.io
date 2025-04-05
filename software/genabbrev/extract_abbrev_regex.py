@@ -92,6 +92,8 @@ def normalize_latex_math(text):
 
         # 8. Clean up potential excessive blank lines and trim overall whitespace
         processed_text = re.sub(r'(\n\s*){2,}', '\n', processed_text) # Collapse blank lines
+        processed_text = re.sub(r'\s+', '\s', processed_text) # Collapse blank lines
+        
         #processed_text = processed_text.strip() # Trim leading/trailing whitespace
 
         # 9. Join non-empty newline to the previous line
