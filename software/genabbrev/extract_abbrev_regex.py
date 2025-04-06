@@ -88,7 +88,7 @@ def normalize_latex_math(text):
         processed_text = re.sub(r'(\\[a-z]+)(?=[A-Z][^a-z])', r'\1 ', processed_text)
 
         # 7. Remove one or more whitespace characters (\s+) immediately after a dollar sign ($) (Moved Step)
-        processed_text = re.sub(r'\$\s+', '$', processed_text)
+        #processed_text = re.sub(r'\$\s+', '$', processed_text)
 
         # 8. Clean up potential excessive blank lines and trim overall whitespace
         processed_text = re.sub(r'(\n\s*){2,}', '\n', processed_text) # Collapse blank lines
