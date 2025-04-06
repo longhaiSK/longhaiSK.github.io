@@ -120,6 +120,12 @@ def normalize_latex_math(text):
 
     processed_text = text
     try:
+        
+        # 7. Remove one or more whitespace characters (\s+) immediately after a dollar sign ($) (Moved Step)
+        #processed_text = re.sub(r'\$\s+', '$', processed_text)
+        # 0. Remove space inside $ $
+        processed_text =  normalize_dollar_spacing(processed_text)
+
         # 1. Normalize math \(...\) to $...$
         processed_text = re.sub(
             r'\\\(\s*(.*?)\s*\\\)',
@@ -159,10 +165,6 @@ def normalize_latex_math(text):
         # !!! Note: This pattern (?=[A-Z][^a-z]) might be too restrictive.
         processed_text = re.sub(r'(\\[a-z]+)(?=[A-Z][^a-z])', r'\1 ', processed_text)
 
-        # 7. Remove one or more whitespace characters (\s+) immediately after a dollar sign ($) (Moved Step)
-        #processed_text = re.sub(r'\$\s+', '$', processed_text)
-                # 0. Remove space inside $ $
-        processed_text =  normalize_dollar_spacing(processed_text)
 
 
         # 8. Clean up potential excessive blank lines and trim overall whitespace
