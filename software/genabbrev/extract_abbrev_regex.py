@@ -483,15 +483,17 @@ def get_sort_key_from_abbr(abbr_string):
 
 
 # example_text
-example_text = r"""Paste your $\lambda$ text (LT) and enjoy the app (ETA). 
+example_text = r"""Paste your latex text (LT) and enjoy the app (ETA). There is no limitation of the length of text. 
 
 What is regarded as abbreviations (RA):
 
-The abbreviations like randomized survival probabilities (RSP) and  accelerated failure time(AFT), or \textbf{Time-Constant (TC) Data}. The full definitions and abbrievations can contain greek symbols, for example,  $\alpha$-\( Z \)-residuals($\alpha Z$R), $\frac{\gamma}{Z}$-residuals($\frac{\gamma}{Z}$-R. The first letters of latex commands will be used to compare to the abbreviation.
+The abbreviations like randomized survival probabilities (RSP) and  accelerated failure time(AFT), or \textbf{Time-Constant (TC) Data}. The full definitions and abbrievations can contain greek symbols, for example,  $\alpha$-synclein protein ($\alpha$-SP), $\frac{\gamma}{Z}$-residuals($\frac{\gamma}{Z}$-R. The first letters of latex commands will be used to compare to the abbreviations.
 
 What is desregarded as abbreviations (DA):
 
-Citations and explanations in brackets will be omitted, eg. this one (Li et al. 2025), and this ($\beta$). There is no abbreviations (acronym) here either. %This abbreviation, comment text (CT) or the line starting with % will be omitted.
+Citations and explanations in brackets will be omitted, eg. this one (Li et al. 2025), and this ($\beta$). There is no abbreviations (acronym) here either. %This abbreviation, comment text (CT) or the line starting with % will be omitted. The $t$ in $f(t)$ is not an abbreviation too. 
+
+Note: the extraction is not perfect as it cannot accommodate all possible abbreviations and may include those you don't want. Modify the results as necessary.
 
 """
 #print(example_text)
