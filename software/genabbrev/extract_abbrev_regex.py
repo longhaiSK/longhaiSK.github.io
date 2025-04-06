@@ -123,7 +123,7 @@ def normalize_latex_math(text):
         
         
         # 0. Remove space inside $ $
-        #processed_text =  normalize_dollar_spacing(processed_text)
+        processed_text =  normalize_dollar_spacing(processed_text)
 
         # 1. Normalize math \(...\) to $...$
         processed_text = re.sub(
