@@ -483,7 +483,7 @@ def get_sort_key_from_abbr(abbr_string):
 
 
 # example_text
-example_text = r"""Paste your \LaTex text (LT) and enjoy the app. 
+example_text = r"""Paste your $\lambda$ text (LT) and enjoy the app (ETP). 
 
 The abbreviations like randomized survival probabilities (RSP) and  accelerated failure time(AFT), or \textbf{Time-Constant (TC) Data} will be caught. 
 
