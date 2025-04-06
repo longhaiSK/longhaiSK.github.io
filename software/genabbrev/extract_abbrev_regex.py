@@ -559,7 +559,7 @@ example_text = r"""Paste your latex text (LT) and enjoy the app (ETA). There is 
 
 What is regarded as abbreviations (RA):
 
-The abbreviations like randomized survival probabilities (RSP) and  accelerated failure time(AFT), or \textbf{Time-Constant (TC) Data}. The full definitions and abbrievations can contain greek symbols, for example,  $\alpha$-synclein protein ($\alpha$-SP), $\frac{\gamma}{Z}$-residuals($\frac{\gamma}{Z}$-R. The first letters of latex commands will be used to compare to the abbreviations.
+The abbreviations like randomized survival probabilities (RSP) and  accelerated failure time(AFT), or \textbf{Time-Constant (TC) Data}. The full definitions and abbrievations can contain greek symbols, for example,  $\alpha$-synclein protein ($\alpha$-SP), $\frac{\gamma}{Z}$-residuals ($\frac{\gamma}{Z}$-R). The first letters of latex commands will be used to compare against the abbreviation letters.
 
 What is desregarded as abbreviations (DA):
 
