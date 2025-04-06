@@ -28,6 +28,78 @@ upper_greek_cmds = [
     'Sigma', 'Upsilon', 'Phi', 'Psi', 'Omega'
 ]
 
+#Here's a summary of the functions:
+
+# normalize_dollar_spacing(text) (from artifact normalize_dollar_spacing_code)
+
+# Purpose: This function cleans up LaTeX text strings. Specifically, it looks for the dollar signs ($) used for inline math. It removes any extra whitespace found immediately after an opening $ and immediately before a closing $. This helps standardize the formatting around inline math expressions.
+
+# render_dataframe_with_latex(df) (from artifact render_df_latex_code)
+
+# Purpose: This function takes a data table (specifically, a Pandas DataFrame) that contains text with LaTeX math code in its cells. It converts this table into HTML format. Importantly, it also includes the necessary setup for the MathJax library within that HTML. The result is an HTML object that, when displayed in a compatible environment (like a Jupyter notebook or a web browser), will show the table with the LaTeX code rendered as proper mathematical symbols and equations, rather than just the raw code.
+
+# In short, one function cleans up spacing around LaTeX math delimiters in text, and the other helps display a data table containing LaTeX math correctly rendered in environments that support HTML and JavaScript.
+
+import re
+
+def normalize_dollar_spacing(text):
+    """
+    Removes whitespace immediately following an opening inline math '$' AND
+    whitespace immediately preceding a closing inline math '$'.
+    Handles escaped '\$'.
+
+    Args:
+        text (str): The input string potentially containing LaTeX.
+
+    Returns:
+        str: The processed string.
+    """
+    processed_chars = []
+    in_math_mode = False
+    i = 0
+    n = len(text)
+
+    while i < n:
+        char = text[i]
+
+        # Check for escaped dollar sign or backslash first
+        if char == '\\' and i + 1 < n:
+            # Keep backslash and the next character (e.g., '\$' or '\\')
+            processed_chars.append(char)
+            processed_chars.append(text[i+1])
+            i += 2 # Skip both characters
+            continue
+
+        # Check for unescaped dollar sign
+        if char == '$':
+            if not in_math_mode:
+                # --- This is an OPENING dollar sign ---
+                processed_chars.append(char) # Keep the opening dollar
+                in_math_mode = True
+                # Check if the next characters are whitespace and skip them
+                j = i + 1
+                while j < n and text[j].isspace():
+                    j += 1
+                # Advance 'i' past the dollar and the skipped whitespace
+                i = j
+                continue # Continue to next iteration
+            else:
+                # --- This is a CLOSING dollar sign ---
+                in_math_mode = False
+                # Remove any trailing whitespace added just before this closing '$'
+                while processed_chars and processed_chars[-1].isspace():
+                    processed_chars.pop()
+                processed_chars.append(char) # Append the closing dollar
+                # Advance 'i' past the dollar for the next iteration
+                i += 1
+                continue # Continue to next iteration
+        else:
+            # Any other character
+            processed_chars.append(char)
+            i += 1 # Advance 'i' past the character
+
+    return "".join(processed_chars)
+
 # --- Normalization Function ---
 def normalize_latex_math(text):
     """
@@ -89,16 +161,14 @@ def normalize_latex_math(text):
 
         # 7. Remove one or more whitespace characters (\s+) immediately after a dollar sign ($) (Moved Step)
         #processed_text = re.sub(r'\$\s+', '$', processed_text)
+                # 0. Remove space inside $ $
+        processed_text =  normalize_dollar_spacing(processed_text)
+
 
         # 8. Clean up potential excessive blank lines and trim overall whitespace
         processed_text = re.sub(r'(\n\s*){2,}', '\n', processed_text) # Collapse blank lines
         processed_text = re.sub(r'\s+', ' ', processed_text) # Collapse blank lines
         
-        #processed_text = processed_text.strip() # Trim leading/trailing whitespace
-
-        # 9. Join non-empty newline to the previous line
-        #processed_text = re.sub(r'(\r\n|\r|\n)', ' ', processed_text)       # Optional final step: Collapse multiple spaces into one IF NEEDED
-        # processed_text = re.sub(r' +', ' ', processed_text)
 
         return processed_text
 
