@@ -1,18 +1,33 @@
-#!/usr/bin/env python
-# coding: utf-8
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -remove
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.16.7
+#   kernelspec:
+#     display_name: Python 3 (ipykernel)
+#     language: python
+#     name: python3
+# ---
 
-# In[5]:
+# + editable=true id="341c23fe-78ff-4705-88ed-df1a16e863a1" tags=["remove"]
+import os
 
+#os.system('jupyter nbconvert --to script extract_abbrev_regex.ipynb --TagRemovePreprocessor.remove_cell_tags="remove"')
+#os.system('jupytext extract_abbrev_regex.ipynb --to py")
 
+# I made this change in colab
+
+# + editable=true id="b736e5f0-26b8-42e4-9f4a-db61fa2d0f81"
 import streamlit as st
 import re
 from datetime import datetime # Import datetime for current date example
 import pandas as pd
 
-
-# In[53]:
-
-
+# + id="f657e848-b933-4135-90ba-78a55409c24c" jupyter={"source_hidden": true}
 # Functions for normalizing and extracting abbrs
 
 # Code block prepared on Thursday, April 3, 2025 at 12:38:43 AM CST in Saskatoon, Saskatchewan, Canada.
@@ -27,78 +42,6 @@ upper_greek_cmds = [
     'Gamma', 'Delta', 'Theta', 'Lambda', 'Xi', 'Pi',
     'Sigma', 'Upsilon', 'Phi', 'Psi', 'Omega'
 ]
-
-#Here's a summary of the functions:
-
-# normalize_dollar_spacing(text) (from artifact normalize_dollar_spacing_code)
-
-# Purpose: This function cleans up LaTeX text strings. Specifically, it looks for the dollar signs ($) used for inline math. It removes any extra whitespace found immediately after an opening $ and immediately before a closing $. This helps standardize the formatting around inline math expressions.
-
-# render_dataframe_with_latex(df) (from artifact render_df_latex_code)
-
-# Purpose: This function takes a data table (specifically, a Pandas DataFrame) that contains text with LaTeX math code in its cells. It converts this table into HTML format. Importantly, it also includes the necessary setup for the MathJax library within that HTML. The result is an HTML object that, when displayed in a compatible environment (like a Jupyter notebook or a web browser), will show the table with the LaTeX code rendered as proper mathematical symbols and equations, rather than just the raw code.
-
-# In short, one function cleans up spacing around LaTeX math delimiters in text, and the other helps display a data table containing LaTeX math correctly rendered in environments that support HTML and JavaScript.
-
-import re
-
-def normalize_dollar_spacing(text):
-    """
-    Removes whitespace immediately following an opening inline math '$' AND
-    whitespace immediately preceding a closing inline math '$'.
-    Handles escaped '\$'.
-
-    Args:
-        text (str): The input string potentially containing LaTeX.
-
-    Returns:
-        str: The processed string.
-    """
-    processed_chars = []
-    in_math_mode = False
-    i = 0
-    n = len(text)
-
-    while i < n:
-        char = text[i]
-
-        # Check for escaped dollar sign or backslash first
-        if char == '\\' and i + 1 < n:
-            # Keep backslash and the next character (e.g., '\$' or '\\')
-            processed_chars.append(char)
-            processed_chars.append(text[i+1])
-            i += 2 # Skip both characters
-            continue
-
-        # Check for unescaped dollar sign
-        if char == '$':
-            if not in_math_mode:
-                # --- This is an OPENING dollar sign ---
-                processed_chars.append(char) # Keep the opening dollar
-                in_math_mode = True
-                # Check if the next characters are whitespace and skip them
-                j = i + 1
-                while j < n and text[j].isspace():
-                    j += 1
-                # Advance 'i' past the dollar and the skipped whitespace
-                i = j
-                continue # Continue to next iteration
-            else:
-                # --- This is a CLOSING dollar sign ---
-                in_math_mode = False
-                # Remove any trailing whitespace added just before this closing '$'
-                while processed_chars and processed_chars[-1].isspace():
-                    processed_chars.pop()
-                processed_chars.append(char) # Append the closing dollar
-                # Advance 'i' past the dollar for the next iteration
-                i += 1
-                continue # Continue to next iteration
-        else:
-            # Any other character
-            processed_chars.append(char)
-            i += 1 # Advance 'i' past the character
-
-    return "".join(processed_chars)
 
 # --- Normalization Function ---
 def normalize_latex_math(text):
@@ -120,11 +63,6 @@ def normalize_latex_math(text):
 
     processed_text = text
     try:
-        
-        
-        # 0. Remove space inside $ $
-        processed_text =  normalize_dollar_spacing(processed_text)
-
         # 1. Normalize math \(...\) to $...$
         processed_text = re.sub(
             r'\\\(\s*(.*?)\s*\\\)',
@@ -149,11 +87,10 @@ def normalize_latex_math(text):
         # --- Spacing Adjustments ---
         # 4a. Add space BEFORE and AFTER { (handles existing spaces robustly)
         processed_text = re.sub(r'\s*\{\s*', r' { ', processed_text)
+
         # 4b. Add space BEFORE and AFTER } (handles existing spaces robustly)
         processed_text = re.sub(r'\s*\}\s*', r' } ', processed_text)
-        # 4c. Add space BEFORE ( (handles no space before ()
-        processed_text = re.sub(r'\s*\(', r' (', processed_text)
-        
+
         # 5. Add space after specific uppercase Greek commands (\Cmd) if not followed by space
         pattern_part = '|'.join(upper_greek_cmds)
         # Using corrected pattern (no space after \\)
@@ -164,13 +101,16 @@ def normalize_latex_math(text):
         # !!! Note: This pattern (?=[A-Z][^a-z]) might be too restrictive.
         processed_text = re.sub(r'(\\[a-z]+)(?=[A-Z][^a-z])', r'\1 ', processed_text)
 
-		# 7. Remove one or more whitespace characters (\s+) immediately after a dollar sign ($) (Moved Step)
-        #processed_text = re.sub(r'\$\s+', '$', processed_text)
+        # 7. Remove one or more whitespace characters (\s+) immediately after a dollar sign ($) (Moved Step)
+        processed_text = re.sub(r'\$\s+', '$', processed_text)
 
         # 8. Clean up potential excessive blank lines and trim overall whitespace
         processed_text = re.sub(r'(\n\s*){2,}', '\n', processed_text) # Collapse blank lines
-        processed_text = re.sub(r'\s+', ' ', processed_text) # Collapse blank lines
-        
+        #processed_text = processed_text.strip() # Trim leading/trailing whitespace
+
+        # 9. Join non-empty newline to the previous line
+        #processed_text = re.sub(r'(\r\n|\r|\n)', ' ', processed_text)       # Optional final step: Collapse multiple spaces into one IF NEEDED
+        # processed_text = re.sub(r' +', ' ', processed_text)
 
         return processed_text
 
@@ -186,9 +126,7 @@ def normalize_latex_math(text):
         return text # Return original text on error
 
 
-# In[ ]:
-
-
+# + id="b1381c44-7aeb-4691-aa1c-058eeea37777" jupyter={"source_hidden": true}
 ## convert the abbreviation into a lower case letter for comparison
 def get_abbr_repr_items(abbr_string):
     """
@@ -260,9 +198,7 @@ def get_effective_char(word: str, debug: bool = False) -> str:
         return match.group(0).lower() if match else ''
 
 
-# In[66]:
-
-
+# + id="87b2ab12-5fd9-4397-9bfb-b522db6f3a66"
 def find_abbreviation_matches(words_ahead, abbr_items, debug=True):
     """
     Performs backward matching between definition words (words_ahead) and
@@ -354,7 +290,7 @@ import re
 
 # --- Updated Extraction function with Threshold Validation & Reduced Debug ---
 
-def extract_abbreviations(text, match_threshold=0.7, debug=True):
+def extract_abbreviations(text, match_threshold=0.6, debug=True):
     """
     Extracts abbreviations defined as (Abbr) following their definition.
     Validates match if a certain threshold of abbreviation items are matched
@@ -374,20 +310,16 @@ def extract_abbreviations(text, match_threshold=0.7, debug=True):
     # Main pattern (same as before - restricted to same line)
     pattern = re.compile(
         r'('                      # Start Group 1: Preceding words
-        r'(?:[\w\-\$\\\{\}]+[ \t]+){1,10}' # Words separated by space/tab on same line
+         r'(?:[\w\-\$\\\{\}]+[ \t]?){1,10}' # Words separated by space/tab on same line
         r')'                      # End Group 1
         r'\(\s*'                  # Literal opening parenthesis
         r'('                      # Start Group 2: Abbreviation
-        r'(?=.*[A-Z\\\$])'       # Positive lookahead
-        r'[\w\s\$\-\\\{\}]+'   # Allowed characters
+         r'(?=.*[A-Z\\\$])'       # Positive lookahead
+         r'[\w\s\$\-\\\{\}]+'   # Allowed characters
         r')'                      # End Group 2 capture
         r'\s*\)'                  # Literal closing parenthesis
     )
-    
-    #
-    pattern = r'((?:[\w\\\$\{\}]+[ -]+){1,10}(?:[\w\\\$\{\}]+)[ -]?)\(([^\(\)]*[A-Z]+[^\(\)]*)\)'
-    #matches = pattern.findall(text)
-    matches = re.findall(pattern, text)
+    matches = pattern.findall(text)
     abbreviation_dict = {}
 
     # Get current time and location context for potential use
@@ -478,9 +410,7 @@ def extract_abbreviations(text, match_threshold=0.7, debug=True):
     return abbreviation_dict
 
 
-# In[7]:
-
-
+# + editable=true id="f48d8618-3d25-4f3a-8b46-a4d3079d1605" jupyter={"source_hidden": true}
 # Functions for formatting abbrs
 
 def format_abbreviations(abbreviations_dict, format_type):
@@ -534,7 +464,7 @@ def format_abbreviations(abbreviations_dict, format_type):
             if i < len(items_list) - 1:
                 output += "; \n"  # Adds a semicolon between items
         return output
-        
+
 
 def get_sort_key_from_abbr(abbr_string):
     """Generates a lowercase string key for sorting abbreviations."""
@@ -548,40 +478,547 @@ def get_sort_key_from_abbr(abbr_string):
 #print( r"\begin{tabular}{ll} \hline \textbf{Abbreviation} & \textbf{Full Name} \\ \hline AFT & accelerated failure time \\ $\alpha Z$R & $\alpha$-$Z$-residuals \\ $\beta$$Z$R & $\beta$-$Z$-residuals \\ $frac{ \gamma}{ Z}-R & $\frac{ \gamma}{ Z}$-residuals \\ $\gamma Z$R & $\gamma$-$Z$-residuals \\ LT & \LaTex text \\ RSP & randomized survival probabilities \\ TC & Time-Constant \\ \hline \end{tabular}")
 
 
-    
 
 
-# In[70]:
-
-
+# + editable=true id="d26d6e3c-6372-45d3-a2dc-3c21262aeeaf" outputId="61334b69-e9f5-43ee-b97a-3988a86b8266"
 # example_text
-example_text = r"""Paste your latex text (LT)  and enjoy the app (ETA). There is no limitation of the length of text. 
+example_text = r"""Paste your \LaTex text (LT) and enjoy the app.
 
-What is regarded as abbreviations (RA):
+The abbreviations like randomized survival probabilities (RSP) and  accelerated failure time(AFT), or \textbf{Time-Constant (TC) Data} will be caught.
 
-The abbreviations like randomized survival probabilities (RSP) and  accelerated failure time(AFT), or \textbf{Time-Constant (TC) Data}. The full definitions and abbrievations can contain greek symbols, for example,  $\alpha$-synclein protein ($\alpha$-SP), $\beta$-Z residual (BZR), $\sigma$-Z residual ($\sigma$-ZR) $\frac{\gamma}{Z}$-residuals ($\frac{\gamma}{Z}$-R). The first letters of latex commands will be used to compare against the abbreviation letters.
+The citations and explanations in brackets will be omitted, for example, this one (Wu et al. 2024), regression coeficcient ($\beta$). This is not an abbreviation (acronym) either.
 
-What is desregarded as abbreviations (DA):
+%The comment text (CT) or line will be omitted.
 
-Citations and explanations in brackets will be omitted, eg. this one (Li et al. 2025), and this ($\beta$). There is no abbreviations (acronym) here either. %This abbreviation, comment text (CT) or the line starting with % will be omitted. The $t$ in $f(t)$ is not an abbreviation too. 
-
-Note: the extraction is not perfect as it cannot accommodate all possible abbreviations and may include those you don't want. Modify the results as necessary.
-
+The full name and abbrievation can contain greek symbols, for example,  $\alpha$-\( Z \)-residuals($\alpha Z$R), $\frac{\gamma}{Z}$-residuals($\frac{\gamma}{Z}$-R)
 """
 #print(example_text)
 #extract_abbreviations(normalize_latex_math(example_text),debug=False)
 
 
-# In[56]:
-
-
+# + id="df50c561-69c2-485b-b7b0-c4d559268dc7" jupyter={"outputs_hidden": true} outputId="a1b8872d-9ffd-413b-fdfe-1d3a63e82801"
 # normalize_latex_math Example with example_text
 #normtext = normalize_latex_math(example_text)
 #print(normtext)
 
-
-# In[62]:
-
-
+# + id="3e23265f-6775-4cdc-ba9c-89c51cebf8f6" outputId="2377ff10-d6f6-47af-e02e-936777c4ac51"
 #extract_abbreviations(normalize_latex_math(example_text),debug=False)
 
+# + editable=true id="0e7dfa4d-df12-4923-8154-3da60db28f34" jupyter={"source_hidden": true} tags=["remove"]
+# This cell is removed
+from IPython.display import HTML, display
+import html # Used for escaping, though might not be strictly needed depending on content
+
+def render_dataframe_with_latex(df):
+    """
+    Generates an IPython HTML object to display a Pandas DataFrame
+    with LaTeX rendering via MathJax. Corrected f-string syntax (v3).
+
+    Args:
+        df (pd.DataFrame): The Pandas DataFrame to render. Assumes LaTeX
+                           is enclosed in $...$ or \(...\).
+
+    Returns:
+        IPython.display.HTML: An HTML object ready for display in notebooks.
+    """
+
+    # Convert DataFrame to HTML, ensuring LaTeX characters are not escaped
+    # Also add some basic Bootstrap classes for better table styling
+    table_html = df.to_html(escape=False, classes=['table', 'table-striped', 'table-bordered'], border=0, index=False)
+
+    # Full HTML document including MathJax configuration - with corrected f-string syntax
+    full_html = f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataFrame with LaTeX</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script>
+      MathJax = {{{{ // Start Escaped Braces for JS Object
+        tex: {{{{
+          inlineMath: [['$', '$'], ['\\(', '\\)']], // Recognize $...$ and \(...\)
+          displayMath: [['$$', '$$'], ['\\[', '\\]']], // Recognize $$...$$ and \[...\]
+          processEscapes: true
+        }}}}, // End tex config
+        svg: {{{{
+          fontCache: 'global'
+        }}}} // End svg config
+      }}}}; // End MathJax config
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        /* Optional: Add some padding */
+        .dataframe {{{{ margin: 20px; }}}} /* Escaped braces for CSS */
+        th, td {{{{ text-align: left; padding: 8px; }}}} /* Escaped braces for CSS */
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+{table_html}
+</div>
+
+</body>
+</html>
+    """
+    return HTML(full_html)
+
+def extract_abbreviations(text, require_first_last_match=True, debug=True):
+    """
+    Extracts abbreviations defined as (Abbr) following their definition.
+    Attempts to handle various LaTeX math/command formats, including stripping
+    leading formatting locally when determining the matching character.
+    Matches abbreviation command strings (like \frac) if they appear in the words.
+    """
+    # Pattern allows spaces inside abbr, requires lookahead for uppercase/$/\
+    # Allows {} in preceding words and abbreviation content
+    pattern = re.compile(
+        r'('                      # Start Group 1: Preceding words
+         r'(?:[\w\-\$\\\{\}]+\s+){1,10}' # Word pattern
+        r')'                      # End Group 1
+        r'\(\s*'                  # Literal opening parenthesis, optional space
+        # --- Group 2: Abbreviation ---
+        r'('                      # Start Group 2 capture
+         r'(?=.*[A-Z\\\$])'       # Positive lookahead: Must contain uppercase, \ or $
+         r'[\w\s\$\-\\\{\}]+'   # Match allowed characters (incl. space, {})
+        r')'                      # End Group 2 capture
+        # --- End Group 2 ---
+        r'\s*\)'                  # Optional space, literal closing parenthesis
+    )
+    matches = pattern.findall(text)
+    abbreviation_dict = {}
+
+    if debug: print(f"\nDebugging extract_abbreviations: Found {len(matches)} potential matches.")
+
+    for match in matches:
+        words_before_abbr_text = match[0].strip()
+        # Use the split that handles hyphens between letters
+        words_ahead = [word for word in re.split(r'\s+|(?<=-)(?=[A-Za-z])', words_before_abbr_text) if word]
+        abbr_string = match[1].strip() # Strip leading/trailing space from captured abbr
+        # Use the version that keeps command strings
+        abbr_letters = get_abbr_repr_letters_v2(abbr_string)
+
+        if debug: # Print statements if needed
+            print(f"\n---\nCandidate Found:")
+            print(f"  Captured Abbr String: '{abbr_string}'")
+            print(f"  Generated abbr_letters: {abbr_letters}")
+            print(f"  Preceding Text for Split: '{words_before_abbr_text}'")
+            print(f"  Split words_ahead (elements):")
+            if words_ahead:
+                for i, word in enumerate(words_ahead):
+                    print(f"    [{i}]: '{word}'")
+            else:
+                print("    (list is empty)")
+
+        # Check if words_ahead list exists and if abbr_letters has at least 2 items
+        if not words_ahead or len(abbr_letters) < 2:
+            if debug: print(f"  Skipping: Not enough words ahead ({bool(words_ahead)}) or less than 2 abbr items found ({len(abbr_letters)}).")
+            continue
+
+        # If we passed the check, we know we have at least 2 items
+        num_abbr_letters = len(abbr_letters)
+        match_indices = [-1] * num_abbr_letters
+        unmatched_abbr_indices = set(range(num_abbr_letters))
+
+        # Backward matching logic
+        for i, word in enumerate(reversed(words_ahead)):
+            original_idx = len(words_ahead) - 1 - i
+            if not unmatched_abbr_indices: break
+
+            # --- REVISED effective_char Logic v3 (as provided before) ---
+            effective_char = None
+            word_to_check = word # Start with the original token
+
+            # 1. Attempt to strip ONLY LEADING markup heuristically
+            try:
+                stripped_something = False # Flag to track if changes were made
+                m1 = re.match(r'^\s*\\([a-zA-Z]+)\s*\{(.*)', word_to_check)
+                if m1:
+                    word_to_check = m1.group(2)
+                    stripped_something = True
+                    if debug: print(f"    Stripped '\\cmd{{' prefix -> CheckAs: '{word_to_check}'")
+                else:
+                    m2 = re.match(r'^\s*\{\s*\\([a-zA-Z]+)\s+(.*)', word_to_check)
+                    if m2:
+                        content = m2.group(2)
+                        if content.endswith('}'): content = content[:-1].rstrip()
+                        word_to_check = content
+                        stripped_something = True
+                        if debug: print(f"    Stripped '{{\\cmd ' prefix -> CheckAs: '{word_to_check}'")
+                    else:
+                        m3 = re.match(r'^\s*\\([a-zA-Z]+)(\s+.*)', word_to_check)
+                        if m3:
+                            cmd_name = m3.group(1)
+                            # Only strip if it's NOT a mapped greek command we need later
+                            # Check existence of greek_map defensively
+                            if 'greek_map' in globals() and cmd_name not in greek_map:
+                                word_to_check = m3.group(2).lstrip()
+                                stripped_something = True
+                                if debug: print(f"    Stripped '\\cmd ' prefix -> CheckAs: '{word_to_check}'")
+
+                if word_to_check.startswith('{'):
+                    word_to_check = word_to_check[1:].lstrip()
+                    stripped_something = True
+                    if debug: print(f"    Stripped leading '{{' -> CheckAs: '{word_to_check}'")
+
+                if stripped_something and not word_to_check.strip():
+                    word_to_check = word
+                    if debug: print(f"    Reverted stripping as it resulted in empty string.")
+
+            except Exception as e:
+                if debug: print(f"    Error during word stripping: {e}")
+                word_to_check = word
+
+            # 2. Now find effective char using the potentially cleaned word_to_check
+            m_dollar = re.match(r'\$\\([a-zA-Z]+)', word_to_check)
+            # Check existence of greek_map defensively
+            if 'greek_map' in globals() and m_dollar and m_dollar.group(1) in greek_map:
+                effective_char = greek_map[m_dollar.group(1)]
+            else:
+                m_slash = re.match(r'\\([a-zA-Z]+)', word_to_check)
+                if 'greek_map' in globals() and m_slash and m_slash.group(1) in greek_map:
+                    effective_char = greek_map[m_slash.group(1)]
+                else:
+                    m_first_letter = re.search(r'[a-zA-Z]', word_to_check)
+                    if m_first_letter:
+                        effective_char = m_first_letter.group(0).lower()
+            # --- END REVISED effective_char Logic v3 ---
+
+            if debug: print(f"  Word: '{word}' (CheckAs: '{word_to_check}'), Effective Char: '{effective_char}'")
+
+            # --- MODIFIED COMPARISON LOGIC ---
+            # Compare effective char OR command string with remaining abbreviation items
+            # Check if word could potentially match either via effective char or command prefix
+            if effective_char is not None or word.startswith('\\'):
+                best_match_abbr_idx = -1
+                # Iterate through remaining unmatched abbr indices, highest first
+                for abbr_idx in sorted(list(unmatched_abbr_indices), reverse=True):
+                    target_abbr = abbr_letters[abbr_idx]
+                    match_found = False
+
+                    if target_abbr.startswith('\\'):
+                        # If abbr item is a command, check if the original word starts with it
+                        if word.startswith(target_abbr):
+                            match_found = True
+                            if debug: print(f"    -> Matched command '{target_abbr}' by prefix in word '{word}'")
+                    elif effective_char is not None:
+                        # If abbr item is a letter, use effective_char comparison
+                        if effective_char == target_abbr:
+                            match_found = True
+                            if debug: print(f"    -> Matched letter '{target_abbr}' via effective_char '{effective_char}' in word '{word}'")
+
+                    if match_found:
+                        best_match_abbr_idx = abbr_idx
+                        break # Found best match for this word, move to next word
+
+                if best_match_abbr_idx != -1:
+                    # Store the original index of the matched word
+                    match_indices[best_match_abbr_idx] = original_idx
+                    # Remove the matched index from the set of those needing matches
+                    unmatched_abbr_indices.remove(best_match_abbr_idx)
+            # --- END MODIFIED COMPARISON LOGIC ---
+
+
+        # --- Post-loop checks and reconstruction ---
+        successful_match_indices = [idx for idx in match_indices if idx != -1]
+        if debug: print(f"  Successful match indices for words: {successful_match_indices}")
+        if debug: print(f"  Final match_indices map (abbr_idx -> word_idx): {match_indices}")
+
+
+        if not successful_match_indices:
+             if debug: print("  Skipping: No successful matches found during backward search.")
+             continue
+
+        # Validation Step
+        valid_match = True
+        if require_first_last_match:
+            if match_indices[0] == -1 or match_indices[num_abbr_letters - 1] == -1:
+                valid_match = False
+                if debug: print(f"  Validation Failed: First or last letter not matched (Indices map: {match_indices})")
+
+        if valid_match:
+            min_idx_py = min(successful_match_indices)
+            max_idx_py = max(successful_match_indices)
+
+            if min_idx_py <= max_idx_py:
+                # Slice uses original words_ahead tokens
+                full_phrase_words_slice = words_ahead[min_idx_py : max_idx_py + 1]
+                # Use the join logic that handles hyphens correctly
+                # Join words, adding space unless previous word ended with hyphen
+                full_name = ''.join(word if i == 0 else (' ' + word if not full_phrase_words_slice[i - 1].endswith('-') else word)
+                                    for i, word in enumerate(full_phrase_words_slice))
+
+
+                if debug: print(f"  Validation Passed. Storing: '{abbr_string}': '{full_name}'")
+                # Store original abbreviation string and reconstructed full name
+                abbreviation_dict[abbr_string] = full_name
+            elif debug: print(f"  Skipping: min_idx ({min_idx_py}) > max_idx ({max_idx_py}) issue.") # Should not happen if successful_match_indices not empty
+        elif debug: print(f"  Skipping: Match deemed invalid by require_first_last_match.")
+
+    #if debug: print(f"--- Debugging End ---\nFinal Dict: {abbreviation_dict}")
+    return abbreviation_dict
+
+def extract_abbreviations(text, require_first_last_match=True, debug=True):
+    """
+    Extracts abbreviations defined as (Abbr) following their definition.
+    Attempts to handle various LaTeX math/command formats, including stripping
+    leading formatting locally when determining the matching character.
+    """
+    # Pattern allows spaces inside abbr, requires lookahead for uppercase/$/\
+    # Allows {} in preceding words and abbreviation content
+    pattern = re.compile(
+        r'('                     # Start Group 1: Preceding words
+          r'(?:[\w\-\$\\\{\}]+\s+){1,10}' # Word pattern
+        r')'                     # End Group 1
+        r'\(\s*'                 # Literal opening parenthesis, optional space
+        # --- Group 2: Abbreviation ---
+        r'('                     # Start Group 2 capture
+          r'(?=.*[A-Z\\\$])'     # Positive lookahead: Must contain uppercase, \ or $
+          r'[\w\s\$\-\\\{\}]+'   # Match allowed characters (incl. space, {})
+        r')'                     # End Group 2 capture
+        # --- End Group 2 ---
+        r'\s*\)'                 # Optional space, literal closing parenthesis
+    )
+    matches = pattern.findall(text)
+    abbreviation_dict = {}
+
+    if debug: print(f"\nDebugging extract_abbreviations: Found {len(matches)} potential matches.")
+
+    for match in matches:
+        words_before_abbr_text = match[0].strip()
+        # Use the split that handles hyphens between letters
+        words_ahead = [word for word in re.split(r'\s+|(?<=-)(?=[A-Za-z])', words_before_abbr_text) if word]
+        abbr_string = match[1].strip() # Strip leading/trailing space from captured abbr
+        abbr_letters = get_abbr_repr_letters_v2(abbr_string)
+
+
+
+        # Handle LaTeX-style abbreviations correctly (raw string handling)
+        abbr_letters = get_abbr_repr_letters_v2(abbr_string)
+
+        if debug: # Print statements if needed
+            # print(text)
+            print(f"\n---\nCandidate Found:")
+            # print(match) # Raw match tuple if needed
+            print(f"  Captured Abbr String: '{abbr_string}'")
+            print(f"  Generated abbr_letters: {abbr_letters}")
+            print(f"  Preceding Text for Split: '{words_before_abbr_text}'")
+
+            print(f"  Split words_ahead (elements):")
+            if words_ahead: # Avoid error if list is empty
+                for i, word in enumerate(words_ahead):
+                # Now 'word' is a string directly in the f-string, so it uses str()
+                    print(f"    [{i}]: '{word}'")
+                else:
+                    print("    (list is empty)")
+
+        # Check if words_ahead list exists and if abbr_letters has at least 2 items
+        if not words_ahead or len(abbr_letters) < 2:
+            if debug: print(f"  Skipping: Not enough words ahead ({bool(words_ahead)}) or less than 2 abbr letters found ({len(abbr_letters)}).")
+            continue
+
+        # If we passed the check, we know we have at least 2 letters
+        num_abbr_letters = len(abbr_letters)
+        match_indices = [-1] * num_abbr_letters
+        unmatched_abbr_indices = set(range(num_abbr_letters))
+
+        # Backward matching logic
+        for i, word in enumerate(reversed(words_ahead)):
+
+            original_idx = len(words_ahead) - 1 - i
+            if not unmatched_abbr_indices: break
+
+            # --- REVISED effective_char Logic v3 ---
+            effective_char = None
+            word_to_check = word # Start with the original token
+
+            # 1. Attempt to strip ONLY LEADING markup heuristically
+            try:
+                stripped_something = False # Flag to track if changes were made
+                # Pattern: Optional whitespace, \command, optional space, { ? -> Group 1 has cmd, Group 2 has content after {
+                m1 = re.match(r'^\s*\\([a-zA-Z]+)\s*\{(.*)', word_to_check)
+                if m1:
+                    word_to_check = m1.group(2) # Use content starting after {
+                    stripped_something = True
+                    if debug: print(f"    Stripped '\\cmd{{' prefix -> CheckAs: '{word_to_check}'")
+                else:
+                    # Pattern: Optional whitespace, {\command ... -> Group 1 has cmd, Group 2 has content after space
+                    m2 = re.match(r'^\s*\{\s*\\([a-zA-Z]+)\s+(.*)', word_to_check)
+                    if m2:
+                         content = m2.group(2)
+                         # Remove potential trailing brace from this pattern
+                         if content.endswith('}'): content = content[:-1].rstrip()
+                         word_to_check = content
+                         stripped_something = True
+                         if debug: print(f"    Stripped '{{\\cmd ' prefix -> CheckAs: '{word_to_check}'")
+                    else:
+                         # Pattern: \command (not Greek) followed by space+content -> Group 1 is cmd, Group 2 is content after space
+                         m3 = re.match(r'^\s*\\([a-zA-Z]+)(\s+.*)', word_to_check)
+                         if m3:
+                             cmd_name = m3.group(1)
+                             # Only strip if it's NOT a mapped greek command we need later
+                             if cmd_name not in greek_map:
+                                 word_to_check = m3.group(2).lstrip() # Use content after command+space
+                                 stripped_something = True
+                                 if debug: print(f"    Stripped '\\cmd ' prefix -> CheckAs: '{word_to_check}'")
+
+                # Remove purely structural leading brace if it exists after other steps
+                if word_to_check.startswith('{'):
+                     word_to_check = word_to_check[1:].lstrip()
+                     stripped_something = True # Mark potentially changed
+                     if debug: print(f"    Stripped leading '{{' -> CheckAs: '{word_to_check}'")
+
+                # Revert if stripping resulted in empty string
+                if stripped_something and not word_to_check.strip():
+                     word_to_check = word # Use original word
+                     if debug: print(f"    Reverted stripping as it resulted in empty string.")
+
+            except Exception as e:
+                if debug: print(f"    Error during word stripping: {e}")
+                word_to_check = word # Use original word if stripping fails
+
+            # 2. Now find effective char using the potentially cleaned word_to_check
+            # Check for $\command... first
+            m_dollar = re.match(r'\$\\([a-zA-Z]+)', word_to_check)
+            if m_dollar and m_dollar.group(1) in greek_map:
+                effective_char = greek_map[m_dollar.group(1)]
+            else:
+                # Check for \command... second (only if not stripped above and is greek)
+                m_slash = re.match(r'\\([a-zA-Z]+)', word_to_check)
+                # Only use if it's a known greek command we need for matching
+                if m_slash and m_slash.group(1) in greek_map:
+                     effective_char = greek_map[m_slash.group(1)]
+                else:
+                    # Standard word handling: find the first ASCII letter in potentially stripped word
+                    m_first_letter = re.search(r'[a-zA-Z]', word_to_check)
+                    if m_first_letter:
+                        effective_char = m_first_letter.group(0).lower()
+            # --- END REVISED effective_char Logic v3 ---
+
+
+            if debug: print(f"  Word: '{word}' (CheckAs: '{word_to_check}'), Effective Char: '{effective_char}'")
+
+            # Compare effective char with remaining abbreviation letters
+            if effective_char is not None:
+                best_match_abbr_idx = -1
+                for abbr_idx in sorted(list(unmatched_abbr_indices), reverse=True):
+                    if effective_char == abbr_letters[abbr_idx]:
+                        best_match_abbr_idx = abbr_idx
+                        break
+                if best_match_abbr_idx != -1:
+                    if debug: print(f"    -> Matched letter '{abbr_letters[best_match_abbr_idx]}' at abbr_idx {best_match_abbr_idx}")
+                    match_indices[best_match_abbr_idx] = original_idx
+                    unmatched_abbr_indices.remove(best_match_abbr_idx)
+
+        # --- Post-loop checks and reconstruction ---
+        successful_match_indices = [idx for idx in match_indices if idx != -1]
+        if debug: print(f"  Successful match indices: {successful_match_indices}")
+
+        if not successful_match_indices:
+             if debug: print("  Skipping: No successful matches found during backward search.")
+             continue
+
+        # Validation Step
+        valid_match = True
+        if require_first_last_match:
+            if match_indices[0] == -1 or match_indices[num_abbr_letters - 1] == -1:
+                valid_match = False
+                if debug: print(f"  Validation Failed: First or last letter not matched (Indices: {match_indices})")
+
+        if valid_match:
+            min_idx_py = min(successful_match_indices)
+            max_idx_py = max(successful_match_indices)
+
+            if min_idx_py <= max_idx_py:
+                # Slice uses original words_ahead tokens
+                full_phrase_words_slice = words_ahead[min_idx_py : max_idx_py + 1]
+                # Use the join logic that handles hyphens correctly
+                full_name = ''.join(word if i == 0 else (' ' + word if not full_phrase_words_slice[i - 1].endswith('-') else word)
+                                    for i, word in enumerate(full_phrase_words_slice))
+
+                if debug: print(f"  Validation Passed. Storing: '{abbr_string}': '{full_name}'")
+                # Store original abbreviation string and reconstructed full name
+                abbreviation_dict[abbr_string] = full_name
+            elif debug: print(f"  Skipping: min_idx > max_idx issue.")
+        elif debug: print(f"  Skipping: Match deemed invalid by require_first_last_match.")
+
+    #if debug: print(f"--- Debugging End ---\nFinal Dict: {abbreviation_dict}")
+    return abbreviation_dict
+
+
+
+
+
+def get_sort_key_from_abbr(abbr_string):
+    """
+    Generates a lowercase string key for sorting abbreviations,
+    handling common LaTeX math/greek commands via get_abbr_repr_letters.
+    e.g., '$\alpha$-RM' -> 'arm', 'CPU' -> 'cpu'
+    """
+    # Use the existing function to get representative letters
+    repr_letters = get_abbr_repr_letters(abbr_string)
+    sort_key = "".join(repr_letters).lower()
+
+    # If get_abbr_repr_letters returns empty (e.g., abbreviation has no letters/commands?)
+    # provide a fallback using the original string, lowercased, maybe stripped of leading symbols.
+    if not sort_key:
+         # Fallback: lowercase, remove non-alphanumeric start chars for sorting robustness
+         fallback_key = re.sub(r"^[^\w]+", "", abbr_string.lower())
+         return fallback_key
+    return sort_key
+
+def format_abbreviations(abbreviations_dict, format_type):
+    """Formats the extracted abbreviations based on the specified type.
+       Sorts abbreviations alphabetically, handling LaTeX commands in keys.
+       ASSUMES extracted abbr and full_name are valid LaTeX snippets
+       for 'tabular' and 'nomenclature' formats. No escaping is applied.
+    """
+    if not abbreviations_dict:
+        return "No abbreviations found."
+
+    # --- ADD SORTING STEP HERE ---
+    # Sort the dictionary items based on a generated key from the abbreviation (item[0])
+    try:
+        sorted_items = sorted(
+            abbreviations_dict.items(),
+            key=lambda item: get_sort_key_from_abbr(item[0])
+        )
+    except Exception as e:
+        # Basic error handling for sorting, fallback to unsorted
+        st.error(f"Error during abbreviation sorting: {e}. Displaying unsorted.")
+        sorted_items = abbreviations_dict.items()
+    # --- END SORTING STEP ---
+
+
+    if format_type == "nomenclature":
+        latex_output = "\\usepackage{nomencl}\n"
+        latex_output += "\\makenomenclature\n"
+        # Loop through the SORTED items
+        for abbr, full_name in sorted_items:
+            latex_output += f"\\nomenclature{{{abbr}}}{{{full_name}}}\n"
+        return latex_output
+
+    elif format_type == "tabular":
+        latex_output = "\\begin{tabular}{ll}\n"
+        latex_output += "\\hline\n"
+        latex_output += "\\textbf{Abbreviation} & \\textbf{Full Name} \\\\\n"
+        latex_output += "\\hline\n"
+        # Loop through the SORTED items
+        for abbr, full_name in sorted_items:
+            latex_output += f"{abbr} & {full_name} \\\\\n"
+        latex_output += "\\hline\n"
+        latex_output += "\\end{tabular}\n"
+        return latex_output
+
+    # Default is 'plain' format
+    else:
+        output = ""
+        # Loop through the SORTED items
+        items_list = list(sorted_items) # Convert to list for index access if needed
+        for i, (abbr, full_name) in enumerate(items_list):
+            output += f"{abbr}: {full_name}"
+            if i < len(items_list) - 1:
+                 output += "; \n"
+        return output
