@@ -5,7 +5,7 @@
 
 # # Import libraries
 
-# In[73]:
+# In[14]:
 
 
 import pandas as pd
@@ -22,7 +22,7 @@ DEBUG = "streamlit" not in hostname.lower()  # Assume cloud has "streamlit" in h
 
 # # Preprocessing Text with Space Inserted or Removed
 
-# In[74]:
+# In[15]:
 
 
 # Functions for normalizing and extracting abbrs
@@ -200,453 +200,456 @@ def normalize_latex_math(text):
 
 # # Finding Matching
 
-# In[77]:
+# In[16]:
 
 
-## Robust Logic
+# --- Imports ---
+import re
+import pandas as pd
+import textwrap
 
-def get_abbr_repr_items(abbr_string):
-    """
-    Parses abbreviation string, returns list of representative items WITHOUT Greek mapping.
-    - Keeps ALL LaTeX commands (like \frac, \gamma) as strings.
-    - Takes the uppercase letter from sequences like 'Cp' or 'CPs', ignoring trailing lowercase.
-    - Includes standalone lowercase letters.
-    """
-    representative_items = []
-    # Regex captures: \cmd | Upper | OptionalLowerSuffix | StandaloneLower
-    findings = re.findall(r'(\\[a-zA-Z]+)|([A-Z])([a-z]+)?|([a-z])', abbr_string)
+# --- Helper Functions ---
+# Assume KNOWN_COMMAND_NAMES, get_letters_abbrs, get_letters_words are defined as needed
 
-    # The tuple returned by findall will have 4 elements corresponding to the groups
-    for command, upper, trailing_lower, standalone_lower in findings:
-        if command:  # Group 1: \command
-            # Keep the original command string (no mapping)
-            representative_items.append(command)
-        elif upper:  # Group 2: An uppercase letter was found
-            # Use the uppercase letter, ignore trailing lowercase (group 3)
-            representative_items.append(upper.lower())
-        elif standalone_lower: # Group 4: A standalone lowercase letter
-            representative_items.append(standalone_lower)
-    return representative_items
+KNOWN_COMMAND_NAMES = {
+    'alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta', 'eta', 'theta',
+    'iota', 'kappa', 'lambda', 'mu', 'nu', 'xi', 'omicron', 'pi', 'rho',
+    'sigma', 'tau', 'upsilon', 'phi', 'chi', 'psi', 'omega',
+    'Gamma', 'Delta', 'Theta', 'Lambda', 'Xi', 'Pi', 'Sigma', 'Upsilon',
+    'Phi', 'Psi', 'Omega'
+}
+def get_letters_abbrs(abbr_string):
+    # ... (implementation returning letters/cmd_names and originals) ...
+    representative_items = []; original_parts = []
+    for match_obj in re.finditer(r'(\\[a-zA-Z]+)|([A-Z])([a-z]+)?|([a-z])', abbr_string):
+         original_part = match_obj.group(0); command = match_obj.group(1); upper = match_obj.group(2); standalone_lower = match_obj.group(4)
+         current_repr_item = ''; current_orig_part = ''
+         if command: current_repr_item = command[1:].lower(); current_orig_part = command
+         elif upper: current_repr_item = upper.lower(); current_orig_part = original_part
+         elif standalone_lower: current_repr_item = standalone_lower; current_orig_part = standalone_lower
+         if current_repr_item: representative_items.append(current_repr_item); original_parts.append(current_orig_part)
+    return representative_items, original_parts
 
-## capturing the first letter of the words for comparison
-def get_effective_char(word: str, debug: bool = False) -> str:
-    """
-    Tries to derive the effective matching character from a LaTeX-style word
-    by stripping common leading markup and finding the first letter.
-    """
-    original = word
-    word_to_check = word
+def get_letters_words(word: str, debug: bool = False) -> str:
+    # ... (implementation returning lowercase word/cmd_name) ...
+    original_word = word; word = word.strip();
+    if not word: return ''
     try:
-        # Heuristically strip leading commands/braces to find the first actual letter.
-        m1 = re.match(r'^\s*\\[a-zA-Z]+\s*\{(.*)', word_to_check)
-        if m1:
-            word_to_check = m1.group(1)
-            # Removed internal debug print for brevity in final code
-        else:
-            m2 = re.match(r'^\s*\{\s*\\[a-zA-Z]+\s+(.*)', word_to_check)
-            if m2:
-                content = m2.group(1)
-                if content.endswith('}'): content = content[:-1].rstrip()
-                word_to_check = content
-            else:
-                m3 = re.match(r'^\s*\\[a-zA-Z]+(\s+.*)', word_to_check)
-                if m3:
-                     if m3.group(1) and m3.group(1).strip():
-                         word_to_check = m3.group(1).lstrip()
-
-        if word_to_check.startswith('{'):
-            word_to_check = word_to_check[1:].lstrip()
-
-        match = re.search(r'[a-zA-Z]', word_to_check)
-        if match:
-             return match.group(0).lower()
-
-        if word_to_check is not original:
-             match_orig = re.search(r'[a-zA-Z]', original)
-             if match_orig:
-                  return match_orig.group(0).lower()
-
+        command_match = re.match(r'\$?(\\[a-zA-Z]+)', word);
+        if command_match:
+            command_name = command_match.group(1)[1:]
+            if command_name in KNOWN_COMMAND_NAMES: return command_name.lower()
+        word_to_check = word; word_to_check = re.sub(r'^\s*\\([a-zA-Z]+)\s*\{?', '', word_to_check)
+        word_to_check = word_to_check.strip(' ${}')
+        if word_to_check.endswith('}'): word_to_check = word_to_check[:-1].rstrip()
+        core_word_match = re.search(r'[a-zA-Z0-9]+(?:[.-]?[a-zA-Z0-9]+)*', word_to_check)
+        if core_word_match: return core_word_match.group(0).lower()
+        fallback_match = re.search(r'[a-zA-Z0-9]+', original_word)
+        if fallback_match: return fallback_match.group(0).lower()
+        return ''
+    except Exception as e:
+        # if debug: print(f"      Error in get_letters_words for '{original_word}': {e}") # Keep minimal
         return ''
 
-    except Exception as e:
-        # Keep error print if helper function itself fails when its debug is on
-        if debug: print(f"      Error in get_effective_char for '{original}': {e}")
-        match = re.search(r'[a-zA-Z]', original)
-        return match.group(0).lower() if match else ''
 
-# Finding Matching
-def find_abbreviation_matches (words_ahead, abbr_string, debug=True):
+# --- REVISED find_abbreviation_matches ---
+def find_abbreviation_matches(words_ahead, abbr_string, debug=True): # Removed match_threshold
     """
-    Performs backward matching between definition words (words_ahead) and
-    abbreviation items (abbr_items). Uses V3 comparison logic.
-    If debug=True, prints cumulative matching DataFrame (requires pandas
-    to be imported globally as pd) and final indices map.
-    NOTE: Enabling debug=True can significantly slow down execution due to
-          DataFrame creation/printing in the loop.
+    Performs backward matching using startswith comparison logic.
+    Calculates and returns the match results and the ratio of matched items.
+    If debug=True, prints debug information including a final DataFrame.
 
     Args:
-        words_ahead (list): List of word tokens from the definition part.
-        abbr_items (list): List of representative items from the abbreviation part.
-        debug (bool): Flag to enable cumulative DataFrame printing.
+        words_ahead (list): Word tokens from the definition part.
+        abbr_string (str): The original abbreviation string.
+        debug (bool): Flag to enable console debug printing.
 
     Returns:
-        list: A list where index `i` contains the index from `words_ahead`
-              that matches `abbr_items[i]`, or -1 if no match was found.
+        tuple: (match_indices, match_ratio)
+               - match_indices: list mapping abbr_idx -> word_idx (-1 if no match).
+               - match_ratio: float representing fraction of matched abbr items (0.0 to 1.0).
+               Returns ([], 0.0) if abbreviation parsing fails or yields no items.
     """
-    abbr_items = get_abbr_repr_items(abbr_string)
-    num_abbr_items = len(abbr_items)
+    # --- Internal Calculation ---
+    try:
+        abbr_items, original_abbr_parts = get_letters_abbrs(abbr_string)
+        num_abbr_items = len(abbr_items)
+        # Handle case where abbr_string yields no parsable items
+        if not abbr_items:
+             if debug: print(f"Warning: Abbr string '{abbr_string}' yielded no items.")
+             # Return empty list and 0.0 ratio
+             return [], 0.0
+    except Exception as e_parse:
+         if debug: print(f"Error parsing abbr string '{abbr_string}': {e_parse}.")
+         # Return empty list and 0.0 ratio on error
+         return [], 0.0
+
     num_words = len(words_ahead)
-    match_indices = [-1] * num_abbr_items
-
-    # Initialize structures for pandas debug output if needed
-    words_line = words_ahead[:]
-    abbr_line = [''] * num_words
-    effchar_line = [get_effective_char(word, debug=False) for word in words_ahead]
-
+    match_indices = [-1] * num_abbr_items # Initialize results
     last_matched_index = num_words
+    words_ahead_comparables = [get_letters_words(word, debug=False) for word in words_ahead]
 
-    # Outer loop iterates through Abbr Items in reverse
-    for abbr_idx in range(num_abbr_items - 1, -1, -1):
-        target_abbr = abbr_items[abbr_idx]
-        match_found_for_abbr = False # Renamed for clarity
-
-        # Inner loop iterates through Words in reverse
-        for i in range(last_matched_index - 1, -1, -1):
-            word = words_ahead[i]
-            # Call helper with debug=False unless you want its prints too
-            effective_char = effchar_line[i] #get_effective_char(word, debug=False)
-
-            current_match_found = False
-            # --- V3 COMPARISON LOGIC ---
-            if target_abbr.startswith('\\'):
-                word_to_compare = word
-                if word_to_compare.startswith('$'):
-                    word_to_compare = word_to_compare[1:]
-                if word_to_compare.startswith(target_abbr):
-                    current_match_found = True
-            elif effective_char:
-                if effective_char == target_abbr:
-                    current_match_found = True
-            # --- END V3 COMPARISON LOGIC ---
-
-            if current_match_found:
-                match_indices[abbr_idx] = i
-                abbr_line[i] = target_abbr # Update debug line
-                last_matched_index = i
-                match_found_for_abbr = True
-                break # Found match for this abbr_idx
-
-        
-    # Printing the matching process for debugging purpose
     if debug:
-        try:
-             # Create DataFrame using the globally imported pd
-             df_data = {'Words ahead': words_line, 'words ahead coding': effchar_line, 'Abb matched': abbr_line}
-             df = pd.DataFrame(df_data)
-             print(f"\n  Matching result:")
-             # 1. Convert the DataFrame (transposed) to a string
-             df_as_string = df.T.to_string()        
-             # 2. Define your desired indentation prefix (e.g., 4 spaces)
-             indent_prefix = "     "
-             # 3. Use textwrap.indent to add the prefix to each line of the string
-             indented_df_output = textwrap.indent(df_as_string, prefix=indent_prefix)
-             print(indented_df_output)
-    # --- Add Exception Block ---
-        except Exception as e:
-            # This block executes if any error occurs in the 'try' block above
-            print(f"\n  [DEBUG] Failed to create or print the Matching Result DataFrame.")
-            # Print the specific error encountered for debugging purposes
-            # Indent the error message for consistency with other debug output
-            error_message = f"    Error encountered: {type(e).__name__} - {e}"
-            print(error_message)
-            # Optional: You could print more details or log the error here
-            # import traceback
-            # print(textwrap.indent(traceback.format_exc(), prefix="    "))
-        # --- End Exception Block ---
+        print("\n--- Starting find_abbreviation_matches ---")
+        print(f"  Input Abbr String: '{abbr_string}'")
+        print(f"  Words Ahead ({num_words}): {words_ahead}")
+        print(f"  Words Ahead Comparables ({len(words_ahead_comparables)}): {words_ahead_comparables}")
+        print(f"  Abbr Items (Letter/CmdName) ({num_abbr_items}): {abbr_items}")
+        print(f"  Original Abbr Parts ({len(original_abbr_parts)}): {original_abbr_parts}")
+        # Removed Threshold printout
+        print("-" * 20)
 
-    return match_indices
+    # --- Matching Loop ---
+    # (Loop logic remains the same as previous version, populates match_indices)
+    for abbr_idx in range(num_abbr_items - 1, -1, -1):
+        target_comparable = abbr_items[abbr_idx]; match_found_for_abbr = False
+        if not target_comparable: continue
+        for word_idx in range(last_matched_index - 1, -1, -1):
+            word_comparable = words_ahead_comparables[word_idx]
+            if not word_comparable: continue
+            current_match_found = word_comparable.startswith(target_comparable)
+            if current_match_found:
+                match_indices[abbr_idx] = word_idx; last_matched_index = word_idx; match_found_for_abbr = True
+                # Removed internal match printout
+                break
+        # Removed 'no match found' printout
+    # --- END Matching Loop ---
+
+    # --- Calculate Match Ratio ---
+    count_matched = sum(1 for word_idx in match_indices if word_idx != -1)
+    match_ratio = count_matched / num_abbr_items if num_abbr_items > 0 else 0.0
+    # --- END Calculate Match Ratio ---
+
+
+    # --- Debugging Output Section ---
+    if debug:
+        print("-" * 20)
+        # Print the calculated results, not validation status
+        print(f"  Matching Complete: Matched {count_matched}/{num_abbr_items} items.")
+        print(f"  Match Ratio: {match_ratio:.2f}")
+        print(f"  Final match indices (abbr_idx -> word_idx): {match_indices}")
+
+        # Keep calculation and printing of the final debug DataFrame
+        matched_abbrs_string = [''] * num_words; matched_abbrs_comparable = [''] * num_words
+        for abbr_idx_debug, word_idx_debug in enumerate(match_indices):
+             if word_idx_debug != -1:
+                  if 0 <= word_idx_debug < num_words:
+                      if 0 <= abbr_idx_debug < len(abbr_items): matched_abbrs_comparable[word_idx_debug] = abbr_items[abbr_idx_debug]
+                      if 0 <= abbr_idx_debug < len(original_abbr_parts): matched_abbrs_string[word_idx_debug] = original_abbr_parts[abbr_idx_debug]
+        print("\n  Final Matching Result (Debug DataFrame):")
+        try:
+            debug_data = {'Words Ahead': words_ahead,'Words Ahead Comparables': words_ahead_comparables,'Matched Abbrs (String)': matched_abbrs_string,'Matched Abbrs (Comparable)': matched_abbrs_comparable}
+            list_len = len(words_ahead)
+            if not all(len(lst) == list_len for lst in [words_ahead_comparables, matched_abbrs_string, matched_abbrs_comparable]): print("\n  [DEBUG] Error: Length mismatch for debug DataFrame.")
+            else:
+                df_debug = pd.DataFrame(debug_data); print(f"\n  Matching Result (Rows: Words, Comparables, Matched String, Matched Comparable):\n{textwrap.indent(df_debug.T.to_string(), '    ')}")
+        except Exception as e_debug: print(f"\n  [DEBUG] Error creating debug DataFrame: {e_debug}")
+        print("--- Ending find_abbreviation_matches ---\n")
+    # --- END Debugging Output Section ---
+
+    # --- Return the results ---
+    return match_indices, match_ratio # Return tuple
+    # --- End Return ---
 
 
 # # Extracting Abbreviations
 
-# In[84]:
+# In[ ]:
 
 
-# Modified extract_abbreviations with Panda DataFrame output
-
-
-def get_sort_key_from_abbr(abbr_string):
-    """Generates a lowercase string key for sorting abbreviations."""
-    repr_letters = get_abbr_repr_items(abbr_string)
-    sort_key = "".join(repr_letters).lower()
-    if not sort_key:
-         fallback_key = re.sub(r"^[^\w]+", "", abbr_string.lower())
-         return fallback_key
-    return sort_key
-
-def extract_abbreviations(text, match_threshold=0.7, debug=True):
+def extract_abbreviations(text, match_threshold=0.7, debug=False):
     """
-    Extracts abbreviations defined as (Abbr) following their definition.
-    Validates match if a certain threshold of abbreviation items are matched
-    to corresponding words. Also includes usage counts for matched abbreviations.
-
-    Args:
-        text (str): The input text potentially containing definitions.
-        match_threshold (float): The minimum fraction (e.g., 0.7 for 70%) of
-                                 abbreviation items that must be successfully
-                                 matched to words for the definition to be
-                                 considered valid.
-        debug (bool): Flag to enable extensive debug printing.
-
-    Returns:
-        pd.DataFrame: A DataFrame containing 'abbreviation', 'full_name',
-                      and 'usage_count', sorted alphabetically by abbreviation.
-                      Returns an empty DataFrame if no valid abbreviations are found.
+    Extracts abbreviations. Calls find_abbreviation_matches to get results
+    and match ratio, then performs validation using the ratio.
+    Returns a DataFrame sorted by usage count (desc) then abbreviation (asc).
     """
-    # Existing pattern and initialization
-    pattern = r'((?:[\w\\\$\{\}]+[\s-]+){1,10}(?:[\w\\\$\{\}]+)[\s-]?)\(([^\(\)]*[a-zA-Z0-9]{2,}[^\(\)]*)\)'
+    pattern = r'((?:[\w\\\$\{\}]+[ -]+){1,10}(?:[\w\\\$\{\}]+)[ -]?)\(([^\(\)]*[a-zA-Z0-9]{2,}[^\(\)]*)\)'
     matches = re.findall(pattern, text)
     abbreviation_dict = {}
     abbr_usage_count = {}
-
-    if debug:
-        print(f"\nDebugging extract_abbreviations: Found {len(matches)} potential matches.")
-
-    # --- Count Abbreviation Usages ---
-    # Count usage for all potential abbreviations found in parentheses first
+    if debug: print(f"\nDebugging extract_abbreviations: Found {len(matches)} potential candidates.")
     all_potential_abbrs = [match[1].strip() for match in matches]
-    for abbr in set(all_potential_abbrs): # Use set to count each unique string once
-        # remove parenthesis and special characters for accurate search
+    for abbr in set(all_potential_abbrs):
         abbr_search_string = re.sub(r'[\(\)]', '', abbr)
-        # Pattern to find the abbreviation as a whole word/unit
-        # Uses negative lookbehind/lookahead to avoid matching parts of words or inside brackets
-        abbr_usage_pattern = rf'(?<![a-zA-Z\(\)]){re.escape(abbr_search_string)}(?![a-zA-Z\)\)])' # Added spaces
-        # Count occurrences (adjust pattern if needed based on how abbreviations appear)
-        # Use finditer for potentially overlapping matches if required, len(findall) is usually sufficient
-        abbr_usage_count[abbr] = len(re.findall(abbr_usage_pattern, text))
-    if debug:
-        print(f"  Abbreviation Usage Counts: {abbr_usage_count}")
-    # --- END Usage Count ---
+        # Using lookaround pattern for usage count
+        abbr_usage_pattern = rf'(?<![a-zA-Z\(\)]){re.escape(abbr_search_string)}(?![a-zA-Z\)\)])'
+        try: abbr_usage_count[abbr] = len(re.findall(abbr_usage_pattern, text))
+        except re.error as re_err:
+             if debug: print(f"  Regex error counting usage for '{abbr}': {re_err}"); abbr_usage_count[abbr] = 0
+    if debug: print(f"  Initial Abbreviation Usage Counts: {abbr_usage_count}")
 
 
-    # --- Process Matches and Build Dictionary ---
-    #matches = re.findall(pattern, text)
+    # --- Process Matches ---
+    for match_idx, match in enumerate(matches):
+        words_before_abbr_text = match[0].strip(); abbr_string = match[1].strip()
+        current_usage_count = abbr_usage_count.get(abbr_string, 0)
+        if debug: print(f"\n--- Candidate {match_idx+1}: Abbr='{abbr_string}', Before='{words_before_abbr_text}' ---")
 
-    for index, match in enumerate(matches):
+        split_pattern = r'([ -]+)'; split_list = re.split(split_pattern, words_before_abbr_text); words_ahead = [item for item in split_list if item]
+        if not words_ahead:
+             if debug: print("  Skipping: No words found before abbreviation."); continue
+
+        # --- CORRECTED CALL and UNPACKING ---
+        # Call find_abbreviation_matches WITHOUT match_threshold
+        match_indices_result, ratio_result = find_abbreviation_matches(
+            words_ahead,
+            abbr_string,
+            debug=debug # Pass debug flag down
+        )
+        # --- END CORRECTION ---
+
+        # --- Validation (Performed here using returned ratio) ---
+        is_valid = (ratio_result >= match_threshold)
+        # --- END Validation ---
+
+        if debug: # Print outcome of validation performed here
+            print(f"  Validation (in extract_abbreviations): Ratio={ratio_result:.2f}, Threshold={match_threshold:.2f} -> Valid: {is_valid}")
+
+        # Check if the match is valid based on the ratio
+        if is_valid:
+            # Reconstruct Full Name using the returned match_indices
+            # match_indices_result cannot be None based on find_abbreviation_matches logic,
+            # it returns [] if parsing fails, resulting in ratio 0.
+            successful_match_indices = [idx for idx in match_indices_result if idx != -1]
+
+            # We must have successful matches if is_valid is True and threshold > 0
+            if not successful_match_indices:
+                if debug: print("  Skipping: Match deemed valid, but no successful indices found (Logic Error?)."); continue
+
+            min_idx_py = min(successful_match_indices)
+
+            # Slice from the first matched word to the END of words_ahead
+            if 0 <= min_idx_py < len(words_ahead):
+                full_phrase_words_slice = words_ahead[min_idx_py:]
+                full_name = ''.join(full_phrase_words_slice).strip()
+
+                # Store valid result
+                if debug:
+                     print(f"  VALID MATCH CONFIRMED: Storing '{abbr_string}' -> '{full_name}' (Usage: {current_usage_count})")
+
+                abbreviation_dict[abbr_string] = {
+                    'full_name': full_name,
+                    'usage_count': current_usage_count
+                }
+            else:
+                 if debug: print(f"  Skipping: Invalid index derived [{min_idx_py}:] for reconstruction.")
+        elif debug:
+             # Match was invalid based on the ratio
+             print(f"  Match for '{abbr_string}' deemed invalid based on ratio.")
+    # --- End Main Loop ---
+
+
+    # --- Final DataFrame Creation and Sorting ---
+    # (Remains the same)
+    if not abbreviation_dict:
+        if debug: print("\nNo valid abbreviations extracted meeting criteria.")
+        return pd.DataFrame(columns=['Row No.', 'abbreviation', 'full_name', 'usage_count'])
+    if debug: print(f"\nCreating final DataFrame from {len(abbreviation_dict)} valid abbreviations.")
+    try:
+        final_df = pd.DataFrame.from_dict(abbreviation_dict, orient='index')
+        final_df = final_df.reset_index().rename(columns={'index': 'abbreviation'})
+        final_df = final_df.sort_values(by=['usage_count', 'abbreviation'], ascending=[False, True], ignore_index=True)
+        final_df.insert(0, 'Row No.', final_df.index + 1)
+        final_df = final_df[['Row No.', 'abbreviation', 'full_name', 'usage_count']]
+    except Exception as e_df:
+        if debug: print(f"Error creating or sorting final DataFrame: {e_df}")
+        return pd.DataFrame(columns=['Row No.', 'abbreviation', 'full_name', 'usage_count'])
+    return final_df
+
+
+# ## collect_abbreviations
+
+# In[21]:
+
+
+def collect_abbreviations(text, debug=False):
+    """
+    Finds all potential abbreviation candidates Def (Abbr), calculates usage,
+    calls find_abbreviation_matches to get matching details (indices and ratio),
+    and reconstructs potential full name.
+    Does NOT filter based on match ratio or usage count.
+
+    Args:
+        text (str): The input text (ideally normalized).
+        debug (bool): Flag to enable detailed debug printing in this function
+                      and called functions.
+
+    Returns:
+        pd.DataFrame: DataFrame containing all candidates with columns:
+                      'abbreviation', 'full_name', 'usage_count', 'perc_abbr_matches'.
+                      Returns empty DataFrame if no candidates found.
+    """
+    # Initial pattern find candidates
+    pattern = r'((?:[\w\\\$\{\}]+[ -]+){1,10}(?:[\w\\\$\{\}]+)[ -]?)\(([^\(\)]*[a-zA-Z0-9]{2,}[^\(\)]*)\)'
+    matches = re.findall(pattern, text)
+
+    required_columns = ['abbreviation', 'full_name', 'usage_count', 'perc_abbr_matches']
+    empty_df = pd.DataFrame(columns=required_columns)
+
+    if not matches:
+        if debug: print("collect_abbreviations: No potential candidates found by initial regex.")
+        return empty_df
+
+    if debug: print(f"collect_abbreviations: Found {len(matches)} potential candidates.")
+
+    # Calculate usage counts first
+    abbr_usage_count = {}
+    all_potential_abbrs = [match[1].strip() for match in matches]
+    for abbr in set(all_potential_abbrs):
+        abbr_search_string = re.sub(r'[\(\)]', '', abbr)
+        # Using lookaround pattern
+        abbr_usage_pattern = rf'(?<![a-zA-Z\(\)]){re.escape(abbr_search_string)}(?![a-zA-Z\)\)])'
+        try: abbr_usage_count[abbr] = len(re.findall(abbr_usage_pattern, text))
+        except re.error as re_err:
+            if debug: print(f"  Regex error counting usage for '{abbr}': {re_err}"); abbr_usage_count[abbr] = 0
+    if debug: print(f"  Usage Counts Calculated: {len(abbr_usage_count)} unique abbreviations.")
+
+    # Collect data for ALL candidates
+    all_candidate_data = []
+    for match_idx, match in enumerate(matches):
         words_before_abbr_text = match[0].strip()
         abbr_string = match[1].strip()
+        current_usage_count = abbr_usage_count.get(abbr_string, 0) # Get pre-calculated count
 
-        # Get the pre-calculated usage count
-        current_usage_count = abbr_usage_count.get(abbr_string, 0)
+        if debug: print(f"\n--- Collecting Candidate {match_idx+1}: Abbr='{abbr_string}' ---")
 
-        # Note: Original code didn't strictly filter by usage_count >= 2 here,
-        # keeping it that way unless explicitly needed. You could add:
-        # if current_usage_count < 2: continue
+        split_pattern = r'([ -]+)'; split_list = re.split(split_pattern, words_before_abbr_text); words_ahead = [item for item in split_list if item]
 
-        try: 
-            # Wrap processing for robustness
-            abbr_items = get_abbr_repr_items(abbr_string)
-            
-            # Split preceding text using space/hyphen, retaining delimiters
-            words_ahead = [item for item in re.split(r'([\s-]+)', words_before_abbr_text) if item]
+        full_name = "" # Default empty name
+        match_ratio = 0.0 # Default ratio
+        match_indices = [] # Default empty list
 
-            if debug:
-                print(f"\n---\nCandidate {index}: '{abbr_string}' Found -> Abbr_keys: {abbr_items}")
-                #print(f" Preceding Text for Split: '{words_before_abbr_text}'")
-                #print(f" Words Ahead: {words_ahead}")
+        if words_ahead:
+            # Call find_abbreviation_matches to get indices and ratio
+            # Pass debug flag down
+            match_indices, ratio_result = find_abbreviation_matches(
+                words_ahead,
+                abbr_string,
+                debug=debug
+            )
+            match_ratio = ratio_result # Store the calculated ratio
 
-            # Initial check: Need words and abbreviation items to proceed
-            if not words_ahead or not abbr_items:
-                if debug:
-                    print(f"  Skipping: No words ahead ({bool(words_ahead)}) or no abbr items found ({bool(abbr_items)}).")
-                continue
+            # Reconstruct name based on match_indices (even if ratio is low)
+            if match_indices: # Check if list is not empty
+                successful_match_indices = [idx for idx in match_indices if idx != -1]
+                if successful_match_indices:
+                    min_idx_py = min(successful_match_indices)
+                    # Slice from first matched word to end, as requested previously
+                    if 0 <= min_idx_py < len(words_ahead):
+                        full_phrase_words_slice = words_ahead[min_idx_py:]
+                        full_name = ''.join(full_phrase_words_slice).strip()
+                    elif debug: print(f"  Warning: Invalid min_idx {min_idx_py} for reconstruction.")
+                # Optional: Log if match_indices had no successful matches?
+                # elif debug: print("  Note: No successful match indices found for reconstruction.")
+            # Optional: Log if find_abbreviation_matches returned empty list?
+            # elif debug: print("  Note: find_abbreviation_matches returned empty list.")
+        elif debug: print("  Note: No words found before abbreviation for reconstruction.")
 
-            match_indices = find_abbreviation_matches(words_ahead, abbr_string, debug)
-            successful_match_indices = [idx for idx in match_indices if idx != -1]
-            count_matched = len(successful_match_indices)
-            num_abbr_items = len(abbr_items)
-            
-            # Validation Logic (using threshold)
-            valid_match = False
-            if num_abbr_items > 0:
-                ratio_matched = count_matched / num_abbr_items
-                if ratio_matched >= match_threshold:
-                    valid_match = True
-                elif debug:
-                    print(f"  Validation Failed: Match ratio {ratio_matched:.2f} is less than threshold {match_threshold:.2f}")
-            elif debug:
-                print("  Validation Failed: No abbreviation items were generated.")
+        # Append data for this candidate regardless of match success/ratio
+        all_candidate_data.append({
+            'abbreviation': abbr_string,
+            'full_name': full_name,
+            'usage_count': current_usage_count,
+            'perc_abbr_matches': match_ratio # Store the match ratio/percentage
+        })
+        if debug: print(f"  Collected Candidate {match_idx+1}: Ratio={match_ratio:.2f}, Usage={current_usage_count}, Name='{full_name}'")
 
-            # Reconstruction Logic
-            if valid_match:
-                if not successful_match_indices:
-                    if debug:
-                        print("  Skipping: Match deemed valid by ratio, but no word indices found?")
-                    continue
-
-                min_idx_py = min(successful_match_indices)
-                max_idx_py = max(successful_match_indices)
-
-                if min_idx_py <= max_idx_py < len(words_ahead): # Check max_idx_py is valid
-                    full_phrase_words_slice = words_ahead[min_idx_py : max_idx_py + 1]
-                    full_name = ''.join(full_phrase_words_slice)
-
-                    # if debug:
-                    #     print(f"  Storing: '{abbr_items}': '{full_name}' (Usage: {current_usage_count})")
-
-                    # Store in dictionary
-                    abbreviation_dict[abbr_string] = {
-                        'full_name': full_name,
-                        'usage_count': current_usage_count # Use pre-calculated count
-                    }
-                else:
-                     if debug:
-                        print(f"  Skipping '{abbr_string}': Invalid index range {min_idx_py}-{max_idx_py} for words_ahead length {len(words_ahead)}.")
+    # Create the final DataFrame from all collected data
+    if not all_candidate_data:
+        return empty_df # Return empty DF with correct columns
+    else:
+        collected_df = pd.DataFrame(all_candidate_data)
+        # Ensure columns are in desired order before returning
+        return collected_df[required_columns]
 
 
-        except Exception as e_process:
-            if debug:
-                print(f"  ERROR processing potential match for '{abbr_string}': {e_process}")
-            continue # Safely skip to the next match if an error occurs
+# ## select_abbreviations
 
-    if debug:
-        print(f"--- Debugging End ---\nFinal Dict before sorting: {abbreviation_dict}")
-
-    # --- Handle Empty Results BEFORE Sorting ---
-    if not abbreviation_dict:
-        if debug:
-            print("No valid abbreviations found meeting criteria. Returning empty DataFrame.")
-        # Return an empty DataFrame with the expected column structure
-        return pd.DataFrame(columns=['abbreviation', 'full_name', 'usage_count'])
-
-    # --- SORTING STEP ---
-    try:
-        # Sort the dictionary items alphabetically based on the abbreviation key
-        sorted_items = sorted(
-            abbreviation_dict.items(),
-            key=lambda item: get_sort_key_from_abbr(item[0]) # item[0] is the abbreviation string
-        )
-    except Exception as e_sort:
-        if debug:
-            print(f"Sorting error: {e_sort}. Proceeding with unsorted items.")
-        # Fallback to unsorted list if sorting fails
-        sorted_items = list(abbreviation_dict.items())
-    # --- END SORTING STEP ---
+# In[22]:
 
 
-    # --- Convert sorted_items list to DataFrame (Method 1) ---
-    if debug:
-        print(f"\nConverting {len(sorted_items)} sorted items to DataFrame.")
+# REVISED: Only filters, does not sort or modify columns (beyond filtering rows)
+def select_abbreviations(collected_df, threshold_perc_abbr_matches=0.7, threshold_usage=0, debug=False):
+    """
+    Filters a DataFrame of abbreviation candidates based on criteria.
+    DOES NOT SORT or add/remove display columns like 'Row No.'.
 
-    data_for_df = []
-    for abbr, details in sorted_items:
-        row_dict = {'abbreviation': abbr} # Start row dict with the abbreviation
-        row_dict.update(details)          # Add 'full_name' and 'usage_count' from details
-        data_for_df.append(row_dict)
+    Args:
+        collected_df (pd.DataFrame): DataFrame from collect_abbreviations.
+        threshold_perc_abbr_matches (float): Min match ratio required (0.0 to 1.0).
+        threshold_usage (int): Min usage count required (>= threshold_usage).
+        debug(bool): Enable printing status messages.
 
-    # Create the DataFrame from the list of dictionaries
-    df = pd.DataFrame(data_for_df)
+    Returns:
+        pd.DataFrame: Filtered DataFrame with original columns from collect_abbreviations.
+                      Returns empty DataFrame if none meet criteria or input invalid.
+    """
+    # Define expected columns from input
+    required_cols = ['abbreviation', 'full_name', 'usage_count', 'perc_abbr_matches']
+    empty_df = pd.DataFrame(columns=required_cols) # Return structure if empty
 
-    # Ensure columns are in the desired order (optional but good practice)
-    if not df.empty:
-        df = df[['abbreviation', 'full_name', 'usage_count']]
+    if not isinstance(collected_df, pd.DataFrame) or collected_df.empty:
+        if debug: print("select_abbreviations: Input DataFrame empty/invalid.")
+        return empty_df
 
-    return df
+    if not all(col in collected_df.columns for col in required_cols):
+         if debug: print(f"select_abbreviations: Input missing required columns. Expected: {required_cols}")
+         return empty_df # Cannot filter without required columns
 
+    if debug: print(f"\n--- Starting select_abbreviations (Filtering Only) ---\n  Input DF rows: {len(collected_df)}\n  Filters: Ratio >= {threshold_perc_abbr_matches}, Usage >= {threshold_usage}")
+
+    # 1. Apply Filters
+    filtered_df = collected_df[
+        (collected_df['perc_abbr_matches'] >= threshold_perc_abbr_matches) &
+        (collected_df['usage_count'] >= threshold_usage)
+    ].copy() # Use .copy() to avoid potential SettingWithCopyWarning
+
+    if filtered_df.empty:
+        if debug: print(f"  Filtering Result: No abbreviations met criteria.")
+        # Return empty DF matching expected columns
+        return empty_df
+
+    if debug: print(f"  Filtering Result: {len(filtered_df)} passed criteria.\n--- Ending select_abbreviations ---")
+
+    # 2. Return the filtered DataFrame (unsorted by this function)
+    return filtered_df
 
 
 # # Formatting abbrs 
 
-# In[ ]:
+# In[18]:
 
 
-def format_abbreviations(abbr_df, format_type="plain"):
-    """Formats the extracted abbreviations DataFrame based on the specified type.
-       Assumes the input DataFrame is already sorted alphabetically by 'abbreviation'.
-       ASSUMES 'abbreviation' and 'full_name' columns contain valid LaTeX snippets
-       for 'tabular' and 'nomenclature' formats. No escaping is applied.
+def format_abbreviations(abbr_df, format_type):
+     cols_to_drop = [col for col in ['Row No.', 'perc_abbr_matches'] if col in abbr_df.columns]
+     df_to_format = abbr_df.drop(columns=cols_to_drop)
+     if df_to_format.empty: return "No abbreviations selected."
+     if format_type == "tabular": latex_output = "\\begin{tabular}{ll}\n\\hline\n\\textbf{Abb} & \\textbf{Full Name} \\\\\n\\hline\n"; # Shortened header
+     elif format_type == "nomenclature": latex_output = "\\usepackage{nomencl}\n\\makenomenclature\n";
+     else: output_parts = []
+     for _, row in df_to_format.iterrows():
+          if format_type == "tabular": latex_output += f"{row['abbreviation']} & {row['full_name']} \\\\\n"
+          elif format_type == "nomenclature": latex_output += f"\\nomenclature{{{row['abbreviation']}}}{{{row['full_name']}}}\n"
+          else: output_parts.append(f"{row['abbreviation']}: {row['full_name']}")
+     if format_type == "tabular": latex_output += "\\hline\n\\end{tabular}\n"; return latex_output
+     elif format_type == "nomenclature": return latex_output
+     else: return "; \n".join(output_parts)
 
-    Args:
-        abbr_df (pd.DataFrame): DataFrame with at least 'abbreviation' and 'full_name' columns.
-                                Expected to be sorted by 'abbreviation'.
-        format_type (str): The desired output format ('nomenclature', 'tabular', or other for plain text).
-
-    Returns:
-        str: A formatted string containing the abbreviations, or a message if the input DataFrame is empty.
-    """
-    # Check if the input DataFrame is empty
-    if abbr_df.empty:
-        return "No abbreviations found."
-
-    # NOTE: Sorting is assumed to have been done *before* this function is called.
-
-    if format_type == "nomenclature":
-        # LaTeX nomenclature package format
-        latex_output = "\\usepackage{nomencl}\n"
-        latex_output += "\\makenomenclature\n"
-        # Iterate over DataFrame rows
-        for index, row in abbr_df.iterrows():
-            abbr = row['abbreviation']
-            full_name = row['full_name']
-            latex_output += f"\\nomenclature{{{abbr}}}{{{full_name}}}\n"
-        return latex_output
-
-    elif format_type == "tabular":
-        # LaTeX tabular format for a table
-        latex_output = "\\begin{tabular}{ll}\n"
-        latex_output += "\\hline\n"
-        latex_output += "\\textbf{Abbreviation} & \\textbf{Full Name} \\\\\n"
-        latex_output += "\\hline\n"
-        # Iterate over DataFrame rows
-        for index, row in abbr_df.iterrows():
-            abbr = row['abbreviation']
-            full_name = row['full_name']
-            latex_output += f"{abbr} & {full_name} \\\\\n"
-        latex_output += "\\hline\n"
-        latex_output += "\\end{tabular}\n"
-        return latex_output
-
-    else:
-        # Default format: plain list of abbreviations and full names
-        output_parts = []
-        # Iterate over DataFrame rows
-        for index, row in abbr_df.iterrows():
-            abbr = row['abbreviation']
-            full_name = row['full_name']
-            output_parts.append(f"{abbr}: {full_name}")
-
-        # Join the parts with "; \n" separator
-        return "; \n".join(output_parts)
-
-# Example Usage (assuming df_results is a DataFrame from extract_abbreviations):
-# df_results = pd.DataFrame({
-#    'abbreviation': ['CAD', 'FBI', 'USA'],
-#    'full_name': ['Canada', 'Federal Bureau of Investigation', 'United States of America'],
-#    'usage_count': [1, 2, 3] # usage_count is ignored by this function
-# })
-
-# print("--- Nomenclature Format ---")
-# print(format_abbreviations(df_results, "nomenclature"))
-# print("\n--- Tabular Format ---")
-# print(format_abbreviations(df_results, "tabular"))
-# print("\n--- Plain Text Format ---")
-# print(format_abbreviations(df_results, "plain")) # Any format_type other than the two specific ones
-# print("\n--- Empty DataFrame Test ---")
-# print(format_abbreviations(pd.DataFrame(columns=['abbreviation', 'full_name']), "tabular"))
+    
 
 
 # # Example Text and Testing
 
 # ## example_text
 
-# In[82]:
+# In[30]:
 
 
 example_text = r"""Paste your latex text (LT)  and enjoy the app (ETA). There is no limitation of the length of text. 
 
 What is regarded as abbreviations (RA):
 
-The abbreviations like randomized survival probabilities (RSP) and  accelerated failure time(AFT), or \textbf{Time-Constant (TC) Data}. The full definitions and abbrievations can contain greek symbols, for example,  $\alpha$-synclein protein ($\alpha$-SP), $\beta$-Z residual (BZR), $\sigma$-Z residual ($\sigma$-ZR), $\frac{\gamma}{Z}$-residuals ($\frac{\gamma}{Z}$-R). The first letters of latex commands will be used to compare against the abbreviation letters.
+The abbreviations like randomized survival probabilities (RSP) and  accelerated failure time(AFT), or \textbf{Time-Constant (TC) Data}. The full definitions and abbrievations can contain greek symbols, for example,  $\alpha$ Predictive p-value (aPP), $\alpha$-synclein protein ($\alpha$-SP), $\beta$-Z residual (BZR), $\sigma$-Z residual ($\sigma$-ZR), $\frac{\gamma}{Z}$-residuals ($\frac{\gamma}{Z}$-R). The first letters of latex commands will be used to compare against the abbreviation letters.
 
 What is desregarded as abbreviations (DA):
 
@@ -666,215 +669,228 @@ The abbreviations used above include: AFT, BZR,  DA,  ETA, LT, RSP,  RA, TC, $\a
 # In[ ]:
 
 
-st.set_page_config(layout="wide") # Original layout setting
-st.title(r"Extracting Abbreviations from $\LaTeX$ Text") # Original title
+# --- Streamlit App Code ---
+# Assumes 'example_text', 'DEBUG', and all necessary functions/imports
+# (normalize_*, get_*, find_*, collect_*, select_*, format_*) are defined above.
 
-# --- Initialize Session State ---
-# Use '_df' suffix for the variable storing the DataFrame result
-if 'abbreviations_df' not in st.session_state:
-    st.session_state.abbreviations_df = None
+st.set_page_config(layout="wide")
+st.title(r"Extracting Abbreviations from $\LaTeX$ Text")
+
+# --- Initialize Session State (Essential for UI statefulness) ---
+if 'collected_df' not in st.session_state: st.session_state.collected_df = None
+if 'last_input_text_processed' not in st.session_state: st.session_state.last_input_text_processed = None
+# Initialize 'last_input_text' using the globally defined example_text
 if 'last_input_text' not in st.session_state:
-    st.session_state.last_input_text = example_text
-if 'processed_url_param' not in st.session_state:
-    st.session_state.processed_url_param = False
-# Removed 'first_run_done' as its logic seemed intertwined with layout issues,
-# relying on button press or URL processing should be sufficient.
-
-# --- Handle URL Query Parameter (Logic remains the same, but uses _df variable) ---
-url_text_param = st.query_params.get("text", None)
-
-if url_text_param and not st.session_state.processed_url_param:
-    print(f"Processing text from URL parameter: {url_text_param[:50]}...") # Debug print
-    st.session_state.last_input_text = url_text_param # Pre-fill text area state
     try:
-        with st.spinner("Processing text from URL..."):
-            normalized_text = normalize_latex_math(url_text_param)
-            # Store the DataFrame result
-            st.session_state.abbreviations_df = extract_abbreviations(normalized_text, debug=DEBUG)
-            st.session_state.processed_url_param = True # Mark as processed
-            # st.rerun() # Rerun might be needed depending on desired immediate update behavior
-    except Exception as e:
-        st.error(f"Error processing text from URL: {e}")
-        st.session_state.abbreviations_df = None # Clear result on error
-        st.session_state.processed_url_param = True # Mark as processed even if error
-elif not url_text_param:
-     st.session_state.processed_url_param = False
+        st.session_state.last_input_text = example_text # Initialize with the variable
+    except NameError: # Fallback if example_text wasn't defined above
+        st.session_state.last_input_text = ""
+        st.warning("`example_text` variable not found. Using empty default for input.")
 
-# --- Create two main columns for side-by-side layout (Original Ratio) ---
-col_input, col_output = st.columns([3, 1]) # Original 3:1 ratio
+# Check if DEBUG is defined, default to False if not
+try:
+    _ = DEBUG
+except NameError:
+    DEBUG = False # Default if not defined above
 
-# --- Column 1: Input Area (Original Structure) ---
-with col_input:
-    st.subheader("Paste Your text") # Original subheader
-    input_text = st.text_area(
-        label="input_text_main",
-        label_visibility="collapsed", # Original setting
-        value=st.session_state.last_input_text,
-        height=350,  # Original height
-        placeholder="Paste your text here...",
-        key="input_text_area"
+# --- UI Layout (Top to Bottom) ---
+
+# 1. Input Area
+st.subheader("Paste Your Text")
+input_text = st.text_area(
+    label="input_text_main",
+    label_visibility="collapsed",
+    value=st.session_state.last_input_text, # Reads initial value correctly
+    height=250,
+    placeholder="Paste your text here...",
+    key="input_text_area"
+)
+st.caption("Privacy: this app does not save your text.")
+process_button = st.button("Process Text and Collect Abbreviations", type="primary")
+
+# 2. Processing Logic (Run Collection)
+collection_needed = False
+# Trigger collection if button pressed OR if text area differs from last processed text
+if process_button:
+    collection_needed = True
+    st.session_state.last_input_text = input_text # Store button-pressed text
+elif input_text != st.session_state.get('last_input_text_processed', None):
+    collection_needed = True
+    # Don't necessarily update last_input_text state here, process current input_text below
+
+if collection_needed and input_text:
+    with st.spinner("Collecting potential abbreviations..."):
+        try:
+            # Assumes normalize_latex_math & collect_abbreviations are defined
+            normalized_text = normalize_latex_math(input_text)
+            st.session_state.collected_df = collect_abbreviations(normalized_text, debug=DEBUG)
+            st.session_state.last_input_text_processed = input_text # Mark processed text
+            # Optionally clear previous selection/sort state if needed
+            st.info(f"Collected {len(st.session_state.collected_df) if st.session_state.collected_df is not None else 0} potential candidates. Adjust filters below.")
+        except NameError as e:
+            st.error(f"A required function or variable is missing: {e}")
+            st.session_state.collected_df = None
+            st.session_state.last_input_text_processed = input_text # Mark attempt
+        except Exception as e:
+            st.error(f"An error occurred during collection: {e}")
+            st.session_state.collected_df = None
+            st.session_state.last_input_text_processed = input_text # Mark attempt
+elif collection_needed and not input_text:
+    st.warning("Please enter some text to process.")
+    st.session_state.collected_df = None
+    st.session_state.last_input_text_processed = None
+
+# 3. Filtering and Sorting Controls
+st.divider()
+st.subheader("Filter and Sort Abbreviations")
+# Default to empty DF with expected columns if collection hasn't run or failed
+collected_data_columns = ['abbreviation', 'full_name', 'usage_count', 'perc_abbr_matches']
+collected_data = st.session_state.get('collected_df', pd.DataFrame(columns=collected_data_columns))
+
+col_f1, col_f2, col_s1, _ = st.columns([0.5,1,1,5]) # Use 3 columns for filters and sort
+
+with col_f1:
+    usage_threshold = st.number_input(
+        label="Min Usage:", min_value=0, max_value=10, value=0, step=1, key="usage_filter"
     )
-    st.caption("Privacy: this app does not save your text.") # Original caption
+with col_f2:
+    perc_options = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    default_perc_index = perc_options.index(0.7) if 0.7 in perc_options else 6
+    perc_match_threshold = st.selectbox(
+        label="Min Match %:", options=perc_options, index=default_perc_index, key="perc_match_filter", format_func=lambda x: f"{x*100:.0f}%"
+    )
+with col_s1:
+    sort_options = ['Abbreviation', 'Full Phrase', 'Match %', 'Usage']
+    sort_column_map = {'Abbreviation':'abbreviation', 'Full Phrase':'full_name', 'Usage':'usage_count', 'Match %':'perc_abbr_matches'}
+    sort_by_display = st.selectbox(
+        "Sort by:", options=sort_options, index=0, key="sort_selector" # Default sort by Abbreviation
+    )
 
-    # Update session state if text changes (useful for comparison)
-    if input_text != st.session_state.last_input_text:
-        st.session_state.last_input_text = input_text
-        # Decide if results should clear when text changes - currently they don't unless button pressed again
-        # st.session_state.abbreviations_df = None
+# 4. Apply Selection (Filtering - using select_abbreviations function)
+filtered_dataframe = pd.DataFrame(columns=collected_data_columns) # Default empty
+try:
+    # Assumes select_abbreviations function is defined
+    # Make sure collected_data is a DataFrame before passing
+    if isinstance(collected_data, pd.DataFrame):
+         filtered_dataframe = select_abbreviations(
+            collected_data,
+            threshold_perc_abbr_matches=perc_match_threshold,
+            threshold_usage=usage_threshold,
+            debug=DEBUG
+        )
+    elif collected_data is not None : # If it's not None but not a DF (shouldn't happen)
+         st.error("Internal Error: Collected data is not a DataFrame.")
 
-# --- Column 2: Controls and Output Display (Original Structure) ---
-with col_output:
-    # Original button label and settings
-    extract_pressed = st.button("Extract Abbreviations with Regex", type="primary", use_container_width=True)
-
-    # --- Processing Logic (Triggered by button press) ---
-    if True:
-        if input_text:
-            with st.spinner("Processing..."):
-                try:
-                    normalized_text = normalize_latex_math(input_text)
-                    # Store the DataFrame result
-                    st.session_state.abbreviations_df = extract_abbreviations(normalized_text, debug=DEBUG)
-                except Exception as e:
-                    st.error(f"An error occurred during extraction: {e}")
-                    st.session_state.abbreviations_df = None # Clear result on error
-        else:
-            # Original warning message
-            st.warning("Please enter some text in the input box above.")
-            st.session_state.abbreviations_df = None # Clear result if no input
-
-
-    # --- Display Results Table ---
-    output_placeholder = "Output will appear here after clicking 'Extract Abbreviations'." # Original placeholder
-    df_display = st.session_state.get('abbreviations_df', None) # Safely get the DataFrame
-
-    # Use container with original height, no border
-    with st.container(height=350, border=False): # Original height, border setting
-        if df_display is not None and not df_display.empty:
-            # Rename columns to match original example attempt for display table
-            df_display_renamed = df_display.rename(columns={
-                'abbreviation': 'Abbreviation',
-                'full_name': 'Full Phrase',
-                'usage_count': 'Usage' 
-            })
-            # Select only the columns intended for display in the original code
-            display_columns = ['Abbreviation', 'Full Phrase', 'Usage']
-            # Generate markdown table from the DataFrame
-            markdown_table = df_display_renamed[display_columns].to_markdown(index=False)
-            st.markdown(markdown_table) # Display the table
-
-        elif df_display is not None and df_display.empty: # Explicitly handle empty DataFrame
-            # Use a message consistent with format_abbreviations output for empty results
-            st.info("No abbreviations found in the text.")
-        # else: # df_display is None (initial state or after error/clearing)
-            # Original code didn't explicitly display placeholder *here*.
-            # If processing hasn't happened or failed, this area will remain blank,
-            # which matches the implied behavior of the original structure.
-            # To show placeholder requires tracking if button was ever pressed.
-            # Simpler approach: rely on Export section's output area to show status.
+except NameError as e:
+     st.error(f"Function `select_abbreviations` not defined: {e}")
+except Exception as e_select:
+     st.error(f"Error during selection: {e_select}")
 
 
-# --- Export Section (Original Structure) ---
-# Original column setup for export controls
-col_exp, _ = st.columns([1, 1])
-with col_exp:
-    st.subheader("Export") # Original subheader
+# 5. Apply Sorting (Moved here from select_abbreviations)
+display_dataframe = filtered_dataframe # Start with filtered data
+if not filtered_dataframe.empty:
+    sort_by_actual = sort_column_map.get(sort_by_display, 'abbreviation')
+    sort_ascending = not (sort_by_actual in ['usage_count', 'perc_abbr_matches'])
+    secondary_sort = 'abbreviation'; secondary_ascending = True
+    if sort_by_actual == 'abbreviation': secondary_sort = 'usage_count'; secondary_ascending = False
+
+    # Check if sort columns exist before attempting sort
+    cols_to_sort_by = [sort_by_actual]
+    if secondary_sort != sort_by_actual: # Avoid duplicate sort column
+        cols_to_sort_by.append(secondary_sort)
+
+    if all(col in filtered_dataframe.columns for col in cols_to_sort_by):
+        try:
+            display_dataframe = filtered_dataframe.sort_values(
+                by=cols_to_sort_by,
+                ascending=[sort_ascending, secondary_ascending] if len(cols_to_sort_by)>1 else sort_ascending,
+                ignore_index=True
+            )
+        except KeyError as sort_e:
+             st.error(f"Error during sorting: Column '{sort_e}' not found.")
+             # display_dataframe remains filtered but unsorted
+        except Exception as sort_e:
+             st.error(f"Error during sorting: {sort_e}")
+             # display_dataframe remains filtered but unsorted
+    else:
+        st.warning(f"Cannot sort by '{sort_by_actual}': Column not found in filtered data.")
+
+
+# 6. Display Table using Markdown
+st.write("") # Add some vertical space
+st.subheader("Selected Abbreviations")
+
+if not display_dataframe.empty:
+    # Rename columns for display and format percentage
+    display_df_formatted = display_dataframe.rename(columns={
+        'abbreviation': 'Abbreviation',
+        'full_name': 'Full Phrase',
+        'usage_count': 'Usage',
+        'perc_abbr_matches': 'Match %'
+    })
+    # Define final columns order for display
+    display_columns_order = ['Abbreviation', 'Full Phrase', 'Match %', 'Usage']
+    # Select only the columns that actually exist in the dataframe
+    display_columns_exist = [col for col in display_columns_order if col in display_df_formatted.columns]
+    display_df_formatted = display_df_formatted[display_columns_exist]
+
+    try:
+        # Format percentage column if it exists
+        if 'Match %' in display_df_formatted.columns:
+            display_df_formatted['Match %'] = display_df_formatted['Match %'].map('{:.1%}'.format)
+    except Exception as fmt_e: st.warning(f"Could not format Match %: {fmt_e}")
+
+    # Convert the relevant part of the DataFrame to a Markdown table string
+    # Set index=True to include the DataFrame's default index (0, 1, 2...)
+    markdown_table = display_df_formatted.to_markdown(index=True)
+
+    # Display using st.markdown
+    st.markdown(markdown_table, unsafe_allow_html=False)
+else:
+    # Display message if no data meets criteria after filtering
+    st.info("No abbreviations match the current filter criteria.")
+
+
+# 7. Export Section
+st.divider()
+st.subheader("Export Selected Abbreviations")
+col_exp_sel, _ = st.columns([1, 1]) # Keep export controls less wide
+with col_exp_sel:
     selected_format = st.selectbox(
-        label="Choose an exportting format:", # Original label text
-        label_visibility="collapsed",  # Original setting
-        options=['plain', 'tabular', 'nomenclature'],
-        index=0,  # Original default index (plain)
-        key='format_selector', # Original key
-        help="Select the format for the abbreviation list output." # Original help text
+        label="Choose an exporting format:", label_visibility="collapsed", options=['plain', 'tabular', 'nomenclature'], index=0, key='format_selector', help="Select the format for the selected abbreviation list output."
     )
 
-    # --- Prepare and Display Formatted Output for Copying ---
-    # Initialize variable for the text area value
-    formatted_output = "" # Default to empty string
-    df_export = st.session_state.get('abbreviations_df', None) # Safely get the DataFrame
+formatted_output = "No abbreviations selected based on filters."
+# Use the final filtered AND sorted DataFrame for export
+df_export = display_dataframe
 
-    if df_export is not None:
-        # Check if the DataFrame is empty using .empty
-        if df_export.empty:
-            # Use the specific message for empty results
-            formatted_output = "No abbreviations found in the text."
-        else:
-            try:
-                # Pass the DataFrame to the formatting function
-                formatted_output = format_abbreviations(df_export, format_type=selected_format)
-            except Exception as format_e:
-                formatted_output = f"Error formatting output: {format_e}"
-                st.error(formatted_output) # Show error if formatting fails
-    # else: If df_export is None, formatted_output remains "" initially
+if df_export is not None and not df_export.empty:
+    try:
+        # Assumes format_abbreviations function is defined
+        formatted_output = format_abbreviations(df_export, format_type=selected_format)
+    except NameError as e: formatted_output = f"Error: `format_abbreviations` fn not defined."; st.error(formatted_output)
+    except Exception as format_e: formatted_output = f"Error formatting output: {format_e}"; st.error(formatted_output)
+elif 'collected_df' not in st.session_state or st.session_state.collected_df is None: formatted_output = "Process text first."
 
-    # Display the formatted output in the text area (Original settings)
-    st.text_area(
-        label="output_text_main", # Original internal label
-        label_visibility="collapsed", # Original setting
-        value=formatted_output, # Value is prepared above
-        height=150,  # Original height
-        help="Copy the output from this box.", # Original help text
-        key="output_text_area" # Original key
-    )
+st.text_area(label="Formatted Output for Copying:", label_visibility="visible", value=formatted_output, height=150, help="Copy the formatted output from this box.", key="output_text_area")
 
-
-# --- Explanations Section (Original Structure) ---
-st.divider() # Original separator
-st.subheader("About the Algorithm") # Original subheader
-
-# Define Content for Both Expanders (Keep existing text - updated slightly for accuracy)
+# 8. Explanations & Footer
+st.divider()
+st.subheader("About the Algorithm")
+# Define explanation text variables or load them elsewhere in your script
 summary_expander_label = "ⓘ How Abbreviation Extraction Works (Summary)"
-summary_explanation_text = """
-This tool attempts to find abbreviations defined within parentheses, like `Full Definition (Abbr)`, even in text containing LaTeX formatting. Here's the basic process:
-
-1.  **Finding Candidates:** It scans the text using regular expressions to locate potential `Definition (Abbr)` patterns, focusing on words on the same line just before the parentheses.
-2.  **Parsing Abbreviation:** It breaks down the abbreviation (e.g., `GRs`, `\\gamma R`) into core components (like `g`, `r` or `\\gamma`, `r`), ignoring plural 's' after capitals.
-3.  **Matching Backwards:** It looks backward from the abbreviation's components through the preceding words/separators to find likely corresponding words (e.g., matching 'R' to 'Residuals'). It handles letters and LaTeX commands differently during matching.
-4.  **Reconstructing Definition:** If a consistent match is found, it rebuilds the definition phrase, preserving original spacing and hyphens.
-5.  **Validation:** A match is considered valid only if a high enough percentage (e.g., >= 70%) of the abbreviation's components were matched.
-6.  **Usage Count:** It counts how many times the validly defined abbreviation appears elsewhere in the text (outside its definition).
-7.  **Output:** Returns results (Abbreviation, Full Name, Count) as a DataFrame, sorted alphabetically.
-
-*(This process uses heuristics, especially for LaTeX, so results may vary.)*
-"""
-
+summary_explanation_text = r"""(Your summary explanation text should be defined globally/above)"""
 detailed_expander_label = "ⓘ Detailed Algorithm Explanation"
-detailed_description_text = """
-This algorithm identifies abbreviations defined as `Full Definition Phrase (Abbr)` within text, including LaTeX, extracts the phrase, and counts usage.
+detailed_description_text = r"""(Your detailed explanation text should be defined globally/above)"""
+col1_exp, col2_exp = st.columns(2)
+# Use try-except or check if text variables exist before markdown
+try:
+    with col1_exp: st.expander(summary_expander_label).markdown(summary_explanation_text)
+    with col2_exp: st.expander(detailed_expander_label).markdown(detailed_description_text)
+except NameError: pass # Ignore if explanation text not defined
 
-**Core Steps:**
-
-1.  **Optional Preprocessing (`normalize_latex_math`):** Standardizes LaTeX comments, math delimiters (`\\(...\\)` to `\$...\$`), spacing around braces/commands.
-2.  **Candidate Identification (Regex):** Finds `Definition (Abbr)` patterns. Captures preceding words (Group 1, same line only) and the abbreviation (Group 2).
-3.  **Usage Counting:** Counts occurrences of each *potential* abbreviation string (from Group 2) elsewhere in the text using a separate regex pattern designed to match the abbreviation as a standalone unit. Stores these counts.
-4.  **Abbreviation Parsing (`get_abbr_repr_items`):** Creates a list (`abbr_items`) from the abbreviation. Keeps `\\commands` as strings, uses initial uppercase letters (ignoring trailing lowercase, e.g., `CPs` -> `c`, `p`), includes standalone lowercase.
-5.  **Preceding Text Tokenization (Split):** Splits preceding words into `words_ahead` using `re.split(r'([ -]+)', ...)`, retaining spaces/hyphens as separate tokens (empty strings removed).
-6.  **Backward Matching (`find_abbreviation_matches`):** Matches `abbr_items` to `words_ahead` tokens in reverse.
-    * **Word Analysis (`get_effective_char`):** Derives a single effective character (first letter after heuristic LaTeX stripping) from word tokens for letter-matching.
-    * **Comparison:** Matches command `abbr_items` if a word token starts with the command (allows leading `\$`). Matches letter `abbr_items` against a word token's `effective_char`. Skips separator tokens.
-    * Records `match_indices` (word index for each abbr index, or -1).
-7.  **Validation:** Calculates the ratio of successfully matched items (`count_matched / num_abbr_items`). Considers the definition valid if this ratio meets/exceeds a `match_threshold` (default 0.7).
-8.  **Phrase Reconstruction:** If valid, finds the min/max matched word indices, slices `words_ahead` (getting words and separators), and reconstructs the `full_name` using `"".join(slice)` to preserve original spacing/hyphens.
-9.  **Output Aggregation:** Stores valid `abbreviation`, reconstructed `full_name`, and pre-calculated `usage_count` in a dictionary.
-10. **Final Conversion & Sorting:** Converts the final dictionary into a Pandas DataFrame and sorts it alphabetically by abbreviation before returning.
-"""
-
-# Create Columns and Display Expanders (Original column setup)
-col1, col2 = st.columns(2)
-with col1:
-    with st.expander(summary_expander_label):
-        st.markdown(summary_explanation_text)
-with col2:
-    with st.expander(detailed_expander_label):
-        st.markdown(detailed_description_text)
-
-
-# --- Footer (Original Structure) ---
+# --- Footer ---
 st.markdown("---")
 st.caption("Author: Longhai Li, https://longhaisk.github.io, Saskatoon, SK, Canada")
-# Original commented out date logic
-# current_date_param = st.query_params.get('current_date', 'N/A')
-# st.caption(f"Current date (from URL param 'current_date', if provided): {current_date_param}")
-# st.caption(f"Actual current server time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} (CST)") # Indicate CST
-# st.caption("Location context: Saskatoon, SK, Canada")
 
