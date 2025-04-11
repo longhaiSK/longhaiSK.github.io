@@ -7,7 +7,7 @@
 
 # # Import libraries
 
-# In[132]:
+# In[148]:
 
 
 import pandas as pd
@@ -24,7 +24,7 @@ DEBUG = "streamlit" not in hostname.lower()  # Assume cloud has "streamlit" in h
 
 # # Preprocessing Text with Space Inserted or Removed
 
-# In[133]:
+# In[149]:
 
 
 # Functions for normalizing and extracting abbrs
@@ -45,7 +45,7 @@ upper_greek_cmds = [
 
 # ## normalize_dollar_spacing
 
-# In[134]:
+# In[150]:
 
 
 #Here's a summary of the functions:
@@ -123,7 +123,7 @@ def normalize_dollar_spacing(text):
 
 # ## Normalization Function 
 
-# In[135]:
+# In[151]:
 
 
 # --- Normalization Function ---
@@ -216,7 +216,7 @@ def normalize_latex_math(text):
 
 # ## KNOWN_COMMAND_NAMES
 
-# In[136]:
+# In[152]:
 
 
 # --- Expanded KNOWN_COMMAND_NAMES Set ---
@@ -290,7 +290,7 @@ KNOWN_COMMAND_NAMES = {
 
 # ##  Get Abbr Letters
 
-# In[137]:
+# In[153]:
 
 
 # --- REVISED get_letters_abbrs (Handles consecutive numbers \d+) ---
@@ -362,55 +362,30 @@ def get_letters_abbrs(abbr_string):
 
     return representative_items, original_parts
 
+if (False):
 # --- Example Usage ---
-print("--- Testing get_letters_abbrs (Corrected for Consecutive Numbers) ---")
-abbr1 = "GLM"
-abbr2 = r"\alpha SP"
-abbr3 = "BFN1"
-abbr4 = "Version 3" # Should yield v, 3
-abbr5 = "H2O"
-abbr6 = "Li et al. 2025" # Should yield l, e, a, l, 2025
-
-abbreviations_to_test = [abbr1, abbr2, abbr3, abbr4, abbr5, abbr6]
-
-for abbr_str in abbreviations_to_test:
-    comparable_items, original_segments = get_letters_abbrs(abbr_str)
-    print(f"Input:  '{abbr_str}'")
-    print(f"  -> Comparables: {comparable_items}")
-    print(f"  -> Originals:   {original_segments}")
-    print("-" * 20)
-
-# Expected Output:
-# --- Testing get_letters_abbrs (Corrected for Consecutive Numbers) ---
-# Input:  'GLM'
-#   -> Comparables: ['g', 'l', 'm']
-#   -> Originals:   ['G', 'L', 'M']
-# --------------------
-# Input:  '\alpha SP'
-#   -> Comparables: ['alpha', 's', 'p']
-#   -> Originals:   ['\\alpha', 'S', 'P']
-# --------------------
-# Input:  'BFN1'
-#   -> Comparables: ['b', 'f', 'n1']
-#   -> Originals:   ['B', 'F', 'N1']
-# --------------------
-# Input:  'Version 3'
-#   -> Comparables: ['v', '3']
-#   -> Originals:   ['Version', '3']
-# --------------------
-# Input:  'H2O'
-#   -> Comparables: ['h2', 'o']
-#   -> Originals:   ['H2', 'O']
-# --------------------
-# Input:  'Li et al. 2025'
-#   -> Comparables: ['l', 'e', 'a', 'l', '2025'] <-- Now correct for 2025
-#   -> Originals:   ['Li', 'et', 'al', 'l', '2025']
-# --------------------
+    print("--- Testing get_letters_abbrs (Corrected for Consecutive Numbers) ---")
+    abbr1 = "GLM"
+    abbr2 = r"\alpha SP"
+    abbr3 = "BFN1"
+    abbr4 = "Version 3" # Should yield v, 3
+    abbr5 = "H2O"
+    abbr6 = "Li et al. 2025" # Should yield l, e, a, l, 2025
+    
+    abbreviations_to_test = [abbr1, abbr2, abbr3, abbr4, abbr5, abbr6]
+    
+    for abbr_str in abbreviations_to_test:
+        comparable_items, original_segments = get_letters_abbrs(abbr_str)
+        print(f"Input:  '{abbr_str}'")
+        print(f"  -> Comparables: {comparable_items}")
+        print(f"  -> Originals:   {original_segments}")
+        print("-" * 20)
+    
 
 
 # ## Get Words Letters
 
-# In[139]:
+# In[155]:
 
 
 # Assume KNOWN_COMMAND_NAMES set is defined
@@ -473,7 +448,7 @@ def get_letters_words(word: str, debug: bool = False) -> str:
 
 # ## find_abbreviation_matches
 
-# In[140]:
+# In[176]:
 
 
 def find_abbreviation_matches(words_ahead, abbr_string, debug=True):
@@ -513,13 +488,14 @@ def find_abbreviation_matches(words_ahead, abbr_string, debug=True):
 
     if debug:
         # Print initial state for debugging
-        print(f"\n--- Starting find_abbreviation_matches (for '{abbr_string}') ---")
-        print(f"  Words Ahead ({num_words}): {words_ahead}")
-        print(f"  Words Ahead Comparables ({len(words_ahead_comparables)}): {words_ahead_comparables}")
+        print("\n" + ("=" * 100))
+        #print(f"Starting find_abbreviation_matches for ('{abbr_string}')\n")
+        # print(f"  Words Ahead ({num_words}): {words_ahead}")
+        # print(f"  Words Ahead Comparables ({len(words_ahead_comparables)}): {words_ahead_comparables}")
         print(f"  Abbr Items (Letter/CmdName) ({num_abbr_items}): {abbr_items}")
-        print(f"  Original Abbr Parts ({len(original_abbr_parts)}): {original_abbr_parts}")
-        # Removed threshold print
-        print("-" * 20)
+        # print(f"  Original Abbr Parts ({len(original_abbr_parts)}): {original_abbr_parts}")
+        # # Removed threshold print
+        # print("-" * 20)
 
     # --- Matching Loop ---
     for abbr_idx in range(num_abbr_items - 1, -1, -1):
@@ -550,26 +526,28 @@ def find_abbreviation_matches(words_ahead, abbr_string, debug=True):
 
     # --- Debugging Output Section ---
     if debug:
-        # Print calculated results
-        print(f"{'-'*20}\n  Matching Complete: Matched {count_matched}/{num_abbr_items} items.")
-        print(f"  Abbr Match Ratio: {match_ratio:.2f}")
-        print(f"  Words Matched Ratio (in range): {perc_words_matched:.2f}")
-        print(f"  Final match indices (abbr_idx -> word_idx): {match_indices}") # Keep this useful index map
-
+ 
         # Keep calculation and printing of the final debug DataFrame
         matched_abbrs_string = [''] * num_words; matched_abbrs_comparable = [''] * num_words
         for i, w_idx in enumerate(match_indices):
             if w_idx != -1 and 0 <= w_idx < num_words:
                 if 0 <= i < len(abbr_items): matched_abbrs_comparable[w_idx] = abbr_items[i]
                 if 0 <= i < len(original_abbr_parts): matched_abbrs_string[w_idx] = original_abbr_parts[i]
-        print("\n  Matching Details (Debug DataFrame):")
+        #print("\n  Matching Details (Debug DataFrame):")
         try:
             debug_data = {'Words Ahead': words_ahead,'Words Ahead Comparables': words_ahead_comparables,'Matched Abbrs (String)': matched_abbrs_string,'Matched Abbrs (Comparable)': matched_abbrs_comparable}
             if all(len(lst) == num_words for lst in debug_data.values()):
                 df_debug = pd.DataFrame(debug_data); print(f"\n  Matching Result (Rows: Words, Comparables, MatchOrig, MatchComp):\n{textwrap.indent(df_debug.T.to_string(), '    ')}")
             else: print("\n  [DEBUG] Error: Length mismatch for debug DataFrame.")
         except Exception as e_debug: print(f"\n  [DEBUG] Error creating debug DataFrame: {e_debug}")
-        print("--- Ending find_abbreviation_matches ---\n")
+        #print("--- Ending find_abbreviation_matches ---\n")
+        
+       # Print calculated results
+        print(f"\nMatching Complete: Matched {count_matched}/{num_abbr_items} items.")
+        print(f"  Abbr Match Ratio: {match_ratio:.2f}")
+        print(f"  Words Matched Ratio (in range): {perc_words_matched:.2f}")
+        print(f"  Final match indices (abbr_idx -> word_idx): {match_indices}"+"\n") # Keep this useful index map
+
     # --- END Debugging Output Section ---
 
     # --- Return the results ---
@@ -580,7 +558,7 @@ def find_abbreviation_matches(words_ahead, abbr_string, debug=True):
 
 # ## Collect_abbreviations
 
-# In[141]:
+# In[177]:
 
 
 import re
@@ -608,7 +586,7 @@ def collect_abbreviations(text, debug=False):
                       Returns empty DataFrame if no candidates found.
     """
     # Initial pattern find candidates
-    pattern = r'((?:[\w\\\$\{\}]+[ -]+){1,10}(?:[\w\\\$\{\}]+)[ -]?)\(([^\(\)]*[a-zA-Z0-9]{2,}[^\(\)]*)\)'
+    #pattern = r'((?:[\w\\\$\{\}]+[ -]+){1,10}(?:[\w\\\$\{\}]+)[ -]?)\(([^\(\)]*[a-zA-Z0-9]{2,}[^\(\)]*)\)'
     pattern = r'((?:[\w\\\$\{\}]+[ -]+){1,10}(?:[\w\\\$\{\}]+)[ -]?)\((?=[^\(\)\,]*[A-Z])([^\(\)\,]*[a-zA-Z0-9]{2,}[^\(\)\,]*)\)'
 #                                                                    ^^^^^^^^^^^^^^^^^^^  <-- Added Positive Lookahead
     matches = re.findall(pattern, text)
@@ -644,7 +622,8 @@ def collect_abbreviations(text, debug=False):
     # Process each candidate found by the initial regex
     all_candidate_data = []
     for match_idx, match in enumerate(matches):
-        words_before_abbr_text = match[0].strip(); abbr_string = match[1].strip()
+        words_before_abbr_text = match[0].strip()
+        abbr_string = match[1].strip()
         current_usage_count = abbr_usage_count.get(abbr_string, 0) # Get pre-calculated count
 
         # if debug: print(f"\n--- Collecting Candidate {match_idx+1}: Abbr='{abbr_string}' ---") # Keep debug minimal
@@ -657,7 +636,11 @@ def collect_abbreviations(text, debug=False):
         full_name = ""; match_ratio = 0.0; perc_words = 0.0; match_indices = []
 
         if words_ahead:
-            # Call find_abbreviation_matches to get indices and ratios
+            if (debug): 
+                print ("=" * 100)
+                print("\n" + f"Starting the matching process for Candidate {match_idx}" + "\n")
+                print(" " * 10 + f" {words_before_abbr_text} ({abbr_string})")           
+                # Call find_abbreviation_matches to get indices and ratios
             # Assumes find_abbreviation_matches is defined and returns tuple(list, float, float)
             try:
                  match_indices, ratio_result, perc_words_result = find_abbreviation_matches(
@@ -714,7 +697,7 @@ def collect_abbreviations(text, debug=False):
 
 # ## Select Abbreviations
 
-# In[142]:
+# In[158]:
 
 
 # --- 5.2 select_abbreviations ---
@@ -751,7 +734,7 @@ def select_abbreviations(
     if not all(col in collected_df.columns for col in required_cols):
          if debug: print(f"select_abbreviations: Input missing required columns."); return empty_df
 
-    if debug: print(f"\n--- Starting select_abbreviations ---\n Input: {len(collected_df)}\n Filters: AbbrRatio>={threshold_perc_abbr_matches}, Usage>={threshold_usage}, WordRatio>={threshold_perc_words_matched}")
+    #if debug: print(f"\n--- Starting select_abbreviations ---\n Input: {len(collected_df)}\n Filters: AbbrRatio>={threshold_perc_abbr_matches}, Usage>={threshold_usage}, WordRatio>={threshold_perc_words_matched}")
 
     # Apply Filters (including new one)
     filtered_df = collected_df[
@@ -763,7 +746,7 @@ def select_abbreviations(
     if filtered_df.empty:
         if debug: print(f"  Filtering Result: No abbreviations met criteria.")
         return empty_df # Return empty DF with correct columns
-    if debug: print(f"  Filtering Result: {len(filtered_df)} passed criteria.\n--- Ending select_abbreviations ---")
+    #if debug: print(f"  Filtering Result: {len(filtered_df)} passed criteria.\n--- Ending select_abbreviations ---")
 
     # Return the filtered DataFrame (unsorted, contains all collected columns)
     return filtered_df
@@ -771,7 +754,7 @@ def select_abbreviations(
 
 # # Formatting abbrs 
 
-# In[143]:
+# In[159]:
 
 
 # --- 6. Formatting abbrs ---
@@ -809,7 +792,7 @@ def format_abbreviations(abbr_df, format_type):
 
 # ## example_text
 
-# In[144]:
+# In[160]:
 
 
 example_text = r"""Paste your latex text (LT)  and enjoy the app (ETA). There is no limitation of the length of text (LT).  
@@ -835,9 +818,9 @@ The abbreviations used above include: AFT, BZR,  DA,  ETA, LT, RSP,  RA, TC, $\a
 
 # ## Testing
 
-# # Streamlit Interface
+# # Streamlit UI
 
-# ## Algorithm Description
+# ## Descriptions
 
 # In[ ]:
 
@@ -865,6 +848,7 @@ Here’s a simplified overview:
 
 *(Disclaimer: This process uses specific rules and heuristics. It may not catch all possible ways abbreviations are defined and might sometimes misinterpret patterns, especially with very complex LaTeX.)*
 """
+
 
 detailed_expander_label = "ⓘ Detailed Algorithm Explanation"
 detailed_description_text = r"""
@@ -896,7 +880,7 @@ This algorithm identifies and extracts abbreviation definitions like `Full Defin
 # --- END Define explanation text variables ---
 
 
-# ## Interface Code
+# ## App UI
 
 # In[ ]:
 
@@ -960,6 +944,9 @@ This algorithm identifies and extracts abbreviation definitions like `Full Defin
 # --- END Define explanation text variables ---
 
 
+# In[ ]:
+
+
 st.set_page_config(layout="wide")
 st.title(r"Extracting Abbreviations from $\LaTeX$ Text")
 
@@ -969,6 +956,7 @@ if 'last_input_text_processed' not in st.session_state: st.session_state.last_in
 if 'last_input_text' not in st.session_state:
     try: st.session_state.last_input_text = example_text
     except NameError: st.session_state.last_input_text = ""
+        
 # --- MODIFIED: Initialize state for duplicate removal option ---
 if 'clear_duplicates_option' not in st.session_state: st.session_state.clear_duplicates_option = 'No' # Default to 'No'
 
@@ -976,7 +964,7 @@ if 'clear_duplicates_option' not in st.session_state: st.session_state.clear_dup
 try: _ = DEBUG
 except NameError: DEBUG = False
 
-# --- UI Layout (Top to Bottom) ---
+# --- UI Layout (Top to Bottom) ---  
 
 # 1. Input Area
 st.subheader("Paste Your Text")
@@ -1005,15 +993,20 @@ elif collection_needed and not input_text:
     st.session_state.collected_df = None
     st.session_state.last_input_text_processed = None
     st.session_state.clear_duplicates_option = 'No'
+    
 
-# --- NEW: Display Persistent Collection Status ---
-# This block runs on every rerun after Section 2
+
+# In[ ]:
+
+
+# --- NEW: Display Persistent Collection Status ---   
+# This block runs on every rerun after Section 2     
 if st.session_state.get('collected_df') is not None:
     # Check if DataFrame is truly populated (might be empty DF on init/error)
     if isinstance(st.session_state.collected_df, pd.DataFrame):
          count = len(st.session_state.collected_df)
          # Use st.info for the persistent message
-         st.info(f"Extracted {count} Possible Abbreviation{'s' if count != 1 else ''} from the input text.") # Added context
+         st.info(f"{count} Possible Abbreviation{'s' if count != 1 else ''} Extracted. Filter them below.") # Added context
     # else: # collected_df might be None or not a DataFrame after an error
          # No message shown if data is None or invalid
          pass
@@ -1051,20 +1044,55 @@ collected_data_raw = st.session_state.get('collected_df', pd.DataFrame(columns=c
 col_f1, col_f2, col_f3, col_s1, col_dup, _ = st.columns([1, 1, 1, 1, 1, 5]) # 5 controls + spacer
 
 with col_f1:
-    usage_options=list(range(11))
-    usage_threshold = st.selectbox("Usage (Min):", options=usage_options, index=0, key="usage_filter")
+    usage_options = list(range(11))
+    # Replace ">=" with Unicode \u2265 (≥)
+    usage_threshold = st.selectbox(
+        "Usage \u2265",  # Label uses Unicode character
+        options=usage_options,
+        index=0,
+        key="usage_filter"
+    )
+    # Alternatively, if your editor supports it, you could use:
+    # usage_threshold = st.selectbox("Usage ≥", ...)
+
 with col_f2:
-    abbr_perc_options=[0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-    default_abbr_idx=abbr_perc_options.index(0.7) if 0.7 in abbr_perc_options else 7
-    perc_abbr_match_threshold=st.selectbox("% Abbr Matched (Min):", options=abbr_perc_options, index=default_abbr_idx, key="perc_abbr_match_filter", format_func=lambda x:f"{x*100:.0f}%")
+    abbr_perc_options = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    default_abbr_idx = abbr_perc_options.index(0.7) if 0.7 in abbr_perc_options else 7
+    # Replace ">=" with Unicode \u2265 (≥)
+    perc_abbr_match_threshold = st.selectbox(
+        "% Abbr Matched \u2265", # Label uses Unicode character
+        options=abbr_perc_options,
+        index=default_abbr_idx,
+        key="perc_abbr_match_filter",
+        format_func=lambda x: f"{x*100:.0f}%"
+    )
+    # Alternatively:
+    # perc_abbr_match_threshold = st.selectbox("% Abbr Matched ≥", ...)
+
 with col_f3:
-    word_perc_options=[0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-    default_word_idx=word_perc_options.index(0.4) if 0.4 in word_perc_options else 4
-    perc_words_match_threshold=st.selectbox("% Words Matched (Min):", options=word_perc_options, index=default_word_idx, key="perc_words_match_filter", format_func=lambda x:f"{x*100:.0f}%")
+    word_perc_options = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    default_word_idx = word_perc_options.index(0.3) if 0.3 in word_perc_options else 4
+     # Replace ">=" with Unicode \u2265 (≥)
+    perc_words_match_threshold = st.selectbox(
+        "% Words Matched \u2265", # Label uses Unicode character
+        options=word_perc_options,
+        index=default_word_idx,
+        key="perc_words_match_filter",
+        format_func=lambda x: f"{x*100:.0f}%"
+    )
+    # Alternatively:
+    # perc_words_match_threshold = st.selectbox("% Words Matched ≥", ...)
+
 with col_s1:
-    sort_options=['Abbreviation', 'Full Phrase', 'Usage', '% Abbr Matched', '% Words Matched']
-    sort_column_map={'Abbreviation':'abbreviation', 'Full Phrase':'full_name', 'Usage':'usage_count', '% Abbr Matched':'perc_abbr_matches', '% Words Matched':'perc_words_matched'}
-    sort_by_display=st.selectbox("Sort by:",options=sort_options,index=0,key="sort_selector")
+    sort_options = ['Abbreviation', 'Full Phrase', 'Usage', '% Abbr Matched', '% Words Matched']
+    sort_column_map = {'Abbreviation': 'abbreviation', 'Full Phrase': 'full_name', 'Usage': 'usage_count', '% Abbr Matched': 'perc_abbr_matches', '% Words Matched': 'perc_words_matched'}
+    # This label was fine, no change needed
+    sort_by_display = st.selectbox(
+        "Sort by:",
+        options=sort_options,
+        index=0,
+        key="sort_selector"
+    )
 
 # --- MODIFIED: Use Selectbox for clearing duplicates ---
 with col_dup:
