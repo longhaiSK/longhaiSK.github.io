@@ -1189,7 +1189,8 @@ with col_note_left:
             else: zero_usage_abbrs_to_report = all_zero_usage_abbrs
             if zero_usage_abbrs_to_report:
                 notes_found = True; abbr_list_str = ", ".join(zero_usage_abbrs_to_report)
-                note_text = "**Zero usage found for displayed abbreviations:** " + abbr_list_str; st.markdown(f"ℹ️ {note_text}", unsafe_allow_html=False)            
+                note_text = "**Zero usage found for displayed abbreviations:** " + abbr_list_str; st.markdown(f"ℹ️ {note_text}", unsafe_allow_html=False)       
+                
         # --- Display Persistent Collection Status ---
         
 

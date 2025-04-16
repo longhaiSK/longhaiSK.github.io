@@ -947,6 +947,19 @@ This algorithm identifies and extracts abbreviation definitions like `Full Defin
 # In[ ]:
 
 
+import streamlit as st
+import pandas as pd # Assuming pandas is used and imported
+
+# --- Assumed Definitions ---
+# Ensure the following are defined or imported in your environment:
+# - Functions: normalize_latex_math, collect_abbreviations, select_abbreviations, format_abbreviations
+# - Variables: DEBUG (boolean), example_text (optional string),
+#              summary_expander_label, summary_explanation_text,
+#              detailed_expander_label, detailed_description_text
+# ---
+
+# --- Streamlit App Code ---
+
 st.set_page_config(layout="wide")
 st.title(r"Extracting Abbreviations from $\LaTeX$ Text")
 
@@ -1000,12 +1013,6 @@ elif collection_needed and not input_text:
     st.session_state.clear_duplicates_option = 'No'
 
 
-# --- Display Persistent Collection Status ---
-if st.session_state.get('collected_df') is not None:
-    if isinstance(st.session_state.collected_df, pd.DataFrame):
-          count = len(st.session_state.collected_df)
-          st.info(f"{count} Possible Abbreviation{'s' if count != 1 else ''} Extracted. Filter them below.")
-    pass # No message if data is None or invalid
 
 
 # --- Prepare Data Source (Handle Duplicates) ---
@@ -1119,14 +1126,19 @@ st.write("") # Spacer from controls
 # Section Header and Sort Control (Adjusted Ratio)
 # Define sort options just before use
 
-st.subheader("Selected Abbreviations")
-sort_options = ['Abbreviation', 'Full Phrase', 'Usage', '% Abbr Matched', '% Words Matched']
-col_header_left, _ = st.columns([2, 15]) 
-with col_header_left: 
-    st.selectbox( "Sort by:", options=sort_options, key="sort_selector", )
+# Assume pandas as pd is imported
+# Assume display_dataframe is defined and populated earlier in your script
+# Assume st is imported (import streamlit as st)
+
+st.subheader("Selected Abbreviations") # Keep user's layout
+sort_options = ['Abbreviation', 'Full Phrase', 'Usage', '% Abbr Matched', '% Words Matched'] # Keep user's layout
+col_header_left, _ = st.columns([2, 15]) # Keep user's layout
+with col_header_left: # Keep user's layout
+    st.selectbox( "Sort by:", options=sort_options, key="sort_selector") # Keep user's layout
 
 # Display Table using Markdown
 if not display_dataframe.empty:
+    # --- Start: Your existing formatting ---
     display_df_formatted = display_dataframe.rename(columns={ 'abbreviation': 'Abbreviation', 'full_name': 'Full Phrase', 'usage_count': 'Usage', 'perc_abbr_matches': '% Abbr Matched', 'perc_words_matched': '% Words Matched' })
     display_columns_order = ['Abbreviation', 'Full Phrase', 'Usage', '% Abbr Matched', '% Words Matched']
     display_columns_exist = [col for col in display_columns_order if col in display_df_formatted.columns]
@@ -1135,17 +1147,33 @@ if not display_dataframe.empty:
         if '% Abbr Matched' in display_df_formatted.columns: display_df_formatted['% Abbr Matched'] = display_df_formatted['% Abbr Matched'].apply(lambda x: f"{x:.1%}" if pd.notna(x) and isinstance(x, (int, float)) else x)
         if '% Words Matched' in display_df_formatted.columns: display_df_formatted['% Words Matched'] = display_df_formatted['% Words Matched'].apply(lambda x: f"{x:.1%}" if pd.notna(x) and isinstance(x, (int, float)) else x)
     except Exception as fmt_e: st.warning(f"Could not format percentage columns: {fmt_e}")
+    # --- End: Your existing formatting ---
+
+    # --- ADDED: Set index to start from 1 ---
+    n_rows = len(display_df_formatted)
+    if n_rows > 0: # Only set index if there are rows
+      # Create and assign a new index starting from 1
+      display_df_formatted.index = pd.RangeIndex(start=1, stop=n_rows + 1, step=1)
+    # --- END ADDED ---
+
+    # Convert to Markdown (index=True still needed to display the index column)
     markdown_table = display_df_formatted.to_markdown(index=True)
     st.markdown(markdown_table, unsafe_allow_html=False)
 else:
+    # Your existing logic for empty dataframe
     if st.session_state.get('collected_df') is not None and isinstance(st.session_state.collected_df, pd.DataFrame) and not st.session_state.collected_df.empty:
         st.info("No abbreviations match the current filter criteria.")
     # else: # No message if no data loaded initially, handled by collection status
-
 # Display Info Notes (Corrected logic from before)
 col_note_left, _ = st.columns([1, 1])
 with col_note_left:
     if not display_dataframe.empty:
+        if st.session_state.get('collected_df') is not None:
+            if isinstance(st.session_state.collected_df, pd.DataFrame):
+                  count = len(st.session_state.collected_df)
+                  st.markdown(f"ℹ️ A total of {count} Possible Abbreviation{'s' if count != 1 else ''} Found. **Click 'Show All' to see all of them.**")
+            pass # No message if data is None or invalid
+
         notes_found = False; duplicates_df = pd.DataFrame()
         if st.session_state.clear_duplicates_option == 'No':
             duplicate_mask_display = display_dataframe['abbreviation'].duplicated(keep=False)
@@ -1161,9 +1189,10 @@ with col_note_left:
             else: zero_usage_abbrs_to_report = all_zero_usage_abbrs
             if zero_usage_abbrs_to_report:
                 notes_found = True; abbr_list_str = ", ".join(zero_usage_abbrs_to_report)
-                note_text = "**Zero usage found for displayed abbreviations:** " + abbr_list_str; st.markdown(f"ℹ️ {note_text}", unsafe_allow_html=False)
-        if notes_found: st.write("")
-
+                note_text = "**Zero usage found for displayed abbreviations:** " + abbr_list_str; st.markdown(f"ℹ️ {note_text}", unsafe_allow_html=False)       
+                
+        # --- Display Persistent Collection Status ---
+        
 
 # --- Export Section ---
 st.divider(); st.subheader("Export Selected Abbreviations")
@@ -1193,5 +1222,4 @@ except NameError:
     st.warning("Explanation text variables (e.g., summary_expander_label) not defined.") # Add warning if variables missing
 
 st.markdown("---"); st.caption("Author: Longhai Li, https://longhaisk.github.io, Saskatoon, SK, Canada")
-
 
