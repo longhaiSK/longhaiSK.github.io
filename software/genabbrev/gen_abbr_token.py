@@ -947,107 +947,102 @@ This algorithm identifies and extracts abbreviation definitions like `Full Defin
 # In[ ]:
 
 
-# Assume necessary imports like streamlit as st, pandas as pd are present
-# Assume necessary functions like normalize_latex_math, collect_abbreviations,
-# select_abbreviations, format_abbreviations, etc. are defined elsewhere in your script.
-# Assume DEBUG is defined (e.g., DEBUG = False)
-# Assume example_text might be defined elsewhere in your script for initialization.
+import streamlit as st
+import pandas as pd # Assuming pandas is used and imported
+
+# --- Assumed Definitions ---
+# Ensure the following are defined or imported in your environment:
+# - Functions: normalize_latex_math, collect_abbreviations, select_abbreviations, format_abbreviations
+# - Variables: DEBUG (boolean), example_text (optional string),
+#              summary_expander_label, summary_explanation_text,
+#              detailed_expander_label, detailed_description_text
+# ---
+
+# --- Streamlit App Code ---
 
 st.set_page_config(layout="wide")
 st.title(r"Extracting Abbreviations from $\LaTeX$ Text")
 
 # --- Initialize Session State (Essential for UI statefulness) ---
-# Keeping your original initialization logic
 if 'collected_df' not in st.session_state: st.session_state.collected_df = None
 if 'last_input_text_processed' not in st.session_state: st.session_state.last_input_text_processed = None
 if 'last_input_text' not in st.session_state:
     try: st.session_state.last_input_text = example_text # Uses example_text if defined in your scope
     except NameError: st.session_state.last_input_text = ""
 
-# Initialize filter/sort states using your original defaults if they don't exist
-if 'usage_filter' not in st.session_state:
-    st.session_state.usage_filter = 0
-if 'perc_abbr_match_filter' not in st.session_state:
-    st.session_state.perc_abbr_match_filter = 0.7
-if 'perc_words_match_filter' not in st.session_state:
-    st.session_state.perc_words_match_filter = 0.3
-if 'clear_duplicates_option' not in st.session_state:
-    st.session_state.clear_duplicates_option = 'No' # Default 'No' from your original code
-if 'sort_selector' not in st.session_state:
-    st.session_state.sort_selector = 'Abbreviation'
+# Initialize filter/sort states with defaults IF THEY DON'T EXIST
+if 'usage_filter' not in st.session_state: st.session_state.usage_filter = 0
+if 'perc_abbr_match_filter' not in st.session_state: st.session_state.perc_abbr_match_filter = 0.7
+if 'perc_words_match_filter' not in st.session_state: st.session_state.perc_words_match_filter = 0.3
+if 'clear_duplicates_option' not in st.session_state: st.session_state.clear_duplicates_option = 'No'
+if 'sort_selector' not in st.session_state: st.session_state.sort_selector = 'Abbreviation'
 
-# Assumes DEBUG = False (or True) is defined globally/above
+# Assume DEBUG is defined (e.g., DEBUG = False)
 try: _ = DEBUG
-except NameError: DEBUG = False
+except NameError: DEBUG = False # Default if not defined elsewhere
+
 
 # --- UI Layout (Top to Bottom) ---
 
-# 1. Input Area (Your original code)
+# 1. Input Area
 st.subheader("Paste Your Text")
 input_text = st.text_area(label="...", label_visibility="collapsed", value=st.session_state.last_input_text, height=250, key="input_text_area")
 st.caption("Privacy: this app does not save your text.")
 process_button = st.button("Process Text and Extract Abbreviations", type="primary")
 
 
-# 2. Processing Logic (Run Collection) (Your original code)
+# 2. Processing Logic (Run Collection)
 collection_needed = False
 if process_button: collection_needed = True; st.session_state.last_input_text = input_text
-elif input_text != st.session_state.get('last_input_text_processed', None): collection_needed = True # Trigger on text change
+elif input_text != st.session_state.get('last_input_text_processed', None): collection_needed = True
 
 if collection_needed and input_text:
-    st.session_state.clear_duplicates_option = 'No' # Reset selectbox as per your logic
+    st.session_state.clear_duplicates_option = 'No' # Reset selectbox
     with st.spinner("Collecting..."):
         try:
-            normalized_text = normalize_latex_math(input_text) # Assumes function exists
-            st.session_state.collected_df = collect_abbreviations(normalized_text, debug=DEBUG) # Assumes function exists
+            # Assumes normalize_latex_math and collect_abbreviations are defined elsewhere
+            normalized_text = normalize_latex_math(input_text)
+            st.session_state.collected_df = collect_abbreviations(normalized_text, debug=DEBUG)
             st.session_state.last_input_text_processed = input_text
-            # --- REMOVED st.info from here as per your original ---
         except NameError as e: st.error(f"Function missing: {e}"); st.session_state.collected_df = None; st.session_state.last_input_text_processed = input_text
-        except Exception as e: st.error(f"Error: {e}"); st.session_state.collected_df = None; st.session_state.last_input_text_processed = input_text
+        except Exception as e: st.error(f"Error during collection: {e}"); st.session_state.collected_df = None; st.session_state.last_input_text_processed = input_text
 elif collection_needed and not input_text:
     st.warning("Please enter text.")
     st.session_state.collected_df = None
     st.session_state.last_input_text_processed = None
-    st.session_state.clear_duplicates_option = 'No' # Reset as per your logic
+    st.session_state.clear_duplicates_option = 'No'
 
 
-# --- Display Persistent Collection Status --- (Your original code)
+# --- Display Persistent Collection Status ---
 if st.session_state.get('collected_df') is not None:
     if isinstance(st.session_state.collected_df, pd.DataFrame):
           count = len(st.session_state.collected_df)
           st.info(f"{count} Possible Abbreviation{'s' if count != 1 else ''} Extracted. Filter them below.")
-    pass
+    pass # No message if data is None or invalid
 
 
-# --- Define necessary variables/maps --- (Needed before filtering/sorting)
-
+# --- Prepare Data Source (Handle Duplicates) ---
+# Define column names just before use
 collected_data_columns = ['abbreviation', 'full_name', 'perc_abbr_matches', 'perc_words_matched', 'usage_count']
-sort_column_map = {'Abbreviation': 'abbreviation', 'Full Phrase': 'full_name', 'Usage': 'usage_count', '% Abbr Matched': 'perc_abbr_matches', '% Words Matched': 'perc_words_matched'}
-sort_options = ['Abbreviation', 'Full Phrase', 'Usage', '% Abbr Matched', '% Words Matched']
-# --- END ADD ---
-
-# --- Prepare Data Source (Handle Duplicates) --- (Your original code, Section before filtering)
 collected_data_raw = st.session_state.get('collected_df', pd.DataFrame(columns=collected_data_columns)).copy()
 data_to_filter = collected_data_raw
 if st.session_state.clear_duplicates_option == 'Yes' and isinstance(collected_data_raw, pd.DataFrame) and not collected_data_raw.empty and 'abbreviation' in collected_data_raw.columns:
     try:
         data_to_filter = collected_data_raw.drop_duplicates(subset=['abbreviation'], keep='first', ignore_index=True)
     except Exception as e_dup:
-         st.warning(f"Issue removing duplicates: {e_dup}") # Minimal warning
+         st.warning(f"Issue removing duplicates: {e_dup}")
 
 
-# --- Filtering Controls (NEW LAYOUT) ---
+# --- Filtering Controls (Layout Adjusted) ---
 st.divider()
 
-# Row 1: Header and Action Buttons
-col_header, col_reset, col_show_all, col_spacer_h = st.columns([3, 1, 1, 3]) # Adjust spacer ratio as needed
+st.subheader("Filtering Controls") # Renamed subheade
+# Row 1: Header and Action Buttons (Adjusted Ratios)
+col_reset, col_show_all, col_spacer_h = st.columns([4, 3, 35]) # Ratio [2, 1, 1, 4] makes header tighter with buttons
 
-with col_header:
-    st.subheader("Filters") # Renamed subheader
 
 with col_reset:
-    if st.button("Reset", key="reset_filters_button", help="Reset filters to default values."):
-        # Reset to defaults from your initialization block
+    if st.button("Reset Filters", key="reset_filters_button", help="Reset filters to default values."):
         st.session_state.usage_filter = 0
         st.session_state.perc_abbr_match_filter = 0.7
         st.session_state.perc_words_match_filter = 0.3
@@ -1062,48 +1057,36 @@ with col_show_all:
         st.session_state.clear_duplicates_option = 'No'
         st.rerun() # Rerun immediately on click
 
-# Define options needed for the selectboxes (can be defined here or earlier)
+
+# Define options needed for the selectboxes
 usage_options = list(range(11))
 abbr_perc_options = [round(i * 0.1, 1) for i in range(11)]
 word_perc_options = [round(i * 0.1, 1) for i in range(11)]
 duplicate_options = ['No', 'Yes']
-# sort_options defined elsewhere or near the sort selectbox
 
-# Row 2: Filter Selectboxes
-col_f1, col_f2, col_f3, col_dup = st.columns(4) # Use 4 columns for the 4 filters
+# Row 2: Filter Selectboxes (Occupying ~2/3 Width)
+col_f1, col_f2, col_f3, col_dup, _ = st.columns([1, 1, 1, 1, 3]) # Ratio [1, 1, 1, 1, 2] = 4 filters (total 4 parts) + spacer (2 parts) = 2/3 width
 
 with col_f1:
-    st.selectbox(
-        "Usage \u2265", options=usage_options, key="usage_filter"
-    )
+    st.selectbox( "Usage \u2265", options=usage_options, key="usage_filter" )
 with col_f2:
-    st.selectbox(
-        "% Abbr Match \u2265", options=abbr_perc_options, key="perc_abbr_match_filter",
-        format_func=lambda x: f"{x*100:.0f}%"
-    )
+    st.selectbox( "% Abbr Match \u2265", options=abbr_perc_options, key="perc_abbr_match_filter", format_func=lambda x: f"{x*100:.0f}%" )
 with col_f3:
-    st.selectbox(
-        "% Words Match \u2265", options=word_perc_options, key="perc_words_match_filter",
-        format_func=lambda x: f"{x*100:.0f}%"
-    )
+    st.selectbox( "% Words Match \u2265", options=word_perc_options, key="perc_words_match_filter", format_func=lambda x: f"{x*100:.0f}%" )
 with col_dup:
-    st.selectbox(
-        "Clear Duplicates:", options=duplicate_options, key='clear_duplicates_option',
-        help="Show only the first occurrence ('Yes') or all occurrences ('No') of each abbreviation based on collection order (before filtering)."
-    )
+    st.selectbox( "Clear Duplicates:", options=duplicate_options, key='clear_duplicates_option', help="Show only the first occurrence ('Yes') or all occurrences ('No') of each abbreviation based on collection order (before filtering)." )
+# The 5th column (_) is intentionally left empty as a spacer.
 
-# No separate rerun logic needed here now
+
 
 # --- END OF Filtering Controls SECTION ---
 
-# --- Apply Selection (Filtering) using values from session_state --- (Your existing code follows)
-# ... (rest of your script: filtering logic, sorting logic, table display, notes, export, etc.) ...
 
-# --- Apply Selection (Filtering) using values from session_state --- (Your original code, Section 3)
+# --- Apply Selection (Filtering) using values from session_state ---
 filtered_dataframe = pd.DataFrame(columns=collected_data_columns) # Default empty
 try:
     if isinstance(data_to_filter, pd.DataFrame) and not data_to_filter.empty:
-        # Assuming select_abbreviations function is defined elsewhere in your script
+        # Assumes select_abbreviations is defined elsewhere
         filtered_dataframe = select_abbreviations(
             data_to_filter,
             threshold_perc_abbr_matches=st.session_state.perc_abbr_match_filter,
@@ -1113,166 +1096,114 @@ try:
         )
     elif isinstance(data_to_filter, pd.DataFrame) and data_to_filter.empty:
         filtered_dataframe = data_to_filter.copy()
-
 except NameError as e:
-    st.error(f"Function `select_abbreviations` is not defined: {e}") # Keep your error handling
+    st.error(f"Function `select_abbreviations` is not defined: {e}")
     filtered_dataframe = pd.DataFrame(columns=collected_data_columns)
 except Exception as e_select:
-    st.error(f"Error during selection: {e_select}") # Keep your error handling
+    st.error(f"Error during selection: {e_select}")
     filtered_dataframe = pd.DataFrame(columns=collected_data_columns)
 
 
-# --- Apply Sorting using value from session_state --- (Your original code, Section 4)
-display_dataframe = filtered_dataframe.copy() # Start with the filtered data
+# --- Apply Sorting using value from session_state ---
+# Define sort map just before use
+sort_column_map = {'Abbreviation': 'abbreviation', 'Full Phrase': 'full_name', 'Usage': 'usage_count', '% Abbr Matched': 'perc_abbr_matches', '% Words Matched': 'perc_words_matched'}
+display_dataframe = filtered_dataframe.copy()
 if not display_dataframe.empty:
     sort_by_display = st.session_state.sort_selector
     sort_by_actual = sort_column_map.get(sort_by_display, 'abbreviation')
     sort_ascending = not (sort_by_actual in ['usage_count', 'perc_abbr_matches', 'perc_words_matched'])
-    secondary_sort = 'abbreviation'
-    secondary_ascending = True
-    if sort_by_actual == 'abbreviation':
-        secondary_sort = 'usage_count'
-        secondary_ascending = False
-    # --- Keep your secondary sort logic as is ---
-    cols_to_sort_by = [sort_by_actual]
-    ascending_list = [sort_ascending] # Initialize as list
+    secondary_sort = 'abbreviation'; secondary_ascending = True
+    if sort_by_actual == 'abbreviation': secondary_sort = 'usage_count'; secondary_ascending = False
+    # Add other secondary sort logic if needed
+    cols_to_sort_by = [sort_by_actual]; ascending_list = [sort_ascending]
     if secondary_sort != sort_by_actual and secondary_sort in display_dataframe.columns:
-        cols_to_sort_by.append(secondary_sort)
-        ascending_list.append(secondary_ascending) # Append to list
+        cols_to_sort_by.append(secondary_sort); ascending_list.append(secondary_ascending)
     if all(col in display_dataframe.columns for col in cols_to_sort_by):
-        try:
-            # Pass list directly to ascending parameter
-            display_dataframe = display_dataframe.sort_values(
-                by=cols_to_sort_by,
-                ascending=ascending_list, # Pass the list
-                ignore_index=True,
-            )
-        except Exception as sort_e:
-            st.error(f"Error sorting data: {sort_e}") # Keep your error handling
+        try: display_dataframe = display_dataframe.sort_values( by=cols_to_sort_by, ascending=ascending_list, ignore_index=True, )
+        except Exception as sort_e: st.error(f"Error sorting data: {sort_e}")
     else:
         missing_cols = [col for col in cols_to_sort_by if col not in display_dataframe.columns]
-        st.warning(f"Cannot sort because column(s) not found: {', '.join(missing_cols)}. Displaying data unsorted (or as filtered).")
+        st.warning(f"Cannot sort because column(s) not found: {', '.join(missing_cols)}.")
 
 
 # --- Display Table and Info Notes ---
 st.write("") # Spacer from controls
 
-# Section Header and Sort Control (MODIFIED Placement)
-col_header_left, col_header_right,_ = st.columns([3, 1, 3]) # Adjust ratio if needed
-with col_header_left:
-    st.subheader("Selected Abbreviations") # Your original subheader
-with col_header_right:
-    st.selectbox(
-        "Sort by:", # Add label for clarity
-        options=sort_options, # Use options defined earlier
-        key="sort_selector", # Use the existing key
-        # label_visibility="collapsed" # Optional: uncomment to hide "Sort by:" label text
-    )
+# Section Header and Sort Control (Adjusted Ratio)
+# Define sort options just before use
 
-# Display Table using Markdown (Your original code, Section 5a)
+st.subheader("Selected Abbreviations")
+sort_options = ['Abbreviation', 'Full Phrase', 'Usage', '% Abbr Matched', '% Words Matched']
+col_header_left, _ = st.columns([2, 15]) 
+with col_header_left: 
+    st.selectbox( "Sort by:", options=sort_options, key="sort_selector", )
+
+# Display Table using Markdown
 if not display_dataframe.empty:
-    # --- Keep your original formatting logic ---
-    display_df_formatted = display_dataframe.rename(columns={
-        'abbreviation': 'Abbreviation', 'full_name': 'Full Phrase',
-        'usage_count': 'Usage', 'perc_abbr_matches': '% Abbr Matched',
-        'perc_words_matched': '% Words Matched'
-    })
+    display_df_formatted = display_dataframe.rename(columns={ 'abbreviation': 'Abbreviation', 'full_name': 'Full Phrase', 'usage_count': 'Usage', 'perc_abbr_matches': '% Abbr Matched', 'perc_words_matched': '% Words Matched' })
     display_columns_order = ['Abbreviation', 'Full Phrase', 'Usage', '% Abbr Matched', '% Words Matched']
     display_columns_exist = [col for col in display_columns_order if col in display_df_formatted.columns]
     display_df_formatted = display_df_formatted[display_columns_exist]
     try:
-        if '% Abbr Matched' in display_df_formatted.columns:
-            display_df_formatted['% Abbr Matched'] = display_df_formatted['% Abbr Matched'].apply(lambda x: f"{x:.1%}" if pd.notna(x) and isinstance(x, (int, float)) else x)
-        if '% Words Matched' in display_df_formatted.columns:
-            display_df_formatted['% Words Matched'] = display_df_formatted['% Words Matched'].apply(lambda x: f"{x:.1%}" if pd.notna(x) and isinstance(x, (int, float)) else x)
-    except Exception as fmt_e:
-        st.warning(f"Could not format percentage columns: {fmt_e}")
-    markdown_table = display_df_formatted.to_markdown(index=True) # Keep index=True as per your code
+        if '% Abbr Matched' in display_df_formatted.columns: display_df_formatted['% Abbr Matched'] = display_df_formatted['% Abbr Matched'].apply(lambda x: f"{x:.1%}" if pd.notna(x) and isinstance(x, (int, float)) else x)
+        if '% Words Matched' in display_df_formatted.columns: display_df_formatted['% Words Matched'] = display_df_formatted['% Words Matched'].apply(lambda x: f"{x:.1%}" if pd.notna(x) and isinstance(x, (int, float)) else x)
+    except Exception as fmt_e: st.warning(f"Could not format percentage columns: {fmt_e}")
+    markdown_table = display_df_formatted.to_markdown(index=True)
     st.markdown(markdown_table, unsafe_allow_html=False)
-    # --- End original formatting logic ---
 else:
-    # Keep your original logic for empty table display
-    if st.session_state.get('collected_df') is not None and not st.session_state.collected_df.empty:
+    if st.session_state.get('collected_df') is not None and isinstance(st.session_state.collected_df, pd.DataFrame) and not st.session_state.collected_df.empty:
         st.info("No abbreviations match the current filter criteria.")
-    # Removed the 'else' part about "No data loaded" as it wasn't in your final provided snippet's display logic
+    # else: # No message if no data loaded initially, handled by collection status
 
-# --- Display Info Notes (Your original code, Section 7 - CORRECTED) ---
+# Display Info Notes (Corrected logic from before)
 col_note_left, _ = st.columns([1, 1])
 with col_note_left:
     if not display_dataframe.empty:
-        notes_found = False
-        # Initialize duplicates_df as empty. It will only be populated if option='No' AND duplicates are found.
-        duplicates_df = pd.DataFrame()
-
-        # --- Original duplicate note logic ---
+        notes_found = False; duplicates_df = pd.DataFrame()
         if st.session_state.clear_duplicates_option == 'No':
             duplicate_mask_display = display_dataframe['abbreviation'].duplicated(keep=False)
             if duplicate_mask_display.any():
-                notes_found = True
-                # Only now populate duplicates_df
-                duplicates_df = display_dataframe[duplicate_mask_display].sort_values(by=['abbreviation', 'full_name'])
-                # Proceed with note generation if duplicates_df has data
+                notes_found = True; duplicates_df = display_dataframe[duplicate_mask_display].sort_values(by=['abbreviation', 'full_name'])
                 if not duplicates_df.empty:
                     dup_grouped = duplicates_df.groupby('abbreviation')['full_name'].apply(lambda names: f"{names.name} ({', '.join(names)})").tolist()
-                    note_text = "**Multiply defined abbreviations displayed:** " + "; ".join(dup_grouped)
-                    st.markdown(f"ℹ️ {note_text}", unsafe_allow_html=False)
-        # --- End original duplicate note logic ---
-
-        # --- Corrected zero-usage note logic ---
+                    note_text = "**Multiply defined abbreviations displayed:** " + "; ".join(dup_grouped); st.markdown(f"ℹ️ {note_text}", unsafe_allow_html=False)
         zero_usage_df = display_dataframe[display_dataframe['usage_count'] == 0]
         if not zero_usage_df.empty:
-            # Get all unique abbreviations with zero usage first
             all_zero_usage_abbrs = zero_usage_df['abbreviation'].unique().tolist()
-
-            # Check if duplicates_df was populated (meaning option was 'No' and duplicates were found)
-            if not duplicates_df.empty:
-                # Filter out those already reported as duplicates
-                reported_duplicates = duplicates_df['abbreviation'].unique()
-                zero_usage_abbrs_to_report = [abbr for abbr in all_zero_usage_abbrs if abbr not in reported_duplicates]
-            else:
-                # duplicates_df is empty (because option='Yes' OR option='No' but no duplicates found). Report all.
-                zero_usage_abbrs_to_report = all_zero_usage_abbrs
-
-            # Display the note only if there are abbreviations to report after potential filtering
+            if not duplicates_df.empty: reported_duplicates = duplicates_df['abbreviation'].unique(); zero_usage_abbrs_to_report = [abbr for abbr in all_zero_usage_abbrs if abbr not in reported_duplicates]
+            else: zero_usage_abbrs_to_report = all_zero_usage_abbrs
             if zero_usage_abbrs_to_report:
-                notes_found = True
-                abbr_list_str = ", ".join(zero_usage_abbrs_to_report) # Using original formatting (no bold here)
-                note_text = "**Zero usage found for displayed abbreviations:** " + abbr_list_str
-                st.markdown(f"ℹ️ {note_text}", unsafe_allow_html=False)
-        # --- End corrected zero-usage note logic ---
-
-        if notes_found:
-             st.write("") # Keep spacer
-# --- END OF CORRECTED SECTION ---
+                notes_found = True; abbr_list_str = ", ".join(zero_usage_abbrs_to_report)
+                note_text = "**Zero usage found for displayed abbreviations:** " + abbr_list_str; st.markdown(f"ℹ️ {note_text}", unsafe_allow_html=False)
+        if notes_found: st.write("")
 
 
-# --- END OF CODE SNIPPET ---
-
-# 8. Export Section (Your original code)
+# --- Export Section ---
 st.divider(); st.subheader("Export Selected Abbreviations")
 df_export = display_dataframe
-col_exp_sel, _ = st.columns([1, 1]) # Keep export controls constrained
+col_exp_sel, _ = st.columns([1, 1])
 with col_exp_sel: selected_format = st.selectbox("Export Format:", options=['plain', 'tabular', 'nomenclature'], index=0, key='format_selector', label_visibility="collapsed")
 formatted_output = "No abbreviations selected.";
 if df_export is not None and not df_export.empty:
-    try: formatted_output = format_abbreviations(df_export, format_type=selected_format) # Assumes fn defined
+    try:
+        # Assumes format_abbreviations is defined elsewhere
+        formatted_output = format_abbreviations(df_export, format_type=selected_format)
     except NameError as e: formatted_output = f"Error: `format_abbreviations` fn missing."; st.error(formatted_output)
-    except Exception as format_e: formatted_output = f"Error: {format_e}"; st.error(formatted_output)
+    except Exception as format_e: formatted_output = f"Error during formatting: {format_e}"; st.error(formatted_output)
 elif 'collected_df' not in st.session_state or st.session_state.collected_df is None: formatted_output = "Process text first."
 st.text_area("Formatted Output:", value=formatted_output, height=150, help="Copy output.", key="output_text_area", label_visibility="visible")
 
-# 9. Explanations & Footer (Your original code)
-# Assuming summary_expander_label, summary_explanation_text, etc. are defined elsewhere
+# --- Explanations & Footer ---
+# Assumes summary_expander_label, summary_explanation_text, etc. are defined
 st.divider(); st.subheader("About the Algorithm")
 col1_exp, col2_exp = st.columns(2)
-with col1_exp:
-    with st.expander("Summary"): # Placeholder text if variable not found
-        try: st.markdown(summary_explanation_text) # Use your variable
-        except NameError: st.markdown("Summary explanation...")
-with col2_exp:
-    with st.expander("Details"): # Placeholder text if variable not found
-        try: st.markdown(detailed_description_text) # Use your variable
-        except NameError: st.markdown("Detailed description...")
+try:
+    with col1_exp:
+        with st.expander(summary_expander_label): st.markdown(summary_explanation_text)
+    with col2_exp:
+        with st.expander(detailed_expander_label): st.markdown(detailed_description_text)
+except NameError:
+    st.warning("Explanation text variables (e.g., summary_expander_label) not defined.") # Add warning if variables missing
 
 st.markdown("---"); st.caption("Author: Longhai Li, https://longhaisk.github.io, Saskatoon, SK, Canada")
 
