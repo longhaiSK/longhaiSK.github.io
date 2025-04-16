@@ -1,15 +1,29 @@
 #!/usr/bin/env python
 # coding: utf-8
-
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all,+tags
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.16.7
+#   kernelspec:
+#     display_name: Python 3 (ipykernel)
+#     language: python
+#     name: python3
+# ---
+# %% [markdown]
 # # Table of Contents
 
+# %% [markdown]
 # # Converting .py and .ipynb files
 
+# %% [markdown]
 # # Import libraries
 
-# In[148]:
-
-
+# %%
 import pandas as pd
 import streamlit as st
 import re
@@ -22,11 +36,10 @@ hostname = socket.gethostname()
 DEBUG = "streamlit" not in hostname.lower()  # Assume cloud has "streamlit" in hostname
 
 
+# %% [markdown]
 # # Preprocessing Text with Space Inserted or Removed
 
-# In[149]:
-
-
+# %%
 # Functions for normalizing and extracting abbrs
 
 # Code block prepared on Thursday, April 3, 2025 at 12:38:43 AM CST in Saskatoon, Saskatchewan, Canada.
@@ -43,9 +56,9 @@ upper_greek_cmds = [
 ]
 
 
+# %% [markdown]
 # ## normalize_dollar_spacing
-
-# In[150]:
+# %%
 
 
 #Here's a summary of the functions:
@@ -121,9 +134,9 @@ def normalize_dollar_spacing(text):
     return "".join(processed_chars)
 
 
+# %% [markdown]
 # ## Normalization Function 
-
-# In[151]:
+# %%
 
 
 # --- Normalization Function ---
@@ -212,11 +225,11 @@ def normalize_latex_math(text):
         return text # Return original text on error
 
 
+# %% [markdown]
 # # Finding Matching
-
+# %% [markdown]
 # ## KNOWN_COMMAND_NAMES
-
-# In[152]:
+# %%
 
 
 # --- Expanded KNOWN_COMMAND_NAMES Set ---
@@ -288,9 +301,9 @@ KNOWN_COMMAND_NAMES = {
 #   this function proceeds to find the first letter of the content ('w').
 
 
-# ##  Get Abbr Letters
-
-# In[153]:
+# %% [markdown]
+# ## Get Abbr Letters
+# %%
 
 
 # --- REVISED get_letters_abbrs (Handles consecutive numbers \d+) ---
@@ -383,9 +396,9 @@ if (False):
     
 
 
+# %% [markdown]
 # ## Get Words Letters
-
-# In[155]:
+# %%
 
 
 # Assume KNOWN_COMMAND_NAMES set is defined
@@ -446,9 +459,9 @@ def get_letters_words(word: str, debug: bool = False) -> str:
         return fallback_match.group(0).lower() if fallback_match else ''
 
 
+# %% [markdown]
 # ## find_abbreviation_matches
-
-# In[176]:
+# %%
 
 
 def find_abbreviation_matches(words_ahead, abbr_string, debug=True):
@@ -554,11 +567,11 @@ def find_abbreviation_matches(words_ahead, abbr_string, debug=True):
     return match_indices, match_ratio, perc_words_matched # Return tuple
 
 
+# %% [markdown]
 # # Extracting Abbreviations
-
+# %% [markdown]
 # ## Collect_abbreviations
-
-# In[177]:
+# %%
 
 
 import re
@@ -695,9 +708,9 @@ def collect_abbreviations(text, debug=False):
         return collected_df[required_columns]
 
 
+# %% [markdown]
 # ## Select Abbreviations
-
-# In[158]:
+# %%
 
 
 # --- 5.2 select_abbreviations ---
@@ -752,9 +765,9 @@ def select_abbreviations(
     return filtered_df
 
 
+# %% [markdown]
 # # Formatting abbrs 
-
-# In[159]:
+# %%
 
 
 # --- 6. Formatting abbrs ---
@@ -788,11 +801,11 @@ def format_abbreviations(abbr_df, format_type):
 
 
 
+# %% [markdown]
 # # Example Text and Testing
-
+# %% [markdown]
 # ## example_text
-
-# In[160]:
+# %%
 
 
 example_text = r"""Paste your latex text (LT)  and enjoy the app (ETA). There is no limitation of the length of text (LT).  
@@ -816,13 +829,13 @@ The abbreviations used above include: AFT, BZR,  DA,  ETA, LT, RSP,  RA, TC, $\a
 
 
 
+# %% [markdown]
 # ## Testing
-
+# %% [markdown]
 # # Streamlit UI
-
+# %% [markdown]
 # ## Descriptions
-
-# In[ ]:
+# %%
 
 
 # --- Define Explanation Text Variables ---
@@ -880,9 +893,9 @@ This algorithm identifies and extracts abbreviation definitions like `Full Defin
 # --- END Define explanation text variables ---
 
 
+# %% [markdown]
 # ## App UI
-
-# In[ ]:
+# %%
 
 
 # --- Streamlit App Code ---
@@ -944,7 +957,7 @@ This algorithm identifies and extracts abbreviation definitions like `Full Defin
 # --- END Define explanation text variables ---
 
 
-# In[ ]:
+# %%
 
 
 import streamlit as st
@@ -1223,3 +1236,9 @@ except NameError:
 
 st.markdown("---"); st.caption("Author: Longhai Li, https://longhaisk.github.io, Saskatoon, SK, Canada")
 
+
+# %% tags=["remove"]
+# a = 1
+# print (a)
+# 
+# %% tags=[]

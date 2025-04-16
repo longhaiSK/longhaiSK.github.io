@@ -15,10 +15,17 @@
 #     name: python3
 # ---
 
-# %% [markdown] tags=[]
-# # Import libraries
+# %%
 
-# %% tags=[]
+# %% [markdown]
+# %% [markdown]
+# # Table of Contents# %% [markdown]
+# %% [markdown]
+# # Converting .py and .ipynb files# %% [markdown]
+# %% [markdown]
+# # Import libraries# %%
+
+
 import pandas as pd
 import streamlit as st
 import re
@@ -32,9 +39,10 @@ DEBUG = "streamlit" not in hostname.lower()  # Assume cloud has "streamlit" in h
 
 
 # %% [markdown]
-# # Preprocessing Text with Space Inserted or Removed
+# %% [markdown]
+# # Preprocessing Text with Space Inserted or Removed# %%
 
-# %% tags=[]
+
 # Functions for normalizing and extracting abbrs
 
 # Code block prepared on Thursday, April 3, 2025 at 12:38:43 AM CST in Saskatoon, Saskatchewan, Canada.
@@ -51,9 +59,9 @@ upper_greek_cmds = [
 ]
 
 
-# %% [markdown] tags=[]
-# ## Normalize_dollar_spacing
-# %% tags=[]
+# %% [markdown]
+# %% [markdown]
+# ## normalize_dollar_spacing# %%
 
 
 #Here's a summary of the functions:
@@ -130,8 +138,8 @@ def normalize_dollar_spacing(text):
 
 
 # %% [markdown]
-# ## Normalization Function 
-# %%
+# %% [markdown]
+# ## Normalization Function # %%
 
 
 # --- Normalization Function ---
@@ -221,10 +229,10 @@ def normalize_latex_math(text):
 
 
 # %% [markdown]
-# # Finding Matching
 # %% [markdown]
-# ## KNOWN_COMMAND_NAMES
-# %%
+# # Finding Matching# %% [markdown]
+# %% [markdown]
+# ## KNOWN_COMMAND_NAMES# %%
 
 
 # --- Expanded KNOWN_COMMAND_NAMES Set ---
@@ -297,8 +305,8 @@ KNOWN_COMMAND_NAMES = {
 
 
 # %% [markdown]
-# ## Get Abbr Letters
-# %%
+# %% [markdown]
+# ## Get Abbr Letters# %%
 
 
 # --- REVISED get_letters_abbrs (Handles consecutive numbers \d+) ---
@@ -392,8 +400,8 @@ if (False):
 
 
 # %% [markdown]
-# ## Get Words Letters
-# %%
+# %% [markdown]
+# ## Get Words Letters# %%
 
 
 # Assume KNOWN_COMMAND_NAMES set is defined
@@ -455,8 +463,8 @@ def get_letters_words(word: str, debug: bool = False) -> str:
 
 
 # %% [markdown]
-# ## find_abbreviation_matches
-# %%
+# %% [markdown]
+# ## find_abbreviation_matches# %%
 
 
 def find_abbreviation_matches(words_ahead, abbr_string, debug=True):
@@ -563,10 +571,10 @@ def find_abbreviation_matches(words_ahead, abbr_string, debug=True):
 
 
 # %% [markdown]
-# # Extracting Abbreviations
 # %% [markdown]
-# ## Collect_abbreviations
-# %%
+# # Extracting Abbreviations# %% [markdown]
+# %% [markdown]
+# ## Collect_abbreviations# %%
 
 
 import re
@@ -704,8 +712,8 @@ def collect_abbreviations(text, debug=False):
 
 
 # %% [markdown]
-# ## Select Abbreviations
-# %%
+# %% [markdown]
+# ## Select Abbreviations# %%
 
 
 # --- 5.2 select_abbreviations ---
@@ -760,9 +768,9 @@ def select_abbreviations(
     return filtered_df
 
 
-# %% [markdown] tags=[]
-# # Formatting abbrs 
-# %% tags=[]
+# %% [markdown]
+# %% [markdown]
+# # Formatting abbrs # %%
 
 
 # --- 6. Formatting abbrs ---
@@ -797,10 +805,10 @@ def format_abbreviations(abbr_df, format_type):
 
 
 # %% [markdown]
-# # Example Text and Testing
 # %% [markdown]
-# ## example_text
-# %%
+# # Example Text and Testing# %% [markdown]
+# %% [markdown]
+# ## example_text# %%
 
 
 example_text = r"""Paste your latex text (LT)  and enjoy the app (ETA). There is no limitation of the length of text (LT).  
@@ -825,12 +833,12 @@ The abbreviations used above include: AFT, BZR,  DA,  ETA, LT, RSP,  RA, TC, $\a
 
 
 # %% [markdown]
-# ## Testing
 # %% [markdown]
-# # Streamlit UI
+# ## Testing# %% [markdown]
 # %% [markdown]
-# ## Descriptions
-# %% tags=[]
+# # Streamlit UI# %% [markdown]
+# %% [markdown]
+# ## Descriptions# %%
 
 
 # --- Define Explanation Text Variables ---
@@ -889,8 +897,8 @@ This algorithm identifies and extracts abbreviation definitions like `Full Defin
 
 
 # %% [markdown]
-# ## App UI
-# %%
+# %% [markdown]
+# ## App UI# %%
 
 
 # --- Streamlit App Code ---
@@ -1235,3 +1243,5 @@ st.markdown("---"); st.caption("Author: Longhai Li, https://longhaisk.github.io,
 # %% tags=["remove"]
 # a = 1
 # print (a)
+# 
+# %% tags=[]
