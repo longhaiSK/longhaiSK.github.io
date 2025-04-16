@@ -1020,8 +1020,11 @@ if st.session_state.get('collected_df') is not None:
 
 
 # --- Define necessary variables/maps --- (Needed before filtering/sorting)
+
 collected_data_columns = ['abbreviation', 'full_name', 'perc_abbr_matches', 'perc_words_matched', 'usage_count']
 sort_column_map = {'Abbreviation': 'abbreviation', 'Full Phrase': 'full_name', 'Usage': 'usage_count', '% Abbr Matched': 'perc_abbr_matches', '% Words Matched': 'perc_words_matched'}
+sort_options = ['Abbreviation', 'Full Phrase', 'Usage', '% Abbr Matched', '% Words Matched']
+# --- END ADD ---
 
 # --- Prepare Data Source (Handle Duplicates) --- (Your original code, Section before filtering)
 collected_data_raw = st.session_state.get('collected_df', pd.DataFrame(columns=collected_data_columns)).copy()
@@ -1033,24 +1036,14 @@ if st.session_state.clear_duplicates_option == 'Yes' and isinstance(collected_da
          st.warning(f"Issue removing duplicates: {e_dup}") # Minimal warning
 
 
-# --- Filtering Controls (MOVED HERE & MODIFIED) ---
+# --- Filtering Controls (NEW LAYOUT) ---
 st.divider()
-st.subheader("Filter Abbreviations") # Changed subheader
 
-# Define options needed for the selectboxes
-usage_options = list(range(11))
-abbr_perc_options = [round(i * 0.1, 1) for i in range(11)] # 0.0 to 1.0
-word_perc_options = [round(i * 0.1, 1) for i in range(11)] # 0.0 to 1.0
-duplicate_options = ['No', 'Yes']
-sort_options = ['Abbreviation', 'Full Phrase', 'Usage', '% Abbr Matched', '% Words Matched'] # Keep definition handy
+# Row 1: Header and Action Buttons
+col_header, col_reset, col_show_all, col_spacer_h = st.columns([3, 1, 1, 3]) # Adjust spacer ratio as needed
 
-# Layout for Filters and Action Buttons
-# Removed col_s1, added col_reset, col_show_all
-col_reset, col_f1, col_f2, col_f3, col_dup, col_show_all, _ = st.columns([1, 1, 1, 1, 1, 1, 3]) # Adjust spacer/ratios if needed
-
-# Action Buttons Logic
-reset_clicked = False
-show_all_clicked = False
+with col_header:
+    st.subheader("Filters") # Renamed subheader
 
 with col_reset:
     if st.button("Reset", key="reset_filters_button", help="Reset filters to default values."):
@@ -1059,29 +1052,38 @@ with col_reset:
         st.session_state.perc_abbr_match_filter = 0.7
         st.session_state.perc_words_match_filter = 0.3
         st.session_state.clear_duplicates_option = 'No'
-        reset_clicked = True
+        st.rerun() # Rerun immediately on click
 
 with col_show_all:
     if st.button("Show All", key="show_all_button", help="Show all collected items (minimum filters)."):
-        st.session_state.usage_filter = 0 # Min usage
-        st.session_state.perc_abbr_match_filter = 0.0 # Min abbr match
-        st.session_state.perc_words_match_filter = 0.0 # Min word match
-        st.session_state.clear_duplicates_option = 'No' # Show duplicates
-        show_all_clicked = True
+        st.session_state.usage_filter = 0
+        st.session_state.perc_abbr_match_filter = 0.0
+        st.session_state.perc_words_match_filter = 0.0
+        st.session_state.clear_duplicates_option = 'No'
+        st.rerun() # Rerun immediately on click
 
-# Filter Selectboxes (Sort selectbox removed)
+# Define options needed for the selectboxes (can be defined here or earlier)
+usage_options = list(range(11))
+abbr_perc_options = [round(i * 0.1, 1) for i in range(11)]
+word_perc_options = [round(i * 0.1, 1) for i in range(11)]
+duplicate_options = ['No', 'Yes']
+# sort_options defined elsewhere or near the sort selectbox
+
+# Row 2: Filter Selectboxes
+col_f1, col_f2, col_f3, col_dup = st.columns(4) # Use 4 columns for the 4 filters
+
 with col_f1:
     st.selectbox(
         "Usage \u2265", options=usage_options, key="usage_filter"
     )
 with col_f2:
     st.selectbox(
-        "% Abbr Matched \u2265", options=abbr_perc_options, key="perc_abbr_match_filter",
+        "% Abbr Match \u2265", options=abbr_perc_options, key="perc_abbr_match_filter",
         format_func=lambda x: f"{x*100:.0f}%"
     )
 with col_f3:
     st.selectbox(
-        "% Words Matched \u2265", options=word_perc_options, key="perc_words_match_filter",
+        "% Words Match \u2265", options=word_perc_options, key="perc_words_match_filter",
         format_func=lambda x: f"{x*100:.0f}%"
     )
 with col_dup:
@@ -1090,11 +1092,12 @@ with col_dup:
         help="Show only the first occurrence ('Yes') or all occurrences ('No') of each abbreviation based on collection order (before filtering)."
     )
 
-# Rerun if action buttons were clicked to immediately reflect state changes
-if reset_clicked or show_all_clicked:
-    st.rerun()
-# --- END OF MOVED & MODIFIED CONTROLS ---
+# No separate rerun logic needed here now
 
+# --- END OF Filtering Controls SECTION ---
+
+# --- Apply Selection (Filtering) using values from session_state --- (Your existing code follows)
+# ... (rest of your script: filtering logic, sorting logic, table display, notes, export, etc.) ...
 
 # --- Apply Selection (Filtering) using values from session_state --- (Your original code, Section 3)
 filtered_dataframe = pd.DataFrame(columns=collected_data_columns) # Default empty
