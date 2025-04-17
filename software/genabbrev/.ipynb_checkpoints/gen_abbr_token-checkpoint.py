@@ -887,70 +887,8 @@ This algorithm identifies and extracts abbreviation definitions like `Full Defin
 # --- END Define explanation text variables ---
 
 
-# %% [markdown]
+# %% [markdown] tags=[]
 # ## App UI
-# %%
-
-
-# --- Streamlit App Code ---
-# Assumes 'example_text' variable, 'DEBUG' variable, and all necessary functions
-# (normalize_*, get_*, find_*, collect_*, select_*, format_*) are defined ABOVE this block.
-# Assumes 'import streamlit as st', 'import pandas as pd', 'import re', 'import textwrap' are done ABOVE.
-
-# --- Define Explanation Text Variables ---
-# Using the full text provided previously
-summary_expander_label = "ⓘ How Abbreviation Extraction Works (Summary)"
-summary_explanation_text = r"""
-This tool tries to automatically find abbreviations defined within parentheses immediately following their full phrase, like `Full Definition Phrase (Abbr)`, even within text containing common LaTeX commands and math.
-
-Here’s a simplified overview:
-
-1.  **Cleaning:** The input LaTeX text is first cleaned up – comments are removed, math delimiters are standardized, and perhaps most importantly, consistent spacing is added around commands, braces `{}` and parentheses `()` to help separate items.
-2.  **Finding Candidates:** It scans the cleaned text for the `Phrase (...)` pattern using regular expressions.
-3.  **Parsing & Comparing:**
-    * The potential abbreviation inside the parentheses (e.g., `GLM`, `\alpha SP`) is broken down into its core components. These become either a single lowercase letter (`g`, `l`, `m`, `s`, `p`) or a lowercase command name (`alpha`).
-    * The words *before* the parentheses are also processed to get comparable units – either the full lowercase word (`generalized`, `linear`, `model`, `protein`) or a lowercase command name (`alpha`, `beta`).
-    * The algorithm works backward from the end of the abbreviation and the end of the phrase, checking if the **word unit `startswith` the abbreviation unit** (e.g., does `generalized` start with `g`? does `alpha` start with `alpha`? does `alpha` start with `a`?). It tries to find a consistent match for all abbreviation components.
-4.  **Calculating Match Quality:** Two "match percentage" metrics are calculated:
-    * **% Abbr Matched:** What percentage of the abbreviation's components successfully matched a preceding word.
-    * **% Words Matched:** Within the range of words considered part of the definition (from first match to end), what percentage of those 'real' words were matched by an abbreviation component.
-5.  **Reconstructing Phrase:** If a match is found, the tool reconstructs the likely full phrase by taking the text from where the *first* component of the abbreviation matched, all the way up to the opening parenthesis.
-6.  **Counting Usage:** It also counts how many times the literal abbreviation appears elsewhere in the text.
-7.  **Filtering & Sorting:** Finally, you can use the filter controls to select only those abbreviations that meet your desired minimum criteria for both match percentages and usage count. You can also sort the results by different columns.
-
-*(Disclaimer: This process uses specific rules and heuristics. It may not catch all possible ways abbreviations are defined and might sometimes misinterpret patterns, especially with very complex LaTeX.)*
-"""
-
-detailed_expander_label = "ⓘ Detailed Algorithm Explanation"
-detailed_description_text = r"""
-This algorithm identifies and extracts abbreviation definitions like `Full Definition Phrase (Abbr)` from potentially LaTeX-formatted text.
-
-**Core Steps:**
-
-1.  **Normalization (`normalize_latex_math`):** (Optional) Input text preprocessing: comments removed, math delimiters standardized (`$...$`), spacing adjusted around `{}()`, commands.
-2.  **Candidate Identification (Regex):** Finds all `Potential Phrase (Abbr)` patterns, capturing the phrase part and the `abbr_string`.
-3.  **Usage Counting:** Counts occurrences of each unique `abbr_string` elsewhere in the text.
-4.  **Processing Each Candidate (`collect_abbreviations` loop):**
-    * **Phrase Tokenization:** Splits the phrase part into `words_ahead` (list of words and delimiters).
-    * **Abbreviation Parsing (`get_letters_abbrs`):** Gets `abbr_items` (list of comparable units: `alpha` or `g`) and `original_abbr_parts` (list: `\alpha` or `G`).
-    * **Word Parsing (`get_letters_words`):** Pre-calculates `words_ahead_comparables` (list of comparable units: `alpha` or `generalized`).
-    * **Backward Matching (`find_abbreviation_matches`):**
-        * Compares `abbr_items` to `words_ahead_comparables` backward using `word_comparable.startswith(abbr_comparable)`.
-        * Uses `last_matched_index` to constrain search.
-        * Calculates `match_indices` (list: `abbr_idx` -> `word_idx`).
-        * Calculates `match_ratio` (% Abbr Matched).
-        * Calculates `perc_words_matched` (% Words Matched in derived range).
-        * Returns `(match_indices, match_ratio, perc_words_matched)`.
-    * **Phrase Reconstruction:** Uses `match_indices` to find the first matched word index (`min_idx_py`). Reconstructs `full_name` from `words_ahead[min_idx_py:]`.
-    * **Data Collection:** Stores candidate `abbreviation`, `full_name`, `usage_count`, `perc_abbr_matches`, `perc_words_matched`.
-5.  **DataFrame Creation (`collect_abbreviations` return):** Returns a DataFrame of *all* candidates.
-6.  **Filtering (`select_abbreviations`):** Filters the collected DataFrame based on user-set thresholds for `perc_abbr_matches`, `usage_count`, and `perc_words_matched`.
-7.  **Sorting (UI):** Sorts the filtered DataFrame based on the user's choice from the "Sort by" dropdown.
-8.  **Display (UI):** Displays the filtered and sorted data using `st.markdown` rendering a Markdown table (`to_markdown(index=True)`). Shows default row index, renders `$LaTeX$` math. Includes both percentage columns. Table is static.
-"""
-# --- END Define explanation text variables ---
-
-
 # %% tags=[]
 
 
@@ -994,7 +932,9 @@ except NameError: DEBUG = False # Default if not defined elsewhere
 # 1. Input Area
 st.subheader("Paste Your Text")
 input_text = st.text_area(label="...", label_visibility="collapsed", value=st.session_state.last_input_text, height=250, key="input_text_area")
-st.caption("Privacy: this app does not save your text.")
+
+st.caption('<p style="color:red;">Disclaimer: this app does not save your text.</p>', unsafe_allow_html=True)
+
 process_button = st.button("Process Text and Extract Abbreviations", type="primary")
 
 
