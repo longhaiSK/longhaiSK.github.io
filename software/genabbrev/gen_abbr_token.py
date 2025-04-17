@@ -890,7 +890,7 @@ This algorithm identifies and extracts abbreviation definitions like `Full Defin
 # %% [markdown] tags=[]
 # ## App UI
 # %% tags=[]
-
+# Full UI Code with Custom Button Styles Added
 
 import streamlit as st
 import pandas as pd # Assuming pandas is used and imported
@@ -907,6 +907,7 @@ import pandas as pd # Assuming pandas is used and imported
 
 st.set_page_config(layout="wide")
 st.title(r"Extracting Abbreviations from $\LaTeX$ Text")
+
 
 # --- Initialize Session State (Essential for UI statefulness) ---
 if 'collected_df' not in st.session_state: st.session_state.collected_df = None
@@ -926,6 +927,20 @@ if 'sort_selector' not in st.session_state: st.session_state.sort_selector = 'Ab
 try: _ = DEBUG
 except NameError: DEBUG = False # Default if not defined elsewhere
 
+# --- Define callback functions ---
+def reset_filters_callback():
+    st.session_state.usage_filter = 0
+    st.session_state.perc_abbr_match_filter = 0.7
+    st.session_state.perc_words_match_filter = 0.3
+    st.session_state.clear_duplicates_option = 'No'
+    # No st.rerun() needed here, modifying state in callback triggers it
+
+def show_all_callback():
+    st.session_state.usage_filter = 0
+    st.session_state.perc_abbr_match_filter = 0.0
+    st.session_state.perc_words_match_filter = 0.0
+    st.session_state.clear_duplicates_option = 'No'
+    # No st.rerun() needed here
 
 # --- UI Layout (Top to Bottom) ---
 
@@ -935,7 +950,7 @@ input_text = st.text_area(label="...", label_visibility="collapsed", value=st.se
 
 st.caption('<p style="color:red;">Disclaimer: this app does not save your text.</p>', unsafe_allow_html=True)
 
-process_button = st.button("Process Text and Extract Abbreviations", type="primary")
+process_button = st.button("Process Text and Extract Abbreviations", type="primary") # This is a primary button
 
 
 # 2. Processing Logic (Run Collection)
@@ -979,25 +994,17 @@ st.divider()
 
 st.subheader("Filtering Controls") # Renamed subheade
 # Row 1: Header and Action Buttons (Adjusted Ratios)
-col_reset, col_show_all, col_spacer_h = st.columns([4, 3, 35]) # Ratio [2, 1, 1, 4] makes header tighter with buttons
+col_reset, _ = st.columns([4, 38]) # Ratio adjustment to keep reset button size similar
 
 
 with col_reset:
-    if st.button("Reset Filters", key="reset_filters_button", help="Reset filters to default values."):
-        st.session_state.usage_filter = 0
-        st.session_state.perc_abbr_match_filter = 0.7
-        st.session_state.perc_words_match_filter = 0.3
-        st.session_state.clear_duplicates_option = 'No'
-        st.rerun() # Rerun immediately on click
-
-with col_show_all:
-    if st.button("Show All", key="show_all_button", help="Show all collected items (minimum filters)."):
-        st.session_state.usage_filter = 0
-        st.session_state.perc_abbr_match_filter = 0.0
-        st.session_state.perc_words_match_filter = 0.0
-        st.session_state.clear_duplicates_option = 'No'
-        st.rerun() # Rerun immediately on click
-
+    # Use on_click and remove logic from inside if statement
+    st.button(
+        "**Reset Filters**",
+        key="reset_filters_button",
+        help="Reset filters to default values.",
+        on_click=reset_filters_callback # Use the callback (secondary button)
+    )
 
 # Define options needed for the selectboxes
 usage_options = list(range(11))
@@ -1111,39 +1118,63 @@ else:
     if st.session_state.get('collected_df') is not None and isinstance(st.session_state.collected_df, pd.DataFrame) and not st.session_state.collected_df.empty:
         st.info("No abbreviations match the current filter criteria.")
     # else: # No message if no data loaded initially, handled by collection status
+
 # Display Info Notes (Corrected logic from before)
 col_note_left, _ = st.columns([1, 1])
 with col_note_left:
+    # Check if display_dataframe is not empty before proceeding with notes that depend on it
     if not display_dataframe.empty:
-        if st.session_state.get('collected_df') is not None:
-            if isinstance(st.session_state.collected_df, pd.DataFrame):
-                  count = len(st.session_state.collected_df)
-                  st.markdown(f"ℹ️ A total of {count} Possible Abbreviation{'s' if count != 1 else ''} Found. **Click 'Show All' to see all of them.**")
-            pass # No message if data is None or invalid
+        # Check if collected_df exists and is valid DataFrame
+        if st.session_state.get('collected_df') is not None and isinstance(st.session_state.collected_df, pd.DataFrame):
+            try:
+                count = len(st.session_state.collected_df)
+                # Changed condition: Show button if any abbreviations were collected
+                if count > 0:
+                    st.button(
+                        f"**Show All ({count} Found)**",
+                        key="show_all_info_button",
+                        help="Show all collected items (minimum filters).",
+                        on_click=show_all_callback # Use the callback (secondary button)
+                    )
+            except Exception as e:
+                st.warning(f"Could not determine total count: {e}")
+                pass # Continue without the button if count fails
 
-        notes_found = False; duplicates_df = pd.DataFrame()
+        # --- Duplicate and Zero Usage Notes ---
+        notes_found = False
+        duplicates_df = pd.DataFrame()
         if st.session_state.clear_duplicates_option == 'No':
-            duplicate_mask_display = display_dataframe['abbreviation'].duplicated(keep=False)
-            if duplicate_mask_display.any():
-                notes_found = True; duplicates_df = display_dataframe[duplicate_mask_display].sort_values(by=['abbreviation', 'full_name'])
-                if not duplicates_df.empty:
-                    dup_grouped = duplicates_df.groupby('abbreviation')['full_name'].apply(lambda names: f"{names.name} ({', '.join(names)})").tolist()
-                    note_text = "**Multiply defined abbreviations displayed:** " + "; ".join(dup_grouped); st.markdown(f"ℹ️ {note_text}", unsafe_allow_html=False)
-        zero_usage_df = display_dataframe[display_dataframe['usage_count'] == 0]
-        if not zero_usage_df.empty:
-            all_zero_usage_abbrs = zero_usage_df['abbreviation'].unique().tolist()
-            if not duplicates_df.empty: reported_duplicates = duplicates_df['abbreviation'].unique(); zero_usage_abbrs_to_report = [abbr for abbr in all_zero_usage_abbrs if abbr not in reported_duplicates]
-            else: zero_usage_abbrs_to_report = all_zero_usage_abbrs
-            if zero_usage_abbrs_to_report:
-                notes_found = True; abbr_list_str = ", ".join(zero_usage_abbrs_to_report)
-                note_text = "**Zero usage found for displayed abbreviations:** " + abbr_list_str; st.markdown(f"ℹ️ {note_text}", unsafe_allow_html=False)       
-                
-        # --- Display Persistent Collection Status ---
-        
+            # Ensure required columns exist before checking duplicates
+            if 'abbreviation' in display_dataframe.columns:
+                duplicate_mask_display = display_dataframe['abbreviation'].duplicated(keep=False)
+                if duplicate_mask_display.any():
+                    notes_found = True
+                    duplicates_df = display_dataframe[duplicate_mask_display].sort_values(by=['abbreviation', 'full_name'])
+                    if not duplicates_df.empty:
+                        dup_grouped = duplicates_df.groupby('abbreviation')['full_name'].apply(lambda names: f"{names.name} ({', '.join(names)})").tolist()
+                        note_text = "**Multiply defined abbreviations displayed:** " + "; ".join(dup_grouped)
+                        st.markdown(f"ℹ️ {note_text}", unsafe_allow_html=False)
+
+        # Ensure required columns exist before checking zero usage
+        if 'usage_count' in display_dataframe.columns and 'abbreviation' in display_dataframe.columns:
+            zero_usage_df = display_dataframe[display_dataframe['usage_count'] == 0]
+            if not zero_usage_df.empty:
+                all_zero_usage_abbrs = zero_usage_df['abbreviation'].unique().tolist()
+                if not duplicates_df.empty and 'abbreviation' in duplicates_df.columns:
+                    reported_duplicates = duplicates_df['abbreviation'].unique()
+                    zero_usage_abbrs_to_report = [abbr for abbr in all_zero_usage_abbrs if abbr not in reported_duplicates]
+                else:
+                    zero_usage_abbrs_to_report = all_zero_usage_abbrs
+
+                if zero_usage_abbrs_to_report:
+                    notes_found = True
+                    abbr_list_str = ", ".join(zero_usage_abbrs_to_report)
+                    note_text = "**Zero usage found for displayed abbreviations:** " + abbr_list_str
+                    st.markdown(f"ℹ️ {note_text}", unsafe_allow_html=False)
 
 # --- Export Section ---
 st.divider(); st.subheader("Export Selected Abbreviations")
-df_export = display_dataframe
+df_export = display_dataframe # Use the potentially filtered/sorted dataframe for export
 col_exp_sel, _ = st.columns([1, 1])
 with col_exp_sel: selected_format = st.selectbox("Export Format:", options=['plain', 'tabular', 'nomenclature'], index=0, key='format_selector', label_visibility="collapsed")
 formatted_output = "No abbreviations selected.";
