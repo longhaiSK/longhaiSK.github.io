@@ -816,7 +816,7 @@ Citations and explanations in brackets can be filtered away using percentages of
 
 In this note, these abbreviations are defined: AFT, BZR,  DA,  ETA, LT (twice), PM, RSP,  RA, TC, $\alpha$-SP, $\sigma$-ZR. 
 
-Note: the extraction is not perfect as it cannot accommodate all possible abbreviations and may include those you don't want. Modify/Filter the results as necessary.
+The extraction is not perfect and may over/under-indclue abbreviations. Modify and filter the results as necessary.
  
 ETA! ETA! ETA!
 """
@@ -1131,7 +1131,7 @@ with col_note_left:
                 # Changed condition: Show button if any abbreviations were collected
                 if count > 0:
                     st.button(
-                        f"**Show All ({count} Found)**",
+                        f"**Show All ({count} Abbreviations Found)**",
                         key="show_all_info_button",
                         help="Show all collected items (minimum filters).",
                         on_click=show_all_callback # Use the callback (secondary button)
