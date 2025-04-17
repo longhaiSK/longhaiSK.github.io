@@ -3,7 +3,7 @@
 # ---
 # jupyter:
 #   jupytext:
-#     cell_metadata_filter: -all,+tags
+#     cell_metadata_filter: tags,-all
 #     text_representation:
 #       extension: .py
 #       format_name: percent
@@ -16,7 +16,7 @@
 # ---
 
 # %% [markdown] tags=[]
-# # Import libraries
+# # Importing libraries
 
 # %% tags=[]
 import pandas as pd
@@ -31,7 +31,7 @@ hostname = socket.gethostname()
 DEBUG = "streamlit" not in hostname.lower()  # Assume cloud has "streamlit" in hostname
 
 
-# %% [markdown]
+# %% [markdown] tags=[]
 # # Preprocessing Text with Space Inserted or Removed
 
 # %% tags=[]
@@ -566,7 +566,7 @@ def find_abbreviation_matches(words_ahead, abbr_string, debug=True):
 # # Extracting Abbreviations
 # %% [markdown]
 # ## Collect_abbreviations
-# %%
+# %% tags=[]
 
 
 import re
@@ -798,37 +798,36 @@ def format_abbreviations(abbr_df, format_type):
 
 # %% [markdown]
 # # Example Text and Testing
-# %% [markdown]
-# ## example_text
-# %%
-
-
+# %% [markdown] tags=[]
+# ## Example Text
+# %% tags=[]
 example_text = r"""Paste your latex text (LT)  and enjoy the app (ETA). There is no limitation of the length of text (LT).  
 
 What is regarded as abbreviations (RA):
 The abbreviations like accelerated failure time (AFT), or \textbf{Time-Constant (TC) Data}. 
-The full definitions and abbrievations can contain greek symbols or simple latex commands like \frac, for example,  
+The full definitions and abbreviations can contain greek symbols or simple latex commands like \frac, for example,  
 $\alpha$ Predictive p-value (aPP), 
 $\alpha$ synclein protein ($\alpha$-synclein), 
 $\beta$-Z residual (BZR), $\sigma$-Z residual ($\sigma$-ZR). 
 
 What is desregarded as abbreviations (DA):
-Citations and explanations in brackets will be omitted, eg. this one (Li et al. 2025), and this ($\beta$). The $T$ in $f(T)$ is not an abbreviation too.   
+Citations and explanations in brackets can be filtered away using percentages of marched (PM) words or letters, eg. this one (Li et al. 2025), and this ($\beta$).   
 %This abbreviation, comment text (CT) or the line starting with % will be omitted. 
 
-Note: the extraction is not perfect as it cannot accommodate all possible abbreviations and may include those you don't want. Modify the results as necessary.
+In this note, these abbreviations are defined: AFT, BZR,  DA,  ETA, LT (twice), PM, RSP,  RA, TC, $\alpha$-SP, $\sigma$-ZR. 
 
-The abbreviations used above include: AFT, BZR,  DA,  ETA, LT, RSP,  RA, TC, $\alpha$-SP, $\sigma$-ZR. ETA! 
-
+Note: the extraction is not perfect as it cannot accommodate all possible abbreviations and may include those you don't want. Modify/Filter the results as necessary.
+ 
+ETA! ETA! ETA!
 """
 
 
 
-# %% [markdown]
+# %% [markdown] tags=[]
 # ## Testing
-# %% [markdown]
+# %% [markdown] tags=[]
 # # Streamlit UI
-# %% [markdown]
+# %% [markdown] tags=[]
 # ## Descriptions
 # %% tags=[]
 
@@ -952,7 +951,7 @@ This algorithm identifies and extracts abbreviation definitions like `Full Defin
 # --- END Define explanation text variables ---
 
 
-# %%
+# %% tags=[]
 
 
 import streamlit as st
@@ -1233,5 +1232,5 @@ st.markdown("---"); st.caption("Author: Longhai Li, https://longhaisk.github.io,
 
 
 # %% tags=["remove"]
-# a = 1
-# print (a)
+if DEBUG:
+    print("this is a test of remove\n")
