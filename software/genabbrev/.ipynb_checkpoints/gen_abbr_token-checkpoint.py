@@ -29,6 +29,7 @@ import textwrap
 
 hostname = socket.gethostname()
 DEBUG = "streamlit" not in hostname.lower()  # Assume cloud has "streamlit" in hostname
+print("\n"+f"DEBUG={DEBUG}"+"\n")
 
 
 # %% [markdown] tags=[]
