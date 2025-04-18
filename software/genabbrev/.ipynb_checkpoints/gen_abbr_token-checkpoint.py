@@ -23,12 +23,11 @@ import pandas as pd
 import streamlit as st
 import re
 from datetime import datetime
-import socket
 import textwrap
 
 
-hostname = socket.gethostname()
-DEBUG = "streamlit" not in hostname.lower()  # Assume cloud has "streamlit" in hostname
+# %%
+# settign debuging or not
 DEBUG = False
 print("\n"+f"DEBUG={DEBUG}"+"\n")
 
@@ -996,7 +995,7 @@ st.divider()
 
 st.subheader("Filtering Controls") # Renamed subheade
 # Row 1: Header and Action Buttons (Adjusted Ratios)
-col_reset, _ = st.columns([4, 38]) # Ratio adjustment to keep reset button size similar
+col_reset, _ = st.columns([4, 4]) # Ratio adjustment to keep reset button size similar
 
 
 with col_reset:
@@ -1203,7 +1202,87 @@ except NameError:
 
 st.markdown("---"); st.caption("Author: Longhai Li, https://longhaisk.github.io, Saskatoon, SK, Canada")
 
+# %% [markdown]
+# # Tracking Visitors
 
-# %% tags=["remove"]
-if DEBUG:
-    print("this is a test of remove\n")
+# %%
+# Use a different session state key to track if the attempt was made
+if 'visit_logging_attempted' not in st.session_state:
+    st.session_state['visit_logging_attempted'] = True # Record that we will try logging once
+    #print(f"[{datetime.now()}] Attempting background visit logging...") # Log attempt to console/Streamlit logs
+
+    try:
+        # --- Late Imports (Possible but discouraged) ---
+        # It's better to have these at the top with other imports
+        import time
+        import jwt
+        import requests
+        import base64
+        from github import Github, GithubIntegration, Auth
+        from github.GithubException import UnknownObjectException
+        from datetime import datetime
+        import pytz
+
+        # --- Configuration ---
+        LOG_REPO_NAME = "longhaiSK/logs"
+        LOG_FILE_PATH = "genabbre_visitor_log.txt"
+        TIMEZONE = "Canada/Saskatchewan" # Using your location
+
+        # --- Read Secrets ---
+        # Using st.secrets ensures these are read securely when deployed
+        APP_ID = st.secrets["GITHUB_APP_ID"]
+        INSTALLATION_ID = st.secrets["GITHUB_INSTALLATION_ID"]
+        PRIVATE_KEY = st.secrets["GITHUB_PRIVATE_KEY"]
+
+        # --- Helper Function Definitions ---
+        # Define these functions here OR ensure they are defined globally above
+        # (Defining them inside the 'try' is possible but less common)
+
+        def get_github_app_token(app_id, private_key, installation_id):
+            auth = Auth.AppAuth(app_id, private_key)
+            gi = GithubIntegration(auth=auth)
+            token = gi.get_access_token(installation_id).token
+            return token
+
+        def log_visit_to_github(gh_token, repo_name, file_path, timezone):
+            g = Github(auth=Auth.Token(gh_token))
+            repo = g.get_repo(repo_name)
+            tz = pytz.timezone(timezone)
+            timestamp = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S %Z%z")
+            # Get limited visitor info (avoiding IP)
+            log_entry = f"Visit at: {timestamp}\n"
+            # Add other safe info if available (e.g., page name)
+            log_entry += "-" * 20 + "\n"
+
+            try:
+                contents = repo.get_contents(file_path, ref="main")
+                sha = contents.sha
+                existing_content_decoded = base64.b64decode(contents.content).decode("utf-8")
+                new_content = existing_content_decoded + log_entry
+                commit_message = f"Append visit log {timestamp}"
+                repo.update_file(path=file_path, message=commit_message, content=new_content.encode("utf-8"), sha=sha, branch="main")
+            except UnknownObjectException: # If file doesn't exist
+                commit_message = f"Create visit log {timestamp}"
+                repo.create_file(path=file_path, message=commit_message, content=log_entry.encode("utf-8"), branch="main")
+
+        # --- Execute Logging ---
+        github_token = get_github_app_token(APP_ID, PRIVATE_KEY, INSTALLATION_ID)
+        if github_token:
+            log_visit_to_github(github_token, LOG_REPO_NAME, LOG_FILE_PATH, TIMEZONE)
+            print(f"[{datetime.now()}] Background visit logging successful.") # Log success
+        else:
+            print(f"[{datetime.now()}] Failed to get GitHub token for logging.") # Log specific failure
+
+    except KeyError as e:
+        # Handles missing secrets gracefully - logs error server-side
+        print(f"ERROR: Missing GitHub App secret for logging: {e}. Logging skipped.")
+        # Avoid st.error here to prevent disruption
+
+    except Exception as e:
+        # Catch ALL other potential errors during logging (API errors, network, etc.)
+        # Log the error server-side for debugging, but don't crash the app
+        print(f"ERROR during background visit logging: {type(e).__name__} - {e}")
+        # Avoid st.error here
+
+# --- End of Script ---
+# Streamlit execution finishes here for this rerun cycl
