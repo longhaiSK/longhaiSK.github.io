@@ -996,7 +996,7 @@ st.divider()
 
 st.subheader("Filtering Controls") # Renamed subheade
 # Row 1: Header and Action Buttons (Adjusted Ratios)
-col_reset, _ = st.columns([4, 38]) # Ratio adjustment to keep reset button size similar
+col_reset, _ = st.columns([4, 4]) # Ratio adjustment to keep reset button size similar
 
 
 with col_reset:
