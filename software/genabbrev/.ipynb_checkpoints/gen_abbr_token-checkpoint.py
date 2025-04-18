@@ -1207,10 +1207,10 @@ st.markdown("---"); st.caption("Author: Longhai Li, https://longhaisk.github.io,
 
 # %%
 if 'visit_logging_attempted' not in st.session_state:
-    st.session_state['visit_logging_attempted'] = True  # Record that we will try logging once
+    st.session_state['visit_logging_attempted'] = True  # Log once per session
 
     try:
-        # --- Late Imports ---
+        # --- Imports ---
         import time
         import jwt
         import requests
@@ -1230,14 +1230,14 @@ if 'visit_logging_attempted' not in st.session_state:
         INSTALLATION_ID = st.secrets["GITHUB_INSTALLATION_ID"]
         PRIVATE_KEY = st.secrets["GITHUB_PRIVATE_KEY"]
 
-        # --- Helper: GitHub App Token ---
+        # --- Get GitHub App Token ---
         def get_github_app_token(app_id, private_key, installation_id):
             auth = Auth.AppAuth(app_id, private_key)
             gi = GithubIntegration(auth=auth)
             token = gi.get_access_token(installation_id).token
             return token
 
-        # --- Helper: Visitor Info via IP Lookup ---
+        # --- Get Visitor Info (no coordinates) ---
         def get_visitor_info():
             try:
                 resp = requests.get("https://ipinfo.io/json", timeout=3)
@@ -1246,13 +1246,12 @@ if 'visit_logging_attempted' not in st.session_state:
                 city = data.get("city", "")
                 region = data.get("region", "")
                 country = data.get("country", "")
-                loc = data.get("loc", "")  # latitude,longitude
                 org = data.get("org", "")
-                return f"IP: {ip}\nLocation: {city}, {region}, {country}\nCoordinates: {loc}\nOrg: {org}\n"
+                return f"IP: {ip}\nLocation: {city}, {region}, {country}\nOrg: {org}\n"
             except Exception as e:
                 return f"Could not fetch IP info: {e}\n"
 
-        # --- Main Logging Function ---
+        # --- Log Visit to GitHub ---
         def log_visit_to_github(gh_token, repo_name, file_path, timezone):
             g = Github(auth=Auth.Token(gh_token))
             repo = g.get_repo(repo_name)
@@ -1269,16 +1268,27 @@ if 'visit_logging_attempted' not in st.session_state:
                 existing_content_decoded = base64.b64decode(contents.content).decode("utf-8")
                 new_content = existing_content_decoded + log_entry
                 commit_message = f"Append visit log {timestamp}"
-                repo.update_file(path=file_path, message=commit_message, content=new_content.encode("utf-8"), sha=sha, branch="main")
+                repo.update_file(
+                    path=file_path,
+                    message=commit_message,
+                    content=new_content.encode("utf-8"),
+                    sha=sha,
+                    branch="main"
+                )
             except UnknownObjectException:
                 commit_message = f"Create visit log {timestamp}"
-                repo.create_file(path=file_path, message=commit_message, content=log_entry.encode("utf-8"), branch="main")
+                repo.create_file(
+                    path=file_path,
+                    message=commit_message,
+                    content=log_entry.encode("utf-8"),
+                    branch="main"
+                )
 
-        # --- Execute Logging ---
+        # --- Run the Logging ---
         github_token = get_github_app_token(APP_ID, PRIVATE_KEY, INSTALLATION_ID)
         if github_token:
             log_visit_to_github(github_token, LOG_REPO_NAME, LOG_FILE_PATH, TIMEZONE)
-            print(f"[{datetime.now()}] Background visit logging successful.")
+            #print(f"[{datetime.now()}] Background visit logging successful.")
         else:
             print(f"[{datetime.now()}] Failed to get GitHub token for logging.")
 
