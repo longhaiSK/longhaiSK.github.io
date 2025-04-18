@@ -1206,14 +1206,11 @@ st.markdown("---"); st.caption("Author: Longhai Li, https://longhaisk.github.io,
 # # Tracking Visitors
 
 # %%
-# Use a different session state key to track if the attempt was made
 if 'visit_logging_attempted' not in st.session_state:
-    st.session_state['visit_logging_attempted'] = True # Record that we will try logging once
-    #print(f"[{datetime.now()}] Attempting background visit logging...") # Log attempt to console/Streamlit logs
+    st.session_state['visit_logging_attempted'] = True  # Record that we will try logging once
 
     try:
-        # --- Late Imports (Possible but discouraged) ---
-        # It's better to have these at the top with other imports
+        # --- Late Imports ---
         import time
         import jwt
         import requests
@@ -1226,33 +1223,45 @@ if 'visit_logging_attempted' not in st.session_state:
         # --- Configuration ---
         LOG_REPO_NAME = "longhaiSK/logs"
         LOG_FILE_PATH = "genabbre_visitor_log.txt"
-        TIMEZONE = "Canada/Saskatchewan" # Using your location
+        TIMEZONE = "Canada/Saskatchewan"
 
         # --- Read Secrets ---
-        # Using st.secrets ensures these are read securely when deployed
         APP_ID = st.secrets["GITHUB_APP_ID"]
         INSTALLATION_ID = st.secrets["GITHUB_INSTALLATION_ID"]
         PRIVATE_KEY = st.secrets["GITHUB_PRIVATE_KEY"]
 
-        # --- Helper Function Definitions ---
-        # Define these functions here OR ensure they are defined globally above
-        # (Defining them inside the 'try' is possible but less common)
-
+        # --- Helper: GitHub App Token ---
         def get_github_app_token(app_id, private_key, installation_id):
             auth = Auth.AppAuth(app_id, private_key)
             gi = GithubIntegration(auth=auth)
             token = gi.get_access_token(installation_id).token
             return token
 
+        # --- Helper: Visitor Info via IP Lookup ---
+        def get_visitor_info():
+            try:
+                resp = requests.get("https://ipinfo.io/json", timeout=3)
+                data = resp.json()
+                ip = data.get("ip", "N/A")
+                city = data.get("city", "")
+                region = data.get("region", "")
+                country = data.get("country", "")
+                loc = data.get("loc", "")  # latitude,longitude
+                org = data.get("org", "")
+                return f"IP: {ip}\nLocation: {city}, {region}, {country}\nCoordinates: {loc}\nOrg: {org}\n"
+            except Exception as e:
+                return f"Could not fetch IP info: {e}\n"
+
+        # --- Main Logging Function ---
         def log_visit_to_github(gh_token, repo_name, file_path, timezone):
             g = Github(auth=Auth.Token(gh_token))
             repo = g.get_repo(repo_name)
             tz = pytz.timezone(timezone)
-            timestamp = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S %Z%z")
-            # Get limited visitor info (avoiding IP)
+            timestamp = datetime.now(pytz.utc).astimezone(tz).strftime("%Y-%m-%d %H:%M:%S %Z%z")
+
             log_entry = f"Visit at: {timestamp}\n"
-            # Add other safe info if available (e.g., page name)
-            log_entry += "-" * 20 + "\n"
+            log_entry += get_visitor_info()
+            log_entry += "-" * 30 + "\n"
 
             try:
                 contents = repo.get_contents(file_path, ref="main")
@@ -1261,7 +1270,7 @@ if 'visit_logging_attempted' not in st.session_state:
                 new_content = existing_content_decoded + log_entry
                 commit_message = f"Append visit log {timestamp}"
                 repo.update_file(path=file_path, message=commit_message, content=new_content.encode("utf-8"), sha=sha, branch="main")
-            except UnknownObjectException: # If file doesn't exist
+            except UnknownObjectException:
                 commit_message = f"Create visit log {timestamp}"
                 repo.create_file(path=file_path, message=commit_message, content=log_entry.encode("utf-8"), branch="main")
 
@@ -1269,20 +1278,13 @@ if 'visit_logging_attempted' not in st.session_state:
         github_token = get_github_app_token(APP_ID, PRIVATE_KEY, INSTALLATION_ID)
         if github_token:
             log_visit_to_github(github_token, LOG_REPO_NAME, LOG_FILE_PATH, TIMEZONE)
-            print(f"[{datetime.now()}] Background visit logging successful.") # Log success
+            print(f"[{datetime.now()}] Background visit logging successful.")
         else:
-            print(f"[{datetime.now()}] Failed to get GitHub token for logging.") # Log specific failure
+            print(f"[{datetime.now()}] Failed to get GitHub token for logging.")
 
     except KeyError as e:
-        # Handles missing secrets gracefully - logs error server-side
         print(f"ERROR: Missing GitHub App secret for logging: {e}. Logging skipped.")
-        # Avoid st.error here to prevent disruption
 
     except Exception as e:
-        # Catch ALL other potential errors during logging (API errors, network, etc.)
-        # Log the error server-side for debugging, but don't crash the app
         print(f"ERROR during background visit logging: {type(e).__name__} - {e}")
-        # Avoid st.error here
 
-# --- End of Script ---
-# Streamlit execution finishes here for this rerun cycl
