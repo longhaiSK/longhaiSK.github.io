@@ -1206,95 +1206,161 @@ st.markdown("---"); st.caption("Author: Longhai Li, https://longhaisk.github.io,
 # # Tracking Visitors
 
 # %%
-if 'visit_logging_attempted' not in st.session_state:
-    st.session_state['visit_logging_attempted'] = True  # Log once per session
+# Required imports
+import streamlit as st
+import time
+# Removed jwt import as it's not directly used and AppAuth handles it
+import requests # Keep for potential request exceptions in dependencies
+import base64
+from github import Github, GithubIntegration, Auth
+from github.GithubException import UnknownObjectException
+from datetime import datetime
+import pytz
+import json # Re-import json library
 
+# --- Configuration ---
+LOG_REPO_NAME = "longhaiSK/logs"
+LOG_FILE_PATH = "abbr0_daily_session_counts.json" # Added prefix to log file name
+TIMEZONE = "Canada/Saskatchewan" # Your specified timezone
+
+# --- Get GitHub App Token ---
+# (Assuming this function works correctly and returns a token or None)
+def get_github_app_token(app_id, private_key, installation_id):
+    """Generates a GitHub App installation access token."""
     try:
-        # --- Imports ---
-        import time
-        import jwt
-        import requests
-        import base64
-        from github import Github, GithubIntegration, Auth
-        from github.GithubException import UnknownObjectException
-        from datetime import datetime
-        import pytz
+        # Authenticate as a GitHub App
+        auth = Auth.AppAuth(app_id, private_key)
+        # Create a GithubIntegration object
+        gi = GithubIntegration(auth=auth)
+        # Get an access token for the specific installation
+        token = gi.get_access_token(installation_id).token
+        return token
+    except Exception as e:
+        # Print error if token generation fails
+        print(f"ERROR generating GitHub token: {e}")
+        return None
 
-        # --- Configuration ---
-        LOG_REPO_NAME = "longhaiSK/logs"
-        LOG_FILE_PATH = "genabbre_visitor_log.txt"
-        TIMEZONE = "Canada/Saskatchewan"
+# --- Log Daily Session Count to GitHub (JSON) ---
+def log_daily_session_count_to_github(gh_token, repo_name, file_path, timezone):
+    """Reads a JSON file from GitHub containing daily session counts,
+       increments the count for the current day, and writes the updated JSON back."""
+    try:
+        # Initialize GitHub client with the obtained token
+        g = Github(auth=Auth.Token(gh_token))
+        # Get the repository object
+        repo = g.get_repo(repo_name)
+        # Set the timezone
+        tz = pytz.timezone(timezone)
+        # Get the current date string in YYYY-MM-DD format
+        current_date_str = datetime.now(pytz.utc).astimezone(tz).strftime("%Y-%m-%d")
 
-        # --- Read Secrets ---
-        APP_ID = st.secrets["GITHUB_APP_ID"]
-        INSTALLATION_ID = st.secrets["GITHUB_INSTALLATION_ID"]
-        PRIVATE_KEY = st.secrets["GITHUB_PRIVATE_KEY"]
+        daily_counts = {}
+        sha = None
+        commit_message = ""
 
-        # --- Get GitHub App Token ---
-        def get_github_app_token(app_id, private_key, installation_id):
-            auth = Auth.AppAuth(app_id, private_key)
-            gi = GithubIntegration(auth=auth)
-            token = gi.get_access_token(installation_id).token
-            return token
+        try:
+            # Try to get the existing file contents
+            contents = repo.get_contents(file_path, ref="main")
+            sha = contents.sha
+            # Decode the base64 encoded content
+            existing_content_bytes = base64.b64decode(contents.content)
+            existing_content_str = existing_content_bytes.decode("utf-8")
 
-        # --- Get Visitor Info (no coordinates) ---
-        def get_visitor_info():
+            # Parse the existing JSON data
             try:
-                resp = requests.get("https://ipinfo.io/json", timeout=3)
-                data = resp.json()
-                ip = data.get("ip", "N/A")
-                city = data.get("city", "")
-                region = data.get("region", "")
-                country = data.get("country", "")
-                org = data.get("org", "")
-                return f"IP: {ip}\nLocation: {city}, {region}, {country}\nOrg: {org}\n"
-            except Exception as e:
-                return f"Could not fetch IP info: {e}\n"
+                daily_counts = json.loads(existing_content_str)
+                if not isinstance(daily_counts, dict):
+                     print(f"WARNING: Existing content in {file_path} is not a JSON dictionary. Resetting counts.")
+                     daily_counts = {} # Reset if format is wrong
+            except json.JSONDecodeError:
+                print(f"WARNING: Could not decode JSON from {file_path}. File might be corrupt or empty. Resetting counts.")
+                daily_counts = {} # Reset if JSON is invalid
 
-        # --- Log Visit to GitHub ---
-        def log_visit_to_github(gh_token, repo_name, file_path, timezone):
-            g = Github(auth=Auth.Token(gh_token))
-            repo = g.get_repo(repo_name)
-            tz = pytz.timezone(timezone)
-            timestamp = datetime.now(pytz.utc).astimezone(tz).strftime("%Y-%m-%d %H:%M:%S %Z%z")
+        except UnknownObjectException:
+            # If the file doesn't exist, we'll create it later
+            print(f"Log file '{file_path}' not found in repo '{repo_name}'. Creating new file.")
+            # `sha` remains None, `daily_counts` remains {}
 
-            log_entry = f"Visit at: {timestamp}\n"
-            log_entry += get_visitor_info()
-            log_entry += "-" * 30 + "\n"
+        except Exception as e:
+            # Handle other errors during GitHub content retrieval
+            print(f"ERROR retrieving file content from GitHub: {type(e).__name__} - {e}")
+            return # Exit if we can't get file status
 
-            try:
-                contents = repo.get_contents(file_path, ref="main")
-                sha = contents.sha
-                existing_content_decoded = base64.b64decode(contents.content).decode("utf-8")
-                new_content = existing_content_decoded + log_entry
-                commit_message = f"Append visit log {timestamp}"
-                repo.update_file(
-                    path=file_path,
-                    message=commit_message,
-                    content=new_content.encode("utf-8"),
-                    sha=sha,
-                    branch="main"
-                )
-            except UnknownObjectException:
-                commit_message = f"Create visit log {timestamp}"
-                repo.create_file(
-                    path=file_path,
-                    message=commit_message,
-                    content=log_entry.encode("utf-8"),
-                    branch="main"
-                )
+        # Increment the count for the current date
+        current_count = daily_counts.get(current_date_str, 0) # Get current count or 0 if date doesn't exist
+        daily_counts[current_date_str] = current_count + 1
+        new_count = daily_counts[current_date_str]
 
-        # --- Run the Logging ---
-        github_token = get_github_app_token(APP_ID, PRIVATE_KEY, INSTALLATION_ID)
-        if github_token:
-            log_visit_to_github(github_token, LOG_REPO_NAME, LOG_FILE_PATH, TIMEZONE)
-            #print(f"[{datetime.now()}] Background visit logging successful.")
-        else:
-            print(f"[{datetime.now()}] Failed to get GitHub token for logging.")
+        # Convert the updated dictionary back to a pretty-printed JSON string
+        new_content_str = json.dumps(daily_counts, indent=4) # Use indent for readability
+        new_content_bytes = new_content_str.encode("utf-8")
 
-    except KeyError as e:
-        print(f"ERROR: Missing GitHub App secret for logging: {e}. Logging skipped.")
+        # Determine action and commit message
+        if sha: # If sha exists, we are updating the file
+            commit_message = f"Increment session count for {current_date_str} to {new_count}"
+            repo.update_file(
+                path=file_path,
+                message=commit_message,
+                content=new_content_bytes,
+                sha=sha,
+                branch="main"
+            )
+            # print(f"Successfully updated session count for {current_date_str}") # Optional success message
+        else: # If sha is None, the file didn't exist, so create it
+            commit_message = f"Create session count log, starting {current_date_str} at 1"
+            repo.create_file(
+                path=file_path,
+                message=commit_message,
+                content=new_content_bytes,
+                branch="main"
+            )
+            # print(f"Successfully created {file_path} and logged first session for {current_date_str}") # Optional success message
 
     except Exception as e:
-        print(f"ERROR during background visit logging: {type(e).__name__} - {e}")
+        # Catch-all for any other errors in the logging function
+        print(f"ERROR during logging process: {type(e).__name__} - {e}")
+
+
+# --- Main Execution Logic ---
+# Check if logging has already been attempted in this session
+if 'visit_logging_attempted' not in st.session_state:
+    st.session_state['visit_logging_attempted'] = True  # Mark logging as attempted
+
+    try:
+        # --- Read Secrets ---
+        # Use .get() for safer access to secrets
+        APP_ID = st.secrets.get("GITHUB_APP_ID")
+        INSTALLATION_ID = st.secrets.get("GITHUB_INSTALLATION_ID")
+        PRIVATE_KEY = st.secrets.get("GITHUB_PRIVATE_KEY")
+
+        # Check if all necessary secrets are present
+        if not all([APP_ID, INSTALLATION_ID, PRIVATE_KEY]):
+             # Raise an error if any secret is missing
+             raise KeyError("One or more GitHub App secrets (GITHUB_APP_ID, GITHUB_INSTALLATION_ID, GITHUB_PRIVATE_KEY) are missing.")
+
+        # --- Run the Logging ---
+        # Get the GitHub token
+        github_token = get_github_app_token(APP_ID, PRIVATE_KEY, INSTALLATION_ID)
+
+        if github_token:
+            # If token obtained successfully, log/increment the daily session count
+            log_daily_session_count_to_github(github_token, LOG_REPO_NAME, LOG_FILE_PATH, TIMEZONE)
+            # Optional: print success message if debugging
+            # print(f"[{datetime.now(pytz.timezone(TIMEZONE))}] Background daily session count logging complete.")
+        else:
+            # If token generation failed
+            print(f"[{datetime.now(pytz.timezone(TIMEZONE))}] Failed to get GitHub token for logging. Session count not updated.")
+
+    except KeyError as e:
+        # Specifically catch missing secrets error
+        print(f"ERROR: Missing GitHub App secret for logging: {e}. Logging skipped.")
+        # Optionally display an error message in the Streamlit app UI
+        # st.error(f"Visit logging disabled: Missing required secret ({e}). Please configure Streamlit secrets.")
+
+    except Exception as e:
+        # Catch any other unexpected errors during the setup or execution
+        print(f"ERROR during background visit logging setup/execution: {type(e).__name__} - {e}")
+        # Optionally display a generic warning in the Streamlit app UI
+        # st.warning("Could not log session count due to an internal error.")
+
 
