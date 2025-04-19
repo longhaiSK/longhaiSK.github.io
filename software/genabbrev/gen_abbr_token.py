@@ -892,475 +892,320 @@ This algorithm identifies and extracts abbreviation definitions like `Full Defin
 # ## App UI
 # %% tags=[]
 # Full UI Code with Custom Button Styles Added
-
 import streamlit as st
-import pandas as pd # Assuming pandas is used and imported
-
-# --- Assumed Definitions ---
-# Ensure the following are defined or imported in your environment:
-# - Functions: normalize_latex_math, collect_abbreviations, select_abbreviations, format_abbreviations
-# - Variables: DEBUG (boolean), example_text (optional string),
-#              summary_expander_label, summary_explanation_text,
-#              detailed_expander_label, detailed_description_text
-# ---
-
-# --- Streamlit App Code ---
-
-st.set_page_config(layout="wide")
-st.title(r"Extracting Abbreviations from $\LaTeX$ Text")
-
-
-# --- Initialize Session State (Essential for UI statefulness) ---
-if 'collected_df' not in st.session_state: st.session_state.collected_df = None
-if 'last_input_text_processed' not in st.session_state: st.session_state.last_input_text_processed = None
-if 'last_input_text' not in st.session_state:
-    try: st.session_state.last_input_text = example_text # Uses example_text if defined in your scope
-    except NameError: st.session_state.last_input_text = ""
-
-# Initialize filter/sort states with defaults IF THEY DON'T EXIST
-if 'usage_filter' not in st.session_state: st.session_state.usage_filter = 0
-if 'perc_abbr_match_filter' not in st.session_state: st.session_state.perc_abbr_match_filter = 0.7
-if 'perc_words_match_filter' not in st.session_state: st.session_state.perc_words_match_filter = 0.3
-if 'clear_duplicates_option' not in st.session_state: st.session_state.clear_duplicates_option = 'No'
-if 'sort_selector' not in st.session_state: st.session_state.sort_selector = 'Abbreviation'
-
-# Assume DEBUG is defined (e.g., DEBUG = False)
-try: _ = DEBUG
-except NameError: DEBUG = False # Default if not defined elsewhere
-
-# --- Define callback functions ---
-def reset_filters_callback():
-    st.session_state.usage_filter = 0
-    st.session_state.perc_abbr_match_filter = 0.7
-    st.session_state.perc_words_match_filter = 0.3
-    st.session_state.clear_duplicates_option = 'No'
-    # No st.rerun() needed here, modifying state in callback triggers it
-
-def show_all_callback():
-    st.session_state.usage_filter = 0
-    st.session_state.perc_abbr_match_filter = 0.0
-    st.session_state.perc_words_match_filter = 0.0
-    st.session_state.clear_duplicates_option = 'No'
-    # No st.rerun() needed here
-
-# --- UI Layout (Top to Bottom) ---
-
-# 1. Input Area
-st.subheader("Paste Your Text")
-input_text = st.text_area(label="...", label_visibility="collapsed", value=st.session_state.last_input_text, height=250, key="input_text_area")
-
-st.caption('<p style="color:red;">Disclaimer: this app does not save your text.</p>', unsafe_allow_html=True)
-
-process_button = st.button("Process Text and Extract Abbreviations", type="primary") # This is a primary button
-
-
-# 2. Processing Logic (Run Collection)
-collection_needed = False
-if process_button: collection_needed = True; st.session_state.last_input_text = input_text
-elif input_text != st.session_state.get('last_input_text_processed', None): collection_needed = True
-
-if collection_needed and input_text:
-    st.session_state.clear_duplicates_option = 'No' # Reset selectbox
-    with st.spinner("Collecting..."):
-        try:
-            # Assumes normalize_latex_math and collect_abbreviations are defined elsewhere
-            normalized_text = normalize_latex_math(input_text)
-            st.session_state.collected_df = collect_abbreviations(normalized_text, debug=DEBUG)
-            st.session_state.last_input_text_processed = input_text
-        except NameError as e: st.error(f"Function missing: {e}"); st.session_state.collected_df = None; st.session_state.last_input_text_processed = input_text
-        except Exception as e: st.error(f"Error during collection: {e}"); st.session_state.collected_df = None; st.session_state.last_input_text_processed = input_text
-elif collection_needed and not input_text:
-    st.warning("Please enter text.")
-    st.session_state.collected_df = None
-    st.session_state.last_input_text_processed = None
-    st.session_state.clear_duplicates_option = 'No'
-
-
-
-
-# --- Prepare Data Source (Handle Duplicates) ---
-# Define column names just before use
-collected_data_columns = ['abbreviation', 'full_name', 'perc_abbr_matches', 'perc_words_matched', 'usage_count']
-collected_data_raw = st.session_state.get('collected_df', pd.DataFrame(columns=collected_data_columns)).copy()
-data_to_filter = collected_data_raw
-if st.session_state.clear_duplicates_option == 'Yes' and isinstance(collected_data_raw, pd.DataFrame) and not collected_data_raw.empty and 'abbreviation' in collected_data_raw.columns:
-    try:
-        data_to_filter = collected_data_raw.drop_duplicates(subset=['abbreviation'], keep='first', ignore_index=True)
-    except Exception as e_dup:
-         st.warning(f"Issue removing duplicates: {e_dup}")
-
-
-# --- Filtering Controls (Layout Adjusted) ---
-st.divider()
-
-st.subheader("Filtering Controls") # Renamed subheade
-# Row 1: Header and Action Buttons (Adjusted Ratios)
-col_reset, _ = st.columns([4, 4]) # Ratio adjustment to keep reset button size similar
-
-
-with col_reset:
-    # Use on_click and remove logic from inside if statement
-    st.button(
-        "**Reset Filters**",
-        key="reset_filters_button",
-        help="Reset filters to default values.",
-        on_click=reset_filters_callback # Use the callback (secondary button)
-    )
-
-# Define options needed for the selectboxes
-usage_options = list(range(11))
-abbr_perc_options = [round(i * 0.1, 1) for i in range(11)]
-word_perc_options = [round(i * 0.1, 1) for i in range(11)]
-duplicate_options = ['No', 'Yes']
-
-# Row 2: Filter Selectboxes (Occupying ~2/3 Width)
-col_f1, col_f2, col_f3, col_dup, _ = st.columns([1, 1, 1, 1, 3]) # Ratio [1, 1, 1, 1, 2] = 4 filters (total 4 parts) + spacer (2 parts) = 2/3 width
-
-with col_f1:
-    st.selectbox( "Usage \u2265", options=usage_options, key="usage_filter" )
-with col_f2:
-    st.selectbox( "% Abbr Match \u2265", options=abbr_perc_options, key="perc_abbr_match_filter", format_func=lambda x: f"{x*100:.0f}%" )
-with col_f3:
-    st.selectbox( "% Words Match \u2265", options=word_perc_options, key="perc_words_match_filter", format_func=lambda x: f"{x*100:.0f}%" )
-with col_dup:
-    st.selectbox( "Clear Duplicates:", options=duplicate_options, key='clear_duplicates_option', help="Show only the first occurrence ('Yes') or all occurrences ('No') of each abbreviation based on collection order (before filtering)." )
-# The 5th column (_) is intentionally left empty as a spacer.
-
-
-
-# --- END OF Filtering Controls SECTION ---
-
-
-# --- Apply Selection (Filtering) using values from session_state ---
-filtered_dataframe = pd.DataFrame(columns=collected_data_columns) # Default empty
-try:
-    if isinstance(data_to_filter, pd.DataFrame) and not data_to_filter.empty:
-        # Assumes select_abbreviations is defined elsewhere
-        filtered_dataframe = select_abbreviations(
-            data_to_filter,
-            threshold_perc_abbr_matches=st.session_state.perc_abbr_match_filter,
-            threshold_usage=st.session_state.usage_filter,
-            threshold_perc_words_matched=st.session_state.perc_words_match_filter,
-            debug=DEBUG
-        )
-    elif isinstance(data_to_filter, pd.DataFrame) and data_to_filter.empty:
-        filtered_dataframe = data_to_filter.copy()
-except NameError as e:
-    st.error(f"Function `select_abbreviations` is not defined: {e}")
-    filtered_dataframe = pd.DataFrame(columns=collected_data_columns)
-except Exception as e_select:
-    st.error(f"Error during selection: {e_select}")
-    filtered_dataframe = pd.DataFrame(columns=collected_data_columns)
-
-
-# --- Apply Sorting using value from session_state ---
-# Define sort map just before use
-sort_column_map = {'Abbreviation': 'abbreviation', 'Full Phrase': 'full_name', 'Usage': 'usage_count', '% Abbr Matched': 'perc_abbr_matches', '% Words Matched': 'perc_words_matched'}
-display_dataframe = filtered_dataframe.copy()
-if not display_dataframe.empty:
-    sort_by_display = st.session_state.sort_selector
-    sort_by_actual = sort_column_map.get(sort_by_display, 'abbreviation')
-    sort_ascending = not (sort_by_actual in ['usage_count', 'perc_abbr_matches', 'perc_words_matched'])
-    secondary_sort = 'abbreviation'; secondary_ascending = True
-    if sort_by_actual == 'abbreviation': secondary_sort = 'usage_count'; secondary_ascending = False
-    # Add other secondary sort logic if needed
-    cols_to_sort_by = [sort_by_actual]; ascending_list = [sort_ascending]
-    if secondary_sort != sort_by_actual and secondary_sort in display_dataframe.columns:
-        cols_to_sort_by.append(secondary_sort); ascending_list.append(secondary_ascending)
-    if all(col in display_dataframe.columns for col in cols_to_sort_by):
-        try: display_dataframe = display_dataframe.sort_values( by=cols_to_sort_by, ascending=ascending_list, ignore_index=True, )
-        except Exception as sort_e: st.error(f"Error sorting data: {sort_e}")
-    else:
-        missing_cols = [col for col in cols_to_sort_by if col not in display_dataframe.columns]
-        st.warning(f"Cannot sort because column(s) not found: {', '.join(missing_cols)}.")
-
-
-# --- Display Table and Info Notes ---
-st.write("") # Spacer from controls
-
-# Section Header and Sort Control (Adjusted Ratio)
-# Define sort options just before use
-
-# Assume pandas as pd is imported
-# Assume display_dataframe is defined and populated earlier in your script
-# Assume st is imported (import streamlit as st)
-
-st.subheader("Selected Abbreviations") # Keep user's layout
-sort_options = ['Abbreviation', 'Full Phrase', 'Usage', '% Abbr Matched', '% Words Matched'] # Keep user's layout
-col_header_left, _ = st.columns([2, 15]) # Keep user's layout
-with col_header_left: # Keep user's layout
-    st.selectbox( "Sort by:", options=sort_options, key="sort_selector") # Keep user's layout
-
-# Display Table using Markdown
-if not display_dataframe.empty:
-    # --- Start: Your existing formatting ---
-    display_df_formatted = display_dataframe.rename(columns={ 'abbreviation': 'Abbreviation', 'full_name': 'Full Phrase', 'usage_count': 'Usage', 'perc_abbr_matches': '% Abbr Matched', 'perc_words_matched': '% Words Matched' })
-    display_columns_order = ['Abbreviation', 'Full Phrase', 'Usage', '% Abbr Matched', '% Words Matched']
-    display_columns_exist = [col for col in display_columns_order if col in display_df_formatted.columns]
-    display_df_formatted = display_df_formatted[display_columns_exist]
-    try:
-        if '% Abbr Matched' in display_df_formatted.columns: display_df_formatted['% Abbr Matched'] = display_df_formatted['% Abbr Matched'].apply(lambda x: f"{x:.1%}" if pd.notna(x) and isinstance(x, (int, float)) else x)
-        if '% Words Matched' in display_df_formatted.columns: display_df_formatted['% Words Matched'] = display_df_formatted['% Words Matched'].apply(lambda x: f"{x:.1%}" if pd.notna(x) and isinstance(x, (int, float)) else x)
-    except Exception as fmt_e: st.warning(f"Could not format percentage columns: {fmt_e}")
-    # --- End: Your existing formatting ---
-
-    # --- ADDED: Set index to start from 1 ---
-    n_rows = len(display_df_formatted)
-    if n_rows > 0: # Only set index if there are rows
-      # Create and assign a new index starting from 1
-      display_df_formatted.index = pd.RangeIndex(start=1, stop=n_rows + 1, step=1)
-    # --- END ADDED ---
-
-    # Convert to Markdown (index=True still needed to display the index column)
-    markdown_table = display_df_formatted.to_markdown(index=True)
-    st.markdown(markdown_table, unsafe_allow_html=False)
-else:
-    # Your existing logic for empty dataframe
-    if st.session_state.get('collected_df') is not None and isinstance(st.session_state.collected_df, pd.DataFrame) and not st.session_state.collected_df.empty:
-        st.info("No abbreviations match the current filter criteria.")
-    # else: # No message if no data loaded initially, handled by collection status
-
-# Display Info Notes (Corrected logic from before)
-col_note_left, _ = st.columns([1, 1])
-with col_note_left:
-    # Check if display_dataframe is not empty before proceeding with notes that depend on it
-    if not display_dataframe.empty:
-        # Check if collected_df exists and is valid DataFrame
-        if st.session_state.get('collected_df') is not None and isinstance(st.session_state.collected_df, pd.DataFrame):
-            try:
-                count = len(st.session_state.collected_df)
-                # Changed condition: Show button if any abbreviations were collected
-                if count > 0:
-                    st.button(
-                        f"**Show All ({count} Abbreviations Found)**",
-                        key="show_all_info_button",
-                        help="Show all collected items (minimum filters).",
-                        on_click=show_all_callback # Use the callback (secondary button)
-                    )
-            except Exception as e:
-                st.warning(f"Could not determine total count: {e}")
-                pass # Continue without the button if count fails
-
-        # --- Duplicate and Zero Usage Notes ---
-        notes_found = False
-        duplicates_df = pd.DataFrame()
-        if st.session_state.clear_duplicates_option == 'No':
-            # Ensure required columns exist before checking duplicates
-            if 'abbreviation' in display_dataframe.columns:
-                duplicate_mask_display = display_dataframe['abbreviation'].duplicated(keep=False)
-                if duplicate_mask_display.any():
-                    notes_found = True
-                    duplicates_df = display_dataframe[duplicate_mask_display].sort_values(by=['abbreviation', 'full_name'])
-                    if not duplicates_df.empty:
-                        dup_grouped = duplicates_df.groupby('abbreviation')['full_name'].apply(lambda names: f"{names.name} ({', '.join(names)})").tolist()
-                        note_text = "**Multiply defined abbreviations displayed:** " + "; ".join(dup_grouped)
-                        st.markdown(f"ℹ️ {note_text}", unsafe_allow_html=False)
-
-        # Ensure required columns exist before checking zero usage
-        if 'usage_count' in display_dataframe.columns and 'abbreviation' in display_dataframe.columns:
-            zero_usage_df = display_dataframe[display_dataframe['usage_count'] == 0]
-            if not zero_usage_df.empty:
-                all_zero_usage_abbrs = zero_usage_df['abbreviation'].unique().tolist()
-                if not duplicates_df.empty and 'abbreviation' in duplicates_df.columns:
-                    reported_duplicates = duplicates_df['abbreviation'].unique()
-                    zero_usage_abbrs_to_report = [abbr for abbr in all_zero_usage_abbrs if abbr not in reported_duplicates]
-                else:
-                    zero_usage_abbrs_to_report = all_zero_usage_abbrs
-
-                if zero_usage_abbrs_to_report:
-                    notes_found = True
-                    abbr_list_str = ", ".join(zero_usage_abbrs_to_report)
-                    note_text = "**Zero usage found for displayed abbreviations:** " + abbr_list_str
-                    st.markdown(f"ℹ️ {note_text}", unsafe_allow_html=False)
-
-# --- Export Section ---
-st.divider(); st.subheader("Export Selected Abbreviations")
-df_export = display_dataframe # Use the potentially filtered/sorted dataframe for export
-col_exp_sel, _ = st.columns([1, 1])
-with col_exp_sel: selected_format = st.selectbox("Export Format:", options=['plain', 'tabular', 'nomenclature'], index=0, key='format_selector', label_visibility="collapsed")
-formatted_output = "No abbreviations selected.";
-if df_export is not None and not df_export.empty:
-    try:
-        # Assumes format_abbreviations is defined elsewhere
-        formatted_output = format_abbreviations(df_export, format_type=selected_format)
-    except NameError as e: formatted_output = f"Error: `format_abbreviations` fn missing."; st.error(formatted_output)
-    except Exception as format_e: formatted_output = f"Error during formatting: {format_e}"; st.error(formatted_output)
-elif 'collected_df' not in st.session_state or st.session_state.collected_df is None: formatted_output = "Process text first."
-st.text_area("Formatted Output:", value=formatted_output, height=150, help="Copy output.", key="output_text_area", label_visibility="visible")
-
-# --- Explanations & Footer ---
-# Assumes summary_expander_label, summary_explanation_text, etc. are defined
-st.divider(); st.subheader("About the Algorithm")
-col1_exp, col2_exp = st.columns(2)
-try:
-    with col1_exp:
-        with st.expander(summary_expander_label): st.markdown(summary_explanation_text)
-    with col2_exp:
-        with st.expander(detailed_expander_label): st.markdown(detailed_description_text)
-except NameError:
-    st.warning("Explanation text variables (e.g., summary_expander_label) not defined.") # Add warning if variables missing
-
-st.markdown("---"); st.caption("Author: Longhai Li, https://longhaisk.github.io, Saskatoon, SK, Canada")
-
-# %% [markdown]
-# # Tracking Visitors
-
-# %%
-# Required imports
-import streamlit as st
+import pandas as pd
 import time
-# Removed jwt import as it's not directly used and AppAuth handles it
 import requests # Keep for potential request exceptions in dependencies
 import base64
 from github import Github, GithubIntegration, Auth
 from github.GithubException import UnknownObjectException
 from datetime import datetime
 import pytz
-import json # Re-import json library
+import json
 
-# --- Configuration ---
-LOG_REPO_NAME = "longhaiSK/logs"
-LOG_FILE_PATH = "abbr0_daily_session_counts.json" # Added prefix to log file name
-TIMEZONE = "Canada/Saskatchewan" # Your specified timezone
+# --- Assume helper functions are defined elsewhere ---
+# def normalize_latex_math(text): ... return normalized_text
+# def collect_abbreviations(text, debug=False): ... return dataframe_or_none
+# def select_abbreviations(df, threshold_perc_abbr_matches, threshold_usage, threshold_perc_words_matched, debug=False): ... return dataframe
+# def format_abbreviations(df, format_type): ... return formatted_string
+# --- END Assume helper functions ---
 
-# --- Get GitHub App Token ---
-# (Assuming this function works correctly and returns a token or None)
+
+st.set_page_config(layout="wide")
+st.title(r"Extracting Abbreviations from $\LaTeX$ Text")
+
+
+# --- Initialize Session State (Essential for UI statefulness) ---
+def initialize_state():
+    # Core data
+    if 'collected_df' not in st.session_state: st.session_state.collected_df = None
+    if 'last_input_text_processed' not in st.session_state: st.session_state.last_input_text_processed = None
+    if 'last_input_text' not in st.session_state: st.session_state.last_input_text = ""
+
+    # Filter/sort states
+    if 'usage_filter' not in st.session_state: st.session_state.usage_filter = 0
+    if 'perc_abbr_match_filter' not in st.session_state: st.session_state.perc_abbr_match_filter = 0.7
+    if 'perc_words_match_filter' not in st.session_state: st.session_state.perc_words_match_filter = 0.3
+    if 'clear_duplicates_option' not in st.session_state: st.session_state.clear_duplicates_option = 'No'
+    if 'sort_selector' not in st.session_state: st.session_state.sort_selector = 'Abbreviation'
+    if 'format_selector' not in st.session_state: st.session_state.format_selector = 'plain'
+
+    # Flag for initial run processing (for UI behavior)
+    if 'initial_run_processed' not in st.session_state:
+        st.session_state.initial_run_processed = False
+
+    # Flag to signify logging has successfully completed this session
+    if 'processing_button_logged' not in st.session_state:
+        st.session_state.processing_button_logged = False
+
+    # Flag to trigger logging execution later in the script run
+    if 'log_visit_on_next_run' not in st.session_state:
+        st.session_state.log_visit_on_next_run = False
+
+# Run initialization function
+initialize_state()
+
+# Assume DEBUG is defined (e.g., DEBUG = False)
+try: _ = DEBUG
+except NameError: DEBUG = False
+
+# --- Define callback functions ---
+def reset_filters_callback():
+    """Resets filter controls to their default values."""
+    st.session_state.usage_filter = 0
+    st.session_state.perc_abbr_match_filter = 0.7
+    st.session_state.perc_words_match_filter = 0.3
+    st.session_state.clear_duplicates_option = 'No'
+
+def show_all_callback():
+    """Resets filters to show all collected abbreviations."""
+    st.session_state.usage_filter = 0
+    st.session_state.perc_abbr_match_filter = 0.0
+    st.session_state.perc_words_match_filter = 0.0
+    st.session_state.clear_duplicates_option = 'No'
+
+# --- UI Layout (Top to Bottom) ---
+
+# 1. Input Area
+st.subheader("Paste Your Text")
+input_text = st.text_area(
+    label="Input LaTeX Text", label_visibility="collapsed",
+    value=st.session_state.last_input_text, height=250, key="input_text_area"
+)
+st.session_state.last_input_text = input_text
+st.caption('<p style="color:red;">Disclaimer: this app does not save your text.</p>', unsafe_allow_html=True)
+
+# 2. Processing Logic (Button and Execution)
+
+# --- Button Definition ---
+process_button = st.button(
+    "Process Text and Extract Abbreviations", type="primary", key="process_button_main"
+)
+
+# --- Determine if Processing is Needed (for UI) ---
+needs_processing = False
+is_initial_run = not st.session_state.get('initial_run_processed', False)
+is_button_click = process_button
+if (is_initial_run and input_text) or is_button_click:
+    needs_processing = True
+
+# --- Processing Logic (Conditionally Triggered) ---
+if needs_processing:
+    if input_text:
+        st.session_state.clear_duplicates_option = 'No'
+        with st.spinner("Processing..."):
+            try:
+                # --- CORE PROCESSING STEPS ---
+                normalized_text = normalize_latex_math(input_text)
+                collected_data = collect_abbreviations(normalized_text, debug=DEBUG)
+
+                # --- Store results in session state ---
+                st.session_state.collected_df = collected_data
+                st.session_state.last_input_text_processed = input_text
+
+                # --- Mark initial UI run as complete AFTER successful processing ---
+                st.session_state.initial_run_processed = True
+
+                # --- Set flag to trigger logging later ---
+                # Check if button was clicked and logging hasn't SUCCEEDED yet this session
+                if is_button_click and not st.session_state.get('processing_button_logged', False):
+                    st.session_state.log_visit_on_next_run = True # Set flag for later execution
+
+            except NameError as e:
+                st.error(f"A required function is missing: {e}")
+                st.session_state.collected_df = None
+            except Exception as e:
+                st.error(f"An error occurred during processing: {e}")
+                st.session_state.collected_df = None
+
+            # Provide user feedback about processing (moved outside try block to always show after spinner)
+            if 'collected_data' in locals(): # Check if processing actually ran
+                 if isinstance(collected_data, pd.DataFrame):
+                     st.success(f"Processing complete! Found {len(collected_data)} potential abbreviations.")
+                 elif collected_data is None:
+                      st.warning("Processing finished, but no abbreviations were collected.")
+                 else:
+                      st.warning("Processing finished, but the result was not a DataFrame.")
+
+    elif is_button_click: # Button clicked with no text
+        st.warning("Please enter text before processing.")
+        st.session_state.collected_df = None
+        st.session_state.last_input_text_processed = None
+        st.session_state.clear_duplicates_option = 'No'
+
+
+# --- Prepare Data Source ---
+# (This section remains the same)
+collected_data_columns = ['abbreviation', 'full_name', 'perc_abbr_matches', 'perc_words_matched', 'usage_count']
+collected_df_from_state = st.session_state.get('collected_df')
+if isinstance(collected_df_from_state, pd.DataFrame): collected_data_raw = collected_df_from_state.copy()
+else: collected_data_raw = pd.DataFrame(columns=collected_data_columns)
+data_to_filter = collected_data_raw
+if st.session_state.clear_duplicates_option == 'Yes' and not data_to_filter.empty and 'abbreviation' in data_to_filter.columns:
+    try: data_to_filter = data_to_filter.drop_duplicates(subset=['abbreviation'], keep='first', ignore_index=True)
+    except Exception as e_dup: st.warning(f"Issue removing duplicates: {e_dup}")
+
+# --- Filtering Controls ---
+# (This section remains the same)
+st.divider(); st.subheader("Filtering Controls")
+col_reset, _ = st.columns([1, 5])
+with col_reset: st.button("Reset Filters", key="reset_filters_button", help="Reset filters to default values.", on_click=reset_filters_callback, type="secondary")
+usage_options = list(range(11)); abbr_perc_options = [round(i * 0.1, 1) for i in range(11)]; word_perc_options = [round(i * 0.1, 1) for i in range(11)]; duplicate_options = ['No', 'Yes']
+col_f1, col_f2, col_f3, col_dup, _ = st.columns([1, 1, 1, 1, 2])
+with col_f1: st.selectbox("Usage ≥", options=usage_options, key="usage_filter")
+with col_f2: st.selectbox("% Abbr Match ≥", options=abbr_perc_options, key="perc_abbr_match_filter", format_func=lambda x: f"{x*100:.0f}%")
+with col_f3: st.selectbox("% Words Match ≥", options=word_perc_options, key="perc_words_match_filter", format_func=lambda x: f"{x*100:.0f}%")
+with col_dup: st.selectbox("Show First Only:", options=duplicate_options, key='clear_duplicates_option', help="Show only the first occurrence ('Yes') or all occurrences ('No') of each abbreviation.")
+
+# --- Apply Filtering ---
+# (This section remains the same)
+filtered_dataframe = pd.DataFrame(columns=collected_data_columns)
+if isinstance(data_to_filter, pd.DataFrame) and not data_to_filter.empty:
+    try:
+        filtered_dataframe = select_abbreviations(data_to_filter, threshold_perc_abbr_matches=st.session_state.perc_abbr_match_filter, threshold_usage=st.session_state.usage_filter, threshold_perc_words_matched=st.session_state.perc_words_match_filter, debug=DEBUG)
+        if not isinstance(filtered_dataframe, pd.DataFrame): st.warning("Filtering function did not return a DataFrame."); filtered_dataframe = pd.DataFrame(columns=collected_data_columns)
+    except NameError as e: st.error(f"Function `select_abbreviations` is not defined: {e}"); filtered_dataframe = pd.DataFrame(columns=collected_data_columns)
+    except Exception as e_select: st.error(f"Error during selection: {e_select}"); filtered_dataframe = pd.DataFrame(columns=collected_data_columns)
+
+# --- Apply Sorting ---
+# (This section remains the same)
+sort_column_map = {'Abbreviation': 'abbreviation', 'Full Phrase': 'full_name', 'Usage': 'usage_count', '% Abbr Matched': 'perc_abbr_matches', '% Words Matched': 'perc_words_matched'}
+display_dataframe = filtered_dataframe.copy() if isinstance(filtered_dataframe, pd.DataFrame) else pd.DataFrame(columns=collected_data_columns)
+if not display_dataframe.empty:
+    sort_by_display = st.session_state.sort_selector; sort_by_actual = sort_column_map.get(sort_by_display, 'abbreviation'); sort_ascending = not (sort_by_actual in ['usage_count', 'perc_abbr_matches', 'perc_words_matched'])
+    secondary_sort = 'abbreviation'; secondary_ascending = True
+    if sort_by_actual == 'abbreviation': secondary_sort = 'usage_count'; secondary_ascending = False
+    cols_to_sort_by = []; ascending_list = []
+    if sort_by_actual in display_dataframe.columns: cols_to_sort_by.append(sort_by_actual); ascending_list.append(sort_ascending)
+    else: st.warning(f"Primary sort column '{sort_by_actual}' not found.")
+    if secondary_sort != sort_by_actual and secondary_sort in display_dataframe.columns: cols_to_sort_by.append(secondary_sort); ascending_list.append(secondary_ascending)
+    if cols_to_sort_by:
+        try: display_dataframe = display_dataframe.sort_values(by=cols_to_sort_by, ascending=ascending_list, ignore_index=True)
+        except Exception as sort_e: st.error(f"Error sorting data: {sort_e}")
+
+# --- Display Table and Info Notes ---
+# (This section remains the same)
+st.write(""); st.subheader("Selected Abbreviations")
+sort_options = ['Abbreviation', 'Full Phrase', 'Usage', '% Abbr Matched', '% Words Matched']
+col_header_left, _ = st.columns([1, 4]);
+with col_header_left: st.selectbox("Sort by:", options=sort_options, key="sort_selector")
+if isinstance(display_dataframe, pd.DataFrame) and not display_dataframe.empty:
+    display_df_formatted = display_dataframe.rename(columns={'abbreviation': 'Abbreviation', 'full_name': 'Full Phrase', 'usage_count': 'Usage', 'perc_abbr_matches': '% Abbr Matched', 'perc_words_matched': '% Words Matched'})
+    display_columns_order = ['Abbreviation', 'Full Phrase', 'Usage', '% Abbr Matched', '% Words Matched']; display_columns_exist = [col for col in display_columns_order if col in display_df_formatted.columns]; display_df_formatted = display_df_formatted[display_columns_exist]
+    try:
+        if '% Abbr Matched' in display_df_formatted.columns: display_df_formatted['% Abbr Matched'] = display_df_formatted['% Abbr Matched'].apply(lambda x: f"{x:.1%}" if pd.notna(x) and isinstance(x, (int, float)) else x)
+        if '% Words Matched' in display_df_formatted.columns: display_df_formatted['% Words Matched'] = display_df_formatted['% Words Matched'].apply(lambda x: f"{x:.1%}" if pd.notna(x) and isinstance(x, (int, float)) else x)
+    except Exception as fmt_e: st.warning(f"Could not format percentage columns: {fmt_e}")
+    n_rows = len(display_df_formatted); display_df_formatted.index = pd.RangeIndex(start=1, stop=n_rows + 1, step=1); markdown_table = display_df_formatted.to_markdown(index=True); st.markdown(markdown_table, unsafe_allow_html=False)
+else:
+    if isinstance(st.session_state.get('collected_df'), pd.DataFrame) and not st.session_state.collected_df.empty: st.info("No abbreviations match the current filter criteria.")
+col_note_left, _ = st.columns([1, 1])
+with col_note_left:
+    original_collection = st.session_state.get('collected_df')
+    if isinstance(original_collection, pd.DataFrame) and not original_collection.empty:
+        count = len(original_collection); st.button(f"Show All ({count} Found)", key="show_all_info_button", help="Reset filters to show all collected items.", on_click=show_all_callback, type="secondary")
+    if isinstance(display_dataframe, pd.DataFrame) and not display_dataframe.empty:
+        notes_found = False; duplicates_df = pd.DataFrame()
+        if st.session_state.clear_duplicates_option == 'No' and 'abbreviation' in display_dataframe.columns:
+            duplicate_mask_display = display_dataframe['abbreviation'].duplicated(keep=False)
+            if duplicate_mask_display.any():
+                notes_found = True; duplicates_df = display_dataframe[duplicate_mask_display].sort_values(by=['abbreviation', 'full_name'])
+                if not duplicates_df.empty and 'full_name' in duplicates_df.columns: dup_grouped = duplicates_df.groupby('abbreviation')['full_name'].apply(lambda names: f"{names.name} ({', '.join(names.astype(str))})").tolist(); note_text = "**Multiply defined abbreviations displayed:** " + "; ".join(dup_grouped); st.markdown(f"ℹ️ {note_text}", unsafe_allow_html=False)
+        if 'usage_count' in display_dataframe.columns and 'abbreviation' in display_dataframe.columns:
+            zero_usage_df = display_dataframe[display_dataframe['usage_count'] == 0]
+            if not zero_usage_df.empty:
+                all_zero_usage_abbrs = zero_usage_df['abbreviation'].unique().tolist()
+                if not duplicates_df.empty and 'abbreviation' in duplicates_df.columns: reported_duplicates = duplicates_df['abbreviation'].unique(); zero_usage_abbrs_to_report = [abbr for abbr in all_zero_usage_abbrs if abbr not in reported_duplicates]
+                else: zero_usage_abbrs_to_report = all_zero_usage_abbrs
+                if zero_usage_abbrs_to_report: notes_found = True; abbr_list_str = ", ".join(map(str, zero_usage_abbrs_to_report)); note_text = "**Zero usage found for displayed abbreviations:** " + abbr_list_str; st.markdown(f"ℹ️ {note_text}", unsafe_allow_html=False)
+
+# --- Export Section ---
+# (This section remains the same)
+st.divider(); st.subheader("Export Selected Abbreviations")
+df_export = display_dataframe if isinstance(display_dataframe, pd.DataFrame) else pd.DataFrame(columns=collected_data_columns)
+col_exp_sel, _ = st.columns([1, 2])
+with col_exp_sel: selected_format = st.selectbox("Export Format:", options=['plain', 'tabular', 'nomenclature'], index=0, key='format_selector', label_visibility="collapsed")
+formatted_output = "No abbreviations selected."
+if not df_export.empty:
+    try:
+        formatted_output = format_abbreviations(df_export, format_type=selected_format)
+        if formatted_output is None: formatted_output = "Error: Formatting function returned None."; st.error(formatted_output)
+    except NameError as e: formatted_output = f"Error: `format_abbreviations` function is missing."; st.error(formatted_output)
+    except Exception as format_e: formatted_output = f"Error during formatting: {format_e}"; st.error(formatted_output)
+elif 'collected_df' not in st.session_state or st.session_state.collected_df is None: formatted_output = "Process text first to generate abbreviations."
+st.text_area("Formatted Output:", value=formatted_output, height=150, help="Copy the formatted text.", key="output_text_area", label_visibility="visible")
+
+# --- Explanations & Footer ---
+st.divider(); st.subheader("About the Algorithm")
+col1_exp, col2_exp = st.columns(2)
+try:
+    # --- FIXED SYNTAX: Correct indentation for nested 'with' ---
+    with col1_exp:
+        # This will likely raise NameError now as variable was removed
+        with st.expander(summary_expander_label):
+            st.markdown(summary_explanation_text)
+    with col2_exp:
+         # This will likely raise NameError now as variable was removed
+        with st.expander(detailed_expander_label):
+            st.markdown(detailed_description_text)
+    # --- END FIXED SYNTAX ---
+except NameError as e:
+    st.warning(f"Explanation text variables not defined (e.g., {e}). Explanations skipped.")
+st.markdown("---"); st.caption("Author: Longhai Li, https://longhaisk.github.io, Saskatoon, SK, Canada")
+
+
+# ==============================================================================
+# --- Visitor Tracking Execution Block ---
+# (This section remains the same)
+# ==============================================================================
+if st.session_state.get('log_visit_on_next_run', False):
+    log_success = False # Flag to track logging success within this block
+    try:
+        APP_ID = st.secrets.get("GITHUB_APP_ID"); INSTALLATION_ID = st.secrets.get("GITHUB_INSTALLATION_ID"); PRIVATE_KEY = st.secrets.get("GITHUB_PRIVATE_KEY")
+        if not all([APP_ID, INSTALLATION_ID, PRIVATE_KEY]): print("WARNING: One or more GitHub App secrets missing. Visit logging skipped.")
+        else:
+            github_token = get_github_app_token(APP_ID, PRIVATE_KEY, INSTALLATION_ID)
+            if github_token:
+                log_daily_session_count_to_github(github_token, LOG_REPO_NAME, LOG_FILE_PATH, TIMEZONE)
+                st.session_state.processing_button_logged = True
+                log_success = True
+            else: print("Failed to get GitHub token for delayed logging. Session count not updated.")
+    except Exception as e_log_delayed: print(f"ERROR during delayed logging execution: {type(e_log_delayed).__name__} - {e_log_delayed}")
+    finally:
+        st.session_state.log_visit_on_next_run = False
+
+# ==============================================================================
+
+
+# ==============================================================================
+# --- Visitor Tracking Section (Helper Functions Only) ---
+# (This section remains the same)
+# ==============================================================================
+LOG_REPO_NAME = "longhaiSK/logs"; LOG_FILE_PATH = "abbr0_daily_session_counts.json"; TIMEZONE = "Canada/Saskatchewan"
 def get_github_app_token(app_id, private_key, installation_id):
-    """Generates a GitHub App installation access token."""
-    try:
-        # Authenticate as a GitHub App
-        auth = Auth.AppAuth(app_id, private_key)
-        # Create a GithubIntegration object
-        gi = GithubIntegration(auth=auth)
-        # Get an access token for the specific installation
-        token = gi.get_access_token(installation_id).token
-        return token
-    except Exception as e:
-        # Print error if token generation fails
-        print(f"ERROR generating GitHub token: {e}")
-        return None
-
-# --- Log Daily Session Count to GitHub (JSON) ---
+    try: auth = Auth.AppAuth(app_id, private_key); gi = GithubIntegration(auth=auth); token = gi.get_access_token(installation_id).token; return token
+    except Exception as e: print(f"ERROR generating GitHub token: {type(e).__name__} - {e}"); return None
 def log_daily_session_count_to_github(gh_token, repo_name, file_path, timezone):
-    """Reads a JSON file from GitHub containing daily session counts,
-       increments the count for the current day, and writes the updated JSON back."""
     try:
-        # Initialize GitHub client with the obtained token
-        g = Github(auth=Auth.Token(gh_token))
-        # Get the repository object
-        repo = g.get_repo(repo_name)
-        # Set the timezone
-        tz = pytz.timezone(timezone)
-        # Get the current date string in YYYY-MM-DD format
-        current_date_str = datetime.now(pytz.utc).astimezone(tz).strftime("%Y-%m-%d")
-
-        daily_counts = {}
-        sha = None
-        commit_message = ""
-
+        g = Github(auth=Auth.Token(gh_token)); repo = g.get_repo(repo_name); tz = pytz.timezone(timezone); current_date_str = datetime.now(pytz.utc).astimezone(tz).strftime("%Y-%m-%d")
+        daily_counts = {}; sha = None
         try:
-            # Try to get the existing file contents
-            contents = repo.get_contents(file_path, ref="main")
-            sha = contents.sha
-            # Decode the base64 encoded content
-            existing_content_bytes = base64.b64decode(contents.content)
-            existing_content_str = existing_content_bytes.decode("utf-8")
-
-            # Parse the existing JSON data
+            contents = repo.get_contents(file_path, ref="main"); sha = contents.sha; existing_content_str = base64.b64decode(contents.content).decode("utf-8")
             try:
                 daily_counts = json.loads(existing_content_str)
-                if not isinstance(daily_counts, dict):
-                     print(f"WARNING: Existing content in {file_path} is not a JSON dictionary. Resetting counts.")
-                     daily_counts = {} # Reset if format is wrong
-            except json.JSONDecodeError:
-                print(f"WARNING: Could not decode JSON from {file_path}. File might be corrupt or empty. Resetting counts.")
-                daily_counts = {} # Reset if JSON is invalid
+                if not isinstance(daily_counts, dict): print(f"WARNING: Log file {file_path} content is not a dict. Resetting."); daily_counts = {}
+            except json.JSONDecodeError: print(f"WARNING: Invalid JSON in {file_path}. Resetting counts."); daily_counts = {}
+        except UnknownObjectException: print(f"Log file '{file_path}' not found. Creating new file.")
+        except Exception as e_get: print(f"ERROR retrieving log file content: {type(e_get).__name__} - {e_get}"); return
+        current_count = daily_counts.get(current_date_str, 0); daily_counts[current_date_str] = current_count + 1; new_count = daily_counts[current_date_str]
+        new_content_str = json.dumps(daily_counts, indent=4)
+        if sha: commit_message = f"Increment session count for {current_date_str} to {new_count}"; repo.update_file(path=file_path, message=commit_message, content=new_content_str, sha=sha, branch="main")
+        else: commit_message = f"Create session count log, starting {current_date_str} at 1"; repo.create_file(path=file_path, message=commit_message, content=new_content_str, branch="main")
+    except Exception as e_log:
+        print(f"ERROR during GitHub logging process: {type(e_log).__name__} - {e_log}")
+        raise
 
-        except UnknownObjectException:
-            # If the file doesn't exist, we'll create it later
-            print(f"Log file '{file_path}' not found in repo '{repo_name}'. Creating new file.")
-            # `sha` remains None, `daily_counts` remains {}
+# --- REMOVED: Main Execution Logic for Logging on App Load ---
 
-        except Exception as e:
-            # Handle other errors during GitHub content retrieval
-            print(f"ERROR retrieving file content from GitHub: {type(e).__name__} - {e}")
-            return # Exit if we can't get file status
-
-        # Increment the count for the current date
-        current_count = daily_counts.get(current_date_str, 0) # Get current count or 0 if date doesn't exist
-        daily_counts[current_date_str] = current_count + 1
-        new_count = daily_counts[current_date_str]
-
-        # Convert the updated dictionary back to a pretty-printed JSON string
-        new_content_str = json.dumps(daily_counts, indent=4) # Use indent for readability
-        new_content_bytes = new_content_str.encode("utf-8")
-
-        # Determine action and commit message
-        if sha: # If sha exists, we are updating the file
-            commit_message = f"Increment session count for {current_date_str} to {new_count}"
-            repo.update_file(
-                path=file_path,
-                message=commit_message,
-                content=new_content_bytes,
-                sha=sha,
-                branch="main"
-            )
-            # print(f"Successfully updated session count for {current_date_str}") # Optional success message
-        else: # If sha is None, the file didn't exist, so create it
-            commit_message = f"Create session count log, starting {current_date_str} at 1"
-            repo.create_file(
-                path=file_path,
-                message=commit_message,
-                content=new_content_bytes,
-                branch="main"
-            )
-            # print(f"Successfully created {file_path} and logged first session for {current_date_str}") # Optional success message
-
-    except Exception as e:
-        # Catch-all for any other errors in the logging function
-        print(f"ERROR during logging process: {type(e).__name__} - {e}")
-
-
-# --- Main Execution Logic ---
-# Check if logging has already been attempted in this session
-if 'visit_logging_attempted' not in st.session_state:
-    st.session_state['visit_logging_attempted'] = True  # Mark logging as attempted
-
-    try:
-        # --- Read Secrets ---
-        # Use .get() for safer access to secrets
-        APP_ID = st.secrets.get("GITHUB_APP_ID")
-        INSTALLATION_ID = st.secrets.get("GITHUB_INSTALLATION_ID")
-        PRIVATE_KEY = st.secrets.get("GITHUB_PRIVATE_KEY")
-
-        # Check if all necessary secrets are present
-        if not all([APP_ID, INSTALLATION_ID, PRIVATE_KEY]):
-             # Raise an error if any secret is missing
-             raise KeyError("One or more GitHub App secrets (GITHUB_APP_ID, GITHUB_INSTALLATION_ID, GITHUB_PRIVATE_KEY) are missing.")
-
-        # --- Run the Logging ---
-        # Get the GitHub token
-        github_token = get_github_app_token(APP_ID, PRIVATE_KEY, INSTALLATION_ID)
-
-        if github_token:
-            # If token obtained successfully, log/increment the daily session count
-            log_daily_session_count_to_github(github_token, LOG_REPO_NAME, LOG_FILE_PATH, TIMEZONE)
-            # Optional: print success message if debugging
-            # print(f"[{datetime.now(pytz.timezone(TIMEZONE))}] Background daily session count logging complete.")
-        else:
-            # If token generation failed
-            print(f"[{datetime.now(pytz.timezone(TIMEZONE))}] Failed to get GitHub token for logging. Session count not updated.")
-
-    except KeyError as e:
-        # Specifically catch missing secrets error
-        print(f"ERROR: Missing GitHub App secret for logging: {e}. Logging skipped.")
-        # Optionally display an error message in the Streamlit app UI
-        # st.error(f"Visit logging disabled: Missing required secret ({e}). Please configure Streamlit secrets.")
-
-    except Exception as e:
-        # Catch any other unexpected errors during the setup or execution
-        print(f"ERROR during background visit logging setup/execution: {type(e).__name__} - {e}")
-        # Optionally display a generic warning in the Streamlit app UI
-        # st.warning("Could not log session count due to an internal error.")
 
 
