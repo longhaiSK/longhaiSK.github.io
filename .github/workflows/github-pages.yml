@@ -37,43 +37,44 @@ jobs:
       - name: Inject Commit Dates into HTML
         # This multi-line script runs in the runner's shell
         run: |
-            echo "Starting commit date injection..."
-            # Find HTML files (adjust path if needed)
-            find . -name "*.html" -type f | while read -r html_file; do
-              echo "Processing $html_file"
-              # Get the ISO 8601 commit date for the file
-              commit_date_iso=$(git log -1 --format=%cI --follow -- "$html_file") 
+          echo "Starting commit date injection..."
+          # Find HTML files (adjust path if needed)
+          find . -name "*.html" -type f | while read -r html_file; do
+            echo "Processing $html_file"
+            # Get the ISO 8601 commit date for the file
+            commit_date_iso=$(git log -1 --format=%cI --follow -- "$html_file") 
 
-              success=0 # Flag to track success
+            success=0 # Flag to track success
 
-              if [ -z "$commit_date_iso" ]; then
-                echo "  WARNING: Could not find commit date for $html_file. Using N/A."
-                replacement_text="Last modified: N/A"
-                # Use awk to replace placeholder with N/A
-                awk -v repl="$replacement_text" '{ gsub(/<!-- COMMIT_DATE_PLACEHOLDER -->/, repl); print }' "$html_file" > "${html_file}.tmp" && mv "${html_file}.tmp" "$html_file"
-                if [ $? -eq 0 ]; then success=1; fi # Check success
-              else
-                # Format the date to DD/MM/YYYY (Linux runner syntax)
-                formatted_date=$(date -d "$commit_date_iso" +'%d/%m/%Y')
-                echo "  Commit date: $commit_date_iso -> Formatted: $formatted_date"
-                replacement_text="Last modified: $formatted_date"
-                # Use awk to replace placeholder with the date
-                awk -v repl="$replacement_text" '{ gsub(/<!-- COMMIT_DATE_PLACEHOLDER -->/, repl); print }' "$html_file" > "${html_file}.tmp" && mv "${html_file}.tmp" "$html_file"
-                if [ $? -eq 0 ]; then success=1; fi # Check success
-              fi
+            if [ -z "$commit_date_iso" ]; then
+              echo "  WARNING: Could not find commit date for $html_file. Using N/A."
+              replacement_text="Last modified: N/A"
+              # Use awk to replace placeholder with N/A
+              awk -v repl="$replacement_text" '{ gsub(/<!-- COMMIT_DATE_PLACEHOLDER -->/, repl); print }' "$html_file" > "${html_file}.tmp" && mv "${html_file}.tmp" "$html_file"
+              if [ $? -eq 0 ]; then success=1; fi # Check success
+            else
+              # Format the date to DD/MM/YYYY (Linux runner syntax)
+              formatted_date=$(date -d "$commit_date_iso" +'%d/%m/%Y')
+              echo "  Commit date: $commit_date_iso -> Formatted: $formatted_date"
+              replacement_text="Last modified: $formatted_date"
+              # Use awk to replace placeholder with the date
+              awk -v repl="$replacement_text" '{ gsub(/<!-- COMMIT_DATE_PLACEHOLDER -->/, repl); print }' "$html_file" > "${html_file}.tmp" && mv "${html_file}.tmp" "$html_file"
+              if [ $? -eq 0 ]; then success=1; fi # Check success
+            fi
 
-              # Report final status for the file
-              if [ $success -eq 1 ]; then
-                echo "  Successfully injected/updated date in $html_file"
-              else
-                echo "  ERROR: Failed to inject/update date in $html_file"
-                # Optionally cleanup temp file if it exists from a failed mv
-                rm -f "${html_file}.tmp"
-                # Optionally exit the whole script if one file fails: exit 1
-              fi
-            done
-            echo "Finished commit date injection."
-          shell: bash
+            # Report final status for the file
+            if [ $success -eq 1 ]; then
+              echo "  Successfully injected/updated date in $html_file"
+            else
+              echo "  ERROR: Failed to inject/update date in $html_file"
+              # Optionally cleanup temp file if it exists from a failed mv
+              rm -f "${html_file}.tmp"
+              # Optionally exit the whole script if one file fails: exit 1
+            fi
+          done
+          echo "Finished commit date injection."
+        shell: bash
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
         
