@@ -1,22 +1,63 @@
-- name: Inject Commit Dates into HTML
+# Simple workflow for deploying static content to GitHub Pages
+name: Deploy static content to Pages
+
+on:
+  # Runs on pushes targeting the default branch
+  push:
+    branches: ["main"] # Change "main" to your default branch if different (e.g., "master")
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # Single deploy job since we're just deploying
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Important: Fetches all history for git log
+
+      - name: Inject Commit Dates into HTML
+        # This multi-line script runs in the runner's shell
         run: |
           echo "Starting commit date injection..."
-          # Find HTML files (adjust path if they aren't in the root)
+          # Find HTML files (adjust path if they aren't in the root, e.g., find ./src -name "*.html")
           find . -name "*.html" -type f | while read -r html_file; do
             echo "Processing $html_file"
             # Get the ISO 8601 commit date for the file
-            commit_date_iso=$(git log -1 --format=%cI --follow -- "$html_file")
+            # Using --follow to track file renames, might be slow on large repos
+            commit_date_iso=$(git log -1 --format=%cI --follow -- "$html_file") 
 
             if [ -z "$commit_date_iso" ]; then
               echo "  WARNING: Could not find commit date for $html_file. Using placeholder."
-              formatted_date="N/A"
+              # Replace placeholder with "N/A" or leave it, or remove the placeholder line
+              formatted_date="N/A" 
               # Use explicit backup suffix ".bak" for sed -i for better compatibility
+              # Replace the placeholder comment with "Last modified: N/A"
               sed -i.bak "s||Last modified: $formatted_date|g" "$html_file" && rm "${html_file}.bak" || echo "  SED command failed for N/A date in $html_file"
+
             else
               # Format the date to DD/MM/YYYY (Linux runner syntax)
               formatted_date=$(date -d "$commit_date_iso" +'%d/%m/%Y')
               echo "  Commit date: $commit_date_iso -> Formatted: $formatted_date"
-
+              
               # Replace placeholder comment with the formatted date string
               # Ensure the placeholder exactly matches "" in your HTML
               # Use explicit backup suffix ".bak" for sed -i for better compatibility
@@ -32,4 +73,18 @@
             fi
           done
           echo "Finished commit date injection."
-        shell: bash
+        shell: bash # Specify the shell to use, bash is common
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+        
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Upload entire repository (since HTML files were modified in place)
+          # Adjust path if your site files are built into a specific directory like '_site' or 'dist'
+          path: '.' 
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
