@@ -1,5 +1,5 @@
 # Simple workflow for deploying static content to GitHub Pages with date injection
-name: Deploy static content to Pages with Date Injection
+name: Deploy static content to Pages with Date Injection (Strict Check)
 
 on:
   # Runs on pushes targeting the default branch
@@ -34,93 +34,96 @@ jobs:
         with:
           fetch-depth: 0 # Important: Fetches all history for git log
 
-      - name: Inject Commit Dates into HTML (with Debugging)
+      - name: Verify Placeholder and Inject Date
         # This multi-line script runs in the runner's shell
         run: |
-          echo "Starting commit date injection..."
-          # Find HTML files (adjust path if they aren't in the root, e.g., find ./src -name "*.html")
+          echo "Starting file check and potential injection..."
+          files_ok=1 # Assume okay initially
+          # Find HTML files (adjust path if needed)
           find . -name "*.html" -type f | while read -r html_file; do
             echo "=========================================" # Separator for each file
             echo "Processing $html_file"
             echo "========================================="
 
-            # --- Debug: Show content around target BEFORE modification ---
-            echo "--- Content of $html_file BEFORE modification ---"
-            # Show 5 lines of context around the line containing id="file-date"
-            grep -C 5 'id="file-date"' "$html_file" || echo "  WARNING: 'id=\"file-date\"' not found by grep before processing in $html_file."
-            echo "-----------------------------------------------------"
+            # Check if the file even contains the target ID first
+            if ! grep -q 'id="file-date"' "$html_file"; then
+              echo "  INFO: Skipping $html_file as it does not contain 'id=\"file-date\"'."
+              continue # Skip to next file
+            fi
+
+            echo "--- Content around 'file-date' BEFORE check ---"
+            grep -C 5 'id="file-date"' "$html_file" # Show context
+            echo "---------------------------------------------"
+
+            # --- CRITICAL CHECK: Verify placeholder INSIDE the specific p tag/line ---
+            # Use grep to find the line containing the ID, then pipe to grep again to check for the placeholder *on that specific line*
+            if grep 'id="file-date"' "$html_file" | grep -q ''; then
+              echo "  SUCCESS: Placeholder FOUND within the 'id=\"file-date\"' line in $html_file."
+            else
+              echo "  ------------------------------------------------------------------"
+              echo "  ERROR: Placeholder '' NOT FOUND within the 'id=\"file-date\"' tag/line in $html_file."
+              echo "  Expected format: <p id=\"file-date\"><\/p>"
+              echo "  Please fix this line in the file in your repository source code!"
+              echo "  ------------------------------------------------------------------"
+              files_ok=0 # Mark as failed
+              # Continue checking other files, but the step will fail at the end
+            fi
+            # --- End Critical Check ---
+
+            # --- If check passed for this file, attempt replacement (using simpler sed) ---
+            # Only attempt replacement if the placeholder was found correctly
+            if grep 'id="file-date"' "$html_file" | grep -q ''; then
+              echo "  Attempting replacement using sed..."
+              commit_date_iso=$(git log -1 --format=%cI --follow -- "$html_file") 
+              replacement_successful=0
+
+              if [ -z "$commit_date_iso" ]; then
+                echo "  WARNING: Could not find commit date. Using N/A."
+                replacement_text="Last modified: N/A"
+              else
+                formatted_date=$(date -d "$commit_date_iso" +'%d/%m/%Y')
+                echo "  Commit date: $commit_date_iso -> Formatted: $formatted_date"
+                replacement_text="Last modified: $formatted_date"
+              fi
+
+              # Simple sed replacement - replaces the entire content between <p..> and </p> on the target line
+              # This assumes the <p> tag itself doesn't span multiple lines. Use g flag just in case.
+              sed -i.bak "s|<p id=\"file-date\">.*<\/p>|<p id=\"file-date\">$replacement_text<\/p>|g" "$html_file"
+              
+              if [ $? -eq 0 ]; then
+                  echo "  sed command completed. Removing backup."
+                  rm "${html_file}.bak"
+                  replacement_successful=1
+              else
+                  echo "  ERROR: sed command failed for $html_file"
+                  # Try to restore from backup if sed failed after creating .bak
+                  if [ -f "${html_file}.bak" ]; then echo "Restoring from backup..."; mv "${html_file}.bak" "$html_file"; fi 
+              fi
+            else
+               # This block executes if placeholder check failed earlier for this file
+               echo "  Skipping replacement for $html_file due to prior placeholder check failure."
+            fi
+            # --- End Replacement ---
+
+            # --- Debug: Show content AFTER attempt ---
+            echo "--- Content around 'file-date' AFTER attempt ---"
+            grep -C 5 'id="file-date"' "$html_file" || echo "  INFO: 'id=\"file-date\"' tag not found after processing $html_file (perhaps expected if placeholder check failed)."
+            echo "------------------------------------------"
             # --- End Debug ---
 
-            # --- Check if placeholder exists ---
-            echo "  Checking placeholder presence before awk..."
-            if grep -q '' "$html_file"; then
-              echo "  Placeholder FOUND by grep in $html_file."
-            else
-              echo "  ERROR: Placeholder '' NOT FOUND by grep in $html_file. Skipping awk for this file."
-              # Add another debug view here just in case
-              echo "--- Content of $html_file when placeholder NOT found ---"
-              grep -C 5 'id="file-date"' "$html_file" || echo "  WARNING: 'id=\"file-date\"' still not found by grep."
-              echo "----------------------------------------------------------"
-              continue # Skip to the next file if placeholder isn't found
-            fi
-            # --- End Check ---
+          done # End while loop
 
-            # Get the ISO 8601 commit date for the file
-            commit_date_iso=$(git log -1 --format=%cI --follow -- "$html_file") 
-            replacement_successful=0 # Flag
-
-            if [ -z "$commit_date_iso" ]; then
-              echo "  WARNING: Could not find commit date for $html_file. Using N/A."
-              replacement_text="Last modified: N/A"
-              awk_exit_status=1 # Assume failure unless awk succeeds
-              # Awk script exits 0 if replacement happens, 1 otherwise
-              awk -v repl="$replacement_text" 'BEGIN{c=0}{c+=gsub(//, repl)}{print}END{exit(c>0?0:1)}' "$html_file" > "${html_file}.tmp"
-              awk_exit_status=$?
-            else
-              formatted_date=$(date -d "$commit_date_iso" +'%d/%m/%Y')
-              echo "  Commit date: $commit_date_iso -> Formatted: $formatted_date"
-              replacement_text="Last modified: $formatted_date"
-              awk_exit_status=1 # Assume failure unless awk succeeds
-              # Awk script exits 0 if replacement happens, 1 otherwise
-              awk -v repl="$replacement_text" 'BEGIN{c=0}{c+=gsub(//, repl)}{print}END{exit(c>0?0:1)}' "$html_file" > "${html_file}.tmp"
-              awk_exit_status=$?
-            fi
-
-            # Check awk exit status and move file if replacement happened
-            if [ $awk_exit_status -eq 0 ]; then
-                # awk exited with 0, meaning replacement occurred
-                echo "  awk reported success (placeholder found and replaced)."
-                mv "${html_file}.tmp" "$html_file"
-                if [ $? -eq 0 ]; then
-                    echo "  Successfully MOVED temp file over original for $html_file."
-                    replacement_successful=1
-                else
-                    echo "  ERROR: mv failed after successful awk replacement for $html_file"
-                    rm -f "${html_file}.tmp" # Clean up temp file on mv failure
-                fi
-            else
-                # awk exited with 1 (or non-zero), meaning no replacement happened
-                echo "  INFO: awk reported no replacement occurred for $html_file (Placeholder likely not matched by awk inside awk)."
-                rm -f "${html_file}.tmp" # Clean up temp file
-            fi
-            
-            # --- Debug: Show content around target AFTER modification attempt ---
-            echo "--- Content of $html_file AFTER modification attempt ---"
-            # Use a different grep pattern if the ID itself could be damaged, maybe grep for footer?
-            grep -C 5 'id="file-date"' "$html_file" || echo "  WARNING: 'id=\"file-date\"' not found by grep after processing $html_file."
-            echo "------------------------------------------------------"
-            # --- End Debug ---
-
-          done # End of while loop for files
-          echo "Finished processing all found HTML files."
-
-          # --- Debug: List files in upload directory just before upload ---
           echo "========================================="
+          echo "Final check result: files_ok=$files_ok (1 = OK, 0 = Error)"
           echo "Listing contents of upload directory (PWD: $(pwd)) before Setup Pages step:"
           ls -la . # Assuming upload path is '.' - adjust if different
           echo "========================================="
-          # --- End Debug ---
 
+          # Exit with error if any file check failed
+          if [ $files_ok -ne 1 ]; then
+            echo "Exiting workflow step with error due to placeholder issues detected in one or more files. Please check logs above and fix HTML source."
+            exit 1
+          fi
         shell: bash # Specify the shell to use, bash is common
 
       - name: Setup Pages
