@@ -37,44 +37,43 @@ jobs:
       - name: Inject Commit Dates into HTML
         # This multi-line script runs in the runner's shell
         run: |
-          echo "Starting commit date injection..."
-          # Find HTML files (adjust path if they aren't in the root, e.g., find ./src -name "*.html")
-          find . -name "*.html" -type f | while read -r html_file; do
-            echo "Processing $html_file"
-            # Get the ISO 8601 commit date for the file
-            # Using --follow to track file renames, might be slow on large repos
-            commit_date_iso=$(git log -1 --format=%cI --follow -- "$html_file") 
+            echo "Starting commit date injection..."
+            # Find HTML files (adjust path if needed)
+            find . -name "*.html" -type f | while read -r html_file; do
+              echo "Processing $html_file"
+              # Get the ISO 8601 commit date for the file
+              commit_date_iso=$(git log -1 --format=%cI --follow -- "$html_file") 
 
-            if [ -z "$commit_date_iso" ]; then
-              echo "  WARNING: Could not find commit date for $html_file. Using placeholder."
-              # Replace placeholder with "N/A" or leave it, or remove the placeholder line
-              formatted_date="N/A" 
-              # Use explicit backup suffix ".bak" for sed -i for better compatibility
-              # Replace the placeholder comment with "Last modified: N/A"
-              sed -i.bak "s||Last modified: $formatted_date|g" "$html_file" && rm "${html_file}.bak" || echo "  SED command failed for N/A date in $html_file"
+              success=0 # Flag to track success
 
-            else
-              # Format the date to DD/MM/YYYY (Linux runner syntax)
-              formatted_date=$(date -d "$commit_date_iso" +'%d/%m/%Y')
-              echo "  Commit date: $commit_date_iso -> Formatted: $formatted_date"
-              
-              # Replace placeholder comment with the formatted date string
-              # Ensure the placeholder exactly matches "" in your HTML
-              # Use explicit backup suffix ".bak" for sed -i for better compatibility
-              sed -i.bak "s||Last modified: $formatted_date|g" "$html_file" && rm "${html_file}.bak" || echo "  SED command failed for valid date in $html_file"
-              
-              # Check exit status of sed (optional, but good for debugging)
-              if [ $? -ne 0 ]; then
-                  echo "  ERROR: sed command failed for $html_file"
-                  # Optionally exit the script if one file fails: exit 1 
+              if [ -z "$commit_date_iso" ]; then
+                echo "  WARNING: Could not find commit date for $html_file. Using N/A."
+                replacement_text="Last modified: N/A"
+                # Use awk to replace placeholder with N/A
+                awk -v repl="$replacement_text" '{ gsub(/<!-- COMMIT_DATE_PLACEHOLDER -->/, repl); print }' "$html_file" > "${html_file}.tmp" && mv "${html_file}.tmp" "$html_file"
+                if [ $? -eq 0 ]; then success=1; fi # Check success
               else
-                  echo "  Injected date into $html_file"
+                # Format the date to DD/MM/YYYY (Linux runner syntax)
+                formatted_date=$(date -d "$commit_date_iso" +'%d/%m/%Y')
+                echo "  Commit date: $commit_date_iso -> Formatted: $formatted_date"
+                replacement_text="Last modified: $formatted_date"
+                # Use awk to replace placeholder with the date
+                awk -v repl="$replacement_text" '{ gsub(/<!-- COMMIT_DATE_PLACEHOLDER -->/, repl); print }' "$html_file" > "${html_file}.tmp" && mv "${html_file}.tmp" "$html_file"
+                if [ $? -eq 0 ]; then success=1; fi # Check success
               fi
-            fi
-          done
-          echo "Finished commit date injection."
-        shell: bash # Specify the shell to use, bash is common
 
+              # Report final status for the file
+              if [ $success -eq 1 ]; then
+                echo "  Successfully injected/updated date in $html_file"
+              else
+                echo "  ERROR: Failed to inject/update date in $html_file"
+                # Optionally cleanup temp file if it exists from a failed mv
+                rm -f "${html_file}.tmp"
+                # Optionally exit the whole script if one file fails: exit 1
+              fi
+            done
+            echo "Finished commit date injection."
+          shell: bash
       - name: Setup Pages
         uses: actions/configure-pages@v5
         
