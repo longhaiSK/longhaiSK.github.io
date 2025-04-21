@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+
+<meta http-equiv="content-type" content="text/html; charset=utf-8"></head><body><h1 class="western">C Function for Adaptive Rejection Sampling 
+(ARS)<br></h1> <p><a href="/index.html" target="_top">Longhai 
+Li</a>, Department of Mathematics and Statistics, University of 
+Saskatchewan</p> <h2 class="western">Description</h2> <p style="text-align: justify;"><a href="http://www.amsta.leeds.ac.uk/%7Ewally.gilks/adaptive.rejection/web_page/Welcome.html">Adaptive 
+Rejection Sampling (ARS)</a> is an efficient method for sampling from a 
+target distribution whose log PDF is concave.&nbsp; The description of 
+ARS by the original inventor (Wally Gilks) is as follows:<br></p><table style="text-align: left; background-color: rgb(204, 204, 204); margin-left: auto; margin-right: auto; width: 90%; height: 92px;" border="0" cellpadding="2" cellspacing="2"><tbody><tr><td style="vertical-align: top;"><p><i>ARS works by constructing an envelope 
+function of the log of the target density, which is then used in 
+rejection sampling. Whenever a point is rejected by ARS, the envelope is 
+updated to correspond more closely to the true log density, thereby 
+reducing the chance of rejecting subsequent points. Fewer ARS rejection 
+steps implies fewer point-evaluations of the log density. Such 
+evaluations are typically very expensive computationally in applications 
+of Gibbs sampling.</i></p></td></tr></tbody></table> <p>This
+method is very useful and conceptually simple. The original authors
+provide a FORTRAN routine. However, it seemed to me that there wasn't a
+C routine available. Therefore I posted this C function, which can be
+called directly in R with .C function. <br>
+</p><h2 class="western">C Function for ARS<br></h2> <ul> 
+<li><p><b><big><big>version of 2010-12-02: <a href="ars.c">ars.c</a></big></big></b> </p></li></ul>
+
+<p>To use the main function <font face="Tlwg Typist">sample_ars</font>,
+you need only to include the file ars.c in your C code. See the following examples for demonstration.</p>
+<p></p>
+<h2 class="western">Demo Examples</h2>
+<p><b>Truncated Normal Distribution</b>
+</p><p><a href="ars_cons_norm.c">C sampling function</a>, &nbsp;
+ <a href="ars_cons_norm.c.r">R wrapper function and testing code</a>,
+ &nbsp;
+ <a href="ars_cons_norm-plots.png">Testing plots</a></p>
+
+<p><b>Posterior of Hyperparameter of Inverse-Gamma (Inverse-Chisquare) Distribution</b>
+</p><p><a href="ars_post_ichi.c">C sampling function</a>, &nbsp;
+ <a href="ars_post_ichi.c.r">R wrapper function and testing code</a>,
+ &nbsp;
+ <a href="ars_post_ichi-plots.png">Testing plots</a></p>
+
+<p><b>Truncated Beta</b>
+</p><p><a href="ars_beta.c">C sampling function</a>, &nbsp; <a href="ars_beta.c.r">R wrapper function and testing code</a>,
+ &nbsp;
+ <a href="ars_beta-plots.png">Testing plots</a></p>
+
+<h2>Pros of this software</h2>
+<ul>
+<li style="text-align: justify;"> <p> The target distribution can be
+badly unnormalized as long as its log PDF values are not underflow.
+This is convenient when the target distribution is a univariate
+conditional distribution, whose value is known only to be some multiple
+of the value of the joint distribution of all parameters, which is
+typical in Gibbs sampling. This is realized by computing only the log
+of target PDF and its derivative, and also only computing the log of
+the integral under each piece of exponential linear function.
+</p></li><li style="text-align: justify;"> <p> The bounds of target distribution can be defined <i>implicitly</i> in the function <i>eval_logf</i>, not necessarily specified in <i>lb</i> and <i>ub</i>.
+This is realized by stepping out from the initial tangent point to both
+directions until reaching a point with log PDF equal to -INFINITY (ie
+reaching a point outside the bounds). The bounds will be further
+refined as new point is drawn. This is convenient when the bounds
+cannot be found in closed form but a point can be checked with a
+condition whether still inside bounds, for example an interval along
+one axis within an ellips. </p></li><li style="text-align: justify;"> <p> Only one initial
+tangent point is required to start the program. More tangent points
+will be found by stepping out from the first point until an upper hull
+with finite integral is found.</p></li></ul><h2>Other Implementations of ARS</h2><h3>In pure R language </h3><ul><li><p><a href="http://actuaryzhang.com/seminar/topic5_ars.R" target="_blank">R function by<span style="font-family: Calibri,Arial,Verdana,Univers;"> </span>Yanwei (Wayne) Zhang</a></p></li><li><p><a href="http://cran.r-project.org/web/packages/ars/index.html" target="_blank">An R add-on Package</a></p></li></ul>
+
+
+
+
+</body></html>
