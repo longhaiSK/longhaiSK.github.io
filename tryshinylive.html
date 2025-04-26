@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minimal Shiny App (Shinylive - Local Assets from Root)</title>
+    <title>Minimal Shiny App (Shinylive - Debug Logging)</title>
 
     <script src="/shinylive/shinylive.js" type="module"></script>
     <link rel="stylesheet" href="/shinylive/shinylive.css">
@@ -15,55 +15,108 @@
             font-size: 1.5em; color: #555; z-index: 1000;
             text-align: center;
         }
+        /* Style for the app container */
+        #shiny-app-placeholder {
+            border: 2px dashed blue; /* Make container visible */
+            padding: 10px;
+            min-height: 200px; /* Give it some size */
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
 
-    <div id="loading-indicator">Loading Minimal Shinylive App...<br><small>(Using local assets from root)</small></div>
+    <div id="loading-indicator">Loading Minimal Shinylive App...<br><small>(Debug Logging Enabled)</small></div>
+
+    <div id="shiny-app-placeholder">
+        Waiting for Shiny app to render...
+    </div>
 
     <script type="text/shinylive-r" data-appmode="quarto-doc">
 ## file: app.R
 
 # --- Load Libraries ---
-# Only loading shiny now
+print("R: Loading shiny library...")
 library(shiny)
+print("R: Shiny library loaded.")
 
 # --- Define UI ---
-# Simplest possible UI
+print("R: Defining UI...")
 ui <- fluidPage(
-  titlePanel("Minimal Shinylive Test (Local Assets from Root)"),
+  titlePanel("Minimal Shinylive Test (Debug Logging)"),
   h3("If you see this, Shinylive loaded Shiny!"),
   verbatimTextOutput("r_version") # Display R version used by webR
 )
+print("R: UI defined.")
 
 # --- Define server logic ---
+print("R: Defining server function...")
 server <- function(input, output, session) {
+  print("R: Server function started.") # Log when the server function is entered
+
   # Simple output to confirm R is running
   output$r_version <- renderPrint({
+    print("R: Rendering r_version output...") # Log when output is being rendered
     # Ensure R.version.string exists (it should in base R)
+    version_string <- "R version info not available."
     if(exists("R.version.string")) {
-        print(R.version.string)
-    } else {
-        print("R version info not available.")
+        version_string <- R.version.string
     }
+    print(paste("R: R Version String:", version_string)) # Log the value being printed
+    version_string # Return the value to be printed in the UI
   })
+  print("R: r_version output defined.")
 }
+print("R: Server function defined.")
 
 # --- Create Shiny app ---
+print("R: Calling shinyApp()...")
 shinyApp(ui = ui, server = server)
+print("R: shinyApp() called.") # This might not print if shinyApp takes over execution
 
     </script>
 
-    <script>
-      // Optional: Remove loading indicator
-      window.addEventListener('load', () => {
-        const loadingIndicator = document.getElementById('loading-indicator');
-        if (loadingIndicator) {
-          // Hide it after a slightly longer delay for minimal app
-          setTimeout(() => { loadingIndicator.style.display = 'none'; }, 4000);
-        }
-      });
+    <script type="module">
+      // Add logging in the main JS part too
+      console.log("JS: Page loaded, main module script running.");
+
+      // Optional: Remove loading indicator - maybe delay longer or remove based on logs
+      const loadingIndicator = document.getElementById('loading-indicator');
+      if (loadingIndicator) {
+          console.log("JS: Hiding loading indicator after timeout.");
+          // Hide it after a longer delay to ensure Shinylive has time to start
+          setTimeout(() => {
+              loadingIndicator.style.display = 'none';
+              console.log("JS: Loading indicator hidden.");
+           }, 8000); // Increased timeout
+      } else {
+          console.log("JS: Loading indicator element not found.");
+      }
+
+      // Note: We don't explicitly call webR.init() here,
+      // Shinylive's main script handles that when it finds the
+      // 'text/shinylive-r' script tag. We rely on Shinylive's
+      // internal logging or errors appearing in the console.
+
     </script>
 
 </body>
 </html>
+```
+
+**Changes Made:**
+
+1.  Added `print()` statements within the `app.R` code block to log messages to the console as the R code executes (e.g., "R: Loading shiny library...", "R: Defining UI...", "R: Server function started.", etc.). WebR/Shinylive should capture these `print` outputs and display them in the browser console.
+2.  Added `console.log()` statements in the final `<script type="module">` block to track the JavaScript execution flow on the page.
+3.  Added a placeholder `div` with a border (`shiny-app-placeholder`) just to make it clearer where the app *should* render.
+
+**Instructions:**
+
+1.  Replace the HTML on your GitHub Pages site with this new version.
+2.  Wait for the deployment to update.
+3.  **Clear your browser cache thoroughly** and do a **hard reload** (Cmd+Shift+R or Ctrl+Shift+R).
+4.  Open the **Developer Console**.
+5.  Load the page.
+6.  **Observe ALL messages** in the console, including both the black regular messages (from `console.log` and R's `print`) and any red error messages.
+
+Please copy and paste the **entire sequence of messages** you see in the console this time. This should give us a much better idea of exactly how far the process gets before it stops worki
