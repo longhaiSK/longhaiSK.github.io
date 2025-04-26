@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Shiny App (Shinylive)</title>
+
+    <script src="https://shinylive.io/shinylive/shinylive.js"></script>
+    <link rel="stylesheet" href="https://shinylive.io/shinylive/shinylive.css">
+
+    <style>
+        /* Optional: Add some basic styling or loading indicator */
+        body { font-family: sans-serif; margin: 0; padding: 0; }
+        /* A simple loading indicator */
+        #loading-indicator {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 1.5em; color: #555; z-index: 1000;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading-indicator">Loading Shinylive App...<br><small>(May take a moment)</small></div>
+
+    <script type="text/shinylive-r" data-appmode="quarto-doc">
+## file: app.R
+
+# --- Load Libraries ---
+# This simpler app only requires shiny and bslib (for the page_sidebar layout)
+library(shiny)
+library(bslib) # Provides page_sidebar and modern themes
+
+# --- Define UI for dataset viewer app ---
+ui <- page_sidebar(
+
+  # App title
+  title = "Simple Dataset Viewer (Shinylive)",
+
+  # Sidebar panel for inputs
+  sidebar = sidebar(
+
+    # Input: Selector for choosing dataset
+    selectInput(
+      inputId = "dataset",
+      label = "Choose a dataset:",
+      choices = c("rock", "pressure", "cars"),
+      selected = "rock" # Default selection
+    ),
+
+    # Input: Numeric entry for number of obs to view
+    numericInput(
+      inputId = "obs",
+      label = "Number of observations to view:",
+      value = 10,
+      min = 1 # Ensure at least 1 observation is requested
+    )
+  ), # End sidebar
+
+  # Main panel for displaying outputs
+
+  # Output: Verbatim text for data summary
+  h4("Dataset Summary"), # Add a header for clarity
+  verbatimTextOutput("summary"),
+
+  # Output: HTML table with requested number of observations
+  h4("Dataset View (Top N Observations)"), # Add a header for clarity
+  tableOutput("view")
+
+) # End page_sidebar
+
+# --- Define server logic ---
+server <- function(input, output, session) { # Added session argument (good practice)
+
+  # Return the requested dataset reactively
+  datasetInput <- reactive({
+    # Ensure input$dataset is not NULL or empty before proceeding
+    req(input$dataset)
+    # Use switch to select the dataset based on input ID
+    switch(
+      input$dataset,
+      "rock" = rock,
+      "pressure" = pressure,
+      "cars" = cars,
+      # Optional: Add a default case or error handling if needed
+      stop("Invalid dataset selected") # Stop if dataset name is unexpected
+    )
+  })
+
+  # Generate a summary of the dataset
+  output$summary <- renderPrint({
+    # Access the reactive dataset
+    dataset <- datasetInput()
+    # Print the summary
+    summary(dataset)
+  })
+
+  # Show the first "n" observations
+  output$view <- renderTable({
+    # Ensure input$obs is a positive integer
+    n_obs <- max(1, floor(input$obs))
+    # Access the reactive dataset and show the head
+    head(datasetInput(), n = n_obs)
+  })
+
+} # End server function
+
+# --- Create Shiny app ---
+shinyApp(ui = ui, server = server)
+
+    </script>
+
+    <script>
+      // Optional: Remove loading indicator once Shinylive might have started loading
+      // A more robust solution would involve Shinylive's events if available
+      window.addEventListener('load', () => {
+        const loadingIndicator = document.getElementById('loading-indicator');
+        if (loadingIndicator) {
+          // Hide it after a short delay, assuming Shinylive takes over
+          // You might need to adjust the timeout
+          setTimeout(() => { loadingIndicator.style.display = 'none'; }, 3000);
+        }
+      });
+    </script>
+
+</body>
+</html>
