@@ -1,19 +1,19 @@
 // page_titles.js
 
 const siteTitles = {
-    "index.html": "Homepage of Professor Longhai Li",
-    "teaching.html": "Teaching Activities of Prof. Longhai Li",
-    "grant.html": "Research Grants Held by Prof. Longhai Li",
-    "team.html": "Trainees Supervised by Longhai Li", // Your example title
-    "publications.html": "Publications of Prof. Longhai Li",
-    "software.html": "Software Released Prof. Longhai Li",
+    "/index.html": "Homepage of Professor Longhai Li",
+    "/teaching.html": "Teaching Activities of Prof. Longhai Li",
+    "/grant.html": "Research Grants Held by Prof. Longhai Li",
+    "/team.html": "Trainees Supervised by Longhai Li", // Your example title
+    "/publications.html": "Publications of Prof. Longhai Li",
+    "/software.html": "Software Released Prof. Longhai Li",
     // Add other pages and their titles here
-    "longhaishortcv.html": "Biography of Prof. Longhai Li",
-    "longhaicontacts.html": "Contact Information of Prof. Longhai Li"
+    "/longhaishortcv.html": "Biography of Prof. Longhai Li",
+    "/longhaicontacts.html": "Contact Information of Prof. Longhai Li"
 };
 
 // You can also define a default title for pages not listed or if something goes wrong
-const defaultSiteTitle = "Homepage of Prof. Longhai Li at University of Saskatchewan";
+const defaultSiteTitle = "A Page of Homepage of Prof. Longhai Li";
 
 function applyPageTitle() {
     const path = window.location.pathname;

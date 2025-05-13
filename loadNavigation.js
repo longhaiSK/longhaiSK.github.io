@@ -1,15 +1,30 @@
 // loadNavigation.js
 
+// --- START: Title Setting Logic (Integrated) ---
+// User-provided site titles, specifically for root-level pages
+const siteTitles = {
+    "/index.html": "Homepage of Professor Longhai Li",
+    "/teaching.html": "Teaching Activities of Prof. Longhai Li",
+    "/grant.html": "Research Grants Held by Prof. Longhai Li",
+    "/team.html": "Trainees Supervised by Longhai Li",
+    "/publications.html": "Publications of Prof. Longhai Li",
+    "/software.html": "Software Released Prof. Longhai Li",
+    "/longhaishortcv.html": "Biography of Prof. Longhai Li",
+    "/longhaicontacts.html": "Contact Information of Prof. Longhai Li"
+};
+// User-provided default title
+const defaultSiteTitle = "A Page of Homepage of Prof. Longhai Li";
+
 /**
- * Normalizes a given path for comparison.
+ * Normalizes a given path for comparison. (Helper function also used by setActiveButton)
  * - Ensures it starts with a slash.
  * - Appends 'index.html' if it ends with a slash or is just '/'.
  * @param {string} path The path to normalize.
  * @returns {string} The normalized path.
  */
-function normalizePath(path) {
+function normalizePathForTitles(path) { // Renamed to avoid conflict if normalizePath has different needs elsewhere, though it's similar
     let normalized = path;
-    // Ensure it starts with a slash (pathname usually does, but good for hrefs)
+    // Ensure it starts with a slash
     if (!normalized.startsWith('/')) {
         normalized = '/' + normalized;
     }
@@ -21,38 +36,77 @@ function normalizePath(path) {
 }
 
 /**
+ * Sets the document title based on the current page,
+ * but only if a title hasn't already been set by the HTML,
+ * and only for specified root-level pages.
+ */
+function setPageTitleIfNotExists() {
+    // Check if the HTML already provided a non-empty title
+    if (document.title && document.title.trim() !== "") {
+        // console.log("HTML title ('" + document.title + "') will be preserved.");
+        return; // A title exists and is not empty, so do nothing
+    }
+
+    // Use the normalized full path of the current page for lookup
+    const normalizedCurrentPagePath = normalizePathForTitles(window.location.pathname);
+
+    if (siteTitles.hasOwnProperty(normalizedCurrentPagePath)) {
+        document.title = siteTitles[normalizedCurrentPagePath];
+        // console.log("JS set title to: " + document.title + " for path: " + normalizedCurrentPagePath);
+    } else {
+        // If the current path is not in siteTitles, use the default title.
+        // This means even non-root pages without an HTML title will get the default.
+        // console.warn(`Title not found in siteTitles for page path: ${normalizedCurrentPagePath}. Using default title.`);
+        document.title = defaultSiteTitle;
+        // console.log("JS set title to DEFAULT: " + document.title);
+    }
+}
+// --- END: Title Setting Logic ---
+
+
+/**
+ * Normalizes a given path for comparison for active buttons.
+ * - Ensures it starts with a slash.
+ * - Appends 'index.html' if it ends with a slash or is just '/'.
+ * @param {string} path The path to normalize.
+ * @returns {string} The normalized path.
+ */
+function normalizePath(path) { // This is the original normalizePath for setActiveButton
+    let normalized = path;
+    if (!normalized.startsWith('/')) {
+        normalized = '/' + normalized;
+    }
+    if (normalized.endsWith('/') || normalized === '/') {
+        normalized = (normalized === '/' ? '/' : normalized) + 'index.html';
+    }
+    return normalized;
+}
+
+/**
  * Sets the active state on the navigation button corresponding to the current page.
- * Compares full normalized paths to correctly handle index.html in subfolders.
  */
 function setActiveButton() {
     const navPlaceholder = document.getElementById('navigation-placeholder');
     if (!navPlaceholder) {
-        // console.warn("setActiveButton: Navigation placeholder not found.");
         return;
     }
 
-    const normalizedCurrentPath = normalizePath(window.location.pathname);
-    const navLinks = navPlaceholder.querySelectorAll('.nav-links a'); // Get all anchor tags within .nav-links
+    const normalizedCurrentPath = normalizePath(window.location.pathname); // Uses the original normalizePath
+    const navLinks = navPlaceholder.querySelectorAll('.nav-links a');
 
     navLinks.forEach(link => {
-        const button = link.querySelector('button.btn'); // Get the button inside the anchor
+        const button = link.querySelector('button.btn');
         if (button) {
             button.classList.remove('active'); // Default to inactive
-
             const hrefAttribute = link.getAttribute('href');
             if (hrefAttribute) {
-                // Skip external links, mailto, tel, and fragment-only links for active state
                 if (hrefAttribute.startsWith('http') || 
                     hrefAttribute.startsWith('mailto:') || 
                     hrefAttribute.startsWith('tel:') || 
                     (hrefAttribute.startsWith('#') && hrefAttribute.length > 1)) {
-                    return; // Continue to next link, do not mark as active
+                    return; 
                 }
-
-                // Normalize the link's href value
-                // This assumes internal navigation links in navigation.html are root-relative (e.g., "/about.html", "/products/")
-                const normalizedHref = normalizePath(hrefAttribute);
-                
+                const normalizedHref = normalizePath(hrefAttribute); // Uses the original normalizePath
                 if (normalizedCurrentPath === normalizedHref) {
                     button.classList.add('active');
                 }
@@ -67,32 +121,26 @@ function setActiveButton() {
 function setupResponsiveMenu() {
     const navPlaceholder = document.getElementById('navigation-placeholder');
     if (!navPlaceholder) {
-        // console.warn("setupResponsiveMenu: Navigation placeholder not found.");
         return;
     }
-
     const hamburgerButton = navPlaceholder.querySelector('.hamburger-menu');
     const navLinksList = navPlaceholder.querySelector('.nav-links');
-
     if (hamburgerButton && navLinksList) {
         hamburgerButton.addEventListener('click', () => {
-            navLinksList.classList.toggle('active'); // Toggles visibility of nav links
-            hamburgerButton.classList.toggle('active'); // For styling the hamburger icon
-            
-            // Update ARIA attribute for accessibility
+            navLinksList.classList.toggle('active');
+            hamburgerButton.classList.toggle('active');
             const isExpanded = navLinksList.classList.contains('active');
             hamburgerButton.setAttribute('aria-expanded', isExpanded.toString());
         });
-    } else {
-        // console.warn("setupResponsiveMenu: Hamburger button or nav links list not found.");
     }
 }
 
 /**
- * Main function to load navigation content when the DOM is ready.
+ * Main function to load navigation content and set up page elements when the DOM is ready.
  */
 document.addEventListener("DOMContentLoaded", function() {
-    // Ensure this path is root-relative if navigation.html is at the root
+    setPageTitleIfNotExists(); 
+
     const navigationFilePath = '/navigation.html'; 
 
     fetch(navigationFilePath)
@@ -106,8 +154,8 @@ document.addEventListener("DOMContentLoaded", function() {
             const navPlaceholder = document.getElementById('navigation-placeholder');
             if (navPlaceholder) {
                 navPlaceholder.innerHTML = data;
-                setActiveButton();     // Set the active button state
-                setupResponsiveMenu(); // Set up the hamburger menu functionality
+                setActiveButton();
+                setupResponsiveMenu();
             } else {
                 console.error('Navigation placeholder (id="navigation-placeholder") not found in the HTML!');
             }
