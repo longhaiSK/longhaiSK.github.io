@@ -1,7 +1,28 @@
 // loadNavigation.js
 
 /**
+ * Normalizes a given path for comparison.
+ * - Ensures it starts with a slash.
+ * - Appends 'index.html' if it ends with a slash or is just '/'.
+ * @param {string} path The path to normalize.
+ * @returns {string} The normalized path.
+ */
+function normalizePath(path) {
+    let normalized = path;
+    // Ensure it starts with a slash (pathname usually does, but good for hrefs)
+    if (!normalized.startsWith('/')) {
+        normalized = '/' + normalized;
+    }
+    // If path ends with a slash, or is just the root slash, append index.html
+    if (normalized.endsWith('/') || normalized === '/') {
+        normalized = (normalized === '/' ? '/' : normalized) + 'index.html';
+    }
+    return normalized;
+}
+
+/**
  * Sets the active state on the navigation button corresponding to the current page.
+ * Compares full normalized paths to correctly handle index.html in subfolders.
  */
 function setActiveButton() {
     const navPlaceholder = document.getElementById('navigation-placeholder');
@@ -10,41 +31,31 @@ function setActiveButton() {
         return;
     }
 
-    const currentPath = window.location.pathname;
-    let currentPageFile = currentPath.substring(currentPath.lastIndexOf('/') + 1);
-
-    // If the path is just "/" or ends with "/", consider it index.html
-    if (currentPageFile === "" && (currentPath === "/" || currentPath.endsWith("/"))) {
-        currentPageFile = "index.html";
-    }
-    // If still empty, it might be a root path without a filename, default to index.html
-    if (currentPageFile === "") {
-        currentPageFile = "index.html";
-    }
-
+    const normalizedCurrentPath = normalizePath(window.location.pathname);
     const navLinks = navPlaceholder.querySelectorAll('.nav-links a'); // Get all anchor tags within .nav-links
 
     navLinks.forEach(link => {
         const button = link.querySelector('button.btn'); // Get the button inside the anchor
         if (button) {
-            const hrefValue = link.getAttribute('href');
-            let linkPageFile = "";
+            button.classList.remove('active'); // Default to inactive
 
-            if (hrefValue) {
-                linkPageFile = hrefValue.substring(hrefValue.lastIndexOf('/') + 1);
-                // If the href is just "/" or ends with "/", consider it index.html
-                if (linkPageFile === "" && (hrefValue === "/" || hrefValue.endsWith("/"))) {
-                    linkPageFile = "index.html";
+            const hrefAttribute = link.getAttribute('href');
+            if (hrefAttribute) {
+                // Skip external links, mailto, tel, and fragment-only links for active state
+                if (hrefAttribute.startsWith('http') || 
+                    hrefAttribute.startsWith('mailto:') || 
+                    hrefAttribute.startsWith('tel:') || 
+                    (hrefAttribute.startsWith('#') && hrefAttribute.length > 1)) {
+                    return; // Continue to next link, do not mark as active
                 }
-                // If still empty (e.g. href was just a directory name without trailing slash),
-                // this might need more complex logic based on server config.
-                // For now, we assume simple filenames or / for index.html.
-            }
 
-            if (linkPageFile === currentPageFile) {
-                button.classList.add('active');
-            } else {
-                button.classList.remove('active');
+                // Normalize the link's href value
+                // This assumes internal navigation links in navigation.html are root-relative (e.g., "/about.html", "/products/")
+                const normalizedHref = normalizePath(hrefAttribute);
+                
+                if (normalizedCurrentPath === normalizedHref) {
+                    button.classList.add('active');
+                }
             }
         }
     });
@@ -66,7 +77,7 @@ function setupResponsiveMenu() {
     if (hamburgerButton && navLinksList) {
         hamburgerButton.addEventListener('click', () => {
             navLinksList.classList.toggle('active'); // Toggles visibility of nav links
-            hamburgerButton.classList.toggle('active'); // For styling the hamburger icon (e.g., to an "X")
+            hamburgerButton.classList.toggle('active'); // For styling the hamburger icon
             
             // Update ARIA attribute for accessibility
             const isExpanded = navLinksList.classList.contains('active');
@@ -81,10 +92,8 @@ function setupResponsiveMenu() {
  * Main function to load navigation content when the DOM is ready.
  */
 document.addEventListener("DOMContentLoaded", function() {
-    // Adjust this path if your navigation.html file is located elsewhere
-    const navigationFilePath = 'navigation.html'; 
-    // If navigation.html is in the root like other scripts, use:
-    // const navigationFilePath = '/navigation.html'; 
+    // Ensure this path is root-relative if navigation.html is at the root
+    const navigationFilePath = '/navigation.html'; 
 
     fetch(navigationFilePath)
         .then(response => {
@@ -106,7 +115,6 @@ document.addEventListener("DOMContentLoaded", function() {
         .catch(error => {
             console.error('Error loading navigation:', error);
             const navPlaceholder = document.getElementById('navigation-placeholder');
-            // Optionally, display an error message in the placeholder
             if (navPlaceholder) {
                 navPlaceholder.innerHTML = "<p style='color:red; text-align:center;'>Error loading navigation menu.</p>";
             }
