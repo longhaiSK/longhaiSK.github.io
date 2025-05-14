@@ -5,15 +5,15 @@
 const siteTitles = {
     "/index.html": "Homepage of Professor Longhai Li",
     "/teaching.html": "Teaching Activities of Prof. Longhai Li",
-    "/grant.html": "Research Grants Held by Prof. Longhai Li",
+    "/grant.html": "Research Activities of Prof. Longhai Li",
     "/team.html": "Trainees Supervised by Longhai Li",
     "/publications.html": "Publications of Prof. Longhai Li",
-    "/software.html": "Software Released Prof. Longhai Li",
+    "/software.html": "Software Released by Prof. Longhai Li",
     "/longhaishortcv.html": "Biography of Prof. Longhai Li",
     "/longhaicontacts.html": "Contact Information of Prof. Longhai Li"
 };
 // User-provided default title
-const defaultSiteTitle = "A Page of Homepage of Prof. Longhai Li";
+const defaultSiteTitle = "";
 
 /**
  * Normalizes a given path for comparison. (Helper function also used by setActiveButton)

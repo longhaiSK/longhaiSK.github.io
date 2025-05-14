@@ -1,49 +1,37 @@
 ---
 title: "Computing Z-Residual for <code>survreg</code> and <code>coxph</code> Objects"
-date: "`r format(Sys.Date(),'%B %d, %Y')`"
-author: Longhai Li (https://longhaisk.github.io/)
+author: "[Longhai Li](https://longhaisk.github.io/), `r format(Sys.Date(),'%B %d, %Y')`"
 output: 
   html_document:
-    toc: true
+    toc: false
+    self_contained: false
     number_sections: FALSE
+    code_folding: hide
     df_print: paged
-  pdf_document:
-    includes:
-      in_header: "preemble.tex"
 ---
 
 
 ```{r setup, include=TRUE, echo=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library("knitr")
-#klippy::klippy(position = c('top', 'right'))
+library(knitr)
+library(klippy)
+opts_chunk$set(
+  echo = TRUE,     # Show code by default
+  message = FALSE, # Hide messages by default
+  warning = FALSE  # Hide warnings by default
+)
+
+
+knitr::opts_chunk$set(klippy = TRUE)
+
+
 nrep <- 50
 ```
 
-\usepackage{xspace}
-\usepackage{xr}
-\usepackage{moreverb}
-\usepackage{graphicx}
-
-\def \tistar {t^{*}_{i}}
-\def \Tistar {T^{*}_{i}}
-\def \SiTistar {S_i(\Tistar)}
-\def \rcTistar {r^c_i (\Tistar)}
-\def \SP{survival probability\xspace}
-\def \SPs{survival probabilities\xspace}
-\def\nmsp{\mbox{nmsp}}
-\def\zresid{\mbox{Z}}
-\def\rsp{S_i^{R}(T_i, d_{i}, U_{i})}
-\def \nref {[\textbf{references}]\xspace}
-\def\sp{S_{i}(T_{i}^{*})}
-\def\svf{S_{i}(\cdot)}
-\def\ques{\textbf{[questions]}}
-
 ```{css, echo=FALSE}
 .main-container {
-  max-width: 2000px;
-  margin-left: 100px;
-  margin-right: 100px;
+  max-width: 1200px;
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
 body{ /* Normal  */
@@ -54,7 +42,7 @@ td {  /* Table  */
 }
 h1.title {
   font-size: 32px;
-  color: DarkRed;
+  color:  DarkBlue;
 }
 h1 { /* Header 1 */
   font-size: 28px;
@@ -74,53 +62,61 @@ code.r{ /* Code block */
 }
 pre { /* Code block - determines code spacing between lines */
     font-size: 12px;
-    max-height: 250px;
-    overflow-y: auto;
+    /*max-height: 250px;
+    overflow-y: auto;*/
 
 }
+
+/*
+  Targeting all code-folding buttons to be horizontally centered
+  in their normal position in the document flow.
+*/
+button.code-folding-btn {
+  /* --- Positioning & Centering --- */
+  float: none !important;             /* Remove any existing floats like pull-right */
+  display: block !important;          /* Make the button a block-level element so auto margins work for centering.
+                                        Alternatively, 'table' can work if 'block' causes width issues. */
+  margin-left: auto !important;       /* Center the block element horizontally */
+  margin-right: auto !important;      /* Center the block element horizontally */
+  margin-top: 4px !important;         /* Restore or add some top/bottom margin if needed */
+  margin-bottom: 4px !important;      /* e.g., your original margin-bottom: 4px; */
+
+  /* --- Optional: Set a max-width if you don't want the button to be tiny --- */
+  /* By default, a button's width is based on its content.
+     If display:block makes it too narrow or if you want a consistent width: */
+  /* width: auto; /* This is usually default for buttons, letting content decide */
+  /* min-width: 100px; /* Example: ensure it's at least 100px wide */
+  /* max-width: 200px; /* Example: ensure it's not more than 200px wide */
+
+  /* --- Keep other desired visual styles from Bootstrap or your previous CSS --- */
+  /* (Bootstrap .btn classes will still apply most visual styling) */
+  /* You usually don't need to re-declare all visual properties unless
+     you want to specifically override Bootstrap's .btn styling. */
+
+  /* Example visual properties if needed (many are covered by .btn): */
+  padding: 6px 12px; /* Adjust padding if Bootstrap's -xs or -sm is too small for a centered button */
+  font-size: 14px;   /* Adjust font size if needed */
+  /* color: #333; */
+  /* background-color: #fff; */
+  /* border: 1px solid #ccc; */
+  /* border-radius: 3px; */
+  text-align: center; /* Ensures text inside button is centered if button has fixed width */
+  cursor: pointer;
+  /* ... other styles you want to ensure ... */
+}
+
 ```
-# NRSP and Z-residuals
-
-This page serves as supplementary material to the research paper by Li, L., Wu, T., & Feng, C. (2021). Within the aforementioned publication, we introduced a residual termed "normalized randomized survival probabilities (Z-residual) residuals." Subsequently, for the purposes of brevity and enhanced interpretability, this nomenclature was revised. The residuals are now referred to as "Z-residuals",  reflecting the conventional use of the letter <em>Z</em> to denote a random variable following a standard normal distribution.
-
-
-The functions available on this page may still be employed for the computation of Z-residuals for <code>survreg</code> and <code>coxph</code> objects. However, the authors have also released an R package on GitHub, titled <code>Zresidual</code>, which is designed to calculate Z-residuals for a broader array of statistical models. Further details are available in the references cited below.
-
-
-# References
-
-<ul>
-<li> 
-	Wu, T., Feng, C., <b>Li, L.</b> (2024). Cross-validatory Z-Residual for Diagnosing Shared Frailty Models. <a href="https://doi.org/10.1080/00031305.2024.2421370">The American Statistician 0, 1–17.</a> 
-
-	<a href="/doc/cv_zresidual_final.pdf">[<b>PDF</b>]</a>;
-	<a href="https://www.tandfonline.com/eprint/9CQD3QCVP56MCVKFZWEY/full?target=10.1080/00031305.2024.2421370"><b>[Free Reprints]</b></a>;
-	<a href="https://api.zotero.org/users/1693946/publications/items/7FZTDQ3Z/file/view"><b>[slides]</b></a>;
-	<a href="https://github.com/tiw150/Zresidual"><b>[Z-residual on Github]</b></a>;
-	<a href="https://tiw150.github.io/CV_Zresidual_demo.html"><b>[Demo]</b></a> 
-
-
-<li> 
-	Wu, T., <b>Li, L.</b>, Feng, C. (2024). Z-residual diagnostic tool for assessing covariate functional form in shared frailty models. <a href="https://doi.org/10.1080/02664763.2024.2355551">Journal of Applied Statistics 0, 1–31.</a>
-
-
-	<a href="/doc/jas_z_residual_nolinear.pdf">[<b>PDF</b>]</a>;
-	<a href="https://github.com/tiw150/Zresidual"><b>[Z-residual on Github]</b></a>;
-	<a href="https://tiw150.github.io/Zresidual_demo.html"><b>[Demo]</b></a>
-	<a href="https://api.zotero.org/users/1693946/publications/items/WRQUGMIR/file/view"><b>[slides]</b></a>
-
-<li> 
-	<b>Li, L.</b>, Wu, T., Feng, C. (2021). Model diagnostics for censored regression via randomized survival probabilities. <a href="https://doi.org/10.1002/sim.8852">Statistics in Medicine 40, 1482–1497</a>. 
 
 
 
-	<a href="/doc/1911.00198v4.pdf">[<b>PDF</b>]</a>;
-	<a href="/software/NRSP"><b>[R Functions and Demonstration]</b></a>; 
-	<a href="/doc/talks/slides_mdrsp.pdf">[<b>slides-1</b>]</a>;
-	<a href="https://api.zotero.org/users/1693946/publications/items/Z7WFLYHB/file/view">[<b>slides-2</b>]</a>;
+# {.tabset .tabset-fade .tabset-pills}
 
-</ul>
-# What is Z-Residual?
+## Z-Residual
+
+### What is Z-Residual?
+
+
+
 
 Let $T_i$ be a possibly right-censored observation, $d_i$ be the indicator for being uncensored, and $S_i(\cdot)$ be the survival function of original uncensored $T^*_i$ given covariate $x_i$ and parameters.  The randomized survival probability (**RSP**)  for $T_{i}$ is defined as:
 \begin{equation}
@@ -132,19 +128,52 @@ U_{i}\,S_{i}(T_{i}), & \text{if $T_i$ is censored, i.e., $d_i=0$.}
 \end{array}
 \right. \label{rsp} 
 \end{equation}
-where $U_i$ is a uniform random number on $(0, 1)$. In Wu, Feng, and Li (2019+), we show that RSPs are uniformly distributed on $(0,1)$ under the true model for $T^*_i$. Therefore, they can be transformed into residuals with any desired distribution. **Z** residuals are transformed RSPs with the standard normal quantile: 
+where $U_i$ is a uniform random number on $(0, 1)$. In Wu, Feng, and Li (2019+), we show that RSPs are uniformly distributed on $(0,1)$ under the true model for $T^*_i$. Therefore, they can be transformed into residuals with any desired distribution. Z-residuals are transformed RSPs with the standard normal quantile: 
 \begin{equation}
 r_{i}^{\mbox{Z}}(T_i, d_{i}, U_i)=-\Phi^{-1} (S_{i}^R(T_i, d_{i}, U_i))
 \end{equation}
 
 Z-residuals are approximately standard normally distributed under the true model with estimated parameters. The approximate normality holds for any censoring distribution. Z-residuals can be used to check the goodness-of-fit of $S_i(\cdot)$ quantitatively by applying SW normality test to Z-residuals, and graphically by visualizing their QQplot. Scatterplots of Z-residuals may reveal the model departure nature. 
 
+This page serves as supplementary material to the research paper by Li, L., Wu, T., & Feng, C. (2021). Within the aforementioned publication, we introduced a residual termed "normalized randomized survival probabilities  residuals (NRSP residual)." Subsequently, for the purposes of brevity and enhanced interpretability, this nomenclature was revised. The residuals are now referred to as "Z-residuals",  reflecting the conventional use of the letter <em>Z</em> to denote a random variable following a standard normal distribution.
+
+
+The R functions available on this page may still be employed for the computation of Z-residuals for <code>survreg</code> and <code>coxph</code> objects. However, the authors have also released an R package on GitHub called <a href="https://github.com/tiw150/Zresidual"><b>Zresidual</b></a>, which is designed to calculate Z-residuals for a broader array of statistical models including generalized linear models and provide more diagnostic tools for Z-residuals. Further details are referred to the package documentation and demonstration. 
+
 Please note that in the original publication by Li et al. (2021), a negative sign was not incorporated into the definition of the Z-residual. Upon further consideration, it was determined that the addition of a negative sign is more appropriate. This modification ensures that larger residuals correspond to larger observed values, which is consistent with the convention for Pearson's residuals. 
 
-# R Functions for Computing Z-residuals for `survreg` and `coxph` Objects 
+### References
 
+<ul>
+<li> 
+	Wu, T., Feng, C., <b>Li, L.</b> (2025). Cross-validatory Z-Residual for Diagnosing Shared Frailty Models. 
+	<a href="https://doi.org/10.1080/00031305.2024.2421370">The American Statistician 79(2), 198–211.</a> <a href="/doc/cv_zresidual_final.pdf">[<b>PDF</b>]</a>;
+	<a href="https://www.tandfonline.com/eprint/9CQD3QCVP56MCVKFZWEY/full?target=10.1080/00031305.2024.2421370"><b>[Free Reprints]</b></a>;
+	<a href="https://api.zotero.org/users/1693946/publications/items/7FZTDQ3Z/file/view"><b>[slides]</b></a>;
+	<a href="https://github.com/tiw150/Zresidual"><b>[Z-residual on Github]</b></a>;
+	<a href="https://tiw150.github.io/CV_Zresidual_demo.html"><b>[Demo]</b></a> 
+
+
+<li> 
+	Wu, T., <b>Li, L.</b>, Feng, C. (2025). Z-residual diagnostic tool for assessing covariate functional form in shared frailty models. <a href="https://doi.org/10.1080/02664763.2024.2355551">Journal of Applied Statistics 52(1), 28–58.</a> 
+	<a href="/doc/jas_z_residual_nolinear.pdf">[<b>PDF</b>]</a>;
+	<a href="https://github.com/tiw150/Zresidual"><b>[Z-residual on Github]</b></a>;
+	<a href="https://tiw150.github.io/Zresidual_demo.html"><b>[Demo]</b></a>
+	<a href="https://api.zotero.org/users/1693946/publications/items/WRQUGMIR/file/view"><b>[slides]</b></a>
+
+<li> 
+	<b>Li, L.</b>, Wu, T., Feng, C. (2021). Model diagnostics for censored regression via randomized survival probabilities. <a href="https://doi.org/10.1002/sim.8852">Statistics in Medicine 40, 1482–1497</a>.	<a href="/doc/1911.00198v4.pdf">[<b>PDF</b>]</a>;
+	<a href="/software/NRSP"><b>[R Functions and Demonstration]</b></a>; 
+	<a href="/doc/talks/slides_mdrsp.pdf">[<b>slides-1</b>]</a>;
+	<a href="https://api.zotero.org/users/1693946/publications/items/Z7WFLYHB/file/view">[<b>slides-2</b>]</a>;
+
+</ul>
+
+## R Functions
+
+### Generic R Functions for Computing Z-residuals for <code>survreg</code> and <code>coxph</code> Objects
 ```{r zresid}
-#input: survreg_fit is a survreg object
+##input: survreg_fit is a survreg object
 resid_survreg<-function(survreg_fit)
 {
   distr<-survreg_fit$dist
@@ -175,61 +204,61 @@ resid_survreg<-function(survreg_fit)
   }else stop ("The distribution is not supported")
   censored <- which(as.data.frame(as.matrix(y))[,-1]==0)
   n.censored <- length(censored)
-  # Z-residuals
+  ## Z-residuals
   RSP <- SP
   RSP[censored] <- RSP[censored]*runif(n.censored)
   zresid <- -qnorm(RSP)
   
-  # Unmodified CS residual
+  ## Unmodified CS residual
   ucs<- -log(SP)
-  # Modified CS residual
+  ## Modified CS residual
   MSP<- SP
   MSP[censored] <- SP[censored]/exp(1)
   mcs <- -log(MSP)
   nmsp <- -qnorm (MSP)
-  #Martingale Residual
+  ##Martingale Residual
   martg<- as.data.frame(as.matrix(survreg_fit$y))[,-1]- ucs
-  #Deviance Residual
+  ##Deviance Residual
   dev<- sign(martg)* sqrt((-2)*(martg+as.data.frame(as.matrix(survreg_fit$y))[,-1]*
                             log(as.data.frame(as.matrix(survreg_fit$y))[,-1]-martg)))
   zresid.sw.pvalue<-shapiro.test(zresid)$p.value
-  #hazard function
+  ##hazard function
   haz_fn<- haz
   
   list(RSP=RSP,zresid=zresid,zresid.sw.pvalue=zresid.sw.pvalue,
        ucs=ucs, mcs=mcs,martg=martg, dev=dev, nmsp=nmsp,haz_fn=haz_fn)
 }
-# outputs:
-## RSP --- Randomized Survival Probabilities
-## zresid --- Normalized RSP 
-## zresid.sw.pvalue --- GOF test p-values by applying SW test to Z-residuals
-## ucs --- unmodified CS residuals
-## mcs --- modified CS residuals
-## nmsp --- normalized modified SP
-## martg --- Martingale residuals
-## dev --- Deviance residuals
-## haz_fn --- hazard function of cs residuals
+## outputs:
+### RSP --- Randomized Survival Probabilities
+### zresid --- Normalized RSP 
+### zresid.sw.pvalue --- GOF test p-values by applying SW test to Z-residuals
+### ucs --- unmodified CS residuals
+### mcs --- modified CS residuals
+### nmsp --- normalized modified SP
+### martg --- Martingale residuals
+### dev --- Deviance residuals
+### haz_fn --- hazard function of cs residuals
 
 
-#input: coxfit_fit is a coxph object
+##input: coxfit_fit is a coxph object
 resid_coxph<-function(coxfit_fit)
 {
   y<- coxfit_fit$y
   m <- nrow (y)
   mre <- resid(coxfit_fit, type="martingale")
   dre <- resid(coxfit_fit, type="deviance")
-  #Unmodified Cox-Snell residual
+  ##Unmodified Cox-Snell residual
   ucs <- as.data.frame(as.matrix(y))[,-1] - mre
-  #Survival Function
+  ##Survival Function
   SP<- exp(-ucs)
   censored <- which(as.data.frame(as.matrix(y))[,-1]==0)
   n.censored <- length(censored)
-  #NMSP residual (normal-transformed modified survival prob)
+  ##NMSP residual (normal-transformed modified survival prob)
   MSP<- SP
   MSP[censored] <- SP[censored]/exp(1)
   mcs <- -log(MSP)
   nmsp<- -qnorm(MSP)
-  #Z-residuals 
+  ##Z-residuals 
   RSP <- SP
   RSP[censored] <- RSP[censored]*runif(n.censored)
   zresid <- -qnorm(RSP)
@@ -237,29 +266,28 @@ resid_coxph<-function(coxfit_fit)
   list(zresid=zresid,RSP=RSP,zresid.sw.pvalue=zresid.sw.pvalue,
        ucs=ucs,mcs=mcs,nmsp=nmsp)
 }
-# outputs:
-## RSP --- Randomized Survival Probabilities
-## zresid --- Normalized RSP 
-## zresid.sw.pvalue --- GOF test p-values by applying SW test to Z-residuals
-## ucs --- unmodified CS residuals
-## mcs --- modified CS residuals
-## nmsp --- normalized modified SP
-## martg --- Martingale residuals
-## dev --- Deviance residuals
-## haz_fn --- hazard function of cs residuals
+## outputs:
+### RSP --- Randomized Survival Probabilities
+### zresid --- Normalized RSP 
+### zresid.sw.pvalue --- GOF test p-values by applying SW test to Z-residuals
+### ucs --- unmodified CS residuals
+### mcs --- modified CS residuals
+### nmsp --- normalized modified SP
+### martg --- Martingale residuals
+### dev --- Deviance residuals
+### haz_fn --- hazard function of cs residuals
 
 ```
-# Installation
+### Installation
 
 Copy the above R functions into your R enviroment.
 
 
 
-# Examples for Illustration and Demonstration {.tabset .tabset-fade .tabset-pills}
-## Illustration of RSP
+## Illustration
 ### Data Generation Function
 ```{r}
-#simulated data:t from weibull distrbution,c from exponentail distrbutions
+##simulated data:t from weibull distrbution,c from exponentail distrbutions
 set.seed(1) 
 rexp2 <- function(n, rate){ if (rate==0) rep(Inf,n) else rexp(n=n, rate = rate)}
 simulated_data<- function(n,beta0 , beta1 , alpha, mean.censor)
@@ -287,24 +315,24 @@ beta1<-1
 alpha<-1.7
 mean.censor<-14
 
-#nrep is preset to a number
+##nrep is preset to a number
 foreach (j = 1:nrep) %do%
 {
-   # simulating a dataset
+   ## simulating a dataset
    out_r<- simulated_data(n=n,beta0=beta0,beta1=beta1,
                           alpha=alpha, mean.censor=mean.censor)
    simulated_data_random<-out_r$data_form
    
-   #checking censoring rate
+   ##checking censoring rate
    table(simulated_data_random$d)
    
-   #fit AFT model
+   ##fit AFT model
    survreg_fit_t <- survreg(Surv(out_r[[1]]$t, 
                                  out_r[[1]]$d) ~ out_r[[1]]$x,dist="weibull")
    survreg_fit_w <- survreg(Surv(out_r[[1]]$t, 
                                  out_r[[1]]$d) ~ out_r[[1]]$x,dist="lognormal")
 
-   # compute residuals 
+   ## compute residuals 
    true_model <- resid_survreg(survreg_fit_t)
    wrong_model<- resid_survreg(survreg_fit_w)
 
@@ -331,11 +359,11 @@ foreach (j = 1:nrep) %do%
    
    par(mfrow = c(2,2),mar=c(4,4,2,2))
    
-   #The plot of true model
+   ##The plot of true model
    plot(t, s1.t,type="l", ylab="S(t)",xlab="Time",
         main="RSPs, True Model",ylim=c(0,1.0),xlim=c(0,40))
    lines(t, s0.t)
-   ## choose a random sample of observations for display
+   ### choose a random sample of observations for display
    sp <- sample(1:n,400)
    s.gp1 <- gp1[which(gp1 %in% sp)]
    s.gp2 <- gp2[which(gp2 %in% sp)]
@@ -354,7 +382,7 @@ foreach (j = 1:nrep) %do%
            pch=c(0,8,2,1), col = c(3,2,3,2))
    hist(rsp.t,xlab="Randomized Survival Probability",main="Histogram of RSPs, True Model")
    
-   #The plot of wrong model
+   ##The plot of wrong model
    plot(t, s1.w,type="l",ylab="S(t)",xlab="Time",main="RSPs, Wrong Model",
         ylim=c(0,1.0),xlim=c(0,40))
    lines(t, s0.w)
@@ -385,7 +413,7 @@ foreach (j = 1:nrep) %do%
 ### Data Generation Function
 
 ```{r}
-#simulated data:t from weibull distrbution,c from exponentail distrbutions
+##simulated data:t from weibull distrbution,c from exponentail distrbutions
 set.seed(1) 
 rexp2 <- function(n, rate){ if (rate==0) rep(Inf,n) else rexp(n=n, rate = rate)}
 simulated_data<- function(n,beta0 , beta1 , alpha, mean.censor)
@@ -415,28 +443,28 @@ beta1<-1
 alpha<-2
 mean.censor<-14.6
 
-#nrep is preset to a number
+##nrep is preset to a number
 foreach (j = 1:nrep) %do%
 {
-    # simulating a dataset
+    ## simulating a dataset
     out_r<- simulated_data(n=n,beta0=beta0,beta1=beta1,
                            alpha=alpha, mean.censor=mean.censor)
     simulated_data_random<-out_r$data_form
-    #checking censoring rate
+    ##checking censoring rate
     table(simulated_data_random$d)
     
-    #fit AFT model 
+    ##fit AFT model 
     true_model <- survreg(Surv(out_r[[1]]$t, out_r[[1]]$d) ~ out_r[[1]]$x,dist="weibull")
     wrong_model <- survreg(Surv(out_r[[1]]$t, out_r[[1]]$d) ~ out_r[[1]]$x,dist="lognormal")
     zresid.t<-resid_survreg(true_model)
     zresid.w<-resid_survreg(wrong_model)
     
-    #the cumulative hazard function estimated by Kaplan-Meier method of CS residuals
+    ##the cumulative hazard function estimated by Kaplan-Meier method of CS residuals
     km.ucs.t <- survfit(Surv(zresid.t$ucs, out_r[[1]]$d)~1,type='fleming')
     id.ucs.t<-order(zresid.t$ucs)
     km.ucs.w <- survfit(Surv(zresid.w$ucs, out_r[[1]]$d)~1,type='fleming')
     id.ucs.w<-order(zresid.w$ucs)
-    #The plot of true model
+    ##The plot of true model
     par(mfrow = c(2,3),mar=c(4,4,2,2))     
     resid.lim <- c(-1,1) * max(range(abs(zresid.t$zresid),abs(zresid.w$zresid)),5)     
     cs.lim <- c(0,max(6,range(km.ucs.t$cumhaz,km.ucs.w$cumhaz)))
@@ -465,7 +493,7 @@ foreach (j = 1:nrep) %do%
             col = c(3,2), cex=1)
     
 
-    #The plot of wrong model
+    ##The plot of wrong model
     
     plot(zresid.w$zresid,ylab="Z-residuals",col=out_r[[1]]$d+2,pch=out_r[[1]]$d+1,
          ylim=resid.lim, main="Wrong Model, Z-residuals plot") 
@@ -494,7 +522,7 @@ foreach (j = 1:nrep) %do%
 ### Data Generation Function
 
 ```{r}
-#simulated data:t from weibull distrbution,c from exponentail distrbutions
+##simulated data:t from weibull distrbution,c from exponentail distrbutions
 set.seed(1) 
 rexp2 <- function(n, rate){ if (rate==0) rep(Inf,n) else rexp(n=n, rate = rate)}
 simulated_data<- function(n, beta0, beta1, alpha, mean.censor)
@@ -502,7 +530,7 @@ simulated_data<- function(n, beta0, beta1, alpha, mean.censor)
   x <- runif(n,0,(3*pi)/2)
   fx <-  sin(2*x)
   t0<- rexp2(n,rate= 1/mean.censor)
-  #gamma is shape
+  ##gamma is shape
   survreg_sim_data <- rsurvreg( n, mean = beta0 + beta1 * fx,
                                 scale=1/alpha, distribution='weibull')
   t <- pmin(survreg_sim_data, t0)
@@ -526,22 +554,22 @@ beta1<-2
 alpha<-1.8
 mean.censor<-16
 
-#nrep is preset to a number
+##nrep is preset to a number
 
 foreach (j = 1:nrep) %do%
 {
-    # simulating a dataset
+    ## simulating a dataset
     out_r<- simulated_data(n=n,beta0=beta0,beta1=beta1,
                            alpha=alpha,mean.censor=mean.censor)
     simulated_data_random<-out_r$data_form
-    #checking censoring rate
+    ##checking censoring rate
     table(simulated_data_random$d)
-    #fit AFT model 
+    ##fit AFT model 
     true_model <- survreg(Surv(out_r[[1]]$t , out_r[[1]]$d) ~ out_r[[1]]$fx,dist="weibull")
     wrong_model <- survreg(Surv(out_r[[1]]$t , out_r[[1]]$d) ~ out_r[[1]]$x,dist="weibull")
     zresid.t<-resid_survreg(true_model)
     zresid.w<-resid_survreg(wrong_model)
-    #the cumulative hazard function estimated by Kaplan-Meier method of CS residuals
+    ##the cumulative hazard function estimated by Kaplan-Meier method of CS residuals
     km.ucs.t <- survfit(Surv(zresid.t$ucs, out_r[[1]]$d)~1,type='fleming')
     id.ucs.t<-order(zresid.t$ucs)
     km.ucs.w <- survfit(Surv(zresid.w$ucs, out_r[[1]]$d)~1,type='fleming')
@@ -550,8 +578,8 @@ foreach (j = 1:nrep) %do%
     par(mfrow = c(2,3),mar=c(4,4,2,2))     
     resid.lim <- c(-1,1) * max(range(abs(zresid.t$zresid),abs(zresid.w$zresid)),5)     
     cs.lim <- c(0,max(6,range(km.ucs.t$cumhaz,km.ucs.w$cumhaz)))
-    #The plot of true model
-    plot(simulated_data_random$x,zresid.t$zresid,xlab="X",ylab="NRSP",col=out_r[[1]]$d+2,
+    ##The plot of true model
+    plot(simulated_data_random$x,zresid.t$zresid,xlab="X",ylab="Z-residuals",col=out_r[[1]]$d+2,
          pch=out_r[[1]]$d+1,main="True Model, Z-residuals plot",ylim=resid.lim) 
     legend ("topleft", pch = c(2,1), legend = c("Uncensored", "Censored"),col = c(3,2), cex=1)
     
@@ -569,8 +597,8 @@ foreach (j = 1:nrep) %do%
            pch=out_r[[1]]$d[id.ucs.t]+1)
     legend ("topleft", pch = c(2,1), legend = c("Uncensored", "Censored"),col = c(3,2), cex=1)
     
-    #The plot of wrong model
-    plot(simulated_data_random$x,zresid.w$zresid,xlab="X",ylab="NRSP",col=out_r[[1]]$d+2,
+    ##The plot of wrong model
+    plot(simulated_data_random$x,zresid.w$zresid,xlab="X",ylab="Z-residuals",col=out_r[[1]]$d+2,
          pch=out_r[[1]]$d+1,main="Wrong Model, Z-residuals plot",ylim=resid.lim)  
     legend ("topleft", pch = c(2,1), legend = c("Uncensored", "Censored"),col = c(3,2), cex=1)
     
@@ -594,13 +622,17 @@ foreach (j = 1:nrep) %do%
 
 ## Real Data
 
-*Load a dataset and fit three AFT Models*
-```{r  echo=TRUE, results="hide"}
+### Load a dataset 
+```{r  echo=TRUE}
 library(survival)
 real.data <- read.csv("real_data.csv")
 real.data$grade <- as.factor(real.data$grade)
+real.data
+```
 
-#fit three AFT models 
+### Fit three AFT Models
+```{r  echo=TRUE, results="hide"}
+##fit three AFT models 
 fit_weibull     <- survreg(Surv(real.data$time , real.data$status)~.,
                            data=real.data[,-c(1:3)],dist="weibull")
 fit_lognormal   <- survreg(Surv(real.data$time , real.data$status)~.,
@@ -610,19 +642,19 @@ fit_loglogistic <- survreg(Surv(real.data$time , real.data$status) ~.,
 
 ```
 
-*`r nrep` Sets of Replicated Z-residuals*
+### `r nrep` Sets of Replicated Z-residuals
 
 ```{r fig.show="animate",animation.hook='gifski', interval=1,aniopts="controls,loop",cache= FALSE, fig.width=10, fig.height=9, echo=TRUE, results="hide"}
 library("foreach")
-#nrep is preset for controlling the number of replications of Z-residuals
+##nrep is preset for controlling the number of replications of Z-residuals
 foreach (j = 1:nrep) %do%
 {
-  #compute residuals (including Z-residuals)
+  ##compute residuals (including Z-residuals)
   resid.wb<-resid_survreg(fit_weibull)
   resid.ln<-resid_survreg(fit_lognormal)
   resid.ll<-resid_survreg(fit_loglogistic)
   
-  #the cumulative hazard function estimated by Kaplan-Meier method of CS residuals
+  ##the cumulative hazard function estimated by Kaplan-Meier method of CS residuals
   km.wb <- survfit(Surv(resid.wb$ucs, real.data$status)~1,type='fleming')
   id.wb<-order(resid.wb$ucs)
   km.ln <- survfit(Surv(resid.ln$ucs, real.data$status)~1,type='fleming')
@@ -632,7 +664,7 @@ foreach (j = 1:nrep) %do%
   
   par(mfrow = c(3,3),mar=c(4,4,2,2))
   
-  #The plot of Weibull model
+  ##The plot of Weibull model
   plot(resid.wb$zresid,xlab="Index", ylab="Z-residuals",main="Weibull,Z-residuals plot", 
        col=real.data$status+2, pch=real.data$status+1,ylim=c(-5,5))
   legend ("topleft", pch = c(2,1), legend = c("Uncensored", "Censored"),
@@ -655,7 +687,7 @@ foreach (j = 1:nrep) %do%
   legend ("topleft", pch = c(2,1), legend = c("Uncensored", "Censored"),
           col = c(3,2), cex=1)
   
-  #The plot of Log-normal model
+  ##The plot of Log-normal model
   plot(resid.ln$zresid,xlab="Index",ylab="Z-residuals",main="Log-normal,Z-residuals plot",
        col=real.data$status+2, pch=real.data$status+1,ylim=c(-5,5))
   legend ("topleft", pch = c(2,1), legend = c("Uncensored", "Censored"),
@@ -679,7 +711,7 @@ foreach (j = 1:nrep) %do%
           col = c(3,2), cex=1)
   
   
-  #The plot of Log-logistic model
+  ##The plot of Log-logistic model
   plot(resid.ll$zresid,xlab="Index",ylab="Z-residuals",main="Log-logistic,Z-residuals plot",
        col=real.data$status+2, pch=real.data$status+1,ylim=c(-5,5))
   legend ("topleft", pch = c(2,1), legend = c("Uncensored", "Censored"),
@@ -706,7 +738,6 @@ foreach (j = 1:nrep) %do%
 
 
 
-----
 
 
 
