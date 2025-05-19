@@ -1,6 +1,7 @@
 ---
 title: "Computing Z-Residual for <code>survreg</code> and <code>coxph</code> Objects"
-author: "[Longhai Li](https://longhaisk.github.io/), `r format(Sys.Date(),'%B %d, %Y')`"
+author: "[Longhai Li](https://longhaisk.github.io/)"
+date: "`r format(Sys.Date(),'%B %d, %Y')`"
 output: 
   html_document:
     toc: false
@@ -10,103 +11,100 @@ output:
     df_print: paged
     math_method: katex
 ---
+```{css, echo=FALSE}
+    .main-container {
+      max-width: 1200px;
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+    
+    body{ /* Normal  */
+          font-size: 16px;
+    }
+    td {  /* Table  */
+      font-size: 12px;
+    }
+    h1.title {
+      font-size: 32px;
+      color:  RoyalBlue;
+    }
+    h1 { /* Header 1 */
+      font-size: 28px;
+      color: RoyalBlue;
+    }
+    h2 { /* Header 2 */
+        font-size: 25px;
+      color: RoyalBlue;
+    }
+    h3 { /* Header 3 */
+      font-size: 22px;
+      font-family: serif;
+      color: RoyalBlue;
+    }
+    code.r{ /* Code block */
+        font-size: 12px;
+    }
+    pre { /* Code block - determines code spacing between lines */
+        font-size: 12px;
+        /*max-height: 250px;
+        overflow-y: auto;*/
+    
+    }
+    
+    /*
+      Targeting all code-folding buttons to be horizontally centered
+      in their normal position in the document flow.
+    */
+    button.code-folding-btn {
+      /* --- Positioning & Centering --- */
+      float: none !important;             /* Remove any existing floats like pull-right */
+      display: block !important;          /* Make the button a block-level element so auto margins work for centering.
+                                            Alternatively, 'table' can work if 'block' causes width issues. */
+      margin-left: auto !important;       /* Center the block element horizontally */
+      margin-right: auto !important;      /* Center the block element horizontally */
+      margin-top: 4px !important;         /* Restore or add some top/bottom margin if needed */
+      margin-bottom: 4px !important;      /* e.g., your original margin-bottom: 4px; */
+    
+      /* --- Optional: Set a max-width if you don't want the button to be tiny --- */
+      /* By default, a button's width is based on its content.
+         If display:block makes it too narrow or if you want a consistent width: */
+      /* width: auto; /* This is usually default for buttons, letting content decide */
+      /* min-width: 100px; /* Example: ensure it's at least 100px wide */
+      /* max-width: 200px; /* Example: ensure it's not more than 200px wide */
+    
+      /* --- Keep other desired visual styles from Bootstrap or your previous CSS --- */
+      /* (Bootstrap .btn classes will still apply most visual styling) */
+      /* You usually don't need to re-declare all visual properties unless
+         you want to specifically override Bootstrap's .btn styling. */
+    
+      /* Example visual properties if needed (many are covered by .btn): */
+      padding: 6px 12px; /* Adjust padding if Bootstrap's -xs or -sm is too small for a centered button */
+      font-size: 14px;   /* Adjust font size if needed */
+      /* color: #333; */
+      /* background-color: #fff; */
+      /* border: 1px solid #ccc; */
+      /* border-radius: 3px; */
+      text-align: center; /* Ensures text inside button is centered if button has fixed width */
+      cursor: pointer;
+      /* ... other styles you want to ensure ... */
+    }
+
+```
+
 
 
 ```{r setup, include=TRUE, echo=FALSE}
 library(knitr)
-library(klippy)
+
 opts_chunk$set(
   echo = TRUE,     # Show code by default
   message = FALSE, # Hide messages by default
   warning = FALSE  # Hide warnings by default
 )
 
-
-knitr::opts_chunk$set(klippy = TRUE)
-
-
 nrep <- 50
 ```
 
-```{css, echo=FALSE}
-.main-container {
-  max-width: 1200px;
-  margin-left: 10px;
-  margin-right: 10px;
-}
-
-body{ /* Normal  */
-      font-size: 16px;
-}
-td {  /* Table  */
-  font-size: 12px;
-}
-h1.title {
-  font-size: 32px;
-  color:  DarkBlue;
-}
-h1 { /* Header 1 */
-  font-size: 28px;
-  color: DarkBlue;
-}
-h2 { /* Header 2 */
-    font-size: 25px;
-  color: DarkBlue;
-}
-h3 { /* Header 3 */
-  font-size: 22px;
-  font-family: "Times New Roman", Times, serif;
-  color: DarkBlue;
-}
-code.r{ /* Code block */
-    font-size: 12px;
-}
-pre { /* Code block - determines code spacing between lines */
-    font-size: 12px;
-    /*max-height: 250px;
-    overflow-y: auto;*/
-
-}
-
-/*
-  Targeting all code-folding buttons to be horizontally centered
-  in their normal position in the document flow.
-*/
-button.code-folding-btn {
-  /* --- Positioning & Centering --- */
-  float: none !important;             /* Remove any existing floats like pull-right */
-  display: block !important;          /* Make the button a block-level element so auto margins work for centering.
-                                        Alternatively, 'table' can work if 'block' causes width issues. */
-  margin-left: auto !important;       /* Center the block element horizontally */
-  margin-right: auto !important;      /* Center the block element horizontally */
-  margin-top: 4px !important;         /* Restore or add some top/bottom margin if needed */
-  margin-bottom: 4px !important;      /* e.g., your original margin-bottom: 4px; */
-
-  /* --- Optional: Set a max-width if you don't want the button to be tiny --- */
-  /* By default, a button's width is based on its content.
-     If display:block makes it too narrow or if you want a consistent width: */
-  /* width: auto; /* This is usually default for buttons, letting content decide */
-  /* min-width: 100px; /* Example: ensure it's at least 100px wide */
-  /* max-width: 200px; /* Example: ensure it's not more than 200px wide */
-
-  /* --- Keep other desired visual styles from Bootstrap or your previous CSS --- */
-  /* (Bootstrap .btn classes will still apply most visual styling) */
-  /* You usually don't need to re-declare all visual properties unless
-     you want to specifically override Bootstrap's .btn styling. */
-
-  /* Example visual properties if needed (many are covered by .btn): */
-  padding: 6px 12px; /* Adjust padding if Bootstrap's -xs or -sm is too small for a centered button */
-  font-size: 14px;   /* Adjust font size if needed */
-  /* color: #333; */
-  /* background-color: #fff; */
-  /* border: 1px solid #ccc; */
-  /* border-radius: 3px; */
-  text-align: center; /* Ensures text inside button is centered if button has fixed width */
-  cursor: pointer;
-  /* ... other styles you want to ensure ... */
-}
-
-```
 
 
 
@@ -114,8 +112,11 @@ button.code-folding-btn {
 
 ## Z-Residual
 
-### What is Z-Residual?
+### What is Z-Residual (NRSP Residual)?
+This page serves as supplementary material to the research paper by Li, L., Wu, T., & Feng, C. (2021). Within the aforementioned publication, we introduced a residual termed "normalized randomized survival probabilities  residuals (NRSP residual)." Subsequently, for the purposes of brevity and enhanced interpretability, this nomenclature was revised. The residuals are now referred to as "Z-residuals",  reflecting the conventional use of the letter <em>Z</em> to denote a random variable following a standard normal distribution.
 
+
+The R functions available on this page may still be employed for the computation of Z-residuals for <code>survreg</code> and <code>coxph</code> objects. However, the authors have also released an R package on GitHub called <a href="https://github.com/tiw150/Zresidual"><b>Zresidual</b></a>, which is designed to calculate Z-residuals for a broader array of statistical models including generalized linear models and provide more diagnostic tools for Z-residuals. Further details are referred to the package documentation and <a href="https://tiw150.github.io/Zresidual_demo.html">a demonstration for diagnosing non-linearity</a>. 
 Let $t_i$ be a possibly right-censored observation, $\delta_i$ be the indicator for being uncensored, and $\hat{S}_i(\cdot)$ be an estimated survival function of original uncensored $T^*_i$ given covariate $x_i$ and parameters.  The randomized survival probability (**RSP**)  for $t_i$ is defined as:
 \begin{equation}
 S_i^{R}(t_i, \delta_i, U_i) =
@@ -133,16 +134,28 @@ r_{i}^{\text{Z}}(t_i, \delta_i, U_i)=-\Phi^{-1} (S_{i}^R(t_i, \delta_i, U_i))
 
 Z-residuals are approximately standard normally distributed under the true model with estimated parameters. The approximate normality holds for any censoring distribution. Z-residuals can be used to check the goodness-of-fit of $S_i(\cdot)$ quantitatively by applying SW normality test to Z-residuals, and graphically by visualizing their QQplot. Scatterplots of Z-residuals may reveal the model departure nature. 
 
-This page serves as supplementary material to the research paper by Li, L., Wu, T., & Feng, C. (2021). Within the aforementioned publication, we introduced a residual termed "normalized randomized survival probabilities  residuals (NRSP residual)." Subsequently, for the purposes of brevity and enhanced interpretability, this nomenclature was revised. The residuals are now referred to as "Z-residuals",  reflecting the conventional use of the letter <em>Z</em> to denote a random variable following a standard normal distribution.
 
-
-The R functions available on this page may still be employed for the computation of Z-residuals for <code>survreg</code> and <code>coxph</code> objects. However, the authors have also released an R package on GitHub called <a href="https://github.com/tiw150/Zresidual"><b>Zresidual</b></a>, which is designed to calculate Z-residuals for a broader array of statistical models including generalized linear models and provide more diagnostic tools for Z-residuals. Further details are referred to the package documentation and demonstration. 
 
 Please note that in the original publication by Li et al. (2021), a negative sign was not incorporated into the definition of the Z-residual. Upon further consideration, it was determined that the addition of a negative sign is more appropriate. This modification ensures that larger residuals correspond to larger observed values, which is consistent with the convention for Pearson's residuals. 
 
 ### References
 
 <ul>
+<li> 
+	<b>Li, L.</b>, Wu, T., Feng, C. (2021). Model diagnostics for censored regression via randomized survival probabilities. <a href="https://doi.org/10.1002/sim.8852">Statistics in Medicine 40, 1482–1497</a>.
+	<a href="/doc/1911.00198v4.pdf">[<b>PDF</b>]</a>;
+	<a href="/software/NRSP"><b>[R Functions and Demonstration]</b></a>; 
+	<a href="https://api.zotero.org/users/1693946/publications/items/Z7WFLYHB/file/view">[<b>slides</b>]</a>
+
+<li> 
+	Wu, T., <b>Li, L.</b>, Feng, C. (2025). Z-residual diagnostic tool for assessing covariate functional form in shared frailty models. 
+	<a href="https://doi.org/10.1080/02664763.2024.2355551">Journal of Applied Statistics 52(1), 28–58.</a> 
+	<a href="/doc/jas_z_residual_nolinear.pdf">[<b>PDF</b>]</a>;
+	<a href="https://github.com/tiw150/Zresidual"><b>[Z-residual on Github]</b></a>;
+	<a href="https://tiw150.github.io/Zresidual_demo.html"><b>[Demo]</b></a>
+	<a href="https://api.zotero.org/users/1693946/publications/items/WRQUGMIR/file/view"><b>[slides]</b></a>
+
+	
 <li> 
 	Wu, T., Feng, C., <b>Li, L.</b> (2025). Cross-validatory Z-Residual for Diagnosing Shared Frailty Models. 
 	<a href="https://doi.org/10.1080/00031305.2024.2421370">The American Statistician 79(2), 198–211.</a> <a href="/doc/cv_zresidual_final.pdf">[<b>PDF</b>]</a>;
@@ -151,19 +164,7 @@ Please note that in the original publication by Li et al. (2021), a negative sig
 	<a href="https://github.com/tiw150/Zresidual"><b>[Z-residual on Github]</b></a>;
 	<a href="https://tiw150.github.io/CV_Zresidual_demo.html"><b>[Demo]</b></a> 
 
-
-<li> 
-	Wu, T., <b>Li, L.</b>, Feng, C. (2025). Z-residual diagnostic tool for assessing covariate functional form in shared frailty models. <a href="https://doi.org/10.1080/02664763.2024.2355551">Journal of Applied Statistics 52(1), 28–58.</a> 
-	<a href="/doc/jas_z_residual_nolinear.pdf">[<b>PDF</b>]</a>;
-	<a href="https://github.com/tiw150/Zresidual"><b>[Z-residual on Github]</b></a>;
-	<a href="https://tiw150.github.io/Zresidual_demo.html"><b>[Demo]</b></a>
-	<a href="https://api.zotero.org/users/1693946/publications/items/WRQUGMIR/file/view"><b>[slides]</b></a>
-
-<li> 
-	<b>Li, L.</b>, Wu, T., Feng, C. (2021). Model diagnostics for censored regression via randomized survival probabilities. <a href="https://doi.org/10.1002/sim.8852">Statistics in Medicine 40, 1482–1497</a>.	<a href="/doc/1911.00198v4.pdf">[<b>PDF</b>]</a>;
-	<a href="/software/NRSP"><b>[R Functions and Demonstration]</b></a>; 
-	<a href="/doc/talks/slides_mdrsp.pdf">[<b>slides-1</b>]</a>;
-	<a href="https://api.zotero.org/users/1693946/publications/items/Z7WFLYHB/file/view">[<b>slides-2</b>]</a>;
+	
 
 </ul>
 
@@ -303,7 +304,7 @@ simulated_data<- function(n,beta0 , beta1 , alpha, mean.censor)
 ```
 ### Animated Randomized Survival Probabilities of `r nrep` Simulated Datasets
 
-```{r fig.show="animate", animation.hook='gifski', interval=1, aniopts="controls,loop",cache= TRUE, fig.width=9, fig.height=6.5, echo=TRUE, results="hide"}
+```{r rsp, fig.show="animate", animation.hook='gifski', interval=1, aniopts="controls,loop",cache= TRUE, fig.width=9, fig.height=6.5, echo=TRUE, results="hide"}
 library("foreach")
 library("survival")
 
@@ -430,7 +431,7 @@ simulated_data<- function(n,beta0 , beta1 , alpha, mean.censor)
 
 ### Animated Z-residuals and Cumuative Hazard of CS Residuals of `r nrep` Simulated Datasets
 
-```{r fig.show="animate",animation.hook='gifski', interval=1, aniopts="controls,loop",cache= TRUE, fig.width=10, fig.height=6.5, echo=TRUE, results="hide"}
+```{r WrongFamily, fig.show="animate",animation.hook='gifski', interval=1, aniopts="controls,loop",cache= TRUE, fig.width=10, fig.height=6.5, echo=TRUE, results="hide"}
 library("foreach")
 library("survival")
 
@@ -542,7 +543,7 @@ simulated_data<- function(n, beta0, beta1, alpha, mean.censor)
 ### Animated Z-residuals and Cumuative Hazard of CS Residuals of `r nrep` Simulated Datasets
 
 
-```{r fig.show="animate", animation.hook='gifski', interval=1, aniopts="controls,loop",cache= TRUE, fig.width=10, fig.height=6.5, echo=TRUE, results="hide"}
+```{r Nonlinearity, fig.show="animate", animation.hook='gifski', interval=1, aniopts="controls,loop",cache= TRUE, fig.width=10, fig.height=6.5, echo=TRUE, results="hide"}
 library("foreach")
 library("survival")
 
@@ -642,7 +643,7 @@ fit_loglogistic <- survreg(Surv(real.data$time , real.data$status) ~.,
 
 ### `r nrep` Sets of Replicated Z-residuals
 
-```{r fig.show="animate",animation.hook='gifski', interval=1,aniopts="controls,loop",cache= FALSE, fig.width=10, fig.height=9, echo=TRUE, results="hide"}
+```{r realdata, fig.show="animate",animation.hook='gifski', interval=1,aniopts="controls,loop",cache= TRUE, fig.width=10, fig.height=9, echo=TRUE, results="hide"}
 library("foreach")
 ##nrep is preset for controlling the number of replications of Z-residuals
 foreach (j = 1:nrep) %do%
@@ -732,10 +733,5 @@ foreach (j = 1:nrep) %do%
           col = c(3,2), cex=1)
 }
 ```
-
-
-
-
-
 
 
