@@ -6,7 +6,7 @@ const siteTitles = {
     "/index.html": "Homepage of Professor Longhai Li",
     "/teaching.html": "Teaching Activities of Prof. Longhai Li",
     "/grant.html": "Research Activities of Prof. Longhai Li",
-    "/team.html": "Trainees Supervised by Longhai Li",
+    "/team.html": "Members Longhai Li's Research",
     "/publications.html": "Publications of Prof. Longhai Li",
     "/software.html": "Software Released by Prof. Longhai Li",
     "/longhaishortcv.html": "Biography of Prof. Longhai Li",
