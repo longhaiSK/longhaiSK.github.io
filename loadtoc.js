@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const currentBodyMargin = parseFloat(bodyComputedStyle[bodyMarginProperty]) || 0;
 
             if (currentBodyMargin < tocWidth + 20) {
-                document.body.style[bodyMarginProperty] = `${tocWidth + 40}px`;
+                document.body.style[bodyMarginProperty] = `${tocWidth + 0}px`;
             }
         });
     } else {
