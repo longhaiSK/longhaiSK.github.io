@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Guide to Posterior Predictive Checks</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+    <!-- MathJax for rendering LaTeX equations -->
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [['$','$'], ['\\(','\\)']],
+                displayMath: [['$$','$$'], ['\\[','\\]']],
+                processEscapes: true
+            },
+            CommonHTML: { matchFontHeight: false }
+        });
+    </script>
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <!-- Chosen Palette: Calm Neutrals -->
+    <!-- Application Structure Plan: A single-page, scrollable document with a prominent Table of Contents (TOC) at the top. This allows users to quickly jump between 'Introduction', 'The Process', 'Key Criticisms', and 'References' sections via anchor links. This design prioritizes simplicity and direct content consumption over complex interactivity. -->
+    <!-- Visualization & Content Choices: All content is presented directly. The Process is a numbered list. Criticisms are a numbered list. References are a numbered list with categories. Formulas are rendered using MathJax for accurate display. Confirmed no SVG/Mermaid. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDF8F0;
+            color: #333333;
+        }
+        .formula-display {
+            font-family: 'Source Code Pro', monospace;
+            background-color: #f0ebe5;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .section-header {
+            border-bottom: 2px solid #4A908A;
+            padding-bottom: 0.5rem;
+            margin-top: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        .toc-link {
+            transition: color 0.2s ease-in-out;
+        }
+        .toc-link:hover {
+            color: #4A908A;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#4A908A]">An Interactive Guide to Posterior Predictive Checks</h1>
+            <p class="mt-2 text-lg text-gray-600">Exploring the process, criticisms, and literature of Bayesian model checking.</p>
+        </header>
+
+        <nav class="mb-12 p-6 bg-[#EAE0D1] rounded-lg shadow-md">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Table of Contents</h2>
+            <ul class="space-y-2 text-lg">
+                <li><a href="#introduction-section" class="toc-link text-gray-700 hover:font-semibold">What are Posterior Predictive Checks?</a></li>
+                <li><a href="#process-section" class="toc-link text-gray-700 hover:font-semibold">The Process with T(y, θ)</a></li>
+                <li><a href="#criticisms-section" class="toc-link text-gray-700 hover:font-semibold">Key Criticisms of PPCs</a></li>
+                <li><a href="#references-section" class="toc-link text-gray-700 hover:font-semibold">Academic References</a></li>
+            </ul>
+        </nav>
+
+        <main class="space-y-12">
+            <section id="introduction-section" class="p-4 bg-white rounded-lg shadow-md">
+                <h2 class="text-3xl font-bold section-header text-gray-800">What are Posterior Predictive Checks?</h2>
+                <p class="text-lg leading-relaxed text-gray-700 mb-6">
+                    Posterior Predictive Checks (PPCs) are a crucial technique in the Bayesian modeling workflow used to assess the "goodness-of-fit" of a model. The core idea is simple and intuitive: if your model is a good fit for your data, then data simulated from your model should look similar to the data you actually observed. By comparing real data to this simulated or "replicated" data, we can diagnose systematic discrepancies and identify ways in which our model fails to capture key features of the data-generating process.
+                </p>
+                <p class="text-lg leading-relaxed text-gray-700">
+                    This guide provides an exploration of how PPCs work, focusing on the powerful but nuanced use of test statistics that depend on both data and parameters ($T(y, \theta)$). We will also delve into the common criticisms of this method and provide a curated list of academic literature for further study.
+                </p>
+            </section>
+
+            <section id="process-section" class="p-4 bg-white rounded-lg shadow-md">
+                <h2 class="text-3xl font-bold section-header text-gray-800">The Process with $T(y, \theta)$</h2>
+                 <p class="text-lg leading-relaxed text-gray-700 mb-8">
+                    A key advantage of Bayesian PPCs is the ability to use "discrepancy measures" or test statistics that depend on both the data ($y$) and the model parameters ($\theta$). This allows for a more flexible and targeted assessment of model fit compared to statistics that only depend on the data. For instance, you can directly check if the variance predicted by the model at a certain parameter value aligns with the data. Here is the step-by-step process for calculating a posterior predictive p-value (PPP) using such a measure.
+                </p>
+                <ol class="space-y-6">
+                    <li class="bg-[#EAE0D1] p-6 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold text-gray-800">1. Fit Your Bayesian Model</h3>
+                        <p class="mt-2 text-gray-700">The first step is to perform your Bayesian analysis to get a posterior distribution for your model parameters, $\theta$. This is typically done using Markov Chain Monte Carlo (MCMC) methods, which produce a large number of samples from the posterior.</p>
+                        <div class="formula-display mt-3">$\theta^{(1)}, \theta^{(2)}, \dots, \theta^{(N)}$</div>
+                    </li>
+                    <li class="bg-[#EAE0D1] p-6 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold text-gray-800">2. Choose a Discrepancy Measure</h3>
+                        <p class="mt-2 text-gray-700">Define a test statistic, $T(y, \theta)$, that captures an aspect of the data you want to check. For example, a common measure is a chi-squared-like statistic that compares observed data points to their expectation under the model.</p>
+                        <div class="formula-display mt-3">
+                            $T(y, \theta) = \sum_{i=1}^n \frac{(y_i - E[y_i | \theta])^2}{\text{Var}(y_i | \theta)}$
+                        </div>
+                    </li>
+                    <li class="bg-[#EAE0D1] p-6 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold text-gray-800">3. Simulate and Calculate Discrepancies</h3>
+                        <p class="mt-2 text-gray-700">For each sample $\theta^{(i)}$ from your posterior:</p>
+                        <ul class="list-disc list-inside mt-2 space-y-1 text-gray-600">
+                            <li>Simulate a new, replicated dataset $y^{\text{rep}, (i)}$ from the likelihood $p(y | \theta^{(i)})$.</li>
+                            <li>Calculate the discrepancy for your **observed data**: $T(y_{\text{obs}}, \theta^{(i)})$.</li>
+                            <li>Calculate the discrepancy for your **replicated data**: $T(y^{\text{rep}, (i)}, \theta^{(i)})$.</li>
+                        </ul>
+                    </li>
+                    <li class="bg-[#EAE0D1] p-6 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold text-gray-800">4. Compute the Posterior Predictive p-value (PPP)</h3>
+                        <p class="mt-2 text-gray-700">The PPP is the proportion of times the discrepancy from the replicated data was as or more extreme than the discrepancy from the observed data. A value near 0.5 suggests good fit, while values near 0 or 1 indicate potential model misspecification.</p>
+                        <div class="formula-display mt-3">
+                            $p_{\text{ppc}} = \frac{1}{N} \sum_{i=1}^{N} I(T(y^{\text{rep}, (i)}, \theta^{(i)}) \geq T(y_{\text{obs}}, \theta^{(i)}))$
+                        </div>
+                    </li>
+                </ol>
+            </section>
+
+            <section id="criticisms-section" class="p-4 bg-white rounded-lg shadow-md">
+                 <h2 class="text-3xl font-bold section-header text-gray-800">Key Criticisms of PPCs</h2>
+                 <p class="text-lg leading-relaxed text-gray-700 mb-8">
+                    While Posterior Predictive Checks are a powerful diagnostic tool, they are not without limitations. Understanding these criticisms is essential for interpreting the results cautiously and using PPCs effectively as part of an iterative modeling process.
+                </p>
+                <ol class="space-y-4 list-decimal pl-5">
+                    <li class="bg-[#EAE0D1] p-5 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">The "Double Use of Data" Problem</h3>
+                        <p class="text-gray-700">The most common criticism, where the data is used to both fit and evaluate the model, potentially masking misspecifications. This can lead to lack of calibration (PPP-values not uniformly distributed under the null) and reduced power to detect true model misfit.</p>
+                    </li>
+                    <li class="bg-[#EAE0D1] p-5 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Lack of a Formal Null Hypothesis</h3>
+                        <p class="text-gray-700">Bayesian p-values do not test a specific null hypothesis like frequentist p-values, making their interpretation more nuanced. They quantify discrepancy rather than a binary accept/reject decision, and their ambiguity means visual inspections are often more informative.</p>
+                    </li>
+                    <li class="bg-[#EAE0D1] p-5 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Dependence on Test Statistic Choice</h3>
+                        <p class="text-gray-700">The effectiveness of a PPC heavily relies on the choice of the test statistic or discrepancy measure ($T(y)$ or $T(y, \theta)$), which introduces a level of subjectivity. If the statistic doesn't target the specific misspecification, the problem might go undetected.</p>
+                    </li>
+                    <li class="bg-[#EAE0D1] p-5 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">The "All Models Are Wrong" Philosophy</h3>
+                        <p class="text-gray-700">PPCs can detect imperfections, but they don't inherently distinguish between practically significant and insignificant model flaws. A statistically significant discrepancy might be substantively negligible, leading to unnecessary model adjustments.</p>
+                    </li>
+                </ol>
+            </section>
+
+            <section id="references-section" class="p-4 bg-white rounded-lg shadow-md">
+                 <h2 class="text-3xl font-bold section-header text-gray-800">Academic References</h2>
+                 <p class="text-lg leading-relaxed text-gray-700 mb-6">
+                    The theory and practice of Posterior Predictive Checks have been developed and debated in numerous academic papers. This section provides a curated list of both foundational and modern works.
+                </p>
+                <div class="mb-6">
+                    <!-- Search functionality removed as per request for a simple page -->
+                    <!-- <input type="text" id="ref-search" placeholder="Search references by author, title, or keyword..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#4A908A] focus:border-transparent"> -->
+                </div>
+                <ol class="space-y-4 list-decimal pl-5">
+                    <h3 class="text-2xl font-bold mt-6 mb-2 pb-2 border-b-2 border-[#4A908A] text-[#4A908A]">Foundational Papers</h3>
+                    <li class="reference-item bg-[#EAE0D1] p-5 rounded-lg shadow">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-1">Bayesianly Justifiable and Relevant Measures of Discrepancy, and a Corresponding Simpler Inferential Argument.</h4>
+                        <p class="text-sm font-medium text-[#4A908A] my-1">Rubin, D. B. (1984)</p>
+                        <p class="text-sm text-gray-600 italic mb-3">*Canadian Journal of Statistics*, 12(1), 51-64.</p>
+                        <p class="text-gray-700">This is a seminal paper that introduced the fundamental concept of posterior predictive checks. It laid the groundwork for comparing observed data to replicated data generated from the posterior predictive distribution, forming the theoretical basis for PPPs for assessing model fit.</p>
+                    </li>
+                    <li class="reference-item bg-[#EAE0D1] p-5 rounded-lg shadow">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-1">Posterior Predictive Assessment of Model Fitness via Tail Area Probabilities.</h4>
+                        <p class="text-sm font-medium text-[#4A908A] my-1">Meng, X. L. (1994)</p>
+                        <p class="text-sm text-gray-600 italic mb-3">*Journal of the American Statistical Association*, 89(427), 1152-1160.</p>
+                        <p class="text-gray-700">This paper formally defines the "posterior predictive p-value" (PPP) as a tail-area probability. Building on Rubin's ideas, Meng provides a more rigorous mathematical framework for calculating these p-values, especially for discrepancy measures dependent on unknown parameters, and discusses their interpretation.</p>
+                    </li>
+                    <li class="reference-item bg-[#EAE0D1] p-5 rounded-lg shadow">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-1">Posterior Predictive Assessment of Model Fitness via Realized Discrepancies.</h4>
+                        <p class="text-sm font-medium text-[#4A908A] my-1">Gelman, A., Meng, X. L., & Stern, H. S. (1996)</p>
+                        <p class="text-sm text-gray-600 italic mb-3">*Statistica Sinica*, 6(4), 733-807.</p>
+                        <p class="text-gray-700">This highly influential paper further develops the methodology for posterior predictive checks. It emphasizes the use of "discrepancy functions" ($T(y, \theta)$) that depend on both data and parameters for assessing specific aspects of model misfit. It provides practical examples and discusses the computational aspects of implementing PPCs using simulation methods.</p>
+                    </li>
+                    <li class="reference-item bg-[#EAE0D1] p-5 rounded-lg shadow">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-1">A Bayesian Formulation of the P-value.</h4>
+                        <p class="text-sm font-medium text-[#4A908A] my-1">Gelman, A. (2003)</p>
+                        <p class="text-sm text-gray-600 italic mb-3">*Journal of the Royal Statistical Society: Series B (Statistical Methodology)*, 65(1), 22-26.</p>
+                        <p class="text-gray-700">This paper provides a conceptual discussion on the nature and interpretation of Bayesian p-values, clarifying their properties and distinguishing them from classical frequentist p-values, including their tendency to concentrate around 0.5.</p>
+                    </li>
+
+                    <h3 class="text-2xl font-bold mt-6 mb-2 pb-2 border-b-2 border-[#4A908A] text-[#4A908A]">Modern Papers</h3>
+                    <li class="reference-item bg-[#EAE0D1] p-5 rounded-lg shadow">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-1">Holdout Predictive Checks for Bayesian Model Criticism.</h4>
+                        <p class="text-sm font-medium text-[#4A908A] my-1">Moran, G. E., Blei, D. M., & Ranganath, R. (2024)</p>
+                        <p class="text-sm text-gray-600 italic mb-3">*Journal of the Royal Statistical Society: Series B (Statistical Methodology)*, 86(1), 194-214.</p>
+                        <p class="text-gray-700">This paper introduces **Holdout Predictive Checks (HPCs)** as a novel approach to Bayesian model criticism that addresses the "double use of data" problem inherent in traditional PPCs. HPCs achieve calibration by splitting the data into training and holdout sets, fitting the model to the training data, and then comparing the model's predictions for the holdout data to the actual holdout sample. This blends Bayesian modeling with frequentist assessment, leading to properly calibrated p-values, unlike standard PPPs. The paper provides a clear description of standard PPCs in contrast to their proposed method.</p>
+                    </li>
+                    <li class="reference-item bg-[#EAE0D1] p-5 rounded-lg shadow">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-1">Computational methods for fast Bayesian model assessment via calibrated posterior p-values.</h4>
+                        <p class="text-sm font-medium text-[#4A908A] my-1">Paganin, S., & de Valpine, P. (2023)</p>
+                        <p class="text-sm text-gray-600 italic mb-3">*arXiv preprint arXiv:2306.04866*.</p>
+                        <p class="text-gray-700">This work tackles the computational challenges of obtaining **calibrated posterior predictive p-values (CPPPs)**, which are designed to be uniformly distributed under the null hypothesis (i.e., when the model is true). They describe how traditional PPPs lack this desirable property due to data reuse. The paper proposes efficient computational methods, often involving shorter MCMC chains for calibration replicates, to make the calculation of CPPPs more feasible for complex models, thus advancing the practical application of more robust Bayesian model checks.</p>
+                    </li>
+                    <li class="reference-item bg-[#EAE0D1] p-5 rounded-lg shadow">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-1">The Expected Behaviors of Posterior Predictive Tests and Their Unexpected Interpretation.</h4>
+                        <p class="text-sm font-medium text-[#4A908A] my-1">Höhna, S., Heath, T. A., & Huelsenbeck, J. P. (2024)</p>
+                        <p class="text-sm text-gray-600 italic mb-3">*Molecular Biology and Evolution*, 41(3), msae051.</p>
+                        <p class="text-700">This paper provides an in-depth characterization of the expected distributions of standard PPP-values, particularly in the context of evolutionary models. It rigorously demonstrates that these p-values are **generally not uniform** under the null (the model generating the data). The authors argue that this non-uniformity does not invalidate PPPs but necessitates a careful interpretation, emphasizing that extreme values often provide stronger evidence of poor fit than commonly appreciated. They show how these distributions can be concentrated around 0.5 and vary with the chosen test statistic.</p>
+                    </li>
+                    <li class="reference-item bg-[#EAE0D1] p-5 rounded-lg shadow">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-1">Posterior Predictive p-values in Bayesian Hierarchical Models.</h4>
+                        <p class="text-sm font-medium text-[#4A908A] my-1">Ahn, J., et al. (2024)</p>
+                        <p class="text-sm text-gray-600 italic mb-3">(Pre-print on ResearchGate, associated with a 2024 update).</p>
+                        <p class="text-gray-700">This work focuses on extending and describing PPP-values for **hierarchical models**, which are increasingly prevalent in modern Bayesian applications. The paper discusses various extensions of PPPs suitable for assessing assumptions made at different levels of a hierarchical structure. It analytically and through simulations shows that, similar to standard PPPs, these hierarchical extensions typically deviate from a uniform distribution under the model assumptions, and the paper proposes calibration methods to address this.</p>
+                    </li>
+                    <li class="reference-item bg-[#EAE0D1] p-5 rounded-lg shadow">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-1">Regression and Other Stories.</h4>
+                        <p class="text-sm font-medium text-[#4A908A] my-1">Gelman, A., Hill, J., & Vehtari, A. (2020)</p>
+                        <p class="text-sm text-gray-600 italic mb-3">*Cambridge University Press.*</p>
+                        <p class="text-gray-700">While a textbook, this is a very modern and practical guide to applied regression with a strong Bayesian focus. It includes clear and intuitive descriptions of posterior predictive checks and p-values within the context of model building and assessment, reflecting current best practices in the field. It emphasizes graphical checks alongside numerical p-values.</p>
+                    </li>
+                </ol>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
