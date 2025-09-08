@@ -1,0 +1,396 @@
+
+---
+title: "Analysis of Multiple Linear Regression Models"
+author: "Longhai Li"
+date: "September 8, 2025"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    highlight: tango
+    code_folding: show
+    df_print: paged
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=TRUE}
+library(knitr)
+library(rmarkdown)
+# This chunk sets up the global options for the document.
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 6,
+  warning = FALSE,
+  message = FALSE
+)
+
+```
+
+# Fit of the multiple linear regression
+
+This section analyzes the wire bond strength dataset.
+
+### Data Loading and Visualization
+
+**Note:** You must change the file paths in the `read.csv()` functions below to match the location of the files on your computer.
+
+```{r load-bond-data}
+# Read data. Change the path as necessary.
+# Example: bond.data <- read.csv("data/wire-bond.csv")
+bond.data <- read.csv("wire-bond.csv")
+
+# This will now be automatically rendered as a paged table
+bond.data
+```
+
+Note: to enable paged table in html, you need to set df_print: paged in the output format for html as follows
+output: df_print: paged. 
+
+
+
+```{r load-bond-data2}
+
+# Create initial scatter plots
+par(mfrow = c(1, 2))
+plot(bond.data$length, bond.data$strength,
+     xlab = "Wire Length", ylab = "Pull strength")
+plot(bond.data$height, bond.data$strength,
+     xlab = "Die height", ylab = "Pull strength")
+```
+
+### Model Fitting and Summary
+
+We fit a multiple linear regression model with `strength` as the response variable and `length` and `height` as predictors.
+
+```{r fit-bond-model}
+# Fit the linear model
+fit <- lm(strength ~ length + height, data = bond.data)
+
+# Display the classic summary output (this is not a data frame, so it's unaffected)
+summary(fit)
+```
+
+The summary provides the ANOVA F-test for overall significance, $R^2$, adjusted $R^2$, and t-tests for individual coefficients.
+
+### Confidence Intervals and Model Components
+
+We can extract confidence intervals for the regression coefficients, as well as fitted values and residuals.
+
+```{r bond-model-components}
+# Confidence intervals (matrix output, will be auto-paged)
+confint(fit)
+
+# Fitted values and ordinary residuals (matrix output, will be auto-paged)
+pred <- fitted.values(fit)
+e <- resid(fit)
+data.frame(y = bond.data$strength, y.hat = pred, e = e)
+
+# Extract covariance matrix (matrix output, will be auto-paged)
+cov.mat <- vcov(fit)
+cov.mat
+
+# Standard errors (vector output, needs to be a data.frame to be paged)
+data.frame(std.error = sqrt(diag(cov.mat)))
+```
+
+# Partial F-test and t-test
+
+This section uses data on the weight, height, and age of children to demonstrate partial F-tests.
+
+```{r setup-child-data}
+# Data: Weight, height and age of children
+wgt <- c(64, 71, 53, 67, 55, 58, 77, 57, 56, 51, 76, 68)
+hgt <- c(57, 59, 49, 62, 51, 50, 55, 48, 42, 42, 61, 57)
+age <- c(8, 10, 6, 11, 8, 7, 10, 9, 10, 6, 12, 9)
+child.data <- data.frame(wgt, hgt, age)
+```
+
+### Problem 1: Simple Linear Regression
+
+```{r partial-f-test-1}
+fit11 <- lm(wgt ~ hgt, data = child.data)
+summary(fit11)
+```
+
+### Problem 2: Adding a Predictor
+
+Here we test if adding `age` significantly improves the model that already contains `hgt`.
+
+```{r partial-f-test-2}
+fit21 <- lm(wgt ~ hgt + age, data = child.data)
+summary(fit21)
+
+# Compare the nested models (anova output is a data frame, will be auto-paged)
+fit22 <- lm(wgt ~ hgt, data = child.data)
+anova(fit22, fit21)
+```
+
+### Problem 3: Adding a Polynomial Term
+
+We test if adding a quadratic term for `age` improves the model with `hgt` and `age`.
+
+```{r partial-f-test-3}
+fit31 <- lm(wgt ~ hgt + age + I(age^2), data = child.data)
+summary(fit31)
+
+fit32 <- lm(wgt ~ hgt + age, data = child.data)
+anova(fit32, fit31)
+```
+
+### Problem 4: Testing Multiple Coefficients
+
+We test if the `age` and `age^2` terms are jointly significant.
+
+```{r partial-f-test-4}
+fit41 <- lm(wgt ~ hgt + age + I(age^2), data = child.data)
+fit42 <- lm(wgt ~ hgt, data = child.data)
+anova(fit42, fit41)
+```
+
+# Mean Response and Prediction Intervals
+
+This section demonstrates how to calculate confidence and prediction intervals for the wire bond strength data.
+
+### Confidence Interval for Mean Response
+
+Construct a 95% CI on the mean pull strength for a wire bond with wire length = 8 and die height = 275.
+
+```{r confidence-interval}
+# We use the model 'fit' from the first section (predict output is a matrix)
+predict(fit, newdata = data.frame(length = 8, height = 275),
+        interval = "confidence", level = 0.95)
+```
+
+### Prediction Interval for a New Observation
+
+Construct a 95% PI on the pull strength for a new wire bond with wire length = 8 and die height = 275.
+
+```{r prediction-interval}
+predict(fit, newdata = data.frame(length = 8, height = 275),
+        interval = "prediction", level = 0.95)
+```
+
+# Model Diagnostics
+
+This section covers various methods for diagnosing the model fit using residuals and other measures.
+
+### Residual Calculations
+
+We can calculate hat values, and various types of residuals. They are combined here into a single data frame which will be auto-paged.
+
+```{r calculate-residuals}
+residuals_df <- data.frame(
+  hat_values = hatvalues(fit),
+  ordinary_resid = resid(fit),
+  standardized_resid = resid(fit) / sigma(fit),
+  studentized_internal = rstandard(fit),
+  studentized_external = rstudent(fit)
+)
+residuals_df
+```
+
+### Residual Plots
+
+A common practice is to analyze plots of the studentized residuals to check for non-linearity, non-constant variance, and non-normality.
+
+```{r plot-residuals}
+# Residual analysis using internally studentized residuals
+n <- nrow(bond.data)
+r <- rstandard(fit) 
+y.hat <- fitted.values(fit)
+
+par(mfrow = c(2, 3))
+qqnorm(r, main = "Normal Q-Q Plot")
+qqline(r)
+plot(y.hat, r, xlab = "Fitted values", ylab = "Studentized Residuals")
+abline(h = 0)
+plot(1:n, r, xlab = "Observation Number", ylab = "Studentized Residuals")
+abline(h = 0)
+plot(bond.data$length, r, xlab = "Wire Length", ylab = "Studentized Residuals")
+abline(h = 0)
+plot(bond.data$height, r, xlab = "Die Height", ylab = "Studentized Residuals")
+abline(h = 0)
+```
+
+# Influential Observations
+
+We can identify influential data points using metrics like DFFITS, DFBETAS, and Cook's D.
+
+```{r influential-obs-calcs}
+# Find DFFITS, DFBETAS and Cook's D for the wire bond strength data.
+influence_df <- data.frame(dffits = dffits(fit), cook.D = cooks.distance(fit), dfbetas(fit))
+influence_df
+```
+
+### Plotting with the `olsrr` Package
+
+The `olsrr` package provides convenient functions for plotting these influence diagnostics. Note: You only need to run `install.packages("olsrr")` once.
+
+```{r plot-influential-obs, fig.height=12}
+# install.packages("olsrr") # Run this once if you don't have the package
+library(olsrr)
+
+# Plot for Cook's D
+ols_plot_cooksd_chart(fit)
+
+# Plot for DFFITS
+ols_plot_dffits(fit)
+
+# Plot for DFBETAS
+ols_plot_dfbetas(fit)
+```
+
+# Polynomial Regression
+
+This example uses data on the cost and production lot size of airplane sidewall panels.
+
+```{r poly-regression-setup}
+y <- c(1.81, 1.70, 1.65, 1.55, 1.48, 1.40, 1.30, 1.26, 1.24, 1.21, 1.20, 1.18)
+x <- c(20, 25, 30, 35, 40, 50, 60, 65, 70, 75, 80, 90)
+fit_poly <- lm(y ~ x + I(x^2))
+summary(fit_poly)
+```
+
+The plot shows the fitted quadratic curve.
+
+```{r poly-regression-plot}
+plot(x, y, xlab = "Lot size, x", ylab = "Average cost per unit, y")
+lines(x, predict(fit_poly, newdata = data.frame(x = x)), type = "l")
+```
+
+We can use a partial F-test to see if the quadratic term significantly improves the model.
+
+```{r poly-regression-ftest}
+fit1 <- lm(y ~ x)
+anova(fit1, fit_poly)
+```
+
+# Indicator Variables
+
+This section uses the SBP (Systolic Blood Pressure) dataset to model the effect of a categorical variable (`sex`).
+
+```{r indicator-setup}
+# Note: Update this path to your local file location
+sbpdata <- read.csv("sbpdata.csv")
+
+# Fit the full model with an interaction term
+fit.full <- lm(sbp ~ age + sex + age:sex, data = sbpdata)
+summary(fit.full)
+```
+
+### Hypothesis Tests for Indicator Models
+
+We can perform various hypothesis tests to see if the lines are coincident, parallel, or have equal intercepts.
+
+```{r indicator-hyp-tests}
+# Test of Coincidence. H0: beta2=beta3=0
+fit.coin <- lm(sbp ~ age, data = sbpdata)
+anova(fit.coin, fit.full)
+
+# Test of Parallelism. H0: beta3=0
+fit.para <- lm(sbp ~ age + sex, data = sbpdata)
+anova(fit.para, fit.full)
+
+# Test for Equal Intercepts. H0: beta2=0 (assuming parallel lines)
+fit1.inter <- lm(sbp ~ age + sex, data = sbpdata)
+fit2.inter <- lm(sbp ~ age, data = sbpdata)
+anova(fit2.inter, fit1.inter)
+```
+
+### Plotting the Fitted Model
+
+The plot below shows the separate regression lines for males and females.
+
+```{r indicator-plot}
+# Define color for males (sex=1) and females (sex=0).
+colors <- ifelse(sbpdata$sex == 1, "black", "gray")
+
+# Scatter plot
+plot(sbpdata$age, sbpdata$sbp, xlab = "Age", ylab = "SBP", col = colors)
+
+# Add the fitted lines for males and females
+# The design matrix is data.frame(1, age, 1, age) for sex = 1,
+# and data.frame(1, age, 0, 0) for sex = 0.
+lines(sbpdata$age, cbind(1, sbpdata$age, 1, sbpdata$age) %*% coef(fit.full), col = "black")
+lines(sbpdata$age, cbind(1, sbpdata$age, 0, 0) %*% coef(fit.full), col = "gray")
+
+# Add legend
+legend("topleft", legend = c("sex = 1 (male)", "sex = 0 (female)"), 
+       lty = c(1, 1), col = c("black", "gray"))
+```
+
+# Model Building
+
+This section uses the `olsrr` package and wine quality data to demonstrate automated model selection techniques.
+
+```{r model-building-setup}
+library(olsrr)
+# Note: Update this path to your local file location
+wine <- read.csv("wine.csv")
+
+# A dot in the lm function means: use all other variables as predictors.
+model <- lm(quality ~ ., data = wine)
+```
+
+### All Possible Regression
+
+This method evaluates every possible combination of predictors. The output is a data frame and will be auto-paged.
+
+```{r model-building-all-possible}
+ols_step_best_subset(model)
+```
+
+### Automated Stepwise Procedures
+
+We can also use backward, forward, or stepwise selection to find a good model. These functions also return data frames.
+
+```{r model-building-stepwise}
+# Backward Elimination (alpha_out = 0.1)
+ols_step_backward_p(model, p_val = 0.1)
+
+# Forward Selection (alpha_in = 0.1)
+ols_step_forward_p(model, p_val = 0.1)
+
+# Stepwise Regression (alpha_in = 0.1, alpha_out = 0.1)
+ols_step_both_p(model, p_enter = 0.1, p_remove = 0.1)
+```
+
+# Multicollinearity
+
+This section explores the issue of multicollinearity, where predictors are highly correlated.
+
+### A Simple Example
+
+```{r multicollinearity-simple}
+y <- c(19, 20, 37, 39, 36, 38)
+x1 <- c(4, 4, 7, 7, 7.1, 7.1)
+x2 <- c(16, 16, 49, 49, 50.4, 50.4)
+cor(data.frame(x1, x2))
+
+# Full model
+fit_multi <- lm(y ~ x1 + x2)
+summary(fit_multi)
+
+# Simple model
+fit1_multi <- lm(y ~ x1)
+summary(fit1_multi)
+```
+
+### VIFs in the Wine Quality Data
+
+We can calculate the Variance Inflation Factor (VIF) for each predictor to diagnose multicollinearity. A VIF \> 10 is often considered problematic.
+
+```{r multicollinearity-wine}
+wine.x <- wine[, -ncol(wine)] # Assuming quality is the last column
+cor(wine.x)
+
+# Find VIF's using the olsrr package (returns a data frame).
+ols_vif_tol(model)
+```
+
+```
+```
