@@ -69,7 +69,7 @@ def create_html_link_list(root_dir=".", exclusion_list=None, directory_exclusion
                     # Fallback: use the filename
                     title = html_file.stem.replace('_', ' ').replace('-', ' ').title()
             
-            list_item = f'    <li><p><a href="{relative_path}">{title}</a></p></li>'
+            list_item = f'    <li><a href="{relative_path}">{title}</a></li>'
             html_items.append(list_item)
 
         except Exception as e:
@@ -88,7 +88,7 @@ if __name__ == "__main__":
     
     if link_list:
         print("\n--- Your HTML Code ---")
-        print("<ol>")
+        print("<ol class=\"unit-list\">")
         print(link_list)
         print("</ol>")
         print("\n--- End of Code ---")
