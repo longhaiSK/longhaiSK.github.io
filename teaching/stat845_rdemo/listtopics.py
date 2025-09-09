@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 # --- CONFIGURATION: EDIT THIS LIST ---
 # Add any filenames you want to exclude from the generated list.
 FILES_TO_EXCLUDE = [
+    "index.html",
     "stat845.html",
     "scheduling.html"
 ]
