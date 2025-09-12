@@ -1,13 +1,24 @@
-// loadtoc.js (Simplified)
+// loadtoc.js (Modified for Toggleable Sidebar with Click-Away-to-Close)
 document.addEventListener('DOMContentLoaded', function() {
-    const tocContainer = document.createElement('nav');
-    tocContainer.id = 'toc-container'; // CSS will target this ID for major styling
-    tocContainer.classList.add('toc-sidebar'); // Additional class if needed
+    // Find headings to determine if a ToC is needed.
+    const headings = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6'))
+        .filter(heading => !heading.closest('#toc-container') && !heading.closest('.no-toc'));
 
-    const mainElement = document.querySelector('.main'); // Attempt to find the main content area
-    if (!mainElement) {
-        console.log('ToC: ".main" element not found for dynamic positioning, CSS fallback for top/max-height will be used.');
+    // If there are no headings, do nothing.
+    if (headings.length === 0) {
+        console.log("ToC: No headings found, ToC will not be generated.");
+        return;
     }
+
+    // --- Create ToC Container and Toggle Button ---
+    const tocContainer = document.createElement('nav');
+    tocContainer.id = 'toc-container';
+
+    const toggleButton = document.createElement('button');
+    toggleButton.id = 'toc-toggle-button';
+    toggleButton.setAttribute('aria-label', 'Toggle Table of Contents');
+    // Simple SVG for the arrow icon
+    toggleButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>`;
 
     const tocTitle = document.createElement('h3');
     tocTitle.textContent = 'Table of Contents';
@@ -17,15 +28,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const tocList = document.createElement('ul');
     tocList.classList.add('toc-list');
 
-    const headings = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6'))
-        .filter(heading => !heading.closest('#toc-container') && !heading.closest('.no-toc'));
-
-    if (headings.length === 0) {
-        console.log("No relevant headings found on this page to generate a table of contents.");
-    }
-
     const levelStack = [tocList];
 
+    // --- Populate ToC List (same logic as before) ---
     headings.forEach((heading, index) => {
         const listItem = document.createElement('li');
         listItem.classList.add('toc-item');
@@ -59,40 +64,57 @@ document.addEventListener('DOMContentLoaded', function() {
         levelStack[levelStack.length - 1].appendChild(listItem);
     });
 
-    if (tocList.children.length > 0) {
-        tocContainer.appendChild(tocList);
-        document.body.insertBefore(tocContainer, document.body.firstChild);
+    // --- Append to Body and Set Up Functionality ---
+    tocContainer.appendChild(tocList);
+    document.body.appendChild(tocContainer);
+    document.body.appendChild(toggleButton); // Add the button to the page
 
-        requestAnimationFrame(() => {
-            let finalTopOffset = 20; // Default top offset for CSS variable fallback
-            let finalMaxHeight = `calc(100vh - ${finalTopOffset}px - 20px)`; // Default max-height
+    // Event listener for the toggle button
+    toggleButton.addEventListener('click', () => {
+        tocContainer.classList.toggle('active');
+        toggleButton.classList.toggle('active');
+    });
 
-            if (mainElement) {
-                const mainRect = mainElement.getBoundingClientRect();
-                finalTopOffset = mainRect.top;
-                if (finalTopOffset < 10) finalTopOffset = 10; // Minimum top margin
-                finalMaxHeight = `calc(100vh - ${finalTopOffset}px - 20px)`; // 20px for a bottom gap
-            }
-            
-            // Set CSS Custom Properties for dynamic positioning
-            tocContainer.style.setProperty('--toc-top-offset', finalTopOffset + 'px');
-            tocContainer.style.setProperty('--toc-max-height', finalMaxHeight);
+    // --- NEW: Add Click-Away-to-Close Functionality ---
+    document.addEventListener('click', function(event) {
+        // Check if the ToC is currently active/visible
+        const isTocActive = tocContainer.classList.contains('active');
+        
+        // If the ToC is not active, there's nothing to do
+        if (!isTocActive) {
+            return;
+        }
 
-            // Adjust body margin (this is a page layout adjustment, so keep in JS)
-            const tocWidth = tocContainer.offsetWidth;
-            const bodyComputedStyle = window.getComputedStyle(document.body);
-            const bodyMarginProperty = bodyComputedStyle.direction === 'rtl' ? 'marginRight' : 'marginLeft';
-            const currentBodyMargin = parseFloat(bodyComputedStyle[bodyMarginProperty]) || 0;
+        // Check if the click was inside the ToC panel or on the toggle button
+        const isClickInsideToc = tocContainer.contains(event.target);
+        const isClickOnButton = toggleButton.contains(event.target);
 
-            if (currentBodyMargin < tocWidth + 20) {
-                document.body.style[bodyMarginProperty] = `${tocWidth + 0}px`;
-            }
-        });
-    } else {
-        console.log("ToC: No list items generated, ToC will not be displayed.");
-    }
+        // If the click was *outside* both the panel and the button, close the ToC
+        if (!isClickInsideToc && !isClickOnButton) {
+            tocContainer.classList.remove('active');
+            toggleButton.classList.remove('active');
+        }
+    });
 
-    // Simplified Scroll Click Handler (relies on CSS for offset and smooth behavior)
+
+    // Dynamically set top offset and max height (same logic as before)
+    requestAnimationFrame(() => {
+        const mainElement = document.querySelector('.main');
+        let finalTopOffset = 20; // Default
+        let finalMaxHeight = `calc(100vh - 40px)`; // Default
+
+        if (mainElement) {
+            const mainRect = mainElement.getBoundingClientRect();
+            finalTopOffset = mainRect.top;
+            if (finalTopOffset < 10) finalTopOffset = 10;
+            finalMaxHeight = `calc(100vh - ${finalTopOffset}px - 20px)`;
+        }
+        
+        tocContainer.style.setProperty('--toc-top-offset', finalTopOffset + 'px');
+        tocContainer.style.setProperty('--toc-max-height', finalMaxHeight);
+    });
+
+    // Scroll click handler (same as before)
     document.querySelectorAll('#toc-container a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
@@ -109,3 +131,4 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
