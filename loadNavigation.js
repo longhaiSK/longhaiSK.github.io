@@ -1,6 +1,6 @@
 // This script combines all navigation functionality into one file.
 
-// --- START: Title and Active Button Logic (from old script) ---
+// --- START: Title and Active Button Logic ---
 
 // User-provided site titles, specifically for root-level pages
 const siteTitles = {
@@ -93,29 +93,52 @@ function setupResponsiveMenu() {
 }
 
 /**
- * Activates the search form functionality.
+ * Activates the toggleable search form functionality.
  */
 function activateSearchForm() {
     const searchForm = document.getElementById('site-search-form');
     const searchInput = document.getElementById('search-query');
-
+    
+    // Check if the form actually exists on the page to prevent errors
     if (searchForm && searchInput) {
+        // Listen for the submit event, which is triggered by clicking the button or pressing Enter
         searchForm.addEventListener('submit', function(event) {
+            // Always prevent the default form action (which is to reload the page)
             event.preventDefault();
-            const query = searchInput.value;
-            if (!query) return;
 
-            const encodedQuery = encodeURIComponent(query);
-            const searchUrl = `https://www.google.com/search?q=site:longhaisk.github.io+${encodedQuery}`;
-            window.open(searchUrl, '_blank');
+            // Check if the search input is currently visible by looking for the 'active' class
+            const isVisible = searchInput.classList.contains('active');
+
+            if (isVisible) {
+                // If the input is already visible, the user is trying to search.
+                const query = searchInput.value.trim();
+
+                if (query) {
+                    // If there's text in the box, perform the search in a new tab.
+                    const encodedQuery = encodeURIComponent(query);
+                    const searchUrl = `https://www.google.com/search?q=site:longhaisk.github.io+${encodedQuery}`;
+                    window.open(searchUrl, '_blank');
+                    
+                    // Hide the search bar again after the search is performed.
+                    searchInput.classList.remove('active');
+
+                } else {
+                    // If the box is visible but empty, just hide it.
+                    searchInput.classList.remove('active');
+                }
+            } else {
+                // If the input is NOT visible, this is the first click. Show it.
+                searchInput.classList.add('active');
+                searchInput.focus(); // Automatically place the cursor in the input box.
+            }
         });
     } else {
-        console.error("Search form elements not found after loading nav.html.");
+        console.error("Search form elements not found after loading navigation.html.");
     }
 }
 
 
-// --- END: Logic from old script ---
+// --- END: Custom Logic Functions ---
 
 
 /**
@@ -146,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Now that the navigation is loaded, run all the setup functions
             setActiveButton();
             setupResponsiveMenu();
-            activateSearchForm(); // Activate the new search functionality
+            activateSearchForm(); // Activate the new toggleable search functionality
         })
         .catch(error => {
             console.error('Error fetching navigation:', error);
