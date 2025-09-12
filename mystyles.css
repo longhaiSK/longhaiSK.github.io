@@ -23,7 +23,7 @@ body {
 
 .main {
   max-width: 1200px;  /* Constrains the width of the main content area */
-  margin-left: 20px; /* Used with max-width to center the block */
+  margin-left: 30px; /* Used with max-width to center the block */
   margin-right: 30px;/* Used with max-width to center the block */
   /* margin-top is no longer needed here as body has padding-top */
   
@@ -381,80 +381,136 @@ html[dir="rtl"] #toc-container {
     right: 0px;
 }
 
-/* Title of the ToC (e.g., "Table of Contents") */
+/* ====== Styles for Toggleable Table of Contents ====== */
+
+/* Main ToC sidebar container */
+#toc-container {
+    position: fixed;
+    /* START HIDDEN: Shifted left off-screen by its full width plus a buffer */
+    transform: translateX(calc(-100% - 10px)); 
+    left: 0;
+    top: var(--toc-top-offset, 80px); /* Uses JS-set variable for vertical position */
+    width: 300px; /* Or your preferred width */
+    max-height: var(--toc-max-height, calc(100vh - 100px)); /* Uses JS-set variable */
+    overflow-y: auto;
+    z-index: 1000; /* High z-index to stay on top of content */
+
+    /* Appearance */
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-left: none; /* No border on the side touching the screen edge */
+    border-radius: 0 8px 8px 0; /* Rounded corners only on the right side */
+    padding: 15px;
+    font-family: Arial, sans-serif;
+    box-sizing: border-box;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+
+    /* SMOOTH TRANSITION for the slide-in/out effect */
+    transition: transform 0.4s ease-in-out;
+}
+
+/* WHEN ACTIVE, slide the ToC into view */
+#toc-container.active {
+    transform: translateX(0);
+}
+
+/* Styles for the new ToC Toggle Button -- MODIFIED */
+#toc-toggle-button {
+    position: fixed;
+    left: 0;
+    /* MODIFIED: Align with the top of the ToC panel instead of the vertical center */
+    top: var(--toc-top-offset, 60px); 
+    /* REMOVED: No longer need vertical transform for centering */
+    z-index: 1001; /* Must be higher than #toc-container to be clickable */
+    
+    /* Appearance to look like a bookmark tab */
+    background-color: #e0e0e0;
+    border: 1px solid #ccc;
+    border-left: none;
+    padding: 15px 5px 15px 8px; /* More padding vertically for a better click area */
+    cursor: pointer;
+    border-radius: 0 8px 8px 0; /* Rounded on the right to match the panel */
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+
+    /* Smooth Transition for movement and icon rotation */
+    transition: background-color 0.3s, transform 0.4s ease-in-out;
+}
+
+#toc-toggle-button:hover {
+    background-color: #d0d0d0;
+}
+
+/* When ToC is active, slide the button along with it -- MODIFIED */
+#toc-toggle-button.active {
+    /* MODIFIED: Removed the vertical transform, only slide horizontally */
+    transform: translateX(300px); /* 300px is the width of the ToC */
+}
+
+/* Styling for the SVG arrow icon inside the button */
+#toc-toggle-button svg {
+    width: 20px;
+    height: 20px;
+    color: #333;
+    transition: transform 0.4s ease-in-out;
+}
+
+/* When ToC is active, rotate the arrow icon */
+#toc-toggle-button.active svg {
+    transform: rotate(180deg);
+}
+
+/* --- Internal ToC Styles (for content inside the panel) --- */
+
 .toc-title {
     margin-top: 0;
     margin-bottom: 10px;
-    font-size: 16px;
+    font-size: 1.1em;
     font-weight: bold;
     color: black;
 }
 
-/* General styling for all ToC lists (main and sub-lists) */
 .toc-list {
-    /* To show bullets, change 'none' to your preferred style */
-    list-style-type: disc;    /* For example: disc •, circle ○, square ▪ */
-    
-    
-    /* Adjust padding-left to make space for the bullets.
-       You might need to experiment with this value. Standard browser
-       default for lists is often around 40px, but 20-25px might be
-       a good start for custom styling. */
-    padding-left: 15px;     /* Example value, adjust as needed */
-    
-    margin-top: 0;
-    margin-bottom: 0;
+    list-style-type: disc; 
+    padding-left: 20px; 
+    margin: 0;
 }
 
-/* Styling for nested sub-lists */
 .toc-sublist {
-    /* Optional: Use a different bullet type for sub-items */
-    list-style-type: square; 
-    
-    
-    /* Adjust padding-left for sub-item bullets.
-       This padding is relative to its parent <li>.
-       If .toc-list has padding-left: 25px, this 20px will indent sub-bullets further. */
-    padding-left: 15px;    /* Example value, adjust as needed */
+    list-style-type: circle; 
+    padding-left: 20px;
 }
 
-/* Styling for each list item in the ToC */
-.toc-item {
-    /* margin-bottom: 2px; */ /* Optional spacing */
-}
-
-/* Styling for the links within the ToC */
 .toc-link {
     text-decoration: none;
     color: royalblue;
     display: block;
-    padding: 4px 0; /* Vertical padding for links */
-    font-weight: normal; /* Default, can be made bold */
-    font-size: 16px;
-    line-height: 1.5;
+    padding: 4px 0;
+    font-size: 1em;
 }
 
 .toc-link:hover {
-    color: #007bff;
     text-decoration: underline;
 }
 
-/* If you made links bold previously and want to keep it */
-
-.toc-link {
-    font-weight: bold;
-}
-
-
-/* CSS for general page behavior needed by ToC interactions */
+/* --- General Page Behavior for Smooth Scrolling --- */
 html {
-  scroll-behavior: smooth;
+    scroll-behavior: smooth;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  /* Adjust this value to: (height of your fixed header) + (desired_gap) */
-  /* For example, if header is 70px and you want a 10px gap, use 80px. */
-  scroll-margin-top: 80px; /* Default example, TUNE THIS VALUE */
+    /* Adjust this to prevent headings from hiding under your fixed navigation bar when jumping to them */
+    scroll-margin-top: 80px; 
+}
+
+
+/* --- General Page Behavior for Smooth Scrolling --- */
+html {
+    scroll-behavior: smooth;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    /* Adjust this to prevent headings from hiding under your fixed navigation bar when jumping to them */
+    scroll-margin-top: 80px; 
 }
 
 /* ====== STYLES FOR TOGGLEABLE SEARCH -- MODIFIED ====== */
