@@ -4,17 +4,17 @@
 
 // User-provided site titles, specifically for root-level pages
 const siteTitles = {
-    "/index.html": "Homepage of Professor Longhai Li",
+    "/index.html": "Homepage of Prof. Longhai Li",
     "/teaching.html": "Teaching Activities of Prof. Longhai Li",
     "/grant.html": "Research Activities of Prof. Longhai Li",
-    "/team.html": "Members Longhai Li's Research",
+    "/team.html": "Members of Prof. Longhai Li's Research Lab",
     "/publications.html": "Publications of Prof. Longhai Li",
     "/software.html": "Software Released by Prof. Longhai Li",
     "/longhaishortcv.html": "Biography of Prof. Longhai Li",
     "/longhaicontacts.html": "Contact Information of Prof. Longhai Li"
 };
 // User-provided default title
-const defaultSiteTitle = "Prof. Longhai Li, University of Saskatchewan";
+const defaultSiteTitle = "Homepage of Prof. Longhai Li";
 
 /**
  * Normalizes a path for consistent comparison.
