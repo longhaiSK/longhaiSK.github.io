@@ -1,24 +1,29 @@
-// loadtoc.js (Modified for Toggleable Sidebar with Click-Away-to-Close)
+// loadtoc.js (Modified for a custom ToC Icon Button)
 document.addEventListener('DOMContentLoaded', function() {
-    // Find headings to determine if a ToC is needed.
     const headings = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6'))
         .filter(heading => !heading.closest('#toc-container') && !heading.closest('.no-toc'));
 
-    // If there are no headings, do nothing.
     if (headings.length === 0) {
         console.log("ToC: No headings found, ToC will not be generated.");
         return;
     }
 
-    // --- Create ToC Container and Toggle Button ---
     const tocContainer = document.createElement('nav');
     tocContainer.id = 'toc-container';
 
     const toggleButton = document.createElement('button');
     toggleButton.id = 'toc-toggle-button';
     toggleButton.setAttribute('aria-label', 'Toggle Table of Contents');
-    // Simple SVG for the arrow icon
-    toggleButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>`;
+    
+    // SVG for the hierarchical list icon
+    toggleButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="9" y1="6" x2="20" y2="6"></line>
+        <line x1="9" y1="12" x2="20" y2="12"></line>
+        <line x1="9" y1="18" x2="20" y2="18"></line>
+        <circle cx="5" cy="6" r="1"></circle>
+        <circle cx="5" cy="12" r="1"></circle>
+        <circle cx="5" cy="18" r="1"></circle>
+    </svg>`;
 
     const tocTitle = document.createElement('h3');
     tocTitle.textContent = 'Table of Contents';
@@ -30,7 +35,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const levelStack = [tocList];
 
-    // --- Populate ToC List (same logic as before) ---
     headings.forEach((heading, index) => {
         const listItem = document.createElement('li');
         listItem.classList.add('toc-item');
@@ -64,57 +68,45 @@ document.addEventListener('DOMContentLoaded', function() {
         levelStack[levelStack.length - 1].appendChild(listItem);
     });
 
-    // --- Append to Body and Set Up Functionality ---
     tocContainer.appendChild(tocList);
     document.body.appendChild(tocContainer);
-    document.body.appendChild(toggleButton); // Add the button to the page
+    document.body.appendChild(toggleButton);
 
-    // Event listener for the toggle button
     toggleButton.addEventListener('click', () => {
         tocContainer.classList.toggle('active');
         toggleButton.classList.toggle('active');
     });
 
-    // --- NEW: Add Click-Away-to-Close Functionality ---
     document.addEventListener('click', function(event) {
-        // Check if the ToC is currently active/visible
         const isTocActive = tocContainer.classList.contains('active');
-        
-        // If the ToC is not active, there's nothing to do
         if (!isTocActive) {
             return;
         }
-
-        // Check if the click was inside the ToC panel or on the toggle button
         const isClickInsideToc = tocContainer.contains(event.target);
         const isClickOnButton = toggleButton.contains(event.target);
-
-        // If the click was *outside* both the panel and the button, close the ToC
         if (!isClickInsideToc && !isClickOnButton) {
             tocContainer.classList.remove('active');
             toggleButton.classList.remove('active');
         }
     });
 
-
-    // Dynamically set top offset and max height (same logic as before)
+    // This part dynamically sets the top position to match your nav bar's height.
     requestAnimationFrame(() => {
-        const mainElement = document.querySelector('.main');
-        let finalTopOffset = 20; // Default
-        let finalMaxHeight = `calc(100vh - 40px)`; // Default
-
-        if (mainElement) {
-            const mainRect = mainElement.getBoundingClientRect();
-            finalTopOffset = mainRect.top;
-            if (finalTopOffset < 10) finalTopOffset = 10;
-            finalMaxHeight = `calc(100vh - ${finalTopOffset}px - 20px)`;
+        const navBar = document.querySelector('.responsive-nav');
+        let navBarHeight = 60; // Default height if nav bar isn't found
+        if (navBar) {
+            navBarHeight = navBar.offsetHeight;
         }
         
+        const finalTopOffset = navBarHeight;
+        const finalMaxHeight = `calc(100vh - ${finalTopOffset}px - 20px)`;
+        
+        // Use CSS variables to position the elements, matching the CSS file.
         tocContainer.style.setProperty('--toc-top-offset', finalTopOffset + 'px');
         tocContainer.style.setProperty('--toc-max-height', finalMaxHeight);
+        toggleButton.style.setProperty('--toc-top-offset', finalTopOffset + 'px');
     });
 
-    // Scroll click handler (same as before)
     document.querySelectorAll('#toc-container a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
