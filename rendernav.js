@@ -1,53 +1,5 @@
 // renderNavigation.js: A single script to create and manage the entire navigation bar.
 
-
-// --- Main execution block ---
-// This runs when the initial HTML document has been completely loaded and parsed.
-document.addEventListener('DOMContentLoaded', function() {
-    
-    // The complete HTML content of your navigation bar is stored here as a string.
-    const navigationHTML = `
-        <nav class="responsive-nav">
-            <div class="nav-brand">
-                <img src="/images/usask-logo-lg.png" class="nav-logo" alt="UofS Logo">
-                <a href="/index.html"><button class="btn">Prof. Longhai Li</button></a>
-            </div>
-            <button class="hamburger-menu menu-text-button" aria-label="Toggle menu" aria-expanded="false">
-                Menu
-            </button>
-            <ul class="nav-links">
-                <li><a href="/research.html"><button class="btn">Research Projects</button></a></li>
-                <li><a href="/team.html"><button class="btn">Lab Members</button></a></li>
-                <li><a href="/publications.html"><button class="btn">Publications</button></a></li>
-                <li><a href="/teaching.html"><button class="btn">Courses</button></a></li>
-                <li>
-                    <form id="site-search-form" class="search-form" role="search">
-                        <input id="search-query" type="search" class="search-input" placeholder="Search this site...">
-                        <button type="submit" class="search-btn" aria-label="Search">
-                            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="11" cy="11" r="8"></circle>
-                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                            </svg>
-                        </button>
-                    </form>
-                </li>
-            </ul>
-        </nav>
-    `;
-
-    // Create a placeholder div, set its ID, and inject the navigation HTML.
-    const navPlaceholder = document.createElement('div');
-    navPlaceholder.id = 'navigation-placeholder';
-    navPlaceholder.innerHTML = navigationHTML;
-
-    // Insert the complete navigation bar at the very top of the body.
-    document.body.prepend(navPlaceholder);
-
-    // Call the function to set up all the event listeners and dynamic features.
-    setupNavigation();
-});
-
-
 // This function contains all the logic for setting up the navigation bar's features.
 function setupNavigation() {
     
@@ -102,16 +54,39 @@ function setupNavigation() {
         });
     }
 
-    // --- Logic for the responsive hamburger menu ---
+    // --- Logic for the responsive hamburger menu -- MODIFIED ---
     function setupResponsiveMenu() {
         const hamburgerButton = document.querySelector('#navigation-placeholder .hamburger-menu');
         const navLinksList = document.querySelector('#navigation-placeholder .nav-links');
+        
         if (hamburgerButton && navLinksList) {
-            hamburgerButton.addEventListener('click', () => {
+            // Toggle menu on hamburger click
+            hamburgerButton.addEventListener('click', (event) => {
+                // Stop this click from being immediately caught by the document listener
+                event.stopPropagation(); 
                 navLinksList.classList.toggle('active');
                 hamburgerButton.classList.toggle('active');
                 const isExpanded = navLinksList.classList.contains('active');
                 hamburgerButton.setAttribute('aria-expanded', isExpanded.toString());
+            });
+
+            // NEW: Add Click-Away-to-Close functionality for the menu
+            document.addEventListener('click', function(event) {
+                const isMenuActive = navLinksList.classList.contains('active');
+                if (!isMenuActive) {
+                    return; // Do nothing if the menu is already closed
+                }
+
+                // Check if the click was inside the menu panel or on the hamburger button
+                const isClickInsideMenu = navLinksList.contains(event.target);
+                const isClickOnHamburger = hamburgerButton.contains(event.target);
+
+                // If the click was outside both, close the menu
+                if (!isClickInsideMenu && !isClickOnHamburger) {
+                    navLinksList.classList.remove('active');
+                    hamburgerButton.classList.remove('active');
+                    hamburgerButton.setAttribute('aria-expanded', 'false');
+                }
             });
         }
     }
@@ -149,4 +124,46 @@ function setupNavigation() {
     activateSearchForm();
 }
 
+
+// --- Main execution block ---
+document.addEventListener('DOMContentLoaded', function() {
+    
+    const navigationHTML = `
+        <nav class="responsive-nav">
+            <div class="nav-brand">
+                <img src="/images/usask-logo-lg.png" class="nav-logo" alt="UofS Logo"> Prof. Longhai Li
+            </div>
+            <button class="hamburger-menu" aria-label="Toggle menu" aria-expanded="false">
+             <span class="hamburger-bar"></span>
+             <span class="hamburger-bar"></span>
+             <span class="hamburger-bar"></span>
+            </button>
+            <ul class="nav-links">
+                <li><a href="/index.html"><button class="btn">About Me</button></a></li>
+                <li><a href="/research.html"><button class="btn">Research Projects</button></a></li>
+                <li><a href="/team.html"><button class="btn">Lab Members</button></a></li>
+                <li><a href="/publications.html"><button class="btn">Publications</button></a></li>
+                <li><a href="/teaching.html"><button class="btn">Courses</button></a></li>
+                <li>
+                    <form id="site-search-form" class="search-form" role="search">
+                        <input id="search-query" type="search" class="search-input" placeholder="Search this site...">
+                        <button type="submit" class="search-btn" aria-label="Search">
+                            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </nav>
+    `;
+
+    const navPlaceholder = document.createElement('div');
+    navPlaceholder.id = 'navigation-placeholder';
+    navPlaceholder.innerHTML = navigationHTML;
+
+    document.body.prepend(navPlaceholder);
+    setupNavigation();
+});
 
