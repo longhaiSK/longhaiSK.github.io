@@ -6,6 +6,7 @@ output:
     html_document:
         toc: true
         toc_float: true
+        toc_depth: 4
         number_sections: true
         highlight: tango
         fig_width: 10
@@ -31,7 +32,9 @@ library ("latex2exp")
 library("animation")
 ```
 
-# Input data
+# Example 1: Vehicle Insurance Premium
+
+## Input data
 
 ```{r}
 issu <- data.frame (
@@ -47,7 +50,7 @@ n <- length(y)
 plot(x,y, xlab = "Driving", ylab = "Premium")
 ```
 
-# Estimating regression coefficients
+## Estimating regression coefficients
 
 ```{r }
 fit.issu <- lm(y~x)
@@ -55,7 +58,7 @@ plot(x,y)
 abline (fit.issu)
 ```
 
-# Sum Squares of Residuals
+## Sum Squares of Residuals
 
 ```{r }
 beta0 <- fit.issu$coefficients[1]
@@ -239,15 +242,15 @@ Ftable <- data.frame(df = c(1,n-2), SS=c(SSR,SSE),
 Ftable
 ```
 
-# A single function to produce ANOVA table
+## A single function to produce ANOVA table
 ```{r }
 fit.issu <- lm(y~x)
 anova(fit.issu)
 ```
 
-# Animation for Understanding the Sampling Distributions of SS and F
+## Animation for Understanding the Sampling Distributions of SS and F
 
-## When the slope is 0 ($H_0$ is true)
+### When the slope is 0 ($H_0$ is true)
 
 ```{r cache=FALSE, fig.show='animate', class.source = 'fold-hide', fig.height= 4}
 # Get parameters from the original fit to use in the simulation
@@ -299,7 +302,7 @@ for (n.sim in 1:50) {
 }
 ```
 
-## When the slope is non-zero ($H_1$ is true)
+### When the slope is non-zero ($H_1$ is true)
 
 ```{r cache=FALSE, fig.show='animate',class.source = 'fold-hide', fig.height= 4}
 # --- Assumed Setup Code (from your previous file) ---
@@ -354,3 +357,191 @@ for (n.sim in 1:50) {
   )
 }
 ```
+
+
+# Example 2: Oxygen Purity Data
+
+This section performs a simple linear regression analysis on oxygen purity data. We will model the purity of oxygen (`y`) as a function of the hydrocarbon level (`x`).
+
+***
+
+## 1. Data Input
+
+First, we define the `x` (Hydrocarbon Level) and `y` (Purity) variables and combine them into a data frame called `purity.data`.
+
+```{r data-input}
+# Define the data vectors
+x <- c(0.99, 1.02, 1.15, 1.29, 1.46, 1.36, 0.87, 1.23, 1.55, 1.40, 1.19, 
+       1.15, 0.98, 1.01, 1.11, 1.20, 1.26, 1.32, 1.43, 0.95)
+y <- c(90.01, 89.05, 91.43, 93.74, 96.73, 94.45, 87.59, 91.77, 99.42, 93.65, 
+       93.54, 92.52, 90.56, 89.54, 89.85, 90.39, 93.25, 93.41, 94.98, 87.33)
+
+# Get the number of observations
+n <- length(x)
+n
+
+# Create a data frame
+purity.data <- data.frame(x = x, y = y)
+head(purity.data)
+```
+
+***
+
+## 2. Model Fitting and Summary
+
+We fit a linear model using the `lm()` function and then print the detailed summary of the model, which includes coefficients, R-squared, and other statistics.
+
+```{r fit-model}
+# Fit the model using the lm() function
+fit <- lm(y ~ x, data = purity.data)
+
+# Print the summary of the fit
+summary(fit)
+```
+
+***
+
+## 3. Visualization and Diagnostics
+
+### Scatter Plot with Fitted Line
+
+Here we visualize the relationship between hydrocarbon level and purity with the fitted regression line overlaid.
+
+```{r plot-fit}
+# Create scatter diagram and add the fitted line
+plot(purity.data$x, purity.data$y, 
+     xlab = "Hydrocarbon level (x)", ylab = "Purity (y)",
+     main = "Oxygen Purity vs. Hydrocarbon Level")
+abline(fit, col = "red", lwd = 2)
+```
+
+### Confidence Intervals and ANOVA
+
+We can compute the 95% confidence intervals for the regression coefficients and generate the ANOVA table for the model.
+
+```{r anova-ci}
+# Confidence intervals of the regression coefficients
+confint(fit, level = 0.95)
+
+# ANOVA table
+anova(fit)
+```
+
+***
+
+## 4. Mean Response and Prediction Intervals
+
+We will now calculate and visualize the confidence bands for the mean response and the prediction bands for new observations.
+
+### Generating Bands
+
+First, we create a sequence of `x` values to make predictions. Then, we use the `predict()` function to calculate the confidence and prediction intervals.
+
+```{r calculate-bands}
+# Create a new data frame with values of x for which we want to predict/estimate
+x0 <- seq(min(purity.data$x), max(purity.data$x), length = 50)
+newdata <- data.frame(x = x0)
+
+# Confidence interval for the mean response
+est.mean <- predict(fit, newdata = newdata, interval = "confidence", level = 0.95)
+
+# Prediction interval for a new observation
+pred.new <- predict(fit, newdata = newdata, interval = "prediction", level = 0.95)
+```
+
+### Plotting Bands
+
+This plot shows the fitted regression line along with the 95% confidence bands (blue dashed lines) and 95% prediction bands (red dotted lines).
+
+```{r plot-bands}
+# Plot the data and the fitted line
+plot(purity.data$x, purity.data$y,
+     xlab = "Hydrocarbon level (x)", ylab = "Purity (y)",
+     main = "Regression Line with Confidence and Prediction Bands")
+abline(fit)
+
+# Add the confidence and prediction bands
+matlines(x0, est.mean[, 2:3], col = "blue", lty = 2, lwd = 2)
+matlines(x0, pred.new[, 2:3], col = "red", lty = 3, lwd = 2)
+
+# Add a legend
+legend("topleft", c("Confidence Bands", "Prediction Bands"),
+       col = c("blue", "red"), lty = 2:3, bty = "n")
+```
+
+***
+
+## 5. Residual Analysis
+
+To check the model's assumptions, we analyze the residuals. We extract the standardized residuals and create a set of diagnostic plots.
+
+```{r residual-analysis}
+# Extract fitted values and residuals
+pred <- fitted.values(fit)
+e <- resid(fit)
+
+# Compute standardized residuals
+d <- e / summary(fit)$sigma
+
+# Create a 2x2 layout for plots
+par(mfrow = c(2, 2))
+
+# 1. Scatter plot with regression line
+plot(purity.data$x, purity.data$y, xlab = "x", ylab = "y")
+abline(fit)
+
+# 2. Normal Q-Q plot of standardized residuals
+qqnorm(d, main = "Normal Q-Q Plot")
+qqline(d)
+
+# 3. Standardized residuals vs. Predicted values
+plot(pred, d, xlab = "Predicted values", ylab = "Standardized residuals",
+     main = "Residuals vs. Fits")
+abline(h = 0, lty = 2)
+
+# 4. Standardized residuals vs. Observation order
+plot(1:n, d, xlab = "Observation Order", ylab = "Standardized residuals",
+     main = "Residuals vs. Order")
+abline(h = 0, lty = 2)
+```
+
+```{r reset-par, echo=FALSE}
+# Reset plotting layout
+par(mfrow = c(1, 1))
+```
+
+---
+
+# Correlation Analysis
+
+This section performs a correlation analysis between the strength and length of a certain material.
+
+## 1. Data and Visualization
+
+We define the `strength` and `length` data and create a scatter plot to visualize their relationship.
+
+```{r correlation-data}
+# Define the data vectors
+strength <- c(9.95, 24.45, 31.75, 35.00, 25.02, 16.86, 14.38, 9.60, 24.35,
+              27.50, 17.08, 37.00, 41.95, 11.66, 21.65, 17.89, 69.00, 10.30, 
+              34.93, 46.59, 44.88, 54.12, 56.63, 22.13, 21.15)
+length <- c(2, 8, 11, 10, 8, 4, 2, 2, 9, 8, 4, 11, 12, 2, 4, 4, 20, 1, 10,
+            15, 15, 16, 17, 6, 5)
+
+# Plot the relationship
+plot(length, strength, xlab = "Length", ylab = "Strength",
+     main = "Strength vs. Length")
+```
+
+## 2. Correlation Test
+
+We calculate the Pearson correlation coefficient and perform a formal hypothesis test for the correlation.
+
+```{r correlation-test}
+# Calculate the correlation coefficient
+cor(strength, length)
+
+# Perform the correlation test
+cor.test(strength, length)
+```
+The results show a strong positive correlation between length and strength, and the p-value is highly significant, indicating that this relationship is not due to random chance.
