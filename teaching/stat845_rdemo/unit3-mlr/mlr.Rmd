@@ -1,5 +1,4 @@
 ---
-
 title: "Analysis of Multiple Linear Regression Models"
 author: "Longhai Li"
 date: "September 8, 2025"
@@ -20,25 +19,26 @@ library(knitr)
 library(rmarkdown)
 # This chunk sets up the global options for the document.
 knitr::opts_chunk$set(
-  echo = TRUE,
-  comment = "#>",
-  fig.width = 8,
-  fig.height = 6,
-  warning = FALSE,
-  message = FALSE
+	fig.height = 6,
+	fig.width = 9,
+	message = FALSE,
+	warning = FALSE,
+	comment = "#",
+	include = TRUE,
+	cache = FALSE
 )
-
 ```
 
 # Fit of the multiple linear regression
 
 This section analyzes the wire bond strength dataset.
 
-### Data Loading and Visualization
+## Data Loading and Visualization
 
-**Note:** You must change the file paths in the `read.csv()` functions below to match the location of the files on your computer.
+**Note:** You must change the file paths in the `read.csv()` functions below to match the location of the files on your computer for example "C:\Users\<YourUsername\>\Documents" on windows.
 
 ```{r load-bond-data}
+
 # Read data. Change the path as necessary.
 # Example: bond.data <- read.csv("data/wire-bond.csv")
 bond.data <- read.csv("wire-bond.csv")
@@ -47,83 +47,32 @@ bond.data <- read.csv("wire-bond.csv")
 bond.data
 ```
 
-<b>Visualize the Dataset</b>
+```{r dummy.data, include=FALSE, eval=FALSE}
+# Use set.seed() to make sure you get the exact same random data every time
+set.seed(42)
 
-```{r}
-# 1. Install and load the required package
-if (!require("scatterplot3d")) {
-  install.packages("scatterplot3d")
-}
-library(scatterplot3d)
+# Define the number of data points to create
+n <- 150
 
-# 2. Create a sample data frame named bond.data 
-# (replace this with your actual data loading)
-set.seed(42) # for reproducible results
+# Create the bond.data data frame
 bond.data <- data.frame(
-  strength = rnorm(150, mean = 60, sd = 15),
-  length = runif(150, min = 1.0, max = 5.0),
-  height = runif(150, min = 0.5, max = 3.0)
+  # Generate 'length' as random numbers between 10 and 50
+  length = runif(n, 10, 50),
+  # Generate 'height' as random numbers between 5 and 25
+  height = runif(n, 5, 25)
 )
-# Introduce a relationship for a more interesting plot
-bond.data$strength <- bond.data$strength - (7 * bond.data$length) + (4 * bond.data$height)
 
-# 3. Create the 3D scatterplot and store its object
-s3d <- with(bond.data, scatterplot3d(
-  x = length,
-  y = height,
-  z = strength,
-  pch = 19,
-  color = "steelblue",
-  main = "3D Scatterplot: Strength vs. Length and Height",
-  xlab = "Length",
-  ylab = "Height",
-  zlab = "Strength",
-  angle = 55
-))
+# Create 'strength' based on a linear relationship with the other variables
+# strength = (some_value * length) + (another_value * height) + random_error
+bond.data$strength <- (2.5 * bond.data$length) + 
+                      (4.1 * bond.data$height) + 
+                      rnorm(n, mean = 0, sd = 20) # Add random noise
 
-# 4. Fit a linear model
-fit <- lm(strength ~ length + height, data = bond.data)
-
-# 5. Add the regression plane to the plot
-s3d$plane3d(fit, lty.box = "solid")
+# Display the first few rows of the new data frame
+head(bond.data)
 ```
 
-<b>Dynamic Visualization of 3D Data</b>
-
-```{r}
-# 1. Load the plotly library
-library(plotly)
-
-# 2. Create the initial plot object
-fig <- plot_ly(
-  data = bond.data, 
-  x = ~length, 
-  y = ~height, 
-  z = ~strength,
-  type = 'scatter3d',
-  mode = 'markers',
-  marker = list(
-    color = ~strength,
-    colorscale = 'Viridis',
-    showscale = TRUE,
-    colorbar = list(title = 'Strength')
-  )
-)
-
-# 3. Add layout and labels to the 'fig' object
-# This replaces the line that used the %>% pipe
-fig <- layout(fig, 
-  title = "Interactive 3D Plot of Bond Strength",
-  scene = list(
-    xaxis = list(title = 'Length'),
-    yaxis = list(title = 'Height'),
-    zaxis = list(title = 'Strength')
-  )
-)
-
-# 4. Display the final, updated plot
-fig
-```
+**2D Visualization**
 
 ```{r load-bond-data2}
 
@@ -135,7 +84,112 @@ plot(bond.data$height, bond.data$strength,
      xlab = "Die height", ylab = "Pull strength")
 ```
 
-### Model Fitting and Summary
+**3D Visualize**
+
+```{r}
+# 1. Install and load the required package
+
+library(scatterplot3d)
+
+par (mfrow = c(1,1))
+# 2. Create the 3D scatterplot and store its object
+s3d <- with(bond.data, scatterplot3d(
+  x = length,
+  y = height,
+  z = strength,
+  pch = 19,
+  color = "steelblue",
+  main = "3D Scatterplot: Strength vs. Length and Height",
+  xlab = "Length",
+  ylab = "Height",
+  zlab = "Strength",
+  angle = 60
+))
+
+# 3. Fit a linear model
+fit <- lm(strength ~ length + height, data = bond.data)
+
+# 4. Add the regression plane to the plot
+s3d$plane3d(fit, lty.box = "solid")
+
+```
+
+**Dynamic 3D Visualization of 3D Data**
+
+```{r}
+# 1. Load necessary libraries
+library(plotly)
+library(dplyr)
+
+# NOTE: This script assumes you have a data frame named 'bond.data'
+# with columns 'length', 'height', and 'strength' already loaded.
+
+# 2. Create the initial scatter plot object
+fig <- plot_ly(
+  data = bond.data, 
+  x = ~length, 
+  y = ~height, 
+  z = ~strength
+) %>%
+  add_markers(
+    marker = list(
+      color = ~strength,
+      colorscale = 'Viridis',
+      showscale = TRUE,
+      colorbar = list(title = 'Strength')
+    ),
+    name = 'Data Points'
+  ) %>%
+  layout(
+    title = "Interactive 3D Scatter Plot of Bond Strength",
+    scene = list(
+      xaxis = list(title = 'Length'),
+      yaxis = list(title = 'Height'),
+      zaxis = list(title = 'Strength')
+    )
+  )
+
+# 3. Display the scatter plot
+# In an interactive session (like RStudio), this line will render the plot.
+fig
+```
+
+**Add Fitted Surface**
+
+```{r}
+# 4. Fit a linear model to the data
+fit <- lm(strength ~ length + height, data = bond.data)
+
+# 5. Prepare data for the regression plane surface
+resolution <- 20
+axis_x <- seq(min(bond.data$length), max(bond.data$length), length.out = resolution)
+axis_y <- seq(min(bond.data$height), max(bond.data$height), length.out = resolution)
+
+z_matrix <- outer(
+  axis_x,
+  axis_y,
+  function(len, ht) {
+    predict(fit, newdata = data.frame(length = len, height = ht))
+  }
+)
+
+# 6. Add the surface to the EXISTING plot object and display the result
+fig <- fig %>%
+  add_surface(
+    x = ~axis_x,
+    y = ~axis_y,
+    z = ~z_matrix,
+    colorscale = 'Blues',
+    opacity = 0.7,
+    showscale = FALSE,
+    name = 'Regression Plane'
+  )
+
+# 7. Display the final, updated plot
+fig
+```
+
+## Model Fitting and Summary
 
 We fit a multiple linear regression model with `strength` as the response variable and `length` and `height` as predictors.
 
@@ -149,7 +203,7 @@ summary(fit)
 
 The summary provides the ANOVA F-test for overall significance, $R^2$, adjusted $R^2$, and t-tests for individual coefficients.
 
-### Confidence Intervals and Model Components
+## Confidence Intervals and Model Components
 
 We can extract confidence intervals for the regression coefficients, as well as fitted values and residuals.
 
@@ -182,14 +236,14 @@ age <- c(8, 10, 6, 11, 8, 7, 10, 9, 10, 6, 12, 9)
 child.data <- data.frame(wgt, hgt, age)
 ```
 
-### Problem 1: Simple Linear Regression
+## Problem 1: Simple Linear Regression
 
 ```{r partial-f-test-1}
 fit11 <- lm(wgt ~ hgt, data = child.data)
 summary(fit11)
 ```
 
-### Problem 2: Adding a Predictor
+## Problem 2: Adding a Predictor
 
 Here we test if adding `age` significantly improves the model that already contains `hgt`.
 
@@ -202,7 +256,7 @@ fit22 <- lm(wgt ~ hgt, data = child.data)
 anova(fit22, fit21)
 ```
 
-### Problem 3: Adding a Polynomial Term
+## Problem 3: Adding a Polynomial Term
 
 We test if adding a quadratic term for `age` improves the model with `hgt` and `age`.
 
@@ -214,7 +268,7 @@ fit32 <- lm(wgt ~ hgt + age, data = child.data)
 anova(fit32, fit31)
 ```
 
-### Problem 4: Testing Multiple Coefficients
+## Problem 4: Testing Multiple Coefficients
 
 We test if the `age` and `age^2` terms are jointly significant.
 
@@ -228,7 +282,7 @@ anova(fit42, fit41)
 
 This section demonstrates how to calculate confidence and prediction intervals for the wire bond strength data.
 
-### Confidence Interval for Mean Response
+## Confidence Interval for Mean Response
 
 Construct a 95% CI on the mean pull strength for a wire bond with wire length = 8 and die height = 275.
 
@@ -238,7 +292,7 @@ predict(fit, newdata = data.frame(length = 8, height = 275),
         interval = "confidence", level = 0.95)
 ```
 
-### Prediction Interval for a New Observation
+## Prediction Interval for a New Observation
 
 Construct a 95% PI on the pull strength for a new wire bond with wire length = 8 and die height = 275.
 
@@ -251,7 +305,7 @@ predict(fit, newdata = data.frame(length = 8, height = 275),
 
 This section covers various methods for diagnosing the model fit using residuals and other measures.
 
-### Residual Calculations
+## Residual Calculations
 
 We can calculate hat values, and various types of residuals. They are combined here into a single data frame which will be auto-paged.
 
@@ -266,7 +320,7 @@ residuals_df <- data.frame(
 residuals_df
 ```
 
-### Residual Plots
+## Residual Plots
 
 A common practice is to analyze plots of the studentized residuals to check for non-linearity, non-constant variance, and non-normality.
 
@@ -299,7 +353,7 @@ influence_df <- data.frame(dffits = dffits(fit), cook.D = cooks.distance(fit), d
 influence_df
 ```
 
-### Plotting with the `olsrr` Package
+## Plotting with the `olsrr` Package
 
 The `olsrr` package provides convenient functions for plotting these influence diagnostics. Note: You only need to run `install.packages("olsrr")` once.
 
@@ -355,7 +409,7 @@ fit.full <- lm(sbp ~ age + sex + age:sex, data = sbpdata)
 summary(fit.full)
 ```
 
-### Hypothesis Tests for Indicator Models
+## Hypothesis Tests for Indicator Models
 
 We can perform various hypothesis tests to see if the lines are coincident, parallel, or have equal intercepts.
 
@@ -374,7 +428,7 @@ fit2.inter <- lm(sbp ~ age, data = sbpdata)
 anova(fit2.inter, fit1.inter)
 ```
 
-### Plotting the Fitted Model
+## Plotting the Fitted Model
 
 The plot below shows the separate regression lines for males and females.
 
@@ -409,7 +463,7 @@ wine <- read.csv("wine.csv")
 model <- lm(quality ~ ., data = wine)
 ```
 
-### All Possible Regression
+## All Possible Regression
 
 This method evaluates every possible combination of predictors. The output is a data frame and will be auto-paged.
 
@@ -417,7 +471,7 @@ This method evaluates every possible combination of predictors. The output is a 
 ols_step_best_subset(model)
 ```
 
-### Automated Stepwise Procedures
+## Automated Stepwise Procedures
 
 We can also use backward, forward, or stepwise selection to find a good model. These functions also return data frames.
 
@@ -436,7 +490,7 @@ ols_step_both_p(model, p_enter = 0.1, p_remove = 0.1)
 
 This section explores the issue of multicollinearity, where predictors are highly correlated.
 
-### A Simple Example
+## A Simple Example
 
 ```{r multicollinearity-simple}
 y <- c(19, 20, 37, 39, 36, 38)
@@ -453,7 +507,7 @@ fit1_multi <- lm(y ~ x1)
 summary(fit1_multi)
 ```
 
-### VIFs in the Wine Quality Data
+## VIFs in the Wine Quality Data
 
 We can calculate the Variance Inflation Factor (VIF) for each predictor to diagnose multicollinearity. A VIF \> 10 is often considered problematic.
 
@@ -465,5 +519,5 @@ cor(wine.x)
 ols_vif_tol(model)
 ```
 
-```
+```         
 ```
