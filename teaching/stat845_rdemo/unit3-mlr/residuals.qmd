@@ -8,9 +8,16 @@ format:
   html:
     theme: cosmo
     toc: true
-    code-fold: false
+    code-fold: true
     number-sections: true
     math: mathjax
+    md_extensions: +tex_math_dollars
+  pdf:
+    toc: false
+    number-sections: true
+    include-in-header:
+      text: |
+        \usepackage{amsmath}
 ---
 
 ## Introduction
@@ -24,9 +31,9 @@ This article provides a complete walkthrough of this essential concept. We'll st
 ## The Linear Model
 
 Our discussion is based on the standard multiple linear regression model. In matrix form, the relationship between a response vector **Y** and a predictor matrix **X** is:
-$$
+\begin{equation}
 \mathbf{Y} = \mathbf{X\beta} + \mathbf{\epsilon}
-$$
+\end{equation}
 Where:
 
 * **Y** is an *n* x 1 vector of the observed outcomes.
@@ -55,29 +62,63 @@ To discuss models fit with all data versus those with one point removed, we need
 
 ---
 
-## Two Problematic Residuals
+## Non-studentized Residuals
 
 Before getting to the correct solution, it's crucial to understand why simpler methods of standardizing residuals are flawed.
 
-### **The Ordinary Residual ($e_i$): Biased (Too Small) and $x_i$ Dependent**
+### **The Ordinary Residual ($e_i$): Too Small and $x_i$ Dependent**
 The most basic residual, $e_i$, is problematic for two key reasons.
 
- **Systematically Too Small**: An outlier has an undue influence on the model, pulling the regression line towards itself. This makes its own predicted value, $\hat{y}_i$, artificially close to its actual value, $y_i$. As a result, its residual, $e_i$, is **deceptively small** and doesn't reflect the true magnitude of the error.
+- **Systematically Too Small**: An outlier has an undue influence on the model, pulling the regression line towards itself. This makes its own predicted value, $\hat{y}_i$, artificially close to its actual value, $y_i$. As a result, its residual, $e_i$, is **deceptively small** and doesn't reflect the true magnitude of the error.
 
- **$x_i$-Dependent Variance**: The variance of an ordinary residual is not constant; it depends on the point's leverage.
-    $$
+- **$x_i$-Dependent Variance**: The variance of an ordinary residual is not constant; it depends on the point's leverage.
+    \begin{equation}
     \text{Var}(e_i) = \sigma^2(1 - h_{ii})
-    $$
-    Since leverage ($h_{ii}$) is always greater than 0, the variance of an ordinary residual is always **less than the true error variance, $\sigma^2$**. High-leverage points act as "anchors" for the line and have even smaller variance.
+    \end{equation}
+We know
+\begin{equation}
+\hat{y}_i = \mathbf{x}_i^\top \hat{\beta} = \mathbf{x}_i^\top\!\bigl(\beta + (X^\top X)^{-1} X^\top \epsilon\bigr).
+\end{equation}
+So the residual is
+\begin{equation}
+e_i = y_i - \hat{y}_i = \epsilon_i - \mathbf{x}_i^\top (X^\top X)^{-1} X^\top \epsilon.
+\end{equation}
 
-### **The LOOCV Residual ($e_{i,-i}$): Not biased, but too large, $x_i$-Dependent Variance**
+The variance can be derived from the hat matrix $H = X(X^\top X)^{-1}X^\top$. Since $\hat{y} = HY$, we have
+\begin{equation}
+e = (I - H)\epsilon.
+\end{equation}
+Thus,
+\begin{equation}
+\mathrm{Var}(e) = (I-H)\,\sigma^2\,(I-H)^\top = (I-H)\sigma^2.
+\end{equation}
+Therefore, for the $i$th residual,
+\begin{equation}
+\mathrm{Var}(e_i) = \sigma^2(1 - h_{ii}).
+\end{equation}
+
+Since leverage ($h_{ii}$) is always greater than 0, the variance of an ordinary residual is always **less than the true error variance, $\sigma^2$**. High-leverage points act as "anchors" for the line and have even smaller variance.
+
+### **The LOOCV Residual ($e_{i,-i}$): Too large and $x_i$-Dependent Variance**
 The deleted residual, $e_{i,-i}$, solves the "too small" problem. Because the model isn't influenced by the point it's predicting, the residual is an honest measure of prediction error. However, its variance is still not constant.
 
  **$x_i$-Dependent Variance**: The variance of a deleted residual also depends on leverage, but in the opposite way.
-    $$
+    \begin{equation}
     \text{Var}(e_{i,-i}) = \frac{\sigma^2}{1 - h_{ii}}
-    $$
-    Since $1-h_{ii}$ is less than 1, the variance of a deleted residual is always **greater than the true error variance, $\sigma^2$**. This is because it has two sources of randomness: the error in the point itself ($y_i$) and the error in the prediction ($\hat{y}_{i,-i}$).
+    \end{equation}
+
+From the key identity,
+\begin{equation}
+e_{i,-i} = \frac{e_i}{1 - h_{ii}}.
+\end{equation}
+Therefore,
+\begin{equation}
+\mathrm{Var}(e_{i,-i}) = \frac{\mathrm{Var}(e_i)}{(1-h_{ii})^2}
+= \frac{\sigma^2(1-h_{ii})}{(1-h_{ii})^2}
+= \frac{\sigma^2}{1-h_{ii}}.
+\end{equation}
+
+Since $1-h_{ii}$ is less than 1, the variance of a deleted residual is always **greater than the true error variance, $\sigma^2$**. This is because it has two sources of randomness: the error in the point itself ($y_i$) and the error in the prediction ($\hat{y}_{i,-i}$).
 
 ---
 
@@ -86,59 +127,84 @@ The deleted residual, $e_{i,-i}$, solves the "too small" problem. Because the mo
 The correct solution is to take the honest LOOCV residual and divide it by its true standard error, which properly accounts for its larger, x-dependent variance. This is the **externally studentized residual**, $t_i$.
 
 **Conceptual Definition:**
-$$
+\begin{equation}
 t_i = \frac{e_{i,-i}}{\text{SE}(e_{i,-i})} = \frac{e_{i,-i}}{\frac{\hat{\sigma}_{-i}}{\sqrt{1-h_{ii}}}}
-$$
+\end{equation}
 This final value is a reliable diagnostic. Under the null hypothesis that the observation is not an outlier, it follows a **Student's t-distribution** with *n - p - 1* degrees of freedom.
 
 ---
 
-### Extenally Studentized Residuals with Full Data Models ⚙️
+## Studentized Full Data Residuals (Computational Shortcut Formula) ⚙️
 
 Calculating the conceptual formula appears to require fitting *n* different regression models—a computationally expensive task. Fortunately, a mathematical identity allows us to calculate the exact same value using only the results from the single, full data model.
 
-**Computational Shortcut Formula:**
-$$
+\begin{equation}
 t_i = \frac{e_i}{\hat{\sigma}_{-i}\sqrt{1 - h_{ii}}}
-$$
+\end{equation}
 This is not an approximation; it is an **exact algebraic rearrangement** of the conceptual definition.
 
 ---
+
+### Key Identity Linking $e_{i,-i}$ and $e_i$
+
+\begin{equation}e_{i,-i} = \frac{e_i}{1 - h_{ii}}\end{equation}
+This identity shows that we can find the "pure" leave-one-out residual without actually refitting the model; all we need are the results from the single model fit on the full dataset.
+
 ### Proof of Equivalence ⚙️
 
 The proof that the conceptual and computational formulas are identical hinges on a key algebraic identity that connects the LOOCV residual ($e_{i,-i}$) to the ordinary residual ($e_i$).
 
-**Key Identity:**
-$$e_{i,-i} = \frac{e_i}{1 - h_{ii}}$$
-This identity shows that we can find the "pure" leave-one-out residual without actually refitting the model; all we need are the results from the single model fit on the full dataset.
 
-### **The Derivation**
+
 Now, let's start with the conceptual definition of the studentized residual and show how it transforms into the shortcut formula.
 
  **Start with the conceptual LOOCV definition:**
-    $$
+    \begin{equation}
     t_i = \frac{e_{i,-i}}{\text{SE}(e_{i,-i})} = \frac{e_{i,-i}}{\frac{\hat{\sigma}_{-i}}{\sqrt{1-h_{ii}}}}
-    $$
+    \end{equation}
 
  **Substitute the key identity** into the numerator:
-    $$
+    \begin{equation}
     t_i = \frac{\frac{e_i}{1 - h_{ii}}}{\frac{\hat{\sigma}_{-i}}{\sqrt{1 - h_{ii}}}}
-    $$
+    \end{equation}
 
  **Simplify the complex fraction.** We can do this by multiplying the numerator by the reciprocal of the denominator:
-    $$
+    \begin{equation}
     t_i = \frac{e_i}{1-h_{ii}} \cdot \frac{\sqrt{1-h_{ii}}}{\hat{\sigma}_{-i}}
-    $$
+    \end{equation}
 
  **Cancel the terms.** Since $1 - h_{ii} = (\sqrt{1 - h_{ii}})^2$, one of the $\sqrt{1 - h_{ii}}$ terms in the denominator cancels with the term in the numerator. This leaves us with the computational shortcut formula:
-    $$
+    \begin{equation}
     t_i = \frac{e_i}{\hat{\sigma}_{-i}\sqrt{1-h_{ii}}}
-    $$
+    \end{equation}
 
 This proves that the two formulas are mathematically identical. The computational shortcut is simply a clever algebraic rearrangement of the more intuitive LOOCV definition, allowing for efficient and accurate calculation. ✅
 
+
 ## Example
 
+In this example, we will compare the four residuals given as:
+
+
+1. **Non-studentized Full Data Residual**  
+   $$
+   \frac{e_i}{\hat{\sigma}}
+   $$
+
+2. **Non-studentized LOOCV Residual**  
+   $$
+   \frac{e_{i,-i}}{\hat{\sigma}_{-i}}
+   $$
+
+3. **Studentized LOOCV Residual (Conceptual)**  
+   $$
+   \frac{e_{i,-i}}{\hat{\sigma}_{-i}/\sqrt{1-h_{ii}}}
+   $$
+
+4. **Studentized Full Data Residual (Shortcut, R’s \texttt{rstudent})**  
+   $$
+   \frac{e_i}{\hat{\sigma}_{-i}\sqrt{1-h_{ii}}}
+   $$
 ```{r}
 #| label: build-residual-variants-ascii
 #| echo: true
@@ -213,23 +279,20 @@ residuals_df <- data.frame(
   studentized_shortcut_rstudent = as.numeric(stud_shortcut)
 )
 
-residuals_df_print <- residuals_df
+library(dplyr)
+residuals_df <- residuals_df %>% arrange(x)
+residuals_df_print <- residuals_df[,-c(1,3:6)]
 num_cols <- vapply(residuals_df_print, is.numeric, logical(1))
 residuals_df_print[num_cols] <- lapply(residuals_df_print[num_cols], function(z) round(z, 3))
 
+brk <- if (knitr::is_html_output()) "<br/>" else "\\\\"
+
 display_names <- c(
-  "$x_i$",
   "$h_{ii}$",
-  "$e_i$",
-  "$\\hat{\\sigma}$",
-  "$e_{i,-i}$",
-  "$\\hat{\\sigma}_{-i}$",
-  "$\\frac{e_i}{\\hat{\\sigma}}$",
-  "$\\frac{e_{i,-i}}{\\hat{\\sigma}_{-i}}$",
-  # Studentized LOOCV (conceptual)
-  "Studentized LOOCV $\\left( \\frac{e_{i,-i}}{\\hat{\\sigma}_{-i}/\\sqrt{1-h_{ii}}} \\right)$",
-  # Studentized Full / rstudent (shortcut)
-  "Studentized Full (\\texttt{rstudent}) $\\left( \\frac{e_i}{\\hat{\\sigma}_{-i}\\sqrt{1-h_{ii}}} \\right)$"
+  paste0("Non-studentized Full", brk, "$\\frac{e_i}{\\hat{\\sigma}}$"),
+  paste0("Non-studentized LOOCV", brk, "$\\frac{e_{i,-i}}{\\hat{\\sigma}_{-i}}$"),
+  paste0("Studentized LOOCV", brk, "$\\frac{e_{i,-i}}{\\hat{\\sigma}_{-i}/\\sqrt{1-h_{ii}}}$"),
+  paste0("Studentized Full (rstudent)", brk, "$\\frac{e_i}{\\hat{\\sigma}_{-i}\\sqrt{1-h_{ii}}}$")
 )
 
 knitr::kable(
