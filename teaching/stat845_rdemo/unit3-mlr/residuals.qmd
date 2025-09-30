@@ -1,0 +1,237 @@
+
+---
+title: "Understanding the Equivalence of Externally Studentized and Standardized LOOCV Residuals in Linear Models"
+subtitle: "An Illustration with R"
+author: "Longhai Li"
+date: today
+format: 
+  html:
+    theme: cosmo
+    toc: true
+    code-fold: false
+    number-sections: true
+---
+
+## Introduction
+
+In statistical modeling, identifying data points that don't fit—the **outliers**—is a critical step. The most reliable tool for this job is the **externally studentized residual**. Its power comes from a simple, intuitive idea: to judge a point fairly, you shouldn't use that point when building your model. This is the core principle of **Leave-One-Out Cross-Validation (LOOCV)**.
+
+This article provides a complete walkthrough of this essential concept. We'll start with the basic linear model, introduce the necessary notation, explore the flaws of simpler residuals, and then formally define and prove the equivalence of the conceptual and computational formulas for studentized residuals. Finally, we'll make it all concrete with a simple example.
+
+---
+
+## The Linear Model
+
+Our discussion is based on the standard multiple linear regression model. In matrix form, the relationship between a response vector **Y** and a predictor matrix **X** is:
+$$
+\mathbf{Y} = \mathbf{X\beta} + \mathbf{\epsilon}
+$$
+Where:
+
+* **Y** is an *n* x 1 vector of the observed outcomes.
+* **X** is the *n* x *p* design matrix of predictor variables (where *p* is the number of coefficients, including the intercept).
+* **$\beta$** is the *p* x 1 vector of unknown true coefficients we want to estimate.
+* **$\epsilon$** is an *n* x 1 vector of unobservable random errors, assumed to be independent and identically distributed with a mean of 0 and a variance of $\sigma^2$.
+
+---
+
+## Our Notations 💡
+
+To discuss models fit with all data versus those with one point removed, we need clear notation.
+
+### **Full Data Model (Using all *n* observations)**
+* **$\hat{\beta}$**: The estimated coefficient vector.
+* **$\hat{y}_i$**: The predicted value for observation *i* from this model.
+* **$e_i$**: The **ordinary residual** ($e_i = y_i - \hat{y}_i$).
+* **$\hat{\sigma}$**: The estimated standard deviation of the errors (Residual Standard Error).
+* **$h_{ii}$**: The **leverage** of observation *i*, a measure of how much its x-values influence the model.
+
+### **Leave-One-Out (LOOCV) Model**
+* **$\hat{\beta}_{-i}$**: The coefficient vector estimated after **removing** observation *i*.
+* **$\hat{y}_{i,-i}$**: The predicted value for observation *i*, from the model fit **without** observation *i*.
+* **$e_{i,-i}$**: The **deleted residual** ($e_{i,-i} = y_i - \hat{y}_{i,-i}$).
+* **$\hat{\sigma}_{-i}$**: The standard deviation of the errors estimated from the model fit **without** observation *i*.
+
+---
+
+## Two Problematic Residuals
+
+Before getting to the correct solution, it's crucial to understand why simpler methods of standardizing residuals are flawed.
+
+### **The Ordinary Residual ($e_i$): Biased (Too Small) and $x_i$ Dependent**
+The most basic residual, $e_i$, is problematic for two key reasons.
+
+ **Systematically Too Small**: An outlier has an undue influence on the model, pulling the regression line towards itself. This makes its own predicted value, $\hat{y}_i$, artificially close to its actual value, $y_i$. As a result, its residual, $e_i$, is **deceptively small** and doesn't reflect the true magnitude of the error.
+
+ **$x_i$-Dependent Variance**: The variance of an ordinary residual is not constant; it depends on the point's leverage.
+    $$
+    \text{Var}(e_i) = \sigma^2(1 - h_{ii})
+    $$
+    Since leverage ($h_{ii}$) is always greater than 0, the variance of an ordinary residual is always **less than the true error variance, $\sigma^2$**. High-leverage points act as "anchors" for the line and have even smaller variance.
+
+### **The LOOCV Residual ($e_{i,-i}$): Not biased, but too large, $x_i$-Dependent Variance**
+The deleted residual, $e_{i,-i}$, solves the "too small" problem. Because the model isn't influenced by the point it's predicting, the residual is an honest measure of prediction error. However, its variance is still not constant.
+
+ **$x_i$-Dependent Variance**: The variance of a deleted residual also depends on leverage, but in the opposite way.
+    $$
+    \text{Var}(e_{i,-i}) = \frac{\sigma^2}{1 - h_{ii}}
+    $$
+    Since $1-h_{ii}$ is less than 1, the variance of a deleted residual is always **greater than the true error variance, $\sigma^2$**. This is because it has two sources of randomness: the error in the point itself ($y_i$) and the error in the prediction ($\hat{y}_{i,-i}$).
+
+---
+
+## Studentized LOOCV Residual
+
+The correct solution is to take the honest LOOCV residual and divide it by its true standard error, which properly accounts for its larger, x-dependent variance. This is the **externally studentized residual**, $t_i$.
+
+**Conceptual Definition:**
+$$
+t_i = \frac{e_{i,-i}}{\text{SE}(e_{i,-i})} = \frac{e_{i,-i}}{\frac{\hat{\sigma}_{-i}}{\sqrt{1-h_{ii}}}}
+$$
+This final value is a reliable diagnostic. Under the null hypothesis that the observation is not an outlier, it follows a **Student's t-distribution** with *n - p - 1* degrees of freedom.
+
+---
+
+### Extenally Studentized Residuals ⚙️
+
+Calculating the conceptual formula appears to require fitting *n* different regression models—a computationally expensive task. Fortunately, a mathematical identity allows us to calculate the exact same value using only the results from the single, full data model.
+
+**Computational Shortcut Formula:**
+$$
+t_i = \frac{e_i}{\hat{\sigma}_{-i}\sqrt{1 - h_{ii}}}
+$$
+This is not an approximation; it is an **exact algebraic rearrangement** of the conceptual definition.
+
+---
+### Proof of Equivalence ⚙️
+
+The proof that the conceptual and computational formulas are identical hinges on a key algebraic identity that connects the LOOCV residual ($e_{i,-i}$) to the ordinary residual ($e_i$).
+
+**Key Identity:**
+$$e_{i,-i} = \frac{e_i}{1 - h_{ii}}$$
+This identity shows that we can find the "pure" leave-one-out residual without actually refitting the model; all we need are the results from the single model fit on the full dataset.
+
+### **The Derivation**
+Now, let's start with the conceptual definition of the studentized residual and show how it transforms into the shortcut formula.
+
+ **Start with the conceptual LOOCV definition:**
+    $$
+    t_i = \frac{e_{i,-i}}{\text{SE}(e_{i,-i})} = \frac{e_{i,-i}}{\frac{\hat{\sigma}_{-i}}{\sqrt{1-h_{ii}}}}
+    $$
+
+ **Substitute the key identity** into the numerator:
+    $$
+    t_i = \frac{\frac{e_i}{1 - h_{ii}}}{\frac{\hat{\sigma}_{-i}}{\sqrt{1 - h_{ii}}}}
+    $$
+
+ **Simplify the complex fraction.** We can do this by multiplying the numerator by the reciprocal of the denominator:
+    $$
+    t_i = \frac{e_i}{1-h_{ii}} \cdot \frac{\sqrt{1-h_{ii}}}{\hat{\sigma}_{-i}}
+    $$
+
+ **Cancel the terms.** Since $1 - h_{ii} = (\sqrt{1 - h_{ii}})^2$, one of the $\sqrt{1 - h_{ii}}$ terms in the denominator cancels with the term in the numerator. This leaves us with the computational shortcut formula:
+    $$
+    t_i = \frac{e_i}{\hat{\sigma}_{-i}\sqrt{1-h_{ii}}}
+    $$
+
+This proves that the two formulas are mathematically identical. The computational shortcut is simply a clever algebraic rearrangement of the more intuitive LOOCV definition, allowing for efficient and accurate calculation. ✅
+
+## Example 1: The Intercept-Only Model
+
+Let's make this concrete with the simplest model: $y_i = \mu + \epsilon_i$. Here, the "best fit" is just the sample mean. We can demonstrate the equivalence of the formulas numerically in R.
+
+```{r}
+#| label: final-plot
+#| echo: true
+#| message: false
+#| warning: false
+#| fig-cap: "Comparison of four residual types. Note the Studentized LOOCV and Studentized Shortcut panels are identical."
+
+# Load libraries for data manipulation and plotting
+library(dplyr)
+library(ggplot2)
+
+# 1. Generate sample data
+set.seed(42)
+y <- c(rnorm(9, mean = 10, sd = 2), 20) # 9 normal points and 1 outlier
+n <- length(y)
+p <- 1 # Only one parameter (the intercept)
+
+# 2. Calculate components for ALL points
+# Initialize lists to store results
+e_list <- list()
+h_list <- list()
+e_deleted_list <- list()
+sigma_minus_i_list <- list()
+
+# Full model sigma_hat (used for non-studentized full-data residual)
+full_model <- lm(y ~ 1)
+sigma_hat <- summary(full_model)$sigma
+
+for (i in 1:n) {
+  e_list[[i]] <- y[i] - mean(y)
+  h_list[[i]] <- 1 / n
+  
+  y_minus_i <- y[-i]
+  y_bar_minus_i <- mean(y_minus_i)
+  e_deleted_list[[i]] <- y[i] - y_bar_minus_i
+  
+  df_minus_i <- n - p - 1
+  rss_minus_i <- sum((y_minus_i - y_bar_minus_i)^2)
+  sigma_minus_i_list[[i]] <- sqrt(rss_minus_i / df_minus_i)
+}
+
+# 3. Assemble a data frame with all four residual types using new names
+results_df <- data.frame(
+  index = 1:n,
+  ordinary = unlist(e_list),
+  leverage = unlist(h_list),
+  deleted = unlist(e_deleted_list),
+  sigma_minus_i = unlist(sigma_minus_i_list)
+) %>%
+  mutate(
+    `Non-studentized Full-Data` = ordinary / sigma_hat,
+    `Non-studentized LOOCV` = deleted / sigma_minus_i,
+    `Studentized LOOCV` = deleted / (sigma_minus_i * sqrt(1 - leverage)),
+    `Studentized Shortcut` = ordinary / (sigma_minus_i * sqrt(1 - leverage))
+  )
+
+# 4. Prepare data for plotting
+plot_data <- results_df %>%
+  select(index, `Non-studentized Full-Data`:`Studentized Shortcut`) %>%
+  tidyr::pivot_longer(
+    cols = -index,
+    names_to = "residual_type",
+    values_to = "value"
+  ) %>%
+  mutate(
+    residual_type = factor(
+      residual_type,
+      levels = c("Non-studentized Full-Data", "Non-studentized LOOCV", "Studentized Shortcut", "Studentized LOOCV")
+    )
+  )
+
+# 5. Create the four-panel plot with a shared y-axis
+y_range <- range(plot_data$value)
+
+ggplot(plot_data, aes(x = index, y = value)) +
+  geom_point(aes(color = (index == 10)), size = 3) +
+  geom_segment(aes(xend = index, yend = 0)) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  scale_x_continuous(breaks = 1:n) +
+  scale_color_manual(values = c("black", "red"), guide = "none") +
+  coord_cartesian(ylim = y_range) +
+  facet_wrap(~residual_type, ncol = 2) +
+  labs(
+    title = "Comparison of Four Residual Definitions",
+    subtitle = "The outlier at index 10 (red) is magnified most by the studentized formulas.",
+    x = "Data Point Index",
+    y = "Residual Value"
+  ) +
+  theme_minimal() +
+  theme(strip.text = element_text(face = "bold", size = 12))
+```
+
+## Example 2: The Simple Linear Regression
+
+
