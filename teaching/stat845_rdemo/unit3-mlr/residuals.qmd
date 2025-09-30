@@ -10,6 +10,7 @@ format:
     toc: true
     code-fold: false
     number-sections: true
+    math: mathjax
 ---
 
 ## Introduction
@@ -92,7 +93,7 @@ This final value is a reliable diagnostic. Under the null hypothesis that the ob
 
 ---
 
-### Extenally Studentized Residuals ⚙️
+### Extenally Studentized Residuals with Full Data Models ⚙️
 
 Calculating the conceptual formula appears to require fitting *n* different regression models—a computationally expensive task. Fortunately, a mathematical identity allows us to calculate the exact same value using only the results from the single, full data model.
 
@@ -136,102 +137,190 @@ Now, let's start with the conceptual definition of the studentized residual and 
 
 This proves that the two formulas are mathematically identical. The computational shortcut is simply a clever algebraic rearrangement of the more intuitive LOOCV definition, allowing for efficient and accurate calculation. ✅
 
-## Example 1: The Intercept-Only Model
-
-Let's make this concrete with the simplest model: $y_i = \mu + \epsilon_i$. Here, the "best fit" is just the sample mean. We can demonstrate the equivalence of the formulas numerically in R.
+## Example
 
 ```{r}
-#| label: final-plot
+#| label: build-residual-variants-ascii
 #| echo: true
 #| message: false
 #| warning: false
-#| fig-cap: "Comparison of four residual types. Note the Studentized LOOCV and Studentized Shortcut panels are identical."
 
-# Load libraries for data manipulation and plotting
+# Libraries
 library(dplyr)
+library(tidyr)
 library(ggplot2)
 
-# 1. Generate sample data
-set.seed(42)
-y <- c(rnorm(9, mean = 10, sd = 2), 20) # 9 normal points and 1 outlier
-n <- length(y)
-p <- 1 # Only one parameter (the intercept)
+# -------------------------------
+# 1) Data and full-model fit
+# -------------------------------
+set.seed(123)
+n <- 20
+x <- 1:n
+y <- 2 + 3 * x + rnorm(n, mean = 0, sd = 5)
+y[6] <- y[6] + 25  # add an outlier at x = 6
+full_data  <- data.frame(x = x, y = y)
 
-# 2. Calculate components for ALL points
-# Initialize lists to store results
-e_list <- list()
-h_list <- list()
-e_deleted_list <- list()
-sigma_minus_i_list <- list()
+full_model <- lm(y ~ x, data = full_data)
+leverage   <- hatvalues(full_model)
+e_full     <- resid(full_model)               # e_i
+y_hat      <- fitted(full_model)              # yhat_i
+sigma_hat  <- summary(full_model)$sigma       # sigma_hat
 
-# Full model sigma_hat (used for non-studentized full-data residual)
-full_model <- lm(y ~ 1)
-sigma_hat <- summary(full_model)$sigma
+# -------------------------------
+# 2) LOOCV quantities (refit n times)
+# -------------------------------
+e_del         <- numeric(n)   # e_{i,-i}
+sigma_minus_i <- numeric(n)   # sigma_{-i}
+ns_loocv      <- numeric(n)   # non-studentized LOOCV: e_{i,-i} / sigma_{-i}
+stud_loocv    <- numeric(n)   # studentized LOOCV: e_{i,-i} / (sigma_{-i} / sqrt(1 - h_ii))
 
 for (i in 1:n) {
-  e_list[[i]] <- y[i] - mean(y)
-  h_list[[i]] <- 1 / n
+  loocv_model <- lm(y ~ x, data = full_data[-i, ])
+  yhat_minus  <- predict(loocv_model, newdata = full_data[i, , drop = FALSE])
+  e_del[i]    <- full_data$y[i] - yhat_minus
+  sigma_minus_i[i] <- summary(loocv_model)$sigma
   
-  y_minus_i <- y[-i]
-  y_bar_minus_i <- mean(y_minus_i)
-  e_deleted_list[[i]] <- y[i] - y_bar_minus_i
+  # non-studentized LOOCV residual
+  ns_loocv[i] <- e_del[i] / sigma_minus_i[i]
   
-  df_minus_i <- n - p - 1
-  rss_minus_i <- sum((y_minus_i - y_bar_minus_i)^2)
-  sigma_minus_i_list[[i]] <- sqrt(rss_minus_i / df_minus_i)
+  # studentized LOOCV residual (conceptual definition)
+  stud_loocv[i] <- e_del[i] / (sigma_minus_i[i] / sqrt(1 - leverage[i]))
 }
 
-# 3. Assemble a data frame with all four residual types using new names
-results_df <- data.frame(
-  index = 1:n,
-  ordinary = unlist(e_list),
-  leverage = unlist(h_list),
-  deleted = unlist(e_deleted_list),
-  sigma_minus_i = unlist(sigma_minus_i_list)
-) %>%
-  mutate(
-    `Non-studentized Full-Data` = ordinary / sigma_hat,
-    `Non-studentized LOOCV` = deleted / sigma_minus_i,
-    `Studentized LOOCV` = deleted / (sigma_minus_i * sqrt(1 - leverage)),
-    `Studentized Shortcut` = ordinary / (sigma_minus_i * sqrt(1 - leverage))
-  )
+# -------------------------------
+# 3) Shortcut studentized residual
+# -------------------------------
+stud_shortcut <- rstudent(full_model)
 
-# 4. Prepare data for plotting
-plot_data <- results_df %>%
-  select(index, `Non-studentized Full-Data`:`Studentized Shortcut`) %>%
-  tidyr::pivot_longer(
-    cols = -index,
-    names_to = "residual_type",
-    values_to = "value"
-  ) %>%
-  mutate(
-    residual_type = factor(
-      residual_type,
-      levels = c("Non-studentized Full-Data", "Non-studentized LOOCV", "Studentized Shortcut", "Studentized LOOCV")
-    )
-  )
+# -------------------------------
+# 4) Non-studentized full-data residual
+# -------------------------------
+ns_full <- e_full / sigma_hat  # e_i / sigma_hat
 
-# 5. Create the four-panel plot with a shared y-axis
-y_range <- range(plot_data$value)
+# -------------------------------
+# 5) Assemble ASCII-named results
+# -------------------------------
+residuals_df <- data.frame(
+  x = full_data$x,
+  leverage = as.numeric(leverage),
+  e_full = as.numeric(e_full),
+  sigma_hat = as.numeric(sigma_hat),
+  e_del = as.numeric(e_del),
+  sigma_minus_i = as.numeric(sigma_minus_i),
+  ns_residual_e_over_sigma = as.numeric(ns_full),
+  ns_loocv_e_del_over_sigma_minus_i = as.numeric(ns_loocv),
+  studentized_loocv = as.numeric(stud_loocv),
+  studentized_shortcut_rstudent = as.numeric(stud_shortcut)
+)
 
-ggplot(plot_data, aes(x = index, y = value)) +
-  geom_point(aes(color = (index == 10)), size = 3) +
-  geom_segment(aes(xend = index, yend = 0)) +
-  geom_hline(yintercept = 0, linetype = "dashed") +
-  scale_x_continuous(breaks = 1:n) +
-  scale_color_manual(values = c("black", "red"), guide = "none") +
-  coord_cartesian(ylim = y_range) +
-  facet_wrap(~residual_type, ncol = 2) +
-  labs(
-    title = "Comparison of Four Residual Definitions",
-    subtitle = "The outlier at index 10 (red) is magnified most by the studentized formulas.",
-    x = "Data Point Index",
-    y = "Residual Value"
-  ) +
-  theme_minimal() +
-  theme(strip.text = element_text(face = "bold", size = 12))
+residuals_df_print <- residuals_df
+num_cols <- vapply(residuals_df_print, is.numeric, logical(1))
+residuals_df_print[num_cols] <- lapply(residuals_df_print[num_cols], function(z) round(z, 3))
+
+display_names <- c(
+  "$x_i$",
+  "$h_{ii}$",
+  "$e_i$",
+  "$\\hat{\\sigma}$",
+  "$e_{i,-i}$",
+  "$\\hat{\\sigma}_{-i}$",
+  "$\\frac{e_i}{\\hat{\\sigma}}$",
+  "$\\frac{e_{i,-i}}{\\hat{\\sigma}_{-i}}$",
+  # Studentized LOOCV (conceptual)
+  "Studentized LOOCV $\\left( \\frac{e_{i,-i}}{\\hat{\\sigma}_{-i}/\\sqrt{1-h_{ii}}} \\right)$",
+  # Studentized Full / rstudent (shortcut)
+  "Studentized Full (\\texttt{rstudent}) $\\left( \\frac{e_i}{\\hat{\\sigma}_{-i}\\sqrt{1-h_{ii}}} \\right)$"
+)
+
+knitr::kable(
+  residuals_df_print,
+  caption = "Residual variants and related quantities.",
+  col.names = display_names,
+  escape = FALSE,
+  align = rep("r", length(display_names))
+)
+
 ```
 
-## Example 2: The Simple Linear Regression
 
+```{r}
+#| label: plot-four-residuals-one-panel-ascii
+#| echo: true
+#| message: false
+#| warning: false
+
+# One-panel plot of all four residual variants vs x_i with distinct shapes
+plot_df <- residuals_df %>%
+  select(
+    x,
+    ns_residual_e_over_sigma,
+    ns_loocv_e_del_over_sigma_minus_i,
+    studentized_loocv,
+    studentized_shortcut_rstudent
+  ) %>%
+  pivot_longer(
+    cols = -x,
+    names_to = "residual_type",
+    values_to = "residual_value"
+  )
+
+# Shapes (ASCII only)
+# - ns_loocv_e_del_over_sigma_minus_i: hollow circle (1)
+# - studentized_loocv: asterisk (8)
+# - studentized_shortcut_rstudent: asterisk (8)
+# - ns_residual_e_over_sigma: solid circle (16)
+shape_map <- c(
+  ns_residual_e_over_sigma = 16,                 # solid circle
+  ns_loocv_e_del_over_sigma_minus_i = 1,         # hollow circle
+  studentized_loocv = 8,                         # asterisk
+  studentized_shortcut_rstudent = 8              # asterisk
+)
+
+# Readable legend labels
+labels_map <- c(
+  ns_residual_e_over_sigma = "Non-studentized Full Data",
+  ns_loocv_e_del_over_sigma_minus_i = "Non-studentized LOOCV",
+  studentized_loocv = "Studentized LOOCV",
+  studentized_shortcut_rstudent = "Studentized Full Data"
+)
+
+# Four distinct colors
+color_map <- c(
+  ns_residual_e_over_sigma = "#1f77b4",          # blue
+  ns_loocv_e_del_over_sigma_minus_i = "#ff7f0e", # orange
+  studentized_loocv = "#2ca02c",                 # green
+  studentized_shortcut_rstudent = "#d62728"      # red
+)
+
+ggplot(
+  plot_df,
+  aes(x = x, y = residual_value,
+      shape = residual_type, color = residual_type, group = residual_type)
+) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_point(size = 3, stroke = 1) +
+  scale_shape_manual(
+    values = shape_map,
+    breaks = names(labels_map),
+    labels = unname(labels_map),
+    name = "Residual Type"
+  ) +
+  scale_color_manual(
+    values = color_map,
+    breaks = names(labels_map),
+    labels = unname(labels_map),
+    name = "Residual Type"
+  ) +
+  labs(
+    title = "Four residual variants vs x",
+    x = "x_i",
+    y = "Residual value"
+  ) +
+  theme_bw() +
+  theme(
+    legend.position = "right",
+    legend.title = element_text(face = "bold")
+  )
+
+```
 

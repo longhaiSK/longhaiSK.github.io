@@ -126,16 +126,11 @@ window.Quarto = {
   </ul></li>
   <li><a href="#studentized-loocv-residual" id="toc-studentized-loocv-residual" class="nav-link" data-scroll-target="#studentized-loocv-residual"><span class="header-section-number">5</span> Studentized LOOCV Residual</a>
   <ul class="collapse">
-  <li><a href="#extenally-studentized-residuals" id="toc-extenally-studentized-residuals" class="nav-link" data-scroll-target="#extenally-studentized-residuals"><span class="header-section-number">5.1</span> Extenally Studentized Residuals ⚙️</a></li>
+  <li><a href="#extenally-studentized-residuals-with-full-data-models" id="toc-extenally-studentized-residuals-with-full-data-models" class="nav-link" data-scroll-target="#extenally-studentized-residuals-with-full-data-models"><span class="header-section-number">5.1</span> Extenally Studentized Residuals with Full Data Models ⚙️</a></li>
   <li><a href="#proof-of-equivalence" id="toc-proof-of-equivalence" class="nav-link" data-scroll-target="#proof-of-equivalence"><span class="header-section-number">5.2</span> Proof of Equivalence ⚙️</a></li>
   <li><a href="#the-derivation" id="toc-the-derivation" class="nav-link" data-scroll-target="#the-derivation"><span class="header-section-number">5.3</span> <strong>The Derivation</strong></a></li>
   </ul></li>
-  <li><a href="#example-1-the-intercept-only-model" id="toc-example-1-the-intercept-only-model" class="nav-link" data-scroll-target="#example-1-the-intercept-only-model"><span class="header-section-number">6</span> Example 1: The Intercept-Only Model</a>
-  <ul class="collapse">
-  <li><a href="#calculate-the-components" id="toc-calculate-the-components" class="nav-link" data-scroll-target="#calculate-the-components"><span class="header-section-number">6.1</span> <strong>Calculate the Components</strong></a></li>
-  <li><a href="#showing-the-equivalence" id="toc-showing-the-equivalence" class="nav-link" data-scroll-target="#showing-the-equivalence"><span class="header-section-number">6.2</span> <strong>Showing the Equivalence</strong></a></li>
-  <li><a href="#distribution-of-the-residuals" id="toc-distribution-of-the-residuals" class="nav-link" data-scroll-target="#distribution-of-the-residuals"><span class="header-section-number">6.3</span> <strong>Distribution of the Residuals</strong></a></li>
-  </ul></li>
+  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">6</span> Example</a></li>
   </ul>
 </nav>
 </div>
@@ -243,8 +238,8 @@ window.Quarto = {
 t_i = \frac{e_{i,-i}}{\text{SE}(e_{i,-i})} = \frac{e_{i,-i}}{\frac{\hat{\sigma}_{-i}}{\sqrt{1-h_{ii}}}}
 \]</span> This final value is a reliable diagnostic. Under the null hypothesis that the observation is not an outlier, it follows a <strong>Student’s t-distribution</strong> with <em>n - p - 1</em> degrees of freedom.</p>
 <hr>
-<section id="extenally-studentized-residuals" class="level3" data-number="5.1">
-<h3 data-number="5.1" class="anchored" data-anchor-id="extenally-studentized-residuals"><span class="header-section-number">5.1</span> Extenally Studentized Residuals ⚙️</h3>
+<section id="extenally-studentized-residuals-with-full-data-models" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="extenally-studentized-residuals-with-full-data-models"><span class="header-section-number">5.1</span> Extenally Studentized Residuals with Full Data Models ⚙️</h3>
 <p>Calculating the conceptual formula appears to require fitting <em>n</em> different regression models—a computationally expensive task. Fortunately, a mathematical identity allows us to calculate the exact same value using only the results from the single, full data model.</p>
 <p><strong>Computational Shortcut Formula:</strong> <span class="math display">\[
 t_i = \frac{e_i}{\hat{\sigma}_{-i}\sqrt{1 - h_{ii}}}
@@ -274,276 +269,459 @@ t_i = \frac{e_i}{\hat{\sigma}_{-i}\sqrt{1 - h_{ii}}}
 <p>This proves that the two formulas are mathematically identical. The computational shortcut is simply a clever algebraic rearrangement of the more intuitive LOOCV definition, allowing for efficient and accurate calculation. ✅</p>
 </section>
 </section>
-<section id="example-1-the-intercept-only-model" class="level2" data-number="6">
-<h2 data-number="6" class="anchored" data-anchor-id="example-1-the-intercept-only-model"><span class="header-section-number">6</span> Example 1: The Intercept-Only Model</h2>
-<p>Let’s make this concrete with the simplest model: <span class="math inline">\(y_i = \mu + \epsilon_i\)</span>. Here, the “best fit” is just the sample mean. We can demonstrate the equivalence of the formulas numerically in R.</p>
+<section id="example" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="example"><span class="header-section-number">6</span> Example</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 1. Setup the Data ---</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rnorm</span>(<span class="dv">9</span>, <span class="at">mean =</span> <span class="dv">10</span>, <span class="at">sd =</span> <span class="dv">2</span>), <span class="dv">20</span>) <span class="co"># 9 normal points and 1 outlier</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">length</span>(y)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a data frame for the lm() function</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>full_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">y =</span> y, <span class="at">x =</span> <span class="dv">1</span>) <span class="co"># x is a dummy for the intercept</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 2. Brute-Force Calculation via Looping ---</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Create vectors to store our results</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>deleted_residuals_manual <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>studentized_residuals_manual <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n)</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Libraries</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 1) Data and full-model fit</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">20</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>n</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">+</span> <span class="dv">3</span> <span class="sc">*</span> x <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">5</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>y[<span class="dv">6</span>] <span class="ot">&lt;-</span> y[<span class="dv">6</span>] <span class="sc">+</span> <span class="dv">25</span>  <span class="co"># add an outlier at x = 6</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>full_data  <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> x, <span class="at">y =</span> y)</span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate leverage once from the full model, as it's needed for the studentized formula</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>full_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> full_data)</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>leverage <span class="ot">&lt;-</span> <span class="fu">hatvalues</span>(full_model)</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Loop through each data point</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n) {</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Create the leave-one-out dataset by removing the i-th row</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  loocv_data <span class="ot">&lt;-</span> full_data[<span class="sc">-</span>i, ]</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Refit the model on the reduced dataset</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  loocv_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> loocv_data)</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Predict the value for the single case that was removed</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  <span class="co"># We use the original data point as 'newdata'</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  predicted_value <span class="ot">&lt;-</span> <span class="fu">predict</span>(loocv_model, <span class="at">newdata =</span> full_data[i, ])</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate the deleted residual (e_{i,-i})</span></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  deleted_residuals_manual[i] <span class="ot">&lt;-</span> full_data<span class="sc">$</span>y[i] <span class="sc">-</span> predicted_value</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Get sigma_hat_minus_i from the summary of the new model</span></span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  sigma_hat_minus_i <span class="ot">&lt;-</span> <span class="fu">summary</span>(loocv_model)<span class="sc">$</span>sigma</span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate the studentized residual (t_i)</span></span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>  h_ii <span class="ot">&lt;-</span> leverage[i]</span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>  studentized_residuals_manual[i] <span class="ot">&lt;-</span> deleted_residuals_manual[i] <span class="sc">/</span> </span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>                                     (sigma_hat_minus_i <span class="sc">*</span> <span class="fu">sqrt</span>(<span class="dv">1</span> <span class="sc">-</span> h_ii))</span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 3. Compare with R's Efficient Shortcut Functions ---</span></span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>efficient_deleted <span class="ot">&lt;-</span> <span class="fu">residuals</span>(full_model) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> leverage)</span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>efficient_studentized <span class="ot">&lt;-</span> <span class="fu">rstudent</span>(full_model)</span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a comparison data frame</span></span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>comparison_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>  <span class="at">Observation =</span> <span class="dv">1</span><span class="sc">:</span>n,</span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>  <span class="at">Manual_Deleted =</span> deleted_residuals_manual,</span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>  <span class="at">Efficient_Deleted =</span> efficient_deleted,</span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>  <span class="at">Manual_Studentized =</span> studentized_residuals_manual,</span>
-<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>  <span class="at">Efficient_Studentized =</span> efficient_studentized</span>
-<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the comparison table</span></span>
-<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(comparison_df, <span class="at">digits =</span> <span class="dv">4</span>, <span class="at">caption =</span> <span class="st">"Comparison of Manual vs. Efficient Residual Calculation"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>full_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x, <span class="at">data =</span> full_data)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>leverage   <span class="ot">&lt;-</span> <span class="fu">hatvalues</span>(full_model)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>e_full     <span class="ot">&lt;-</span> <span class="fu">resid</span>(full_model)               <span class="co"># e_i</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>y_hat      <span class="ot">&lt;-</span> <span class="fu">fitted</span>(full_model)              <span class="co"># yhat_i</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>sigma_hat  <span class="ot">&lt;-</span> <span class="fu">summary</span>(full_model)<span class="sc">$</span>sigma       <span class="co"># sigma_hat</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co"># 2) LOOCV quantities (refit n times)</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>e_del         <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n)   <span class="co"># e_{i,-i}</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>sigma_minus_i <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n)   <span class="co"># sigma_{-i}</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>ns_loocv      <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n)   <span class="co"># non-studentized LOOCV: e_{i,-i} / sigma_{-i}</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>stud_loocv    <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n)   <span class="co"># studentized LOOCV: e_{i,-i} / (sigma_{-i} / sqrt(1 - h_ii))</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n) {</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  loocv_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x, <span class="at">data =</span> full_data[<span class="sc">-</span>i, ])</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  yhat_minus  <span class="ot">&lt;-</span> <span class="fu">predict</span>(loocv_model, <span class="at">newdata =</span> full_data[i, , <span class="at">drop =</span> <span class="cn">FALSE</span>])</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  e_del[i]    <span class="ot">&lt;-</span> full_data<span class="sc">$</span>y[i] <span class="sc">-</span> yhat_minus</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  sigma_minus_i[i] <span class="ot">&lt;-</span> <span class="fu">summary</span>(loocv_model)<span class="sc">$</span>sigma</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  <span class="co"># non-studentized LOOCV residual</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>  ns_loocv[i] <span class="ot">&lt;-</span> e_del[i] <span class="sc">/</span> sigma_minus_i[i]</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>  <span class="co"># studentized LOOCV residual (conceptual definition)</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>  stud_loocv[i] <span class="ot">&lt;-</span> e_del[i] <span class="sc">/</span> (sigma_minus_i[i] <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="dv">1</span> <span class="sc">-</span> leverage[i]))</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="co"># 3) Shortcut studentized residual</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>stud_shortcut <span class="ot">&lt;-</span> <span class="fu">rstudent</span>(full_model)</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a><span class="co"># 4) Non-studentized full-data residual</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>ns_full <span class="ot">&lt;-</span> e_full <span class="sc">/</span> sigma_hat  <span class="co"># e_i / sigma_hat</span></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a><span class="co"># 5) Assemble ASCII-named results</span></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>residuals_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> full_data<span class="sc">$</span>x,</span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>  <span class="at">leverage =</span> <span class="fu">as.numeric</span>(leverage),</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>  <span class="at">e_full =</span> <span class="fu">as.numeric</span>(e_full),</span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>  <span class="at">sigma_hat =</span> <span class="fu">as.numeric</span>(sigma_hat),</span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>  <span class="at">e_del =</span> <span class="fu">as.numeric</span>(e_del),</span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>  <span class="at">sigma_minus_i =</span> <span class="fu">as.numeric</span>(sigma_minus_i),</span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>  <span class="at">ns_residual_e_over_sigma =</span> <span class="fu">as.numeric</span>(ns_full),</span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>  <span class="at">ns_loocv_e_del_over_sigma_minus_i =</span> <span class="fu">as.numeric</span>(ns_loocv),</span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>  <span class="at">studentized_loocv =</span> <span class="fu">as.numeric</span>(stud_loocv),</span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>  <span class="at">studentized_shortcut_rstudent =</span> <span class="fu">as.numeric</span>(stud_shortcut)</span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>residuals_df_print <span class="ot">&lt;-</span> residuals_df</span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>num_cols <span class="ot">&lt;-</span> <span class="fu">vapply</span>(residuals_df_print, is.numeric, <span class="fu">logical</span>(<span class="dv">1</span>))</span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>residuals_df_print[num_cols] <span class="ot">&lt;-</span> <span class="fu">lapply</span>(residuals_df_print[num_cols], <span class="cf">function</span>(z) <span class="fu">round</span>(z, <span class="dv">3</span>))</span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>display_names <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>  <span class="st">"$x_i$"</span>,</span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>  <span class="st">"$h_{ii}$"</span>,</span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a>  <span class="st">"$e_i$"</span>,</span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>  <span class="st">"$</span><span class="sc">\\</span><span class="st">hat{</span><span class="sc">\\</span><span class="st">sigma}$"</span>,</span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a>  <span class="st">"$e_{i,-i}$"</span>,</span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a>  <span class="st">"$</span><span class="sc">\\</span><span class="st">hat{</span><span class="sc">\\</span><span class="st">sigma}_{-i}$"</span>,</span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a>  <span class="st">"$</span><span class="sc">\\</span><span class="st">frac{e_i}{</span><span class="sc">\\</span><span class="st">hat{</span><span class="sc">\\</span><span class="st">sigma}}$"</span>,</span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a>  <span class="st">"$</span><span class="sc">\\</span><span class="st">frac{e_{i,-i}}{</span><span class="sc">\\</span><span class="st">hat{</span><span class="sc">\\</span><span class="st">sigma}_{-i}}$"</span>,</span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Studentized LOOCV (conceptual)</span></span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Studentized LOOCV $</span><span class="sc">\\</span><span class="st">left( </span><span class="sc">\\</span><span class="st">frac{e_{i,-i}}{</span><span class="sc">\\</span><span class="st">hat{</span><span class="sc">\\</span><span class="st">sigma}_{-i}/</span><span class="sc">\\</span><span class="st">sqrt{1-h_{ii}}} </span><span class="sc">\\</span><span class="st">right)$"</span>,</span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Studentized Full / rstudent (shortcut)</span></span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Studentized Full (</span><span class="sc">\\</span><span class="st">texttt{rstudent}) $</span><span class="sc">\\</span><span class="st">left( </span><span class="sc">\\</span><span class="st">frac{e_i}{</span><span class="sc">\\</span><span class="st">hat{</span><span class="sc">\\</span><span class="st">sigma}_{-i}</span><span class="sc">\\</span><span class="st">sqrt{1-h_{ii}}} </span><span class="sc">\\</span><span class="st">right)$"</span></span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a>  residuals_df_print,</span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Residual variants and related quantities."</span>,</span>
+<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a>  <span class="at">col.names =</span> display_names,</span>
+<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a>  <span class="at">escape =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a>  <span class="at">align =</span> <span class="fu">rep</span>(<span class="st">"r"</span>, <span class="fu">length</span>(display_names))</span>
+<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Comparison of Manual vs.&nbsp;Efficient Residual Calculation</caption>
+<caption>Residual variants and related quantities.</caption>
 <colgroup>
-<col style="width: 13%">
-<col style="width: 17%">
-<col style="width: 20%">
-<col style="width: 22%">
-<col style="width: 25%">
+<col style="width: 1%">
+<col style="width: 2%">
+<col style="width: 2%">
+<col style="width: 4%">
+<col style="width: 3%">
+<col style="width: 6%">
+<col style="width: 8%">
+<col style="width: 11%">
+<col style="width: 27%">
+<col style="width: 31%">
 </colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: right;">Observation</th>
-<th style="text-align: right;">Manual_Deleted</th>
-<th style="text-align: right;">Efficient_Deleted</th>
-<th style="text-align: right;">Manual_Studentized</th>
-<th style="text-align: right;">Efficient_Studentized</th>
+<th style="text-align: right;"><span class="math inline">\(x_i\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(h_{ii}\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(e_i\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(\hat{\sigma}\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(e_{i,-i}\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(\hat{\sigma}_{-i}\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(\frac{e_i}{\hat{\sigma}}\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(\frac{e_{i,-i}}{\hat{\sigma}_{-i}}\)</span></th>
+<th style="text-align: right;">Studentized LOOCV <span class="math inline">\(\left( \frac{e_{i,-i}}{\hat{\sigma}_{-i}/\sqrt{1-h_{ii}}} \right)\)</span></th>
+<th style="text-align: right;">Studentized Full () <span class="math inline">\(\left( \frac{e_i}{\hat{\sigma}_{-i}\sqrt{1-h_{ii}}} \right)\)</span></th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">0.7053</td>
-<td style="text-align: right;">0.7053</td>
-<td style="text-align: right;">0.2189</td>
-<td style="text-align: right;">0.1971</td>
+<td style="text-align: right;">0.186</td>
+<td style="text-align: right;">-7.130</td>
+<td style="text-align: right;">8.804</td>
+<td style="text-align: right;">-8.756</td>
+<td style="text-align: right;">8.854</td>
+<td style="text-align: right;">-0.810</td>
+<td style="text-align: right;">-0.989</td>
+<td style="text-align: right;">-0.892</td>
+<td style="text-align: right;">-0.892</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
-<td style="text-align: right;">-3.5961</td>
-<td style="text-align: right;">-3.5961</td>
-<td style="text-align: right;">-1.1909</td>
-<td style="text-align: right;">-1.0718</td>
+<td style="text-align: right;">0.159</td>
+<td style="text-align: right;">-5.229</td>
+<td style="text-align: right;">8.804</td>
+<td style="text-align: right;">-6.215</td>
+<td style="text-align: right;">8.953</td>
+<td style="text-align: right;">-0.594</td>
+<td style="text-align: right;">-0.694</td>
+<td style="text-align: right;">-0.637</td>
+<td style="text-align: right;">-0.637</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">3</td>
-<td style="text-align: right;">-1.5343</td>
-<td style="text-align: right;">-1.5343</td>
-<td style="text-align: right;">-0.4807</td>
-<td style="text-align: right;">-0.4326</td>
+<td style="text-align: right;">0.135</td>
+<td style="text-align: right;">3.965</td>
+<td style="text-align: right;">8.804</td>
+<td style="text-align: right;">4.582</td>
+<td style="text-align: right;">9.000</td>
+<td style="text-align: right;">0.450</td>
+<td style="text-align: right;">0.509</td>
+<td style="text-align: right;">0.474</td>
+<td style="text-align: right;">0.474</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">4</td>
-<td style="text-align: right;">-0.9349</td>
-<td style="text-align: right;">-0.9349</td>
-<td style="text-align: right;">-0.2907</td>
-<td style="text-align: right;">-0.2617</td>
+<td style="text-align: right;">0.114</td>
+<td style="text-align: right;">-3.227</td>
+<td style="text-align: right;">8.804</td>
+<td style="text-align: right;">-3.640</td>
+<td style="text-align: right;">9.021</td>
+<td style="text-align: right;">-0.367</td>
+<td style="text-align: right;">-0.403</td>
+<td style="text-align: right;">-0.380</td>
+<td style="text-align: right;">-0.380</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">-1.4429</td>
-<td style="text-align: right;">-1.4429</td>
-<td style="text-align: right;">-0.4514</td>
-<td style="text-align: right;">-0.4063</td>
+<td style="text-align: right;">0.095</td>
+<td style="text-align: right;">-2.683</td>
+<td style="text-align: right;">8.804</td>
+<td style="text-align: right;">-2.967</td>
+<td style="text-align: right;">9.033</td>
+<td style="text-align: right;">-0.305</td>
+<td style="text-align: right;">-0.328</td>
+<td style="text-align: right;">-0.312</td>
+<td style="text-align: right;">-0.312</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">6</td>
-<td style="text-align: right;">-2.5771</td>
-<td style="text-align: right;">-2.5771</td>
-<td style="text-align: right;">-0.8251</td>
-<td style="text-align: right;">-0.7426</td>
+<td style="text-align: right;">0.080</td>
+<td style="text-align: right;">30.495</td>
+<td style="text-align: right;">8.804</td>
+<td style="text-align: right;">33.163</td>
+<td style="text-align: right;">4.752</td>
+<td style="text-align: right;">3.464</td>
+<td style="text-align: right;">6.979</td>
+<td style="text-align: right;">6.693</td>
+<td style="text-align: right;">6.693</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">7</td>
-<td style="text-align: right;">1.0177</td>
-<td style="text-align: right;">1.0177</td>
-<td style="text-align: right;">0.3167</td>
-<td style="text-align: right;">0.2851</td>
+<td style="text-align: right;">0.068</td>
+<td style="text-align: right;">-0.526</td>
+<td style="text-align: right;">8.804</td>
+<td style="text-align: right;">-0.565</td>
+<td style="text-align: right;">9.058</td>
+<td style="text-align: right;">-0.060</td>
+<td style="text-align: right;">-0.062</td>
+<td style="text-align: right;">-0.060</td>
+<td style="text-align: right;">-0.060</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">8</td>
-<td style="text-align: right;">-2.5516</td>
-<td style="text-align: right;">-2.5516</td>
-<td style="text-align: right;">-0.8164</td>
-<td style="text-align: right;">-0.7348</td>
+<td style="text-align: right;">0.059</td>
+<td style="text-align: right;">-8.907</td>
+<td style="text-align: right;">8.804</td>
+<td style="text-align: right;">-9.469</td>
+<td style="text-align: right;">8.781</td>
+<td style="text-align: right;">-1.012</td>
+<td style="text-align: right;">-1.078</td>
+<td style="text-align: right;">-1.046</td>
+<td style="text-align: right;">-1.046</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">9</td>
-<td style="text-align: right;">2.1441</td>
-<td style="text-align: right;">2.1441</td>
-<td style="text-align: right;">0.6793</td>
-<td style="text-align: right;">0.6114</td>
+<td style="text-align: right;">0.053</td>
+<td style="text-align: right;">-5.766</td>
+<td style="text-align: right;">8.804</td>
+<td style="text-align: right;">-6.092</td>
+<td style="text-align: right;">8.944</td>
+<td style="text-align: right;">-0.655</td>
+<td style="text-align: right;">-0.681</td>
+<td style="text-align: right;">-0.663</td>
+<td style="text-align: right;">-0.663</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">10</td>
-<td style="text-align: right;">8.7698</td>
-<td style="text-align: right;">8.7698</td>
-<td style="text-align: right;">5.3967</td>
-<td style="text-align: right;">4.8570</td>
+<td style="text-align: right;">0.050</td>
+<td style="text-align: right;">-4.311</td>
+<td style="text-align: right;">8.804</td>
+<td style="text-align: right;">-4.540</td>
+<td style="text-align: right;">8.995</td>
+<td style="text-align: right;">-0.490</td>
+<td style="text-align: right;">-0.505</td>
+<td style="text-align: right;">-0.492</td>
+<td style="text-align: right;">-0.492</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">0.050</td>
+<td style="text-align: right;">4.287</td>
+<td style="text-align: right;">8.804</td>
+<td style="text-align: right;">4.514</td>
+<td style="text-align: right;">8.996</td>
+<td style="text-align: right;">0.487</td>
+<td style="text-align: right;">0.502</td>
+<td style="text-align: right;">0.489</td>
+<td style="text-align: right;">0.489</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">0.053</td>
+<td style="text-align: right;">0.215</td>
+<td style="text-align: right;">8.804</td>
+<td style="text-align: right;">0.227</td>
+<td style="text-align: right;">9.059</td>
+<td style="text-align: right;">0.024</td>
+<td style="text-align: right;">0.025</td>
+<td style="text-align: right;">0.024</td>
+<td style="text-align: right;">0.024</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">0.059</td>
+<td style="text-align: right;">0.669</td>
+<td style="text-align: right;">8.804</td>
+<td style="text-align: right;">0.711</td>
+<td style="text-align: right;">9.058</td>
+<td style="text-align: right;">0.076</td>
+<td style="text-align: right;">0.079</td>
+<td style="text-align: right;">0.076</td>
+<td style="text-align: right;">0.076</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">0.068</td>
+<td style="text-align: right;">-0.532</td>
+<td style="text-align: right;">8.804</td>
+<td style="text-align: right;">-0.571</td>
+<td style="text-align: right;">9.058</td>
+<td style="text-align: right;">-0.060</td>
+<td style="text-align: right;">-0.063</td>
+<td style="text-align: right;">-0.061</td>
+<td style="text-align: right;">-0.061</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">0.080</td>
+<td style="text-align: right;">-3.615</td>
+<td style="text-align: right;">8.804</td>
+<td style="text-align: right;">-3.931</td>
+<td style="text-align: right;">9.013</td>
+<td style="text-align: right;">-0.411</td>
+<td style="text-align: right;">-0.436</td>
+<td style="text-align: right;">-0.418</td>
+<td style="text-align: right;">-0.418</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">0.095</td>
+<td style="text-align: right;">8.348</td>
+<td style="text-align: right;">8.804</td>
+<td style="text-align: right;">9.229</td>
+<td style="text-align: right;">8.805</td>
+<td style="text-align: right;">0.948</td>
+<td style="text-align: right;">1.048</td>
+<td style="text-align: right;">0.997</td>
+<td style="text-align: right;">0.997</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">0.114</td>
+<td style="text-align: right;">2.152</td>
+<td style="text-align: right;">8.804</td>
+<td style="text-align: right;">2.428</td>
+<td style="text-align: right;">9.042</td>
+<td style="text-align: right;">0.244</td>
+<td style="text-align: right;">0.269</td>
+<td style="text-align: right;">0.253</td>
+<td style="text-align: right;">0.253</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">0.135</td>
+<td style="text-align: right;">-9.921</td>
+<td style="text-align: right;">8.804</td>
+<td style="text-align: right;">-11.464</td>
+<td style="text-align: right;">8.682</td>
+<td style="text-align: right;">-1.127</td>
+<td style="text-align: right;">-1.320</td>
+<td style="text-align: right;">-1.228</td>
+<td style="text-align: right;">-1.228</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">0.159</td>
+<td style="text-align: right;">3.669</td>
+<td style="text-align: right;">8.804</td>
+<td style="text-align: right;">4.360</td>
+<td style="text-align: right;">9.007</td>
+<td style="text-align: right;">0.417</td>
+<td style="text-align: right;">0.484</td>
+<td style="text-align: right;">0.444</td>
+<td style="text-align: right;">0.444</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">0.186</td>
+<td style="text-align: right;">-1.953</td>
+<td style="text-align: right;">8.804</td>
+<td style="text-align: right;">-2.398</td>
+<td style="text-align: right;">9.044</td>
+<td style="text-align: right;">-0.222</td>
+<td style="text-align: right;">-0.265</td>
+<td style="text-align: right;">-0.239</td>
+<td style="text-align: right;">-0.239</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate some sample data</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rnorm</span>(<span class="dv">9</span>, <span class="at">mean =</span> <span class="dv">10</span>, <span class="at">sd =</span> <span class="dv">2</span>), <span class="dv">20</span>) <span class="co"># 9 normal points and 1 outlier</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">length</span>(y)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="co"># Only one parameter (the intercept)</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Let's focus on the outlier, which is the 10th data point (i=10)</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>i <span class="ot">&lt;-</span> <span class="dv">10</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>y_i <span class="ot">&lt;-</span> y[i]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<section id="calculate-the-components" class="level3" data-number="6.1">
-<h3 data-number="6.1" class="anchored" data-anchor-id="calculate-the-components"><span class="header-section-number">6.1</span> <strong>Calculate the Components</strong></h3>
-<p>First, we’ll manually calculate all the terms we need for our outlier (<span class="math inline">\(i=10\)</span>).</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Full Model Calculations ---</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>y_bar <span class="ot">&lt;-</span> <span class="fu">mean</span>(y)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>e_i <span class="ot">&lt;-</span> y_i <span class="sc">-</span> y_bar</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># For an intercept-only model, leverage is the same for all points</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>h_ii <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">/</span> n</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># --- LOOCV Model Calculations ---</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>y_minus_i <span class="ot">&lt;-</span> y[<span class="sc">-</span>i]</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>y_bar_minus_i <span class="ot">&lt;-</span> <span class="fu">mean</span>(y_minus_i)</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>e_i_minus_i <span class="ot">&lt;-</span> y_i <span class="sc">-</span> y_bar_minus_i</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate sigma_hat_minus_i</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Degrees of freedom for the LOOCV model is (n-1) - p = n-p-1</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>df_minus_i <span class="ot">&lt;-</span> n <span class="sc">-</span> p <span class="sc">-</span> <span class="dv">1</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Residual sum of squares for the LOOCV model</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>rss_minus_i <span class="ot">&lt;-</span> <span class="fu">sum</span>((y_minus_i <span class="sc">-</span> y_bar_minus_i)<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co"># sigma_hat_minus_i is the square root of MSE_minus_i</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>sigma_hat_minus_i <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(rss_minus_i <span class="sc">/</span> df_minus_i)</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the components</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"--- Components for point i ="</span>, i, <span class="st">"---</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>--- Components for point i = 10 ---</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Ordinary Residual (e_i):"</span>, <span class="fu">round</span>(e_i, <span class="dv">4</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Ordinary Residual (e_i): 7.8929 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Leverage (h_ii):"</span>, <span class="fu">round</span>(h_ii, <span class="dv">4</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Leverage (h_ii): 0.1 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Deleted Residual (e_{i,-i}):"</span>, <span class="fu">round</span>(e_i_minus_i, <span class="dv">4</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Deleted Residual (e_{i,-i}): 8.7698 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"LOOCV Std. Error (sigma_{-i}):"</span>, <span class="fu">round</span>(sigma_hat_minus_i, <span class="dv">4</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>LOOCV Std. Error (sigma_{-i}): 1.7129 </code></pre>
-</div>
-</div>
-</section>
-<section id="showing-the-equivalence" class="level3" data-number="6.2">
-<h3 data-number="6.2" class="anchored" data-anchor-id="showing-the-equivalence"><span class="header-section-number">6.2</span> <strong>Showing the Equivalence</strong></h3>
-<p>Now, let’s plug these components into both formulas for the studentized residual, <span class="math inline">\(t_i\)</span>.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Conceptual Formula</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>t_conceptual <span class="ot">&lt;-</span> e_i_minus_i <span class="sc">/</span> (sigma_hat_minus_i <span class="sc">*</span> <span class="fu">sqrt</span>(<span class="dv">1</span> <span class="sc">-</span> h_ii))</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Shortcut Formula</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>t_shortcut <span class="ot">&lt;-</span> e_i <span class="sc">/</span> (sigma_hat_minus_i <span class="sc">*</span> <span class="fu">sqrt</span>(<span class="dv">1</span> <span class="sc">-</span> h_ii))</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Wait, the shortcut formula from the theory is identical to the conceptual</span></span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co"># formula once we substitute e_i with e_{i,-i}. Let's first verify Identity 1:</span></span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co"># e_{i,-i} = e_i / (1 - h_ii)</span></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>identity_1_lhs <span class="ot">&lt;-</span> e_i_minus_i</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>identity_1_rhs <span class="ot">&lt;-</span> e_i <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> h_ii)</span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"--- Verifying Identity 1 ---</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>--- Verifying Identity 1 ---</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"LHS (e_{i,-i}):"</span>, <span class="fu">round</span>(identity_1_lhs, <span class="dv">4</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>LHS (e_{i,-i}): 8.7698 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"RHS (e_i / (1-h_ii)):"</span>, <span class="fu">round</span>(identity_1_rhs, <span class="dv">4</span>), <span class="st">"</span><span class="sc">\n\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>RHS (e_i / (1-h_ii)): 8.7698 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Now, we can see why the shortcut using `e_i` and the conceptual formula</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co"># are different. The full shortcut uses `rstudent()` in R, which also calculates</span></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="co"># sigma_hat_minus_i from the full model's results. For our purpose, let's just</span></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co"># confirm our calculation with R's built-in function.</span></span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co"># R's built-in function for studentized residuals</span></span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> <span class="dv">1</span>) <span class="co"># Intercept-only model</span></span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>t_r_function <span class="ot">&lt;-</span> <span class="fu">rstudent</span>(model)[i]</span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"--- Final Studentized Residual (t_i) ---</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>--- Final Studentized Residual (t_i) ---</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Calculated Value:"</span>, <span class="fu">round</span>(t_conceptual, <span class="dv">4</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Calculated Value: 5.3967 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"From R's rstudent() function:"</span>, <span class="fu">round</span>(t_r_function, <span class="dv">4</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>From R's rstudent() function: 4.857 </code></pre>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># One-panel plot of all four residual variants vs x_i with distinct shapes</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>plot_df <span class="ot">&lt;-</span> residuals_df <span class="sc">%&gt;%</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    x,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    ns_residual_e_over_sigma,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    ns_loocv_e_del_over_sigma_minus_i,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    studentized_loocv,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    studentized_shortcut_rstudent</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="sc">-</span>x,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"residual_type"</span>,</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"residual_value"</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Shapes (ASCII only)</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co"># - ns_loocv_e_del_over_sigma_minus_i: hollow circle (1)</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co"># - studentized_loocv: asterisk (8)</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co"># - studentized_shortcut_rstudent: asterisk (8)</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co"># - ns_residual_e_over_sigma: solid circle (16)</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>shape_map <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">ns_residual_e_over_sigma =</span> <span class="dv">16</span>,                 <span class="co"># solid circle</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">ns_loocv_e_del_over_sigma_minus_i =</span> <span class="dv">1</span>,         <span class="co"># hollow circle</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">studentized_loocv =</span> <span class="dv">8</span>,                         <span class="co"># asterisk</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">studentized_shortcut_rstudent =</span> <span class="dv">8</span>              <span class="co"># asterisk</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Readable legend labels</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>labels_map <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">ns_residual_e_over_sigma =</span> <span class="st">"Non-studentized Full Data"</span>,</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">ns_loocv_e_del_over_sigma_minus_i =</span> <span class="st">"Non-studentized LOOCV"</span>,</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">studentized_loocv =</span> <span class="st">"Studentized LOOCV"</span>,</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">studentized_shortcut_rstudent =</span> <span class="st">"Studentized Full Data"</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Four distinct colors</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>color_map <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">ns_residual_e_over_sigma =</span> <span class="st">"#1f77b4"</span>,          <span class="co"># blue</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>  <span class="at">ns_loocv_e_del_over_sigma_minus_i =</span> <span class="st">"#ff7f0e"</span>, <span class="co"># orange</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  <span class="at">studentized_loocv =</span> <span class="st">"#2ca02c"</span>,                 <span class="co"># green</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  <span class="at">studentized_shortcut_rstudent =</span> <span class="st">"#d62728"</span>      <span class="co"># red</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>  plot_df,</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> residual_value,</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>      <span class="at">shape =</span> residual_type, <span class="at">color =</span> residual_type, <span class="at">group =</span> residual_type)</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">stroke =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_shape_manual</span>(</span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> shape_map,</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">names</span>(labels_map),</span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> <span class="fu">unname</span>(labels_map),</span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"Residual Type"</span></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> color_map,</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">names</span>(labels_map),</span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> <span class="fu">unname</span>(labels_map),</span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"Residual Type"</span></span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Four residual variants vs x"</span>,</span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"x_i"</span>,</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Residual value"</span></span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"right"</span>,</span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>)</span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="residuals_files/figure-html/plot-four-residuals-one-panel-ascii-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
 </div>
 </div>
-<p>As you can see, our manual calculation based on the conceptual formula perfectly matches the result from R’s optimized <code>rstudent()</code> function. The small example also numerically verifies <strong>Identity 1</strong>, which is the algebraic key to the equivalence.</p>
-</section>
-<section id="distribution-of-the-residuals" class="level3" data-number="6.3">
-<h3 data-number="6.3" class="anchored" data-anchor-id="distribution-of-the-residuals"><span class="header-section-number">6.3</span> <strong>Distribution of the Residuals</strong></h3>
-<p>Under the true model (i.e., the observation is not an outlier), the calculated <span class="math inline">\(t_i\)</span> statistic follows a <strong>Student’s t-distribution</strong> with <span class="math inline">\(n - p - 1\)</span> degrees of freedom. For our simple intercept-only model, we are only estimating one parameter (<em>p</em>=1, the mean <span class="math inline">\(\mu\)</span>), so the distribution is <span class="math inline">\(t\)</span> with <span class="math inline">\(10 - 1 - 1 = 8\)</span> degrees of freedom. Our calculated value of <span class="math inline">\(t_{10} \approx 4.5\)</span> is extremely unlikely to come from a t-distribution with 8 degrees of freedom, correctly flagging it as a significant outlier.</p>
-</section>
+</div>
+
 </section>
 
 </main>
