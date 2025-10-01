@@ -11,8 +11,8 @@ format:
     code-fold: true
     number-sections: true
     math: mathjax
+    mathjax: true
     md_extensions: +tex_math_dollars
-    df_print: paged
   pdf:
     toc: false
     number-sections: true
@@ -199,18 +199,14 @@ Table: {#tbl-residuals Four Plausible Residuals}
 
 
 ```{r}
-#| label: build-residual-variants-ascii-old
+#| label: plaintext-column-names
 #| echo: true
 #| message: false
-#| include: false
 #| warning: false
-#| eval: false
 
-
-# Libraries
+# Load libraries
 library(dplyr)
-library(tidyr)
-library(ggplot2)
+library(knitr)
 
 # -------------------------------
 # 1) Data and full-model fit
@@ -219,214 +215,95 @@ set.seed(123)
 n <- 20
 x <- 1:n
 y <- 2 + 3 * x + rnorm(n, mean = 0, sd = 5)
-y[6] <- y[6] + 25  # add an outlier at x = 6
+y[10] <- y[10] + 25  # add an outlier at x = 6
+y[11] <- y[11] - 10  # add an outlier at x = 6
+
 full_data  <- data.frame(x = x, y = y)
 
 full_model <- lm(y ~ x, data = full_data)
 leverage   <- hatvalues(full_model)
-e_full     <- resid(full_model)               # e_i
-y_hat      <- fitted(full_model)              # yhat_i
-sigma_hat  <- summary(full_model)$sigma       # sigma_hat
+e_full     <- resid(full_model)
+sigma_hat_val  <- summary(full_model)$sigma
 
 # -------------------------------
 # 2) LOOCV quantities (refit n times)
 # -------------------------------
-e_del         <- numeric(n)   # e_{i,-i}
-sigma_minus_i <- numeric(n)   # sigma_{-i}
-ns_loocv      <- numeric(n)   # non-studentized LOOCV: e_{i,-i} / sigma_{-i}
-stud_loocv    <- numeric(n)   # studentized LOOCV: e_{i,-i} / (sigma_{-i} / sqrt(1 - h_ii))
+e_del_val <- numeric(n)
+sigma_minus_i_val <- numeric(n)
 
 for (i in 1:n) {
   loocv_model <- lm(y ~ x, data = full_data[-i, ])
   yhat_minus  <- predict(loocv_model, newdata = full_data[i, , drop = FALSE])
-  e_del[i]    <- full_data$y[i] - yhat_minus
-  sigma_minus_i[i] <- summary(loocv_model)$sigma
-  
-  # non-studentized LOOCV residual
-  ns_loocv[i] <- e_del[i] / sigma_minus_i[i]
-  
-  # studentized LOOCV residual (conceptual definition)
-  stud_loocv[i] <- e_del[i] / (sigma_minus_i[i] / sqrt(1 - leverage[i]))
+  e_del_val[i]    <- full_data$y[i] - yhat_minus
+  sigma_minus_i_val[i] <- summary(loocv_model)$sigma
 }
 
 # -------------------------------
-# 3) Shortcut studentized residual
-# -------------------------------
-stud_shortcut <- rstudent(full_model)
-
-# -------------------------------
-# 4) Non-studentized full-data residual
-# -------------------------------
-ns_full <- e_full / sigma_hat  # e_i / sigma_hat
-
-# -------------------------------
-# 5) Assemble ASCII-named results
+# 3) Assemble and round results
 # -------------------------------
 residuals_df <- data.frame(
   x = full_data$x,
-  leverage = as.numeric(leverage),
-  e_full = as.numeric(e_full),
-  sigma_hat = as.numeric(sigma_hat),
-  e_del = as.numeric(e_del),
-  sigma_minus_i = as.numeric(sigma_minus_i),
-  ns_residual_e_over_sigma = as.numeric(ns_full),
-  ns_loocv_e_del_over_sigma_minus_i = as.numeric(ns_loocv),
-  studentized_loocv = as.numeric(stud_loocv),
-  studentized_shortcut_rstudent = as.numeric(stud_shortcut)
-)
+  h = as.numeric(leverage),
+  e_i = as.numeric(e_full),
+  sigma_hat = as.numeric(sigma_hat_val),
+  e_i_minus_i = as.numeric(e_del_val),
+  e_i_minus_i_2 = e_full/(1-leverage),
+  sigma_minus_i = as.numeric(sigma_minus_i_val),
+  `NS-Full` = e_full / sigma_hat_val,
+  `NS-LOO` = e_del_val / sigma_minus_i_val,
+  `ST-LOO` = e_del_val / (sigma_minus_i_val / sqrt(1 - leverage)),
+  `ST-Full` = rstudent(full_model)
+) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 3)))
 
-library(dplyr)
-residuals_df <- residuals_df %>% arrange(x)
-residuals_df_print <- residuals_df
-num_cols <- vapply(residuals_df_print, is.numeric, logical(1))
-residuals_df_print[num_cols] <- lapply(residuals_df_print[num_cols], function(z) round(z, 3))
 
-brk <- if (knitr::is_html_output()) "<br/>" else "\\\\"
+# 4) Create simple display names
+display_names <- c("$x_i$", "$h_i$", "$e_i$", "$\\hat{\\sigma}$", 
+                   "$e_{i,-i}$", "$\\hat{e}_{i,-i}$","$\\hat{\\sigma}_{-i}$", 
+                   "NS-Full", "NS-LOO", "ST-LOO", "ST-Full")
 
-display_names <- c(
-  "$h_{ii}$",
-  paste0("Non-studentized Full", brk, "$\\frac{e_i}{\\hat{\\sigma}}$"),
-  paste0("Non-studentized LOOCV", brk, "$\\frac{e_{i,-i}}{\\hat{\\sigma}_{-i}}$"),
-  paste0("Studentized LOOCV", brk, "$\\frac{e_{i,-i}}{\\hat{\\sigma}_{-i}/\\sqrt{1-h_{ii}}}$"),
-  paste0("Studentized Full (rstudent)", brk, "$\\frac{e_i}{\\hat{\\sigma}_{-i}\\sqrt{1-h_{ii}}}$")
-)
-
+# 5) Display the table
 knitr::kable(
-  residuals_df_print,
-  caption = "Residual variants and related quantities.",
+  residuals_df,
+  caption = "Residual variants with plain-text column names.",
   col.names = display_names,
-  escape = FALSE,
+  escape=FALSE,
   align = rep("r", length(display_names))
 )
-
 ```
 
+
+
+
+
+
 ```{r}
-#| label: build-residual-variants-ascii
+#| label: plot-four-residuals-new-names
 #| echo: true
 #| message: false
 #| warning: false
+#| fig-cap: "Four residual variants plotted against the predictor variable x."
 
-# Libraries
+# Load libraries
 library(dplyr)
 library(tidyr)
 library(ggplot2)
+library(knitr)
+
 
 # -------------------------------
-# 1) Data and full-model fit
+# 3) Plotting Code with Updated Names
 # -------------------------------
-set.seed(123)
-n <- 40
-x <- 1:n
-y <- 2 + 3 * x + rnorm(n, mean = 0, sd = 5)
-y[1] <- y[1] + 25  # add an outlier at x = 6
-full_data  <- data.frame(x = x, y = y)
 
-full_model <- lm(y ~ x, data = full_data)
-leverage   <- hatvalues(full_model)
-e_full     <- resid(full_model)              # e_i
-y_hat      <- fitted(full_model)             # yhat_i
-sigma_hat  <- summary(full_model)$sigma      # sigma_hat
-
-# -------------------------------
-# 2) LOOCV quantities (refit n times)
-# -------------------------------
-e_del         <- numeric(n)    # e_{i,-i}
-sigma_minus_i <- numeric(n)    # sigma_{-i}
-ns_loocv      <- numeric(n)    # non-studentized LOOCV: e_{i,-i} / sigma_{-i}
-stud_loocv    <- numeric(n)    # studentized LOOCV: e_{i,-i} / (sigma_{-i} / sqrt(1 - h_ii))
-
-for (i in 1:n) {
-  loocv_model <- lm(y ~ x, data = full_data[-i, ])
-  yhat_minus  <- predict(loocv_model, newdata = full_data[i, , drop = FALSE])
-  e_del[i]    <- full_data$y[i] - yhat_minus
-  sigma_minus_i[i] <- summary(loocv_model)$sigma
-  
-  # non-studentized LOOCV residual
-  ns_loocv[i] <- e_del[i] / sigma_minus_i[i]
-  
-  # studentized LOOCV residual (conceptual definition)
-  stud_loocv[i] <- e_del[i] / (sigma_minus_i[i] / sqrt(1 - leverage[i]))
-}
-
-# -------------------------------
-# 3) Shortcut studentized residual
-# -------------------------------
-stud_shortcut <- rstudent(full_model)
-
-# -------------------------------
-# 4) Non-studentized full-data residual
-# -------------------------------
-ns_full <- e_full / sigma_hat  # e_i / sigma_hat
-
-# -------------------------------
-# 5) Assemble ASCII-named results
-# -------------------------------
-residuals_df <- data.frame(
-  x = full_data$x,
-  leverage = as.numeric(leverage),
-  e_full = as.numeric(e_full),
-  sigma_hat = as.numeric(sigma_hat),
-  e_del = as.numeric(e_del),
-  sigma_minus_i = as.numeric(sigma_minus_i),
-  ns_residual_e_over_sigma = as.numeric(ns_full),
-  ns_loocv_e_del_over_sigma_minus_i = as.numeric(ns_loocv),
-  studentized_loocv = as.numeric(stud_loocv),
-  studentized_shortcut_rstudent = as.numeric(stud_shortcut)
-)
-
-library(dplyr)
-residuals_df <- residuals_df %>% arrange(x)
-residuals_df_print <- residuals_df
-num_cols <- vapply(residuals_df_print, is.numeric, logical(1))
-residuals_df_print[num_cols] <- lapply(residuals_df_print[num_cols], function(z) round(z, 3))
-
-# Define line break style based on output format
-brk <- if (knitr::is_html_output()) "<br/>" else "\\\\"
-
-# --- THIS IS THE CORRECTED PART ---
-# Create a vector of 10 names, one for each column in the data frame
-display_names <- c(
-  "$x_i$", 
-  "$h_{ii}$", 
-  "$e_i$", 
-  "$\\hat{\\sigma}$", 
-  "$e_{i,-i}$", 
-  "$\\hat{\\sigma}_{-i}$",
-  paste0("NS-Full", brk, "$\\frac{e_i}{\\hat{\\sigma}}$"),
-  paste0("NS-LOO", brk, "$\\frac{e_{i,-i}}{\\hat{\\sigma}_{-i}}$"),
-  paste0("ST-LOO", brk, "$\\frac{e_{i,-i}}{\\hat{\\sigma}_{-i}/\\sqrt{1-h_{ii}}}$"),
-  paste0("ST-Full", brk, "$\\frac{e_i}{\\hat{\\sigma}_{-i}\\sqrt{1-h_{ii}}}$")
-)
-
-# --- THIS IS THE CONVERTED PART ---
-# Use DT::datatable() instead of knitr::kable()
-DT::datatable(
-  residuals_df,
-  caption = "Residual variants and related quantities (Interactive).",
-  colnames = display_names,
-  escape = FALSE,
-  options = list(pageLength = 10, scrollX = TRUE)
-)
-
-```
-
-
-
-```{r}
-#| label: plot-four-residuals-one-panel-ascii
-#| echo: true
-#| message: false
-#| warning: false
-
-# One-panel plot of all four residual variants vs x_i with distinct shapes
+# Prepare data for plotting
 plot_df <- residuals_df %>%
+  # Use the new, simple column names (R converts '-' to '.')
   select(
     x,
-    ns_residual_e_over_sigma,
-    ns_loocv_e_del_over_sigma_minus_i,
-    studentized_loocv,
-    studentized_shortcut_rstudent
+    NS.Full,
+    NS.LOO,
+    ST.LOO,
+    ST.Full
   ) %>%
   pivot_longer(
     cols = -x,
@@ -434,41 +311,36 @@ plot_df <- residuals_df %>%
     values_to = "residual_value"
   )
 
-# Shapes (ASCII only)
-# - ns_loocv_e_del_over_sigma_minus_i: hollow circle (1)
-# - studentized_loocv: asterisk (8)
-# - studentized_shortcut_rstudent: asterisk (8)
-# - ns_residual_e_over_sigma: solid circle (16)
+# Update the names in the mapping vectors
 shape_map <- c(
-  ns_residual_e_over_sigma = 16,                 # solid circle
-  ns_loocv_e_del_over_sigma_minus_i = 1,         # hollow circle
-  studentized_loocv = 8,                         # asterisk
-  studentized_shortcut_rstudent = 8              # asterisk
+  NS.Full = 16,  # solid circle
+  NS.LOO  = 1,   # hollow circle
+  ST.LOO  = 8,   # asterisk
+  ST.Full = 8    # asterisk
 )
 
-# Readable legend labels
 labels_map <- c(
-  ns_residual_e_over_sigma = "Non-studentized Full Data",
-  ns_loocv_e_del_over_sigma_minus_i = "Non-studentized LOOCV",
-  studentized_loocv = "Studentized LOOCV",
-  studentized_shortcut_rstudent = "Studentized Full Data"
+  NS.Full = "NS-Full",
+  NS.LOO  = "NS-LOO",
+  ST.LOO  = "ST-LOO",
+  ST.Full = "ST-Full"
 )
 
-# Four distinct colors
 color_map <- c(
-  ns_residual_e_over_sigma = "#1f77b4",          # blue
-  ns_loocv_e_del_over_sigma_minus_i = "#ff7f0e", # orange
-  studentized_loocv = "#2ca02c",                 # green
-  studentized_shortcut_rstudent = "#d62728"      # red
+  NS.Full = "#1f77b4",  # blue
+  NS.LOO  = "#ff7f0e", # orange
+  ST.LOO  = "#2ca02c",  # green
+  ST.Full = "#d62728"   # red
 )
 
+# Generate the plot
 ggplot(
   plot_df,
   aes(x = x, y = residual_value,
       shape = residual_type, color = residual_type, group = residual_type)
 ) +
   geom_hline(yintercept = 0, linetype = "dashed") +
-  geom_point(size = 3, stroke = 1) +
+  geom_point(size = 3, stroke = 1.2) + # Increased stroke for visibility
   scale_shape_manual(
     values = shape_map,
     breaks = names(labels_map),
@@ -482,7 +354,7 @@ ggplot(
     name = "Residual Type"
   ) +
   labs(
-    title = "Four residual variants vs x",
+    title = "Four Residual Variants vs x",
     x = "x_i",
     y = "Residual value"
   ) +
@@ -491,6 +363,5 @@ ggplot(
     legend.position = "right",
     legend.title = element_text(face = "bold")
   )
-
 ```
 
