@@ -32,7 +32,7 @@ This article provides a complete walkthrough of this essential concept. We'll st
 
 Our discussion is based on the standard multiple linear regression model. In matrix form, the relationship between a response vector **Y** and a predictor matrix **X** is:
 \begin{equation}
-\mathbf{Y} = \mathbf{X\beta} + \mathbf{\epsilon}
+\mathbf{Y} = \mathbf{X}\mathbf{\beta} + \mathbf{\epsilon}
 \end{equation}
 Where:
 
@@ -47,14 +47,16 @@ Where:
 
 To discuss models fit with all data versus those with one point removed, we need clear notation.
 
-### **Full Data Model (Using all *n* observations)**
+**Full Data Model (Using all *n* observations)**
+
 * **$\hat{\beta}$**: The estimated coefficient vector.
 * **$\hat{y}_i$**: The predicted value for observation *i* from this model.
 * **$e_i$**: The **ordinary residual** ($e_i = y_i - \hat{y}_i$).
 * **$\hat{\sigma}$**: The estimated standard deviation of the errors (Residual Standard Error).
 * **$h_{ii}$**: The **leverage** of observation *i*, a measure of how much its x-values influence the model.
 
-### **Leave-One-Out (LOOCV) Model**
+**Leave-One-Out (LOOCV) Model**
+
 * **$\hat{\beta}_{-i}$**: The coefficient vector estimated after **removing** observation *i*.
 * **$\hat{y}_{i,-i}$**: The predicted value for observation *i*, from the model fit **without** observation *i*.
 * **$e_{i,-i}$**: The **deleted residual** ($e_{i,-i} = y_i - \hat{y}_{i,-i}$).
@@ -69,9 +71,9 @@ Before getting to the correct solution, it's crucial to understand why simpler m
 ### **The Ordinary Residual ($e_i$): Too Small and $x_i$ Dependent**
 The most basic residual, $e_i$, is problematic for two key reasons.
 
-- **Systematically Too Small**: An outlier has an undue influence on the model, pulling the regression line towards itself. This makes its own predicted value, $\hat{y}_i$, artificially close to its actual value, $y_i$. As a result, its residual, $e_i$, is **deceptively small** and doesn't reflect the true magnitude of the error.
+An outlier has an undue influence on the model, pulling the regression line towards itself. This makes its own predicted value, $\hat{y}_i$, artificially close to its actual value, $y_i$. As a result, its residual, $e_i$, is **deceptively small** and doesn't reflect the true magnitude of the error.
 
-- **$x_i$-Dependent Variance**: The variance of an ordinary residual is not constant; it depends on the point's leverage.
+The variance of an ordinary residual is not constant; it depends on the point's leverage.
     \begin{equation}
     \text{Var}(e_i) = \sigma^2(1 - h_{ii})
     \end{equation}
@@ -100,14 +102,12 @@ Therefore, for the $i$th residual,
 Since leverage ($h_{ii}$) is always greater than 0, the variance of an ordinary residual is always **less than the true error variance, $\sigma^2$**. High-leverage points act as "anchors" for the line and have even smaller variance.
 
 ### **The LOOCV Residual ($e_{i,-i}$): Too large and $x_i$-Dependent Variance**
-The deleted residual, $e_{i,-i}$, solves the "too small" problem. Because the model isn't influenced by the point it's predicting, the residual is an honest measure of prediction error. However, its variance is still not constant.
-
- **$x_i$-Dependent Variance**: The variance of a deleted residual also depends on leverage, but in the opposite way.
+The deleted residual, $e_{i,-i}$, solves the "too small" problem. Because the model isn't influenced by the point it's predicting, the residual is an honest measure of prediction error. However, its variance is still not constant. The variance of a deleted residual also depends on leverage, but in the opposite way.
     \begin{equation}
     \text{Var}(e_{i,-i}) = \frac{\sigma^2}{1 - h_{ii}}
     \end{equation}
 
-From the key identity,
+From the key identity \eqref{eq:key},
 \begin{equation}
 e_{i,-i} = \frac{e_i}{1 - h_{ii}}.
 \end{equation}
@@ -147,7 +147,9 @@ This is not an approximation; it is an **exact algebraic rearrangement** of the 
 
 ### Key Identity Linking $e_{i,-i}$ and $e_i$
 
-\begin{equation}e_{i,-i} = \frac{e_i}{1 - h_{ii}}\end{equation}
+\begin{equation}e_{i,-i} = \frac{e_i}{1 - h_{ii}} \label{eq:key}
+\end{equation}
+
 This identity shows that we can find the "pure" leave-one-out residual without actually refitting the model; all we need are the results from the single model fit on the full dataset.
 
 ### Proof of Equivalence ⚙️
