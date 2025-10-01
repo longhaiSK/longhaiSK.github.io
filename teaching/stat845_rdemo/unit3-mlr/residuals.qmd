@@ -2,7 +2,10 @@
 ---
 title: "Understanding the Leverage and Its Use in Adjusting Residuals of Linear Models"
 subtitle: "A Simulation Illustration with R"
-author: "Longhai Li"
+author:
+  - name: "Longhai Li"
+    affiliation: "University of Saskatchewan"
+    url: "https://longhaisk.github.io/"
 date: today
 format: 
   html:
@@ -147,11 +150,6 @@ This is not an approximation; it is an **exact algebraic rearrangement** of the 
 
 ### Equivalence of @eq-sfull and @eq-sloo
 
-#### Key Identity Linking $e_{i,-i}$ and $e_i$
-
-$$e_{i,-i} = \frac{e_i}{1 - h_{ii}}$${#eq-key}
-
-This identity shows that we can find the "pure" leave-one-out residual without actually refitting the model; all we need are the results from the single model fit on the full dataset.
 
 #### Proof of Equivalence ⚙️
 
@@ -239,6 +237,7 @@ The final table compiles several important quantities calculated during the simu
 * **$e_{i,-i}$**: The **deleted (or LOOCV) residual**. This is the difference between the actual value ($y_i$) and the value predicted for it by a model that was fit on all other data *except* point *i*.
 * **$\hat{e}_{i,-i}$**: This column shows the deleted residual calculated using the efficient algebraic shortcut ($e_i / (1-h_{ii})$), verifying it's identical to the brute-force $e_{i,-i}$.
 * **$\hat{\sigma}_{-i}$**: The **LOOCV residual standard error**, calculated from a model that was fit after removing observation *i*.
+* **$\tilde{\sigma}_{-i}$**: The **LOOCV residual standard error**, calculated from the shortcut formula @eq-sigma_-i.
 * **NS-Full**: The **Non-studentized Full-Data Residual**, calculated as the ordinary residual divided by the full model's standard error ($e_i / \hat{\sigma}$).
 * **NS-LOO**: The **Non-studentized LOOCV Residual**, calculated as the deleted residual divided by the corresponding LOOCV standard error ($e_{i,-i} / \hat{\sigma}_{-i}$).
 * **ST-LOO**: The **Studentized LOOCV Residual**, calculated using the conceptual formula by dividing the deleted residual by its true standard error.
@@ -250,11 +249,17 @@ The final table compiles several important quantities calculated during the simu
 #| message: false
 #| warning: false
 
+library(kableExtra)
 
 full_model <- lm(y ~ x, data = full_data)
+p <- length(coef(full_model))
 leverage   <- hatvalues(full_model)
 e_full     <- resid(full_model)
 sigma_hat_val  <- summary(full_model)$sigma
+
+rss_full <- sum(e_full^2)
+df_loo <- n - p - 1
+sigma_minus_i_shortcut <- sqrt((rss_full - (e_full^2 / (1 - leverage))) / df_loo)
 
 # -------------------------------
 # 2) LOOCV quantities (refit n times)
@@ -280,6 +285,7 @@ residuals_df <- data.frame(
   e_i_minus_i = as.numeric(e_del_val),
   e_i_minus_i_2 = e_full/(1-leverage),
   sigma_minus_i = as.numeric(sigma_minus_i_val),
+  sigma_minus_i_shortcut = as.numeric(sigma_minus_i_shortcut),
   `NS-Full` = e_full / sigma_hat_val,
   `NS-LOO` = e_del_val / sigma_minus_i_val,
   `ST-LOO` = e_del_val / (sigma_minus_i_val / sqrt(1 - leverage)),
@@ -290,17 +296,37 @@ residuals_df <- data.frame(
 
 # 4) Create simple display names
 display_names <- c("$x_i$", "$h_i$", "$e_i$", "$\\hat{\\sigma}$", 
-                   "$e_{i,-i}$", "$\\hat{e}_{i,-i}$","$\\hat{\\sigma}_{-i}$", 
+                   "$e_{i,-i}$", "$\\hat{e}_{i,-i}$",
+                   "$\\hat{\\sigma}_{-i}$", "$\\tilde{\\sigma}_{-i}$", 
                    "NS-Full", "NS-LOO", "ST-LOO", "ST-Full")
 
 # 5) Display the table
-knitr::kable(
-  residuals_df,
-  caption = "Residual variants with plain-text column names.",
-  col.names = display_names,
-  escape=FALSE,
-  align = rep("r", length(display_names))
-)
+# Conditional check for output format
+if (knitr::is_html_output()) {
+  # --- Code for HTML Output (using kableExtra) ---
+  knitr::kable(
+    residuals_df,
+    caption = "Residual variants",
+    col.names = display_names,
+    align = "r",
+    #format="html",
+    escape = FALSE # Allows LaTeX and <br/> to render
+  ) 
+} else {
+  # --- Code for PDF/Other Output (using kableExtra) ---
+  knitr::kable(
+    residuals_df,
+    caption = "Residual variants.",
+    col.names = display_names,
+    align = "r",
+    format = "latex",
+    booktabs = TRUE,
+    escape = FALSE # Allows LaTeX and \\ to render
+  ) %>%
+    kable_styling(
+      latex_options = "scale_down"
+    )
+}
 ```
 
 
@@ -403,6 +429,47 @@ From the above simulation results, we observe the following important facts:
 
 * **Conservative Residuals:** The study highlights that the ordinary residual ($e_i$) is a "conservative" measure of error because its value for an outlier is systematically reduced by that same outlier's influence on the model.
 
-* **Identity Verification:** The numerical results validated the key algebraic identity that connects the full-data residual ($e_i$) to the more honest leave-one-out (deleted) residual ($e_{i,-i}$). This demonstrates that the LOOCV error can be calculated efficiently from a single model fit.
+* **Identity Verification:** The numerical results validated the key algebraic identity that connects the full-data residual ($e_i$) to the leave-one-out (deleted) residual ($e_{i,-i}$), as well as the identity for calculating the LOOCV standard error ($\hat{\sigma}_{-i}$) from the full model's statistics. This demonstrates that all key LOOCV errors can be calculated efficiently from a single model fit.
 
 * **Effective Studentization:** The final step of studentization, which uses leverage to properly scale the residuals, is shown to be crucial. It successfully transforms the residuals into a reliable diagnostic tool with a constant variance across all predictor values ($x_i$), causing them to behave much more like a standard normal or t-distribution.
+
+
+
+## Appendix: Key Identities for Efficient Calculation of LOOCV Residuals and Noice Variance {.unnumbered}
+
+The power of modern regression diagnostics comes from algebraic shortcuts that allow us to find the results of a leave-one-out process without the computational cost of refitting the model *n* times. The following two identities are fundamental to this efficiency.
+
+### Finding the LOOCV Residual ($e_{i,-i}$) from the Ordinary Residual ($e_i$)
+This identity shows that we can find the "pure" leave-one-out residual using only the results from the single model fit on all data.
+
+$$e_{i,-i} = \frac{e_i}{1 - h_{ii}}$${#eq-key}
+
+### Finding the LOOCV Standard Error ($\hat{\sigma}_{-i}$) from the Full-Model Standard Error ($\hat{\sigma}$)
+Similarly, this formula provides an efficient shortcut to see how the model's overall error changes when a single point is removed.
+
+$$\hat{\sigma}_{-i} = \sqrt{\frac{(n-p)\hat{\sigma}^2 - \frac{e_i^2}{1-h_{ii}}}{n-p-1}}$${#eq-sigma_-i}
+
+The derivation of this formula relies on first proving the relationship between the full model's Residual Sum of Squares ($RSS$) and the leave-one-out version ($RSS_{-i}$).
+
+1.  **Start with the definition** of the leave-one-out residual sum of squares:
+    $$
+    RSS_{-i} = \sum_{k \neq i} (y_k - \mathbf{x}_k^T\hat{\beta}_{-i})^2
+    $$
+
+2.  **Introduce the key identity** that relates the leave-one-out coefficient vector ($\hat{\beta}_{-i}$) to the full model's coefficient vector ($\hat{\beta}$):
+    $$
+    \hat{\beta}_{-i} = \hat{\beta} - (X^TX)^{-1}\mathbf{x}_i \frac{e_i}{1 - h_{ii}}
+    $$
+
+3.  **Substitute this identity** into the expression for a generic leave-one-out residual, $e_{k,-i} = y_k - \mathbf{x}_k^T\hat{\beta}_{-i}$. After simplification, this yields:
+    $$
+    e_{k,-i} = e_k + h_{ki} \frac{e_i}{1 - h_{ii}}
+    $$
+    where $e_k$ is the ordinary residual and $h_{ki}$ is the $(k,i)$-th element of the hat matrix.
+
+4.  **Substitute this back into the definition of $RSS_{-i}$**. After expanding the squared term and performing the summation (which involves considerable but standard matrix algebra), the expression simplifies to the elegant result:
+    $$
+    RSS_{-i} = RSS - \frac{e_i^2}{1 - h_{ii}}
+    $$
+
+5.  **Finally, derive the formula for $\hat{\sigma}_{-i}$**. We know that $\hat{\sigma}^2_{-i} = \frac{RSS_{-i}}{n-p-1}$ and that $RSS = (n-p)\hat{\sigma}^2$. By substituting the result from Step 4, we arrive at the formula for the variance, and taking the square root gives us the standard error. ✅
