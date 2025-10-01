@@ -12,6 +12,7 @@ format:
     number-sections: true
     math: mathjax
     md_extensions: +tex_math_dollars
+    df_print: paged
   pdf:
     toc: false
     number-sections: true
@@ -26,7 +27,7 @@ In statistical modeling, identifying data points that don't fit—the **outliers
 
 This article provides a complete walkthrough of this essential concept. We'll start with the basic linear model, introduce the necessary notation, explore the flaws of simpler residuals, and then formally define and prove the equivalence of the conceptual and computational formulas for studentized residuals. Finally, we'll make it all concrete with a simple example.
 
----
+
 
 ## The Linear Model
 
@@ -41,7 +42,7 @@ Where:
 * **$\beta$** is the *p* x 1 vector of unknown true coefficients we want to estimate.
 * **$\epsilon$** is an *n* x 1 vector of unobservable random errors, assumed to be independent and identically distributed with a mean of 0 and a variance of $\sigma^2$.
 
----
+
 
 ## Our Notations 💡
 
@@ -62,7 +63,7 @@ To discuss models fit with all data versus those with one point removed, we need
 * **$e_{i,-i}$**: The **deleted residual** ($e_{i,-i} = y_i - \hat{y}_{i,-i}$).
 * **$\hat{\sigma}_{-i}$**: The standard deviation of the errors estimated from the model fit **without** observation *i*.
 
----
+
 
 ## Non-studentized Residuals
 
@@ -107,7 +108,7 @@ The deleted residual, $e_{i,-i}$, solves the "too small" problem. Because the mo
     \text{Var}(e_{i,-i}) = \frac{\sigma^2}{1 - h_{ii}}
     \end{equation}
 
-From the key identity \eqref{eq:key},
+From the key identity @eq-key,
 \begin{equation}
 e_{i,-i} = \frac{e_i}{1 - h_{ii}}.
 \end{equation}
@@ -120,98 +121,91 @@ Therefore,
 
 Since $1-h_{ii}$ is less than 1, the variance of a deleted residual is always **greater than the true error variance, $\sigma^2$**. This is because it has two sources of randomness: the error in the point itself ($y_i$) and the error in the prediction ($\hat{y}_{i,-i}$).
 
----
 
-## Studentized LOOCV Residual
+## Studentized Residuals 
 
-The correct solution is to take the honest LOOCV residual and divide it by its true standard error, which properly accounts for its larger, x-dependent variance. This is the **externally studentized residual**, $t_i$.
+### Studentized LOOCV (Deleted) Residual
 
-**Conceptual Definition:**
-\begin{equation}
+The correct solution is to take the LOOCV residual and divide it by its true standard error, which properly accounts for its larger, x-dependent variance. This is the **externally studentized residual**, $t_i$, defined as follows:
+
+
+$$
 t_i = \frac{e_{i,-i}}{\text{SE}(e_{i,-i})} = \frac{e_{i,-i}}{\frac{\hat{\sigma}_{-i}}{\sqrt{1-h_{ii}}}}
-\end{equation}
-This final value is a reliable diagnostic. Under the null hypothesis that the observation is not an outlier, it follows a **Student's t-distribution** with *n - p - 1* degrees of freedom.
+$${#eq-sloo}
+This final value is a reliable diagnostic. Under the null hypothesis that the observation is not an outlier, it follows a **Student's t-distribution** with $n - p - 1$ degrees of freedom.
 
----
 
-## Studentized Full Data Residuals (Computational Shortcut Formula) ⚙️
+
+### Studentized Full Data Residuals  
 
 Calculating the conceptual formula appears to require fitting *n* different regression models—a computationally expensive task. Fortunately, a mathematical identity allows us to calculate the exact same value using only the results from the single, full data model.
 
-\begin{equation}
+$$
 t_i = \frac{e_i}{\hat{\sigma}_{-i}\sqrt{1 - h_{ii}}}
-\end{equation}
+$${#eq-sfull}
 This is not an approximation; it is an **exact algebraic rearrangement** of the conceptual definition.
 
----
+### Equivalence of @eq-sfull and @eq-sloo
 
-### Key Identity Linking $e_{i,-i}$ and $e_i$
+#### Key Identity Linking $e_{i,-i}$ and $e_i$
 
-\begin{equation}e_{i,-i} = \frac{e_i}{1 - h_{ii}} \label{eq:key}
-\end{equation}
+$$e_{i,-i} = \frac{e_i}{1 - h_{ii}}$${#eq-key}
 
 This identity shows that we can find the "pure" leave-one-out residual without actually refitting the model; all we need are the results from the single model fit on the full dataset.
 
-### Proof of Equivalence ⚙️
-
-The proof that the conceptual and computational formulas are identical hinges on a key algebraic identity that connects the LOOCV residual ($e_{i,-i}$) to the ordinary residual ($e_i$).
+#### Proof of Equivalence ⚙️
 
 
 
-Now, let's start with the conceptual definition of the studentized residual and show how it transforms into the shortcut formula.
+Let's start with the conceptual definition of the studentized LOOCV residuals @eq-sloo and show how it transforms into @eq-sfull.
 
- **Start with the conceptual LOOCV definition:**
+- **Start with the conceptual LOOCV definition:**
     \begin{equation}
     t_i = \frac{e_{i,-i}}{\text{SE}(e_{i,-i})} = \frac{e_{i,-i}}{\frac{\hat{\sigma}_{-i}}{\sqrt{1-h_{ii}}}}
     \end{equation}
 
- **Substitute the key identity** into the numerator:
+- **Substitute the key identity** into the numerator:
     \begin{equation}
     t_i = \frac{\frac{e_i}{1 - h_{ii}}}{\frac{\hat{\sigma}_{-i}}{\sqrt{1 - h_{ii}}}}
     \end{equation}
 
- **Simplify the complex fraction.** We can do this by multiplying the numerator by the reciprocal of the denominator:
+- **Simplify the complex fraction.** We can do this by multiplying the numerator by the reciprocal of the denominator:
     \begin{equation}
     t_i = \frac{e_i}{1-h_{ii}} \cdot \frac{\sqrt{1-h_{ii}}}{\hat{\sigma}_{-i}}
     \end{equation}
 
- **Cancel the terms.** Since $1 - h_{ii} = (\sqrt{1 - h_{ii}})^2$, one of the $\sqrt{1 - h_{ii}}$ terms in the denominator cancels with the term in the numerator. This leaves us with the computational shortcut formula:
+- **Cancel the terms.** Since $1 - h_{ii} = (\sqrt{1 - h_{ii}})^2$, one of the $\sqrt{1 - h_{ii}}$ terms in the denominator cancels with the term in the numerator. This leaves us with the computational shortcut formula:
     \begin{equation}
     t_i = \frac{e_i}{\hat{\sigma}_{-i}\sqrt{1-h_{ii}}}
     \end{equation}
 
 This proves that the two formulas are mathematically identical. The computational shortcut is simply a clever algebraic rearrangement of the more intuitive LOOCV definition, allowing for efficient and accurate calculation. ✅
 
+## List of Residuals
+
+In this article, we will compare the four residuals given as:
+
+
+| Short Name | Full Name | Formula |
+| :--- | :--- | :--- |
+| **NS-Full** | Non-studentized Full-Data Residual | $$\frac{e_i}{\hat{\sigma}}$$ |
+| **NS-LOO** | Non-studentized LOOCV Residual | $$\frac{e_{i,-i}}{\hat{\sigma}_{-i}}$$ |
+| **ST-LOO** | Studentized LOOCV Residual | $$\frac{e_{i,-i}}{\hat{\sigma}_{-i}/\sqrt{1-h_{ii}}}$$ |
+| **ST-Full** | Studentized Full-Data Residual| $$\frac{e_i}{\hat{\sigma}_{-i}\sqrt{1-h_{ii}}}$$ |
+
+Table: {#tbl-residuals Four Plausible Residuals}
 
 ## Example
 
-In this example, we will compare the four residuals given as:
 
-
-1. **Non-studentized Full Data Residual**  
-   $$
-   \frac{e_i}{\hat{\sigma}}
-   $$
-
-2. **Non-studentized LOOCV Residual**  
-   $$
-   \frac{e_{i,-i}}{\hat{\sigma}_{-i}}
-   $$
-
-3. **Studentized LOOCV Residual (Conceptual)**  
-   $$
-   \frac{e_{i,-i}}{\hat{\sigma}_{-i}/\sqrt{1-h_{ii}}}
-   $$
-
-4. **Studentized Full Data Residual (Shortcut, R’s \texttt{rstudent})**  
-   $$
-   \frac{e_i}{\hat{\sigma}_{-i}\sqrt{1-h_{ii}}}
-   $$
 ```{r}
-#| label: build-residual-variants-ascii
+#| label: build-residual-variants-ascii-old
 #| echo: true
 #| message: false
+#| include: false
 #| warning: false
+#| eval: false
+
 
 # Libraries
 library(dplyr)
@@ -283,7 +277,7 @@ residuals_df <- data.frame(
 
 library(dplyr)
 residuals_df <- residuals_df %>% arrange(x)
-residuals_df_print <- residuals_df[,-c(1,3:6)]
+residuals_df_print <- residuals_df
 num_cols <- vapply(residuals_df_print, is.numeric, logical(1))
 residuals_df_print[num_cols] <- lapply(residuals_df_print[num_cols], function(z) round(z, 3))
 
@@ -306,6 +300,114 @@ knitr::kable(
 )
 
 ```
+
+```{r}
+#| label: build-residual-variants-ascii
+#| echo: true
+#| message: false
+#| warning: false
+
+# Libraries
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+# -------------------------------
+# 1) Data and full-model fit
+# -------------------------------
+set.seed(123)
+n <- 40
+x <- 1:n
+y <- 2 + 3 * x + rnorm(n, mean = 0, sd = 5)
+y[1] <- y[1] + 25  # add an outlier at x = 6
+full_data  <- data.frame(x = x, y = y)
+
+full_model <- lm(y ~ x, data = full_data)
+leverage   <- hatvalues(full_model)
+e_full     <- resid(full_model)              # e_i
+y_hat      <- fitted(full_model)             # yhat_i
+sigma_hat  <- summary(full_model)$sigma      # sigma_hat
+
+# -------------------------------
+# 2) LOOCV quantities (refit n times)
+# -------------------------------
+e_del         <- numeric(n)    # e_{i,-i}
+sigma_minus_i <- numeric(n)    # sigma_{-i}
+ns_loocv      <- numeric(n)    # non-studentized LOOCV: e_{i,-i} / sigma_{-i}
+stud_loocv    <- numeric(n)    # studentized LOOCV: e_{i,-i} / (sigma_{-i} / sqrt(1 - h_ii))
+
+for (i in 1:n) {
+  loocv_model <- lm(y ~ x, data = full_data[-i, ])
+  yhat_minus  <- predict(loocv_model, newdata = full_data[i, , drop = FALSE])
+  e_del[i]    <- full_data$y[i] - yhat_minus
+  sigma_minus_i[i] <- summary(loocv_model)$sigma
+  
+  # non-studentized LOOCV residual
+  ns_loocv[i] <- e_del[i] / sigma_minus_i[i]
+  
+  # studentized LOOCV residual (conceptual definition)
+  stud_loocv[i] <- e_del[i] / (sigma_minus_i[i] / sqrt(1 - leverage[i]))
+}
+
+# -------------------------------
+# 3) Shortcut studentized residual
+# -------------------------------
+stud_shortcut <- rstudent(full_model)
+
+# -------------------------------
+# 4) Non-studentized full-data residual
+# -------------------------------
+ns_full <- e_full / sigma_hat  # e_i / sigma_hat
+
+# -------------------------------
+# 5) Assemble ASCII-named results
+# -------------------------------
+residuals_df <- data.frame(
+  x = full_data$x,
+  leverage = as.numeric(leverage),
+  e_full = as.numeric(e_full),
+  sigma_hat = as.numeric(sigma_hat),
+  e_del = as.numeric(e_del),
+  sigma_minus_i = as.numeric(sigma_minus_i),
+  ns_residual_e_over_sigma = as.numeric(ns_full),
+  ns_loocv_e_del_over_sigma_minus_i = as.numeric(ns_loocv),
+  studentized_loocv = as.numeric(stud_loocv),
+  studentized_shortcut_rstudent = as.numeric(stud_shortcut)
+)
+
+library(dplyr)
+residuals_df <- residuals_df %>% arrange(x)
+residuals_df_print <- residuals_df
+num_cols <- vapply(residuals_df_print, is.numeric, logical(1))
+residuals_df_print[num_cols] <- lapply(residuals_df_print[num_cols], function(z) round(z, 3))
+
+# Define line break style based on output format
+brk <- if (knitr::is_html_output()) "<br/>" else "\\\\"
+
+# --- THIS IS THE CORRECTED PART ---
+# Create a vector of 10 names, one for each column in the data frame
+display_names <- c(
+  "$x_i$", 
+  "$h_{ii}$", 
+  "$e_i$", 
+  "$\\hat{\\sigma}$", 
+  "$e_{i,-i}$", 
+  "$\\hat{\\sigma}_{-i}$",
+  paste0("NS-Full", brk, "$\\frac{e_i}{\\hat{\\sigma}}$"),
+  paste0("NS-LOO", brk, "$\\frac{e_{i,-i}}{\\hat{\\sigma}_{-i}}$"),
+  paste0("ST-LOO", brk, "$\\frac{e_{i,-i}}{\\hat{\\sigma}_{-i}/\\sqrt{1-h_{ii}}}$"),
+  paste0("ST-Full", brk, "$\\frac{e_i}{\\hat{\\sigma}_{-i}\\sqrt{1-h_{ii}}}$")
+)
+
+knitr::kable(
+  residuals_df_print,
+  caption = "Residual variants and related quantities.",
+  col.names = display_names,
+  escape = FALSE,
+  align = rep("r", length(display_names))
+)
+```
+
 
 
 ```{r}
