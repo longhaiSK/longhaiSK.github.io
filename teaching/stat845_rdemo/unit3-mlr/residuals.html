@@ -9,7 +9,7 @@
 <meta name="author" content="Longhai Li">
 <meta name="dcterms.date" content="2025-10-01">
 
-<title>Understanding the Externally Studentized Residuals in Linear Models</title>
+<title>Understanding the Leverage and Its Use in Adjusting Residuals of Linear Models</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -127,7 +127,11 @@ window.Quarto = {
   <li><a href="#equivalence-of-eq-sfull-and-eq-sloo" id="toc-equivalence-of-eq-sfull-and-eq-sloo" class="nav-link" data-scroll-target="#equivalence-of-eq-sfull-and-eq-sloo"><span class="header-section-number">5.3</span> Equivalence of Equation&nbsp;2 and Equation&nbsp;1</a></li>
   </ul></li>
   <li><a href="#list-of-residuals" id="toc-list-of-residuals" class="nav-link" data-scroll-target="#list-of-residuals"><span class="header-section-number">6</span> List of Residuals</a></li>
-  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">7</span> Example</a></li>
+  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">7</span> Example</a>
+  <ul class="collapse">
+  <li><a href="#the-linear-model-1" id="toc-the-linear-model-1" class="nav-link" data-scroll-target="#the-linear-model-1"><span class="header-section-number">7.1</span> The Linear Model</a></li>
+  <li><a href="#description-of-calculated-columns" id="toc-description-of-calculated-columns" class="nav-link" data-scroll-target="#description-of-calculated-columns"><span class="header-section-number">7.2</span> Description of Calculated Columns</a></li>
+  </ul></li>
   </ul>
 <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="residuals.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
 </div>
@@ -135,8 +139,8 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Understanding the Externally Studentized Residuals in Linear Models</h1>
-<p class="subtitle lead">An Illustration with R</p>
+<h1 class="title">Understanding the Leverage and Its Use in Adjusting Residuals of Linear Models</h1>
+<p class="subtitle lead">A Simulation Illustration with R</p>
 </div>
 
 
@@ -334,6 +338,9 @@ Table&nbsp;1
 </section>
 <section id="example" class="level2" data-number="7">
 <h2 data-number="7" class="anchored" data-anchor-id="example"><span class="header-section-number">7</span> Example</h2>
+<section id="the-linear-model-1" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="the-linear-model-1"><span class="header-section-number">7.1</span> The Linear Model</h3>
+<p>The simulation uses a <strong>simple linear regression model</strong> to describe the relationship between a single predictor variable, <span class="math inline">\(x_i\)</span>, and a response variable, <span class="math inline">\(y_i\)</span>. The underlying “true” model from which the data is generated is: <span class="math display">\[y_i = 2 + 3x_i + \epsilon_i\]</span> This means we have a true intercept of 2, a true slope of 3, and a random error term, <span class="math inline">\(\epsilon_i\)</span>, drawn from a normal distribution with a mean of 0 and a standard deviation of 5. Two artificial outliers are added to this data to test the behavior of the different residual types.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -348,61 +355,93 @@ Table&nbsp;1
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">20</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>n</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">+</span> <span class="dv">3</span> <span class="sc">*</span> x <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">5</span>)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>y[<span class="dv">10</span>] <span class="ot">&lt;-</span> y[<span class="dv">10</span>] <span class="sc">+</span> <span class="dv">25</span>  <span class="co"># add an outlier at x = 6</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>y[<span class="dv">11</span>] <span class="ot">&lt;-</span> y[<span class="dv">11</span>] <span class="sc">-</span> <span class="dv">10</span>  <span class="co"># add an outlier at x = 6</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>y[<span class="dv">1</span>] <span class="ot">&lt;-</span> y[<span class="dv">1</span>] <span class="sc">+</span> <span class="dv">30</span>  <span class="co"># add an outlier at x = 6</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>y[<span class="dv">20</span>] <span class="ot">&lt;-</span> y[<span class="dv">20</span>] <span class="sc">-</span> <span class="dv">30</span>  <span class="co"># add an outlier at x = 11</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>flag.outlier <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="fu">rep</span>(<span class="dv">20</span>, n<span class="dv">-2</span>),<span class="dv">2</span>)</span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>full_data  <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> x, <span class="at">y =</span> y)</span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>full_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x, <span class="at">data =</span> full_data)</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>leverage   <span class="ot">&lt;-</span> <span class="fu">hatvalues</span>(full_model)</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>e_full     <span class="ot">&lt;-</span> <span class="fu">resid</span>(full_model)</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>sigma_hat_val  <span class="ot">&lt;-</span> <span class="fu">summary</span>(full_model)<span class="sc">$</span>sigma</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co"># 2) LOOCV quantities (refit n times)</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>e_del_val <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n)</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>sigma_minus_i_val <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n)</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n) {</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  loocv_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x, <span class="at">data =</span> full_data[<span class="sc">-</span>i, ])</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  yhat_minus  <span class="ot">&lt;-</span> <span class="fu">predict</span>(loocv_model, <span class="at">newdata =</span> full_data[i, , <span class="at">drop =</span> <span class="cn">FALSE</span>])</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  e_del_val[i]    <span class="ot">&lt;-</span> full_data<span class="sc">$</span>y[i] <span class="sc">-</span> yhat_minus</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  sigma_minus_i_val[i] <span class="ot">&lt;-</span> <span class="fu">summary</span>(loocv_model)<span class="sc">$</span>sigma</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="co"># 3) Assemble and round results</span></span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>residuals_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> full_data<span class="sc">$</span>x,</span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>  <span class="at">h =</span> <span class="fu">as.numeric</span>(leverage),</span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>  <span class="at">e_i =</span> <span class="fu">as.numeric</span>(e_full),</span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>  <span class="at">sigma_hat =</span> <span class="fu">as.numeric</span>(sigma_hat_val),</span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>  <span class="at">e_i_minus_i =</span> <span class="fu">as.numeric</span>(e_del_val),</span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>  <span class="at">e_i_minus_i_2 =</span> e_full<span class="sc">/</span>(<span class="dv">1</span><span class="sc">-</span>leverage),</span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>  <span class="at">sigma_minus_i =</span> <span class="fu">as.numeric</span>(sigma_minus_i_val),</span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">NS-Full</span><span class="st">`</span> <span class="ot">=</span> e_full <span class="sc">/</span> sigma_hat_val,</span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">NS-LOO</span><span class="st">`</span> <span class="ot">=</span> e_del_val <span class="sc">/</span> sigma_minus_i_val,</span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">ST-LOO</span><span class="st">`</span> <span class="ot">=</span> e_del_val <span class="sc">/</span> (sigma_minus_i_val <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="dv">1</span> <span class="sc">-</span> leverage)),</span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">ST-Full</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">rstudent</span>(full_model)</span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric), <span class="sc">~</span> <span class="fu">round</span>(.x, <span class="dv">3</span>)))</span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a><span class="co"># 4) Create simple display names</span></span>
-<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>display_names <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"$x_i$"</span>, <span class="st">"$h_i$"</span>, <span class="st">"$e_i$"</span>, <span class="st">"$</span><span class="sc">\\</span><span class="st">hat{</span><span class="sc">\\</span><span class="st">sigma}$"</span>, </span>
-<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>                   <span class="st">"$e_{i,-i}$"</span>, <span class="st">"$</span><span class="sc">\\</span><span class="st">hat{e}_{i,-i}$"</span>,<span class="st">"$</span><span class="sc">\\</span><span class="st">hat{</span><span class="sc">\\</span><span class="st">sigma}_{-i}$"</span>, </span>
-<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>                   <span class="st">"NS-Full"</span>, <span class="st">"NS-LOO"</span>, <span class="st">"ST-LOO"</span>, <span class="st">"ST-Full"</span>)</span>
-<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a><span class="co"># 5) Display the table</span></span>
-<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
-<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>  residuals_df,</span>
-<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Residual variants with plain-text column names."</span>,</span>
-<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>  <span class="at">col.names =</span> display_names,</span>
-<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>  <span class="at">escape=</span><span class="cn">FALSE</span>,</span>
-<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>  <span class="at">align =</span> <span class="fu">rep</span>(<span class="st">"r"</span>, <span class="fu">length</span>(display_names))</span>
-<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(y<span class="sc">~</span>x, <span class="at">data=</span>full_data, <span class="at">pch=</span> flag.outlier, <span class="at">col=</span>flag.outlier)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">lm</span>(y<span class="sc">~</span>x, <span class="at">data=</span>full_data))</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span> (<span class="at">a=</span><span class="dv">2</span>, <span class="at">b=</span><span class="dv">3</span>, <span class="at">col=</span><span class="st">"red"</span>, <span class="at">lwd=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="residuals_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="description-of-calculated-columns" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="description-of-calculated-columns"><span class="header-section-number">7.2</span> Description of Calculated Columns</h3>
+<p>The final table compiles several important quantities calculated during the simulation. Here’s what each column represents:</p>
+<ul>
+<li><strong><span class="math inline">\(x_i\)</span></strong>: The predictor variable, which is simply the index of the observation from 1 to 20.</li>
+<li><strong><span class="math inline">\(h_i\)</span></strong>: The <strong>leverage</strong> of the i-th observation. It measures how influential a point’s x-value is in determining the model’s fit. A higher value indicates a more influential point.</li>
+<li><strong><span class="math inline">\(e_i\)</span></strong>: The <strong>ordinary residual</strong>, calculated as the difference between the actual value (<span class="math inline">\(y_i\)</span>) and the predicted value (<span class="math inline">\(\hat{y}_i\)</span>) from the model fit on all data.</li>
+<li><strong><span class="math inline">\(\hat{\sigma}\)</span></strong>: The <strong>residual standard error</strong> (or Root Mean Square Error) of the full model, representing the typical size of an ordinary residual.</li>
+<li><strong><span class="math inline">\(e_{i,-i}\)</span></strong>: The <strong>deleted (or LOOCV) residual</strong>. This is the difference between the actual value (<span class="math inline">\(y_i\)</span>) and the value predicted for it by a model that was fit on all other data <em>except</em> point <em>i</em>.</li>
+<li><strong><span class="math inline">\(\hat{e}_{i,-i}\)</span></strong>: This column shows the deleted residual calculated using the efficient algebraic shortcut (<span class="math inline">\(e_i / (1-h_{ii})\)</span>), verifying it’s identical to the brute-force <span class="math inline">\(e_{i,-i}\)</span>.</li>
+<li><strong><span class="math inline">\(\hat{\sigma}_{-i}\)</span></strong>: The <strong>LOOCV residual standard error</strong>, calculated from a model that was fit after removing observation <em>i</em>.</li>
+<li><strong>NS-Full</strong>: The <strong>Non-studentized Full-Data Residual</strong>, calculated as the ordinary residual divided by the full model’s standard error (<span class="math inline">\(e_i / \hat{\sigma}\)</span>).</li>
+<li><strong>NS-LOO</strong>: The <strong>Non-studentized LOOCV Residual</strong>, calculated as the deleted residual divided by the corresponding LOOCV standard error (<span class="math inline">\(e_{i,-i} / \hat{\sigma}_{-i}\)</span>).</li>
+<li><strong>ST-LOO</strong>: The <strong>Studentized LOOCV Residual</strong>, calculated using the conceptual formula by dividing the deleted residual by its true standard error.</li>
+<li><strong>ST-Full</strong>: The <strong>Studentized Full-Data Residual</strong>, calculated using the efficient shortcut formula, which is provided by R’s <code>rstudent()</code> function.</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>full_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x, <span class="at">data =</span> full_data)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>leverage   <span class="ot">&lt;-</span> <span class="fu">hatvalues</span>(full_model)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>e_full     <span class="ot">&lt;-</span> <span class="fu">resid</span>(full_model)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>sigma_hat_val  <span class="ot">&lt;-</span> <span class="fu">summary</span>(full_model)<span class="sc">$</span>sigma</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 2) LOOCV quantities (refit n times)</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>e_del_val <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>sigma_minus_i_val <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n) {</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  loocv_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x, <span class="at">data =</span> full_data[<span class="sc">-</span>i, ])</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  yhat_minus  <span class="ot">&lt;-</span> <span class="fu">predict</span>(loocv_model, <span class="at">newdata =</span> full_data[i, , <span class="at">drop =</span> <span class="cn">FALSE</span>])</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  e_del_val[i]    <span class="ot">&lt;-</span> full_data<span class="sc">$</span>y[i] <span class="sc">-</span> yhat_minus</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  sigma_minus_i_val[i] <span class="ot">&lt;-</span> <span class="fu">summary</span>(loocv_model)<span class="sc">$</span>sigma</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co"># 3) Assemble and round results</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>residuals_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> full_data<span class="sc">$</span>x,</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">h =</span> <span class="fu">as.numeric</span>(leverage),</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">e_i =</span> <span class="fu">as.numeric</span>(e_full),</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">sigma_hat =</span> <span class="fu">as.numeric</span>(sigma_hat_val),</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">e_i_minus_i =</span> <span class="fu">as.numeric</span>(e_del_val),</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">e_i_minus_i_2 =</span> e_full<span class="sc">/</span>(<span class="dv">1</span><span class="sc">-</span>leverage),</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">sigma_minus_i =</span> <span class="fu">as.numeric</span>(sigma_minus_i_val),</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">NS-Full</span><span class="st">`</span> <span class="ot">=</span> e_full <span class="sc">/</span> sigma_hat_val,</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">NS-LOO</span><span class="st">`</span> <span class="ot">=</span> e_del_val <span class="sc">/</span> sigma_minus_i_val,</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">ST-LOO</span><span class="st">`</span> <span class="ot">=</span> e_del_val <span class="sc">/</span> (sigma_minus_i_val <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="dv">1</span> <span class="sc">-</span> leverage)),</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">ST-Full</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">rstudent</span>(full_model)</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric), <span class="sc">~</span> <span class="fu">round</span>(.x, <span class="dv">3</span>)))</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="co"># 4) Create simple display names</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>display_names <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"$x_i$"</span>, <span class="st">"$h_i$"</span>, <span class="st">"$e_i$"</span>, <span class="st">"$</span><span class="sc">\\</span><span class="st">hat{</span><span class="sc">\\</span><span class="st">sigma}$"</span>, </span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>                   <span class="st">"$e_{i,-i}$"</span>, <span class="st">"$</span><span class="sc">\\</span><span class="st">hat{e}_{i,-i}$"</span>,<span class="st">"$</span><span class="sc">\\</span><span class="st">hat{</span><span class="sc">\\</span><span class="st">sigma}_{-i}$"</span>, </span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>                   <span class="st">"NS-Full"</span>, <span class="st">"NS-LOO"</span>, <span class="st">"ST-LOO"</span>, <span class="st">"ST-Full"</span>)</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a><span class="co"># 5) Display the table</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>  residuals_df,</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Residual variants with plain-text column names."</span>,</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>  <span class="at">col.names =</span> display_names,</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>  <span class="at">escape=</span><span class="cn">FALSE</span>,</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>  <span class="at">align =</span> <span class="fu">rep</span>(<span class="st">"r"</span>, <span class="fu">length</span>(display_names))</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -439,262 +478,262 @@ Table&nbsp;1
 <tr class="odd">
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">0.186</td>
-<td style="text-align: right;">-5.273</td>
-<td style="text-align: right;">7.073</td>
-<td style="text-align: right;">-6.475</td>
-<td style="text-align: right;">-6.475</td>
-<td style="text-align: right;">7.139</td>
-<td style="text-align: right;">-0.745</td>
-<td style="text-align: right;">-0.907</td>
-<td style="text-align: right;">-0.818</td>
-<td style="text-align: right;">-0.818</td>
+<td style="text-align: right;">17.585</td>
+<td style="text-align: right;">9.542</td>
+<td style="text-align: right;">21.595</td>
+<td style="text-align: right;">21.595</td>
+<td style="text-align: right;">8.606</td>
+<td style="text-align: right;">1.843</td>
+<td style="text-align: right;">2.509</td>
+<td style="text-align: right;">2.264</td>
+<td style="text-align: right;">2.264</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">0.159</td>
-<td style="text-align: right;">-3.515</td>
-<td style="text-align: right;">7.073</td>
-<td style="text-align: right;">-4.177</td>
-<td style="text-align: right;">-4.177</td>
-<td style="text-align: right;">7.219</td>
-<td style="text-align: right;">-0.497</td>
-<td style="text-align: right;">-0.579</td>
-<td style="text-align: right;">-0.531</td>
-<td style="text-align: right;">-0.531</td>
+<td style="text-align: right;">-9.827</td>
+<td style="text-align: right;">9.542</td>
+<td style="text-align: right;">-11.680</td>
+<td style="text-align: right;">-11.680</td>
+<td style="text-align: right;">9.468</td>
+<td style="text-align: right;">-1.030</td>
+<td style="text-align: right;">-1.234</td>
+<td style="text-align: right;">-1.131</td>
+<td style="text-align: right;">-1.131</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">3</td>
 <td style="text-align: right;">0.135</td>
-<td style="text-align: right;">5.536</td>
-<td style="text-align: right;">7.073</td>
-<td style="text-align: right;">6.397</td>
-<td style="text-align: right;">6.397</td>
-<td style="text-align: right;">7.134</td>
-<td style="text-align: right;">0.783</td>
-<td style="text-align: right;">0.897</td>
-<td style="text-align: right;">0.834</td>
-<td style="text-align: right;">0.834</td>
+<td style="text-align: right;">0.055</td>
+<td style="text-align: right;">9.542</td>
+<td style="text-align: right;">0.064</td>
+<td style="text-align: right;">0.064</td>
+<td style="text-align: right;">9.818</td>
+<td style="text-align: right;">0.006</td>
+<td style="text-align: right;">0.006</td>
+<td style="text-align: right;">0.006</td>
+<td style="text-align: right;">0.006</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">4</td>
 <td style="text-align: right;">0.114</td>
-<td style="text-align: right;">-1.798</td>
-<td style="text-align: right;">7.073</td>
-<td style="text-align: right;">-2.028</td>
-<td style="text-align: right;">-2.028</td>
-<td style="text-align: right;">7.263</td>
-<td style="text-align: right;">-0.254</td>
-<td style="text-align: right;">-0.279</td>
-<td style="text-align: right;">-0.263</td>
-<td style="text-align: right;">-0.263</td>
+<td style="text-align: right;">-6.448</td>
+<td style="text-align: right;">9.542</td>
+<td style="text-align: right;">-7.274</td>
+<td style="text-align: right;">-7.274</td>
+<td style="text-align: right;">9.677</td>
+<td style="text-align: right;">-0.676</td>
+<td style="text-align: right;">-0.752</td>
+<td style="text-align: right;">-0.708</td>
+<td style="text-align: right;">-0.708</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">5</td>
 <td style="text-align: right;">0.095</td>
-<td style="text-align: right;">-1.398</td>
-<td style="text-align: right;">7.073</td>
-<td style="text-align: right;">-1.545</td>
-<td style="text-align: right;">-1.545</td>
-<td style="text-align: right;">7.269</td>
-<td style="text-align: right;">-0.198</td>
-<td style="text-align: right;">-0.213</td>
-<td style="text-align: right;">-0.202</td>
-<td style="text-align: right;">-0.202</td>
+<td style="text-align: right;">-5.217</td>
+<td style="text-align: right;">9.542</td>
+<td style="text-align: right;">-5.768</td>
+<td style="text-align: right;">-5.768</td>
+<td style="text-align: right;">9.728</td>
+<td style="text-align: right;">-0.547</td>
+<td style="text-align: right;">-0.593</td>
+<td style="text-align: right;">-0.564</td>
+<td style="text-align: right;">-0.564</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">6</td>
 <td style="text-align: right;">0.080</td>
-<td style="text-align: right;">6.638</td>
-<td style="text-align: right;">7.073</td>
-<td style="text-align: right;">7.219</td>
-<td style="text-align: right;">7.219</td>
-<td style="text-align: right;">7.082</td>
-<td style="text-align: right;">0.938</td>
-<td style="text-align: right;">1.019</td>
-<td style="text-align: right;">0.977</td>
-<td style="text-align: right;">0.977</td>
+<td style="text-align: right;">3.649</td>
+<td style="text-align: right;">9.542</td>
+<td style="text-align: right;">3.968</td>
+<td style="text-align: right;">3.968</td>
+<td style="text-align: right;">9.775</td>
+<td style="text-align: right;">0.382</td>
+<td style="text-align: right;">0.406</td>
+<td style="text-align: right;">0.389</td>
+<td style="text-align: right;">0.389</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">7</td>
 <td style="text-align: right;">0.068</td>
-<td style="text-align: right;">0.474</td>
-<td style="text-align: right;">7.073</td>
-<td style="text-align: right;">0.508</td>
-<td style="text-align: right;">0.508</td>
-<td style="text-align: right;">7.277</td>
-<td style="text-align: right;">0.067</td>
-<td style="text-align: right;">0.070</td>
-<td style="text-align: right;">0.067</td>
-<td style="text-align: right;">0.067</td>
+<td style="text-align: right;">-1.684</td>
+<td style="text-align: right;">9.542</td>
+<td style="text-align: right;">-1.808</td>
+<td style="text-align: right;">-1.808</td>
+<td style="text-align: right;">9.809</td>
+<td style="text-align: right;">-0.177</td>
+<td style="text-align: right;">-0.184</td>
+<td style="text-align: right;">-0.178</td>
+<td style="text-align: right;">-0.178</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">8</td>
 <td style="text-align: right;">0.059</td>
-<td style="text-align: right;">-8.050</td>
-<td style="text-align: right;">7.073</td>
-<td style="text-align: right;">-8.558</td>
-<td style="text-align: right;">-8.558</td>
-<td style="text-align: right;">6.994</td>
-<td style="text-align: right;">-1.138</td>
-<td style="text-align: right;">-1.224</td>
-<td style="text-align: right;">-1.187</td>
-<td style="text-align: right;">-1.187</td>
+<td style="text-align: right;">-9.377</td>
+<td style="text-align: right;">9.542</td>
+<td style="text-align: right;">-9.969</td>
+<td style="text-align: right;">-9.969</td>
+<td style="text-align: right;">9.534</td>
+<td style="text-align: right;">-0.983</td>
+<td style="text-align: right;">-1.046</td>
+<td style="text-align: right;">-1.014</td>
+<td style="text-align: right;">-1.014</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">9</td>
 <td style="text-align: right;">0.053</td>
-<td style="text-align: right;">-5.052</td>
-<td style="text-align: right;">7.073</td>
-<td style="text-align: right;">-5.337</td>
-<td style="text-align: right;">-5.337</td>
-<td style="text-align: right;">7.168</td>
-<td style="text-align: right;">-0.714</td>
-<td style="text-align: right;">-0.745</td>
-<td style="text-align: right;">-0.724</td>
-<td style="text-align: right;">-0.724</td>
+<td style="text-align: right;">-5.548</td>
+<td style="text-align: right;">9.542</td>
+<td style="text-align: right;">-5.861</td>
+<td style="text-align: right;">-5.861</td>
+<td style="text-align: right;">9.720</td>
+<td style="text-align: right;">-0.581</td>
+<td style="text-align: right;">-0.603</td>
+<td style="text-align: right;">-0.587</td>
+<td style="text-align: right;">-0.587</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">10</td>
 <td style="text-align: right;">0.050</td>
-<td style="text-align: right;">21.260</td>
-<td style="text-align: right;">7.073</td>
-<td style="text-align: right;">22.388</td>
-<td style="text-align: right;">22.388</td>
-<td style="text-align: right;">4.997</td>
-<td style="text-align: right;">3.006</td>
-<td style="text-align: right;">4.480</td>
-<td style="text-align: right;">4.366</td>
-<td style="text-align: right;">4.366</td>
+<td style="text-align: right;">-3.405</td>
+<td style="text-align: right;">9.542</td>
+<td style="text-align: right;">-3.586</td>
+<td style="text-align: right;">-3.586</td>
+<td style="text-align: right;">9.782</td>
+<td style="text-align: right;">-0.357</td>
+<td style="text-align: right;">-0.367</td>
+<td style="text-align: right;">-0.357</td>
+<td style="text-align: right;">-0.357</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">11</td>
 <td style="text-align: right;">0.050</td>
-<td style="text-align: right;">-5.284</td>
-<td style="text-align: right;">7.073</td>
-<td style="text-align: right;">-5.565</td>
-<td style="text-align: right;">-5.565</td>
-<td style="text-align: right;">7.158</td>
-<td style="text-align: right;">-0.747</td>
-<td style="text-align: right;">-0.777</td>
-<td style="text-align: right;">-0.758</td>
-<td style="text-align: right;">-0.758</td>
+<td style="text-align: right;">5.881</td>
+<td style="text-align: right;">9.542</td>
+<td style="text-align: right;">6.193</td>
+<td style="text-align: right;">6.193</td>
+<td style="text-align: right;">9.709</td>
+<td style="text-align: right;">0.616</td>
+<td style="text-align: right;">0.638</td>
+<td style="text-align: right;">0.622</td>
+<td style="text-align: right;">0.622</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">12</td>
 <td style="text-align: right;">0.053</td>
-<td style="text-align: right;">0.501</td>
-<td style="text-align: right;">7.073</td>
-<td style="text-align: right;">0.529</td>
-<td style="text-align: right;">0.529</td>
-<td style="text-align: right;">7.277</td>
-<td style="text-align: right;">0.071</td>
-<td style="text-align: right;">0.073</td>
-<td style="text-align: right;">0.071</td>
-<td style="text-align: right;">0.071</td>
+<td style="text-align: right;">2.497</td>
+<td style="text-align: right;">9.542</td>
+<td style="text-align: right;">2.638</td>
+<td style="text-align: right;">2.638</td>
+<td style="text-align: right;">9.799</td>
+<td style="text-align: right;">0.262</td>
+<td style="text-align: right;">0.269</td>
+<td style="text-align: right;">0.262</td>
+<td style="text-align: right;">0.262</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">13</td>
 <td style="text-align: right;">0.059</td>
-<td style="text-align: right;">0.812</td>
-<td style="text-align: right;">7.073</td>
-<td style="text-align: right;">0.863</td>
-<td style="text-align: right;">0.863</td>
-<td style="text-align: right;">7.275</td>
-<td style="text-align: right;">0.115</td>
-<td style="text-align: right;">0.119</td>
-<td style="text-align: right;">0.115</td>
-<td style="text-align: right;">0.115</td>
+<td style="text-align: right;">3.639</td>
+<td style="text-align: right;">9.542</td>
+<td style="text-align: right;">3.869</td>
+<td style="text-align: right;">3.869</td>
+<td style="text-align: right;">9.776</td>
+<td style="text-align: right;">0.381</td>
+<td style="text-align: right;">0.396</td>
+<td style="text-align: right;">0.384</td>
+<td style="text-align: right;">0.384</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">14</td>
 <td style="text-align: right;">0.068</td>
-<td style="text-align: right;">-0.532</td>
-<td style="text-align: right;">7.073</td>
-<td style="text-align: right;">-0.571</td>
-<td style="text-align: right;">-0.571</td>
-<td style="text-align: right;">7.277</td>
-<td style="text-align: right;">-0.075</td>
-<td style="text-align: right;">-0.078</td>
-<td style="text-align: right;">-0.076</td>
-<td style="text-align: right;">-0.076</td>
+<td style="text-align: right;">3.126</td>
+<td style="text-align: right;">9.542</td>
+<td style="text-align: right;">3.356</td>
+<td style="text-align: right;">3.356</td>
+<td style="text-align: right;">9.787</td>
+<td style="text-align: right;">0.328</td>
+<td style="text-align: right;">0.343</td>
+<td style="text-align: right;">0.331</td>
+<td style="text-align: right;">0.331</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">15</td>
 <td style="text-align: right;">0.080</td>
-<td style="text-align: right;">-3.758</td>
-<td style="text-align: right;">7.073</td>
-<td style="text-align: right;">-4.087</td>
-<td style="text-align: right;">-4.087</td>
-<td style="text-align: right;">7.216</td>
-<td style="text-align: right;">-0.531</td>
-<td style="text-align: right;">-0.566</td>
-<td style="text-align: right;">-0.543</td>
-<td style="text-align: right;">-0.543</td>
+<td style="text-align: right;">0.731</td>
+<td style="text-align: right;">9.542</td>
+<td style="text-align: right;">0.795</td>
+<td style="text-align: right;">0.795</td>
+<td style="text-align: right;">9.817</td>
+<td style="text-align: right;">0.077</td>
+<td style="text-align: right;">0.081</td>
+<td style="text-align: right;">0.078</td>
+<td style="text-align: right;">0.078</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">16</td>
 <td style="text-align: right;">0.095</td>
-<td style="text-align: right;">8.062</td>
-<td style="text-align: right;">7.073</td>
-<td style="text-align: right;">8.914</td>
-<td style="text-align: right;">8.914</td>
-<td style="text-align: right;">6.982</td>
-<td style="text-align: right;">1.140</td>
-<td style="text-align: right;">1.277</td>
-<td style="text-align: right;">1.214</td>
-<td style="text-align: right;">1.214</td>
+<td style="text-align: right;">13.382</td>
+<td style="text-align: right;">9.542</td>
+<td style="text-align: right;">14.795</td>
+<td style="text-align: right;">14.795</td>
+<td style="text-align: right;">9.206</td>
+<td style="text-align: right;">1.402</td>
+<td style="text-align: right;">1.607</td>
+<td style="text-align: right;">1.528</td>
+<td style="text-align: right;">1.528</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">17</td>
 <td style="text-align: right;">0.114</td>
-<td style="text-align: right;">1.724</td>
-<td style="text-align: right;">7.073</td>
-<td style="text-align: right;">1.944</td>
-<td style="text-align: right;">1.944</td>
-<td style="text-align: right;">7.265</td>
-<td style="text-align: right;">0.244</td>
-<td style="text-align: right;">0.268</td>
-<td style="text-align: right;">0.252</td>
-<td style="text-align: right;">0.252</td>
+<td style="text-align: right;">7.874</td>
+<td style="text-align: right;">9.542</td>
+<td style="text-align: right;">8.882</td>
+<td style="text-align: right;">8.882</td>
+<td style="text-align: right;">9.606</td>
+<td style="text-align: right;">0.825</td>
+<td style="text-align: right;">0.925</td>
+<td style="text-align: right;">0.871</td>
+<td style="text-align: right;">0.871</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">18</td>
 <td style="text-align: right;">0.135</td>
-<td style="text-align: right;">-10.492</td>
-<td style="text-align: right;">7.073</td>
-<td style="text-align: right;">-12.124</td>
-<td style="text-align: right;">-12.124</td>
-<td style="text-align: right;">6.745</td>
-<td style="text-align: right;">-1.483</td>
-<td style="text-align: right;">-1.798</td>
-<td style="text-align: right;">-1.672</td>
-<td style="text-align: right;">-1.672</td>
+<td style="text-align: right;">-3.511</td>
+<td style="text-align: right;">9.542</td>
+<td style="text-align: right;">-4.057</td>
+<td style="text-align: right;">-4.057</td>
+<td style="text-align: right;">9.776</td>
+<td style="text-align: right;">-0.368</td>
+<td style="text-align: right;">-0.415</td>
+<td style="text-align: right;">-0.386</td>
+<td style="text-align: right;">-0.386</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">19</td>
 <td style="text-align: right;">0.159</td>
-<td style="text-align: right;">2.954</td>
-<td style="text-align: right;">7.073</td>
-<td style="text-align: right;">3.511</td>
-<td style="text-align: right;">3.511</td>
-<td style="text-align: right;">7.236</td>
-<td style="text-align: right;">0.418</td>
-<td style="text-align: right;">0.485</td>
-<td style="text-align: right;">0.445</td>
-<td style="text-align: right;">0.445</td>
+<td style="text-align: right;">10.766</td>
+<td style="text-align: right;">9.542</td>
+<td style="text-align: right;">12.796</td>
+<td style="text-align: right;">12.796</td>
+<td style="text-align: right;">9.397</td>
+<td style="text-align: right;">1.128</td>
+<td style="text-align: right;">1.362</td>
+<td style="text-align: right;">1.249</td>
+<td style="text-align: right;">1.249</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">20</td>
 <td style="text-align: right;">0.186</td>
-<td style="text-align: right;">-2.810</td>
-<td style="text-align: right;">7.073</td>
-<td style="text-align: right;">-3.451</td>
-<td style="text-align: right;">-3.451</td>
-<td style="text-align: right;">7.239</td>
-<td style="text-align: right;">-0.397</td>
-<td style="text-align: right;">-0.477</td>
-<td style="text-align: right;">-0.430</td>
-<td style="text-align: right;">-0.430</td>
+<td style="text-align: right;">-24.167</td>
+<td style="text-align: right;">9.542</td>
+<td style="text-align: right;">-29.679</td>
+<td style="text-align: right;">-29.679</td>
+<td style="text-align: right;">7.363</td>
+<td style="text-align: right;">-2.533</td>
+<td style="text-align: right;">-4.031</td>
+<td style="text-align: right;">-3.638</td>
+<td style="text-align: right;">-3.638</td>
 </tr>
 </tbody>
 </table>
@@ -703,85 +742,85 @@ Table&nbsp;1
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load libraries</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 3) Plotting Code with Updated Names</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Prepare data for plotting</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>plot_df <span class="ot">&lt;-</span> residuals_df <span class="sc">%&gt;%</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Use the new, simple column names (R converts '-' to '.')</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    x,</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    NS.Full,</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    NS.LOO,</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    ST.LOO,</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    ST.Full</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="sc">-</span>x,</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"residual_type"</span>,</span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"residual_value"</span></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Update the names in the mapping vectors</span></span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>shape_map <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">NS.Full =</span> <span class="dv">16</span>,  <span class="co"># solid circle</span></span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">NS.LOO  =</span> <span class="dv">1</span>,   <span class="co"># hollow circle</span></span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">ST.LOO  =</span> <span class="dv">8</span>,   <span class="co"># asterisk</span></span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">ST.Full =</span> <span class="dv">8</span>    <span class="co"># asterisk</span></span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>labels_map <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">NS.Full =</span> <span class="st">"NS-Full"</span>,</span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">NS.LOO  =</span> <span class="st">"NS-LOO"</span>,</span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>  <span class="at">ST.LOO  =</span> <span class="st">"ST-LOO"</span>,</span>
-<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  <span class="at">ST.Full =</span> <span class="st">"ST-Full"</span></span>
-<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>color_map <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>  <span class="at">NS.Full =</span> <span class="st">"#1f77b4"</span>,  <span class="co"># blue</span></span>
-<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>  <span class="at">NS.LOO  =</span> <span class="st">"#ff7f0e"</span>, <span class="co"># orange</span></span>
-<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>  <span class="at">ST.LOO  =</span> <span class="st">"#2ca02c"</span>,  <span class="co"># green</span></span>
-<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>  <span class="at">ST.Full =</span> <span class="st">"#d62728"</span>   <span class="co"># red</span></span>
-<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate the plot</span></span>
-<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
-<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>  plot_df,</span>
-<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> residual_value,</span>
-<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>      <span class="at">shape =</span> residual_type, <span class="at">color =</span> residual_type, <span class="at">group =</span> residual_type)</span>
-<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
-<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
-<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">stroke =</span> <span class="fl">1.2</span>) <span class="sc">+</span> <span class="co"># Increased stroke for visibility</span></span>
-<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_shape_manual</span>(</span>
-<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> shape_map,</span>
-<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">names</span>(labels_map),</span>
-<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> <span class="fu">unname</span>(labels_map),</span>
-<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"Residual Type"</span></span>
-<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(</span>
-<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> color_map,</span>
-<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">names</span>(labels_map),</span>
-<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> <span class="fu">unname</span>(labels_map),</span>
-<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"Residual Type"</span></span>
-<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Four Residual Variants vs x"</span>,</span>
-<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"x_i"</span>,</span>
-<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Residual value"</span></span>
-<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
-<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"right"</span>,</span>
-<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>)</span>
-<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load libraries</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 3) Plotting Code with Updated Names</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Prepare data for plotting</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>plot_df <span class="ot">&lt;-</span> residuals_df <span class="sc">%&gt;%</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Use the new, simple column names (R converts '-' to '.')</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    x,</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    NS.Full,</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    NS.LOO,</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    ST.LOO,</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    ST.Full</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="sc">-</span>x,</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"residual_type"</span>,</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"residual_value"</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Update the names in the mapping vectors</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>shape_map <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">NS.Full =</span> <span class="dv">16</span>,  <span class="co"># solid circle</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">NS.LOO  =</span> <span class="dv">1</span>,   <span class="co"># hollow circle</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">ST.LOO  =</span> <span class="dv">6</span>,   <span class="co"># asterisk</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">ST.Full =</span> <span class="dv">10</span>    <span class="co"># asterisk</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>labels_map <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">NS.Full =</span> <span class="st">"NS-Full"</span>,</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">NS.LOO  =</span> <span class="st">"NS-LOO"</span>,</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>  <span class="at">ST.LOO  =</span> <span class="st">"ST-LOO"</span>,</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>  <span class="at">ST.Full =</span> <span class="st">"ST-Full"</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>color_map <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>  <span class="at">NS.Full =</span> <span class="st">"#1f77b4"</span>,  <span class="co"># blue</span></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>  <span class="at">NS.LOO  =</span> <span class="st">"#ff7f0e"</span>, <span class="co"># orange</span></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>  <span class="at">ST.LOO  =</span> <span class="st">"#2ca02c"</span>,  <span class="co"># green</span></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>  <span class="at">ST.Full =</span> <span class="st">"#d62728"</span>   <span class="co"># red</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate the plot</span></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>  plot_df,</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> residual_value,</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>      <span class="at">shape =</span> residual_type, <span class="at">color =</span> residual_type, <span class="at">group =</span> residual_type)</span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">stroke =</span> <span class="fl">1.2</span>) <span class="sc">+</span> <span class="co"># Increased stroke for visibility</span></span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_shape_manual</span>(</span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> shape_map,</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">names</span>(labels_map),</span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> <span class="fu">unname</span>(labels_map),</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"Residual Type"</span></span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(</span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> color_map,</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">names</span>(labels_map),</span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> <span class="fu">unname</span>(labels_map),</span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"Residual Type"</span></span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Four Residual Variants vs x"</span>,</span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"x_i"</span>,</span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Residual value"</span></span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"right"</span>,</span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>)</span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
@@ -792,7 +831,15 @@ Table&nbsp;1
 </div>
 </div>
 </div>
+<p>From the above simulation results, we observe the following important facts:</p>
+<ul>
+<li><p><strong>Leverage and Influence:</strong> The simulation confirms that leverage (<span class="math inline">\(h_{ii}\)</span>) measures an observation’s influence on the model’s coefficients. It shows that points with higher leverage pull the regression line toward them, resulting in smaller, deceptively conservative full-data residuals (<span class="math inline">\(e_i\)</span>).</p></li>
+<li><p><strong>Conservative Residuals:</strong> The study highlights that the ordinary residual (<span class="math inline">\(e_i\)</span>) is a “conservative” measure of error because its value for an outlier is systematically reduced by that same outlier’s influence on the model.</p></li>
+<li><p><strong>Identity Verification:</strong> The numerical results validated the key algebraic identity that connects the full-data residual (<span class="math inline">\(e_i\)</span>) to the more honest leave-one-out (deleted) residual (<span class="math inline">\(e_{i,-i}\)</span>). This demonstrates that the LOOCV error can be calculated efficiently from a single model fit.</p></li>
+<li><p><strong>Effective Studentization:</strong> The final step of studentization, which uses leverage to properly scale the residuals, is shown to be crucial. It successfully transforms the residuals into a reliable diagnostic tool with a constant variance across all predictor values (<span class="math inline">\(x_i\)</span>), causing them to behave much more like a standard normal or t-distribution.</p></li>
+</ul>
 
+</section>
 </section>
 
 </main>

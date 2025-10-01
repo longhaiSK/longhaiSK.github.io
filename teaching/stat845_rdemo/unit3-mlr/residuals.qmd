@@ -1,7 +1,7 @@
 
 ---
-title: "Understanding the Externally Studentized Residuals in Linear Models"
-subtitle: "An Illustration with R"
+title: "Understanding the Leverage and Its Use in Adjusting Residuals of Linear Models"
+subtitle: "A Simulation Illustration with R"
 author: "Longhai Li"
 date: today
 format: 
@@ -198,12 +198,14 @@ Table: {#tbl-residuals Four Plausible Residuals}
 ## Example
 
 
+### The Linear Model
+
+The simulation uses a **simple linear regression model** to describe the relationship between a single predictor variable, $x_i$, and a response variable, $y_i$. The underlying "true" model from which the data is generated is:
+$$y_i = 2 + 3x_i + \epsilon_i$$
+This means we have a true intercept of 2, a true slope of 3, and a random error term, $\epsilon_i$, drawn from a normal distribution with a mean of 0 and a standard deviation of 5. Two artificial outliers are added to this data to test the behavior of the different residual types.
 ```{r}
-#| label: plaintext-column-names
-#| echo: true
 #| message: false
 #| warning: false
-
 # Load libraries
 library(dplyr)
 library(knitr)
@@ -215,10 +217,39 @@ set.seed(123)
 n <- 20
 x <- 1:n
 y <- 2 + 3 * x + rnorm(n, mean = 0, sd = 5)
-y[10] <- y[10] + 25  # add an outlier at x = 6
-y[11] <- y[11] - 10  # add an outlier at x = 6
-
+y[1] <- y[1] + 30  # add an outlier at x = 6
+y[20] <- y[20] - 30  # add an outlier at x = 11
+flag.outlier <- c(2, rep(20, n-2),2)
 full_data  <- data.frame(x = x, y = y)
+
+plot(y~x, data=full_data, pch= flag.outlier, col=flag.outlier)
+abline(lm(y~x, data=full_data))
+abline (a=2, b=3, col="red", lwd=2)
+
+```
+
+### Description of Calculated Columns
+
+The final table compiles several important quantities calculated during the simulation. Here's what each column represents:
+
+* **$x_i$**: The predictor variable, which is simply the index of the observation from 1 to 20.
+* **$h_i$**: The **leverage** of the i-th observation. It measures how influential a point's x-value is in determining the model's fit. A higher value indicates a more influential point.
+* **$e_i$**: The **ordinary residual**, calculated as the difference between the actual value ($y_i$) and the predicted value ($\hat{y}_i$) from the model fit on all data.
+* **$\hat{\sigma}$**: The **residual standard error** (or Root Mean Square Error) of the full model, representing the typical size of an ordinary residual.
+* **$e_{i,-i}$**: The **deleted (or LOOCV) residual**. This is the difference between the actual value ($y_i$) and the value predicted for it by a model that was fit on all other data *except* point *i*.
+* **$\hat{e}_{i,-i}$**: This column shows the deleted residual calculated using the efficient algebraic shortcut ($e_i / (1-h_{ii})$), verifying it's identical to the brute-force $e_{i,-i}$.
+* **$\hat{\sigma}_{-i}$**: The **LOOCV residual standard error**, calculated from a model that was fit after removing observation *i*.
+* **NS-Full**: The **Non-studentized Full-Data Residual**, calculated as the ordinary residual divided by the full model's standard error ($e_i / \hat{\sigma}$).
+* **NS-LOO**: The **Non-studentized LOOCV Residual**, calculated as the deleted residual divided by the corresponding LOOCV standard error ($e_{i,-i} / \hat{\sigma}_{-i}$).
+* **ST-LOO**: The **Studentized LOOCV Residual**, calculated using the conceptual formula by dividing the deleted residual by its true standard error.
+* **ST-Full**: The **Studentized Full-Data Residual**, calculated using the efficient shortcut formula, which is provided by R's `rstudent()` function.
+
+```{r}
+#| label: plaintext-column-names
+#| echo: true
+#| message: false
+#| warning: false
+
 
 full_model <- lm(y ~ x, data = full_data)
 leverage   <- hatvalues(full_model)
@@ -315,8 +346,8 @@ plot_df <- residuals_df %>%
 shape_map <- c(
   NS.Full = 16,  # solid circle
   NS.LOO  = 1,   # hollow circle
-  ST.LOO  = 8,   # asterisk
-  ST.Full = 8    # asterisk
+  ST.LOO  = 6,   # asterisk
+  ST.Full = 10    # asterisk
 )
 
 labels_map <- c(
@@ -365,3 +396,13 @@ ggplot(
   )
 ```
 
+From the above simulation results, we observe the following important facts:
+
+* **Leverage and Influence:** The simulation confirms that leverage ($h_{ii}$) measures an observation's influence on the model's coefficients. It shows that points with higher leverage pull the regression line toward them, resulting in smaller, deceptively conservative full-data residuals ($e_i$).
+
+
+* **Conservative Residuals:** The study highlights that the ordinary residual ($e_i$) is a "conservative" measure of error because its value for an outlier is systematically reduced by that same outlier's influence on the model.
+
+* **Identity Verification:** The numerical results validated the key algebraic identity that connects the full-data residual ($e_i$) to the more honest leave-one-out (deleted) residual ($e_{i,-i}$). This demonstrates that the LOOCV error can be calculated efficiently from a single model fit.
+
+* **Effective Studentization:** The final step of studentization, which uses leverage to properly scale the residuals, is shown to be crucial. It successfully transforms the residuals into a reliable diagnostic tool with a constant variance across all predictor values ($x_i$), causing them to behave much more like a standard normal or t-distribution.
