@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Longhai Li">
-<meta name="dcterms.date" content="2025-09-30">
+<meta name="dcterms.date" content="2025-10-01">
 
-<title>Understanding the Equivalence of Externally Studentized and Standardized LOOCV Residuals in Linear Models</title>
+<title>Understanding the Externally Studentized Residuals in Linear Models</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -114,11 +114,7 @@ window.Quarto = {
   <ul>
   <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction"><span class="header-section-number">1</span> Introduction</a></li>
   <li><a href="#the-linear-model" id="toc-the-linear-model" class="nav-link" data-scroll-target="#the-linear-model"><span class="header-section-number">2</span> The Linear Model</a></li>
-  <li><a href="#our-notations" id="toc-our-notations" class="nav-link" data-scroll-target="#our-notations"><span class="header-section-number">3</span> Our Notations 💡</a>
-  <ul class="collapse">
-  <li><a href="#full-data-model-using-all-n-observations" id="toc-full-data-model-using-all-n-observations" class="nav-link" data-scroll-target="#full-data-model-using-all-n-observations"><span class="header-section-number">3.1</span> <strong>Full Data Model (Using all <em>n</em> observations)</strong></a></li>
-  <li><a href="#leave-one-out-loocv-model" id="toc-leave-one-out-loocv-model" class="nav-link" data-scroll-target="#leave-one-out-loocv-model"><span class="header-section-number">3.2</span> <strong>Leave-One-Out (LOOCV) Model</strong></a></li>
-  </ul></li>
+  <li><a href="#our-notations" id="toc-our-notations" class="nav-link" data-scroll-target="#our-notations"><span class="header-section-number">3</span> Our Notations 💡</a></li>
   <li><a href="#non-studentized-residuals" id="toc-non-studentized-residuals" class="nav-link" data-scroll-target="#non-studentized-residuals"><span class="header-section-number">4</span> Non-studentized Residuals</a>
   <ul class="collapse">
   <li><a href="#the-ordinary-residual-e_i-too-small-and-x_i-dependent" id="toc-the-ordinary-residual-e_i-too-small-and-x_i-dependent" class="nav-link" data-scroll-target="#the-ordinary-residual-e_i-too-small-and-x_i-dependent"><span class="header-section-number">4.1</span> <strong>The Ordinary Residual (<span class="math inline">\(e_i\)</span>): Too Small and <span class="math inline">\(x_i\)</span> Dependent</strong></a></li>
@@ -138,7 +134,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Understanding the Equivalence of Externally Studentized and Standardized LOOCV Residuals in Linear Models</h1>
+<h1 class="title">Understanding the Externally Studentized Residuals in Linear Models</h1>
 <p class="subtitle lead">An Illustration with R</p>
 </div>
 
@@ -156,7 +152,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">September 30, 2025</p>
+      <p class="date">October 1, 2025</p>
     </div>
   </div>
   
@@ -177,7 +173,7 @@ window.Quarto = {
 <section id="the-linear-model" class="level2" data-number="2">
 <h2 data-number="2" class="anchored" data-anchor-id="the-linear-model"><span class="header-section-number">2</span> The Linear Model</h2>
 <p>Our discussion is based on the standard multiple linear regression model. In matrix form, the relationship between a response vector <strong>Y</strong> and a predictor matrix <strong>X</strong> is: <span class="math display">\[\begin{equation}
-\mathbf{Y} = \mathbf{X\beta} + \mathbf{\epsilon}
+\mathbf{Y} = \mathbf{X}\mathbf{\beta} + \mathbf{\epsilon}
 \end{equation}\]</span> Where:</p>
 <ul>
 <li><strong>Y</strong> is an <em>n</em> x 1 vector of the observed outcomes.</li>
@@ -190,8 +186,7 @@ window.Quarto = {
 <section id="our-notations" class="level2" data-number="3">
 <h2 data-number="3" class="anchored" data-anchor-id="our-notations"><span class="header-section-number">3</span> Our Notations 💡</h2>
 <p>To discuss models fit with all data versus those with one point removed, we need clear notation.</p>
-<section id="full-data-model-using-all-n-observations" class="level3" data-number="3.1">
-<h3 data-number="3.1" class="anchored" data-anchor-id="full-data-model-using-all-n-observations"><span class="header-section-number">3.1</span> <strong>Full Data Model (Using all <em>n</em> observations)</strong></h3>
+<p><strong>Full Data Model (Using all <em>n</em> observations)</strong></p>
 <ul>
 <li><strong><span class="math inline">\(\hat{\beta}\)</span></strong>: The estimated coefficient vector.</li>
 <li><strong><span class="math inline">\(\hat{y}_i\)</span></strong>: The predicted value for observation <em>i</em> from this model.</li>
@@ -199,9 +194,7 @@ window.Quarto = {
 <li><strong><span class="math inline">\(\hat{\sigma}\)</span></strong>: The estimated standard deviation of the errors (Residual Standard Error).</li>
 <li><strong><span class="math inline">\(h_{ii}\)</span></strong>: The <strong>leverage</strong> of observation <em>i</em>, a measure of how much its x-values influence the model.</li>
 </ul>
-</section>
-<section id="leave-one-out-loocv-model" class="level3" data-number="3.2">
-<h3 data-number="3.2" class="anchored" data-anchor-id="leave-one-out-loocv-model"><span class="header-section-number">3.2</span> <strong>Leave-One-Out (LOOCV) Model</strong></h3>
+<p><strong>Leave-One-Out (LOOCV) Model</strong></p>
 <ul>
 <li><strong><span class="math inline">\(\hat{\beta}_{-i}\)</span></strong>: The coefficient vector estimated after <strong>removing</strong> observation <em>i</em>.</li>
 <li><strong><span class="math inline">\(\hat{y}_{i,-i}\)</span></strong>: The predicted value for observation <em>i</em>, from the model fit <strong>without</strong> observation <em>i</em>.</li>
@@ -210,23 +203,20 @@ window.Quarto = {
 </ul>
 <hr>
 </section>
-</section>
 <section id="non-studentized-residuals" class="level2" data-number="4">
 <h2 data-number="4" class="anchored" data-anchor-id="non-studentized-residuals"><span class="header-section-number">4</span> Non-studentized Residuals</h2>
 <p>Before getting to the correct solution, it’s crucial to understand why simpler methods of standardizing residuals are flawed.</p>
 <section id="the-ordinary-residual-e_i-too-small-and-x_i-dependent" class="level3" data-number="4.1">
 <h3 data-number="4.1" class="anchored" data-anchor-id="the-ordinary-residual-e_i-too-small-and-x_i-dependent"><span class="header-section-number">4.1</span> <strong>The Ordinary Residual (<span class="math inline">\(e_i\)</span>): Too Small and <span class="math inline">\(x_i\)</span> Dependent</strong></h3>
 <p>The most basic residual, <span class="math inline">\(e_i\)</span>, is problematic for two key reasons.</p>
-<ul>
-<li><p><strong>Systematically Too Small</strong>: An outlier has an undue influence on the model, pulling the regression line towards itself. This makes its own predicted value, <span class="math inline">\(\hat{y}_i\)</span>, artificially close to its actual value, <span class="math inline">\(y_i\)</span>. As a result, its residual, <span class="math inline">\(e_i\)</span>, is <strong>deceptively small</strong> and doesn’t reflect the true magnitude of the error.</p></li>
-<li><p><strong><span class="math inline">\(x_i\)</span>-Dependent Variance</strong>: The variance of an ordinary residual is not constant; it depends on the point’s leverage. <span class="math display">\[\begin{equation}
-  \text{Var}(e_i) = \sigma^2(1 - h_{ii})
-  \end{equation}\]</span> We know <span class="math display">\[\begin{equation}
+<p>An outlier has an undue influence on the model, pulling the regression line towards itself. This makes its own predicted value, <span class="math inline">\(\hat{y}_i\)</span>, artificially close to its actual value, <span class="math inline">\(y_i\)</span>. As a result, its residual, <span class="math inline">\(e_i\)</span>, is <strong>deceptively small</strong> and doesn’t reflect the true magnitude of the error.</p>
+<p>The variance of an ordinary residual is not constant; it depends on the point’s leverage. <span class="math display">\[\begin{equation}
+    \text{Var}(e_i) = \sigma^2(1 - h_{ii})
+    \end{equation}\]</span> We know <span class="math display">\[\begin{equation}
 \hat{y}_i = \mathbf{x}_i^\top \hat{\beta} = \mathbf{x}_i^\top\!\bigl(\beta + (X^\top X)^{-1} X^\top \epsilon\bigr).
 \end{equation}\]</span> So the residual is <span class="math display">\[\begin{equation}
 e_i = y_i - \hat{y}_i = \epsilon_i - \mathbf{x}_i^\top (X^\top X)^{-1} X^\top \epsilon.
-\end{equation}\]</span></p></li>
-</ul>
+\end{equation}\]</span></p>
 <p>The variance can be derived from the hat matrix <span class="math inline">\(H = X(X^\top X)^{-1}X^\top\)</span>. Since <span class="math inline">\(\hat{y} = HY\)</span>, we have <span class="math display">\[\begin{equation}
 e = (I - H)\epsilon.
 \end{equation}\]</span> Thus, <span class="math display">\[\begin{equation}
@@ -238,11 +228,10 @@ e = (I - H)\epsilon.
 </section>
 <section id="the-loocv-residual-e_i-i-too-large-and-x_i-dependent-variance" class="level3" data-number="4.2">
 <h3 data-number="4.2" class="anchored" data-anchor-id="the-loocv-residual-e_i-i-too-large-and-x_i-dependent-variance"><span class="header-section-number">4.2</span> <strong>The LOOCV Residual (<span class="math inline">\(e_{i,-i}\)</span>): Too large and <span class="math inline">\(x_i\)</span>-Dependent Variance</strong></h3>
-<p>The deleted residual, <span class="math inline">\(e_{i,-i}\)</span>, solves the “too small” problem. Because the model isn’t influenced by the point it’s predicting, the residual is an honest measure of prediction error. However, its variance is still not constant.</p>
-<p><strong><span class="math inline">\(x_i\)</span>-Dependent Variance</strong>: The variance of a deleted residual also depends on leverage, but in the opposite way. <span class="math display">\[\begin{equation}
+<p>The deleted residual, <span class="math inline">\(e_{i,-i}\)</span>, solves the “too small” problem. Because the model isn’t influenced by the point it’s predicting, the residual is an honest measure of prediction error. However, its variance is still not constant. The variance of a deleted residual also depends on leverage, but in the opposite way. <span class="math display">\[\begin{equation}
     \text{Var}(e_{i,-i}) = \frac{\sigma^2}{1 - h_{ii}}
     \end{equation}\]</span></p>
-<p>From the key identity, <span class="math display">\[\begin{equation}
+<p>From the key identity <span class="math inline">\(\eqref{eq:key}\)</span>, <span class="math display">\[\begin{equation}
 e_{i,-i} = \frac{e_i}{1 - h_{ii}}.
 \end{equation}\]</span> Therefore, <span class="math display">\[\begin{equation}
 \mathrm{Var}(e_{i,-i}) = \frac{\mathrm{Var}(e_i)}{(1-h_{ii})^2}
@@ -270,7 +259,9 @@ t_i = \frac{e_i}{\hat{\sigma}_{-i}\sqrt{1 - h_{ii}}}
 <hr>
 <section id="key-identity-linking-e_i-i-and-e_i" class="level3" data-number="6.1">
 <h3 data-number="6.1" class="anchored" data-anchor-id="key-identity-linking-e_i-i-and-e_i"><span class="header-section-number">6.1</span> Key Identity Linking <span class="math inline">\(e_{i,-i}\)</span> and <span class="math inline">\(e_i\)</span></h3>
-<p><span class="math display">\[\begin{equation}e_{i,-i} = \frac{e_i}{1 - h_{ii}}\end{equation}\]</span> This identity shows that we can find the “pure” leave-one-out residual without actually refitting the model; all we need are the results from the single model fit on the full dataset.</p>
+<p><span class="math display">\[\begin{equation}e_{i,-i} = \frac{e_i}{1 - h_{ii}} \label{eq:key}
+\end{equation}\]</span></p>
+<p>This identity shows that we can find the “pure” leave-one-out residual without actually refitting the model; all we need are the results from the single model fit on the full dataset.</p>
 </section>
 <section id="proof-of-equivalence" class="level3" data-number="6.2">
 <h3 data-number="6.2" class="anchored" data-anchor-id="proof-of-equivalence"><span class="header-section-number">6.2</span> Proof of Equivalence ⚙️</h3>
