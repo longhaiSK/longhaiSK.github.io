@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Longhai Li">
-<meta name="dcterms.date" content="2025-10-01">
+<meta name="dcterms.date" content="2025-10-02">
 
 <title>Understanding the Leverage and Its Use in Adjusting Residuals of Linear Models</title>
 <style>
@@ -23,9 +23,8 @@ ul.task-list li input[type="checkbox"] {
   vertical-align: middle;
 }
 /* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -36,7 +35,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -61,16 +60,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <script src="residuals_files/libs/clipboard/clipboard.min.js"></script>
-<script src="residuals_files/libs/quarto-html/quarto.js" type="module"></script>
-<script src="residuals_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="residuals_files/libs/quarto-html/quarto.js"></script>
 <script src="residuals_files/libs/quarto-html/popper.min.js"></script>
 <script src="residuals_files/libs/quarto-html/tippy.umd.min.js"></script>
 <script src="residuals_files/libs/quarto-html/anchor.min.js"></script>
 <link href="residuals_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="residuals_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="residuals_files/libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="residuals_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="residuals_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="residuals_files/libs/bootstrap/bootstrap-8a894fcc3cb5e37eb5bf30def131be2f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="residuals_files/libs/bootstrap/bootstrap-10daa034703793678e481cc8cee6d76f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -104,7 +102,7 @@ window.Quarto = {
 
 </head>
 
-<body class="quarto-light">
+<body>
 
 <div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
 <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
@@ -117,8 +115,8 @@ window.Quarto = {
   <li><a href="#our-notations" id="toc-our-notations" class="nav-link" data-scroll-target="#our-notations"><span class="header-section-number">3</span> Our Notations 💡</a></li>
   <li><a href="#non-studentized-residuals" id="toc-non-studentized-residuals" class="nav-link" data-scroll-target="#non-studentized-residuals"><span class="header-section-number">4</span> Non-studentized Residuals</a>
   <ul class="collapse">
-  <li><a href="#the-ordinary-residual-e_i-too-small-and-x_i-dependent" id="toc-the-ordinary-residual-e_i-too-small-and-x_i-dependent" class="nav-link" data-scroll-target="#the-ordinary-residual-e_i-too-small-and-x_i-dependent"><span class="header-section-number">4.1</span> <strong>The Ordinary Residual (<span class="math inline">\(e_i\)</span>): Too Small and <span class="math inline">\(x_i\)</span> Dependent</strong></a></li>
-  <li><a href="#the-loocv-residual-e_i-i-too-large-and-x_i-dependent-variance" id="toc-the-loocv-residual-e_i-i-too-large-and-x_i-dependent-variance" class="nav-link" data-scroll-target="#the-loocv-residual-e_i-i-too-large-and-x_i-dependent-variance"><span class="header-section-number">4.2</span> <strong>The LOOCV Residual (<span class="math inline">\(e_{i,-i}\)</span>): Too large and <span class="math inline">\(x_i\)</span>-Dependent Variance</strong></a></li>
+  <li><a href="#the-ordinary-residual-e_i-too-small-and-x_i-dependent" id="toc-the-ordinary-residual-e_i-too-small-and-x_i-dependent" class="nav-link" data-scroll-target="#the-ordinary-residual-e_i-too-small-and-x_i-dependent"><span class="header-section-number">4.1</span> <strong>The Ordinary Residual (</strong><span class="math inline">\(e_i\)</span>): Too Small and <span class="math inline">\(x_i\)</span> Dependent</a></li>
+  <li><a href="#the-loocv-residual-e_i-i-too-large-and-x_i-dependent-variance" id="toc-the-loocv-residual-e_i-i-too-large-and-x_i-dependent-variance" class="nav-link" data-scroll-target="#the-loocv-residual-e_i-i-too-large-and-x_i-dependent-variance"><span class="header-section-number">4.2</span> <strong>The LOOCV Residual (</strong><span class="math inline">\(e_{i,-i}\)</span>): Too large and <span class="math inline">\(x_i\)</span>-Dependent Variance</a></li>
   </ul></li>
   <li><a href="#studentized-residuals" id="toc-studentized-residuals" class="nav-link" data-scroll-target="#studentized-residuals"><span class="header-section-number">5</span> Studentized Residuals</a>
   <ul class="collapse">
@@ -169,7 +167,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 1, 2025</p>
+      <p class="date">October 2, 2025</p>
     </div>
   </div>
   
@@ -195,8 +193,8 @@ window.Quarto = {
 <ul>
 <li><strong>Y</strong> is an <em>n</em> x 1 vector of the observed outcomes.</li>
 <li><strong>X</strong> is the <em>n</em> x <em>p</em> design matrix of predictor variables (where <em>p</em> is the number of coefficients, including the intercept).</li>
-<li><strong><span class="math inline">\(\beta\)</span></strong> is the <em>p</em> x 1 vector of unknown true coefficients we want to estimate.</li>
-<li><strong><span class="math inline">\(\epsilon\)</span></strong> is an <em>n</em> x 1 vector of unobservable random errors, assumed to be independent and identically distributed with a mean of 0 and a variance of <span class="math inline">\(\sigma^2\)</span>.</li>
+<li><span class="math inline">\(\beta\)</span> is the <em>p</em> x 1 vector of unknown true coefficients we want to estimate.</li>
+<li><span class="math inline">\(\epsilon\)</span> is an <em>n</em> x 1 vector of unobservable random errors, assumed to be independent and identically distributed with a mean of 0 and a variance of <span class="math inline">\(\sigma^2\)</span>.</li>
 </ul>
 </section>
 <section id="our-notations" class="level2" data-number="3">
@@ -204,45 +202,38 @@ window.Quarto = {
 <p>To discuss models fit with all data versus those with one point removed, we need clear notation.</p>
 <p><strong>Full Data Model (Using all <em>n</em> observations)</strong></p>
 <ul>
-<li><strong><span class="math inline">\(\hat{\beta}\)</span></strong>: The estimated coefficient vector.</li>
-<li><strong><span class="math inline">\(\hat{y}_i\)</span></strong>: The predicted value for observation <em>i</em> from this model.</li>
-<li><strong><span class="math inline">\(e_i\)</span></strong>: The <strong>ordinary residual</strong> (<span class="math inline">\(e_i = y_i - \hat{y}_i\)</span>).</li>
-<li><strong><span class="math inline">\(\hat{\sigma}\)</span></strong>: The estimated standard deviation of the errors (Residual Standard Error).</li>
-<li><strong><span class="math inline">\(h_{ii}\)</span></strong>: The <strong>leverage</strong> of observation <em>i</em>, a measure of how much its x-values influence the model.</li>
+<li><span class="math inline">\(\hat{\beta}\)</span>: The estimated coefficient vector.</li>
+<li><span class="math inline">\(\hat{y}_i\)</span>: The predicted value for observation <em>i</em> from this model.</li>
+<li><span class="math inline">\(e_i\)</span>: The <strong>ordinary residual</strong> (<span class="math inline">\(e_i = y_i - \hat{y}_i\)</span>).</li>
+<li><span class="math inline">\(\hat{\sigma}\)</span>: The estimated standard deviation of the errors (Residual Standard Error).</li>
+<li><span class="math inline">\(h_{ii}\)</span>: The <strong>leverage</strong> of observation <em>i</em>, a measure of how much its x-values influence the model.</li>
 </ul>
 <p><strong>Leave-One-Out (LOOCV) Model</strong></p>
 <ul>
-<li><strong><span class="math inline">\(\hat{\beta}_{-i}\)</span></strong>: The coefficient vector estimated after <strong>removing</strong> observation <em>i</em>.</li>
-<li><strong><span class="math inline">\(\hat{y}_{i,-i}\)</span></strong>: The predicted value for observation <em>i</em>, from the model fit <strong>without</strong> observation <em>i</em>.</li>
-<li><strong><span class="math inline">\(e_{i,-i}\)</span></strong>: The <strong>deleted residual</strong> (<span class="math inline">\(e_{i,-i} = y_i - \hat{y}_{i,-i}\)</span>).</li>
-<li><strong><span class="math inline">\(\hat{\sigma}_{-i}\)</span></strong>: The standard deviation of the errors estimated from the model fit <strong>without</strong> observation <em>i</em>.</li>
+<li><span class="math inline">\(\hat{\beta}_{-i}\)</span>: The coefficient vector estimated after <strong>removing</strong> observation <em>i</em>.</li>
+<li><span class="math inline">\(\hat{y}_{i,-i}\)</span>: The predicted value for observation <em>i</em>, from the model fit <strong>without</strong> observation <em>i</em>.</li>
+<li><span class="math inline">\(e_{i,-i}\)</span>: The <strong>deleted residual</strong> (<span class="math inline">\(e_{i,-i} = y_i - \hat{y}_{i,-i}\)</span>).</li>
+<li><span class="math inline">\(\hat{\sigma}_{-i}\)</span>: The standard deviation of the errors estimated from the model fit <strong>without</strong> observation <em>i</em>.</li>
 </ul>
 </section>
 <section id="non-studentized-residuals" class="level2" data-number="4">
 <h2 data-number="4" class="anchored" data-anchor-id="non-studentized-residuals"><span class="header-section-number">4</span> Non-studentized Residuals</h2>
 <p>Before getting to the correct solution, it’s crucial to understand why simpler methods of standardizing residuals are flawed.</p>
 <section id="the-ordinary-residual-e_i-too-small-and-x_i-dependent" class="level3" data-number="4.1">
-<h3 data-number="4.1" class="anchored" data-anchor-id="the-ordinary-residual-e_i-too-small-and-x_i-dependent"><span class="header-section-number">4.1</span> <strong>The Ordinary Residual (<span class="math inline">\(e_i\)</span>): Too Small and <span class="math inline">\(x_i\)</span> Dependent</strong></h3>
+<h3 data-number="4.1" class="anchored" data-anchor-id="the-ordinary-residual-e_i-too-small-and-x_i-dependent"><span class="header-section-number">4.1</span> <strong>The Ordinary Residual (</strong><span class="math inline">\(e_i\)</span>): Too Small and <span class="math inline">\(x_i\)</span> Dependent</h3>
 <p>The most basic residual, <span class="math inline">\(e_i\)</span>, is problematic for two key reasons.</p>
 <p>An outlier has an undue influence on the model, pulling the regression line towards itself. This makes its own predicted value, <span class="math inline">\(\hat{y}_i\)</span>, artificially close to its actual value, <span class="math inline">\(y_i\)</span>. As a result, its residual, <span class="math inline">\(e_i\)</span>, is <strong>deceptively small</strong> and doesn’t reflect the true magnitude of the error.</p>
-<p>The variance of an ordinary residual is not constant; it depends on the point’s leverage. <span class="math display">\[\begin{equation}
-    \text{Var}(e_i) = \sigma^2(1 - h_{ii})
-    \end{equation}\]</span> We know <span class="math display">\[\begin{equation}
-\hat{y}_i = \mathbf{x}_i^\top \hat{\beta} = \mathbf{x}_i^\top\!\bigl(\beta + (X^\top X)^{-1} X^\top \epsilon\bigr).
-\end{equation}\]</span> So the residual is <span class="math display">\[\begin{equation}
-e_i = y_i - \hat{y}_i = \epsilon_i - \mathbf{x}_i^\top (X^\top X)^{-1} X^\top \epsilon.
-\end{equation}\]</span></p>
-<p>The variance can be derived from the hat matrix <span class="math inline">\(H = X(X^\top X)^{-1}X^\top\)</span>. Since <span class="math inline">\(\hat{y} = HY\)</span>, we have <span class="math display">\[\begin{equation}
+<p>The variance of an ordinary residual is not constant; it depends on the point’s leverage. The variance can be derived from the hat matrix <span class="math inline">\(H = X(X^\top X)^{-1}X^\top\)</span>. Since <span class="math display">\[\hat{y} = HY,\]</span> we have <span class="math display">\[\begin{equation}
 e = (I - H)\epsilon.
 \end{equation}\]</span> Thus, <span class="math display">\[\begin{equation}
 \mathrm{Var}(e) = (I-H)\,\sigma^2\,(I-H)^\top = (I-H)\sigma^2.
 \end{equation}\]</span> Therefore, for the <span class="math inline">\(i\)</span>th residual, <span class="math display">\[\begin{equation}
 \mathrm{Var}(e_i) = \sigma^2(1 - h_{ii}).
 \end{equation}\]</span></p>
-<p>Since leverage (<span class="math inline">\(h_{ii}\)</span>) is always greater than 0, the variance of an ordinary residual is always <strong>less than the true error variance, <span class="math inline">\(\sigma^2\)</span></strong>. High-leverage points act as “anchors” for the line and have even smaller variance.</p>
+<p>Since leverage (<span class="math inline">\(h_{ii}\)</span>) is always greater than 0, the variance of an ordinary residual is always <strong>less than the true error variance,</strong> <span class="math inline">\(\sigma^2\)</span>. High-leverage points act as “anchors” for the line and have even smaller variance.</p>
 </section>
 <section id="the-loocv-residual-e_i-i-too-large-and-x_i-dependent-variance" class="level3" data-number="4.2">
-<h3 data-number="4.2" class="anchored" data-anchor-id="the-loocv-residual-e_i-i-too-large-and-x_i-dependent-variance"><span class="header-section-number">4.2</span> <strong>The LOOCV Residual (<span class="math inline">\(e_{i,-i}\)</span>): Too large and <span class="math inline">\(x_i\)</span>-Dependent Variance</strong></h3>
+<h3 data-number="4.2" class="anchored" data-anchor-id="the-loocv-residual-e_i-i-too-large-and-x_i-dependent-variance"><span class="header-section-number">4.2</span> <strong>The LOOCV Residual (</strong><span class="math inline">\(e_{i,-i}\)</span>): Too large and <span class="math inline">\(x_i\)</span>-Dependent Variance</h3>
 <p>The deleted residual, <span class="math inline">\(e_{i,-i}\)</span>, solves the “too small” problem. Because the model isn’t influenced by the point it’s predicting, the residual is an honest measure of prediction error. However, its variance is still not constant. The variance of a deleted residual also depends on leverage, but in the opposite way. <span class="math display">\[\begin{equation}
     \text{Var}(e_{i,-i}) = \frac{\sigma^2}{1 - h_{ii}}
     \end{equation}\]</span></p>
@@ -253,7 +244,7 @@ e_{i,-i} = \frac{e_i}{1 - h_{ii}}.
 = \frac{\sigma^2(1-h_{ii})}{(1-h_{ii})^2}
 = \frac{\sigma^2}{1-h_{ii}}.
 \end{equation}\]</span></p>
-<p>Since <span class="math inline">\(1-h_{ii}\)</span> is less than 1, the variance of a deleted residual is always <strong>greater than the true error variance, <span class="math inline">\(\sigma^2\)</span></strong>. This is because it has two sources of randomness: the error in the point itself (<span class="math inline">\(y_i\)</span>) and the error in the prediction (<span class="math inline">\(\hat{y}_{i,-i}\)</span>).</p>
+<p>Since <span class="math inline">\(1-h_{ii}\)</span> is less than 1, the variance of a deleted residual is always <strong>greater than the true error variance,</strong> <span class="math inline">\(\sigma^2\)</span>. This is because it has two sources of randomness: the error in the point itself (<span class="math inline">\(y_i\)</span>) and the error in the prediction (<span class="math inline">\(\hat{y}_{i,-i}\)</span>).</p>
 </section>
 </section>
 <section id="studentized-residuals" class="level2" data-number="5">
@@ -363,14 +354,16 @@ Table&nbsp;1
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">20</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>n</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">+</span> <span class="dv">3</span> <span class="sc">*</span> x <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">5</span>)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>y[<span class="dv">1</span>] <span class="ot">&lt;-</span> y[<span class="dv">1</span>] <span class="sc">+</span> <span class="dv">30</span>  <span class="co"># add an outlier at x = 6</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>y[<span class="dv">20</span>] <span class="ot">&lt;-</span> y[<span class="dv">20</span>] <span class="sc">-</span> <span class="dv">30</span>  <span class="co"># add an outlier at x = 11</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>flag.outlier <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="fu">rep</span>(<span class="dv">20</span>, n<span class="dv">-2</span>),<span class="dv">2</span>)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>full_data  <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> x, <span class="at">y =</span> y)</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(y<span class="sc">~</span>x, <span class="at">data=</span>full_data, <span class="at">pch=</span> flag.outlier, <span class="at">col=</span>flag.outlier)</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">lm</span>(y<span class="sc">~</span>x, <span class="at">data=</span>full_data))</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span> (<span class="at">a=</span><span class="dv">2</span>, <span class="at">b=</span><span class="dv">3</span>, <span class="at">col=</span><span class="st">"red"</span>, <span class="at">lwd=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>y[<span class="dv">1</span>] <span class="ot">&lt;-</span> y[<span class="dv">1</span>] <span class="sc">+</span> <span class="dv">30</span>  </span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>y[<span class="dv">11</span>] <span class="ot">&lt;-</span> y[<span class="dv">11</span>] <span class="sc">-</span> <span class="dv">30</span> </span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>o.index <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">11</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>flag.outlier <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">20</span>, n)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>flag.outlier[o.index] <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>full_data  <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> x, <span class="at">y =</span> y)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(y<span class="sc">~</span>x, <span class="at">data=</span>full_data, <span class="at">pch=</span> flag.outlier, <span class="at">col=</span>flag.outlier)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">lm</span>(y<span class="sc">~</span>x, <span class="at">data=</span>full_data))</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span> (<span class="at">a=</span><span class="dv">2</span>, <span class="at">b=</span><span class="dv">3</span>, <span class="at">col=</span><span class="st">"red"</span>, <span class="at">lwd=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -385,14 +378,14 @@ Table&nbsp;1
 <h3 data-number="7.2" class="anchored" data-anchor-id="description-of-calculated-columns"><span class="header-section-number">7.2</span> Description of Calculated Columns</h3>
 <p>The final table compiles several important quantities calculated during the simulation. Here’s what each column represents:</p>
 <ul>
-<li><strong><span class="math inline">\(x_i\)</span></strong>: The predictor variable, which is simply the index of the observation from 1 to 20.</li>
-<li><strong><span class="math inline">\(h_i\)</span></strong>: The <strong>leverage</strong> of the i-th observation. It measures how influential a point’s x-value is in determining the model’s fit. A higher value indicates a more influential point.</li>
-<li><strong><span class="math inline">\(e_i\)</span></strong>: The <strong>ordinary residual</strong>, calculated as the difference between the actual value (<span class="math inline">\(y_i\)</span>) and the predicted value (<span class="math inline">\(\hat{y}_i\)</span>) from the model fit on all data.</li>
-<li><strong><span class="math inline">\(\hat{\sigma}\)</span></strong>: The <strong>residual standard error</strong> (or Root Mean Square Error) of the full model, representing the typical size of an ordinary residual.</li>
-<li><strong><span class="math inline">\(e_{i,-i}\)</span></strong>: The <strong>deleted (or LOOCV) residual</strong>. This is the difference between the actual value (<span class="math inline">\(y_i\)</span>) and the value predicted for it by a model that was fit on all other data <em>except</em> point <em>i</em>.</li>
-<li><strong><span class="math inline">\(\hat{e}_{i,-i}\)</span></strong>: This column shows the deleted residual calculated using the efficient algebraic shortcut (<span class="math inline">\(e_i / (1-h_{ii})\)</span>), verifying it’s identical to the brute-force <span class="math inline">\(e_{i,-i}\)</span>.</li>
-<li><strong><span class="math inline">\(\hat{\sigma}_{-i}\)</span></strong>: The <strong>LOOCV residual standard error</strong>, calculated from a model that was fit after removing observation <em>i</em>.</li>
-<li><strong><span class="math inline">\(\tilde{\sigma}_{-i}\)</span></strong>: The <strong>LOOCV residual standard error</strong>, calculated from the shortcut formula <a href="#eq-sigma_-i" class="quarto-xref">Equation&nbsp;4</a>.</li>
+<li><span class="math inline">\(x_i\)</span>: The predictor variable, which is simply the index of the observation from 1 to 20.</li>
+<li><span class="math inline">\(h_i\)</span>: The <strong>leverage</strong> of the i-th observation. It measures how influential a point’s x-value is in determining the model’s fit. A higher value indicates a more influential point.</li>
+<li><span class="math inline">\(e_i\)</span>: The <strong>ordinary residual</strong>, calculated as the difference between the actual value (<span class="math inline">\(y_i\)</span>) and the predicted value (<span class="math inline">\(\hat{y}_i\)</span>) from the model fit on all data.</li>
+<li><span class="math inline">\(\hat{\sigma}\)</span>: The <strong>residual standard error</strong> (or Root Mean Square Error) of the full model, representing the typical size of an ordinary residual.</li>
+<li><span class="math inline">\(e_{i,-i}\)</span>: The <strong>deleted (or LOOCV) residual</strong>. This is the difference between the actual value (<span class="math inline">\(y_i\)</span>) and the value predicted for it by a model that was fit on all other data <em>except</em> point <em>i</em>.</li>
+<li><span class="math inline">\(\hat{e}_{i,-i}\)</span>: This column shows the deleted residual calculated using the efficient algebraic shortcut (<span class="math inline">\(e_i / (1-h_{ii})\)</span>), verifying it’s identical to the brute-force <span class="math inline">\(e_{i,-i}\)</span>.</li>
+<li><span class="math inline">\(\hat{\sigma}_{-i}\)</span>: The <strong>LOOCV residual standard error</strong>, calculated from a model that was fit after removing observation <em>i</em>.</li>
+<li><span class="math inline">\(\tilde{\sigma}_{-i}\)</span>: The <strong>LOOCV residual standard error</strong>, calculated from the shortcut formula <a href="#eq-sigma_-i" class="quarto-xref">Equation&nbsp;4</a>.</li>
 <li><strong>NS-Full</strong>: The <strong>Non-studentized Full-Data Residual</strong>, calculated as the ordinary residual divided by the full model’s standard error (<span class="math inline">\(e_i / \hat{\sigma}\)</span>).</li>
 <li><strong>NS-LOO</strong>: The <strong>Non-studentized LOOCV Residual</strong>, calculated as the deleted residual divided by the corresponding LOOCV standard error (<span class="math inline">\(e_{i,-i} / \hat{\sigma}_{-i}\)</span>).</li>
 <li><strong>ST-LOO</strong>: The <strong>Studentized LOOCV Residual</strong>, calculated using the conceptual formula by dividing the deleted residual by its true standard error.</li>
@@ -517,282 +510,282 @@ Table&nbsp;1
 <tr class="odd">
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">0.186</td>
-<td style="text-align: right;">17.585</td>
-<td style="text-align: right;">9.542</td>
-<td style="text-align: right;">21.595</td>
-<td style="text-align: right;">21.595</td>
-<td style="text-align: right;">8.606</td>
-<td style="text-align: right;">8.606</td>
-<td style="text-align: right;">1.843</td>
-<td style="text-align: right;">2.509</td>
-<td style="text-align: right;">2.264</td>
-<td style="text-align: right;">2.264</td>
+<td style="text-align: right;">21.442</td>
+<td style="text-align: right;">9.208</td>
+<td style="text-align: right;">26.332</td>
+<td style="text-align: right;">26.332</td>
+<td style="text-align: right;">7.521</td>
+<td style="text-align: right;">7.521</td>
+<td style="text-align: right;">2.329</td>
+<td style="text-align: right;">3.501</td>
+<td style="text-align: right;">3.159</td>
+<td style="text-align: right;">3.159</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">0.159</td>
-<td style="text-align: right;">-9.827</td>
-<td style="text-align: right;">9.542</td>
-<td style="text-align: right;">-11.680</td>
-<td style="text-align: right;">-11.680</td>
-<td style="text-align: right;">9.468</td>
-<td style="text-align: right;">9.468</td>
-<td style="text-align: right;">-1.030</td>
-<td style="text-align: right;">-1.234</td>
-<td style="text-align: right;">-1.131</td>
-<td style="text-align: right;">-1.131</td>
+<td style="text-align: right;">-6.375</td>
+<td style="text-align: right;">9.208</td>
+<td style="text-align: right;">-7.578</td>
+<td style="text-align: right;">-7.578</td>
+<td style="text-align: right;">9.324</td>
+<td style="text-align: right;">9.324</td>
+<td style="text-align: right;">-0.692</td>
+<td style="text-align: right;">-0.813</td>
+<td style="text-align: right;">-0.745</td>
+<td style="text-align: right;">-0.745</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">3</td>
 <td style="text-align: right;">0.135</td>
-<td style="text-align: right;">0.055</td>
-<td style="text-align: right;">9.542</td>
-<td style="text-align: right;">0.064</td>
-<td style="text-align: right;">0.064</td>
-<td style="text-align: right;">9.818</td>
-<td style="text-align: right;">9.818</td>
-<td style="text-align: right;">0.006</td>
-<td style="text-align: right;">0.006</td>
-<td style="text-align: right;">0.006</td>
-<td style="text-align: right;">0.006</td>
+<td style="text-align: right;">3.100</td>
+<td style="text-align: right;">9.208</td>
+<td style="text-align: right;">3.582</td>
+<td style="text-align: right;">3.582</td>
+<td style="text-align: right;">9.441</td>
+<td style="text-align: right;">9.441</td>
+<td style="text-align: right;">0.337</td>
+<td style="text-align: right;">0.379</td>
+<td style="text-align: right;">0.353</td>
+<td style="text-align: right;">0.353</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">4</td>
 <td style="text-align: right;">0.114</td>
-<td style="text-align: right;">-6.448</td>
-<td style="text-align: right;">9.542</td>
-<td style="text-align: right;">-7.274</td>
-<td style="text-align: right;">-7.274</td>
-<td style="text-align: right;">9.677</td>
-<td style="text-align: right;">9.677</td>
-<td style="text-align: right;">-0.676</td>
-<td style="text-align: right;">-0.752</td>
-<td style="text-align: right;">-0.708</td>
-<td style="text-align: right;">-0.708</td>
+<td style="text-align: right;">-3.809</td>
+<td style="text-align: right;">9.208</td>
+<td style="text-align: right;">-4.297</td>
+<td style="text-align: right;">-4.297</td>
+<td style="text-align: right;">9.424</td>
+<td style="text-align: right;">9.424</td>
+<td style="text-align: right;">-0.414</td>
+<td style="text-align: right;">-0.456</td>
+<td style="text-align: right;">-0.429</td>
+<td style="text-align: right;">-0.429</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">5</td>
 <td style="text-align: right;">0.095</td>
-<td style="text-align: right;">-5.217</td>
-<td style="text-align: right;">9.542</td>
-<td style="text-align: right;">-5.768</td>
-<td style="text-align: right;">-5.768</td>
-<td style="text-align: right;">9.728</td>
-<td style="text-align: right;">9.728</td>
-<td style="text-align: right;">-0.547</td>
-<td style="text-align: right;">-0.593</td>
-<td style="text-align: right;">-0.564</td>
-<td style="text-align: right;">-0.564</td>
+<td style="text-align: right;">-2.984</td>
+<td style="text-align: right;">9.208</td>
+<td style="text-align: right;">-3.299</td>
+<td style="text-align: right;">-3.299</td>
+<td style="text-align: right;">9.445</td>
+<td style="text-align: right;">9.445</td>
+<td style="text-align: right;">-0.324</td>
+<td style="text-align: right;">-0.349</td>
+<td style="text-align: right;">-0.332</td>
+<td style="text-align: right;">-0.332</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">6</td>
 <td style="text-align: right;">0.080</td>
-<td style="text-align: right;">3.649</td>
-<td style="text-align: right;">9.542</td>
-<td style="text-align: right;">3.968</td>
-<td style="text-align: right;">3.968</td>
-<td style="text-align: right;">9.775</td>
-<td style="text-align: right;">9.775</td>
-<td style="text-align: right;">0.382</td>
-<td style="text-align: right;">0.406</td>
-<td style="text-align: right;">0.389</td>
-<td style="text-align: right;">0.389</td>
+<td style="text-align: right;">5.476</td>
+<td style="text-align: right;">9.208</td>
+<td style="text-align: right;">5.955</td>
+<td style="text-align: right;">5.955</td>
+<td style="text-align: right;">9.373</td>
+<td style="text-align: right;">9.373</td>
+<td style="text-align: right;">0.595</td>
+<td style="text-align: right;">0.635</td>
+<td style="text-align: right;">0.609</td>
+<td style="text-align: right;">0.609</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">7</td>
 <td style="text-align: right;">0.068</td>
-<td style="text-align: right;">-1.684</td>
-<td style="text-align: right;">9.542</td>
-<td style="text-align: right;">-1.808</td>
-<td style="text-align: right;">-1.808</td>
-<td style="text-align: right;">9.809</td>
-<td style="text-align: right;">9.809</td>
-<td style="text-align: right;">-0.177</td>
-<td style="text-align: right;">-0.184</td>
-<td style="text-align: right;">-0.178</td>
-<td style="text-align: right;">-0.178</td>
+<td style="text-align: right;">-0.263</td>
+<td style="text-align: right;">9.208</td>
+<td style="text-align: right;">-0.283</td>
+<td style="text-align: right;">-0.283</td>
+<td style="text-align: right;">9.475</td>
+<td style="text-align: right;">9.475</td>
+<td style="text-align: right;">-0.029</td>
+<td style="text-align: right;">-0.030</td>
+<td style="text-align: right;">-0.029</td>
+<td style="text-align: right;">-0.029</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">8</td>
 <td style="text-align: right;">0.059</td>
-<td style="text-align: right;">-9.377</td>
-<td style="text-align: right;">9.542</td>
-<td style="text-align: right;">-9.969</td>
-<td style="text-align: right;">-9.969</td>
-<td style="text-align: right;">9.534</td>
-<td style="text-align: right;">9.534</td>
-<td style="text-align: right;">-0.983</td>
-<td style="text-align: right;">-1.046</td>
-<td style="text-align: right;">-1.014</td>
-<td style="text-align: right;">-1.014</td>
+<td style="text-align: right;">-8.362</td>
+<td style="text-align: right;">9.208</td>
+<td style="text-align: right;">-8.890</td>
+<td style="text-align: right;">-8.890</td>
+<td style="text-align: right;">9.242</td>
+<td style="text-align: right;">9.242</td>
+<td style="text-align: right;">-0.908</td>
+<td style="text-align: right;">-0.962</td>
+<td style="text-align: right;">-0.933</td>
+<td style="text-align: right;">-0.933</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">9</td>
 <td style="text-align: right;">0.053</td>
-<td style="text-align: right;">-5.548</td>
-<td style="text-align: right;">9.542</td>
-<td style="text-align: right;">-5.861</td>
-<td style="text-align: right;">-5.861</td>
-<td style="text-align: right;">9.720</td>
-<td style="text-align: right;">9.720</td>
-<td style="text-align: right;">-0.581</td>
-<td style="text-align: right;">-0.603</td>
-<td style="text-align: right;">-0.587</td>
-<td style="text-align: right;">-0.587</td>
+<td style="text-align: right;">-4.939</td>
+<td style="text-align: right;">9.208</td>
+<td style="text-align: right;">-5.218</td>
+<td style="text-align: right;">-5.218</td>
+<td style="text-align: right;">9.395</td>
+<td style="text-align: right;">9.395</td>
+<td style="text-align: right;">-0.536</td>
+<td style="text-align: right;">-0.555</td>
+<td style="text-align: right;">-0.540</td>
+<td style="text-align: right;">-0.540</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">10</td>
 <td style="text-align: right;">0.050</td>
-<td style="text-align: right;">-3.405</td>
-<td style="text-align: right;">9.542</td>
-<td style="text-align: right;">-3.586</td>
-<td style="text-align: right;">-3.586</td>
-<td style="text-align: right;">9.782</td>
-<td style="text-align: right;">9.782</td>
+<td style="text-align: right;">-3.202</td>
+<td style="text-align: right;">9.208</td>
+<td style="text-align: right;">-3.372</td>
+<td style="text-align: right;">-3.372</td>
+<td style="text-align: right;">9.442</td>
+<td style="text-align: right;">9.442</td>
+<td style="text-align: right;">-0.348</td>
 <td style="text-align: right;">-0.357</td>
-<td style="text-align: right;">-0.367</td>
-<td style="text-align: right;">-0.357</td>
-<td style="text-align: right;">-0.357</td>
+<td style="text-align: right;">-0.348</td>
+<td style="text-align: right;">-0.348</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">11</td>
 <td style="text-align: right;">0.050</td>
-<td style="text-align: right;">5.881</td>
-<td style="text-align: right;">9.542</td>
-<td style="text-align: right;">6.193</td>
-<td style="text-align: right;">6.193</td>
-<td style="text-align: right;">9.709</td>
-<td style="text-align: right;">9.709</td>
-<td style="text-align: right;">0.616</td>
-<td style="text-align: right;">0.638</td>
-<td style="text-align: right;">0.622</td>
-<td style="text-align: right;">0.622</td>
+<td style="text-align: right;">-24.322</td>
+<td style="text-align: right;">9.208</td>
+<td style="text-align: right;">-25.612</td>
+<td style="text-align: right;">-25.612</td>
+<td style="text-align: right;">7.289</td>
+<td style="text-align: right;">7.289</td>
+<td style="text-align: right;">-2.641</td>
+<td style="text-align: right;">-3.514</td>
+<td style="text-align: right;">-3.424</td>
+<td style="text-align: right;">-3.424</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">12</td>
 <td style="text-align: right;">0.053</td>
-<td style="text-align: right;">2.497</td>
-<td style="text-align: right;">9.542</td>
-<td style="text-align: right;">2.638</td>
-<td style="text-align: right;">2.638</td>
-<td style="text-align: right;">9.799</td>
-<td style="text-align: right;">9.799</td>
-<td style="text-align: right;">0.262</td>
-<td style="text-align: right;">0.269</td>
-<td style="text-align: right;">0.262</td>
-<td style="text-align: right;">0.262</td>
+<td style="text-align: right;">1.888</td>
+<td style="text-align: right;">9.208</td>
+<td style="text-align: right;">1.994</td>
+<td style="text-align: right;">1.994</td>
+<td style="text-align: right;">9.464</td>
+<td style="text-align: right;">9.464</td>
+<td style="text-align: right;">0.205</td>
+<td style="text-align: right;">0.211</td>
+<td style="text-align: right;">0.205</td>
+<td style="text-align: right;">0.205</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">13</td>
 <td style="text-align: right;">0.059</td>
-<td style="text-align: right;">3.639</td>
-<td style="text-align: right;">9.542</td>
-<td style="text-align: right;">3.869</td>
-<td style="text-align: right;">3.869</td>
-<td style="text-align: right;">9.776</td>
-<td style="text-align: right;">9.776</td>
-<td style="text-align: right;">0.381</td>
-<td style="text-align: right;">0.396</td>
-<td style="text-align: right;">0.384</td>
-<td style="text-align: right;">0.384</td>
+<td style="text-align: right;">2.624</td>
+<td style="text-align: right;">9.208</td>
+<td style="text-align: right;">2.790</td>
+<td style="text-align: right;">2.790</td>
+<td style="text-align: right;">9.453</td>
+<td style="text-align: right;">9.453</td>
+<td style="text-align: right;">0.285</td>
+<td style="text-align: right;">0.295</td>
+<td style="text-align: right;">0.286</td>
+<td style="text-align: right;">0.286</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">14</td>
 <td style="text-align: right;">0.068</td>
-<td style="text-align: right;">3.126</td>
-<td style="text-align: right;">9.542</td>
-<td style="text-align: right;">3.356</td>
-<td style="text-align: right;">3.356</td>
-<td style="text-align: right;">9.787</td>
-<td style="text-align: right;">9.787</td>
-<td style="text-align: right;">0.328</td>
-<td style="text-align: right;">0.343</td>
-<td style="text-align: right;">0.331</td>
-<td style="text-align: right;">0.331</td>
+<td style="text-align: right;">1.705</td>
+<td style="text-align: right;">9.208</td>
+<td style="text-align: right;">1.830</td>
+<td style="text-align: right;">1.830</td>
+<td style="text-align: right;">9.466</td>
+<td style="text-align: right;">9.466</td>
+<td style="text-align: right;">0.185</td>
+<td style="text-align: right;">0.193</td>
+<td style="text-align: right;">0.187</td>
+<td style="text-align: right;">0.187</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">15</td>
 <td style="text-align: right;">0.080</td>
-<td style="text-align: right;">0.731</td>
-<td style="text-align: right;">9.542</td>
-<td style="text-align: right;">0.795</td>
-<td style="text-align: right;">0.795</td>
-<td style="text-align: right;">9.817</td>
-<td style="text-align: right;">9.817</td>
-<td style="text-align: right;">0.077</td>
-<td style="text-align: right;">0.081</td>
-<td style="text-align: right;">0.078</td>
-<td style="text-align: right;">0.078</td>
+<td style="text-align: right;">-1.096</td>
+<td style="text-align: right;">9.208</td>
+<td style="text-align: right;">-1.192</td>
+<td style="text-align: right;">-1.192</td>
+<td style="text-align: right;">9.471</td>
+<td style="text-align: right;">9.471</td>
+<td style="text-align: right;">-0.119</td>
+<td style="text-align: right;">-0.126</td>
+<td style="text-align: right;">-0.121</td>
+<td style="text-align: right;">-0.121</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">16</td>
 <td style="text-align: right;">0.095</td>
-<td style="text-align: right;">13.382</td>
-<td style="text-align: right;">9.542</td>
-<td style="text-align: right;">14.795</td>
-<td style="text-align: right;">14.795</td>
-<td style="text-align: right;">9.206</td>
-<td style="text-align: right;">9.206</td>
-<td style="text-align: right;">1.402</td>
-<td style="text-align: right;">1.607</td>
-<td style="text-align: right;">1.528</td>
-<td style="text-align: right;">1.528</td>
+<td style="text-align: right;">11.149</td>
+<td style="text-align: right;">9.208</td>
+<td style="text-align: right;">12.326</td>
+<td style="text-align: right;">12.326</td>
+<td style="text-align: right;">9.039</td>
+<td style="text-align: right;">9.039</td>
+<td style="text-align: right;">1.211</td>
+<td style="text-align: right;">1.364</td>
+<td style="text-align: right;">1.297</td>
+<td style="text-align: right;">1.297</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">17</td>
 <td style="text-align: right;">0.114</td>
-<td style="text-align: right;">7.874</td>
-<td style="text-align: right;">9.542</td>
-<td style="text-align: right;">8.882</td>
-<td style="text-align: right;">8.882</td>
-<td style="text-align: right;">9.606</td>
-<td style="text-align: right;">9.606</td>
-<td style="text-align: right;">0.825</td>
-<td style="text-align: right;">0.925</td>
-<td style="text-align: right;">0.871</td>
-<td style="text-align: right;">0.871</td>
+<td style="text-align: right;">5.235</td>
+<td style="text-align: right;">9.208</td>
+<td style="text-align: right;">5.905</td>
+<td style="text-align: right;">5.905</td>
+<td style="text-align: right;">9.379</td>
+<td style="text-align: right;">9.379</td>
+<td style="text-align: right;">0.569</td>
+<td style="text-align: right;">0.630</td>
+<td style="text-align: right;">0.593</td>
+<td style="text-align: right;">0.593</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">18</td>
 <td style="text-align: right;">0.135</td>
-<td style="text-align: right;">-3.511</td>
-<td style="text-align: right;">9.542</td>
-<td style="text-align: right;">-4.057</td>
-<td style="text-align: right;">-4.057</td>
-<td style="text-align: right;">9.776</td>
-<td style="text-align: right;">9.776</td>
-<td style="text-align: right;">-0.368</td>
-<td style="text-align: right;">-0.415</td>
-<td style="text-align: right;">-0.386</td>
-<td style="text-align: right;">-0.386</td>
+<td style="text-align: right;">-6.556</td>
+<td style="text-align: right;">9.208</td>
+<td style="text-align: right;">-7.576</td>
+<td style="text-align: right;">-7.576</td>
+<td style="text-align: right;">9.320</td>
+<td style="text-align: right;">9.320</td>
+<td style="text-align: right;">-0.712</td>
+<td style="text-align: right;">-0.813</td>
+<td style="text-align: right;">-0.756</td>
+<td style="text-align: right;">-0.756</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">19</td>
 <td style="text-align: right;">0.159</td>
-<td style="text-align: right;">10.766</td>
-<td style="text-align: right;">9.542</td>
-<td style="text-align: right;">12.796</td>
-<td style="text-align: right;">12.796</td>
-<td style="text-align: right;">9.397</td>
-<td style="text-align: right;">9.397</td>
-<td style="text-align: right;">1.128</td>
-<td style="text-align: right;">1.362</td>
-<td style="text-align: right;">1.249</td>
-<td style="text-align: right;">1.249</td>
+<td style="text-align: right;">7.315</td>
+<td style="text-align: right;">9.208</td>
+<td style="text-align: right;">8.694</td>
+<td style="text-align: right;">8.694</td>
+<td style="text-align: right;">9.276</td>
+<td style="text-align: right;">9.276</td>
+<td style="text-align: right;">0.794</td>
+<td style="text-align: right;">0.937</td>
+<td style="text-align: right;">0.860</td>
+<td style="text-align: right;">0.860</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">20</td>
 <td style="text-align: right;">0.186</td>
-<td style="text-align: right;">-24.167</td>
-<td style="text-align: right;">9.542</td>
-<td style="text-align: right;">-29.679</td>
-<td style="text-align: right;">-29.679</td>
-<td style="text-align: right;">7.363</td>
-<td style="text-align: right;">7.363</td>
-<td style="text-align: right;">-2.533</td>
-<td style="text-align: right;">-4.031</td>
-<td style="text-align: right;">-3.638</td>
-<td style="text-align: right;">-3.638</td>
+<td style="text-align: right;">1.976</td>
+<td style="text-align: right;">9.208</td>
+<td style="text-align: right;">2.426</td>
+<td style="text-align: right;">2.426</td>
+<td style="text-align: right;">9.460</td>
+<td style="text-align: right;">9.460</td>
+<td style="text-align: right;">0.215</td>
+<td style="text-align: right;">0.256</td>
+<td style="text-align: right;">0.231</td>
+<td style="text-align: right;">0.231</td>
 </tr>
 </tbody>
 </table>
@@ -922,10 +915,10 @@ RSS_{-i} = \sum_{k \neq i} (y_k - \mathbf{x}_k^T\hat{\beta}_{-i})^2
 <li><p><strong>Substitute this identity</strong> into the expression for a generic leave-one-out residual, <span class="math inline">\(e_{k,-i} = y_k - \mathbf{x}_k^T\hat{\beta}_{-i}\)</span>. After simplification, this yields: <span class="math display">\[
 e_{k,-i} = e_k + h_{ki} \frac{e_i}{1 - h_{ii}}
 \]</span> where <span class="math inline">\(e_k\)</span> is the ordinary residual and <span class="math inline">\(h_{ki}\)</span> is the <span class="math inline">\((k,i)\)</span>-th element of the hat matrix.</p></li>
-<li><p><strong>Substitute this back into the definition of <span class="math inline">\(RSS_{-i}\)</span></strong>. After expanding the squared term and performing the summation (which involves considerable but standard matrix algebra), the expression simplifies to the elegant result: <span class="math display">\[
+<li><p><strong>Substitute this back into the definition of</strong> <span class="math inline">\(RSS_{-i}\)</span>. After expanding the squared term and performing the summation (which involves considerable but standard matrix algebra), the expression simplifies to the elegant result: <span class="math display">\[
 RSS_{-i} = RSS - \frac{e_i^2}{1 - h_{ii}}
 \]</span></p></li>
-<li><p><strong>Finally, derive the formula for <span class="math inline">\(\hat{\sigma}_{-i}\)</span></strong>. We know that <span class="math inline">\(\hat{\sigma}^2_{-i} = \frac{RSS_{-i}}{n-p-1}\)</span> and that <span class="math inline">\(RSS = (n-p)\hat{\sigma}^2\)</span>. By substituting the result from Step 4, we arrive at the formula for the variance, and taking the square root gives us the standard error. ✅</p></li>
+<li><p><strong>Finally, derive the formula for</strong> <span class="math inline">\(\hat{\sigma}_{-i}\)</span>. We know that <span class="math inline">\(\hat{\sigma}^2_{-i} = \frac{RSS_{-i}}{n-p-1}\)</span> and that <span class="math inline">\(RSS = (n-p)\hat{\sigma}^2\)</span>. By substituting the result from Step 4, we arrive at the formula for the variance, and taking the square root gives us the standard error. ✅</p></li>
 </ol>
 
 </section>
@@ -934,242 +927,236 @@ RSS_{-i} = RSS - \frac{e_i^2}{1 - h_{ii}}
 </main>
 <!-- /main column -->
 <script id="quarto-html-after-body" type="application/javascript">
-  window.document.addEventListener("DOMContentLoaded", function (event) {
-    const icon = "";
-    const anchorJS = new window.AnchorJS();
-    anchorJS.options = {
-      placement: 'right',
-      icon: icon
-    };
-    anchorJS.add('.anchored');
-    const isCodeAnnotation = (el) => {
-      for (const clz of el.classList) {
-        if (clz.startsWith('code-annotation-')) {                     
-          return true;
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
       }
-      return false;
-    }
-    const onCopySuccess = function(e) {
-      // button target
-      const button = e.trigger;
-      // don't keep focus
-      button.blur();
-      // flash "checked"
-      button.classList.add('code-copy-button-checked');
-      var currentTitle = button.getAttribute("title");
-      button.setAttribute("title", "Copied!");
-      let tooltip;
-      if (window.bootstrap) {
-        button.setAttribute("data-bs-toggle", "tooltip");
-        button.setAttribute("data-bs-placement", "left");
-        button.setAttribute("data-bs-title", "Copied!");
-        tooltip = new bootstrap.Tooltip(button, 
-          { trigger: "manual", 
-            customClass: "code-copy-button-tooltip",
-            offset: [0, -8]});
-        tooltip.show();    
-      }
-      setTimeout(function() {
-        if (tooltip) {
-          tooltip.hide();
-          button.removeAttribute("data-bs-title");
-          button.removeAttribute("data-bs-toggle");
-          button.removeAttribute("data-bs-placement");
-        }
-        button.setAttribute("title", currentTitle);
-        button.classList.remove('code-copy-button-checked');
-      }, 1000);
-      // clear code selection
-      e.clearSelection();
-    }
-    const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
-        }
-        return codeEl.innerText;
-    }
-    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-      text: getTextToCopy
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
     });
-    clipboard.on('success', onCopySuccess);
-    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-        text: getTextToCopy,
-        container: window.document.getElementById('quarto-embedded-source-code-modal')
-      });
-      clipboardModal.on('success', onCopySuccess);
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
-      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-      var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
-      var isInternal = (href) => {
-          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
-      }
-      // Inspect non-navigation links and adorn them if external
-     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-      for (var i=0; i<links.length; i++) {
-        const link = links[i];
-        if (!isInternal(link.href)) {
-          // undo the damage that might have been done by quarto-nav.js in the case of
-          // links that we want to consider external
-          if (link.dataset.originalHref !== undefined) {
-            link.href = link.dataset.originalHref;
-          }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
         }
       }
-    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-      const config = {
-        allowHTML: true,
-        maxWidth: 500,
-        delay: 100,
-        arrow: false,
-        appendTo: function(el) {
-            return el.parentElement;
-        },
-        interactive: true,
-        interactiveBorder: 10,
-        theme: 'quarto',
-        placement: 'bottom-start',
-      };
-      if (contentFn) {
-        config.content = contentFn;
-      }
-      if (onTriggerFn) {
-        config.onTrigger = onTriggerFn;
-      }
-      if (onUntriggerFn) {
-        config.onUntrigger = onUntriggerFn;
-      }
-      window.tippy(el, config); 
     }
-    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-    for (var i=0; i<noterefs.length; i++) {
-      const ref = noterefs[i];
-      tippyHover(ref, function() {
-        // use id or data attribute instead here
-        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-        try { href = new URL(href).hash; } catch {}
-        const id = href.replace(/^#\/?/, "");
-        const note = window.document.getElementById(id);
-        if (note) {
-          return note.innerHTML;
-        } else {
-          return "";
-        }
-      });
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
     }
-    const xrefs = window.document.querySelectorAll('a.quarto-xref');
-    const processXRef = (id, note) => {
-      // Strip column container classes
-      const stripColumnClz = (el) => {
-        el.classList.remove("page-full", "page-columns");
-        if (el.children) {
-          for (const child of el.children) {
-            stripColumnClz(child);
-          }
-        }
-      }
-      stripColumnClz(note)
-      if (id === null || id.startsWith('sec-')) {
-        // Special case sections, only their first couple elements
-        const container = document.createElement("div");
-        if (note.children && note.children.length > 2) {
-          container.appendChild(note.children[0].cloneNode(true));
-          for (let i = 1; i < note.children.length; i++) {
-            const child = note.children[i];
-            if (child.tagName === "P" && child.innerText === "") {
-              continue;
-            } else {
-              container.appendChild(child.cloneNode(true));
-              break;
-            }
-          }
-          if (window.Quarto?.typesetMath) {
-            window.Quarto.typesetMath(container);
-          }
-          return container.innerHTML
-        } else {
-          if (window.Quarto?.typesetMath) {
-            window.Quarto.typesetMath(note);
-          }
-          return note.innerHTML;
-        }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
       } else {
-        // Remove any anchor links if they are present
-        const anchorLink = note.querySelector('a.anchorjs-link');
-        if (anchorLink) {
-          anchorLink.remove();
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
         }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
         if (window.Quarto?.typesetMath) {
           window.Quarto.typesetMath(note);
         }
-        if (note.classList.contains("callout")) {
-          return note.outerHTML;
-        } else {
-          return note.innerHTML;
-        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
       }
     }
-    for (var i=0; i<xrefs.length; i++) {
-      const xref = xrefs[i];
-      tippyHover(xref, undefined, function(instance) {
-        instance.disable();
-        let url = xref.getAttribute('href');
-        let hash = undefined; 
-        if (url.startsWith('#')) {
-          hash = url;
-        } else {
-          try { hash = new URL(url).hash; } catch {}
-        }
-        if (hash) {
-          const id = hash.replace(/^#\/?/, "");
-          const note = window.document.getElementById(id);
-          if (note !== null) {
-            try {
-              const html = processXRef(id, note.cloneNode(true));
-              instance.setContent(html);
-            } finally {
-              instance.enable();
-              instance.show();
-            }
-          } else {
-            // See if we can fetch this
-            fetch(url.split('#')[0])
-            .then(res => res.text())
-            .then(html => {
-              const parser = new DOMParser();
-              const htmlDoc = parser.parseFromString(html, "text/html");
-              const note = htmlDoc.getElementById(id);
-              if (note !== null) {
-                const html = processXRef(id, note);
-                instance.setContent(html);
-              } 
-            }).finally(() => {
-              instance.enable();
-              instance.show();
-            });
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
           }
         } else {
-          // See if we can fetch a full url (with no hash to target)
-          // This is a special case and we should probably do some content thinning / targeting
-          fetch(url)
+          // See if we can fetch this
+          fetch(url.split('#')[0])
           .then(res => res.text())
           .then(html => {
             const parser = new DOMParser();
             const htmlDoc = parser.parseFromString(html, "text/html");
-            const note = htmlDoc.querySelector('main.content');
+            const note = htmlDoc.getElementById(id);
             if (note !== null) {
-              // This should only happen for chapter cross references
-              // (since there is no id in the URL)
-              // remove the first header
-              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
-                note.children[0].remove();
-              }
-              const html = processXRef(null, note);
+              const html = processXRef(id, note);
               instance.setContent(html);
             } 
           }).finally(() => {
@@ -1177,161 +1164,185 @@ RSS_{-i} = RSS - \frac{e_i^2}{1 - h_{ii}}
             instance.show();
           });
         }
-      }, function(instance) {
-      });
-    }
-        let selectedAnnoteEl;
-        const selectorForAnnotation = ( cell, annotation) => {
-          let cellAttr = 'data-code-cell="' + cell + '"';
-          let lineAttr = 'data-code-annotation="' +  annotation + '"';
-          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
-          return selector;
-        }
-        const selectCodeLines = (annoteEl) => {
-          const doc = window.document;
-          const targetCell = annoteEl.getAttribute("data-target-cell");
-          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
-          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
-          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
-          const lineIds = lines.map((line) => {
-            return targetCell + "-" + line;
-          })
-          let top = null;
-          let height = null;
-          let parent = null;
-          if (lineIds.length > 0) {
-              //compute the position of the single el (top and bottom and make a div)
-              const el = window.document.getElementById(lineIds[0]);
-              top = el.offsetTop;
-              height = el.offsetHeight;
-              parent = el.parentElement.parentElement;
-            if (lineIds.length > 1) {
-              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-              height = bottom - top;
-            }
-            if (top !== null && height !== null && parent !== null) {
-              // cook up a div (if necessary) and position it 
-              let div = window.document.getElementById("code-annotation-line-highlight");
-              if (div === null) {
-                div = window.document.createElement("div");
-                div.setAttribute("id", "code-annotation-line-highlight");
-                div.style.position = 'absolute';
-                parent.appendChild(div);
-              }
-              div.style.top = top - 2 + "px";
-              div.style.height = height + 4 + "px";
-              div.style.left = 0;
-              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-              if (gutterDiv === null) {
-                gutterDiv = window.document.createElement("div");
-                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-                gutterDiv.style.position = 'absolute';
-                const codeCell = window.document.getElementById(targetCell);
-                const gutter = codeCell.querySelector('.code-annotation-gutter');
-                gutter.appendChild(gutterDiv);
-              }
-              gutterDiv.style.top = top - 2 + "px";
-              gutterDiv.style.height = height + 4 + "px";
-            }
-            selectedAnnoteEl = annoteEl;
-          }
-        };
-        const unselectCodeLines = () => {
-          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
-          elementsIds.forEach((elId) => {
-            const div = window.document.getElementById(elId);
-            if (div) {
-              div.remove();
-            }
-          });
-          selectedAnnoteEl = undefined;
-        };
-          // Handle positioning of the toggle
-      window.addEventListener(
-        "resize",
-        throttle(() => {
-          elRect = undefined;
-          if (selectedAnnoteEl) {
-            selectCodeLines(selectedAnnoteEl);
-          }
-        }, 10)
-      );
-      function throttle(fn, ms) {
-      let throttle = false;
-      let timer;
-        return (...args) => {
-          if(!throttle) { // first call gets through
-              fn.apply(this, args);
-              throttle = true;
-          } else { // all the others get throttled
-              if(timer) clearTimeout(timer); // cancel #2
-              timer = setTimeout(() => {
-                fn.apply(this, args);
-                timer = throttle = false;
-              }, ms);
-          }
-        };
-      }
-        // Attach click handler to the DT
-        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
-        for (const annoteDlNode of annoteDls) {
-          annoteDlNode.addEventListener('click', (event) => {
-            const clickedEl = event.target;
-            if (clickedEl !== selectedAnnoteEl) {
-              unselectCodeLines();
-              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
-              if (activeEl) {
-                activeEl.classList.remove('code-annotation-active');
-              }
-              selectCodeLines(clickedEl);
-              clickedEl.classList.add('code-annotation-active');
-            } else {
-              // Unselect the line
-              unselectCodeLines();
-              clickedEl.classList.remove('code-annotation-active');
-            }
-          });
-        }
-    const findCites = (el) => {
-      const parentEl = el.parentElement;
-      if (parentEl) {
-        const cites = parentEl.dataset.cites;
-        if (cites) {
-          return {
-            el,
-            cites: cites.split(' ')
-          };
-        } else {
-          return findCites(el.parentElement)
-        }
       } else {
-        return undefined;
-      }
-    };
-    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-    for (var i=0; i<bibliorefs.length; i++) {
-      const ref = bibliorefs[i];
-      const citeInfo = findCites(ref);
-      if (citeInfo) {
-        tippyHover(citeInfo.el, function() {
-          var popup = window.document.createElement('div');
-          citeInfo.cites.forEach(function(cite) {
-            var citeDiv = window.document.createElement('div');
-            citeDiv.classList.add('hanging-indent');
-            citeDiv.classList.add('csl-entry');
-            var biblioDiv = window.document.getElementById('ref-' + cite);
-            if (biblioDiv) {
-              citeDiv.innerHTML = biblioDiv.innerHTML;
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
             }
-            popup.appendChild(citeDiv);
-          });
-          return popup.innerHTML;
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
         });
       }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
     }
-  });
-  </script>
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
 </div> <!-- /content -->
 
 
