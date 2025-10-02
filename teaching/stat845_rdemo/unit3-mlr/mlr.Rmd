@@ -225,6 +225,150 @@ data.frame(std.error = sqrt(diag(cov.mat)))
 
 # Partial F-test and t-test
 
+## The distribution of RSS reduction ($SS_R$ or SSR)
+
+```{r include=FALSE}
+
+require ("latex2exp")
+require ("animation")
+```
+
+### When $H_0$ is true
+```{r cache=TRUE, fig.show="animate", class.source="fold-hide", fig.height=4}
+
+# -----------------------------------------------------------
+# RSS vs. model size demo with saturated model endpoint
+# -----------------------------------------------------------
+  
+n <- 30
+p <- 10
+# Loop to generate frames for an animation
+for (n.sim in 1:50) {
+
+  # Generate predictors and true model
+  X <- replicate(p, rnorm(n))
+  colnames(X) <- paste0("x", 1:p)
+  X <- as.data.frame(X)
+  
+  beta <- c(0, rep(0, p - 1))           
+  sigma <- 1
+  y <- as.numeric(as.matrix(X) %*% beta + rnorm(n, sd = sigma))
+  
+  # Fit models with first k predictors; collect RSS
+  ks   <- 0:p
+  RSS  <- numeric(length(ks))
+  pars <- ks + 1   # number of parameters incl. intercept
+  
+  for (i in seq_along(ks)) {
+    k <- ks[i]
+    if (k == 0) {
+      fitsim <- lm(y ~ 1)                   
+    } else {
+      fml <- as.formula(
+        paste("y ~", paste(paste0("x", 1:k), collapse = " + "))
+      )
+      fitsim <- lm(fml, data = X)
+    }
+    RSS[i] <- sum(residuals(fitsim)^2)      
+  }
+  
+  # Add saturated model: p = n, RSS = 0
+  pars <- c(pars, n)
+  RSS  <- c(RSS, 0)
+  
+  # Plot
+  if (!requireNamespace("ggplot2", quietly = TRUE)) {
+    plot(pars, RSS, type = "b", xlab = "Number of parameters (p)",
+         ylab = "Residual Sum of Squares (RSS)",
+         main = "RSS vs. Model Size (with saturated model)")
+  } else {
+    library(ggplot2)
+    df <- data.frame(p = pars, RSS = RSS)
+    g <- ggplot(df, aes(p, RSS)) +
+      geom_line() +
+      geom_point() +
+      labs(
+        title = "RSS vs. Model Size (with saturated model)",
+        x = "Number of parameters (p)",
+        y = "Residual Sum of Squares (RSS)"
+      ) +
+      theme_minimal(base_size = 13)
+  }
+  print(g)
+}
+
+```
+
+### When $\beta_1 \not=0$
+
+```{r cache=TRUE, fig.show="animate", class.source="fold-hide", fig.height=4}
+
+# -----------------------------------------------------------
+# RSS vs. model size demo with saturated model endpoint
+# -----------------------------------------------------------
+  
+n <- 30
+p <- 10
+beta <- c(1, rep(0, p - 1))
+# Loop to generate frames for an animation
+for (n.sim in 1:50) {
+
+  # Generate predictors and true model
+  X <- replicate(p, rnorm(n))
+  colnames(X) <- paste0("x", 1:p)
+  X <- as.data.frame(X)
+  
+             
+  sigma <- 1
+  y <- as.numeric(as.matrix(X) %*% beta + rnorm(n, sd = sigma))
+  
+  # Fit models with first k predictors; collect RSS
+  ks   <- 0:p
+  RSS  <- numeric(length(ks))
+  pars <- ks + 1   # number of parameters incl. intercept
+  
+  for (i in seq_along(ks)) {
+    k <- ks[i]
+    if (k == 0) {
+      fitsim <- lm(y ~ 1)                   
+    } else {
+      fml <- as.formula(
+        paste("y ~", paste(paste0("x", 1:k), collapse = " + "))
+      )
+      fitsim <- lm(fml, data = X)
+    }
+    RSS[i] <- sum(residuals(fitsim)^2)      
+  }
+  
+  # Add saturated model: p = n, RSS = 0
+  pars <- c(pars, n)
+  RSS  <- c(RSS, 0)
+  
+  # Plot
+  if (!requireNamespace("ggplot2", quietly = TRUE)) {
+    plot(pars, RSS, type = "b", xlab = "Number of parameters (p)",
+         ylab = "Residual Sum of Squares (RSS)",
+         main = "RSS vs. Model Size (with saturated model)")
+  } else {
+    library(ggplot2)
+    df <- data.frame(p = pars, RSS = RSS)
+    g <- ggplot(df, aes(p, RSS)) +
+      geom_line() +
+      geom_point() +
+      labs(
+        title = "RSS vs. Model Size (with saturated model)",
+        x = "Number of parameters (p)",
+        y = "Residual Sum of Squares (RSS)"
+      ) +
+      theme_minimal(base_size = 13)
+  }
+  print(g)
+}
+
+```
+
+## Example
+
 This section uses data on the weight, height, and age of children to demonstrate partial F-tests.
 
 ```{r setup-child-data}
@@ -235,47 +379,35 @@ age <- c(8, 10, 6, 11, 8, 7, 10, 9, 10, 6, 12, 9)
 child.data <- data.frame(wgt, hgt, age)
 ```
 
-## Problem 1: Simple Linear Regression
-
-```{r partial-f-test-1}
-fit11 <- lm(wgt ~ hgt, data = child.data)
-summary(fit11)
-```
-
-## Problem 2: Adding a Predictor
+## Problem 1: Height then Age
 
 Here we test if adding `age` significantly improves the model that already contains `hgt`.
 
 ```{r partial-f-test-2}
-fit21 <- lm(wgt ~ hgt + age, data = child.data)
-summary(fit21)
+fit_age_hgt <- lm(wgt ~ hgt + age, data = child.data)
+summary(fit_age_hgt)
 
 # Compare the nested models (anova output is a data frame, will be auto-paged)
-fit22 <- lm(wgt ~ hgt, data = child.data)
-anova(fit22, fit21)
+fit_hgt <- lm(wgt ~ hgt, data = child.data)
+summary(fit_hgt)
+anova(fit_hgt, fit_age_hgt)
 ```
 
-## Problem 3: Adding a Polynomial Term
+## Problem 2: Age then Height
 
-We test if adding a quadratic term for `age` improves the model with `hgt` and `age`.
+Here we test if adding `age` significantly improves the model that already contains `hgt`.
 
-```{r partial-f-test-3}
-fit31 <- lm(wgt ~ hgt + age + I(age^2), data = child.data)
-summary(fit31)
+```{r partial-f-test-age-height}
+fit_age <- lm(wgt ~  age, data = child.data)
+summary(fit_age)
 
-fit32 <- lm(wgt ~ hgt + age, data = child.data)
-anova(fit32, fit31)
+# Compare the nested models (anova output is a data frame, will be auto-paged)
+fit_age_hgt <- lm(wgt ~ age+hgt, data = child.data)
+summary(fit_age_hgt)
+anova(fit_age, fit_age_hgt)
 ```
 
-## Problem 4: Testing Multiple Coefficients
 
-We test if the `age` and `age^2` terms are jointly significant.
-
-```{r partial-f-test-4}
-fit41 <- lm(wgt ~ hgt + age + I(age^2), data = child.data)
-fit42 <- lm(wgt ~ hgt, data = child.data)
-anova(fit42, fit41)
-```
 
 # Mean Response and Prediction Intervals
 
