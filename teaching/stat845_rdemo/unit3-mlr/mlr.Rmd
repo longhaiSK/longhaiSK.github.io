@@ -1,7 +1,7 @@
 ---
-title: "Multiple Linear Regression Models"
-author: "Longhai Li"
-date: "Septembe, 2025"
+title: "Multiple Linear Regression"
+author: <a href="/">Longhai Li</a>
+date: "September, 2025"
 output: 
   html_document:
     toc: true
@@ -14,7 +14,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r setup, include=TRUE, echo=TRUE}
+```{r setup, include=FALSE, echo=TRUE}
 library(knitr)
 library(rmarkdown)
 # This chunk sets up the global options for the document.
@@ -30,7 +30,6 @@ knitr::opts_chunk$set(
 ```
 
 # Multiple Linear Regression for Wire Bond Strength Dataset
-
 
 ## Loading Data and Visualization
 
@@ -234,6 +233,7 @@ require ("animation")
 ```
 
 ### When $H_0$ is true
+
 ```{r RSS-animate-H0, cache=TRUE, fig.show="animate", class.source="fold-hide", fig.height=8}
 
 # -----------------------------------------------------------
@@ -307,8 +307,8 @@ for (n.sim in 1:50) {
 
 ```
 
-
 ### When $H_1$ is true
+
 ```{r RSS-animate-H1, cache=TRUE, fig.show="animate", class.source="fold-hide", fig.height=8}
 
 # -----------------------------------------------------------
@@ -382,7 +382,6 @@ for (n.sim in 1:50) {
 
 ```
 
-
 ## Example
 
 This section uses data on the weight, height, and age of children to demonstrate partial F-tests.
@@ -395,7 +394,7 @@ age <- c(8, 10, 6, 11, 8, 7, 10, 9, 10, 6, 12, 9)
 child.data <- data.frame(wgt, hgt, age)
 ```
 
-## Problem 1: Height then Age
+### Problem 1: Height then Age
 
 Here we test if adding `age` significantly improves the model that already contains `hgt`.
 
@@ -409,7 +408,7 @@ summary(fit_hgt)
 anova(fit_hgt, fit_age_hgt)
 ```
 
-## Problem 2: Age then Height
+### Problem 2: Age then Height
 
 Here we test if adding `age` significantly improves the model that already contains `hgt`.
 
@@ -422,8 +421,13 @@ fit_age_hgt <- lm(wgt ~ age+hgt, data = child.data)
 summary(fit_age_hgt)
 anova(fit_age, fit_age_hgt)
 ```
+## Relationship between t-test and partial F-test
 
+The **partial F-test** is a statistical test used to determine if adding one or more covariates to a regression model provides a statistically significant improvement in explaining the dependent variable's variance. It works by comparing a full model (with the new covariates) to a reduced model (without them).
 
+A t-test for an individual coefficient is simply a special case of the partial F-test. In this scenario, the reduced model is the one where the specific covariate being tested has been omitted. The mathematical relationship is direct: the squared value of the t-statistic for that single coefficient is identical to the F-statistic from the partial F-test.
+
+Therefore, the **p-value** of the t-test for an individual coefficient is about the statistical significance of that variable's **unique contribution** after accounting for (or removing) the effects of all other covariates already in the model. It essentially asks, "Does this specific variable add any significant explanatory power, given that the other variables are already included?" This is why a variable might be significant on its own but not in a multiple regression model if its effect is already captured by other predictors.
 
 # Mean Response and Prediction Intervals
 
@@ -665,5 +669,3 @@ cor(wine.x)
 # Find VIF's using the olsrr package (returns a data frame).
 ols_vif_tol(model)
 ```
-
-
