@@ -234,7 +234,7 @@ require ("animation")
 ```
 
 ### When $H_0$ is true
-```{r cache=TRUE, fig.show="animate", class.source="fold-hide", fig.height=4}
+```{r RSS-animate-H0, cache=TRUE, fig.show="animate", class.source="fold-hide", fig.height=8}
 
 # -----------------------------------------------------------
 # RSS vs. model size demo with saturated model endpoint
@@ -242,6 +242,11 @@ require ("animation")
   
 n <- 30
 p <- 10
+beta <- c(0, rep(0, p - 1))           
+sigma <- 1
+x_lim <- c(0, 30)
+y_lim <- c(0, 35)
+ks   <- seq(0,p, by =2)
 # Loop to generate frames for an animation
 for (n.sim in 1:50) {
 
@@ -250,12 +255,11 @@ for (n.sim in 1:50) {
   colnames(X) <- paste0("x", 1:p)
   X <- as.data.frame(X)
   
-  beta <- c(0, rep(0, p - 1))           
-  sigma <- 1
+
   y <- as.numeric(as.matrix(X) %*% beta + rnorm(n, sd = sigma))
   
   # Fit models with first k predictors; collect RSS
-  ks   <- 0:p
+  
   RSS  <- numeric(length(ks))
   pars <- ks + 1   # number of parameters incl. intercept
   
@@ -287,6 +291,10 @@ for (n.sim in 1:50) {
     g <- ggplot(df, aes(p, RSS)) +
       geom_line() +
       geom_point() +
+      geom_point(data = subset(df, p == n), size = 2) +
+      annotate("text", x = n, y = 0, label = "(n, 0)", vjust = -0.6, size = 3) +
+      scale_x_continuous(limits = x_lim, breaks = pretty(x_lim)) +
+      scale_y_continuous(limits = y_lim, breaks = pretty(y_lim)) + 
       labs(
         title = "RSS vs. Model Size (with saturated model)",
         x = "Number of parameters (p)",
@@ -299,9 +307,9 @@ for (n.sim in 1:50) {
 
 ```
 
-### When $\beta_1 \not=0$
 
-```{r cache=TRUE, fig.show="animate", class.source="fold-hide", fig.height=4}
+### When $H_1$ is true
+```{r RSS-animate-H1, cache=TRUE, fig.show="animate", class.source="fold-hide", fig.height=8}
 
 # -----------------------------------------------------------
 # RSS vs. model size demo with saturated model endpoint
@@ -309,7 +317,11 @@ for (n.sim in 1:50) {
   
 n <- 30
 p <- 10
-beta <- c(1, rep(0, p - 1))
+beta <- c(1, rep(0, p - 1))           
+sigma <- 1
+x_lim <- c(0, 30)
+y_lim <- c(0, 90)
+ks   <- seq(0,p, by =2)
 # Loop to generate frames for an animation
 for (n.sim in 1:50) {
 
@@ -318,12 +330,11 @@ for (n.sim in 1:50) {
   colnames(X) <- paste0("x", 1:p)
   X <- as.data.frame(X)
   
-             
-  sigma <- 1
+
   y <- as.numeric(as.matrix(X) %*% beta + rnorm(n, sd = sigma))
   
   # Fit models with first k predictors; collect RSS
-  ks   <- 0:p
+  
   RSS  <- numeric(length(ks))
   pars <- ks + 1   # number of parameters incl. intercept
   
@@ -355,6 +366,10 @@ for (n.sim in 1:50) {
     g <- ggplot(df, aes(p, RSS)) +
       geom_line() +
       geom_point() +
+      geom_point(data = subset(df, p == n), size = 2) +
+      annotate("text", x = n, y = 0, label = "(n, 0)", vjust = -0.6, size = 3) +
+      scale_x_continuous(limits = x_lim, breaks = pretty(x_lim)) +
+      scale_y_continuous(limits = y_lim, breaks = pretty(y_lim)) + 
       labs(
         title = "RSS vs. Model Size (with saturated model)",
         x = "Number of parameters (p)",
@@ -366,6 +381,7 @@ for (n.sim in 1:50) {
 }
 
 ```
+
 
 ## Example
 
