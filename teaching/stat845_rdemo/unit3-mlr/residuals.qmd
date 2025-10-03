@@ -16,9 +16,6 @@ format:
     math: mathjax
     mathjax: true
     md_extensions: +tex_math_dollars
-    include-in-header:
-      text: |
-        <script src="/loadtoc.js" defer></script>
   pdf:
     toc: false
     number-sections: true
@@ -161,7 +158,7 @@ In this article, we will compare the four residuals given as:
 
 ### The Linear Model
 
-The simulation uses a **simple linear regression model** to describe the relationship between a single predictor variable, $x_i$, and a response variable, $y_i$. The underlying "true" model from which the data is generated is: $$y_i = 2 + 3x_i + \epsilon_i$$ This means we have a true intercept of 2, a true slope of 3, and a random error term, $\epsilon_i$, drawn from a normal distribution with a mean of 0 and a standard deviation of 5. Two artificial outliers are added to this data to test the behavior of the different residual types.
+The simulation uses a **simple linear regression model** to describe the relationship between a single predictor variable, $x_i$, and a response variable, $y_i$. The underlying "true" model from which the data is generated is: $$y_i = 2 + 3x_i + \epsilon_i$$ This means we have a true intercept of 2, a true slope of 3, and a random error term, $\epsilon_i$, drawn from a normal distribution with a mean of 0 and a standard deviation of 5. One artificial outlier is added to this data to test the behavior of the different residual types. 5 unrelated predictors are added to the dataset.
 
 ```{r}
 #| message: false
@@ -182,10 +179,10 @@ y[1] <- y[1] + 30
 o.index <- c(1)
 flag.outlier <- rep(20, n)
 flag.outlier[o.index] <- 2
-full_data  <- data.frame(x = x, y = y)
+full_data  <- data.frame(x = x, replicate(4, rnorm (n)), y = y)
 
 plot(y~x, data=full_data, pch= flag.outlier, col=flag.outlier)
-abline(lm(y~x, data=full_data))
+abline(lm(y~., data=full_data))
 abline (a=2, b=3, col="red", lwd=2)
 
 ```
@@ -215,7 +212,7 @@ The final table compiles several important quantities calculated during the simu
 
 library(kableExtra)
 
-full_model <- lm(y ~ x, data = full_data)
+full_model <- lm(y ~ ., data = full_data)
 p <- length(coef(full_model))
 leverage   <- hatvalues(full_model)
 e_full     <- resid(full_model)
@@ -232,7 +229,7 @@ e_del_val <- numeric(n)
 sigma_minus_i_val <- numeric(n)
 
 for (i in 1:n) {
-  loocv_model <- lm(y ~ x, data = full_data[-i, ])
+  loocv_model <- lm(y ~ ., data = full_data[-i, ])
   yhat_minus  <- predict(loocv_model, newdata = full_data[i, , drop = FALSE])
   e_del_val[i]    <- full_data$y[i] - yhat_minus
   sigma_minus_i_val[i] <- summary(loocv_model)$sigma
