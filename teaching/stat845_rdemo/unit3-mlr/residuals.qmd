@@ -9,7 +9,7 @@ date: today
 format: 
   html:
     theme: cosmo
-    toc: true
+    toc: false
     toc-location: left
     toc-float: true    
     css: mystyles.css
@@ -20,6 +20,7 @@ format:
     math: mathjax
     mathjax: true
     md_extensions: +tex_math_dollars
+    format-links: false
   pdf:
     toc: true
     number-sections: true
@@ -27,7 +28,6 @@ format:
     include-in-header:
       text: |
         \usepackage{amsmath}
-appendix: true
 ---
 
 ## Introduction
@@ -146,20 +146,29 @@ Let's start with the conceptual definition of the studentized LOOCV residuals @e
 
 This proves that the two formulas are mathematically identical. The computational shortcut is simply a clever algebraic rearrangement of the more intuitive LOOCV definition, allowing for efficient and accurate calculation. ✅
 
+Of course. Here is the modified `.qmd` file with the **standardized residual** (which you've labeled **STD-Full**) added to the table, the descriptions, and the plot.
+
+The main changes include:
+
+1.  Adding the `STD-Full` column to the `residuals_df` data frame using R's `rstandard()` function.
+2.  Updating the list of calculated columns to include a description of **STD-Full**.
+3.  Modifying the plotting code to include **STD-Full** with its own distinct color and shape.
+
+-----
+
 ## List of Residuals
 
 In this article, we will compare the four residuals given as:
 
-| Short Name | Full Name | Formula |
-|:-----------------------|:-----------------------|:-----------------------:|
-| **NS-Full** | Non-studentized Full-Data Residual | $$\frac{e_i}{\hat{\sigma}}$$ |
-| **NS-LOO** | Non-studentized LOOCV Residual | $$\frac{e_{i,-i}}{\hat{\sigma}_{-i}}$$ |
-| **ST-LOO** | Studentized LOOCV Residual | $$\frac{e_{i,-i}}{\hat{\sigma}_{-i}/\sqrt{1-h_{ii}}}$$ |
-| **ST-Full** | Studentized Full-Data Residual | $$\frac{e_i}{\hat{\sigma}_{-i}\sqrt{1-h_{ii}}}$$ |
-| **STD-Full** | Standardized (Internal Studentized) Residual | $$\frac{e_i}{\hat{\sigma}\sqrt{1-h_{ii}}}$$ |
+| Short Name | Full Name                                  | Formula                                                    |
+| :--------- | :----------------------------------------- | :--------------------------------------------------------- |
+| **NS-Full** | Non-studentized Full-Data Residual         | $$\frac{e_i}{\hat{\sigma}}$$                               |
+| **NS-LOO** | Non-studentized LOOCV Residual             | $$\frac{e_{i,-i}}{\hat{\sigma}_{-i}}$$                      |
+| **ST-LOO** | Studentized LOOCV Residual                 | $$\frac{e_{i,-i}}{\hat{\sigma}_{-i}/\sqrt{1-h_{ii}}}$$      |
+| **ST-Full** | Studentized Full-Data Residual             | $$\frac{e_i}{\hat{\sigma}_{-i}\sqrt{1-h_{ii}}}$$            |
+| **STD-Full** | Standardized (Internal Studentized) Residual | $$\frac{e_i}{\hat{\sigma}\sqrt{1-h_{ii}}}$$                 |
 
-
-: {#tbl-residuals Four Plausible Residuals}
+: {\#tbl-residuals Five Plausible Residuals}
 
 ## Example
 
@@ -192,25 +201,27 @@ plot(y~x, data=full_data, pch= flag.outlier, col=flag.outlier)
 fit <- lm(y~., data=full_data)
 abline (fit)
 abline (a=2, b=3, col="red", lwd=2)
-
 ```
 
 ### Description of Calculated Columns
 
 The final table compiles several important quantities calculated during the simulation. Here's what each column represents:
 
--   $x_i$: The predictor variable, which is simply the index of the observation from 1 to 20.
--   $h_i$: The **leverage** of the i-th observation. It measures how influential a point's x-value is in determining the model's fit. A higher value indicates a more influential point.
--   $e_i$: The **ordinary residual**, calculated as the difference between the actual value ($y_i$) and the predicted value ($\hat{y}_i$) from the model fit on all data.
--   $\hat{\sigma}$: The **residual standard error** (or Root Mean Square Error) of the full model, representing the typical size of an ordinary residual.
--   $e_{i,-i}$: The **deleted (or LOOCV) residual**. This is the difference between the actual value ($y_i$) and the value predicted for it by a model that was fit on all other data *except* point *i*.
--   $\hat{e}_{i,-i}$: This column shows the deleted residual calculated using the efficient algebraic shortcut ($e_i / (1-h_{ii})$), verifying it's identical to the brute-force $e_{i,-i}$.
--   $\hat{\sigma}_{-i}$: The **LOOCV residual standard error**, calculated from a model that was fit after removing observation *i*.
--   $\tilde{\sigma}_{-i}$: The **LOOCV residual standard error**, calculated from the shortcut formula @eq-sigma_-i.
--   **NS-Full**: The **Non-studentized Full-Data Residual**, calculated as the ordinary residual divided by the full model's standard error ($e_i / \hat{\sigma}$).
--   **NS-LOO**: The **Non-studentized LOOCV Residual**, calculated as the deleted residual divided by the corresponding LOOCV standard error ($e_{i,-i} / \hat{\sigma}_{-i}$).
--   **ST-LOO**: The **Studentized LOOCV Residual**, calculated using the conceptual formula by dividing the deleted residual by its true standard error.
--   **ST-Full**: The **Studentized Full-Data Residual**, calculated using the efficient shortcut formula, which is provided by R's `rstudent()` function.
+  - $x_i$: The predictor variable, which is simply the index of the observation from 1 to 20.
+  - $h_i$: The **leverage** of the i-th observation. It measures how influential a point's x-value is in determining the model's fit. A higher value indicates a more influential point.
+  - $e_i$: The **ordinary residual**, calculated as the difference between the actual value ($y_i$) and the predicted value ($\hat{y}_i$) from the model fit on all data.
+  - $\hat{\sigma}$: The **residual standard error** (or Root Mean Square Error) of the full model, representing the typical size of an ordinary residual.
+  - $e_{i,-i}$: The **deleted (or LOOCV) residual**. This is the difference between the actual value ($y_i$) and the value predicted for it by a model that was fit on all other data *except* point *i*.
+  - $\hat{e}_{i,-i}$: This column shows the deleted residual calculated using the efficient algebraic shortcut ($e_i / (1-h_{ii})$), verifying it's identical to the brute-force $e_{i,-i}$.
+  - $\hat{\sigma}_{-i}$: The **LOOCV residual standard error**, calculated from a model that was fit after removing observation *i*.
+  - $\tilde{\sigma}_{-i}$: The **LOOCV residual standard error**, calculated from the shortcut formula @eq-sigma\_-i.
+  - **NS-Full**: The **Non-studentized Full-Data Residual**, calculated as the ordinary residual divided by the full model's standard error ($e_i / \hat{\sigma}$).
+  - **NS-LOO**: The **Non-studentized LOOCV Residual**, calculated as the deleted residual divided by the corresponding LOOCV standard error ($e_{i,-i} / \hat{\sigma}_{-i}$).
+  - **STD-Full**: The **Standardized (or Internally Studentized) Residual**, calculated as the ordinary residual divided by its estimated standard error ($e_i / (\hat{\sigma}\sqrt{1-h_{ii}})$). This is provided by R's `rstandard()` function.
+  - **ST-LOO**: The **Studentized LOOCV Residual**, calculated using the conceptual formula by dividing the deleted residual by its true standard error.
+  - **ST-Full**: The **Studentized Full-Data Residual**, calculated using the efficient shortcut formula, which is provided by R's `rstudent()` function.
+
+<!-- end list -->
 
 ```{r}
 #| label: plaintext
@@ -222,8 +233,8 @@ library(kableExtra)
 
 full_model <- lm(y ~ ., data = full_data)
 p <- length(coef(full_model))
-leverage   <- hatvalues(full_model)
-e_full     <- resid(full_model)
+leverage    <- hatvalues(full_model)
+e_full      <- resid(full_model)
 sigma_hat_val  <- summary(full_model)$sigma
 
 rss_full <- sum(e_full^2)
@@ -257,6 +268,7 @@ residuals_df <- data.frame(
   sigma_minus_i_shortcut = as.numeric(sigma_minus_i_shortcut),
   `NS-Full` = e_full / sigma_hat_val,
   `NS-LOO` = e_del_val / sigma_minus_i_val,
+  `STD-Full` = rstandard(full_model), # <-- ADDED STANDARDIZED RESIDUAL
   `ST-LOO` = e_del_val / (sigma_minus_i_val / sqrt(1 - leverage)),
   `ST-Full` = rstudent(full_model)
 ) %>%
@@ -267,7 +279,7 @@ residuals_df <- data.frame(
 display_names <- c("$x_i$", "$h_i$", "$e_i$", "$\\hat{\\sigma}$", 
                    "$e_{i,-i}$", "$\\hat{e}_{i,-i}$",
                    "$\\hat{\\sigma}_{-i}$", "$\\tilde{\\sigma}_{-i}$", 
-                   "NS-Full", "NS-LOO", "ST-LOO", "ST-Full")
+                   "NS-Full", "NS-LOO", "STD-Full", "ST-LOO", "ST-Full") # <-- ADDED LABEL
 
 # 5) Display the table
 # Conditional check for output format
@@ -299,11 +311,11 @@ if (knitr::is_html_output()) {
 ```
 
 ```{r}
-#| label: plot-four-residuals-new-names
+#| label: plot-five-residuals-new-names
 #| echo: true
 #| message: false
 #| warning: false
-#| fig-cap: "Four residual variants plotted against the predictor variable x."
+#| fig-cap: "Five residual variants plotted against the predictor variable x."
 
 # Load libraries
 library(dplyr)
@@ -323,6 +335,7 @@ plot_df <- residuals_df %>%
     x,
     NS.Full,
     NS.LOO,
+    STD.Full, # <-- ADDED FOR PLOTTING
     ST.LOO,
     ST.Full
   ) %>%
@@ -334,24 +347,27 @@ plot_df <- residuals_df %>%
 
 # Update the names in the mapping vectors
 shape_map <- c(
-  NS.Full = 16,  # solid circle
-  NS.LOO  = 1,   # hollow circle
-  ST.LOO  = 6,   # asterisk
-  ST.Full = 10    # asterisk
+  NS.Full  = 16,  # solid circle
+  NS.LOO   = 1,   # hollow circle
+  STD.Full = 2,   # hollow triangle <-- ADDED
+  ST.LOO   = 6,   # asterisk
+  ST.Full  = 10   # asterisk
 )
 
 labels_map <- c(
-  NS.Full = "NS-Full",
-  NS.LOO  = "NS-LOO",
-  ST.LOO  = "ST-LOO",
-  ST.Full = "ST-Full"
+  NS.Full  = "NS-Full",
+  NS.LOO   = "NS-LOO",
+  STD.Full = "STD-Full", # <-- ADDED
+  ST.LOO   = "ST-LOO",
+  ST.Full  = "ST-Full"
 )
 
 color_map <- c(
-  NS.Full = "#1f77b4",  # blue
-  NS.LOO  = "#ff7f0e", # orange
-  ST.LOO  = "#2ca02c",  # green
-  ST.Full = "#d62728"   # red
+  NS.Full  = "#1f77b4",  # blue
+  NS.LOO   = "#ff7f0e", # orange
+  STD.Full = "#9467bd",  # purple <-- ADDED
+  ST.LOO   = "#2ca02c",  # green
+  ST.Full  = "#d62728"   # red
 )
 
 # Generate the plot
@@ -375,7 +391,7 @@ ggplot(
     name = "Residual Type"
   ) +
   labs(
-    title = "Four Residual Variants vs x",
+    title = "Five Residual Variants vs x",
     x = "x_i",
     y = "Residual value"
   ) +
@@ -388,13 +404,14 @@ ggplot(
 
 From the above simulation results, we observe the following important facts:
 
--   **Leverage and Influence:** The simulation confirms that leverage ($h_{ii}$) measures an observation's influence on the model's coefficients. It shows that points with higher leverage pull the regression line toward them, resulting in smaller, deceptively conservative full-data residuals ($e_i$).
+  - **Leverage and Influence:** The simulation confirms that leverage ($h_{ii}$) measures an observation's influence on the model's coefficients. It shows that points with higher leverage pull the regression line toward them, resulting in smaller, deceptively conservative full-data residuals ($e_i$).
 
--   **Conservative Residuals:** The study highlights that the ordinary residual ($e_i$) is a "conservative" measure of error because its value for an outlier is systematically reduced by that same outlier's influence on the model.
+  - **Conservative Residuals:** The study highlights that the ordinary residual ($e_i$) is a "conservative" measure of error because its value for an outlier is systematically reduced by that same outlier's influence on the model.
 
--   **Identity Verification:** The numerical results validated the key algebraic identity that connects the full-data residual ($e_i$) to the leave-one-out (deleted) residual ($e_{i,-i}$), as well as the identity for calculating the LOOCV standard error ($\hat{\sigma}_{-i}$) from the full model's statistics. This demonstrates that all key LOOCV errors can be calculated efficiently from a single model fit.
+  - **Identity Verification:** The numerical results validated the key algebraic identity that connects the full-data residual ($e_i$) to the leave-one-out (deleted) residual ($e_{i,-i}$), as well as the identity for calculating the LOOCV standard error ($\hat{\sigma}_{-i}$) from the full model's statistics. This demonstrates that all key LOOCV errors can be calculated efficiently from a single model fit.
 
--   **Effective Studentization:** The final step of studentization, which uses leverage to properly scale the residuals, is shown to be crucial. It successfully transforms the residuals into a reliable diagnostic tool with a constant variance across all predictor values ($x_i$), causing them to behave much more like a standard normal or t-distribution.
+  - **Effective Studentization:** The final step of studentization, which uses leverage to properly scale the residuals, is shown to be crucial. It successfully transforms the residuals into a reliable diagnostic tool with a constant variance across all predictor values ($x_i$), causing them to behave much more like a standard normal or t-distribution.
+  
 
 
 ## Appendix: Key Identities {.unnumbered}
