@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Longhai Li">
-<meta name="dcterms.date" content="2025-10-03">
+<meta name="dcterms.date" content="2025-10-06">
 
 <title>Understanding the Leverage and Its Use in Adjusting Residuals of Linear Models</title>
 <style>
@@ -69,7 +69,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="residuals_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="residuals_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="residuals_files/libs/bootstrap/bootstrap-10daa034703793678e481cc8cee6d76f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
-<script src="/rendernav.js" defer=""></script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -101,7 +100,7 @@ window.Quarto = {
 };
 </script>
 
-<link rel="stylesheet" href="/mystyles.css">
+<link rel="stylesheet" href="mystyles.css">
 </head>
 
 <body>
@@ -124,7 +123,10 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#studentized-loocv-deleted-residual" id="toc-studentized-loocv-deleted-residual" class="nav-link" data-scroll-target="#studentized-loocv-deleted-residual"><span class="header-section-number">5.1</span> Studentized LOOCV (Deleted) Residual</a></li>
   <li><a href="#studentized-full-data-residuals" id="toc-studentized-full-data-residuals" class="nav-link" data-scroll-target="#studentized-full-data-residuals"><span class="header-section-number">5.2</span> Studentized Full Data Residuals</a></li>
-  <li><a href="#equivalence-of-eq-sfull-and-eq-sloo" id="toc-equivalence-of-eq-sfull-and-eq-sloo" class="nav-link" data-scroll-target="#equivalence-of-eq-sfull-and-eq-sloo"><span class="header-section-number">5.3</span> Equivalence of Equation&nbsp;2 and Equation&nbsp;1</a></li>
+  <li><a href="#equivalence-of-eq-sfull-and-eq-sloo" id="toc-equivalence-of-eq-sfull-and-eq-sloo" class="nav-link" data-scroll-target="#equivalence-of-eq-sfull-and-eq-sloo"><span class="header-section-number">5.3</span> Equivalence of Equation&nbsp;2 and Equation&nbsp;1</a>
+  <ul class="collapse">
+  <li><a href="#proof-of-equivalence" id="toc-proof-of-equivalence" class="nav-link" data-scroll-target="#proof-of-equivalence"><span class="header-section-number">5.3.1</span> Proof of Equivalence ⚙️</a></li>
+  </ul></li>
   </ul></li>
   <li><a href="#list-of-residuals" id="toc-list-of-residuals" class="nav-link" data-scroll-target="#list-of-residuals"><span class="header-section-number">6</span> List of Residuals</a></li>
   <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">7</span> Example</a>
@@ -132,11 +134,10 @@ window.Quarto = {
   <li><a href="#the-linear-model-1" id="toc-the-linear-model-1" class="nav-link" data-scroll-target="#the-linear-model-1"><span class="header-section-number">7.1</span> The Linear Model</a></li>
   <li><a href="#description-of-calculated-columns" id="toc-description-of-calculated-columns" class="nav-link" data-scroll-target="#description-of-calculated-columns"><span class="header-section-number">7.2</span> Description of Calculated Columns</a></li>
   </ul></li>
-  <li><a href="#appendix" id="toc-appendix" class="nav-link" data-scroll-target="#appendix">Appendix:</a></li>
-  <li><a href="#key-identities-for-efficient-calculation-of-loocv-residuals-and-noice-variance" id="toc-key-identities-for-efficient-calculation-of-loocv-residuals-and-noice-variance" class="nav-link" data-scroll-target="#key-identities-for-efficient-calculation-of-loocv-residuals-and-noice-variance"><span class="header-section-number">8</span> Key Identities for Efficient Calculation of LOOCV Residuals and Noice Variance</a>
+  <li><a href="#appendix-key-identities" id="toc-appendix-key-identities" class="nav-link" data-scroll-target="#appendix-key-identities">Appendix: Key Identities</a>
   <ul class="collapse">
-  <li><a href="#finding-the-loocv-residual-e_i-i-from-the-ordinary-residual-e_i" id="toc-finding-the-loocv-residual-e_i-i-from-the-ordinary-residual-e_i" class="nav-link" data-scroll-target="#finding-the-loocv-residual-e_i-i-from-the-ordinary-residual-e_i"><span class="header-section-number">8.1</span> Finding the LOOCV Residual (<span class="math inline">\(e_{i,-i}\)</span>) from the Ordinary Residual (<span class="math inline">\(e_i\)</span>)</a></li>
-  <li><a href="#finding-the-loocv-standard-error-hatsigma_-i-from-the-full-model-standard-error-hatsigma" id="toc-finding-the-loocv-standard-error-hatsigma_-i-from-the-full-model-standard-error-hatsigma" class="nav-link" data-scroll-target="#finding-the-loocv-standard-error-hatsigma_-i-from-the-full-model-standard-error-hatsigma"><span class="header-section-number">8.2</span> Finding the LOOCV Standard Error (<span class="math inline">\(\hat{\sigma}_{-i}\)</span>) from the Full-Model Standard Error (<span class="math inline">\(\hat{\sigma}\)</span>)</a></li>
+  <li><a href="#finding-the-loocv-residual-e_i-i-from-the-ordinary-residual-e_i" id="toc-finding-the-loocv-residual-e_i-i-from-the-ordinary-residual-e_i" class="nav-link" data-scroll-target="#finding-the-loocv-residual-e_i-i-from-the-ordinary-residual-e_i">Finding the LOOCV Residual (<span class="math inline">\(e_{i,-i}\)</span>) from the Ordinary Residual (<span class="math inline">\(e_i\)</span>)</a></li>
+  <li><a href="#finding-the-loocv-standard-error-hatsigma_-i-from-the-full-model-standard-error-hatsigma" id="toc-finding-the-loocv-standard-error-hatsigma_-i-from-the-full-model-standard-error-hatsigma" class="nav-link" data-scroll-target="#finding-the-loocv-standard-error-hatsigma_-i-from-the-full-model-standard-error-hatsigma">Finding the LOOCV Standard Error (<span class="math inline">\(\hat{\sigma}_{-i}\)</span>) from the Full-Model Standard Error (<span class="math inline">\(\hat{\sigma}\)</span>)</a></li>
   </ul></li>
   </ul>
 <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="residuals.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
@@ -172,7 +173,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 3, 2025</p>
+      <p class="date">October 6, 2025</p>
     </div>
   </div>
   
@@ -184,13 +185,13 @@ window.Quarto = {
 </header>
 
 
-<section id="introduction" class="level2" data-number="1">
-<h2 data-number="1" class="anchored" data-anchor-id="introduction"><span class="header-section-number">1</span> Introduction</h2>
+<section id="introduction" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Introduction</h1>
 <p>In statistical modeling, identifying data points that don’t fit—the <strong>outliers</strong>—is a critical step. The most reliable tool for this job is the <strong>externally studentized residual</strong>. Its power comes from a simple, intuitive idea: to judge a point fairly, you shouldn’t use that point when building your model. This is the core principle of <strong>Leave-One-Out Cross-Validation (LOOCV)</strong>.</p>
 <p>This article provides a complete walkthrough of this essential concept. We’ll start with the basic linear model, introduce the necessary notation, explore the flaws of simpler residuals, and then formally define and prove the equivalence of the conceptual and computational formulas for studentized residuals. Finally, we’ll make it all concrete with a simple example.</p>
 </section>
-<section id="the-linear-model" class="level2" data-number="2">
-<h2 data-number="2" class="anchored" data-anchor-id="the-linear-model"><span class="header-section-number">2</span> The Linear Model</h2>
+<section id="the-linear-model" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> The Linear Model</h1>
 <p>Our discussion is based on the standard multiple linear regression model. In matrix form, the relationship between a response vector <strong>Y</strong> and a predictor matrix <strong>X</strong> is: <span class="math display">\[
 \mathbf{Y} = \mathbf{X}\beta + \epsilon
 \]</span></p>
@@ -202,8 +203,8 @@ window.Quarto = {
 <li><span class="math inline">\(\epsilon\)</span> is an <em>n</em> x 1 vector of unobservable random errors, assumed to be independent and identically distributed with a mean of 0 and a variance of <span class="math inline">\(\sigma^2\)</span>.</li>
 </ul>
 </section>
-<section id="our-notations" class="level2" data-number="3">
-<h2 data-number="3" class="anchored" data-anchor-id="our-notations"><span class="header-section-number">3</span> Our Notations 💡</h2>
+<section id="our-notations" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Our Notations 💡</h1>
 <p>To discuss models fit with all data versus those with one point removed, we need clear notation.</p>
 <p><strong>Full Data Model (Using all <em>n</em> observations)</strong></p>
 <ul>
@@ -221,11 +222,11 @@ window.Quarto = {
 <li><span class="math inline">\(\hat{\sigma}_{-i}\)</span>: The standard deviation of the errors estimated from the model fit <strong>without</strong> observation <em>i</em>.</li>
 </ul>
 </section>
-<section id="non-studentized-residuals" class="level2" data-number="4">
-<h2 data-number="4" class="anchored" data-anchor-id="non-studentized-residuals"><span class="header-section-number">4</span> Non-studentized Residuals</h2>
+<section id="non-studentized-residuals" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Non-studentized Residuals</h1>
 <p>Before getting to the correct solution, it’s crucial to understand why simpler methods of standardizing residuals are flawed.</p>
-<section id="the-ordinary-residual-e_i-too-small-and-x_i-dependent" class="level3" data-number="4.1">
-<h3 data-number="4.1" class="anchored" data-anchor-id="the-ordinary-residual-e_i-too-small-and-x_i-dependent"><span class="header-section-number">4.1</span> <strong>The Ordinary Residual (</strong><span class="math inline">\(e_i\)</span>): Too Small and <span class="math inline">\(x_i\)</span> Dependent</h3>
+<section id="the-ordinary-residual-e_i-too-small-and-x_i-dependent" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="the-ordinary-residual-e_i-too-small-and-x_i-dependent"><span class="header-section-number">4.1</span> <strong>The Ordinary Residual (</strong><span class="math inline">\(e_i\)</span>): Too Small and <span class="math inline">\(x_i\)</span> Dependent</h2>
 <p>The most basic residual, <span class="math inline">\(e_i\)</span>, is problematic for two key reasons.</p>
 <p>An outlier has an undue influence on the model, pulling the regression line towards itself. This makes its own predicted value, <span class="math inline">\(\hat{y}_i\)</span>, artificially close to its actual value, <span class="math inline">\(y_i\)</span>. As a result, its residual, <span class="math inline">\(e_i\)</span>, is <strong>deceptively small</strong> and doesn’t reflect the true magnitude of the error.</p>
 <p>The variance of an ordinary residual is not constant; it depends on the point’s leverage. The variance can be derived from the hat matrix <span class="math inline">\(H = X(X^\top X)^{-1}X^\top\)</span>. Since <span class="math display">\[\hat{y} = HY,\]</span> we have <span class="math display">\[\begin{equation}
@@ -237,8 +238,8 @@ e = (I - H)\epsilon.
 \end{equation}\]</span></p>
 <p>Since leverage (<span class="math inline">\(h_{ii}\)</span>) is always greater than 0, the variance of an ordinary residual is always <strong>less than the true error variance,</strong> <span class="math inline">\(\sigma^2\)</span>. High-leverage points act as “anchors” for the line and have even smaller variance.</p>
 </section>
-<section id="the-loocv-residual-e_i-i-too-large-and-x_i-dependent-variance" class="level3" data-number="4.2">
-<h3 data-number="4.2" class="anchored" data-anchor-id="the-loocv-residual-e_i-i-too-large-and-x_i-dependent-variance"><span class="header-section-number">4.2</span> <strong>The LOOCV Residual (</strong><span class="math inline">\(e_{i,-i}\)</span>): Too large and <span class="math inline">\(x_i\)</span>-Dependent Variance</h3>
+<section id="the-loocv-residual-e_i-i-too-large-and-x_i-dependent-variance" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="the-loocv-residual-e_i-i-too-large-and-x_i-dependent-variance"><span class="header-section-number">4.2</span> <strong>The LOOCV Residual (</strong><span class="math inline">\(e_{i,-i}\)</span>): Too large and <span class="math inline">\(x_i\)</span>-Dependent Variance</h2>
 <p>The deleted residual, <span class="math inline">\(e_{i,-i}\)</span>, solves the “too small” problem. Because the model isn’t influenced by the point it’s predicting, the residual is an honest measure of prediction error. However, its variance is still not constant. The variance of a deleted residual also depends on leverage, but in the opposite way. <span class="math display">\[\begin{equation}
     \text{Var}(e_{i,-i}) = \frac{\sigma^2}{1 - h_{ii}}
     \end{equation}\]</span></p>
@@ -252,26 +253,26 @@ e_{i,-i} = \frac{e_i}{1 - h_{ii}}.
 <p>Since <span class="math inline">\(1-h_{ii}\)</span> is less than 1, the variance of a deleted residual is always <strong>greater than the true error variance,</strong> <span class="math inline">\(\sigma^2\)</span>. This is because it has two sources of randomness: the error in the point itself (<span class="math inline">\(y_i\)</span>) and the error in the prediction (<span class="math inline">\(\hat{y}_{i,-i}\)</span>).</p>
 </section>
 </section>
-<section id="studentized-residuals" class="level2" data-number="5">
-<h2 data-number="5" class="anchored" data-anchor-id="studentized-residuals"><span class="header-section-number">5</span> Studentized Residuals</h2>
-<section id="studentized-loocv-deleted-residual" class="level3" data-number="5.1">
-<h3 data-number="5.1" class="anchored" data-anchor-id="studentized-loocv-deleted-residual"><span class="header-section-number">5.1</span> Studentized LOOCV (Deleted) Residual</h3>
+<section id="studentized-residuals" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Studentized Residuals</h1>
+<section id="studentized-loocv-deleted-residual" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="studentized-loocv-deleted-residual"><span class="header-section-number">5.1</span> Studentized LOOCV (Deleted) Residual</h2>
 <p>The correct solution is to take the LOOCV residual and divide it by its true standard error, which properly accounts for its larger, x-dependent variance. This is the <strong>externally studentized residual</strong>, <span class="math inline">\(t_i\)</span>, defined as follows:</p>
 <p><span id="eq-sloo"><span class="math display">\[
 t_i = \frac{e_{i,-i}}{\text{SE}(e_{i,-i})} = \frac{e_{i,-i}}{\frac{\hat{\sigma}_{-i}}{\sqrt{1-h_{ii}}}}
 \tag{1}\]</span></span> This final value is a reliable diagnostic. Under the null hypothesis that the observation is not an outlier, it follows a <strong>Student’s t-distribution</strong> with <span class="math inline">\(n - p - 1\)</span> degrees of freedom.</p>
 </section>
-<section id="studentized-full-data-residuals" class="level3" data-number="5.2">
-<h3 data-number="5.2" class="anchored" data-anchor-id="studentized-full-data-residuals"><span class="header-section-number">5.2</span> Studentized Full Data Residuals</h3>
+<section id="studentized-full-data-residuals" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="studentized-full-data-residuals"><span class="header-section-number">5.2</span> Studentized Full Data Residuals</h2>
 <p>Calculating the conceptual formula appears to require fitting <em>n</em> different regression models—a computationally expensive task. Fortunately, a mathematical identity allows us to calculate the exact same value using only the results from the single, full data model.</p>
 <p><span id="eq-sfull"><span class="math display">\[
 t_i = \frac{e_i}{\hat{\sigma}_{-i}\sqrt{1 - h_{ii}}}
 \tag{2}\]</span></span> This is not an approximation; it is an <strong>exact algebraic rearrangement</strong> of the conceptual definition.</p>
 </section>
-<section id="equivalence-of-eq-sfull-and-eq-sloo" class="level3" data-number="5.3">
-<h3 data-number="5.3" class="anchored" data-anchor-id="equivalence-of-eq-sfull-and-eq-sloo"><span class="header-section-number">5.3</span> Equivalence of <a href="#eq-sfull" class="quarto-xref">Equation&nbsp;2</a> and <a href="#eq-sloo" class="quarto-xref">Equation&nbsp;1</a></h3>
-<section id="proof-of-equivalence" class="level4" data-number="5.3.1">
-<h4 data-number="5.3.1" class="anchored" data-anchor-id="proof-of-equivalence"><span class="header-section-number">5.3.1</span> Proof of Equivalence ⚙️</h4>
+<section id="equivalence-of-eq-sfull-and-eq-sloo" class="level2" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="equivalence-of-eq-sfull-and-eq-sloo"><span class="header-section-number">5.3</span> Equivalence of <a href="#eq-sfull" class="quarto-xref">Equation&nbsp;2</a> and <a href="#eq-sloo" class="quarto-xref">Equation&nbsp;1</a></h2>
+<section id="proof-of-equivalence" class="level3" data-number="5.3.1">
+<h3 data-number="5.3.1" class="anchored" data-anchor-id="proof-of-equivalence"><span class="header-section-number">5.3.1</span> Proof of Equivalence ⚙️</h3>
 <p>Let’s start with the conceptual definition of the studentized LOOCV residuals <a href="#eq-sloo" class="quarto-xref">Equation&nbsp;1</a> and show how it transforms into <a href="#eq-sfull" class="quarto-xref">Equation&nbsp;2</a>.</p>
 <ul>
 <li><p><strong>Start with the conceptual LOOCV definition:</strong> <span class="math display">\[\begin{equation}
@@ -291,8 +292,8 @@ t_i = \frac{e_i}{\hat{\sigma}_{-i}\sqrt{1 - h_{ii}}}
 </section>
 </section>
 </section>
-<section id="list-of-residuals" class="level2" data-number="6">
-<h2 data-number="6" class="anchored" data-anchor-id="list-of-residuals"><span class="header-section-number">6</span> List of Residuals</h2>
+<section id="list-of-residuals" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> List of Residuals</h1>
 <p>In this article, we will compare the four residuals given as:</p>
 <div id="tbl-residuals-four-plausible-residuals" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
@@ -334,16 +335,21 @@ Table&nbsp;1
 <td style="text-align: left;">Studentized Full-Data Residual</td>
 <td style="text-align: center;"><span class="math display">\[\frac{e_i}{\hat{\sigma}_{-i}\sqrt{1-h_{ii}}}\]</span></td>
 </tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>STD-Full</strong></td>
+<td style="text-align: left;"><strong>Standardized (Internal Studentized) Residual</strong></td>
+<td style="text-align: center;"><span class="math display">\[\frac{e_i}{\hat{\sigma}\sqrt{1-h_{ii}}}\]</span></td>
+</tr>
 </tbody>
 </table>
 </div>
 </figure>
 </div>
 </section>
-<section id="example" class="level2" data-number="7">
-<h2 data-number="7" class="anchored" data-anchor-id="example"><span class="header-section-number">7</span> Example</h2>
-<section id="the-linear-model-1" class="level3" data-number="7.1">
-<h3 data-number="7.1" class="anchored" data-anchor-id="the-linear-model-1"><span class="header-section-number">7.1</span> The Linear Model</h3>
+<section id="example" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Example</h1>
+<section id="the-linear-model-1" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="the-linear-model-1"><span class="header-section-number">7.1</span> The Linear Model</h2>
 <p>The simulation uses a <strong>simple linear regression model</strong> to describe the relationship between a single predictor variable, <span class="math inline">\(x_i\)</span>, and a response variable, <span class="math inline">\(y_i\)</span>. The underlying “true” model from which the data is generated is: <span class="math display">\[y_i = 2 + 3x_i + \epsilon_i\]</span> This means we have a true intercept of 2, a true slope of 3, and a random error term, <span class="math inline">\(\epsilon_i\)</span>, drawn from a normal distribution with a mean of 0 and a standard deviation of 5. One artificial outlier is added to this data to test the behavior of the different residual types. 5 unrelated predictors are added to the dataset.</p>
 <div class="cell">
 <details class="code-fold">
@@ -380,8 +386,8 @@ Table&nbsp;1
 </div>
 </div>
 </section>
-<section id="description-of-calculated-columns" class="level3" data-number="7.2">
-<h3 data-number="7.2" class="anchored" data-anchor-id="description-of-calculated-columns"><span class="header-section-number">7.2</span> Description of Calculated Columns</h3>
+<section id="description-of-calculated-columns" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="description-of-calculated-columns"><span class="header-section-number">7.2</span> Description of Calculated Columns</h2>
 <p>The final table compiles several important quantities calculated during the simulation. Here’s what each column represents:</p>
 <ul>
 <li><span class="math inline">\(x_i\)</span>: The predictor variable, which is simply the index of the observation from 1 to 20.</li>
@@ -898,19 +904,16 @@ Table&nbsp;1
 </ul>
 </section>
 </section>
-<section id="appendix" class="level2 unnumbered">
-<h2 class="unnumbered anchored" data-anchor-id="appendix">Appendix:</h2>
-</section>
-<section id="key-identities-for-efficient-calculation-of-loocv-residuals-and-noice-variance" class="level2" data-number="8">
-<h2 data-number="8" class="anchored" data-anchor-id="key-identities-for-efficient-calculation-of-loocv-residuals-and-noice-variance"><span class="header-section-number">8</span> Key Identities for Efficient Calculation of LOOCV Residuals and Noice Variance</h2>
+<section id="appendix-key-identities" class="level1 unnumbered">
+<h1 class="unnumbered">Appendix: Key Identities</h1>
 <p>The power of modern regression diagnostics comes from algebraic shortcuts that allow us to find the results of a leave-one-out process without the computational cost of refitting the model <em>n</em> times. The following two identities are fundamental to this efficiency.</p>
-<section id="finding-the-loocv-residual-e_i-i-from-the-ordinary-residual-e_i" class="level3" data-number="8.1">
-<h3 data-number="8.1" class="anchored" data-anchor-id="finding-the-loocv-residual-e_i-i-from-the-ordinary-residual-e_i"><span class="header-section-number">8.1</span> Finding the LOOCV Residual (<span class="math inline">\(e_{i,-i}\)</span>) from the Ordinary Residual (<span class="math inline">\(e_i\)</span>)</h3>
+<section id="finding-the-loocv-residual-e_i-i-from-the-ordinary-residual-e_i" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="finding-the-loocv-residual-e_i-i-from-the-ordinary-residual-e_i">Finding the LOOCV Residual (<span class="math inline">\(e_{i,-i}\)</span>) from the Ordinary Residual (<span class="math inline">\(e_i\)</span>)</h2>
 <p>This identity shows that we can find the “pure” leave-one-out residual using only the results from the single model fit on all data.</p>
 <p><span id="eq-key"><span class="math display">\[e_{i,-i} = \frac{e_i}{1 - h_{ii}} \tag{3}\]</span></span></p>
 </section>
-<section id="finding-the-loocv-standard-error-hatsigma_-i-from-the-full-model-standard-error-hatsigma" class="level3" data-number="8.2">
-<h3 data-number="8.2" class="anchored" data-anchor-id="finding-the-loocv-standard-error-hatsigma_-i-from-the-full-model-standard-error-hatsigma"><span class="header-section-number">8.2</span> Finding the LOOCV Standard Error (<span class="math inline">\(\hat{\sigma}_{-i}\)</span>) from the Full-Model Standard Error (<span class="math inline">\(\hat{\sigma}\)</span>)</h3>
+<section id="finding-the-loocv-standard-error-hatsigma_-i-from-the-full-model-standard-error-hatsigma" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="finding-the-loocv-standard-error-hatsigma_-i-from-the-full-model-standard-error-hatsigma">Finding the LOOCV Standard Error (<span class="math inline">\(\hat{\sigma}_{-i}\)</span>) from the Full-Model Standard Error (<span class="math inline">\(\hat{\sigma}\)</span>)</h2>
 <p>Similarly, this formula provides an efficient shortcut to see how the model’s overall error changes when a single point is removed.</p>
 <p><span id="eq-sigma_-i"><span class="math display">\[\hat{\sigma}_{-i} = \sqrt{\frac{(n-p)\hat{\sigma}^2 - \frac{e_i^2}{1-h_{ii}}}{n-p-1}} \tag{4}\]</span></span></p>
 <p>The derivation of this formula relies on first proving the relationship between the full model’s Residual Sum of Squares (<span class="math inline">\(RSS\)</span>) and the leave-one-out version (<span class="math inline">\(RSS_{-i}\)</span>).</p>

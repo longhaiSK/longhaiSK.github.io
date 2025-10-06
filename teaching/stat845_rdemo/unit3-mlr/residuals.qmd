@@ -10,24 +10,24 @@ format:
   html:
     theme: cosmo
     toc: true
-    page-layout: full
-    css: /mystyles.css
     toc-location: left
+    toc-float: true    
+    css: mystyles.css
+    page-layout: full
     code-fold: true
     number-sections: true
+    shift-heading-level-by: -1
     math: mathjax
     mathjax: true
     md_extensions: +tex_math_dollars
-    include-in-header: 
-      text: |
-        <script src="/rendernav.js" defer></script>    
   pdf:
-    toc: false
+    toc: true
     number-sections: true
     shift-heading-level-by: -1
     include-in-header:
       text: |
         \usepackage{amsmath}
+appendix: true
 ---
 
 ## Introduction
@@ -156,6 +156,8 @@ In this article, we will compare the four residuals given as:
 | **NS-LOO** | Non-studentized LOOCV Residual | $$\frac{e_{i,-i}}{\hat{\sigma}_{-i}}$$ |
 | **ST-LOO** | Studentized LOOCV Residual | $$\frac{e_{i,-i}}{\hat{\sigma}_{-i}/\sqrt{1-h_{ii}}}$$ |
 | **ST-Full** | Studentized Full-Data Residual | $$\frac{e_i}{\hat{\sigma}_{-i}\sqrt{1-h_{ii}}}$$ |
+| **STD-Full** | Standardized (Internal Studentized) Residual | $$\frac{e_i}{\hat{\sigma}\sqrt{1-h_{ii}}}$$ |
+
 
 : {#tbl-residuals Four Plausible Residuals}
 
@@ -394,19 +396,18 @@ From the above simulation results, we observe the following important facts:
 
 -   **Effective Studentization:** The final step of studentization, which uses leverage to properly scale the residuals, is shown to be crucial. It successfully transforms the residuals into a reliable diagnostic tool with a constant variance across all predictor values ($x_i$), causing them to behave much more like a standard normal or t-distribution.
 
-## Appendix: {.unnumbered}
 
-## Key Identities for Efficient Calculation of LOOCV Residuals and Noice Variance 
+## Appendix: Key Identities {.unnumbered}
 
 The power of modern regression diagnostics comes from algebraic shortcuts that allow us to find the results of a leave-one-out process without the computational cost of refitting the model *n* times. The following two identities are fundamental to this efficiency.
 
-### Finding the LOOCV Residual ($e_{i,-i}$) from the Ordinary Residual ($e_i$) 
+### Finding the LOOCV Residual ($e_{i,-i}$) from the Ordinary Residual ($e_i$) {.unnumbered}
 
 This identity shows that we can find the "pure" leave-one-out residual using only the results from the single model fit on all data.
 
 $$e_{i,-i} = \frac{e_i}{1 - h_{ii}}$$ {#eq-key}
 
-### Finding the LOOCV Standard Error ($\hat{\sigma}_{-i}$) from the Full-Model Standard Error ($\hat{\sigma}$) 
+### Finding the LOOCV Standard Error ($\hat{\sigma}_{-i}$) from the Full-Model Standard Error ($\hat{\sigma}$) {.unnumbered}
 
 Similarly, this formula provides an efficient shortcut to see how the model's overall error changes when a single point is removed.
 
