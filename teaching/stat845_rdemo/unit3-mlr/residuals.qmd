@@ -413,6 +413,123 @@ From the above simulation results, we observe the following important facts:
   - **Effective Studentization:** The final step of studentization, which uses leverage to properly scale the residuals, is shown to be crucial. It successfully transforms the residuals into a reliable diagnostic tool with a constant variance across all predictor values ($x_i$), causing them to behave much more like a standard normal or t-distribution.
   
 
+## Cook's Distance
+
+
+### 1) Definition from the change in coefficients
+
+Let $\hat{\boldsymbol\beta}$ be the OLS estimate on all $n$ cases and $\hat{\boldsymbol\beta}_{(-i)}$ the estimate after deleting case $i$.  
+With $p$ parameters (including intercept) and $\hat\sigma^2=\mathrm{MSE}$,
+
+$$
+D_i
+= \frac{\big(\hat{\boldsymbol\beta}-\hat{\boldsymbol\beta}_{(-i)}\big)^{\!\top}
+(X^{\!\top}X)\,\big(\hat{\boldsymbol\beta}-\hat{\boldsymbol\beta}_{(-i)}\big)}{p\,\hat\sigma^{2}} \, .
+$$
+
+This measures how far the whole coefficient vector moves (in the $X^{\!\top}X$ metric) when case $i$ is removed, scaled **per parameter**.
+
+---
+
+### 2) Express $D_i$ via the **deleted (external) studentized residual** $t_i$
+
+Let $h_{ii}$ be the leverage and define the LOOCV quantities $e_{i,-i}$ and $\hat\sigma_{-i}$ from the model refit **without** case $i$.  
+The externally studentized residual is
+
+$$
+t_i
+=\frac{e_i}{\hat{\sigma}_{-i}\sqrt{\,1-h_{ii}\,}}
+=\frac{e_{i,-i}\,\sqrt{\,1-h_{ii}\,}}{\hat{\sigma}_{-i}},
+\qquad\text{since}\quad e_{i,-i}=\frac{e_i}{1-h_{ii}}.
+$$
+
+Then Cook’s distance can be written as
+
+$$
+D_i
+= \frac{n-p}{p}\;\frac{h_{ii}}{1-h_{ii}}\;
+\frac{t_i^{\,2}}{(n-p-1)+t_i^{\,2}} \, .
+$$
+
+---
+
+### 3) Exact null distribution (normal, homoskedastic errors; fixed $X$)
+
+Under the classical linear model,
+
+$$
+t_i^{\,2}\ \sim\ F_{1,\ \nu},\qquad \nu=n-p-1 .
+$$
+
+Let
+
+$$
+c_i=\frac{n-p}{p}\cdot\frac{h_{ii}}{1-h_{ii}},\qquad
+W_i=\frac{t_i^{\,2}}{\nu+t_i^{\,2}} .
+$$
+
+Because $t_i^{\,2}\sim F_{1,\nu}$,
+
+$$
+W_i\sim \mathrm{Beta}\!\Big(\tfrac12,\tfrac{\nu}{2}\Big),
+\qquad
+\frac{D_i}{c_i}=W_i\in[0,1] \, .
+$$
+
+This yields exact, per–case $p$-values and critical values:
+
+$$
+p_i=\Pr\!\left(W_i\ge \frac{D_i}{c_i}\right)
+= \mathrm{BetaCCDF}\!\left(\frac{D_i}{c_i};\,\tfrac12,\,\tfrac{n-p-1}{2}\right),
+$$
+
+$$
+d_{i,\alpha}=c_i\ \mathrm{BetaQuantile}\!\Big(1-\alpha;\tfrac12,\tfrac{n-p-1}{2}\Big).
+$$
+
+(Here $\mathrm{BetaCCDF}$ and $\mathrm{BetaQuantile}$ denote the Beta tail CDF and quantile; in R use `pbeta(..., lower.tail = FALSE)` and `qbeta(...)`.)
+
+---
+
+### 4) The rough $4/n$ rule (average-leverage simplification)
+
+Approximating a “typical” case by **average leverage** $h_{ii}\approx p/n$ gives
+
+$$
+c_i=\frac{n-p}{p}\cdot\frac{p/n}{1-p/n}\approx 1 .
+$$
+
+The 95th percentile of $W_i$ is
+
+$$
+\mathrm{qbeta}\!\Big(0.95;\tfrac12,\tfrac{n-p-1}{2}\Big)
+\ \approx\ \frac{F_{1,\nu,\,0.95}}{\nu+F_{1,\nu,\,0.95}}
+\ \approx\ \frac{3.84}{\,n-p-1\,}
+\ \approx\ \frac{4}{n}\quad (\text{when }p\ll n).
+$$
+
+So $4/n$ is a **rule-of-thumb** 95% cutoff for an **average-leverage** point; the exact leverage–aware cutoff is $d_{i,\alpha}$ above (larger for high $h_{ii}$, smaller for low $h_{ii}$).
+
+
+
+### (Optional) R helpers
+
+```{r}
+# Exact p-value and critical value for Cook's D (given h_ii, n, p)
+cook_pval <- function(D, h, n, p) {
+  nu <- n - p - 1
+  c  <- ((n - p)/p) * (h/(1 - h))
+  x  <- pmin(D / c, 1)  # support is [0,1]
+  pbeta(x, 0.5, nu/2, lower.tail = FALSE)
+}
+
+cook_crit <- function(h, n, p, alpha = 0.05) {
+  nu <- n - p - 1
+  c  <- ((n - p)/p) * (h/(1 - h))
+  c * qbeta(1 - alpha, 0.5, nu/2)
+}
+```
+
 
 ## Appendix: Key Identities {.unnumbered}
 

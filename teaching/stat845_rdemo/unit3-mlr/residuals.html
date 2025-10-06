@@ -904,6 +904,103 @@ Table&nbsp;1
 </ul>
 </section>
 </section>
+<section id="cooks-distance" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Cook’s Distance</h1>
+<section id="definition-from-the-change-in-coefficients" class="level2" data-number="8.1">
+<h2 data-number="8.1" class="anchored" data-anchor-id="definition-from-the-change-in-coefficients"><span class="header-section-number">8.1</span> 1) Definition from the change in coefficients</h2>
+<p>Let <span class="math inline">\(\hat{\boldsymbol\beta}\)</span> be the OLS estimate on all <span class="math inline">\(n\)</span> cases and <span class="math inline">\(\hat{\boldsymbol\beta}_{(-i)}\)</span> the estimate after deleting case <span class="math inline">\(i\)</span>.<br>
+With <span class="math inline">\(p\)</span> parameters (including intercept) and <span class="math inline">\(\hat\sigma^2=\mathrm{MSE}\)</span>,</p>
+<p><span class="math display">\[
+D_i
+= \frac{\big(\hat{\boldsymbol\beta}-\hat{\boldsymbol\beta}_{(-i)}\big)^{\!\top}
+(X^{\!\top}X)\,\big(\hat{\boldsymbol\beta}-\hat{\boldsymbol\beta}_{(-i)}\big)}{p\,\hat\sigma^{2}} \, .
+\]</span></p>
+<p>This measures how far the whole coefficient vector moves (in the <span class="math inline">\(X^{\!\top}X\)</span> metric) when case <span class="math inline">\(i\)</span> is removed, scaled <strong>per parameter</strong>.</p>
+<hr>
+</section>
+<section id="express-d_i-via-the-deleted-external-studentized-residual-t_i" class="level2" data-number="8.2">
+<h2 data-number="8.2" class="anchored" data-anchor-id="express-d_i-via-the-deleted-external-studentized-residual-t_i"><span class="header-section-number">8.2</span> 2) Express <span class="math inline">\(D_i\)</span> via the <strong>deleted (external) studentized residual</strong> <span class="math inline">\(t_i\)</span></h2>
+<p>Let <span class="math inline">\(h_{ii}\)</span> be the leverage and define the LOOCV quantities <span class="math inline">\(e_{i,-i}\)</span> and <span class="math inline">\(\hat\sigma_{-i}\)</span> from the model refit <strong>without</strong> case <span class="math inline">\(i\)</span>.<br>
+The externally studentized residual is</p>
+<p><span class="math display">\[
+t_i
+=\frac{e_i}{\hat{\sigma}_{-i}\sqrt{\,1-h_{ii}\,}}
+=\frac{e_{i,-i}\,\sqrt{\,1-h_{ii}\,}}{\hat{\sigma}_{-i}},
+\qquad\text{since}\quad e_{i,-i}=\frac{e_i}{1-h_{ii}}.
+\]</span></p>
+<p>Then Cook’s distance can be written as</p>
+<p><span class="math display">\[
+D_i
+= \frac{n-p}{p}\;\frac{h_{ii}}{1-h_{ii}}\;
+\frac{t_i^{\,2}}{(n-p-1)+t_i^{\,2}} \, .
+\]</span></p>
+<hr>
+</section>
+<section id="exact-null-distribution-normal-homoskedastic-errors-fixed-x" class="level2" data-number="8.3">
+<h2 data-number="8.3" class="anchored" data-anchor-id="exact-null-distribution-normal-homoskedastic-errors-fixed-x"><span class="header-section-number">8.3</span> 3) Exact null distribution (normal, homoskedastic errors; fixed <span class="math inline">\(X\)</span>)</h2>
+<p>Under the classical linear model,</p>
+<p><span class="math display">\[
+t_i^{\,2}\ \sim\ F_{1,\ \nu},\qquad \nu=n-p-1 .
+\]</span></p>
+<p>Let</p>
+<p><span class="math display">\[
+c_i=\frac{n-p}{p}\cdot\frac{h_{ii}}{1-h_{ii}},\qquad
+W_i=\frac{t_i^{\,2}}{\nu+t_i^{\,2}} .
+\]</span></p>
+<p>Because <span class="math inline">\(t_i^{\,2}\sim F_{1,\nu}\)</span>,</p>
+<p><span class="math display">\[
+W_i\sim \mathrm{Beta}\!\Big(\tfrac12,\tfrac{\nu}{2}\Big),
+\qquad
+\frac{D_i}{c_i}=W_i\in[0,1] \, .
+\]</span></p>
+<p>This yields exact, per–case <span class="math inline">\(p\)</span>-values and critical values:</p>
+<p><span class="math display">\[
+p_i=\Pr\!\left(W_i\ge \frac{D_i}{c_i}\right)
+= \mathrm{BetaCCDF}\!\left(\frac{D_i}{c_i};\,\tfrac12,\,\tfrac{n-p-1}{2}\right),
+\]</span></p>
+<p><span class="math display">\[
+d_{i,\alpha}=c_i\ \mathrm{BetaQuantile}\!\Big(1-\alpha;\tfrac12,\tfrac{n-p-1}{2}\Big).
+\]</span></p>
+<p>(Here <span class="math inline">\(\mathrm{BetaCCDF}\)</span> and <span class="math inline">\(\mathrm{BetaQuantile}\)</span> denote the Beta tail CDF and quantile; in R use <code>pbeta(..., lower.tail = FALSE)</code> and <code>qbeta(...)</code>.)</p>
+<hr>
+</section>
+<section id="the-rough-4n-rule-average-leverage-simplification" class="level2" data-number="8.4">
+<h2 data-number="8.4" class="anchored" data-anchor-id="the-rough-4n-rule-average-leverage-simplification"><span class="header-section-number">8.4</span> 4) The rough <span class="math inline">\(4/n\)</span> rule (average-leverage simplification)</h2>
+<p>Approximating a “typical” case by <strong>average leverage</strong> <span class="math inline">\(h_{ii}\approx p/n\)</span> gives</p>
+<p><span class="math display">\[
+c_i=\frac{n-p}{p}\cdot\frac{p/n}{1-p/n}\approx 1 .
+\]</span></p>
+<p>The 95th percentile of <span class="math inline">\(W_i\)</span> is</p>
+<p><span class="math display">\[
+\mathrm{qbeta}\!\Big(0.95;\tfrac12,\tfrac{n-p-1}{2}\Big)
+\ \approx\ \frac{F_{1,\nu,\,0.95}}{\nu+F_{1,\nu,\,0.95}}
+\ \approx\ \frac{3.84}{\,n-p-1\,}
+\ \approx\ \frac{4}{n}\quad (\text{when }p\ll n).
+\]</span></p>
+<p>So <span class="math inline">\(4/n\)</span> is a <strong>rule-of-thumb</strong> 95% cutoff for an <strong>average-leverage</strong> point; the exact leverage–aware cutoff is <span class="math inline">\(d_{i,\alpha}\)</span> above (larger for high <span class="math inline">\(h_{ii}\)</span>, smaller for low <span class="math inline">\(h_{ii}\)</span>).</p>
+</section>
+<section id="optional-r-helpers" class="level2" data-number="8.5">
+<h2 data-number="8.5" class="anchored" data-anchor-id="optional-r-helpers"><span class="header-section-number">8.5</span> (Optional) R helpers</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exact p-value and critical value for Cook's D (given h_ii, n, p)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>cook_pval <span class="ot">&lt;-</span> <span class="cf">function</span>(D, h, n, p) {</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  nu <span class="ot">&lt;-</span> n <span class="sc">-</span> p <span class="sc">-</span> <span class="dv">1</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  c  <span class="ot">&lt;-</span> ((n <span class="sc">-</span> p)<span class="sc">/</span>p) <span class="sc">*</span> (h<span class="sc">/</span>(<span class="dv">1</span> <span class="sc">-</span> h))</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  x  <span class="ot">&lt;-</span> <span class="fu">pmin</span>(D <span class="sc">/</span> c, <span class="dv">1</span>)  <span class="co"># support is [0,1]</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pbeta</span>(x, <span class="fl">0.5</span>, nu<span class="sc">/</span><span class="dv">2</span>, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>cook_crit <span class="ot">&lt;-</span> <span class="cf">function</span>(h, n, p, <span class="at">alpha =</span> <span class="fl">0.05</span>) {</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  nu <span class="ot">&lt;-</span> n <span class="sc">-</span> p <span class="sc">-</span> <span class="dv">1</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  c  <span class="ot">&lt;-</span> ((n <span class="sc">-</span> p)<span class="sc">/</span>p) <span class="sc">*</span> (h<span class="sc">/</span>(<span class="dv">1</span> <span class="sc">-</span> h))</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  c <span class="sc">*</span> <span class="fu">qbeta</span>(<span class="dv">1</span> <span class="sc">-</span> alpha, <span class="fl">0.5</span>, nu<span class="sc">/</span><span class="dv">2</span>)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+</section>
 <section id="appendix-key-identities" class="level1 unnumbered">
 <h1 class="unnumbered">Appendix: Key Identities</h1>
 <p>The power of modern regression diagnostics comes from algebraic shortcuts that allow us to find the results of a leave-one-out process without the computational cost of refitting the model <em>n</em> times. The following two identities are fundamental to this efficiency.</p>
