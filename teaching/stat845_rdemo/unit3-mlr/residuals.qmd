@@ -9,34 +9,36 @@ date: today
 format: 
   html:
     theme: cosmo
-    toc: false
+    toc: true
+    toc-depth: 4
     toc-location: left
     toc-float: true    
     css: mystyles.css
     page-layout: full
     code-fold: true
     number-sections: true
-    shift-heading-level-by: -1
+    shift-heading-level-by: 0
     math: mathjax
     mathjax: true
     md_extensions: +tex_math_dollars
     format-links: false
+    df_print: paged 
   pdf:
     toc: true
     number-sections: true
-    shift-heading-level-by: -1
+    shift-heading-level-by: 0
     include-in-header:
       text: |
         \usepackage{amsmath}
 ---
 
-## Introduction
+# Introduction
 
 In statistical modeling, identifying data points that don't fit—the **outliers**—is a critical step. The most reliable tool for this job is the **externally studentized residual**. Its power comes from a simple, intuitive idea: to judge a point fairly, you shouldn't use that point when building your model. This is the core principle of **Leave-One-Out Cross-Validation (LOOCV)**.
 
 This article provides a complete walkthrough of this essential concept. We'll start with the basic linear model, introduce the necessary notation, explore the flaws of simpler residuals, and then formally define and prove the equivalence of the conceptual and computational formulas for studentized residuals. Finally, we'll make it all concrete with a simple example.
 
-## The Linear Model
+# The Linear Model
 
 Our discussion is based on the standard multiple linear regression model. In matrix form, the relationship between a response vector **Y** and a predictor matrix **X** is: $$
 \mathbf{Y} = \mathbf{X}\beta + \epsilon
@@ -48,6 +50,8 @@ where:
 -   **X** is the *n* x *p* design matrix of predictor variables (where *p* is the number of coefficients, including the intercept).
 -   $\beta$ is the *p* x 1 vector of unknown true coefficients we want to estimate.
 -   $\epsilon$ is an *n* x 1 vector of unobservable random errors, assumed to be independent and identically distributed with a mean of 0 and a variance of $\sigma^2$.
+
+# Residuals for OLS
 
 ## Our Notations 💡
 
@@ -154,7 +158,7 @@ The main changes include:
 2.  Updating the list of calculated columns to include a description of **STD-Full**.
 3.  Modifying the plotting code to include **STD-Full** with its own distinct color and shape.
 
------
+
 
 ## List of Residuals
 
@@ -170,7 +174,7 @@ In this article, we will compare the four residuals given as:
 
 : {\#tbl-residuals Five Plausible Residuals}
 
-## Example
+## Example of Various Residuals
 
 ### The Linear Model
 
@@ -413,10 +417,10 @@ From the above simulation results, we observe the following important facts:
   - **Effective Studentization:** The final step of studentization, which uses leverage to properly scale the residuals, is shown to be crucial. It successfully transforms the residuals into a reliable diagnostic tool with a constant variance across all predictor values ($x_i$), causing them to behave much more like a standard normal or t-distribution.
   
 
-## Cook's Distance
+# Cook's Distance
 
 
-### 1) Definition from the change in coefficients
+###  Definition from the change in coefficients
 
 Let $\hat{\boldsymbol\beta}$ be the OLS estimate on all $n$ cases and $\hat{\boldsymbol\beta}_{(-i)}$ the estimate after deleting case $i$.  
 With $p$ parameters (including intercept) and $\hat\sigma^2=\mathrm{MSE}$,
@@ -431,7 +435,7 @@ This measures how far the whole coefficient vector moves (in the $X^{\!\top}X$ m
 
 ---
 
-### 2) Express $D_i$ via the **deleted (external) studentized residual** $t_i$
+###  Express $D_i$ via the **studentized LOOCV residual**: $t_i$
 
 Let $h_{ii}$ be the leverage and define the LOOCV quantities $e_{i,-i}$ and $\hat\sigma_{-i}$ from the model refit **without** case $i$.  
 The externally studentized residual is
@@ -453,7 +457,7 @@ $$
 
 ---
 
-### 3) Exact null distribution (normal, homoskedastic errors; fixed $X$)
+###  Exact null distribution
 
 Under the classical linear model,
 
@@ -480,18 +484,17 @@ This yields exact, per–case $p$-values and critical values:
 
 $$
 p_i=\Pr\!\left(W_i\ge \frac{D_i}{c_i}\right)
-= \mathrm{BetaCCDF}\!\left(\frac{D_i}{c_i};\,\tfrac12,\,\tfrac{n-p-1}{2}\right),
+= S_\mathrm{Beta}\!\left(\frac{D_i}{c_i};\,\tfrac12,\,\tfrac{n-p-1}{2}\right),
 $$
 
 $$
-d_{i,\alpha}=c_i\ \mathrm{BetaQuantile}\!\Big(1-\alpha;\tfrac12,\tfrac{n-p-1}{2}\Big).
+d_{i,\alpha}=c_i\ q_\mathrm{Beta}\!\Big(1-\alpha;\tfrac12,\tfrac{n-p-1}{2}\Big).
 $$
 
-(Here $\mathrm{BetaCCDF}$ and $\mathrm{BetaQuantile}$ denote the Beta tail CDF and quantile; in R use `pbeta(..., lower.tail = FALSE)` and `qbeta(...)`.)
+where $S_\mathrm{Beta}$ and $q_\mathrm{Beta}$ stand for the survival and quantile functions of Beta distribution.
 
----
 
-### 4) The rough $4/n$ rule (average-leverage simplification)
+###  The rough $4/n$ rule (average-leverage simplification)
 
 Approximating a “typical” case by **average leverage** $h_{ii}\approx p/n$ gives
 
@@ -512,22 +515,165 @@ So $4/n$ is a **rule-of-thumb** 95% cutoff for an **average-leverage** point; th
 
 
 
-### (Optional) R helpers
+### Comparing $4/n$ rules with the actual critical values
 
 ```{r}
-# Exact p-value and critical value for Cook's D (given h_ii, n, p)
-cook_pval <- function(D, h, n, p) {
+#| label: cooksD-crit-table
+#| echo: true
+#| warning: false
+#| message: false
+
+
+library(dplyr)
+library(tidyr)
+library(knitr)
+library(kableExtra)
+
+# Exact 95% Cook's D cutoff under average leverage h_ii = p/n (so c_i = 1):
+# d_{i,0.95} = qbeta(0.95; 1/2, (n - p - 1)/2), valid when nu = n - p - 1 > 0
+cook_crit_avg <- function(n, p, alpha = 0.05) {
   nu <- n - p - 1
-  c  <- ((n - p)/p) * (h/(1 - h))
-  x  <- pmin(D / c, 1)  # support is [0,1]
-  pbeta(x, 0.5, nu/2, lower.tail = FALSE)
+  if (nu <= 0) return(NA_real_)
+  stats::qbeta(1 - alpha, shape1 = 0.5, shape2 = nu / 2)
 }
 
-cook_crit <- function(h, n, p, alpha = 0.05) {
-  nu <- n - p - 1
-  c  <- ((n - p)/p) * (h/(1 - h))
-  c * qbeta(1 - alpha, 0.5, nu/2)
+# Grids (edit as needed)
+n_vals <- c(20, 30, 50, 80, 100, 150, 200, 500)
+p_vals <- c(2, 3, 5, 10, 15, 20, 30, 50)
+
+df <- tidyr::crossing(n = n_vals, p = p_vals) %>%
+  mutate(valid = p <= n - 2,
+         nu    = n - p - 1L) %>%
+  rowwise() %>%
+  mutate(
+    cook_crit_95 = if (valid) cook_crit_avg(n, p, 0.05) else NA_real_,
+    `4/n`        = 4 / n,
+    ratio        = cook_crit_95 / `4/n`,
+    `p/n`        = p / n
+  ) %>%
+  ungroup() %>%
+  filter(valid) %>%
+  select(n, p, `p/n`, nu, cook_crit_95, `4/n`, ratio) %>%
+  mutate(
+    `p/n`         = round(`p/n`, 3),
+    cook_crit_95  = round(cook_crit_95, 6),
+    `4/n`         = round(`4/n`, 6),
+    ratio         = round(ratio, 4)
+  )
+
+
+if (knitr::is_html_output()) {
+  # HTML → Quarto prints `df` as a paged table and uses tbl-cap
+  library(DT)
+  DT::datatable(
+    df,
+    rownames = FALSE,
+    options = list(pageLength = 10, scrollX = TRUE),
+    caption = htmltools::tags$caption(
+      style = 'caption-side: top; text-align: left;',
+      htmltools::HTML("Exact 95% Cook&#39;s D critical value (average leverage $h_{ii}=p/n \\Rightarrow c_i=1$) vs heuristic $4/n$.")
+    )
+  )
+} else {
+  # Non-HTML (PDF, DOCX) → fall back to kable
+
+  knitr::kable(
+    df,
+    align = "r",
+    booktabs = TRUE,
+    caption = "Exact 95% Cook's D critical value (average leverage $h_{ii}=p/n \\Rightarrow c_i=1$) vs heuristic $4/n$."
+  ) 
 }
+
+```
+
+### Example for Cook's Distance: 
+
+```{r}
+#| label: cooksD-compute-and-plot
+#| echo: true
+#| message: false
+#| warning: false
+#| fig-cap: "Cook's D by case with heuristic 4/n (red dotted), per-case Beta 95% critical values (blue dashed), and average-leverage Beta 95% line (purple dot-dash)."
+
+library(dplyr)
+library(ggplot2)
+library(knitr)
+
+# --- 1) Data and full-model fit (your setup)
+set.seed(123)
+n <- 20
+x <- 1:n
+y <- 2 + 3 * x + rnorm(n, mean = 0, sd = 5)
+y[1] <- y[1] + 30   # add an outlier at i = 1
+full_data  <- data.frame(x = x, replicate(5, rnorm(n)), y = y)
+
+fit <- lm(y ~ ., data = full_data)
+
+# --- 2) Ingredients for Cook's D and thresholds
+p      <- length(coef(fit))        # includes intercept
+h      <- hatvalues(fit)           # leverage h_ii
+D      <- cooks.distance(fit)      # Cook's D_i
+nu     <- n - p - 1                # df for deleted-studentized residual
+alpha  <- 0.05
+
+# Per-case scaling factor: c_i = ((n-p)/p) * (h_ii/(1-h_ii))
+c_i        <- ((n - p) / p) * (h / (1 - h))
+
+# Exact per-case Beta 95% critical values:
+# D_i / c_i ~ Beta(1/2, (n-p-1)/2)  =>  D_crit_i = c_i * qbeta(0.95, 1/2, (n-p-1)/2)
+crit_beta_i <- c_i * qbeta(1 - alpha, shape1 = 0.5, shape2 = nu / 2)
+
+# Average-leverage Beta 95% critical value:
+# If h_ii = p/n (average leverage), then c_i = 1 exactly
+crit_beta_avg <- qbeta(1 - alpha, shape1 = 0.5, shape2 = nu / 2)
+
+# Heuristic 4/n line
+crit_heur <- 4 / n
+
+# --- 3) Assemble results table
+df_cook <- tibble(
+  i            = seq_len(n),
+  h_ii         = as.numeric(h),
+  D_i          = as.numeric(D),
+  c_i          = as.numeric(c_i),
+  crit_beta_i  = as.numeric(crit_beta_i),
+  crit_beta_avg = crit_beta_avg,
+  crit_heur    = crit_heur
+)
+
+# Print a compact table
+knitr::kable(
+  df_cook %>% mutate(across(where(is.numeric), ~ round(.x, 5))),
+  caption = "Cook's D, leverage, and thresholds: per-case Beta 95%, average-leverage Beta 95%, and 4/n."
+)
+
+# --- 4) Plot D_i with thresholds
+thresh_df <- bind_rows(
+  df_cook %>% transmute(i, value = crit_beta_i,   Type = "Beta 95% (per-case)"),
+  tibble(i = seq_len(n), value = crit_beta_avg,   Type = "Beta 95% (avg leverage)"),
+  tibble(i = seq_len(n), value = crit_heur,       Type = "4/n rule")
+)
+
+ggplot(df_cook, aes(x = i, y = D_i)) +
+  geom_point(size = 2) +
+  geom_line(data = thresh_df,
+            aes(y = value, color = Type, linetype = Type),
+            linewidth = 0.9) +
+  scale_color_manual(values = c(
+    "Beta 95% (per-case)"      = "#1f77b4",
+    "Beta 95% (avg leverage)"  = "#7f3c8d",
+    "4/n rule"                 = "#d62728"
+  )) +
+  scale_linetype_manual(values = c(
+    "Beta 95% (per-case)"      = "dashed",
+    "Beta 95% (avg leverage)"  = "dotdash",
+    "4/n rule"                 = "dotted"
+  )) +
+  labs(x = "Observation i", y = "Cook's D_i") +
+  theme_bw() +
+  theme(legend.title = element_blank())
+
 ```
 
 
@@ -541,7 +687,7 @@ This identity shows that we can find the "pure" leave-one-out residual using onl
 
 $$e_{i,-i} = \frac{e_i}{1 - h_{ii}}$$ {#eq-key}
 
-### Finding the LOOCV Standard Error ($\hat{\sigma}_{-i}$) from the Full-Model Standard Error ($\hat{\sigma}$) {.unnumbered}
+### Finding the LOOCV Standard Error from the Full-Model Standard Error {.unnumbered}
 
 Similarly, this formula provides an efficient shortcut to see how the model's overall error changes when a single point is removed.
 
