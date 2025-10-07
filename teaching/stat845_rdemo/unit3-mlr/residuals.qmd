@@ -420,7 +420,7 @@ From the above simulation results, we observe the following important facts:
 # Cook's Distance
 
 
-###  Definition from the change in coefficients
+##  Definition from the change in coefficients
 
 Let $\hat{\boldsymbol\beta}$ be the OLS estimate on all $n$ cases and $\hat{\boldsymbol\beta}_{(-i)}$ the estimate after deleting case $i$.  
 With $p$ parameters (including intercept) and $\hat\sigma^2=\mathrm{MSE}$,
@@ -433,9 +433,9 @@ $$
 
 This measures how far the whole coefficient vector moves (in the $X^{\!\top}X$ metric) when case $i$ is removed, scaled **per parameter**.
 
----
 
-###  Express $D_i$ via the **studentized LOOCV residual**: $t_i$
+
+### Express $D_i$ via the **studentized LOOCV residual**: $t_i$
 
 Let $h_{ii}$ be the leverage and define the LOOCV quantities $e_{i,-i}$ and $\hat\sigma_{-i}$ from the model refit **without** case $i$.  
 The externally studentized residual is
@@ -455,7 +455,7 @@ D_i
 \frac{t_i^{\,2}}{(n-p-1)+t_i^{\,2}} \, .
 $$
 
----
+
 
 ###  Exact null distribution
 
@@ -587,7 +587,7 @@ if (knitr::is_html_output()) {
 
 ```
 
-### Example for Cook's Distance: 
+## Example for Cook's Distance: 
 
 ```{r}
 #| label: cooksD-compute-and-plot
@@ -601,11 +601,12 @@ library(ggplot2)
 library(knitr)
 
 # --- 1) Data and full-model fit (your setup)
-set.seed(123)
+
 n <- 20
 x <- 1:n
 y <- 2 + 3 * x + rnorm(n, mean = 0, sd = 5)
 y[1] <- y[1] + 30   # add an outlier at i = 1
+y[11] <- y[11] + 30
 full_data  <- data.frame(x = x, replicate(5, rnorm(n)), y = y)
 
 fit <- lm(y ~ ., data = full_data)
@@ -677,17 +678,17 @@ ggplot(df_cook, aes(x = i, y = D_i)) +
 ```
 
 
-## Appendix: Key Identities {.unnumbered}
+# Appendix: Key Identities {.unnumbered}
 
 The power of modern regression diagnostics comes from algebraic shortcuts that allow us to find the results of a leave-one-out process without the computational cost of refitting the model *n* times. The following two identities are fundamental to this efficiency.
 
-### Finding the LOOCV Residual ($e_{i,-i}$) from the Ordinary Residual ($e_i$) {.unnumbered}
+## Finding the LOOCV Residual ($e_{i,-i}$) from the Ordinary Residual ($e_i$) {.unnumbered}
 
 This identity shows that we can find the "pure" leave-one-out residual using only the results from the single model fit on all data.
 
 $$e_{i,-i} = \frac{e_i}{1 - h_{ii}}$$ {#eq-key}
 
-### Finding the LOOCV Standard Error from the Full-Model Standard Error {.unnumbered}
+## Finding the LOOCV Standard Error from the Full-Model Standard Error {.unnumbered}
 
 Similarly, this formula provides an efficient shortcut to see how the model's overall error changes when a single point is removed.
 
