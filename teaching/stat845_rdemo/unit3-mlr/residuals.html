@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Longhai Li">
-<meta name="dcterms.date" content="2025-10-06">
+<meta name="dcterms.date" content="2025-10-07">
 
-<title>Understanding the Leverage and Its Use in Adjusting Residuals of Linear Models</title>
+<title>Understanding the Leverage for Adjusting Residuals of OLS</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -79,6 +79,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="residuals_files/libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
 <link href="residuals_files/libs/crosstalk-1.2.2/css/crosstalk.min.css" rel="stylesheet">
 <script src="residuals_files/libs/crosstalk-1.2.2/js/crosstalk.min.js"></script>
+<script src="rendernav.js" defer=""></script>
+<script src="loadtoc.js" defer=""></script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -115,69 +117,18 @@ window.Quarto = {
 
 <body>
 
-<div id="quarto-content" class="page-columns page-rows-contents page-layout-full toc-left">
-<div id="quarto-sidebar-toc-left" class="sidebar toc-left">
-  <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">Table of contents</h2>
-   
-  <ul>
-  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction"><span class="header-section-number">1</span> Introduction</a></li>
-  <li><a href="#the-linear-model" id="toc-the-linear-model" class="nav-link" data-scroll-target="#the-linear-model"><span class="header-section-number">2</span> The Linear Model</a></li>
-  <li><a href="#residuals-for-ols" id="toc-residuals-for-ols" class="nav-link" data-scroll-target="#residuals-for-ols"><span class="header-section-number">3</span> Residuals for OLS</a>
-  <ul>
-  <li><a href="#our-notations" id="toc-our-notations" class="nav-link" data-scroll-target="#our-notations"><span class="header-section-number">3.1</span> Our Notations 💡</a></li>
-  <li><a href="#non-studentized-residuals" id="toc-non-studentized-residuals" class="nav-link" data-scroll-target="#non-studentized-residuals"><span class="header-section-number">3.2</span> Non-studentized Residuals</a>
-  <ul class="collapse">
-  <li><a href="#the-ordinary-residual-e_i-too-small-and-x_i-dependent" id="toc-the-ordinary-residual-e_i-too-small-and-x_i-dependent" class="nav-link" data-scroll-target="#the-ordinary-residual-e_i-too-small-and-x_i-dependent"><span class="header-section-number">3.2.1</span> <strong>The Ordinary Residual (</strong><span class="math inline">\(e_i\)</span>): Too Small and <span class="math inline">\(x_i\)</span> Dependent</a></li>
-  <li><a href="#the-loocv-residual-e_i-i-too-large-and-x_i-dependent-variance" id="toc-the-loocv-residual-e_i-i-too-large-and-x_i-dependent-variance" class="nav-link" data-scroll-target="#the-loocv-residual-e_i-i-too-large-and-x_i-dependent-variance"><span class="header-section-number">3.2.2</span> <strong>The LOOCV Residual (</strong><span class="math inline">\(e_{i,-i}\)</span>): Too large and <span class="math inline">\(x_i\)</span>-Dependent Variance</a></li>
-  </ul></li>
-  <li><a href="#studentized-residuals" id="toc-studentized-residuals" class="nav-link" data-scroll-target="#studentized-residuals"><span class="header-section-number">3.3</span> Studentized Residuals</a>
-  <ul class="collapse">
-  <li><a href="#studentized-loocv-deleted-residual" id="toc-studentized-loocv-deleted-residual" class="nav-link" data-scroll-target="#studentized-loocv-deleted-residual"><span class="header-section-number">3.3.1</span> Studentized LOOCV (Deleted) Residual</a></li>
-  <li><a href="#studentized-full-data-residuals" id="toc-studentized-full-data-residuals" class="nav-link" data-scroll-target="#studentized-full-data-residuals"><span class="header-section-number">3.3.2</span> Studentized Full Data Residuals</a></li>
-  <li><a href="#equivalence-of-eq-sfull-and-eq-sloo" id="toc-equivalence-of-eq-sfull-and-eq-sloo" class="nav-link" data-scroll-target="#equivalence-of-eq-sfull-and-eq-sloo"><span class="header-section-number">3.3.3</span> Equivalence of Equation&nbsp;2 and Equation&nbsp;1</a>
-  <ul class="collapse">
-  <li><a href="#proof-of-equivalence" id="toc-proof-of-equivalence" class="nav-link" data-scroll-target="#proof-of-equivalence"><span class="header-section-number">3.3.3.1</span> Proof of Equivalence ⚙️</a></li>
-  </ul></li>
-  </ul></li>
-  <li><a href="#list-of-residuals" id="toc-list-of-residuals" class="nav-link" data-scroll-target="#list-of-residuals"><span class="header-section-number">3.4</span> List of Residuals</a></li>
-  <li><a href="#example-of-various-residuals" id="toc-example-of-various-residuals" class="nav-link" data-scroll-target="#example-of-various-residuals"><span class="header-section-number">3.5</span> Example of Various Residuals</a>
-  <ul class="collapse">
-  <li><a href="#the-linear-model-1" id="toc-the-linear-model-1" class="nav-link" data-scroll-target="#the-linear-model-1"><span class="header-section-number">3.5.1</span> The Linear Model</a></li>
-  <li><a href="#description-of-calculated-columns" id="toc-description-of-calculated-columns" class="nav-link" data-scroll-target="#description-of-calculated-columns"><span class="header-section-number">3.5.2</span> Description of Calculated Columns</a></li>
-  </ul></li>
-  </ul></li>
-  <li><a href="#cooks-distance" id="toc-cooks-distance" class="nav-link" data-scroll-target="#cooks-distance"><span class="header-section-number">4</span> Cook’s Distance</a>
-  <ul>
-  <li><a href="#definition-from-the-change-in-coefficients" id="toc-definition-from-the-change-in-coefficients" class="nav-link" data-scroll-target="#definition-from-the-change-in-coefficients"><span class="header-section-number">4.1</span> Definition from the change in coefficients</a>
-  <ul class="collapse">
-  <li><a href="#express-d_i-via-the-studentized-loocv-residual-t_i" id="toc-express-d_i-via-the-studentized-loocv-residual-t_i" class="nav-link" data-scroll-target="#express-d_i-via-the-studentized-loocv-residual-t_i"><span class="header-section-number">4.1.1</span> Express <span class="math inline">\(D_i\)</span> via the <strong>studentized LOOCV residual</strong>: <span class="math inline">\(t_i\)</span></a></li>
-  <li><a href="#exact-null-distribution" id="toc-exact-null-distribution" class="nav-link" data-scroll-target="#exact-null-distribution"><span class="header-section-number">4.1.2</span> Exact null distribution</a></li>
-  <li><a href="#the-rough-4n-rule-average-leverage-simplification" id="toc-the-rough-4n-rule-average-leverage-simplification" class="nav-link" data-scroll-target="#the-rough-4n-rule-average-leverage-simplification"><span class="header-section-number">4.1.3</span> The rough <span class="math inline">\(4/n\)</span> rule (average-leverage simplification)</a></li>
-  <li><a href="#comparing-4n-rules-with-the-actual-critical-values" id="toc-comparing-4n-rules-with-the-actual-critical-values" class="nav-link" data-scroll-target="#comparing-4n-rules-with-the-actual-critical-values"><span class="header-section-number">4.1.4</span> Comparing <span class="math inline">\(4/n\)</span> rules with the actual critical values</a></li>
-  </ul></li>
-  <li><a href="#example-for-cooks-distance" id="toc-example-for-cooks-distance" class="nav-link" data-scroll-target="#example-for-cooks-distance"><span class="header-section-number">4.2</span> Example for Cook’s Distance:</a></li>
-  </ul></li>
-  <li><a href="#appendix-key-identities" id="toc-appendix-key-identities" class="nav-link" data-scroll-target="#appendix-key-identities">Appendix: Key Identities</a>
-  <ul>
-  <li><a href="#finding-the-loocv-residual-e_i-i-from-the-ordinary-residual-e_i" id="toc-finding-the-loocv-residual-e_i-i-from-the-ordinary-residual-e_i" class="nav-link" data-scroll-target="#finding-the-loocv-residual-e_i-i-from-the-ordinary-residual-e_i">Finding the LOOCV Residual (<span class="math inline">\(e_{i,-i}\)</span>) from the Ordinary Residual (<span class="math inline">\(e_i\)</span>)</a></li>
-  <li><a href="#finding-the-loocv-standard-error-from-the-full-model-standard-error" id="toc-finding-the-loocv-standard-error-from-the-full-model-standard-error" class="nav-link" data-scroll-target="#finding-the-loocv-standard-error-from-the-full-model-standard-error">Finding the LOOCV Standard Error from the Full-Model Standard Error</a></li>
-  </ul></li>
-  </ul>
-</nav>
-</div>
-<div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-</div>
-<main class="content column-page-right" id="quarto-document-content">
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-full">
+
+<main class="content column-page" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Understanding the Leverage and Its Use in Adjusting Residuals of Linear Models</h1>
+<h1 class="title">Understanding the Leverage for Adjusting Residuals of OLS</h1>
 <p class="subtitle lead">A Simulation Illustration with R</p>
 </div>
 
 
-<div class="quarto-title-meta-author column-page-right">
+<div class="quarto-title-meta-author column-page">
   <div class="quarto-title-meta-heading">Author</div>
   <div class="quarto-title-meta-heading">Affiliation</div>
   
@@ -191,13 +142,13 @@ window.Quarto = {
       </div>
   </div>
 
-<div class="quarto-title-meta column-page-right">
+<div class="quarto-title-meta column-page">
 
       
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 6, 2025</p>
+      <p class="date">October 7, 2025</p>
     </div>
   </div>
   
