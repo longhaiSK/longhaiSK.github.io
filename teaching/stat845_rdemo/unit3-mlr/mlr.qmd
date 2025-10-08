@@ -268,33 +268,25 @@ require("animation")
 
 ### When $H_0$ is true
 
-```{r, cache=TRUE, fig.show="animate", class.source="fold-hide", fig.height=8}
-library(ggplot2)
-library(patchwork)
+```{r}
+# --- Setup & params ---
+library(ggplot2); library(patchwork)
+dir.create("frames", showWarnings = FALSE)
 
 N_sim <- ifelse(interactive(), 1, 50)
-n <- 30
-p_max <- 20
-beta <- rep(0, p_max)
-sigma <- 1
-x_lim <- c(0, n)
-ks <- seq(0, p_max, by = 2)
+n <- 30; p_max <- 20
+beta <- rep(0, p_max); sigma <- 1
+x_lim <- c(0, n); ks <- seq(0, p_max, by = 2)
 
-for (j in 1:N_sim) {
-  X <- replicate(p_max, rnorm(n))
-  colnames(X) <- paste0("x", 1:p_max)
-  X <- as.data.frame(X)
-
+# --- Generate frames ---
+for (j in seq_len(N_sim)) {
+  X <- as.data.frame(replicate(p_max, rnorm(n)))
+  names(X) <- paste0("x", 1:p_max)
   y <- as.numeric(as.matrix(X) %*% beta + rnorm(n, sd = sigma))
 
   stats_list <- lapply(ks, function(k) {
     num_params <- k + 1
-    if (k == 0) {
-      fitsim <- lm(y ~ 1)
-    } else {
-      fml <- as.formula(paste("y ~", paste(paste0("x", 1:k), collapse = " + ")))
-      fitsim <- lm(fml, data = X)
-    }
+    fitsim <- if (k == 0) lm(y ~ 1) else lm(reformulate(paste0("x", 1:k), "y"), data = X)
     s <- summary(fitsim)
     f_val <- s$fstatistic
     data.frame(
@@ -302,118 +294,24 @@ for (j in 1:N_sim) {
       RSS = sum(residuals(fitsim)^2),
       R2 = ifelse(k == 0, 0, s$r.squared),
       R2_adj = ifelse(k == 0, 0, s$adj.r.squared),
-      F_stat = ifelse(is.null(f_val), NA, f_val[1])
+      F_stat = ifelse(is.null(f_val), NA_real_, f_val[1])
     )
   })
-
   df <- do.call(rbind, stats_list)
-  saturated_row <- data.frame(p = n, RSS = 0, R2 = 1, R2_adj = NA, F_stat = NA)
-  df <- rbind(df, saturated_row)
+  df <- rbind(df, data.frame(p = n, RSS = 0, R2 = 1, R2_adj = NA_real_, F_stat = NA_real_))
 
-  g1 <- ggplot(df, aes(x = p, y = RSS)) +
-    geom_line(color = "black") +
-    geom_point(color = "black") +
-    geom_point(data = subset(df, p == n), size = 2) +
-    annotate("text", x = n, y = 0, label = "(n, 0)", vjust = -0.8, size = 3) +
-    scale_x_continuous(limits = x_lim, breaks = pretty(x_lim)) +
-    labs(
-      title = "Residual Sum of Squares vs. Number of Parameters",
-      x = "Number of parameters (p)",
-      y = "Residual Sum of Squares (RSS)"
-    ) +
-    theme_minimal(base_size = 13)
-
-  scale_factor <- max(df$F_stat, na.rm = TRUE)
-
-  g2 <- ggplot(df, aes(x = p)) +
-    geom_line(aes(y = F_stat, color = "F-statistic")) +
-    geom_point(aes(y = F_stat, color = "F-statistic")) +
-    geom_line(aes(y = R2 * scale_factor, color = "R2")) +
-    geom_point(aes(y = R2 * scale_factor, color = "R2")) +
-    geom_line(aes(y = R2_adj * scale_factor, color = "R2_adj"), linetype = "dashed") +
-    geom_point(aes(y = R2_adj * scale_factor, color = "R2_adj")) +
-    scale_x_continuous(limits = x_lim, breaks = pretty(x_lim)) +
-    scale_y_continuous(
-      name = "F-statistic",
-      sec.axis = sec_axis(~ . / scale_factor,
-                          name = expression(paste(R^2, " / ", R[adj]^2)),
-                          labels = scales::percent)
-    ) +
-    scale_color_manual(
-      name = "Metric",
-      values = c("F-statistic" = "firebrick", "R2" = "blue", "R2_adj" = "cyan4"),
-      labels = c("F-statistic", expression(R^2), expression(R[adj]^2))
-    ) +
-    labs(title = "Model Fit Statistics vs. Number of Parameters",
-         x = "Number of parameters (p)") +
-    theme_minimal(base_size = 13) +
-    theme(legend.position = "top")
-
-  print(g1 / g2)
-}
-
-```
-
-### When $H_1$ is true
-
-```{r, cache=TRUE, fig.show="animate", class.source="fold-hide", fig.height=8}
-library(ggplot2)
-library(patchwork)
-
-N_sim <- ifelse(interactive(), 1, 50)
-n <- 30
-p_max <- 20
-beta <- rep(0, p_max); beta[1] <- 1.5
-sigma <- 1
-x_lim <- c(0, n)
-ks <- seq(0, p_max, by = 2)
-
-for (j in 1:N_sim) {
-  X <- replicate(p_max, rnorm(n))
-  colnames(X) <- paste0("x", 1:p_max)
-  X <- as.data.frame(X)
-
-  y <- as.numeric(as.matrix(X) %*% beta + rnorm(n, sd = sigma))
-
-  stats_list <- lapply(ks, function(k) {
-    num_params <- k + 1
-    if (k == 0) {
-      fitsim <- lm(y ~ 1)
-    } else {
-      fml <- as.formula(paste("y ~", paste(paste0("x", 1:k), collapse = " + ")))
-      fitsim <- lm(fml, data = X)
-    }
-    s <- summary(fitsim)
-    f_val <- s$fstatistic
-    data.frame(
-      p = num_params,
-      RSS = sum(residuals(fitsim)^2),
-      R2 = ifelse(k == 0, 0, s$r.squared),
-      R2_adj = ifelse(k == 0, 0, s$adj.r.squared),
-      F_stat = ifelse(is.null(f_val), NA, f_val[1])
-    )
-  })
-
-  df <- do.call(rbind, stats_list)
-  saturated_row <- data.frame(p = n, RSS = 0, R2 = 1, R2_adj = NA, F_stat = NA)
-  df <- rbind(df, saturated_row)
-
-  g1 <- ggplot(df, aes(x = p, y = RSS)) +
-    geom_line(color = "black") +
-    geom_point(color = "black") +
+  g1 <- ggplot(df, aes(p, RSS)) +
+    geom_line() + geom_point() +
     geom_point(data = subset(df, p == n), size = 2) +
     annotate("text", x = n, y = 0, label = "(n, 0)", vjust = -0.8, size = 3) +
     scale_x_continuous(limits = x_lim, breaks = pretty(x_lim)) +
     labs(title = "Residual Sum of Squares vs. Number of Parameters",
-         x = "Number of parameters (p)",
-         y = "Residual Sum of Squares (RSS)") +
+         x = "Number of parameters (p)", y = "Residual Sum of Squares (RSS)") +
     theme_minimal(base_size = 13)
 
-  scale_factor <- max(df$F_stat, na.rm = TRUE)
-
-  g2 <- ggplot(df, aes(x = p)) +
-    geom_line(aes(y = F_stat, color = "F-statistic")) +
-    geom_point(aes(y = F_stat, color = "F-statistic")) +
+  scale_factor <- max(df$F_stat, na.rm = TRUE); if (!is.finite(scale_factor) || scale_factor <= 0) scale_factor <- 1
+  g2 <- ggplot(df, aes(p)) +
+    geom_line(aes(y = F_stat, color = "F")) + geom_point(aes(y = F_stat, color = "F")) +
     geom_line(aes(y = R2 * scale_factor, color = "R2")) +
     geom_point(aes(y = R2 * scale_factor, color = "R2")) +
     geom_line(aes(y = R2_adj * scale_factor, color = "R2_adj"), linetype = "dashed") +
@@ -422,22 +320,100 @@ for (j in 1:N_sim) {
     scale_y_continuous(
       name = "F-statistic",
       sec.axis = sec_axis(~ . / scale_factor,
-                          name = expression(paste(R^2, " / ", R[adj]^2)),
+                          name = expression(paste(R^2," / ",R[adj]^2)),
                           labels = scales::percent)
     ) +
-    scale_color_manual(
-      name = "Metric",
-      values = c("F-statistic" = "firebrick", "R2" = "blue", "R2_adj" = "cyan4"),
-      labels = c("F-statistic", expression(R^2), expression(R[adj]^2))
-    ) +
-    labs(title = "Model Fit Statistics vs. Number of Parameters",
-         x = "Number of parameters (p)") +
-    theme_minimal(base_size = 13) +
-    theme(legend.position = "top")
+    scale_color_manual(values = c(F = "firebrick", R2 = "blue", R2_adj = "cyan4"), name = "Metric") +
+    labs(title = "Model Fit Statistics vs. Number of Parameters", x = "Number of parameters (p)") +
+    theme_minimal(base_size = 13) + theme(legend.position = "top")
 
-  print(g1 / g2)
+  ggsave(sprintf("frames/f%03d.png", j), g1 / g2, width = 8, height = 8, dpi = 150)
 }
+library(av)
+pngs <- list.files("frames", "\\.png$", full.names = TRUE); pngs <- pngs[order(pngs)]
+av_encode_video(pngs, "rss-h0.mp4", framerate = 1)  # H.264 MP4
 ```
+
+```{r results='asis'}
+cat(sprintf('<video controls style="width:100%%;height:auto;"><source src="%s" type="video/mp4"></video>',"rss-h0.mp4"))
+
+```
+
+
+### When $H_1$ is true
+
+```{r}
+# --- Setup & params ---
+library(ggplot2); library(patchwork)
+dir.create("frames", showWarnings = FALSE)
+
+N_sim <- ifelse(interactive(), 1, 50)
+n <- 30; p_max <- 20
+beta <- rep(0, p_max); sigma <- 1
+beta [1] <- 1
+x_lim <- c(0, n); ks <- seq(0, p_max, by = 2)
+
+# --- Generate frames ---
+for (j in seq_len(N_sim)) {
+  X <- as.data.frame(replicate(p_max, rnorm(n)))
+  names(X) <- paste0("x", 1:p_max)
+  y <- as.numeric(as.matrix(X) %*% beta + rnorm(n, sd = sigma))
+
+  stats_list <- lapply(ks, function(k) {
+    num_params <- k + 1
+    fitsim <- if (k == 0) lm(y ~ 1) else lm(reformulate(paste0("x", 1:k), "y"), data = X)
+    s <- summary(fitsim)
+    f_val <- s$fstatistic
+    data.frame(
+      p = num_params,
+      RSS = sum(residuals(fitsim)^2),
+      R2 = ifelse(k == 0, 0, s$r.squared),
+      R2_adj = ifelse(k == 0, 0, s$adj.r.squared),
+      F_stat = ifelse(is.null(f_val), NA_real_, f_val[1])
+    )
+  })
+  df <- do.call(rbind, stats_list)
+  df <- rbind(df, data.frame(p = n, RSS = 0, R2 = 1, R2_adj = NA_real_, F_stat = NA_real_))
+
+  g1 <- ggplot(df, aes(p, RSS)) +
+    geom_line() + geom_point() +
+    geom_point(data = subset(df, p == n), size = 2) +
+    annotate("text", x = n, y = 0, label = "(n, 0)", vjust = -0.8, size = 3) +
+    scale_x_continuous(limits = x_lim, breaks = pretty(x_lim)) +
+    labs(title = "Residual Sum of Squares vs. Number of Parameters",
+         x = "Number of parameters (p)", y = "Residual Sum of Squares (RSS)") +
+    theme_minimal(base_size = 13)
+
+  scale_factor <- max(df$F_stat, na.rm = TRUE); if (!is.finite(scale_factor) || scale_factor <= 0) scale_factor <- 1
+  g2 <- ggplot(df, aes(p)) +
+    geom_line(aes(y = F_stat, color = "F")) + geom_point(aes(y = F_stat, color = "F")) +
+    geom_line(aes(y = R2 * scale_factor, color = "R2")) +
+    geom_point(aes(y = R2 * scale_factor, color = "R2")) +
+    geom_line(aes(y = R2_adj * scale_factor, color = "R2_adj"), linetype = "dashed") +
+    geom_point(aes(y = R2_adj * scale_factor, color = "R2_adj")) +
+    scale_x_continuous(limits = x_lim, breaks = pretty(x_lim)) +
+    scale_y_continuous(
+      name = "F-statistic",
+      sec.axis = sec_axis(~ . / scale_factor,
+                          name = expression(paste(R^2," / ",R[adj]^2)),
+                          labels = scales::percent)
+    ) +
+    scale_color_manual(values = c(F = "firebrick", R2 = "blue", R2_adj = "cyan4"), name = "Metric") +
+    labs(title = "Model Fit Statistics vs. Number of Parameters", x = "Number of parameters (p)") +
+    theme_minimal(base_size = 13) + theme(legend.position = "top")
+
+  ggsave(sprintf("frames/f%03d.png", j), g1 / g2, width = 8, height = 8, dpi = 150)
+}
+library(av)
+pngs <- list.files("frames", "\\.png$", full.names = TRUE); pngs <- pngs[order(pngs)]
+av_encode_video(pngs, "rss-h1.mp4", framerate = 1)  # H.264 MP4
+```
+
+```{r results='asis'}
+cat(sprintf('<video controls style="width:100%%;height:auto;"><source src="%s" type="video/mp4"></video>',"rss-h1.mp4"))
+
+```
+
 
 ## Example
 
