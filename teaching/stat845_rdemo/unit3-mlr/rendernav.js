@@ -1,4 +1,11 @@
-// renderNavigation.js: A single script to create and manage the entire navigation bar.
+// Helper function to dynamically load a CSS file
+function loadCss(filename) {
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.type = 'text/css';
+  link.href = filename;
+  document.head.appendChild(link);
+}
 
 // This function contains all the logic for setting up the navigation bar's features.
 function setupNavigation() {
@@ -128,6 +135,9 @@ function setupNavigation() {
 // --- Main execution block ---
 document.addEventListener('DOMContentLoaded', function() {
     
+    // Load our styles last to ensure they override everything
+    loadCss('mystyles.css');
+
     const navigationHTML = `
         <nav class="responsive-nav">
             <div class="nav-brand">
@@ -166,4 +176,3 @@ document.addEventListener('DOMContentLoaded', function() {
     document.body.prepend(navPlaceholder);
     setupNavigation();
 });
-
