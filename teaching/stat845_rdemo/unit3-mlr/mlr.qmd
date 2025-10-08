@@ -1,0 +1,652 @@
+---
+title: "Multiple Linear Regression"
+author:
+  - name: "Longhai Li"
+    url: "https://longhaisk.github.io/"
+date: "October 2025"
+format:
+  html:
+    theme: cosmo            # (Rmd `theme: null`)
+    embed-resources: false # (Rmd `self_contained: false`)
+    toc: false
+    page-layout: full
+    #css: mystyles.css
+    code-fold: true
+    number-sections: true
+    df-print: paged        # (Rmd `df_print: paged`)
+    highlight-style: tango # (Rmd `highlight: tango`)
+    include-in-header:
+      text: |
+        <link rel="stylesheet" href="mystyles.css?v=2">
+        <script src="rendernav.js" defer></script>
+        <script src="loadtoc.js" defer></script>
+editor: source
+execute:
+  echo: true
+  warning: false
+  message: false
+  cache: true
+  fig-width: 9
+  fig-height: 6
+---
+
+# Multiple Linear Regression for Wire Bond Strength Dataset
+
+## Loading Data and Visualization
+
+**Note:** You must change the file paths in the `read.csv()` functions below to match the location of the files on your computer (for example `C:\\Users\\<YourUsername>\\Documents` on Windows).
+
+```{r}
+# Read data. Change the path as necessary.
+# Example: bond.data <- read.csv("data/wire-bond.csv")
+bond.data <- read.csv("wire-bond.csv")
+
+# This will now be automatically rendered as a paged table
+bond.data
+```
+
+```{r, include=FALSE, eval=FALSE}
+# Use set.seed() to make sure you get the exact same random data every time
+set.seed(42)
+
+# Define the number of data points to create
+n <- 150
+
+# Create the bond.data data frame
+bond.data <- data.frame(
+  length = runif(n, 10, 50),
+  height = runif(n, 5, 25)
+)
+
+# Create 'strength' based on a linear relationship with the other variables
+bond.data$strength <- (2.5 * bond.data$length) + 
+                      (4.1 * bond.data$height) + 
+                      rnorm(n, mean = 0, sd = 20)
+
+head(bond.data)
+```
+
+**2D Visualization**
+
+```{r}
+par(mfrow = c(1, 2), mar = c(5, 4, 2, 1))
+
+# 1) length vs strength
+i1 <- which(!is.na(bond.data$length) & !is.na(bond.data$strength))
+plot(bond.data$length[i1], bond.data$strength[i1],
+     xlab = "Wire Length", ylab = "Pull strength", pch = 19)
+text(bond.data$length[i1], bond.data$strength[i1],
+     labels = i1, pos = 1, offset = 0.4, cex = 0.75)
+
+# 2) height vs strength
+i2 <- which(!is.na(bond.data$height) & !is.na(bond.data$strength))
+plot(bond.data$height[i2], bond.data$strength[i2],
+     xlab = "Die height", ylab = "Pull strength", pch = 19)
+text(bond.data$height[i2], bond.data$strength[i2],
+     labels = i2, pos = 1, offset = 0.4, cex = 0.75)
+```
+
+**3D Visualize**
+
+```{r}
+library(scatterplot3d)
+
+par(mfrow = c(1,1))
+s3d <- with(bond.data, scatterplot3d(
+  x = length,
+  y = height,
+  z = strength,
+  pch = 19,
+  color = "steelblue",
+  main = "3D Scatterplot: Strength vs. Length and Height",
+  xlab = "Length",
+  ylab = "Height",
+  zlab = "Strength",
+  angle = 60
+))
+
+fit <- lm(strength ~ length + height, data = bond.data)
+s3d$plane3d(fit, lty.box = "solid")
+```
+
+**Dynamic 3D Visualization of 3D Data**
+
+```{r}
+library(plotly)
+library(dplyr)
+
+fig <- plot_ly(
+  data = bond.data, 
+  x = ~length, 
+  y = ~height, 
+  z = ~strength
+) %>%
+  add_markers(
+    marker = list(
+      color = ~strength,
+      colorscale = 'Viridis',
+      showscale = TRUE,
+      colorbar = list(title = 'Strength')
+    ),
+    name = 'Data Points'
+  ) %>%
+  layout(
+    title = "Interactive 3D Scatter Plot of Bond Strength",
+    scene = list(
+      xaxis = list(title = 'Length'),
+      yaxis = list(title = 'Height'),
+      zaxis = list(title = 'Strength')
+    )
+  )
+
+fig
+```
+
+**Add Fitted Surface**
+
+```{r}
+fit <- lm(strength ~ length + height, data = bond.data)
+
+resolution <- 20
+axis_x <- seq(min(bond.data$length), max(bond.data$length), length.out = resolution)
+axis_y <- seq(min(bond.data$height), max(bond.data$height), length.out = resolution)
+
+z_matrix <- outer(
+  axis_x,
+  axis_y,
+  function(len, ht) {
+    predict(fit, newdata = data.frame(length = len, height = ht))
+  }
+)
+
+fig <- fig %>%
+  add_surface(
+    x = ~axis_x,
+    y = ~axis_y,
+    z = ~z_matrix,
+    colorscale = 'Blues',
+    opacity = 0.7,
+    showscale = FALSE,
+    name = 'Regression Plane'
+  )
+
+fig
+```
+
+## Model Fitting and Summary
+
+We fit a multiple linear regression model with `strength` as the response variable and `length` and `height` as predictors.
+
+```{r}
+fit <- lm(strength ~ length + height, data = bond.data)
+summary(fit)
+```
+
+The summary provides the ANOVA F-test for overall significance, $R^2$, adjusted $R^2$, and t-tests for individual coefficients.
+
+## Confidence Intervals and Model Components
+
+```{r}
+# Confidence intervals
+confint(fit)
+
+# Fitted values and residuals
+pred <- fitted.values(fit)
+e <- resid(fit)
+data.frame(y = bond.data$strength, y.hat = pred, e = e)
+
+# Covariance matrix and standard errors
+cov.mat <- vcov(fit)
+cov.mat
+data.frame(std.error = sqrt(diag(cov.mat)))
+```
+
+# RSS-based Inference: F-test, and adjusted $R^2$
+
+**The General Linear Model**
+
+The general linear model is:
+
+$$y = X\beta + \epsilon$$
+
+* **$y$**: $n \times 1$ vector of responses
+* **$X$**: $n \times p$ design matrix (first column often ones)
+* **$\beta$**: $p \times 1$ parameter vector
+* **$\epsilon$**: $n \times 1$ error vector
+
+**Fundamental Sum of Squares**
+
+* **SST**: $\sum_{i=1}^n (y_i - \bar{y})^2$
+* **SSE (RSS)**: $\sum_{i=1}^n (y_i - \hat{y}_i)^2$
+* **SSR**: $\sum_{i=1}^n (\hat{y}_i - \bar{y})^2$
+
+Identity: **SST = SSR + SSE**.
+
+**Mean Squares**
+
+* **MST**: $SST/(n-1)$
+* **MSE**: $SSE/(n-p)$
+
+**Adjusted Sum of Squares**
+
+$$SSR_{adj} = SSR - k\cdot MSE,\quad k=p-1.$$
+
+**Key Statistics**
+
+**F-statistic**: $F = MSR/MSE$ with $MSR=SSR/(p-1)$.
+
+**Adjusted $R^2$**:
+
+1. $R^2_{adj} = 1 - \dfrac{MSE}{MST}$
+2. $R^2_{adj} = \dfrac{SSR_{adj}}{SST}$
+
+## A Simulation Study to Understand the Distributions of RSS
+
+**Data Generating Model**
+
+For $n=30$ and $p_{max}=20$, simulate with either $H_0:\beta=\mathbf 0$ or $H_1$ where only $\beta_1\neq 0$; $\epsilon_i\sim N(0,1)$.
+
+**Sequence of Fitted Models**
+
+| Model Name  | # of Predictors (k) | # of Parameters (p) | R Formula              |
+| :---------- | :-----------------: | :-----------------: | :--------------------- |
+| Model 0     |          0          |          1          | `y ~ 1`                |
+| Model 1     |          2          |          3          | `y ~ x_1 + x_2`        |
+| ...         |         ...         |         ...         | ...                    |
+| Final Model |          20         |          21         | `y ~ x_1 + ... + x_20` |
+
+```{r, include=FALSE}
+require("latex2exp")
+require("animation")
+```
+
+### When $H_0$ is true
+
+```{r, cache=TRUE, fig.show="animate", class.source="fold-hide", fig.height=8}
+library(ggplot2)
+library(patchwork)
+
+N_sim <- ifelse(interactive(), 1, 50)
+n <- 30
+p_max <- 20
+beta <- rep(0, p_max)
+sigma <- 1
+x_lim <- c(0, n)
+ks <- seq(0, p_max, by = 2)
+
+for (j in 1:N_sim) {
+  X <- replicate(p_max, rnorm(n))
+  colnames(X) <- paste0("x", 1:p_max)
+  X <- as.data.frame(X)
+
+  y <- as.numeric(as.matrix(X) %*% beta + rnorm(n, sd = sigma))
+
+  stats_list <- lapply(ks, function(k) {
+    num_params <- k + 1
+    if (k == 0) {
+      fitsim <- lm(y ~ 1)
+    } else {
+      fml <- as.formula(paste("y ~", paste(paste0("x", 1:k), collapse = " + ")))
+      fitsim <- lm(fml, data = X)
+    }
+    s <- summary(fitsim)
+    f_val <- s$fstatistic
+    data.frame(
+      p = num_params,
+      RSS = sum(residuals(fitsim)^2),
+      R2 = ifelse(k == 0, 0, s$r.squared),
+      R2_adj = ifelse(k == 0, 0, s$adj.r.squared),
+      F_stat = ifelse(is.null(f_val), NA, f_val[1])
+    )
+  })
+
+  df <- do.call(rbind, stats_list)
+  saturated_row <- data.frame(p = n, RSS = 0, R2 = 1, R2_adj = NA, F_stat = NA)
+  df <- rbind(df, saturated_row)
+
+  g1 <- ggplot(df, aes(x = p, y = RSS)) +
+    geom_line(color = "black") +
+    geom_point(color = "black") +
+    geom_point(data = subset(df, p == n), size = 2) +
+    annotate("text", x = n, y = 0, label = "(n, 0)", vjust = -0.8, size = 3) +
+    scale_x_continuous(limits = x_lim, breaks = pretty(x_lim)) +
+    labs(
+      title = "Residual Sum of Squares vs. Number of Parameters",
+      x = "Number of parameters (p)",
+      y = "Residual Sum of Squares (RSS)"
+    ) +
+    theme_minimal(base_size = 13)
+
+  scale_factor <- max(df$F_stat, na.rm = TRUE)
+
+  g2 <- ggplot(df, aes(x = p)) +
+    geom_line(aes(y = F_stat, color = "F-statistic")) +
+    geom_point(aes(y = F_stat, color = "F-statistic")) +
+    geom_line(aes(y = R2 * scale_factor, color = "R2")) +
+    geom_point(aes(y = R2 * scale_factor, color = "R2")) +
+    geom_line(aes(y = R2_adj * scale_factor, color = "R2_adj"), linetype = "dashed") +
+    geom_point(aes(y = R2_adj * scale_factor, color = "R2_adj")) +
+    scale_x_continuous(limits = x_lim, breaks = pretty(x_lim)) +
+    scale_y_continuous(
+      name = "F-statistic",
+      sec.axis = sec_axis(~ . / scale_factor,
+                          name = expression(paste(R^2, " / ", R[adj]^2)),
+                          labels = scales::percent)
+    ) +
+    scale_color_manual(
+      name = "Metric",
+      values = c("F-statistic" = "firebrick", "R2" = "blue", "R2_adj" = "cyan4"),
+      labels = c("F-statistic", expression(R^2), expression(R[adj]^2))
+    ) +
+    labs(title = "Model Fit Statistics vs. Number of Parameters",
+         x = "Number of parameters (p)") +
+    theme_minimal(base_size = 13) +
+    theme(legend.position = "top")
+
+  print(g1 / g2)
+}
+```
+
+### When $H_1$ is true
+
+```{r, cache=TRUE, fig.show="animate", class.source="fold-hide", fig.height=8}
+library(ggplot2)
+library(patchwork)
+
+N_sim <- ifelse(interactive(), 1, 50)
+n <- 30
+p_max <- 20
+beta <- rep(0, p_max); beta[1] <- 1.5
+sigma <- 1
+x_lim <- c(0, n)
+ks <- seq(0, p_max, by = 2)
+
+for (j in 1:N_sim) {
+  X <- replicate(p_max, rnorm(n))
+  colnames(X) <- paste0("x", 1:p_max)
+  X <- as.data.frame(X)
+
+  y <- as.numeric(as.matrix(X) %*% beta + rnorm(n, sd = sigma))
+
+  stats_list <- lapply(ks, function(k) {
+    num_params <- k + 1
+    if (k == 0) {
+      fitsim <- lm(y ~ 1)
+    } else {
+      fml <- as.formula(paste("y ~", paste(paste0("x", 1:k), collapse = " + ")))
+      fitsim <- lm(fml, data = X)
+    }
+    s <- summary(fitsim)
+    f_val <- s$fstatistic
+    data.frame(
+      p = num_params,
+      RSS = sum(residuals(fitsim)^2),
+      R2 = ifelse(k == 0, 0, s$r.squared),
+      R2_adj = ifelse(k == 0, 0, s$adj.r.squared),
+      F_stat = ifelse(is.null(f_val), NA, f_val[1])
+    )
+  })
+
+  df <- do.call(rbind, stats_list)
+  saturated_row <- data.frame(p = n, RSS = 0, R2 = 1, R2_adj = NA, F_stat = NA)
+  df <- rbind(df, saturated_row)
+
+  g1 <- ggplot(df, aes(x = p, y = RSS)) +
+    geom_line(color = "black") +
+    geom_point(color = "black") +
+    geom_point(data = subset(df, p == n), size = 2) +
+    annotate("text", x = n, y = 0, label = "(n, 0)", vjust = -0.8, size = 3) +
+    scale_x_continuous(limits = x_lim, breaks = pretty(x_lim)) +
+    labs(title = "Residual Sum of Squares vs. Number of Parameters",
+         x = "Number of parameters (p)",
+         y = "Residual Sum of Squares (RSS)") +
+    theme_minimal(base_size = 13)
+
+  scale_factor <- max(df$F_stat, na.rm = TRUE)
+
+  g2 <- ggplot(df, aes(x = p)) +
+    geom_line(aes(y = F_stat, color = "F-statistic")) +
+    geom_point(aes(y = F_stat, color = "F-statistic")) +
+    geom_line(aes(y = R2 * scale_factor, color = "R2")) +
+    geom_point(aes(y = R2 * scale_factor, color = "R2")) +
+    geom_line(aes(y = R2_adj * scale_factor, color = "R2_adj"), linetype = "dashed") +
+    geom_point(aes(y = R2_adj * scale_factor, color = "R2_adj")) +
+    scale_x_continuous(limits = x_lim, breaks = pretty(x_lim)) +
+    scale_y_continuous(
+      name = "F-statistic",
+      sec.axis = sec_axis(~ . / scale_factor,
+                          name = expression(paste(R^2, " / ", R[adj]^2)),
+                          labels = scales::percent)
+    ) +
+    scale_color_manual(
+      name = "Metric",
+      values = c("F-statistic" = "firebrick", "R2" = "blue", "R2_adj" = "cyan4"),
+      labels = c("F-statistic", expression(R^2), expression(R[adj]^2))
+    ) +
+    labs(title = "Model Fit Statistics vs. Number of Parameters",
+         x = "Number of parameters (p)") +
+    theme_minimal(base_size = 13) +
+    theme(legend.position = "top")
+
+  print(g1 / g2)
+}
+```
+
+## Example
+
+```{r}
+# Data: Weight, height and age of children
+wgt <- c(64, 71, 53, 67, 55, 58, 77, 57, 56, 51, 76, 68)
+hgt <- c(57, 59, 49, 62, 51, 50, 55, 48, 42, 42, 61, 57)
+age <- c(8, 10, 6, 11, 8, 7, 10, 9, 10, 6, 12, 9)
+child.data <- data.frame(wgt, hgt, age)
+```
+
+### Problem 1: Height then Age
+
+```{r}
+fit_age_hgt <- lm(wgt ~ hgt + age, data = child.data)
+summary(fit_age_hgt)
+
+fit_hgt <- lm(wgt ~ hgt, data = child.data)
+summary(fit_hgt)
+anova(fit_hgt, fit_age_hgt)
+```
+
+### Problem 2: Age then Height
+
+```{r}
+fit_age <- lm(wgt ~ age, data = child.data)
+summary(fit_age)
+
+fit_age_hgt <- lm(wgt ~ age + hgt, data = child.data)
+summary(fit_age_hgt)
+anova(fit_age, fit_age_hgt)
+```
+
+## Relationship between t-test and partial F-test
+
+A t-test for a single coefficient is a special case of the partial F-test; the relationship is $F = t^2$ for 1 df in the numerator.
+
+# Predictions for Mean Response and a Future Observation
+
+## Confidence Interval for Mean Response
+
+```{r}
+predict(fit, newdata = data.frame(length = 8, height = 275),
+        interval = "confidence", level = 0.95)
+```
+
+## Prediction Interval for a New Observation
+
+```{r}
+predict(fit, newdata = data.frame(length = 8, height = 275),
+        interval = "prediction", level = 0.95)
+```
+
+# Model Diagnostics
+
+## Residual Calculations
+
+```{r}
+residuals_df <- data.frame(
+  hat_values = hatvalues(fit),
+  ordinary_resid = resid(fit),
+  standardized_resid = resid(fit) / sigma(fit),
+  studentized_internal = rstandard(fit),
+  studentized_external = rstudent(fit)
+)
+residuals_df
+```
+
+## Residual Plots
+
+```{r}
+n <- nrow(bond.data)
+r <- rstandard(fit) 
+y.hat <- fitted.values(fit)
+
+par(mfrow = c(2, 3))
+qqnorm(r, main = "Normal Q-Q Plot"); qqline(r)
+plot(y.hat, r, xlab = "Fitted values", ylab = "Studentized Residuals"); abline(h = 0)
+plot(1:n, r, xlab = "Observation Number", ylab = "Studentized Residuals"); abline(h = 0)
+plot(bond.data$length, r, xlab = "Wire Length", ylab = "Studentized Residuals"); abline(h = 0)
+plot(bond.data$height, r, xlab = "Die Height", ylab = "Studentized Residuals"); abline(h = 0)
+```
+
+# Influential Observations
+
+```{r}
+influence_df <- data.frame(dffits = dffits(fit),
+                           cook.D = cooks.distance(fit),
+                           dfbetas(fit))
+influence_df
+```
+
+## Plotting with the `olsrr` Package
+
+```{r, fig.height=12}
+# install.packages("olsrr") # Run once if needed
+library(olsrr)
+
+ols_plot_cooksd_chart(fit)
+ols_plot_dffits(fit)
+ols_plot_dfbetas(fit)
+```
+
+# Polynomial Regression
+
+```{r}
+y <- c(1.81, 1.70, 1.65, 1.55, 1.48, 1.40, 1.30, 1.26, 1.24, 1.21, 1.20, 1.18)
+x <- c(20, 25, 30, 35, 40, 50, 60, 65, 70, 75, 80, 90)
+fit_poly <- lm(y ~ x + I(x^2))
+summary(fit_poly)
+```
+
+```{r}
+plot(x, y, xlab = "Lot size, x", ylab = "Average cost per unit, y")
+lines(x, predict(fit_poly, newdata = data.frame(x = x)), type = "l")
+```
+
+```{r}
+fit1 <- lm(y ~ x)
+anova(fit1, fit_poly)
+```
+
+# Indicator Variables
+
+```{r}
+# Note: Update this path to your local file location
+sbpdata <- read.csv("sbpdata.csv")
+
+fit.full <- lm(sbp ~ age + sex + age:sex, data = sbpdata)
+summary(fit.full)
+```
+
+## Hypothesis Tests for Indicator Models
+
+```{r}
+# Coincidence: H0: beta2=beta3=0
+fit.coin <- lm(sbp ~ age, data = sbpdata)
+anova(fit.coin, fit.full)
+
+# Parallelism: H0: beta3=0
+fit.para <- lm(sbp ~ age + sex, data = sbpdata)
+anova(fit.para, fit.full)
+
+# Equal intercepts (assuming parallel lines)
+fit1.inter <- lm(sbp ~ age + sex, data = sbpdata)
+fit2.inter <- lm(sbp ~ age, data = sbpdata)
+anova(fit2.inter, fit1.inter)
+```
+
+## Plotting the Fitted Model
+
+```{r}
+colors <- ifelse(sbpdata$sex == 1, "black", "gray")
+
+plot(sbpdata$age, sbpdata$sbp, xlab = "Age", ylab = "SBP", col = colors)
+
+lines(sbpdata$age, cbind(1, sbpdata$age, 1, sbpdata$age) %*% coef(fit.full), col = "black")
+lines(sbpdata$age, cbind(1, sbpdata$age, 0, 0) %*% coef(fit.full), col = "gray")
+
+legend("topleft", legend = c("sex = 1 (male)", "sex = 0 (female)"), 
+       lty = c(1, 1), col = c("black", "gray"))
+```
+
+# Model Building
+
+```{r}
+library(olsrr)
+# Note: Update this path to your local file location
+wine <- read.csv("wine.csv")
+
+model <- lm(quality ~ ., data = wine)
+```
+
+## All Possible Regression
+
+```{r}
+ols_step_best_subset(model)
+```
+
+## Automated Stepwise Procedures
+
+```{r}
+# Backward Elimination (alpha_out = 0.1)
+ols_step_backward_p(model, p_val = 0.1)
+
+# Forward Selection (alpha_in = 0.1)
+ols_step_forward_p(model, p_val = 0.1)
+
+# Stepwise Regression (alpha_in = 0.1, alpha_out = 0.1)
+ols_step_both_p(model, p_enter = 0.1, p_remove = 0.1)
+```
+
+# Multicollinearity
+
+## A Simple Example
+
+```{r}
+y <- c(19, 20, 37, 39, 36, 38)
+x1 <- c(4, 4, 7, 7, 7.1, 7.1)
+x2 <- c(16, 16, 49, 49, 50.4, 50.4)
+cor(data.frame(x1, x2))
+
+fit_multi <- lm(y ~ x1 + x2)
+summary(fit_multi)
+
+fit1_multi <- lm(y ~ x1)
+summary(fit1_multi)
+```
+
+## VIFs in the Wine Quality Data
+
+```{r}
+wine.x <- wine[, -ncol(wine)] # Assuming quality is the last column
+cor(wine.x)
+
+# VIF using olsrr (data frame output)
+ols_vif_tol(model)
+```
+
