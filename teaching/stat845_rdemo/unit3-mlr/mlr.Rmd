@@ -236,9 +236,112 @@ cov.mat
 data.frame(std.error = sqrt(diag(cov.mat)))
 ```
 
-# Partial F-test and t-test
+# RSS-based Inference: F-test, and adjusted $R^2$
 
-## The distribution of RSS reduction ($SS_R$ or SSR)
+**The General Linear Model**
+
+The general linear model is expressed in matrix form as:
+
+$$y = X\beta + \epsilon$$
+
+* **$y$**: An $n \times 1$ vector of the observed response variable.
+* **$X$**: An $n \times p$ matrix, called the **design matrix**, where each column is a predictor variable. The first column is typically a vector of ones for the intercept.
+* **$\beta$**: A $p \times 1$ vector of the unknown model parameters (the regression coefficients).
+* **$\epsilon$**: An $n \times 1$ vector of random errors.
+
+The goal of Ordinary Least Squares (OLS) is to find the estimate $\hat{\beta}$ that minimizes the sum of squared errors.
+
+**Fundamental Sum of Squares**
+
+These three metrics form the basis of variance decomposition in a linear model.
+
+* **SST (Total Sum of Squares)**: This is the total variation in the response variable (`y`). It measures the squared differences between the observed values and their mean.
+    $$SST = \sum_{i=1}^n (y_i - \bar{y})^2$$
+
+* **SSE (Sum of Squared Errors)**: Also called the Residual Sum of Squares (RSS), this is the variation in the response variable that is **not** explained by the model. It's the sum of the squared differences between the observed values and the model's predicted values.
+    $$SSE = \sum_{i=1}^n (y_i - \hat{y}_i)^2$$
+
+* **SSR (Sum of Squares due to Regression)**: This is the variation in the response variable that **is** explained by the model. It's the sum of the squared differences between the model's predicted values and the mean of the response.
+    $$SSR = \sum_{i=1}^n (\hat{y}_i - \bar{y})^2$$
+
+These three quantities are related by the identity: **SST = SSR + SSE**.
+
+**Mean Squares (Variance Estimates)**
+
+Mean squares are created by dividing a sum of squares by its corresponding degrees of freedom, which turns them into average or "mean" squares that can be interpreted as variance estimates.
+
+* **MST (Mean Squared Total)**: This is the **sample variance** of the response variable `y`.
+    $$MST = \frac{SST}{n-1}$$
+
+* **MSE (Mean Squared Error)**: This is the average squared prediction error, representing the **unexplained variance** after accounting for the number of parameters in the model.
+    $$MSE = \frac{SSE}{n-p}$$
+
+**Adjusted Sum of Squares ($SSR_{adj}$)**
+
+This is the special "penalized" version of the Sum of Squares Regression that we developed in our previous discussions. It subtracts a penalty from the standard SSR based on the model's complexity and error.
+
+$$SSR_{adj} = SSR - k \cdot MSE$$
+
+* **$k$** is the number of predictors ($k = p-1$).
+
+**Key Model Statistics**
+
+Using the terms defined above, we can now describe the F-statistic and adjusted R-squared.
+
+**F-statistic**
+
+The **F-statistic** tests the overall significance of the model by comparing the variance explained by the model to the unexplained variance. It is the ratio of the Mean Square Regression (MSR) to the Mean Squared Error (MSE).
+
+$$F = \frac{MSR}{MSE} \quad \text{where} \quad MSR = \frac{SSR}{p-1}$$
+
+**Adjusted R-squared ($R^2_{adj}$)**
+
+The **Adjusted R-squared** measures the proportion of variance explained by the model while penalizing for complexity. It can be expressed in two primary ways:
+
+1.  Using MSE and MST:
+    $$R^2_{adj} = 1 - \frac{MSE}{MST}$$
+
+2.  Using our special $SSR_{adj}$ term:
+    $$R^2_{adj} = \frac{SSR_{adj}}{SST}$$
+
+## A Simulation Study to Understand the Distributions of RSS
+
+The simulation's purpose is to show how model evaluation metrics perform when predictors, which have no actual relationship with the outcome, are added to a model. This illustrates the concepts of overfitting and penalizing for model complexity.
+
+
+**Data Generating Model**
+
+The data is generated from a linear model where the response variable, `y`, is purely random noise. The specific model used to generate the **`n=30`** observations is:
+
+$$y_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \dots + \beta_{20} x_{i,20} + \epsilon_i$$
+
+The parameters are set as follows:
+
+* **Coefficients ($\beta$)**: 
+
+- When $H_0$ is true,
+    $$\beta_0 = 0, \beta_1 = 0, \dots, \beta_{20} = 0$$
+- When $H_1$ is true,
+    $$\beta_0 = 0, \beta_1 = 1, \beta_2 = 0, \dots, \beta_{20} = 0$$
+
+* **Predictors ($x$)**: The 20 predictor variables ($x_1, \dots, x_{20}$) are drawn from a standard normal distribution (mean=0, sd=1).
+* **Error Term ($\epsilon$)**: The errors, $\epsilon_i$, are drawn from a normal distribution with a mean of 0 and a standard deviation of **$\sigma=1$**.
+
+Because all $\beta$ coefficients are zero, the true data generating model simplifies to **$y_i = \epsilon_i$**. This means there is no underlying signal for the regression models to find; any apparent relationships are due purely to random chance.
+
+
+**Sequence of Fitted Models**
+
+The simulation fits a sequence of nested ordinary least squares (OLS) regression models to the randomly generated data. The models increase in complexity as shown in the table below.
+
+| Model Name | # of Predictors (k) | # of Parameters (p) | R Formula |
+| :--- | :---: | :---: | :--- |
+| Model 0 | 0 | 1 | `y ~ 1` |
+| Model 1 | 2 | 3 | `y ~ x_1 + x_2` |
+| ... | ... | ... | ... |
+| Final Model | 20 | 21 | `y ~ x_1 + ... + x_20` |
+
+For each model in this sequence, the simulation calculates and plots the key statistics (SSE, $R^2$, $R^2_{adj}$, F-statistic) against the number of parameters (`p`) to visualize how they change as the model's complexity increases.
 
 ```{r include=FALSE}
 
@@ -249,24 +352,23 @@ require ("animation")
 ### When $H_0$ is true
 
 ```{r RSS-animate-H0, cache=TRUE, fig.show="animate", class.source="fold-hide", fig.height=8}
-# Install/load necessary packages
-if (!requireNamespace("ggplot2", quietly = TRUE)) install.packages("ggplot2")
-if (!requireNamespace("patchwork", quietly = TRUE)) install.packages("patchwork")
+
 library(ggplot2)
 library(patchwork)
 
 # -----------------------------------------------------------
 # Setup and Data Generation (same as before)
 # -----------------------------------------------------------
-
+N_sim <- ifelse(interactive(), 1, 50)
 n <- 30
-p_max <- 10
+p_max <- 20
 beta <- rep(0, p_max)
 sigma <- 1
 x_lim <- c(0, n)
 ks <- seq(0, p_max, by = 2)
 
-set.seed(42)
+for (j in 1:N_sim) {
+#set.seed(42)
 X <- replicate(p_max, rnorm(n))
 colnames(X) <- paste0("x", 1:p_max)
 X <- as.data.frame(X)
@@ -350,80 +452,119 @@ g2 <- ggplot(df, aes(x = p)) +
 
 # Combine and print the plots
 print(g1 / g2)
+
+}
+
 ```
 
 ### When $H_1$ is true
 
 ```{r RSS-animate-H1, cache=TRUE, fig.show="animate", class.source="fold-hide", fig.height=8}
 
+
+library(ggplot2)
+library(patchwork)
+
 # -----------------------------------------------------------
-# RSS vs. model size demo with saturated model endpoint
+# Setup and Data Generation (same as before)
 # -----------------------------------------------------------
-  
+N_sim <- ifelse(interactive(), 1, 50)
 n <- 30
-p <- 10
-beta <- c(1, rep(0, p - 1))           
+p_max <- 20
+beta <- rep(0, p_max)
+beta [1] <- 1.5
 sigma <- 1
-x_lim <- c(0, 30)
-y_lim <- c(0, 110)
-ks   <- seq(0,p, by =2)
-# Loop to generate frames for an animation
-for (n.sim in 1:50) {
+x_lim <- c(0, n)
+ks <- seq(0, p_max, by = 2)
 
-  # Generate predictors and true model
-  X <- replicate(p, rnorm(n))
-  colnames(X) <- paste0("x", 1:p)
-  X <- as.data.frame(X)
-  
+for (j in 1:N_sim) {
+#set.seed(42)
+X <- replicate(p_max, rnorm(n))
+colnames(X) <- paste0("x", 1:p_max)
+X <- as.data.frame(X)
 
-  y <- as.numeric(as.matrix(X) %*% beta + rnorm(n, sd = sigma))
-  
-  # Fit models with first k predictors; collect RSS
-  
-  RSS  <- numeric(length(ks))
-  pars <- ks + 1   # number of parameters incl. intercept
-  
-  for (i in seq_along(ks)) {
-    k <- ks[i]
-    if (k == 0) {
-      fitsim <- lm(y ~ 1)                   
-    } else {
-      fml <- as.formula(
-        paste("y ~", paste(paste0("x", 1:k), collapse = " + "))
-      )
-      fitsim <- lm(fml, data = X)
-    }
-    RSS[i] <- sum(residuals(fitsim)^2)      
-  }
-  
-  # Add saturated model: p = n, RSS = 0
-  pars <- c(pars, n)
-  RSS  <- c(RSS, 0)
-  
-  # Plot
-  if (!requireNamespace("ggplot2", quietly = TRUE)) {
-    plot(pars, RSS, type = "b", xlab = "Number of parameters (p)",
-         ylab = "Residual Sum of Squares (RSS)",
-         main = "RSS vs. Model Size (with saturated model)")
+y <- as.numeric(as.matrix(X) %*% beta + rnorm(n, sd = sigma))
+
+stats_list <- lapply(ks, function(k) {
+  num_params <- k + 1
+  if (k == 0) {
+    fitsim <- lm(y ~ 1)
   } else {
-    library(ggplot2)
-    df <- data.frame(p = pars, RSS = RSS)
-    g <- ggplot(df, aes(p, RSS)) +
-      geom_line() +
-      geom_point() +
-      geom_point(data = subset(df, p == n), size = 2) +
-      annotate("text", x = n, y = 0, label = "(n, 0)", vjust = -0.6, size = 3) +
-      scale_x_continuous(limits = x_lim, breaks = pretty(x_lim)) +
-      scale_y_continuous(limits = y_lim, breaks = pretty(y_lim)) + 
-      labs(
-        title = "RSS vs. Model Size (with saturated model)",
-        x = "Number of parameters (p)",
-        y = "Residual Sum of Squares (RSS)"
-      ) +
-      theme_minimal(base_size = 13)
+    fml <- as.formula(
+      paste("y ~", paste(paste0("x", 1:k), collapse = " + "))
+    )
+    fitsim <- lm(fml, data = X)
   }
-  print(g)
+  
+  s <- summary(fitsim)
+  f_val <- s$fstatistic
+  
+  data.frame(
+    p = num_params,
+    RSS = sum(residuals(fitsim)^2),
+    R2 = ifelse(k == 0, 0, s$r.squared),
+    R2_adj = ifelse(k == 0, 0, s$adj.r.squared),
+    F_stat = ifelse(is.null(f_val), NA, f_val[1])
+  )
+})
+
+df <- do.call(rbind, stats_list)
+saturated_row <- data.frame(p = n, RSS = 0, R2 = 1, R2_adj = NA, F_stat = NA)
+df <- rbind(df, saturated_row)
+
+
+# --- Plotting Logic ---
+
+# Plot 1: RSS vs. Model Size (no changes here)
+g1 <- ggplot(df, aes(x = p, y = RSS)) +
+  geom_line(color = "black") +
+  geom_point(color = "black") +
+  geom_point(data = subset(df, p == n), size = 2) +
+  annotate("text", x = n, y = 0, label = "(n, 0)", vjust = -0.8, size = 3) +
+  scale_x_continuous(limits = x_lim, breaks = pretty(x_lim)) +
+  labs(
+    title = "Residual Sum of Squares vs. Number of Parameters",
+    x = "Number of parameters (p)",
+    y = "Residual Sum of Squares (RSS)"
+  ) +
+  theme_minimal(base_size = 13)
+
+# Plot 2: F-statistic and R-squared values (with updated labels)
+scale_factor <- max(df$F_stat, na.rm = TRUE)
+
+g2 <- ggplot(df, aes(x = p)) +
+  geom_line(aes(y = F_stat, color = "F-statistic")) +
+  geom_point(aes(y = F_stat, color = "F-statistic")) +
+  geom_line(aes(y = R2 * scale_factor, color = "R2")) +
+  geom_point(aes(y = R2 * scale_factor, color = "R2")) +
+  geom_line(aes(y = R2_adj * scale_factor, color = "R2_adj"), linetype = "dashed") +
+  geom_point(aes(y = R2_adj * scale_factor, color = "R2_adj")) +
+  
+  scale_x_continuous(limits = x_lim, breaks = pretty(x_lim)) +
+  scale_y_continuous(
+    name = "F-statistic",
+    # UPDATED: Use expression() for the axis title
+    sec.axis = sec_axis(~ . / scale_factor, name = expression(paste(R^2, " / ", R[adj]^2)), labels = scales::percent)
+  ) +
+  # UPDATED: Use expression() in the labels for the legend
+  scale_color_manual(
+    name = "Metric",
+    values = c("F-statistic" = "firebrick", "R2" = "blue", "R2_adj" = "cyan4"),
+    labels = c("F-statistic", expression(R^2), expression(R[adj]^2))
+  ) +
+  labs(
+    title = "Model Fit Statistics vs. Number of Parameters",
+    x = "Number of parameters (p)"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "top")
+
+
+# Combine and print the plots
+print(g1 / g2)
+
 }
+
 
 ```
 
@@ -474,7 +615,7 @@ A t-test for an individual coefficient is simply a special case of the partial F
 
 Therefore, the **p-value** of the t-test for an individual coefficient is about the statistical significance of that variable's **unique contribution** after accounting for (or removing) the effects of all other covariates already in the model. It essentially asks, "Does this specific variable add any significant explanatory power, given that the other variables are already included?" This is why a variable might be significant on its own but not in a multiple regression model if its effect is already captured by other predictors.
 
-# Mean Response and Prediction Intervals
+# Predictions for Mean Response and a Future Observation
 
 This section demonstrates how to calculate confidence and prediction intervals for the wire bond strength data.
 
