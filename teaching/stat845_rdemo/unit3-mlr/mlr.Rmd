@@ -249,76 +249,107 @@ require ("animation")
 ### When $H_0$ is true
 
 ```{r RSS-animate-H0, cache=TRUE, fig.show="animate", class.source="fold-hide", fig.height=8}
+# Install/load necessary packages
+if (!requireNamespace("ggplot2", quietly = TRUE)) install.packages("ggplot2")
+if (!requireNamespace("patchwork", quietly = TRUE)) install.packages("patchwork")
+library(ggplot2)
+library(patchwork)
 
 # -----------------------------------------------------------
-# RSS vs. model size demo with saturated model endpoint
+# Setup and Data Generation (same as before)
 # -----------------------------------------------------------
-  
+
 n <- 30
-p <- 10
-beta <- c(0, rep(0, p - 1))           
+p_max <- 10
+beta <- rep(0, p_max)
 sigma <- 1
-x_lim <- c(0, 30)
-y_lim <- c(0, 50)
-ks   <- seq(0,p, by =2)
-# Loop to generate frames for an animation
-for (n.sim in 1:50) {
+x_lim <- c(0, n)
+ks <- seq(0, p_max, by = 2)
 
-  # Generate predictors and true model
-  X <- replicate(p, rnorm(n))
-  colnames(X) <- paste0("x", 1:p)
-  X <- as.data.frame(X)
-  
+set.seed(42)
+X <- replicate(p_max, rnorm(n))
+colnames(X) <- paste0("x", 1:p_max)
+X <- as.data.frame(X)
 
-  y <- as.numeric(as.matrix(X) %*% beta + rnorm(n, sd = sigma))
-  
-  # Fit models with first k predictors; collect RSS
-  
-  RSS  <- numeric(length(ks))
-  pars <- ks + 1   # number of parameters incl. intercept
-  
-  for (i in seq_along(ks)) {
-    k <- ks[i]
-    if (k == 0) {
-      fitsim <- lm(y ~ 1)                   
-    } else {
-      fml <- as.formula(
-        paste("y ~", paste(paste0("x", 1:k), collapse = " + "))
-      )
-      fitsim <- lm(fml, data = X)
-    }
-    RSS[i] <- sum(residuals(fitsim)^2)      
-  }
-  
-  # Add saturated model: p = n, RSS = 0
-  pars <- c(pars, n)
-  RSS  <- c(RSS, 0)
-  
-  # Plot
-  if (!requireNamespace("ggplot2", quietly = TRUE)) {
-    plot(pars, RSS, type = "b", xlab = "Number of parameters (p)",
-         ylab = "Residual Sum of Squares (RSS)",
-         main = "RSS vs. Model Size (with saturated model)")
+y <- as.numeric(as.matrix(X) %*% beta + rnorm(n, sd = sigma))
+
+stats_list <- lapply(ks, function(k) {
+  num_params <- k + 1
+  if (k == 0) {
+    fitsim <- lm(y ~ 1)
   } else {
-    library(ggplot2)
-    df <- data.frame(p = pars, RSS = RSS)
-    g <- ggplot(df, aes(p, RSS)) +
-      geom_line() +
-      geom_point() +
-      geom_point(data = subset(df, p == n), size = 2) +
-      annotate("text", x = n, y = 0, label = "(n, 0)", vjust = -0.6, size = 3) +
-      scale_x_continuous(limits = x_lim, breaks = pretty(x_lim)) +
-      scale_y_continuous(limits = y_lim, breaks = pretty(y_lim)) + 
-      labs(
-        title = "RSS vs. Model Size (with saturated model)",
-        x = "Number of parameters (p)",
-        y = "Residual Sum of Squares (RSS)"
-      ) +
-      theme_minimal(base_size = 13)
+    fml <- as.formula(
+      paste("y ~", paste(paste0("x", 1:k), collapse = " + "))
+    )
+    fitsim <- lm(fml, data = X)
   }
-  print(g)
-}
+  
+  s <- summary(fitsim)
+  f_val <- s$fstatistic
+  
+  data.frame(
+    p = num_params,
+    RSS = sum(residuals(fitsim)^2),
+    R2 = ifelse(k == 0, 0, s$r.squared),
+    R2_adj = ifelse(k == 0, 0, s$adj.r.squared),
+    F_stat = ifelse(is.null(f_val), NA, f_val[1])
+  )
+})
 
+df <- do.call(rbind, stats_list)
+saturated_row <- data.frame(p = n, RSS = 0, R2 = 1, R2_adj = NA, F_stat = NA)
+df <- rbind(df, saturated_row)
+
+
+# --- Plotting Logic ---
+
+# Plot 1: RSS vs. Model Size (no changes here)
+g1 <- ggplot(df, aes(x = p, y = RSS)) +
+  geom_line(color = "black") +
+  geom_point(color = "black") +
+  geom_point(data = subset(df, p == n), size = 2) +
+  annotate("text", x = n, y = 0, label = "(n, 0)", vjust = -0.8, size = 3) +
+  scale_x_continuous(limits = x_lim, breaks = pretty(x_lim)) +
+  labs(
+    title = "Residual Sum of Squares vs. Number of Parameters",
+    x = "Number of parameters (p)",
+    y = "Residual Sum of Squares (RSS)"
+  ) +
+  theme_minimal(base_size = 13)
+
+# Plot 2: F-statistic and R-squared values (with updated labels)
+scale_factor <- max(df$F_stat, na.rm = TRUE)
+
+g2 <- ggplot(df, aes(x = p)) +
+  geom_line(aes(y = F_stat, color = "F-statistic")) +
+  geom_point(aes(y = F_stat, color = "F-statistic")) +
+  geom_line(aes(y = R2 * scale_factor, color = "R2")) +
+  geom_point(aes(y = R2 * scale_factor, color = "R2")) +
+  geom_line(aes(y = R2_adj * scale_factor, color = "R2_adj"), linetype = "dashed") +
+  geom_point(aes(y = R2_adj * scale_factor, color = "R2_adj")) +
+  
+  scale_x_continuous(limits = x_lim, breaks = pretty(x_lim)) +
+  scale_y_continuous(
+    name = "F-statistic",
+    # UPDATED: Use expression() for the axis title
+    sec.axis = sec_axis(~ . / scale_factor, name = expression(paste(R^2, " / ", R[adj]^2)), labels = scales::percent)
+  ) +
+  # UPDATED: Use expression() in the labels for the legend
+  scale_color_manual(
+    name = "Metric",
+    values = c("F-statistic" = "firebrick", "R2" = "blue", "R2_adj" = "cyan4"),
+    labels = c("F-statistic", expression(R^2), expression(R[adj]^2))
+  ) +
+  labs(
+    title = "Model Fit Statistics vs. Number of Parameters",
+    x = "Number of parameters (p)"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "top")
+
+
+# Combine and print the plots
+print(g1 / g2)
 ```
 
 ### When $H_1$ is true
