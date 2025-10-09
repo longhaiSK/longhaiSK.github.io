@@ -217,44 +217,124 @@ $$y = X\beta + \epsilon$$
 
 * **$y$**: $n \times 1$ vector of responses
 * **$X$**: $n \times p$ design matrix (first column often ones)
-* **$\beta$**: $p \times 1$ parameter vector
+* **$\beta$**: $p \times 1$ parameter vector, where $p=k+1$
 * **$\epsilon$**: $n \times 1$ error vector
 
-**RSS-based Quantities**
+## RSS-Based Quantities
 
-| Source |  | $R^2$ | df | Mean Square | $F$ | Adjusted SS | $\hat{\sigma}^2$ | $R^2_{\mathrm{adj}}$ |
-|:--|:--|---:|---:|:--|:--:|:--|:--:|:--:|
-| $X\beta$ | $\mathrm{SSR} = \displaystyle \sum_{i=1}^n (\hat y_i - \bar y)^2$ | $\displaystyle \frac{\mathrm{SSR}}{\mathrm{SST}}$ | $p-1$ | $\displaystyle \mathrm{MSR} = \frac{\mathrm{SSR}}{p-1}$ | $\displaystyle \frac{\mathrm{MSR}}{\mathrm{MSE}}$ | $\mathrm{SSR}_{\mathrm{adj}}$ | $\displaystyle \frac{\mathrm{SSR}_{\mathrm{adj}}}{\,n-1\,}$ | $\displaystyle \frac{\mathrm{SSR}_{\mathrm{adj}}}{\mathrm{SST}} = 1 - \frac{\mathrm{MSE}}{\mathrm{MST}}$ |
+| Source | Sum of Squares | $R^2$ | df | Mean Squares | $F$ | SS$_\mathrm{adj}$ | $\hat{\sigma}^2$ (variance estimates) | $R^2_{\mathrm{adj}}$ |
+|:--|:--|:--|:---|:--|:--|:--|:--|:--|
+| $X\beta$ | $\mathrm{SSR} = \displaystyle \sum_{i=1}^n (\hat y_i - \bar y)^2$ | $\displaystyle \frac{\mathrm{SSR}}{\mathrm{SST}}$ | $k$ | $\displaystyle \mathrm{MSR} = \frac{\mathrm{SSR}}{k}$ | $\displaystyle \frac{\mathrm{MSR}}{\mathrm{MSE}}$ | $\mathrm{SSR}_{\mathrm{adj}}$ | $\displaystyle \frac{\mathrm{SSR}_{\mathrm{adj}}}{\,n-1\,}$ | $\displaystyle \frac{\mathrm{SSR}_{\mathrm{adj}}}{\mathrm{SST}} = 1 - \frac{\mathrm{MSE}}{\mathrm{MST}}$ |
 | $\epsilon$ | $\mathrm{SSE} = \displaystyle \sum_{i=1}^n (y_i - \hat y_i)^2$ | — | $n-p$ | $\displaystyle \mathrm{MSE} = \frac{\mathrm{SSE}}{n-p}$ | — | $\mathrm{SSE}$ | $\mathrm{MSE}$ | — |
 | $y$ | $\mathrm{SST} = \displaystyle \sum_{i=1}^n (y_i - \bar y)^2$ | — | $n-1$ | $\displaystyle \mathrm{MST} = \frac{\mathrm{SST}}{n-1}$ | — | $\mathrm{SST}$ | $\mathrm{MST}$ | — |
 
+---
 
-- Fundamental Identities
+**Interpretation of the $\hat{\sigma}^2$ Column**
+
+The $\hat{\sigma}^2$ column highlights how each sum of squares corresponds to an estimated variance.  
+This view makes the adjusted coefficient of determination clear:
 
 $$
-\mathrm{SST} = \mathrm{SSR} + \mathrm{SSE}, 
-\qquad
-\mathrm{MST} = \mathrm{MSE} + \frac{\mathrm{SSR}_{\mathrm{adj}}}{n-1},
-$$
-where 
-$$
-\mathrm{SSR}_{\mathrm{adj}} = \mathrm{SSR} - (p-1)\,\mathrm{MSE}.
+R^2_{\mathrm{adj}} 
+= 1 - \frac{\hat{\sigma}^2_\epsilon}{\hat{\sigma}^2_y}
+= \frac{\hat{\sigma}^2_{X\beta}}{\hat{\sigma}^2_y}.
 $$
 
+Hence, the adjusted $R^2$ simply expresses the **proportion of total estimated variance** attributable to the fitted model $X\beta$ rather than the residual noise $\epsilon$.
 
 
-- Interpretation Remark: The quantity $\hat{\sigma}^2$ represents the **estimated variance of each source**. The **MSR (Mean Square for Regression)** is *not* an estimate of the variance of $X\beta$.  
-Its name comes from the **mean of the regression sum of squares under the null hypothesis** $H_0\!:\,\beta=0$.  In that case,
+## Remarks 
+
+### Fundamental Identities
+
 $$
-E[\mathrm{MSR}\mid H_0] = \sigma^2, 
+\begin{aligned}
+\mathrm{SST} &= \mathrm{SSR} + \mathrm{SSE}, \\
+\mathrm{MST} &= \mathrm{MSE} + \frac{\mathrm{SSR}_{\mathrm{adj}}}{n-1}.
+\end{aligned}
+$$
+
+where  
+
+$$
+\mathrm{SSR}_{\mathrm{adj}} = \mathrm{SSR} - k\,\mathrm{MSE}.
+$$
+
+---
+
+### Interpretation of $\hat{\sigma}^2$ and the Role of MSR
+
+The quantity $\hat{\sigma}^2$ represents the **estimated variance** associated with each component of the model.  
+However, the **Mean Square for Regression (MSR)** is *not* an estimate of the variance of $X\beta$.  
+Its name “Mean Square” reflects that it is the **mean of the regression sum of squares under the null hypothesis** $H_0\!:\,\beta = 0$.
+
+Under this null hypothesis,
+
+$$
+E[\mathrm{MSR} \mid H_0] = \sigma^2,
 \qquad 
-E[\mathrm{MSR}\mid H_1] > \sigma^2,
+E[\mathrm{MSR} \mid H_1] > \sigma^2,
 $$
-which justifies the use of the ratio
+
+which justifies the use of the statistic
+
 $$
 F = \frac{\mathrm{MSR}}{\mathrm{MSE}}
 $$
-as a test statistic for detecting whether any $\beta_j$ (except the intercept) differ from zero.
+
+to test whether any regression coefficients (except the intercept) differ significantly from zero.
+
+---
+
+### Mean of $\mathrm{SSR}_{\text{adj}}$ (with $k = p-1$)
+
+$$
+E[\mathrm{SSR}] = k\,\sigma^2 + \beta^\top X^\top (I - J/n)\,X\,\beta,
+\qquad
+E[\mathrm{MSE}] = \sigma^2.
+$$
+
+Hence,
+
+$$
+\begin{aligned}
+E[\mathrm{SSR}_{\mathrm{adj}}]
+&= E[\mathrm{SSR}] - k\,E[\mathrm{MSE}] \\
+&= \beta^\top X^\top (I - J/n)\,X\,\beta \\
+&= \sum_{i=1}^n (\mu_i - \bar\mu)^2,
+\end{aligned}
+$$
+
+where $\mu_i = x_i^\top \beta$ and $\bar\mu = \tfrac{1}{n}\sum_{i=1}^n \mu_i$.
+
+For fixed $X$, $\mathrm{SSR}_{\text{adj}}/(n-1)$ equals the **sample variance** of the true means $\{\mu_i\}$ over the observed design points.  
+If the rows of $X$ are independently sampled with covariance matrix $\Sigma_X$ (the random-$X$ model), then
+
+$$
+\mathbb{E}_X\!\left[\frac{\mathrm{SSR}_{\text{adj}}}{n-1}\right]
+= \beta^\top \Sigma_X \beta
+= \mathrm{Var}(x^\top \beta),
+$$
+
+so $\mathrm{SSR}_{\text{adj}}/(n-1)$ serves as an **unbiased estimator** of the variance of $x^\top\beta$.
+
+---
+
+### Variance Decomposition
+
+The decomposition of $\hat{\sigma}^2$ is consistent with the **Rao–Blackwell formula** for total variance:
+
+$$
+\mathrm{Var}(y) = \mathrm{Var}\!\big(E[y \mid x]\big) + E\!\big(\mathrm{Var}[y \mid x]\big).
+$$
+
+Here, 
+
+- $\mathrm{Var}\!\big(E[y \mid x]\big)$ corresponds to the **explained variation** due to the regression component $X\beta$, and  
+- $E\!\big(\mathrm{Var}[y \mid x]\big)$ corresponds to the **residual variation** due to $\epsilon$.
+
+
 
 ## A Simulation Study to Understand the Distributions of RSS
 
