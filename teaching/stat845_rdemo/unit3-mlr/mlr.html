@@ -80,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="mlr_files/libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
 <link href="mlr_files/libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
 <script src="mlr_files/libs/pagedtable-1.1/js/pagedtable.js"></script>
-<link rel="stylesheet" href="mystyles.css?v=2">
+<link rel="stylesheet" href="mystyles.css">
 <script src="rendernav.js" defer=""></script>
 <script src="loadtoc.js" defer=""></script>
 
@@ -480,7 +480,7 @@ This view makes the adjusted coefficient of determination clear:</p>
 <p><span class="math display">\[
 R^2_{\mathrm{adj}}
 = 1 - \frac{\hat{\sigma}^2_\epsilon}{\hat{\sigma}^2_y}
-= \frac{\hat{\sigma}^2_{X\beta}}{\hat{\sigma}^2_y}.
+= \frac{\hat{\sigma}^2_{x^\top\beta}}{\hat{\sigma}^2_y}.
 \]</span></p>
 <p>Hence, the adjusted <span class="math inline">\(R^2\)</span> simply expresses the <strong>proportion of total estimated variance</strong> attributable to the fitted model <span class="math inline">\(X\beta\)</span> rather than the residual noise <span class="math inline">\(\epsilon\)</span>.</p>
 </section>
@@ -611,80 +611,9 @@ Under <span class="math inline">\(H_0\!:\beta=0\)</span>, both variance estimate
 </table>
 <section id="when-h_0-is-true" class="level3" data-number="2.3.1">
 <h3 data-number="2.3.1" class="anchored" data-anchor-id="when-h_0-is-true"><span class="header-section-number">2.3.1</span> When <span class="math inline">\(H_0\)</span> is true</h3>
-<div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Setup &amp; params ---</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2); <span class="fu">library</span>(patchwork)</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">"frames0"</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>N_sim <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(<span class="fu">interactive</span>(), <span class="dv">1</span>, <span class="dv">50</span>)</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">30</span>; p_max <span class="ot">&lt;-</span> <span class="dv">20</span></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>beta <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, p_max); sigma <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>x_lim <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, n); ks <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, p_max, <span class="at">by =</span> <span class="dv">2</span>)</span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Generate frames ---</span></span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (j <span class="cf">in</span> <span class="fu">seq_len</span>(N_sim)) {</span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  X <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">replicate</span>(p_max, <span class="fu">rnorm</span>(n)))</span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>(X) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"x"</span>, <span class="dv">1</span><span class="sc">:</span>p_max)</span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">as.matrix</span>(X) <span class="sc">%*%</span> beta <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="at">sd =</span> sigma))</span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>  stats_list <span class="ot">&lt;-</span> <span class="fu">lapply</span>(ks, <span class="cf">function</span>(k) {</span>
-<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>    num_params <span class="ot">&lt;-</span> k <span class="sc">+</span> <span class="dv">1</span></span>
-<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>    fitsim <span class="ot">&lt;-</span> <span class="cf">if</span> (k <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">lm</span>(y <span class="sc">~</span> <span class="dv">1</span>) <span class="cf">else</span> <span class="fu">lm</span>(<span class="fu">reformulate</span>(<span class="fu">paste0</span>(<span class="st">"x"</span>, <span class="dv">1</span><span class="sc">:</span>k), <span class="st">"y"</span>), <span class="at">data =</span> X)</span>
-<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>    s <span class="ot">&lt;-</span> <span class="fu">summary</span>(fitsim)</span>
-<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>    f_val <span class="ot">&lt;-</span> s<span class="sc">$</span>fstatistic</span>
-<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data.frame</span>(</span>
-<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>      <span class="at">p =</span> num_params,</span>
-<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">RSS =</span> <span class="fu">sum</span>(<span class="fu">residuals</span>(fitsim)<span class="sc">^</span><span class="dv">2</span>),</span>
-<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>      <span class="at">R2 =</span> <span class="fu">ifelse</span>(k <span class="sc">==</span> <span class="dv">0</span>, <span class="dv">0</span>, s<span class="sc">$</span>r.squared),</span>
-<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>      <span class="at">R2_adj =</span> <span class="fu">ifelse</span>(k <span class="sc">==</span> <span class="dv">0</span>, <span class="dv">0</span>, s<span class="sc">$</span>adj.r.squared),</span>
-<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>      <span class="at">F_stat =</span> <span class="fu">ifelse</span>(<span class="fu">is.null</span>(f_val), <span class="cn">NA_real_</span>, f_val[<span class="dv">1</span>])</span>
-<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, stats_list)</span>
-<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">rbind</span>(df, <span class="fu">data.frame</span>(<span class="at">p =</span> n, <span class="at">RSS =</span> <span class="dv">0</span>, <span class="at">R2 =</span> <span class="dv">1</span>, <span class="at">R2_adj =</span> <span class="cn">NA_real_</span>, <span class="at">F_stat =</span> <span class="cn">NA_real_</span>))</span>
-<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>  g1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df, <span class="fu">aes</span>(p, RSS)) <span class="sc">+</span></span>
-<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>() <span class="sc">+</span> <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="at">data =</span> <span class="fu">subset</span>(df, p <span class="sc">==</span> n), <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> n, <span class="at">y =</span> <span class="dv">0</span>, <span class="at">label =</span> <span class="st">"(n, 0)"</span>, <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.8</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
-<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">limits =</span> x_lim, <span class="at">breaks =</span> <span class="fu">pretty</span>(x_lim)) <span class="sc">+</span></span>
-<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Residual Sum of Squares vs. Number of Parameters"</span>,</span>
-<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a>         <span class="at">x =</span> <span class="st">"Number of parameters (p)"</span>, <span class="at">y =</span> <span class="st">"Residual Sum of Squares (RSS)"</span>) <span class="sc">+</span></span>
-<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span>
-<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a>  scale_factor <span class="ot">&lt;-</span> <span class="fu">max</span>(df<span class="sc">$</span>F_stat, <span class="at">na.rm =</span> <span class="cn">TRUE</span>); <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.finite</span>(scale_factor) <span class="sc">||</span> scale_factor <span class="sc">&lt;=</span> <span class="dv">0</span>) scale_factor <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a>  g2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df, <span class="fu">aes</span>(p)) <span class="sc">+</span></span>
-<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> F_stat, <span class="at">color =</span> <span class="st">"F"</span>)) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> F_stat, <span class="at">color =</span> <span class="st">"F"</span>)) <span class="sc">+</span></span>
-<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> R2 <span class="sc">*</span> scale_factor, <span class="at">color =</span> <span class="st">"R2"</span>)) <span class="sc">+</span></span>
-<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> R2 <span class="sc">*</span> scale_factor, <span class="at">color =</span> <span class="st">"R2"</span>)) <span class="sc">+</span></span>
-<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> R2_adj <span class="sc">*</span> scale_factor, <span class="at">color =</span> <span class="st">"R2_adj"</span>), <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
-<span id="cb14-47"><a href="#cb14-47" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> R2_adj <span class="sc">*</span> scale_factor, <span class="at">color =</span> <span class="st">"R2_adj"</span>)) <span class="sc">+</span></span>
-<span id="cb14-48"><a href="#cb14-48" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">limits =</span> x_lim, <span class="at">breaks =</span> <span class="fu">pretty</span>(x_lim)) <span class="sc">+</span></span>
-<span id="cb14-49"><a href="#cb14-49" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_y_continuous</span>(</span>
-<span id="cb14-50"><a href="#cb14-50" aria-hidden="true" tabindex="-1"></a>      <span class="at">name =</span> <span class="st">"F-statistic"</span>,</span>
-<span id="cb14-51"><a href="#cb14-51" aria-hidden="true" tabindex="-1"></a>      <span class="at">sec.axis =</span> <span class="fu">sec_axis</span>(<span class="sc">~</span> . <span class="sc">/</span> scale_factor,</span>
-<span id="cb14-52"><a href="#cb14-52" aria-hidden="true" tabindex="-1"></a>                          <span class="at">name =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(R<span class="sc">^</span><span class="dv">2</span>,<span class="st">" / "</span>,R[adj]<span class="sc">^</span><span class="dv">2</span>)),</span>
-<span id="cb14-53"><a href="#cb14-53" aria-hidden="true" tabindex="-1"></a>                          <span class="at">labels =</span> scales<span class="sc">::</span>percent)</span>
-<span id="cb14-54"><a href="#cb14-54" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
-<span id="cb14-55"><a href="#cb14-55" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="at">F =</span> <span class="st">"firebrick"</span>, <span class="at">R2 =</span> <span class="st">"blue"</span>, <span class="at">R2_adj =</span> <span class="st">"cyan4"</span>), <span class="at">name =</span> <span class="st">"Metric"</span>) <span class="sc">+</span></span>
-<span id="cb14-56"><a href="#cb14-56" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Model Fit Statistics vs. Number of Parameters"</span>, <span class="at">x =</span> <span class="st">"Number of parameters (p)"</span>) <span class="sc">+</span></span>
-<span id="cb14-57"><a href="#cb14-57" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"top"</span>)</span>
-<span id="cb14-58"><a href="#cb14-58" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-59"><a href="#cb14-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggsave</span>(<span class="fu">sprintf</span>(<span class="st">"frames0/f%03d.png"</span>, j), g1 <span class="sc">/</span> g2, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">8</span>, <span class="at">dpi =</span> <span class="dv">150</span>)</span>
-<span id="cb14-60"><a href="#cb14-60" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb14-61"><a href="#cb14-61" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(av)</span>
-<span id="cb14-62"><a href="#cb14-62" aria-hidden="true" tabindex="-1"></a>pngs <span class="ot">&lt;-</span> <span class="fu">list.files</span>(<span class="st">"frames0"</span>, <span class="st">"</span><span class="sc">\\</span><span class="st">.png$"</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span>); pngs <span class="ot">&lt;-</span> pngs[<span class="fu">order</span>(pngs)]</span>
-<span id="cb14-63"><a href="#cb14-63" aria-hidden="true" tabindex="-1"></a><span class="fu">av_encode_video</span>(pngs, <span class="st">"rss-h0.mp4"</span>, <span class="at">framerate =</span> <span class="dv">1</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>)  <span class="co"># H.264 MP4</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "/Users/lol553/GitHub/longhaiSK.github.io/teaching/stat845_rdemo/unit3-mlr/rss-h0.mp4"</code></pre>
-</div>
-</div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">'&lt;video controls style="width:100%%;height:auto;"&gt;&lt;source src="%s" type="video/mp4"&gt;&lt;/video&gt;'</span>,<span class="st">"rss-h0.mp4"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">'&lt;video controls style="width:100%%;height:auto;"&gt;&lt;source src="%s" type="video/mp4"&gt;&lt;/video&gt;'</span>,<span class="st">"rss-h0.mp4"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <video controls="" style="width:100%;height:auto;">
 <source src="rss-h0.mp4" type="video/mp4">
@@ -692,81 +621,9 @@ Under <span class="math inline">\(H_0\!:\beta=0\)</span>, both variance estimate
 </section>
 <section id="when-h_1-is-true" class="level3" data-number="2.3.2">
 <h3 data-number="2.3.2" class="anchored" data-anchor-id="when-h_1-is-true"><span class="header-section-number">2.3.2</span> When <span class="math inline">\(H_1\)</span> is true</h3>
-<div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Setup &amp; params ---</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2); <span class="fu">library</span>(patchwork)</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">"frames1"</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>N_sim <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(<span class="fu">interactive</span>(), <span class="dv">1</span>, <span class="dv">50</span>)</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">30</span>; p_max <span class="ot">&lt;-</span> <span class="dv">20</span></span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>beta <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, p_max); sigma <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>beta [<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>x_lim <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, n); ks <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, p_max, <span class="at">by =</span> <span class="dv">2</span>)</span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Generate frames ---</span></span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (j <span class="cf">in</span> <span class="fu">seq_len</span>(N_sim)) {</span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  X <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">replicate</span>(p_max, <span class="fu">rnorm</span>(n)))</span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>(X) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"x"</span>, <span class="dv">1</span><span class="sc">:</span>p_max)</span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">as.matrix</span>(X) <span class="sc">%*%</span> beta <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="at">sd =</span> sigma))</span>
-<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>  stats_list <span class="ot">&lt;-</span> <span class="fu">lapply</span>(ks, <span class="cf">function</span>(k) {</span>
-<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>    num_params <span class="ot">&lt;-</span> k <span class="sc">+</span> <span class="dv">1</span></span>
-<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>    fitsim <span class="ot">&lt;-</span> <span class="cf">if</span> (k <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">lm</span>(y <span class="sc">~</span> <span class="dv">1</span>) <span class="cf">else</span> <span class="fu">lm</span>(<span class="fu">reformulate</span>(<span class="fu">paste0</span>(<span class="st">"x"</span>, <span class="dv">1</span><span class="sc">:</span>k), <span class="st">"y"</span>), <span class="at">data =</span> X)</span>
-<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>    s <span class="ot">&lt;-</span> <span class="fu">summary</span>(fitsim)</span>
-<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>    f_val <span class="ot">&lt;-</span> s<span class="sc">$</span>fstatistic</span>
-<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data.frame</span>(</span>
-<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">p =</span> num_params,</span>
-<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>      <span class="at">RSS =</span> <span class="fu">sum</span>(<span class="fu">residuals</span>(fitsim)<span class="sc">^</span><span class="dv">2</span>),</span>
-<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>      <span class="at">R2 =</span> <span class="fu">ifelse</span>(k <span class="sc">==</span> <span class="dv">0</span>, <span class="dv">0</span>, s<span class="sc">$</span>r.squared),</span>
-<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>      <span class="at">R2_adj =</span> <span class="fu">ifelse</span>(k <span class="sc">==</span> <span class="dv">0</span>, <span class="dv">0</span>, s<span class="sc">$</span>adj.r.squared),</span>
-<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>      <span class="at">F_stat =</span> <span class="fu">ifelse</span>(<span class="fu">is.null</span>(f_val), <span class="cn">NA_real_</span>, f_val[<span class="dv">1</span>])</span>
-<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, stats_list)</span>
-<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">rbind</span>(df, <span class="fu">data.frame</span>(<span class="at">p =</span> n, <span class="at">RSS =</span> <span class="dv">0</span>, <span class="at">R2 =</span> <span class="dv">1</span>, <span class="at">R2_adj =</span> <span class="cn">NA_real_</span>, <span class="at">F_stat =</span> <span class="cn">NA_real_</span>))</span>
-<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a>  g1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df, <span class="fu">aes</span>(p, RSS)) <span class="sc">+</span></span>
-<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>() <span class="sc">+</span> <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="at">data =</span> <span class="fu">subset</span>(df, p <span class="sc">==</span> n), <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> n, <span class="at">y =</span> <span class="dv">0</span>, <span class="at">label =</span> <span class="st">"(n, 0)"</span>, <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.8</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
-<span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">limits =</span> x_lim, <span class="at">breaks =</span> <span class="fu">pretty</span>(x_lim)) <span class="sc">+</span></span>
-<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Residual Sum of Squares vs. Number of Parameters"</span>,</span>
-<span id="cb17-39"><a href="#cb17-39" aria-hidden="true" tabindex="-1"></a>         <span class="at">x =</span> <span class="st">"Number of parameters (p)"</span>, <span class="at">y =</span> <span class="st">"Residual Sum of Squares (RSS)"</span>) <span class="sc">+</span></span>
-<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span>
-<span id="cb17-41"><a href="#cb17-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-42"><a href="#cb17-42" aria-hidden="true" tabindex="-1"></a>  scale_factor <span class="ot">&lt;-</span> <span class="fu">max</span>(df<span class="sc">$</span>F_stat, <span class="at">na.rm =</span> <span class="cn">TRUE</span>); <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.finite</span>(scale_factor) <span class="sc">||</span> scale_factor <span class="sc">&lt;=</span> <span class="dv">0</span>) scale_factor <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb17-43"><a href="#cb17-43" aria-hidden="true" tabindex="-1"></a>  g2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df, <span class="fu">aes</span>(p)) <span class="sc">+</span></span>
-<span id="cb17-44"><a href="#cb17-44" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> F_stat, <span class="at">color =</span> <span class="st">"F"</span>)) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> F_stat, <span class="at">color =</span> <span class="st">"F"</span>)) <span class="sc">+</span></span>
-<span id="cb17-45"><a href="#cb17-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> R2 <span class="sc">*</span> scale_factor, <span class="at">color =</span> <span class="st">"R2"</span>)) <span class="sc">+</span></span>
-<span id="cb17-46"><a href="#cb17-46" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> R2 <span class="sc">*</span> scale_factor, <span class="at">color =</span> <span class="st">"R2"</span>)) <span class="sc">+</span></span>
-<span id="cb17-47"><a href="#cb17-47" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> R2_adj <span class="sc">*</span> scale_factor, <span class="at">color =</span> <span class="st">"R2_adj"</span>), <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
-<span id="cb17-48"><a href="#cb17-48" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> R2_adj <span class="sc">*</span> scale_factor, <span class="at">color =</span> <span class="st">"R2_adj"</span>)) <span class="sc">+</span></span>
-<span id="cb17-49"><a href="#cb17-49" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">limits =</span> x_lim, <span class="at">breaks =</span> <span class="fu">pretty</span>(x_lim)) <span class="sc">+</span></span>
-<span id="cb17-50"><a href="#cb17-50" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_y_continuous</span>(</span>
-<span id="cb17-51"><a href="#cb17-51" aria-hidden="true" tabindex="-1"></a>      <span class="at">name =</span> <span class="st">"F-statistic"</span>,</span>
-<span id="cb17-52"><a href="#cb17-52" aria-hidden="true" tabindex="-1"></a>      <span class="at">sec.axis =</span> <span class="fu">sec_axis</span>(<span class="sc">~</span> . <span class="sc">/</span> scale_factor,</span>
-<span id="cb17-53"><a href="#cb17-53" aria-hidden="true" tabindex="-1"></a>                          <span class="at">name =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(R<span class="sc">^</span><span class="dv">2</span>,<span class="st">" / "</span>,R[adj]<span class="sc">^</span><span class="dv">2</span>)),</span>
-<span id="cb17-54"><a href="#cb17-54" aria-hidden="true" tabindex="-1"></a>                          <span class="at">labels =</span> scales<span class="sc">::</span>percent)</span>
-<span id="cb17-55"><a href="#cb17-55" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
-<span id="cb17-56"><a href="#cb17-56" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="at">F =</span> <span class="st">"firebrick"</span>, <span class="at">R2 =</span> <span class="st">"blue"</span>, <span class="at">R2_adj =</span> <span class="st">"cyan4"</span>), <span class="at">name =</span> <span class="st">"Metric"</span>) <span class="sc">+</span></span>
-<span id="cb17-57"><a href="#cb17-57" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Model Fit Statistics vs. Number of Parameters"</span>, <span class="at">x =</span> <span class="st">"Number of parameters (p)"</span>) <span class="sc">+</span></span>
-<span id="cb17-58"><a href="#cb17-58" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"top"</span>)</span>
-<span id="cb17-59"><a href="#cb17-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-60"><a href="#cb17-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggsave</span>(<span class="fu">sprintf</span>(<span class="st">"frames1/f%03d.png"</span>, j), g1 <span class="sc">/</span> g2, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">8</span>, <span class="at">dpi =</span> <span class="dv">150</span>)</span>
-<span id="cb17-61"><a href="#cb17-61" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb17-62"><a href="#cb17-62" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(av)</span>
-<span id="cb17-63"><a href="#cb17-63" aria-hidden="true" tabindex="-1"></a>pngs <span class="ot">&lt;-</span> <span class="fu">list.files</span>(<span class="st">"frames1"</span>, <span class="st">"</span><span class="sc">\\</span><span class="st">.png$"</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span>); pngs <span class="ot">&lt;-</span> pngs[<span class="fu">order</span>(pngs)]</span>
-<span id="cb17-64"><a href="#cb17-64" aria-hidden="true" tabindex="-1"></a><span class="fu">av_encode_video</span>(pngs, <span class="st">"rss-h1.mp4"</span>, <span class="at">framerate =</span> <span class="dv">1</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>)  <span class="co"># H.264 MP4</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "/Users/lol553/GitHub/longhaiSK.github.io/teaching/stat845_rdemo/unit3-mlr/rss-h1.mp4"</code></pre>
-</div>
-</div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">'&lt;video controls style="width:100%%;height:auto;"&gt;&lt;source src="%s" type="video/mp4"&gt;&lt;/video&gt;'</span>,<span class="st">"rss-h1.mp4"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">'&lt;video controls style="width:100%%;height:auto;"&gt;&lt;source src="%s" type="video/mp4"&gt;&lt;/video&gt;'</span>,<span class="st">"rss-h1.mp4"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <video controls="" style="width:100%;height:auto;">
 <source src="rss-h1.mp4" type="video/mp4">
@@ -778,11 +635,11 @@ Under <span class="math inline">\(H_0\!:\beta=0\)</span>, both variance estimate
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Data: Weight, height and age of children</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>wgt <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">64</span>, <span class="dv">71</span>, <span class="dv">53</span>, <span class="dv">67</span>, <span class="dv">55</span>, <span class="dv">58</span>, <span class="dv">77</span>, <span class="dv">57</span>, <span class="dv">56</span>, <span class="dv">51</span>, <span class="dv">76</span>, <span class="dv">68</span>)</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>hgt <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">57</span>, <span class="dv">59</span>, <span class="dv">49</span>, <span class="dv">62</span>, <span class="dv">51</span>, <span class="dv">50</span>, <span class="dv">55</span>, <span class="dv">48</span>, <span class="dv">42</span>, <span class="dv">42</span>, <span class="dv">61</span>, <span class="dv">57</span>)</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>age <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">8</span>, <span class="dv">10</span>, <span class="dv">6</span>, <span class="dv">11</span>, <span class="dv">8</span>, <span class="dv">7</span>, <span class="dv">10</span>, <span class="dv">9</span>, <span class="dv">10</span>, <span class="dv">6</span>, <span class="dv">12</span>, <span class="dv">9</span>)</span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>child.data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(wgt, hgt, age)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Data: Weight, height and age of children</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>wgt <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">64</span>, <span class="dv">71</span>, <span class="dv">53</span>, <span class="dv">67</span>, <span class="dv">55</span>, <span class="dv">58</span>, <span class="dv">77</span>, <span class="dv">57</span>, <span class="dv">56</span>, <span class="dv">51</span>, <span class="dv">76</span>, <span class="dv">68</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>hgt <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">57</span>, <span class="dv">59</span>, <span class="dv">49</span>, <span class="dv">62</span>, <span class="dv">51</span>, <span class="dv">50</span>, <span class="dv">55</span>, <span class="dv">48</span>, <span class="dv">42</span>, <span class="dv">42</span>, <span class="dv">61</span>, <span class="dv">57</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>age <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">8</span>, <span class="dv">10</span>, <span class="dv">6</span>, <span class="dv">11</span>, <span class="dv">8</span>, <span class="dv">7</span>, <span class="dv">10</span>, <span class="dv">9</span>, <span class="dv">10</span>, <span class="dv">6</span>, <span class="dv">12</span>, <span class="dv">9</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>child.data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(wgt, hgt, age)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <section id="problem-1-height-then-age" class="level3" data-number="2.4.1">
@@ -790,8 +647,8 @@ Under <span class="math inline">\(H_0\!:\beta=0\)</span>, both variance estimate
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>fit_age_hgt <span class="ot">&lt;-</span> <span class="fu">lm</span>(wgt <span class="sc">~</span> hgt <span class="sc">+</span> age, <span class="at">data =</span> child.data)</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_age_hgt)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>fit_age_hgt <span class="ot">&lt;-</span> <span class="fu">lm</span>(wgt <span class="sc">~</span> hgt <span class="sc">+</span> age, <span class="at">data =</span> child.data)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_age_hgt)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -816,8 +673,8 @@ F-statistic: 15.95 on 2 and 9 DF,  p-value: 0.001099</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>fit_hgt <span class="ot">&lt;-</span> <span class="fu">lm</span>(wgt <span class="sc">~</span> hgt, <span class="at">data =</span> child.data)</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_hgt)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>fit_hgt <span class="ot">&lt;-</span> <span class="fu">lm</span>(wgt <span class="sc">~</span> hgt, <span class="at">data =</span> child.data)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_hgt)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -841,7 +698,7 @@ F-statistic: 19.67 on 1 and 10 DF,  p-value: 0.001263</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fit_hgt, fit_age_hgt)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fit_hgt, fit_age_hgt)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div data-pagedtable="false">
@@ -857,8 +714,8 @@ F-statistic: 19.67 on 1 and 10 DF,  p-value: 0.001263</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>fit_age <span class="ot">&lt;-</span> <span class="fu">lm</span>(wgt <span class="sc">~</span> age, <span class="at">data =</span> child.data)</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_age)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>fit_age <span class="ot">&lt;-</span> <span class="fu">lm</span>(wgt <span class="sc">~</span> age, <span class="at">data =</span> child.data)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_age)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -882,8 +739,8 @@ F-statistic: 14.55 on 1 and 10 DF,  p-value: 0.003407</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>fit_age_hgt <span class="ot">&lt;-</span> <span class="fu">lm</span>(wgt <span class="sc">~</span> age <span class="sc">+</span> hgt, <span class="at">data =</span> child.data)</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_age_hgt)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>fit_age_hgt <span class="ot">&lt;-</span> <span class="fu">lm</span>(wgt <span class="sc">~</span> age <span class="sc">+</span> hgt, <span class="at">data =</span> child.data)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_age_hgt)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -908,7 +765,7 @@ F-statistic: 15.95 on 2 and 9 DF,  p-value: 0.001099</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fit_age, fit_age_hgt)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fit_age, fit_age_hgt)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div data-pagedtable="false">
@@ -932,8 +789,8 @@ F-statistic: 15.95 on 2 and 9 DF,  p-value: 0.001099</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(fit, <span class="at">newdata =</span> <span class="fu">data.frame</span>(<span class="at">length =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">275</span>),</span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">interval =</span> <span class="st">"confidence"</span>, <span class="at">level =</span> <span class="fl">0.95</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(fit, <span class="at">newdata =</span> <span class="fu">data.frame</span>(<span class="at">length =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">275</span>),</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">interval =</span> <span class="st">"confidence"</span>, <span class="at">level =</span> <span class="fl">0.95</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>      fit      lwr      upr
@@ -946,8 +803,8 @@ F-statistic: 15.95 on 2 and 9 DF,  p-value: 0.001099</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(fit, <span class="at">newdata =</span> <span class="fu">data.frame</span>(<span class="at">length =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">275</span>),</span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">interval =</span> <span class="st">"prediction"</span>, <span class="at">level =</span> <span class="fl">0.95</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(fit, <span class="at">newdata =</span> <span class="fu">data.frame</span>(<span class="at">length =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">275</span>),</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">interval =</span> <span class="st">"prediction"</span>, <span class="at">level =</span> <span class="fl">0.95</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>      fit      lwr      upr
@@ -963,14 +820,14 @@ F-statistic: 15.95 on 2 and 9 DF,  p-value: 0.001099</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>residuals_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">hat_values =</span> <span class="fu">hatvalues</span>(fit),</span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">ordinary_resid =</span> <span class="fu">resid</span>(fit),</span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">standardized_resid =</span> <span class="fu">resid</span>(fit) <span class="sc">/</span> <span class="fu">sigma</span>(fit),</span>
-<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">studentized_internal =</span> <span class="fu">rstandard</span>(fit),</span>
-<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">studentized_external =</span> <span class="fu">rstudent</span>(fit)</span>
-<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>residuals_df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>residuals_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">hat_values =</span> <span class="fu">hatvalues</span>(fit),</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">ordinary_resid =</span> <span class="fu">resid</span>(fit),</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">standardized_resid =</span> <span class="fu">resid</span>(fit) <span class="sc">/</span> <span class="fu">sigma</span>(fit),</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">studentized_internal =</span> <span class="fu">rstandard</span>(fit),</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">studentized_external =</span> <span class="fu">rstudent</span>(fit)</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>residuals_df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div data-pagedtable="false">
@@ -986,16 +843,16 @@ F-statistic: 15.95 on 2 and 9 DF,  p-value: 0.001099</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(bond.data)</span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>r <span class="ot">&lt;-</span> <span class="fu">rstudent</span>(fit) </span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>y.hat <span class="ot">&lt;-</span> <span class="fu">fitted.values</span>(fit)</span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>))</span>
-<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(r, <span class="at">main =</span> <span class="st">"Normal Q-Q Plot"</span>); <span class="fu">qqline</span>(r)</span>
-<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(y.hat, r, <span class="at">xlab =</span> <span class="st">"Fitted values"</span>, <span class="at">ylab =</span> <span class="st">"Studentized Residuals"</span>); <span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>)</span>
-<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="dv">1</span><span class="sc">:</span>n, r, <span class="at">xlab =</span> <span class="st">"Observation Number"</span>, <span class="at">ylab =</span> <span class="st">"Studentized Residuals"</span>); <span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>)</span>
-<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bond.data<span class="sc">$</span>length, r, <span class="at">xlab =</span> <span class="st">"Wire Length"</span>, <span class="at">ylab =</span> <span class="st">"Studentized Residuals"</span>); <span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>)</span>
-<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bond.data<span class="sc">$</span>height, r, <span class="at">xlab =</span> <span class="st">"Die Height"</span>, <span class="at">ylab =</span> <span class="st">"Studentized Residuals"</span>); <span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(bond.data)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>r <span class="ot">&lt;-</span> <span class="fu">rstudent</span>(fit) </span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>y.hat <span class="ot">&lt;-</span> <span class="fu">fitted.values</span>(fit)</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>))</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(r, <span class="at">main =</span> <span class="st">"Normal Q-Q Plot"</span>); <span class="fu">qqline</span>(r)</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(y.hat, r, <span class="at">xlab =</span> <span class="st">"Fitted values"</span>, <span class="at">ylab =</span> <span class="st">"Studentized Residuals"</span>); <span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>)</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="dv">1</span><span class="sc">:</span>n, r, <span class="at">xlab =</span> <span class="st">"Observation Number"</span>, <span class="at">ylab =</span> <span class="st">"Studentized Residuals"</span>); <span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>)</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bond.data<span class="sc">$</span>length, r, <span class="at">xlab =</span> <span class="st">"Wire Length"</span>, <span class="at">ylab =</span> <span class="st">"Studentized Residuals"</span>); <span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>)</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bond.data<span class="sc">$</span>height, r, <span class="at">xlab =</span> <span class="st">"Die Height"</span>, <span class="at">ylab =</span> <span class="st">"Studentized Residuals"</span>); <span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -1012,10 +869,10 @@ F-statistic: 15.95 on 2 and 9 DF,  p-value: 0.001099</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>influence_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">dffits =</span> <span class="fu">dffits</span>(fit),</span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>                           <span class="at">cook.D =</span> <span class="fu">cooks.distance</span>(fit),</span>
-<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>                           <span class="fu">dfbetas</span>(fit))</span>
-<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>influence_df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>influence_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">dffits =</span> <span class="fu">dffits</span>(fit),</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>                           <span class="at">cook.D =</span> <span class="fu">cooks.distance</span>(fit),</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>                           <span class="fu">dfbetas</span>(fit))</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>influence_df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div data-pagedtable="false">
@@ -1030,10 +887,10 @@ F-statistic: 15.95 on 2 and 9 DF,  p-value: 0.001099</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages("olsrr") # Run once if needed</span></span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(olsrr)</span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ols_plot_cooksd_chart</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages("olsrr") # Run once if needed</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(olsrr)</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ols_plot_cooksd_chart</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -1044,7 +901,7 @@ F-statistic: 15.95 on 2 and 9 DF,  p-value: 0.001099</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ols_plot_dffits</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ols_plot_dffits</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -1055,7 +912,7 @@ F-statistic: 15.95 on 2 and 9 DF,  p-value: 0.001099</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ols_plot_dfbetas</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ols_plot_dfbetas</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -1072,10 +929,10 @@ F-statistic: 15.95 on 2 and 9 DF,  p-value: 0.001099</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">1.81</span>, <span class="fl">1.70</span>, <span class="fl">1.65</span>, <span class="fl">1.55</span>, <span class="fl">1.48</span>, <span class="fl">1.40</span>, <span class="fl">1.30</span>, <span class="fl">1.26</span>, <span class="fl">1.24</span>, <span class="fl">1.21</span>, <span class="fl">1.20</span>, <span class="fl">1.18</span>)</span>
-<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">20</span>, <span class="dv">25</span>, <span class="dv">30</span>, <span class="dv">35</span>, <span class="dv">40</span>, <span class="dv">50</span>, <span class="dv">60</span>, <span class="dv">65</span>, <span class="dv">70</span>, <span class="dv">75</span>, <span class="dv">80</span>, <span class="dv">90</span>)</span>
-<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>fit_poly <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x <span class="sc">+</span> <span class="fu">I</span>(x<span class="sc">^</span><span class="dv">2</span>))</span>
-<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_poly)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">1.81</span>, <span class="fl">1.70</span>, <span class="fl">1.65</span>, <span class="fl">1.55</span>, <span class="fl">1.48</span>, <span class="fl">1.40</span>, <span class="fl">1.30</span>, <span class="fl">1.26</span>, <span class="fl">1.24</span>, <span class="fl">1.21</span>, <span class="fl">1.20</span>, <span class="fl">1.18</span>)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">20</span>, <span class="dv">25</span>, <span class="dv">30</span>, <span class="dv">35</span>, <span class="dv">40</span>, <span class="dv">50</span>, <span class="dv">60</span>, <span class="dv">65</span>, <span class="dv">70</span>, <span class="dv">75</span>, <span class="dv">80</span>, <span class="dv">90</span>)</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>fit_poly <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x <span class="sc">+</span> <span class="fu">I</span>(x<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_poly)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -1102,8 +959,8 @@ F-statistic:  1767 on 2 and 9 DF,  p-value: 2.096e-12</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(x, y, <span class="at">xlab =</span> <span class="st">"Lot size, x"</span>, <span class="at">ylab =</span> <span class="st">"Average cost per unit, y"</span>)</span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(x, <span class="fu">predict</span>(fit_poly, <span class="at">newdata =</span> <span class="fu">data.frame</span>(<span class="at">x =</span> x)), <span class="at">type =</span> <span class="st">"l"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(x, y, <span class="at">xlab =</span> <span class="st">"Lot size, x"</span>, <span class="at">ylab =</span> <span class="st">"Average cost per unit, y"</span>)</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(x, <span class="fu">predict</span>(fit_poly, <span class="at">newdata =</span> <span class="fu">data.frame</span>(<span class="at">x =</span> x)), <span class="at">type =</span> <span class="st">"l"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -1116,8 +973,8 @@ F-statistic:  1767 on 2 and 9 DF,  p-value: 2.096e-12</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>fit1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x)</span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fit1, fit_poly)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>fit1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x)</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fit1, fit_poly)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div data-pagedtable="false">
@@ -1133,11 +990,11 @@ F-statistic:  1767 on 2 and 9 DF,  p-value: 2.096e-12</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Note: Update this path to your local file location</span></span>
-<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>sbpdata <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"sbpdata.csv"</span>)</span>
-<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>fit.full <span class="ot">&lt;-</span> <span class="fu">lm</span>(sbp <span class="sc">~</span> age <span class="sc">+</span> sex <span class="sc">+</span> age<span class="sc">:</span>sex, <span class="at">data =</span> sbpdata)</span>
-<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit.full)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Note: Update this path to your local file location</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>sbpdata <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"sbpdata.csv"</span>)</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>fit.full <span class="ot">&lt;-</span> <span class="fu">lm</span>(sbp <span class="sc">~</span> age <span class="sc">+</span> sex <span class="sc">+</span> age<span class="sc">:</span>sex, <span class="at">data =</span> sbpdata)</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit.full)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -1167,9 +1024,9 @@ F-statistic: 75.02 on 3 and 65 DF,  p-value: &lt; 2.2e-16</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Coincidence: H0: beta2=beta3=0</span></span>
-<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>fit.coin <span class="ot">&lt;-</span> <span class="fu">lm</span>(sbp <span class="sc">~</span> age, <span class="at">data =</span> sbpdata)</span>
-<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fit.coin, fit.full)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Coincidence: H0: beta2=beta3=0</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>fit.coin <span class="ot">&lt;-</span> <span class="fu">lm</span>(sbp <span class="sc">~</span> age, <span class="at">data =</span> sbpdata)</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fit.coin, fit.full)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div data-pagedtable="false">
@@ -1180,9 +1037,9 @@ F-statistic: 75.02 on 3 and 65 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Parallelism: H0: beta3=0</span></span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>fit.para <span class="ot">&lt;-</span> <span class="fu">lm</span>(sbp <span class="sc">~</span> age <span class="sc">+</span> sex, <span class="at">data =</span> sbpdata)</span>
-<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fit.para, fit.full)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Parallelism: H0: beta3=0</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>fit.para <span class="ot">&lt;-</span> <span class="fu">lm</span>(sbp <span class="sc">~</span> age <span class="sc">+</span> sex, <span class="at">data =</span> sbpdata)</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fit.para, fit.full)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div data-pagedtable="false">
@@ -1193,10 +1050,10 @@ F-statistic: 75.02 on 3 and 65 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Equal intercepts (assuming parallel lines)</span></span>
-<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>fit1.inter <span class="ot">&lt;-</span> <span class="fu">lm</span>(sbp <span class="sc">~</span> age <span class="sc">+</span> sex, <span class="at">data =</span> sbpdata)</span>
-<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>fit2.inter <span class="ot">&lt;-</span> <span class="fu">lm</span>(sbp <span class="sc">~</span> age, <span class="at">data =</span> sbpdata)</span>
-<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fit2.inter, fit1.inter)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Equal intercepts (assuming parallel lines)</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>fit1.inter <span class="ot">&lt;-</span> <span class="fu">lm</span>(sbp <span class="sc">~</span> age <span class="sc">+</span> sex, <span class="at">data =</span> sbpdata)</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>fit2.inter <span class="ot">&lt;-</span> <span class="fu">lm</span>(sbp <span class="sc">~</span> age, <span class="at">data =</span> sbpdata)</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fit2.inter, fit1.inter)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div data-pagedtable="false">
@@ -1212,15 +1069,15 @@ F-statistic: 75.02 on 3 and 65 DF,  p-value: &lt; 2.2e-16</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>colors <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(sbpdata<span class="sc">$</span>sex <span class="sc">==</span> <span class="dv">1</span>, <span class="st">"black"</span>, <span class="st">"gray"</span>)</span>
-<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sbpdata<span class="sc">$</span>age, sbpdata<span class="sc">$</span>sbp, <span class="at">xlab =</span> <span class="st">"Age"</span>, <span class="at">ylab =</span> <span class="st">"SBP"</span>, <span class="at">col =</span> colors)</span>
-<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(sbpdata<span class="sc">$</span>age, <span class="fu">cbind</span>(<span class="dv">1</span>, sbpdata<span class="sc">$</span>age, <span class="dv">1</span>, sbpdata<span class="sc">$</span>age) <span class="sc">%*%</span> <span class="fu">coef</span>(fit.full), <span class="at">col =</span> <span class="st">"black"</span>)</span>
-<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(sbpdata<span class="sc">$</span>age, <span class="fu">cbind</span>(<span class="dv">1</span>, sbpdata<span class="sc">$</span>age, <span class="dv">0</span>, <span class="dv">0</span>) <span class="sc">%*%</span> <span class="fu">coef</span>(fit.full), <span class="at">col =</span> <span class="st">"gray"</span>)</span>
-<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topleft"</span>, <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">"sex = 1 (male)"</span>, <span class="st">"sex = 0 (female)"</span>), </span>
-<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">lty =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>), <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"black"</span>, <span class="st">"gray"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>colors <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(sbpdata<span class="sc">$</span>sex <span class="sc">==</span> <span class="dv">1</span>, <span class="st">"black"</span>, <span class="st">"gray"</span>)</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sbpdata<span class="sc">$</span>age, sbpdata<span class="sc">$</span>sbp, <span class="at">xlab =</span> <span class="st">"Age"</span>, <span class="at">ylab =</span> <span class="st">"SBP"</span>, <span class="at">col =</span> colors)</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(sbpdata<span class="sc">$</span>age, <span class="fu">cbind</span>(<span class="dv">1</span>, sbpdata<span class="sc">$</span>age, <span class="dv">1</span>, sbpdata<span class="sc">$</span>age) <span class="sc">%*%</span> <span class="fu">coef</span>(fit.full), <span class="at">col =</span> <span class="st">"black"</span>)</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(sbpdata<span class="sc">$</span>age, <span class="fu">cbind</span>(<span class="dv">1</span>, sbpdata<span class="sc">$</span>age, <span class="dv">0</span>, <span class="dv">0</span>) <span class="sc">%*%</span> <span class="fu">coef</span>(fit.full), <span class="at">col =</span> <span class="st">"gray"</span>)</span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topleft"</span>, <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">"sex = 1 (male)"</span>, <span class="st">"sex = 0 (female)"</span>), </span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">lty =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>), <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"black"</span>, <span class="st">"gray"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -1237,11 +1094,11 @@ F-statistic: 75.02 on 3 and 65 DF,  p-value: &lt; 2.2e-16</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(olsrr)</span>
-<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Note: Update this path to your local file location</span></span>
-<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>wine <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"wine.csv"</span>)</span>
-<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(quality <span class="sc">~</span> ., <span class="at">data =</span> wine)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(olsrr)</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Note: Update this path to your local file location</span></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>wine <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"wine.csv"</span>)</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(quality <span class="sc">~</span> ., <span class="at">data =</span> wine)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <section id="all-possible-regression" class="level2" data-number="8.1">
@@ -1249,7 +1106,7 @@ F-statistic: 75.02 on 3 and 65 DF,  p-value: &lt; 2.2e-16</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ols_step_best_subset</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ols_step_best_subset</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>             Best Subsets Regression             
@@ -1289,8 +1146,8 @@ AIC: Akaike Information Criteria
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Backward Elimination (alpha_out = 0.1)</span></span>
-<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ols_step_backward_p</span>(model, <span class="at">p_val =</span> <span class="fl">0.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Backward Elimination (alpha_out = 0.1)</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ols_step_backward_p</span>(model, <span class="at">p_val =</span> <span class="fl">0.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -1342,8 +1199,8 @@ Total         154.788        37
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Forward Selection (alpha_in = 0.1)</span></span>
-<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ols_step_forward_p</span>(model, <span class="at">p_val =</span> <span class="fl">0.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Forward Selection (alpha_in = 0.1)</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ols_step_forward_p</span>(model, <span class="at">p_val =</span> <span class="fl">0.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -1396,8 +1253,8 @@ Total         154.788        37
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Stepwise Regression (alpha_in = 0.1, alpha_out = 0.1)</span></span>
-<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ols_step_both_p</span>(model, <span class="at">p_enter =</span> <span class="fl">0.1</span>, <span class="at">p_remove =</span> <span class="fl">0.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Stepwise Regression (alpha_in = 0.1, alpha_out = 0.1)</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ols_step_both_p</span>(model, <span class="at">p_enter =</span> <span class="fl">0.1</span>, <span class="at">p_remove =</span> <span class="fl">0.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -1458,10 +1315,10 @@ Total         154.788        37
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">19</span>, <span class="dv">20</span>, <span class="dv">37</span>, <span class="dv">39</span>, <span class="dv">36</span>, <span class="dv">38</span>)</span>
-<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">7</span>, <span class="dv">7</span>, <span class="fl">7.1</span>, <span class="fl">7.1</span>)</span>
-<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">16</span>, <span class="dv">16</span>, <span class="dv">49</span>, <span class="dv">49</span>, <span class="fl">50.4</span>, <span class="fl">50.4</span>)</span>
-<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(<span class="fu">data.frame</span>(x1, x2))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">19</span>, <span class="dv">20</span>, <span class="dv">37</span>, <span class="dv">39</span>, <span class="dv">36</span>, <span class="dv">38</span>)</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">7</span>, <span class="dv">7</span>, <span class="fl">7.1</span>, <span class="fl">7.1</span>)</span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">16</span>, <span class="dv">16</span>, <span class="dv">49</span>, <span class="dv">49</span>, <span class="fl">50.4</span>, <span class="fl">50.4</span>)</span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(<span class="fu">data.frame</span>(x1, x2))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>          x1        x2
@@ -1470,8 +1327,8 @@ x2 0.9999713 1.0000000</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>fit_multi <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x1 <span class="sc">+</span> x2)</span>
-<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_multi)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>fit_multi <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x1 <span class="sc">+</span> x2)</span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_multi)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -1494,8 +1351,8 @@ F-statistic: 144.3 on 2 and 3 DF,  p-value: 0.001043</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>fit1_multi <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x1)</span>
-<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit1_multi)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>fit1_multi <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x1)</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit1_multi)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -1524,8 +1381,8 @@ F-statistic: 245.1 on 1 and 4 DF,  p-value: 9.725e-05</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>wine.x <span class="ot">&lt;-</span> wine[, <span class="sc">-</span><span class="fu">ncol</span>(wine)] <span class="co"># Assuming quality is the last column</span></span>
-<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(wine.x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>wine.x <span class="ot">&lt;-</span> wine[, <span class="sc">-</span><span class="fu">ncol</span>(wine)] <span class="co"># Assuming quality is the last column</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(wine.x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>             clarity     aroma       body      flavor  oakiness
@@ -1537,8 +1394,8 @@ oakiness  0.18321471 0.2016444  0.1521059  0.17976051 1.0000000</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="co"># VIF using olsrr (data frame output)</span></span>
-<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ols_vif_tol</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="co"># VIF using olsrr (data frame output)</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ols_vif_tol</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div data-pagedtable="false">
