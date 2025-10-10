@@ -19,7 +19,7 @@ function setupNavigation() {
     function setPageTitleIfNotExists() {
         const siteTitles = {
             "/index.html": "Homepage of Professor Longhai Li",
-            "/teaching.html": "Teaching Activities of Prof. Longhai Li",
+            "/teaching/index.html": "Teaching Activities of Prof. Longhai Li",
             "/grant.html": "Research Activities of Prof. Longhai Li",
             "/team.html": "Members of Longhai Li's Research Lab",
             "/publications.html": "Publications of Prof. Longhai Li",
@@ -131,7 +131,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const navigationHTML = `
         <nav class="responsive-nav">
             <div class="nav-brand">
-                <img src="/images/usask-logo-lg.png" class="nav-logo" alt="UofS Logo"> Prof. Longhai Li
+                <img src="/images/usask-logo-lg.png" class="nav-logo" alt="UofS Logo"> 
+                <span class="nav-prof-name">Prof. Longhai Li</span>
             </div>
             <button class="hamburger-menu" aria-label="Toggle menu" aria-expanded="false">
              <span class="hamburger-bar"></span>
@@ -143,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <li><a href="/research.html"><button class="btn">Research Projects</button></a></li>
                 <li><a href="/team.html"><button class="btn">Lab Members</button></a></li>
                 <li><a href="/publications.html"><button class="btn">Publications</button></a></li>
-                <li><a href="/teaching.html"><button class="btn">Courses</button></a></li>
+                <li><a href="/teaching/index.html"><button class="btn">Courses</button></a></li>
                 <li>
                     <form id="site-search-form" class="search-form" role="search">
                         <input id="search-query" type="search" class="search-input" placeholder="Search this site...">

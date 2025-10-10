@@ -1,31 +1,14 @@
-// loadtoc.js (ToC + compact "Up" icon above the title)
+// loadtoc.js (ToC + "Up" icon above the title; fixed order & vars)
 document.addEventListener('DOMContentLoaded', function () {
   const headings = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6'))
-    .filter(heading => !heading.closest('#toc-container') && !heading.closest('.no-toc'));
+    .filter(h => !h.closest('#toc-container') && !h.closest('.no-toc'));
 
   if (headings.length === 0) {
     console.log("ToC: No headings found, ToC will not be generated.");
     return;
   }
 
-  // --- Helper: compute parent directory URL safely ---
-  function getParentDirUrl() {
-    const { pathname } = window.location;
-    let path = pathname;
-
-    if (path.endsWith('/index.html')) path = path.slice(0, -('index.html'.length));
-    if (!path.endsWith('/')) path = path.slice(0, path.lastIndexOf('/') + 1);
-
-    const withoutTrailing = path.endsWith('/') ? path.slice(0, -1) : path;
-    const cut = withoutTrailing.lastIndexOf('/');
-    if (cut <= 0) return '/';
-    return withoutTrailing.substring(0, cut + 1);
-  }
-
-  const parentUrl = getParentDirUrl();
-  const atRoot = parentUrl === '/';
-
-  // --- Build containers ---
+  // --- Create core elements *before* using them ---
   const tocContainer = document.createElement('nav');
   tocContainer.id = 'toc-container';
 
@@ -44,56 +27,71 @@ document.addEventListener('DOMContentLoaded', function () {
       <circle cx="5" cy="18" r="1"></circle>
     </svg>`;
 
-  // --- NEW: compact "Up" icon link ABOVE the title ---
+  // --- Helpers for Up link ---
+  function getParentDirUrlFrom(pathname) {
+    let path = pathname;
+    if (path.endsWith('/index.html')) path = path.slice(0, -('index.html'.length));
+    if (!path.endsWith('/')) path = path.slice(0, path.lastIndexOf('/') + 1);
+    const withoutTrailing = path.endsWith('/') ? path.slice(0, -1) : path;
+    const cut = withoutTrailing.lastIndexOf('/');
+    if (cut <= 0) return '/';
+    return withoutTrailing.substring(0, cut + 1);
+  }
+  function isCurrentAtRoot(pathname) {
+    return pathname === '/' || pathname === '' || pathname === '/index.html';
+  }
+
+  const parentUrl = getParentDirUrlFrom(window.location.pathname);
+  const atRootNow = isCurrentAtRoot(window.location.pathname);
+
+  // --- Up icon ABOVE the title ---
   const upLink = document.createElement('a');
   upLink.classList.add('toc-up-link', 'icon-only');
   upLink.setAttribute('role', 'button');
-  upLink.setAttribute('aria-label', atRoot ? 'Already at site root' : 'Go to parent directory');
+  upLink.setAttribute('aria-label', atRootNow ? 'Already at site root' : 'Go to parent directory');
   upLink.innerHTML = `
-    <!-- Small up icon (chevron-up) -->
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
          viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+         stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
          aria-hidden="true">
-      <polyline points="18 15 12 9 6 15"></polyline>
+      <polyline points="18 14 12 8 6 14"></polyline>
+      <polyline points="18 18 12 12 6 18"></polyline>
     </svg>
   `;
-
-  if (atRoot) {
+  if (atRootNow) {
     upLink.classList.add('disabled');
     upLink.setAttribute('aria-disabled', 'true');
     upLink.setAttribute('tabindex', '-1');
     upLink.addEventListener('click', (e) => e.preventDefault());
   } else {
-    upLink.href = parentUrl; // open parent in same tab
+    upLink.href = parentUrl;
     upLink.setAttribute('target', '_self');
   }
   tocContainer.appendChild(upLink);
-  // --- end new "Up" control ---
 
+  // --- Title ---
   const tocTitle = document.createElement('h3');
   tocTitle.textContent = 'Table of Contents';
   tocTitle.classList.add('toc-title');
   tocContainer.appendChild(tocTitle);
 
+  // --- Build ToC list ---
   const tocList = document.createElement('ul');
   tocList.classList.add('toc-list');
-
-  // Build nested headings
   const levelStack = [tocList];
-  headings.forEach((heading, index) => {
-    const listItem = document.createElement('li');
-    listItem.classList.add('toc-item');
 
-    const link = document.createElement('a');
-    link.classList.add('toc-link');
+  headings.forEach((heading, index) => {
+    const li = document.createElement('li');
+    li.classList.add('toc-item');
+    const a = document.createElement('a');
+    a.classList.add('toc-link');
 
     if (!heading.id) heading.id = `toc-heading-${index}`;
     const text = heading.textContent.trim();
-    link.textContent = text;
-    link.href = `#${heading.id}`;
-    link.title = text;
-    listItem.appendChild(link);
+    a.textContent = text;
+    a.href = `#${heading.id}`;
+    a.title = text;
+    li.appendChild(a);
 
     const level = parseInt(heading.tagName.substring(1));
     if (index > 0) {
@@ -112,19 +110,20 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
     }
-    levelStack[levelStack.length - 1].appendChild(listItem);
+    levelStack[levelStack.length - 1].appendChild(li);
   });
 
   tocContainer.appendChild(tocList);
   document.body.appendChild(tocContainer);
   document.body.appendChild(toggleButton);
 
+  // --- Interactions ---
   toggleButton.addEventListener('click', () => {
     tocContainer.classList.toggle('active');
     toggleButton.classList.toggle('active');
   });
 
-  document.addEventListener('click', function (event) {
+  document.addEventListener('click', (event) => {
     if (!tocContainer.classList.contains('active')) return;
     const insideToc = tocContainer.contains(event.target);
     const onButton = toggleButton.contains(event.target);
@@ -134,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // Match top offset to your nav bar
+  // --- Position to match nav height ---
   requestAnimationFrame(() => {
     const navBar = document.querySelector('.responsive-nav');
     let navBarHeight = 60;
@@ -148,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function () {
     toggleButton.style.setProperty('--toc-top-offset', finalTopOffset + 'px');
   });
 
-  // Smooth-scroll for in-page ToC links
+  // --- Smooth-scroll for in-page anchors (skip the Up link) ---
   document.querySelectorAll('#toc-container a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
       if (this.classList.contains('disabled')) return;
