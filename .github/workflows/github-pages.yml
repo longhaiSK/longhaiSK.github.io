@@ -1,20 +1,27 @@
 name: Deploy static content to Pages with Date Injection
 
 on:
+  # Runs on pushes targeting the default branch
   push:
-    branches: ["main"]
+    branches: ["main"] # Change "main" to your default branch if different (e.g., "master")
+
+  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
+  # Single deploy job since we're just deploying
   deploy:
     environment:
       name: github-pages
@@ -24,51 +31,69 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Important: Fetches all history for git log
 
-      - name: Verify Placeholder and Inject Date (skip if absent)
-        shell: bash
+      - name: Verify Placeholder and Inject Date
+        # This multi-line script runs in the runner's shell
         run: |
-          set -euo pipefail
-          shopt -s globstar nullglob
-          files_ok=1
-
-          # Walk all HTML files in repo (adjust roots if you build to _site/ or docs/)
-          for html_file in **/*.html; do
-            [ -f "$html_file" ] || continue
+          files_ok=1 # Assume okay initially
+          # Find HTML files (adjust path if needed)
+          find . -name "*.html" -type f | while read -r html_file; do
             echo "Processing $html_file"
 
-            # If the file does not contain id="file-date", SKIP (do not fail)
+            # Check if the file even contains the target ID first
             if ! grep -q 'id="file-date"' "$html_file"; then
-              echo "  INFO: Skipping (no id=\"file-date\" in this file)."
-              continue
+              echo "  INFO: Skipping $html_file as it does not contain 'id=\"file-date\"'."
+              continue # Skip to next file
             fi
 
-            # Determine date text from last commit touching this file
-            commit_date_iso=$(git log -1 --format=%cI --follow -- "$html_file" || true)
-            if [ -z "${commit_date_iso:-}" ]; then
-              replacement_text="Last modified: N/A"
+            # --- CRITICAL CHECK: Verify placeholder INSIDE the specific p tag/line ---
+            # Use grep to find the line containing the ID, then pipe to grep again to check for the placeholder *on that specific line*
+            if grep 'id="file-date"' "$html_file" | grep -q '<p id="file-date"></p>'; then
+              echo "  Placeholder found in $html_file."
+              # --- If check passed for this file, attempt replacement ---
+              commit_date_iso=$(git log -1 --format=%cI --follow -- "$html_file")
+              replacement_successful=0
+
+              if [ -z "$commit_date_iso" ]; then
+                echo "  WARNING: Could not find commit date for $html_file. Using N/A."
+                replacement_text="Last modified: N/A"
+              else
+                formatted_date=$(date -d "$commit_date_iso" +'%d/%m/%Y')
+                echo "  Injecting date: $formatted_date"
+                replacement_text="Last modified: $formatted_date"
+              fi
+
+              # Simple sed replacement - replaces the entire content between <p..> and </p> on the target line
+              sed -i.bak "s|<p id=\"file-date\">.*<\/p>|<p id=\"file-date\">$replacement_text<\/p>|g" "$html_file"
+
+              if [ $? -eq 0 ]; then
+                  rm "${html_file}.bak"
+                  replacement_successful=1
+              else
+                  echo "  ERROR: sed command failed for $html_file"
+                  # Try to restore from backup if sed failed after creating .bak
+                  if [ -f "${html_file}.bak" ]; then echo "  Restoring from backup..."; mv "${html_file}.bak" "$html_file"; fi
+                  files_ok=0 # Mark as failed if sed fails
+              fi
             else
-              replacement_text="Last modified: $(date -d "$commit_date_iso" +'%d/%m/%Y')"
+              echo "  ------------------------------------------------------------------"
+              echo "  ERROR: Placeholder '<p id=\"file-date\"></p>' NOT FOUND on the correct line in $html_file."
+              echo "  Please fix this line in the file in your repository source code!"
+              echo "  ------------------------------------------------------------------"
+              files_ok=0 # Mark as failed
+              # Continue checking other files, but the step will fail at the end
             fi
-            export REPL="$replacement_text"
+          done # End while loop
 
-            # Replace ANY <p ... id="file-date" ...>...</p> block (robust to attrs/newlines)
-            # If the tag isn't present, nothing happens (we already checked presence above).
-            if ! perl -0777 -i -pe 's#<p[^>]*\bid="file-date"\b[^>]*>.*?</p>#<p id="file-date">$ENV{REPL}</p>#gs' "$html_file"; then
-              echo "  ERROR: Replacement failed for $html_file"
-              files_ok=0
-            else
-              echo "  Injected: $replacement_text"
-            fi
-          done
-
+          # Exit with error if any file check failed
           if [ $files_ok -ne 1 ]; then
-            echo "One or more files failed to update; see errors above."
+            echo "Exiting workflow step with error due to placeholder issues detected in one or more files. Please check logs above and fix HTML source."
             exit 1
           else
-            echo "Date injection completed (skipped files without the placeholder)."
+            echo "Date injection completed successfully for all applicable files."
           fi
+        shell: bash # Specify the shell to use, bash is common
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -76,6 +101,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
+          # Upload entire repository (since HTML files were modified in place)
+          # Adjust path if your site files are built into a specific directory like '_site' or 'dist'
           path: '.'
 
       - name: Deploy to GitHub Pages
