@@ -5,6 +5,7 @@ author:
     url: "https://longhaisk.github.io/"
 date: "October 2025"
 format:
+  # make sure these files get copied alongside the page
   html:
     theme: cosmo            # (Rmd `theme: null`)
     embed-resources: false # (Rmd `self_contained: false`)
@@ -20,7 +21,6 @@ format:
         <link rel="stylesheet" href="/mystyles.css?v=2">
         <script src="/rendernav.js" defer></script>
         <script src="/loadtoc.js" defer></script>
-  # make sure these files get copied alongside the page
     resources:
       - mystyles.css
       - rendernav.js
@@ -32,8 +32,9 @@ execute:
   cache: true
   fig-width: 9
   fig-height: 6
-
     
+editor_options: 
+  chunk_output_type: console
 ---
 
 # Multiple Linear Regression for Wire Bond Strength Dataset
@@ -44,7 +45,7 @@ execute:
 
 ```{r}
 # Read data. Change the path as necessary.
-# Example: bond.data <- read.csv("data/wire-bond.csv")
+# Example: bond.data <- read.csv("wire-bond.csv")
 bond.data <- read.csv("wire-bond.csv")
 
 # This will now be automatically rendered as a paged table
@@ -67,7 +68,7 @@ bond.data <- data.frame(
 # Create 'strength' based on a linear relationship with the other variables
 bond.data$strength <- (2.5 * bond.data$length) + 
                       (4.1 * bond.data$height) + 
-                      rnorm(n, mean = 0, sd = 20)
+                      rnorm(n, mean = 0, sd = 1)
 
 head(bond.data)
 ```
@@ -122,9 +123,10 @@ fit <- lm(strength ~ length + height, data = bond.data)
 s3d$plane3d(fit, lty.box = "solid")
 ```
 
-**Dynamic 3D Visualization of 3D Data**
 
-```{r}
+
+```{r include=FALSE,  eval=FALSE}
+# *Dynamic 3D Visualization of 3D Data**
 # Load necessary libraries
 library(plotly)
 library(dplyr)
@@ -133,18 +135,11 @@ library(viridisLite)
 # --- 1. Create Reproducible Sample Data ---
 # This part is just to make the example runnable.
 # You can replace this with your own `bond.data` and `fit` objects.
-set.seed(123)
-bond.data <- data.frame(
-  length = runif(50, 1, 2),
-  height = runif(50, 0.5, 1.5),
-  strength = 5 * runif(50, 1, 2) + 2 * runif(50, 0.5, 1.5) + rnorm(50, 0, 0.5)
-) %>%
-  mutate(case = row_number())
-
 # Create a sample linear model fit
 fit <- lm(strength ~ length + height, data = bond.data)
 
-
+bond.data <- bond.data %>%
+  mutate(case = row_number())
 # --- 2. Build the Plot (Corrected Version) ---
 
 # Initialize the base scatter plot
@@ -222,113 +217,67 @@ fig
 
 ```
 
+```{r include=FALSE,  eval=FALSE}
+# --- 1. Clear the environment to prevent variable mix-ups ---
+rm(list = ls())
 
-```{python}
-import plotly.graph_objects as go
-import pandas as pd
-import numpy as np
-from sklearn.linear_model import LinearRegression
+# --- 2. Load libraries ---
+library(plotly)
+library(dplyr)
 
-# --- 1. Create Reproducible Sample Data ---
-# This part is just to make the example runnable.
-np.random.seed(123)
-bond_data = pd.DataFrame({
-    'length': np.random.uniform(1, 2, 50),
-    'height': np.random.uniform(0.5, 1.5, 50)
-})
-# Calculate strength based on a linear relationship with some noise
-bond_data['strength'] = 5 * bond_data['length'] + 2 * bond_data['height'] + np.random.normal(0, 0.5, 50)
-bond_data['case'] = np.arange(1, len(bond_data) + 1)
-
-# --- 2. Fit a Multiple Linear Regression Model ---
-# Prepare the features (X) and target (y) for the model
-X = bond_data[['length', 'height']]
-y = bond_data['strength']
-
-# Create and fit the model
-model = LinearRegression()
-model.fit(X, y)
-
-# --- 3. Prepare Data for the Regression Surface ---
-# Create a grid of x (length) and y (height) values
-resolution = 20
-axis_x = np.linspace(bond_data['length'].min(), bond_data['length'].max(), resolution)
-axis_y = np.linspace(bond_data['height'].min(), bond_data['height'].max(), resolution)
-grid_x, grid_y = np.meshgrid(axis_x, axis_y)
-
-# Predict the z (strength) values for every point on the grid
-# The grid points must be flattened into a 2D array for prediction
-grid_features = np.vstack([grid_x.ravel(), grid_y.ravel()]).T
-z_matrix = model.predict(grid_features).reshape(grid_x.shape)
-
-
-# --- 4. Create the Plotly Figure ---
-
-# a. Create the main scatter plot trace
-scatter_trace = go.Scatter3d(
-    x=bond_data['length'],
-    y=bond_data['height'],
-    z=bond_data['strength'],
-    mode='markers',
-    marker=dict(
-        size=5,
-        color=bond_data['strength'],  # Color points by strength value
-        colorscale='Viridis',       # Use the 'Viridis' color scale
-        colorbar=dict(title='Strength'),
-        showscale=True
-    ),
-    text=bond_data['case'],
-    hovertemplate=(
-        "<b>Case: %{text}</b><br>" +
-        "Length: %{x:.2f}<br>" +
-        "Height: %{y:.2f}<br>" +
-        "Strength: %{z:.2f}<extra></extra>"
-    ),
-    name='Data Points'
+# --- 3. Define the perfect data ---
+perfect_data <- data.frame(
+  length = c(1, 3, 1, 3),
+  height = c(2, 1, 4, 3),
+  strength = c(4, 7, 6, 9)
 )
 
-# b. Create the text labels trace
-text_trace = go.Scatter3d(
-    x=bond_data['length'],
-    y=bond_data['height'],
-    z=bond_data['strength'],
-    mode='text',
-    text=bond_data['case'],
-    textfont=dict(color='black', size=10),
-    hoverinfo='skip', # Disable hover events for the text labels
-    showlegend=False
+# --- 4. Fit the model ONLY on the perfect data ---
+fit_perfect <- lm(strength ~ length + height, data = perfect_data)
+
+# --- 5. Prepare the surface grid from the perfect fit ---
+axis_x <- seq(min(perfect_data$length), max(perfect_data$length), length.out = 10)
+axis_y <- seq(min(perfect_data$height), max(perfect_data$height), length.out = 10)
+
+z_matrix <- outer(
+  axis_x,
+  axis_y,
+  function(len, ht) {
+    predict(fit_perfect, newdata = data.frame(length = len, height = ht))
+  }
 )
 
-# c. Create the regression surface trace
-surface_trace = go.Surface(
-    x=axis_x,
-    y=axis_y,
-    z=z_matrix,
-    colorscale='Blues',
-    opacity=0.7,
-    showscale=False,
-    name='Regression Plane',
-    hoverinfo='skip'
-)
+# --- 6. Build the plot ---
+fig <- plot_ly(data = perfect_data, x = ~length, y = ~height, z = ~strength,
+               type = "scatter3d", mode = "markers", 
+               marker = list(size=8, color="red"), name = "Data Points") %>%
+  add_surface(x = ~axis_x, y = ~axis_y, z = ~z_matrix, 
+              opacity = 0.7, name = "Fitted Surface") %>%
+  layout(title = "Fit on a Perfect, Noise-Free Dataset")
 
-# d. Combine all traces into a single figure
-fig = go.Figure(data=[scatter_trace, text_trace, surface_trace])
+# --- 7. Display the plot ---
+fig
 
-# e. Update the layout with titles and axis labels
-fig.update_layout(
-    title_text='Interactive 3D Scatter Plot of Bond Strength',
-    scene=dict(
-        xaxis_title='Length',
-        yaxis_title='Height',
-        zaxis_title='Strength'
-    ),
-    margin=dict(l=0, r=0, b=0, t=40)
-)
-
-# f. Display the figure
-fig.show()
 ```
 
+```{r include=FALSE,  eval=FALSE}
+par(mfrow = c(1,1))
+s3d <- with(perfect_data, scatterplot3d(
+  x = length,
+  y = height,
+  z = strength,
+  pch = 19,
+  color = "steelblue",
+  main = "3D Scatterplot: Strength vs. Length and Height",
+  xlab = "Length",
+  ylab = "Height",
+  zlab = "Strength",
+  angle = 60
+))
+
+fit <- lm(strength ~ length + height, data = perfect_data)
+s3d$plane3d(fit, lty.box = "solid")
+```
 
 ## Model Fitting and Summary
 
