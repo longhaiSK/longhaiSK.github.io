@@ -626,37 +626,153 @@ fit1 <- lm(y ~ x)
 anova(fit1, fit_poly)
 ```
 
-# Indicator Variables
+# Handling Categorical Variables with Dummy Variables
+
+Investigate the common observation that males tend to have higher blood pressure than females of similar age.
 
 ```{r}
+#| echo: true
 # Note: Update this path to your local file location
 sbpdata <- read.csv("sbpdata.csv")
-
-fit.full <- lm(sbp ~ age + sex + age:sex, data = sbpdata)
-summary(fit.full)
+sbpdata
 ```
 
-## Hypothesis Tests for Indicator Models
 
+
+
+## Three Nested Models
+
+### Coincidence Model
 ```{r}
-# Coincidence: H0: beta2=beta3=0
+#| echo: true
+# Ensure sex is a factor (labels will appear in the legend)
+sbpdata$sex <- as.factor(sbpdata$sex)
+
+# Fit (you already have this)
 fit.coin <- lm(sbp ~ age, data = sbpdata)
-anova(fit.coin, fit.full)
 
-# Parallelism: H0: beta3=0
-fit.para <- lm(sbp ~ age + sex, data = sbpdata)
-anova(fit.para, fit.full)
+# Generate predictions over the observed age range
+new_age <- seq(min(sbpdata$age, na.rm = TRUE),
+               max(sbpdata$age, na.rm = TRUE),
+               length.out = 200)
+pred <- predict(fit.coin, newdata = data.frame(age = new_age))
 
-# Equal intercepts (assuming parallel lines)
-fit1.inter <- lm(sbp ~ age + sex, data = sbpdata)
-fit2.inter <- lm(sbp ~ age, data = sbpdata)
-anova(fit2.inter, fit1.inter)
+# Simple palette for the sex levels (works for 1–3 levels; expand if needed)
+lev  <- levels(sbpdata$sex)
+cols <- setNames(c("steelblue3", "tomato3", "darkorchid3")[seq_along(lev)], lev)
+
+# Scatter plot with colored points by sex
+plot(sbp ~ age, data = sbpdata,
+     col = cols[sbpdata$sex], pch = 16,
+     xlab = "Age", ylab = "Systolic BP")
+
+# Add predicted line
+lines(new_age, pred, lwd = 2)
+
+# Legend
+legend("topleft", legend = lev, col = cols[lev], pch = 16, bty = "n", title = "Sex")
+
+```
+```{r}
+#| echo: true
+data.frame(model.matrix(fit.coin)) 
+anova(fit.coin)
 ```
 
-## Plotting the Fitted Model
+### Additive Effect Model
 
 ```{r}
-colors <- ifelse(sbpdata$sex == 1, "black", "gray")
+#| echo: true
+# Parallelism: H0: beta3=0 (Sex has additive effect)
+fit.para <- lm(sbp ~ age + sex, data = sbpdata)
+
+# Ensure sex is a factor for labeling/colors
+sbpdata$sex <- factor(sbpdata$sex)
+
+# Fit (additive: parallelism)
+fit.para <- lm(sbp ~ age + sex, data = sbpdata)
+
+# X-range and palette
+ages <- seq(min(sbpdata$age, na.rm = TRUE),
+            max(sbpdata$age, na.rm = TRUE),
+            length.out = 200)
+lev  <- levels(sbpdata$sex)
+cols <- setNames(c("steelblue3", "tomato3", "darkorchid3")[seq_along(lev)], lev)
+
+# Scatter with colored points by sex
+plot(sbp ~ age, data = sbpdata,
+     col = cols[sbpdata$sex], pch = 16,
+     xlab = "Age", ylab = "Systolic BP")
+
+# Parallel fitted lines: one per sex (same slope, different intercepts)
+for (sx in lev) {
+  nd <- data.frame(age = ages, sex = factor(sx, levels = lev))
+  yhat <- predict(fit.para, newdata = nd)
+  lines(ages, yhat, col = cols[sx], lwd = 2)
+}
+
+# Legend
+legend("topleft", legend = lev, col = cols[lev], pch = 16, lwd = 2, bty = "n", title = "Sex")
+
+```
+
+
+```{r}
+#| echo: true
+data.frame(model.matrix(fit.para))
+anova(fit.coin, fit.para)
+```
+
+### Interaction Effect (Varying Slope) Model
+```{r}
+#| echo: true
+# Make sure sex is a factor (for colors/legend)
+sbpdata$sex <- factor(sbpdata$sex)
+
+# Fit (interaction: different slopes by sex)
+fit.full <- lm(sbp ~ age + sex + age:sex, data = sbpdata)
+
+# Age grid and palette
+ages <- seq(min(sbpdata$age, na.rm = TRUE),
+            max(sbpdata$age, na.rm = TRUE),
+            length.out = 200)
+lev  <- levels(sbpdata$sex)
+cols <- setNames(c("steelblue3", "tomato3", "darkorchid3")[seq_along(lev)], lev)
+
+# Scatter: color points by sex
+plot(sbp ~ age, data = sbpdata,
+     col = cols[sbpdata$sex], pch = 16,
+     xlab = "Age", ylab = "Systolic BP")
+
+# Fitted lines: one per sex (different slopes allowed)
+for (sx in lev) {
+  nd <- data.frame(age = ages, sex = factor(sx, levels = lev))
+  yhat <- predict(fit.full, newdata = nd)
+  lines(ages, yhat, col = cols[sx], lwd = 2)
+}
+
+# Legend
+legend("topleft", legend = lev, col = cols[lev], pch = 16, lwd = 2, bty = "n", title = "Sex")
+
+```
+
+
+```{r}
+#| echo: true
+data.frame(model.matrix(fit.full))
+anova(fit.para, fit.full)
+anova(fit.coin, fit.full)
+anova (fit.full)
+
+summary(fit.full)
+
+
+```
+
+## Another way to draw the lines with direct calculation
+
+```{r}
+colors <- ifelse(sbpdata$sex == 1, "red", "blue")
 
 plot(sbpdata$age, sbpdata$sbp, xlab = "Age", ylab = "SBP", col = colors)
 
