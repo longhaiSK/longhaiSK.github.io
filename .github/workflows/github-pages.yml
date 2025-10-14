@@ -20,68 +20,84 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Verify Placeholder and Inject Date (skip if absent)
+      # ---------- BUILD (uncomment ONE that matches your stack) ----------
+      # Quarto site build (outputs to _site/ by default)
+      # - name: Setup Quarto
+      #   uses: quarto-dev/quarto-actions/setup@v2
+      # - name: Render Quarto
+      #   run: quarto render
+
+      # R Markdown site build (often to docs/ or _site/)
+      # - name: Setup R
+      #   uses: r-lib/actions/setup-r@v2
+      # - name: Render Rmd Site
+      #   run: Rscript -e 'rmarkdown::render_site()'
+
+      # Node/SPA build (outputs to dist/)
+      # - name: Node build
+      #   run: |
+      #     npm ci
+      #     npm run build
+
+      # ---------- DETECT OUTPUT DIR ----------
+      - name: Detect site output directory
+        id: outdir
         shell: bash
         run: |
           set -euo pipefail
+          # Prefer common site folders; fall back to repo root if HTMLs live there
+          if [ -d "_site" ];        then echo "dir=_site"        >> "$GITHUB_OUTPUT"
+          elif [ -d "docs" ];       then echo "dir=docs"         >> "$GITHUB_OUTPUT"
+          elif [ -d "dist" ];       then echo "dir=dist"         >> "$GITHUB_OUTPUT"
+          else echo "dir=."         >> "$GITHUB_OUTPUT"; fi
+          echo "Using site dir: $(cat "$GITHUB_OUTPUT")"
+
+      # ---------- INJECT AFTER BUILD, SKIP IF NOT PRESENT ----------
+      - name: Inject last-modified date where placeholder exists
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s globstar nullglob
+          SITE_DIR='${{ steps.outdir.outputs.dir }}'
+
+          echo "Scanning HTML files under: $SITE_DIR"
           files_ok=1
-          updated_any=0
 
-          # Use tracked HTML files to avoid processing build artifacts or vendor dirs
-          mapfile -t html_files < <(git ls-files -- '*.html' || true)
-          if [ ${#html_files[@]} -eq 0 ]; then
-            echo "No tracked HTML files found. Nothing to do."
-            exit 0
-          fi
-
-          for html_file in "${html_files[@]}"; do
+          for html_file in "$SITE_DIR"/**/*.html; do
             [ -f "$html_file" ] || continue
-            echo "Processing $html_file"
-
-            # Skip files without the placeholder (accept both single and double quotes)
-            if ! grep -q -e 'id="file-date"' -e "id='file-date'" "$html_file"; then
-              echo "  INFO: Skipping (no id=\"file-date\" in this file)."
+            # Only touch files that actually contain id="file-date"
+            if ! grep -q 'id="file-date"' "$html_file"; then
+              echo "SKIP: $html_file (no id=\"file-date\")"
               continue
             fi
 
-            # Determine last commit date for this file (ISO); fallback to current date if none
+            # Last commit touching this built file; if you want the *source* file date,
+            # compute it differently (map built path to source path).
             commit_date_iso=$(git log -1 --format=%cI --follow -- "$html_file" || true)
             if [ -z "${commit_date_iso:-}" ]; then
-              REPL="Last modified: $(date -I)"
+              REPL="Last modified: N/A"
             else
               REPL="Last modified: $(date -d "$commit_date_iso" +'%d/%m/%Y')"
             fi
             export REPL
 
-            # Replace any <p ... id="file-date" ...>...</p> block robustly (works across newlines/attrs)
-            # Use perl with environment variable to avoid complex shell quoting.
-            if perl -0777 -i.bak -pe 's#<p[^>]*\bid=(?:"|\')file-date(?:"\')[^>]*>.*?</p>#<p id="file-date">$ENV{REPL}</p>#gs' "$html_file"; then
-              rm -f "${html_file}.bak"
-              echo "  Injected: $REPL"
-              updated_any=1
-            else
-              echo "  ERROR: Replacement failed for $html_file"
-              if [ -f "${html_file}.bak" ]; then mv "${html_file}.bak" "$html_file"; fi
+            # Robust replacement: any <p ... id="file-date" ...> ... </p>
+            if ! perl -0777 -i -pe 's#<p[^>]*\bid="file-date"\b[^>]*>.*?</p>#<p id="file-date">$ENV{REPL}</p>#gs' "$html_file"; then
+              echo "ERROR: Replacement failed for $html_file"
               files_ok=0
+            else
+              echo "OK: $html_file  ->  $REPL"
             fi
           done
 
-          if [ $files_ok -ne 1 ]; then
-            echo "One or more files failed to update; see errors above."
-            exit 1
-          fi
-
-          if [ $updated_any -eq 0 ]; then
-            echo "No placeholders found; no files were updated."
-          else
-            echo "Date injection completed for files containing the placeholder."
-          fi
+          [ $files_ok -eq 1 ] || { echo "Some files failed to update"; exit 1; }
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -89,7 +105,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: ${{ steps.outdir.outputs.dir }}
 
       - name: Deploy to GitHub Pages
         id: deployment
