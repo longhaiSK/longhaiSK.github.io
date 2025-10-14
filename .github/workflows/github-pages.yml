@@ -1,4 +1,4 @@
-name: Deploy static content to Pages
+name: Deploy static content to Pages with Date Injection
 
 on:
   push:
@@ -26,10 +26,49 @@ jobs:
         with:
           fetch-depth: 0
 
-      # --- If you build your site, add those steps here (Quarto/Rmd/NPM, etc.) ---
-      # - name: Build site (example for Quarto)
-      #   uses: quarto-dev/quarto-actions/setup@v2
-      # - run: quarto render
+      - name: Verify Placeholder and Inject Date (skip if absent)
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s globstar nullglob
+          files_ok=1
+
+          # Walk all HTML files in repo (adjust roots if you build to _site/ or docs/)
+          for html_file in **/*.html; do
+            [ -f "$html_file" ] || continue
+            echo "Processing $html_file"
+
+            # If the file does not contain id="file-date", SKIP (do not fail)
+            if ! grep -q 'id="file-date"' "$html_file"; then
+              echo "  INFO: Skipping (no id=\"file-date\" in this file)."
+              continue
+            fi
+
+            # Determine date text from last commit touching this file
+            commit_date_iso=$(git log -1 --format=%cI --follow -- "$html_file" || true)
+            if [ -z "${commit_date_iso:-}" ]; then
+              replacement_text="Last modified: N/A"
+            else
+              replacement_text="Last modified: $(date -d "$commit_date_iso" +'%d/%m/%Y')"
+            fi
+            export REPL="$replacement_text"
+
+            # Replace ANY <p ... id="file-date" ...>...</p> block (robust to attrs/newlines)
+            # If the tag isn't present, nothing happens (we already checked presence above).
+            if ! perl -0777 -i -pe 's#<p[^>]*\bid="file-date"\b[^>]*>.*?</p>#<p id="file-date">$ENV{REPL}</p>#gs' "$html_file"; then
+              echo "  ERROR: Replacement failed for $html_file"
+              files_ok=0
+            else
+              echo "  Injected: $replacement_text"
+            fi
+          done
+
+          if [ $files_ok -ne 1 ]; then
+            echo "One or more files failed to update; see errors above."
+            exit 1
+          else
+            echo "Date injection completed (skipped files without the placeholder)."
+          fi
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -37,8 +76,6 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Adjust to your built site directory if not at repo root:
-          # e.g., "_site", "docs", or "dist"
           path: '.'
 
       - name: Deploy to GitHub Pages
