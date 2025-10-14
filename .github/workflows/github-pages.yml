@@ -1,68 +1,96 @@
-  - name: Verify Placeholder and Inject Date (skip if absent)
-    shell: bash
-    run: |
-      set -euo pipefail
-      files_ok=1
-      updated_any=0
+name: Deploy static content to Pages with Date Injection
 
-      # Use tracked HTML files to avoid processing build artifacts or vendor dirs
-      mapfile -t html_files < <(git ls-files -- '*.html' || true)
-      if [ ${#html_files[@]} -eq 0 ]; then
-        echo "No tracked HTML files found. Nothing to do."
-        exit 0
-      fi
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
 
-      for html_file in "${html_files[@]}"; do
-        [ -f "$html_file" ] || continue
-        echo "Processing $html_file"
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
-        # Skip files without the placeholder (accept both single and double quotes)
-        if ! grep -q -e 'id="file-date"' -e "id='file-date'" "$html_file"; then
-          echo "  INFO: Skipping (no id=\"file-date\" in this file)."
-          continue
-        fi
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
-        # Determine last commit date for this file (ISO); fallback to current date if none
-        commit_date_iso=$(git log -1 --format=%cI --follow -- "$html_file" || true)
-        if [ -z "${commit_date_iso:-}" ]; then
-          REPL="Last modified: $(date -I)"
-        else
-          REPL="Last modified: $(date -d "$commit_date_iso" +'%d/%m/%Y')"
-        fi
-        export REPL
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-        # Replace any <p ... id="file-date" ...>...</p> block robustly (works across newlines/attrs)
-        # Use perl with environment variable to avoid complex shell quoting.
-        if perl -0777 -i.bak -pe 's#<p[^>]*\bid=(?:"|\')file-date(?:"\')[^>]*>.*?</p>#<p id="file-date">$ENV{REPL}</p>#gs' "$html_file"; then
-          rm -f "${html_file}.bak"
-          echo "  Injected: $REPL"
-          updated_any=1
-        else
-          echo "  ERROR: Replacement failed for $html_file"
-          if [ -f "${html_file}.bak" ]; then mv "${html_file}.bak" "$html_file"; fi
-          files_ok=0
-        fi
-      done
+      - name: Verify Placeholder and Inject Date (skip if absent)
+        shell: bash
+        run: |
+          set -euo pipefail
+          files_ok=1
+          updated_any=0
 
-      if [ $files_ok -ne 1 ]; then
-        echo "One or more files failed to update; see errors above."
-        exit 1
-      fi
+          # Use tracked HTML files to avoid processing build artifacts or vendor dirs
+          mapfile -t html_files < <(git ls-files -- '*.html' || true)
+          if [ ${#html_files[@]} -eq 0 ]; then
+            echo "No tracked HTML files found. Nothing to do."
+            exit 0
+          fi
 
-      if [ $updated_any -eq 0 ]; then
-        echo "No placeholders found; no files were updated."
-      else
-        echo "Date injection completed for files containing the placeholder."
-      fi
+          for html_file in "${html_files[@]}"; do
+            [ -f "$html_file" ] || continue
+            echo "Processing $html_file"
 
-  - name: Setup Pages
-    uses: actions/configure-pages@v5
+            # Skip files without the placeholder (accept both single and double quotes)
+            if ! grep -q -e 'id="file-date"' -e "id='file-date'" "$html_file"; then
+              echo "  INFO: Skipping (no id=\"file-date\" in this file)."
+              continue
+            fi
 
-  - name: Upload artifact
-    uses: actions/upload-pages-artifact@v3
-    with:
-      path: '.'
+            # Determine last commit date for this file (ISO); fallback to current date if none
+            commit_date_iso=$(git log -1 --format=%cI --follow -- "$html_file" || true)
+            if [ -z "${commit_date_iso:-}" ]; then
+              REPL="Last modified: $(date -I)"
+            else
+              REPL="Last modified: $(date -d "$commit_date_iso" +'%d/%m/%Y')"
+            fi
+            export REPL
 
-  - name: Deploy to GitHub Pages
-    id: deployment
-    uses: actions/deploy-pages@v4
+            # Replace any <p ... id="file-date" ...>...</p> block robustly (works across newlines/attrs)
+            # Use perl with environment variable to avoid complex shell quoting.
+            if perl -0777 -i.bak -pe 's#<p[^>]*\bid=(?:"|\')file-date(?:"\')[^>]*>.*?</p>#<p id="file-date">$ENV{REPL}</p>#gs' "$html_file"; then
+              rm -f "${html_file}.bak"
+              echo "  Injected: $REPL"
+              updated_any=1
+            else
+              echo "  ERROR: Replacement failed for $html_file"
+              if [ -f "${html_file}.bak" ]; then mv "${html_file}.bak" "$html_file"; fi
+              files_ok=0
+            fi
+          done
+
+          if [ $files_ok -ne 1 ]; then
+            echo "One or more files failed to update; see errors above."
+            exit 1
+          fi
+
+          if [ $updated_any -eq 0 ]; then
+            echo "No placeholders found; no files were updated."
+          else
+            echo "Date injection completed for files containing the placeholder."
+          fi
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
