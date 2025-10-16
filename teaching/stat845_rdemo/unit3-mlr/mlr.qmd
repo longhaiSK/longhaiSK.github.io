@@ -740,20 +740,20 @@ sbpdata
 
 ## Four Models Involving "sex"
 
-### Coincidence Model
+### Coincidence Model (Age Only)
 ```{r}
 #| echo: true
 # Ensure sex is a factor (labels will appear in the legend)
 sbpdata$sex <- as.factor(sbpdata$sex)
 
 # Fit (you already have this)
-fit.coin <- lm(sbp ~ age, data = sbpdata)
+fit.age <- lm(sbp ~ age, data = sbpdata)
 
 # Generate predictions over the observed age range
 new_age <- seq(min(sbpdata$age, na.rm = TRUE),
                max(sbpdata$age, na.rm = TRUE),
                length.out = 200)
-pred <- predict(fit.coin, newdata = data.frame(age = new_age))
+pred <- predict(fit.age, newdata = data.frame(age = new_age))
 
 # Simple palette for the sex levels (works for 1–3 levels; expand if needed)
 lev  <- levels(sbpdata$sex)
@@ -773,22 +773,22 @@ legend("topleft", legend = lev, col = cols[lev], pch = 16, bty = "n", title = "S
 ```
 ```{r}
 #| echo: true
-data.frame(model.matrix(fit.coin)) 
-print(anova(fit.coin))
+data.frame(model.matrix(fit.age)) 
+print(anova(fit.age))
 ```
 
-### Additive Effect Model
+### Additive Effect Model (Age + Sex)
 
 ```{r}
 #| echo: true
 # Parallelism: H0: beta3=0 (Sex has additive effect)
-fit.para <- lm(sbp ~ age + sex, data = sbpdata)
+fit.agePLUSsex <- lm(sbp ~ age + sex, data = sbpdata)
 
 # Ensure sex is a factor for labeling/colors
 sbpdata$sex <- factor(sbpdata$sex)
 
 # Fit (additive: parallelism)
-fit.para <- lm(sbp ~ age + sex, data = sbpdata)
+fit.agePLUSsex <- lm(sbp ~ age + sex, data = sbpdata)
 
 # X-range and palette
 ages <- seq(min(sbpdata$age, na.rm = TRUE),
@@ -805,7 +805,7 @@ plot(sbp ~ age, data = sbpdata,
 # Parallel fitted lines: one per sex (same slope, different intercepts)
 for (sx in lev) {
   nd <- data.frame(age = ages, sex = factor(sx, levels = lev))
-  yhat <- predict(fit.para, newdata = nd)
+  yhat <- predict(fit.agePLUSsex, newdata = nd)
   lines(ages, yhat, col = cols[sx], lwd = 2)
 }
 
@@ -817,18 +817,18 @@ legend("topleft", legend = lev, col = cols[lev], pch = 16, lwd = 2, bty = "n", t
 
 ```{r}
 #| echo: true
-data.frame(model.matrix(fit.para))
-print(anova(fit.coin, fit.para))
+data.frame(model.matrix(fit.agePLUSsex))
+print(anova(fit.age, fit.agePLUSsex))
 ```
 
-### Interaction Effect (Varying Slope) Model
+### Varying Intercept and Varying Slope Model (Age + Sex + Age:Sex)
 ```{r}
 #| echo: true
 # Make sure sex is a factor (for colors/legend)
 sbpdata$sex <- factor(sbpdata$sex)
 
 # Fit (interaction: different slopes by sex)
-fit.full <- lm(sbp ~ age + sex + age:sex, data = sbpdata)
+fit.age.TIMES.sex <- lm(sbp ~ age + sex + age:sex, data = sbpdata)
 
 # Age grid and palette
 ages <- seq(min(sbpdata$age, na.rm = TRUE),
@@ -845,7 +845,7 @@ plot(sbp ~ age, data = sbpdata,
 # Fitted lines: one per sex (different slopes allowed)
 for (sx in lev) {
   nd <- data.frame(age = ages, sex = factor(sx, levels = lev))
-  yhat <- predict(fit.full, newdata = nd)
+  yhat <- predict(fit.age.TIMES.sex, newdata = nd)
   lines(ages, yhat, col = cols[sx], lwd = 2)
 }
 
@@ -858,22 +858,22 @@ legend("topleft", legend = lev, col = cols[lev], pch = 16, lwd = 2, bty = "n", t
 
 ```{r}
 #| echo: true
-data.frame(model.matrix(fit.full))
+data.frame(model.matrix(fit.age.TIMES.sex))
 
-summary(fit.full)
+summary(fit.age.TIMES.sex)
 
-print(anova(fit.coin,fit.para,fit.full))
+print(anova(fit.age,fit.agePLUSsex,fit.age.TIMES.sex))
 ```
 
 
-### Varying Slope, Equal Intercept Model
+### Varying Slope, Equal Intercept Model (Age + Age:Sex)
 ```{r}
 #| echo: true
 # Make sure sex is a factor (for colors/legend)
 sbpdata$sex <- factor(sbpdata$sex)
 
 # Fit (interaction: different slopes by sex)
-fit.eqint <- lm(sbp ~ age + age:sex, data = sbpdata)
+fit.equal.intercept <- lm(sbp ~ age + age:sex, data = sbpdata)
 
 
 # Age grid and palette
@@ -891,7 +891,7 @@ plot(sbp ~ age, data = sbpdata,
 # Fitted lines: one per sex (different slopes allowed)
 for (sx in lev) {
   nd <- data.frame(age = ages, sex = factor(sx, levels = lev))
-  yhat <- predict(fit.eqint, newdata = nd)
+  yhat <- predict(fit.equal.intercept, newdata = nd)
   lines(ages, yhat, col = cols[sx], lwd = 2)
 }
 
@@ -900,20 +900,22 @@ legend("topleft", legend = lev, col = cols[lev], pch = 16, lwd = 2, bty = "n", t
 
 ```
 
-## Orders of Terms Matters in ANOVA and Warnings in Interpreting t-test
+## Orders of Terms Matters in ANOVA and Warnings in Interpreting t-test Tables
 ```{r}
 #| echo: true
 #| message: true
 
+fit.int <- lm(sbp ~ 1, data = sbpdata)
+fit.sex <- lm(sbp ~ sex, data = sbpdata)
 
+print(anova(fit.int,fit.age,fit.agePLUSsex, fit.age.TIMES.sex))
+print(anova(fit.int,fit.age,fit.equal.intercept, fit.age.TIMES.sex))
+print(anova(fit.int,fit.sex,fit.agePLUSsex, fit.age.TIMES.sex))
 
-print(anova(fit.coin,fit.para, fit.full))
-print(anova(fit.coin,fit.eqint, fit.full))
-
-summary(fit.coin)
-summary(fit.eqint)
-summary(fit.para)
-summary(fit.full)
+summary(fit.age)
+summary(fit.equal.intercept)
+summary(fit.agePLUSsex)
+summary(fit.age.TIMES.sex)
 
 
 ```
