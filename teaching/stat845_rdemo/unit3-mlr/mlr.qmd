@@ -636,7 +636,8 @@ anova(fit_age, fit_age_hgt)
 
 ## Relationship between t-test and partial F-test
 
-A t-test for a single coefficient is a special case of the partial F-test; the relationship is $F = t^2$ for 1 df in the numerator.
+- A t-test for a single coefficient is a special case of the partial F-test; the relationship is $F = t^2$ for 1 df in the numerator. 
+- The p-value from t-test (output of *summary(lm())*) is the same as anova test for: $H_0: \beta_j = 0$ vs $H_1$: all covaraites have non-zero effects.  
 
 # Predictions for Mean Response and a Future Observation
 
@@ -737,7 +738,7 @@ sbpdata
 
 
 
-## Three Nested Models
+## Four Models Involving "sex"
 
 ### Coincidence Model
 ```{r}
@@ -773,7 +774,7 @@ legend("topleft", legend = lev, col = cols[lev], pch = 16, bty = "n", title = "S
 ```{r}
 #| echo: true
 data.frame(model.matrix(fit.coin)) 
-anova(fit.coin)
+print(anova(fit.coin))
 ```
 
 ### Additive Effect Model
@@ -817,7 +818,7 @@ legend("topleft", legend = lev, col = cols[lev], pch = 16, lwd = 2, bty = "n", t
 ```{r}
 #| echo: true
 data.frame(model.matrix(fit.para))
-anova(fit.coin, fit.para)
+print(anova(fit.coin, fit.para))
 ```
 
 ### Interaction Effect (Varying Slope) Model
@@ -853,32 +854,70 @@ legend("topleft", legend = lev, col = cols[lev], pch = 16, lwd = 2, bty = "n", t
 
 ```
 
+**Model Matrix and ANOVA**
 
 ```{r}
 #| echo: true
 data.frame(model.matrix(fit.full))
-anova(fit.para, fit.full)
-anova(fit.coin, fit.full)
-anova (fit.full)
 
+summary(fit.full)
+
+print(anova(fit.coin,fit.para,fit.full))
+```
+
+
+### Varying Slope, Equal Intercept Model
+```{r}
+#| echo: true
+# Make sure sex is a factor (for colors/legend)
+sbpdata$sex <- factor(sbpdata$sex)
+
+# Fit (interaction: different slopes by sex)
+fit.eqint <- lm(sbp ~ age + age:sex, data = sbpdata)
+
+
+# Age grid and palette
+ages <- seq(min(sbpdata$age, na.rm = TRUE),
+            max(sbpdata$age, na.rm = TRUE),
+            length.out = 200)
+lev  <- levels(sbpdata$sex)
+cols <- setNames(c("steelblue3", "tomato3", "darkorchid3")[seq_along(lev)], lev)
+
+# Scatter: color points by sex
+plot(sbp ~ age, data = sbpdata,
+     col = cols[sbpdata$sex], pch = 16,
+     xlab = "Age", ylab = "Systolic BP")
+
+# Fitted lines: one per sex (different slopes allowed)
+for (sx in lev) {
+  nd <- data.frame(age = ages, sex = factor(sx, levels = lev))
+  yhat <- predict(fit.eqint, newdata = nd)
+  lines(ages, yhat, col = cols[sx], lwd = 2)
+}
+
+# Legend
+legend("topleft", legend = lev, col = cols[lev], pch = 16, lwd = 2, bty = "n", title = "Sex")
+
+```
+
+## Orders of Terms Matters in ANOVA and Warnings in Interpreting t-test
+```{r}
+#| echo: true
+#| message: true
+
+
+
+print(anova(fit.coin,fit.para, fit.full))
+print(anova(fit.coin,fit.eqint, fit.full))
+
+summary(fit.coin)
+summary(fit.eqint)
+summary(fit.para)
 summary(fit.full)
 
 
 ```
 
-## Another way to draw the lines with direct calculation
-
-```{r}
-colors <- ifelse(sbpdata$sex == 1, "red", "blue")
-
-plot(sbpdata$age, sbpdata$sbp, xlab = "Age", ylab = "SBP", col = colors)
-
-lines(sbpdata$age, cbind(1, sbpdata$age, 1, sbpdata$age) %*% coef(fit.full), col = "black")
-lines(sbpdata$age, cbind(1, sbpdata$age, 0, 0) %*% coef(fit.full), col = "gray")
-
-legend("topleft", legend = c("sex = 1 (male)", "sex = 0 (female)"), 
-       lty = c(1, 1), col = c("black", "gray"))
-```
 
 # Model Building
 

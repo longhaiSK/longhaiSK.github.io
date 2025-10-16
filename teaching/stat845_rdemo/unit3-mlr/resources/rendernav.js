@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const navigationHTML = `
         <nav class="responsive-nav">
             <div class="nav-brand">
-                <img src="/images/usask-logo-lg.png" class="nav-logo" alt="UofS Logo"> 
+                <img src="/resources/usask-logo-lg.png" class="nav-logo" alt="UofS Logo"> 
                 <span class="nav-prof-name">Prof. Longhai Li</span>
             </div>
             <button class="hamburger-menu" aria-label="Toggle menu" aria-expanded="false">
