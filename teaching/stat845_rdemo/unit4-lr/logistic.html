@@ -569,8 +569,8 @@ Number of Fisher Scoring iterations: 5</code></pre>
 <li>For continuous predictors (e.g., <code>sbp</code>, <code>age</code>), <code>exp(beta)</code> is the multiplicative change in the odds for a one‑unit increase. For a <em>d</em>-unit increase, the OR is <code>exp(d * beta)</code>.</li>
 </ul>
 </section>
-<section id="inference-confidence-intervals-and-covariance-matrix" class="level2" data-number="3.4">
-<h2 data-number="3.4" class="anchored" data-anchor-id="inference-confidence-intervals-and-covariance-matrix"><span class="header-section-number">3.4</span> Inference: Confidence Intervals and Covariance Matrix</h2>
+<section id="inference-for-coefficients-confidence-intervals-and-covariance-matrix" class="level2" data-number="3.4">
+<h2 data-number="3.4" class="anchored" data-anchor-id="inference-for-coefficients-confidence-intervals-and-covariance-matrix"><span class="header-section-number">3.4</span> Inference for Coefficients: Confidence Intervals and Covariance Matrix</h2>
 <p>We extract profile‑likelihood CIs and the covariance matrix to confirm standard errors.</p>
 <div class="cell">
 <details class="code-fold">
@@ -628,8 +628,8 @@ hpt          4.044434e-04 -6.046197e-05  9.506863e-04  1.295828e-01</code></pre>
 </div>
 </div>
 </section>
-<section id="adjusted-odds-ratios-for-individual-predictors" class="level2" data-number="3.5">
-<h2 data-number="3.5" class="anchored" data-anchor-id="adjusted-odds-ratios-for-individual-predictors"><span class="header-section-number">3.5</span> Adjusted Odds Ratios for Individual Predictors</h2>
+<section id="inference-for-odds-ratios" class="level2" data-number="3.5">
+<h2 data-number="3.5" class="anchored" data-anchor-id="inference-for-odds-ratios"><span class="header-section-number">3.5</span> Inference for Odds Ratios</h2>
 <section id="interpretation-of-odds-ratios-in-logistic-regression" class="level3" data-number="3.5.1">
 <h3 data-number="3.5.1" class="anchored" data-anchor-id="interpretation-of-odds-ratios-in-logistic-regression"><span class="header-section-number">3.5.1</span> Interpretation of Odds Ratios in Logistic Regression</h3>
 <p>A multiple logistic regression model expresses the log-odds (logit) of an event as a linear function of predictors:</p>
@@ -652,62 +652,150 @@ hpt          4.044434e-04 -6.046197e-05  9.506863e-04  1.295828e-01</code></pre>
 \times \cdots
 \times \exp(\beta_k x_k).
 \]</span></p>
-<hr>
-</section>
-<section id="odds-ratios-without-interactions" class="level3" data-number="3.5.2">
-<h3 data-number="3.5.2" class="anchored" data-anchor-id="odds-ratios-without-interactions"><span class="header-section-number">3.5.2</span> Odds Ratios Without Interactions</h3>
-<p>If the model includes only <strong>main effects</strong> (no interaction terms), then the <strong>odds ratio</strong> associated with a one-unit increase in <span class="math inline">\(x_j\)</span> is constant:</p>
-<p><span class="math display">\[
-\text{OR}_{x_j} = \exp(\beta_j).
-\]</span></p>
-<p>This means that, after adjusting for all other variables, the odds of the outcome are multiplied by <span class="math inline">\(\exp(\beta_j)\)</span> for each one-unit increase in <span class="math inline">\(x_j\)</span>. The OR is <strong>independent of the values</strong> of the other covariates — the relationship between <span class="math inline">\(x_j\)</span> and the outcome is the same for everyone.</p>
-<hr>
-</section>
-<section id="odds-ratios-with-interactions" class="level3" data-number="3.5.3">
-<h3 data-number="3.5.3" class="anchored" data-anchor-id="odds-ratios-with-interactions"><span class="header-section-number">3.5.3</span> Odds Ratios With Interactions</h3>
-<p>If interaction terms are included, such as between <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span>:</p>
-<p><span class="math display">\[
-\log\left(\frac{p}{1-p}\right)
-= \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_{1,2}(x_1 \times x_2),
-\]</span></p>
-<p>then the effect of <span class="math inline">\(x_1\)</span> <strong>depends on</strong> the value of <span class="math inline">\(x_2\)</span>. The conditional log-odds change for a one-unit increase in <span class="math inline">\(x_1\)</span> is:</p>
-<p><span class="math display">\[
-\Delta \log\left(\frac{p}{1-p}\right)
-= \beta_1 + \beta_{1,2} x_2,
-\]</span></p>
-<p>and the corresponding <strong>odds ratio</strong> is:</p>
-<p><span class="math display">\[
-\text{OR}_{x_1}(x_2)
-= \exp\big(\beta_1 + \beta_{1,2} x_2\big).
-\]</span></p>
-<p>Thus, when interactions are present, the OR varies with the interacting variable(s), and interpretation must be <strong>conditional</strong> （plugged in with) on their specified values.</p>
-<p><em>Summary</em></p>
-<ul>
-<li>In models <strong>without interactions</strong>, each <span class="math inline">\(\exp(\beta_j)\)</span> gives a constant, adjusted odds ratio.</li>
-<li>In models <strong>with interactions</strong>, the odds ratio changes with other predictors and must be interpreted conditionally.</li>
-<li>In all cases, odds ratios describe <strong>multiplicative effects on odds</strong>, while coefficients describe <strong>additive effects on log-odds</strong>.</li>
-</ul>
-</section>
-<section id="smoking-smk" class="level3" data-number="3.5.4">
-<h3 data-number="3.5.4" class="anchored" data-anchor-id="smoking-smk"><span class="header-section-number">3.5.4</span> Smoking (<code>smk</code>)</h3>
+<p><strong>An R function for OR at two Profiles</strong></p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>OR_smk <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="fu">coef</span>(fit1)[<span class="st">"smk"</span>])  <span class="co"># adjusted OR for smokers vs non-smokers</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>CI_OR_smk <span class="ot">&lt;-</span> <span class="fu">exp</span>(ci_95[<span class="st">"smk"</span>, ])  <span class="co"># 95% CI for the OR</span></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>OR_smk</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute OR and 95% CI via predict() on the LINK scale</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co"># OR = exp( eta(new1) - eta(new0) ), where eta(.) = logit{π(.)}</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute OR via predict() contrast on the LINK scale, also:</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co"># (i) print fitted model with plugged coefficients: log(p/(1-p)) = ...</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co"># (ii) print a 2-row data.frame of only variables that differ between new0 and new1</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co"># (iii) print a 2x3 table (rows: OR, logOR; cols: Estimate, CI_low, CI_up)</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>or_from_predict <span class="ot">&lt;-</span> <span class="cf">function</span>(fit, new1, new0, <span class="at">level =</span> <span class="fl">0.95</span>, <span class="at">digits =</span> <span class="dv">4</span>, <span class="at">tol =</span> <span class="fl">1e-12</span>) {</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(<span class="fu">is.data.frame</span>(new1), <span class="fu">is.data.frame</span>(new0))</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ---- (i) Fitted model with numeric coefficients on logit scale ----</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  format_logit_formula <span class="ot">&lt;-</span> <span class="cf">function</span>(fit, <span class="at">digits =</span> <span class="dv">4</span>) {</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    b   <span class="ot">&lt;-</span> <span class="fu">coef</span>(fit)</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    nm  <span class="ot">&lt;-</span> <span class="fu">names</span>(b)</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>    fmt <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">formatC</span>(x, <span class="at">digits =</span> digits, <span class="at">format =</span> <span class="st">"fg"</span>, <span class="at">flag =</span> <span class="st">"#"</span>)</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>    rhs <span class="ot">&lt;-</span> <span class="fu">character</span>(<span class="dv">0</span>)</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (j <span class="cf">in</span> <span class="fu">seq_along</span>(b)) {</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>      term <span class="ot">&lt;-</span> <span class="cf">if</span> (j <span class="sc">==</span> <span class="dv">1</span>L) <span class="st">"(Intercept)"</span> <span class="cf">else</span> nm[j]</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>      coef_j <span class="ot">&lt;-</span> b[j]</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (j <span class="sc">==</span> <span class="dv">1</span>L) {</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>        rhs <span class="ot">&lt;-</span> <span class="fu">c</span>(rhs, <span class="fu">fmt</span>(coef_j))</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> {</span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>        sign <span class="ot">&lt;-</span> <span class="cf">if</span> (coef_j <span class="sc">&gt;=</span> <span class="dv">0</span>) <span class="st">" + "</span> <span class="cf">else</span> <span class="st">" - "</span></span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>        rhs  <span class="ot">&lt;-</span> <span class="fu">c</span>(rhs, <span class="fu">paste0</span>(sign, <span class="fu">fmt</span>(<span class="fu">abs</span>(coef_j)), <span class="st">" * "</span>, term))</span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste0</span>(<span class="st">"log(p/(1-p)) = "</span>, <span class="fu">paste</span>(rhs, <span class="at">collapse =</span> <span class="st">""</span>))</span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ---- (ii) Two-row data.frame with only changed variables ----</span></span>
+<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a>  changes_df <span class="ot">&lt;-</span> (<span class="cf">function</span>(new0, new1, tol) {</span>
+<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a>    common <span class="ot">&lt;-</span> <span class="fu">intersect</span>(<span class="fu">names</span>(new0), <span class="fu">names</span>(new1))</span>
+<span id="cb19-32"><a href="#cb19-32" aria-hidden="true" tabindex="-1"></a>    diffv  <span class="ot">&lt;-</span> <span class="fu">vapply</span>(common, <span class="cf">function</span>(nm) {</span>
+<span id="cb19-33"><a href="#cb19-33" aria-hidden="true" tabindex="-1"></a>      x0 <span class="ot">&lt;-</span> new0[[nm]]; x1 <span class="ot">&lt;-</span> new1[[nm]]</span>
+<span id="cb19-34"><a href="#cb19-34" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="fu">is.numeric</span>(x0) <span class="sc">&amp;&amp;</span> <span class="fu">is.numeric</span>(x1)) {</span>
+<span id="cb19-35"><a href="#cb19-35" aria-hidden="true" tabindex="-1"></a>        <span class="sc">!</span><span class="fu">isTRUE</span>(<span class="fu">all.equal</span>(<span class="fu">as.numeric</span>(x0), <span class="fu">as.numeric</span>(x1), <span class="at">tolerance =</span> tol))</span>
+<span id="cb19-36"><a href="#cb19-36" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> {</span>
+<span id="cb19-37"><a href="#cb19-37" aria-hidden="true" tabindex="-1"></a>        <span class="sc">!</span><span class="fu">identical</span>(x0, x1)</span>
+<span id="cb19-38"><a href="#cb19-38" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb19-39"><a href="#cb19-39" aria-hidden="true" tabindex="-1"></a>    }, <span class="fu">logical</span>(<span class="dv">1</span>))</span>
+<span id="cb19-40"><a href="#cb19-40" aria-hidden="true" tabindex="-1"></a>    keep <span class="ot">&lt;-</span> common[diffv]</span>
+<span id="cb19-41"><a href="#cb19-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">length</span>(keep) <span class="sc">==</span> <span class="dv">0</span>L) {</span>
+<span id="cb19-42"><a href="#cb19-42" aria-hidden="true" tabindex="-1"></a>      out <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="st">`</span><span class="at">_no_changes_</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"no differences"</span>)</span>
+<span id="cb19-43"><a href="#cb19-43" aria-hidden="true" tabindex="-1"></a>      <span class="fu">rownames</span>(out) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"new0"</span>, <span class="st">"new1"</span>)</span>
+<span id="cb19-44"><a href="#cb19-44" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(out)</span>
+<span id="cb19-45"><a href="#cb19-45" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb19-46"><a href="#cb19-46" aria-hidden="true" tabindex="-1"></a>    out <span class="ot">&lt;-</span> <span class="fu">rbind</span>(new0[keep], new1[keep])</span>
+<span id="cb19-47"><a href="#cb19-47" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rownames</span>(out) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"new0"</span>, <span class="st">"new1"</span>)</span>
+<span id="cb19-48"><a href="#cb19-48" aria-hidden="true" tabindex="-1"></a>    out</span>
+<span id="cb19-49"><a href="#cb19-49" aria-hidden="true" tabindex="-1"></a>  })(new0, new1, tol)</span>
+<span id="cb19-50"><a href="#cb19-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-51"><a href="#cb19-51" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ---- Linear contrast for log-OR and its variance ----</span></span>
+<span id="cb19-52"><a href="#cb19-52" aria-hidden="true" tabindex="-1"></a>  X1 <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="fu">delete.response</span>(<span class="fu">terms</span>(fit)), <span class="at">data =</span> new1)</span>
+<span id="cb19-53"><a href="#cb19-53" aria-hidden="true" tabindex="-1"></a>  X0 <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="fu">delete.response</span>(<span class="fu">terms</span>(fit)), <span class="at">data =</span> new0)</span>
+<span id="cb19-54"><a href="#cb19-54" aria-hidden="true" tabindex="-1"></a>  cvec      <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(X1 <span class="sc">-</span> X0)</span>
+<span id="cb19-55"><a href="#cb19-55" aria-hidden="true" tabindex="-1"></a>  b         <span class="ot">&lt;-</span> <span class="fu">coef</span>(fit)</span>
+<span id="cb19-56"><a href="#cb19-56" aria-hidden="true" tabindex="-1"></a>  V         <span class="ot">&lt;-</span> <span class="fu">vcov</span>(fit)</span>
+<span id="cb19-57"><a href="#cb19-57" aria-hidden="true" tabindex="-1"></a>  logOR_hat <span class="ot">&lt;-</span> <span class="fu">sum</span>(cvec <span class="sc">*</span> b)</span>
+<span id="cb19-58"><a href="#cb19-58" aria-hidden="true" tabindex="-1"></a>  se_logOR  <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">as.numeric</span>(<span class="fu">t</span>(cvec) <span class="sc">%*%</span> V <span class="sc">%*%</span> cvec))</span>
+<span id="cb19-59"><a href="#cb19-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-60"><a href="#cb19-60" aria-hidden="true" tabindex="-1"></a>  alpha  <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> level</span>
+<span id="cb19-61"><a href="#cb19-61" aria-hidden="true" tabindex="-1"></a>  z      <span class="ot">&lt;-</span> <span class="fu">qnorm</span>(<span class="dv">1</span> <span class="sc">-</span> alpha <span class="sc">/</span> <span class="dv">2</span>)</span>
+<span id="cb19-62"><a href="#cb19-62" aria-hidden="true" tabindex="-1"></a>  ci_log <span class="ot">&lt;-</span> <span class="fu">c</span>(logOR_hat <span class="sc">-</span> z <span class="sc">*</span> se_logOR, logOR_hat <span class="sc">+</span> z <span class="sc">*</span> se_logOR)</span>
+<span id="cb19-63"><a href="#cb19-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-64"><a href="#cb19-64" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ---- 2x3 table: rows OR and logOR; columns Estimate, CI_low, CI_up ----</span></span>
+<span id="cb19-65"><a href="#cb19-65" aria-hidden="true" tabindex="-1"></a>  res_tab <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb19-66"><a href="#cb19-66" aria-hidden="true" tabindex="-1"></a>    <span class="at">Estimate =</span> <span class="fu">c</span>(<span class="fu">exp</span>(logOR_hat),              logOR_hat),</span>
+<span id="cb19-67"><a href="#cb19-67" aria-hidden="true" tabindex="-1"></a>    <span class="at">CI_low   =</span> <span class="fu">c</span>(<span class="fu">exp</span>(ci_log[<span class="dv">1</span>L]),            ci_log[<span class="dv">1</span>L]),</span>
+<span id="cb19-68"><a href="#cb19-68" aria-hidden="true" tabindex="-1"></a>    <span class="at">CI_up    =</span> <span class="fu">c</span>(<span class="fu">exp</span>(ci_log[<span class="dv">2</span>L]),            ci_log[<span class="dv">2</span>L]),</span>
+<span id="cb19-69"><a href="#cb19-69" aria-hidden="true" tabindex="-1"></a>    <span class="at">row.names =</span> <span class="fu">c</span>(<span class="st">"OR"</span>, <span class="st">"logOR"</span>)</span>
+<span id="cb19-70"><a href="#cb19-70" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb19-71"><a href="#cb19-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-72"><a href="#cb19-72" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ---- Print requested items ----</span></span>
+<span id="cb19-73"><a href="#cb19-73" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Variables that differ between new0 and new1:</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb19-74"><a href="#cb19-74" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(changes_df)</span>
+<span id="cb19-75"><a href="#cb19-75" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Odds Ratio summary (2 x 3):</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb19-76"><a href="#cb19-76" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(res_tab)</span>
+<span id="cb19-77"><a href="#cb19-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-78"><a href="#cb19-78" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ---- Return (invisibly) ----</span></span>
+<span id="cb19-79"><a href="#cb19-79" aria-hidden="true" tabindex="-1"></a>  <span class="fu">invisible</span>(<span class="fu">list</span>(</span>
+<span id="cb19-80"><a href="#cb19-80" aria-hidden="true" tabindex="-1"></a>    <span class="at">OR        =</span> <span class="fu">exp</span>(logOR_hat),</span>
+<span id="cb19-81"><a href="#cb19-81" aria-hidden="true" tabindex="-1"></a>    <span class="at">CI_OR     =</span> <span class="fu">exp</span>(ci_log),</span>
+<span id="cb19-82"><a href="#cb19-82" aria-hidden="true" tabindex="-1"></a>    <span class="at">logOR     =</span> logOR_hat,</span>
+<span id="cb19-83"><a href="#cb19-83" aria-hidden="true" tabindex="-1"></a>    <span class="at">CI_logOR  =</span> ci_log,</span>
+<span id="cb19-84"><a href="#cb19-84" aria-hidden="true" tabindex="-1"></a>    <span class="at">se_logOR  =</span> se_logOR,</span>
+<span id="cb19-85"><a href="#cb19-85" aria-hidden="true" tabindex="-1"></a>    <span class="at">changes   =</span> changes_df,</span>
+<span id="cb19-86"><a href="#cb19-86" aria-hidden="true" tabindex="-1"></a>    <span class="at">table     =</span> res_tab</span>
+<span id="cb19-87"><a href="#cb19-87" aria-hidden="true" tabindex="-1"></a>  ))</span>
+<span id="cb19-88"><a href="#cb19-88" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb19-89"><a href="#cb19-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-90"><a href="#cb19-90" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Example usage ---</span></span>
+<span id="cb19-91"><a href="#cb19-91" aria-hidden="true" tabindex="-1"></a><span class="co"># base_prof &lt;- as.data.frame(lapply(CHD.data, function(col) if (is.numeric(col)) mean(col) else col[1]))</span></span>
+<span id="cb19-92"><a href="#cb19-92" aria-hidden="true" tabindex="-1"></a><span class="co"># new0 &lt;- base_prof; new0$smk &lt;- 0</span></span>
+<span id="cb19-93"><a href="#cb19-93" aria-hidden="true" tabindex="-1"></a><span class="co"># new1 &lt;- base_prof; new1$smk &lt;- 1</span></span>
+<span id="cb19-94"><a href="#cb19-94" aria-hidden="true" tabindex="-1"></a><span class="co"># or_from_predict(fit1, new1 = new1, new0 = new0)</span></span>
+<span id="cb19-95"><a href="#cb19-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-96"><a href="#cb19-96" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- Helpers to build profiles by fixing "other" covariates ----</span></span>
+<span id="cb19-97"><a href="#cb19-97" aria-hidden="true" tabindex="-1"></a>mean_profile <span class="ot">&lt;-</span> <span class="cf">function</span>(data, <span class="at">vars_binary_as =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>)) {</span>
+<span id="cb19-98"><a href="#cb19-98" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Build a single-row data.frame of typical values:</span></span>
+<span id="cb19-99"><a href="#cb19-99" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">lapply</span>(data, <span class="cf">function</span>(col) {</span>
+<span id="cb19-100"><a href="#cb19-100" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">is.numeric</span>(col)) {</span>
+<span id="cb19-101"><a href="#cb19-101" aria-hidden="true" tabindex="-1"></a>      <span class="co"># If strictly 0/1, keep mean (works fine for GLM prediction),</span></span>
+<span id="cb19-102"><a href="#cb19-102" aria-hidden="true" tabindex="-1"></a>      <span class="co"># or switch to mode if you prefer.</span></span>
+<span id="cb19-103"><a href="#cb19-103" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="fu">all</span>(col <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>))) <span class="fu">mean</span>(col) <span class="cf">else</span> <span class="fu">mean</span>(col, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb19-104"><a href="#cb19-104" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb19-105"><a href="#cb19-105" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Fallback to first level for factors/characters</span></span>
+<span id="cb19-106"><a href="#cb19-106" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="fu">is.factor</span>(col)) <span class="fu">levels</span>(col)[<span class="dv">1</span>] <span class="cf">else</span> <span class="fu">unique</span>(col)[<span class="dv">1</span>]</span>
+<span id="cb19-107"><a href="#cb19-107" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb19-108"><a href="#cb19-108" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb19-109"><a href="#cb19-109" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>(out)</span>
+<span id="cb19-110"><a href="#cb19-110" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-stdout">
-<pre><code>     smk 
-2.353612 </code></pre>
 </div>
+</section>
+<section id="examples-of-finding-ors-and-their-cis" class="level3" data-number="3.5.2">
+<h3 data-number="3.5.2" class="anchored" data-anchor-id="examples-of-finding-ors-and-their-cis"><span class="header-section-number">3.5.2</span> Examples of Finding ORs and Their CIs</h3>
+<section id="or-smoking-smk-1-vs-0" class="level4" data-number="3.5.2.1">
+<h4 data-number="3.5.2.1" class="anchored" data-anchor-id="or-smoking-smk-1-vs-0"><span class="header-section-number">3.5.2.1</span> OR Smoking (<code>smk</code>) (1 vs 0)</h4>
+<p><strong>Using the helper function</strong></p>
+<div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>CI_OR_smk</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 1) Smoking OR: smk = 1 vs 0 (other vars at their means)</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Example profiles at sample means (adjust as you like)</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>base_prof <span class="ot">&lt;-</span> <span class="fu">mean_profile</span>(CHD.data)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>new0 <span class="ot">&lt;-</span> base_prof; new0<span class="sc">$</span>smk <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>new1 <span class="ot">&lt;-</span> base_prof; new1<span class="sc">$</span>smk <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>res_smk <span class="ot">&lt;-</span> <span class="fu">or_from_predict</span>(fit1, <span class="at">new1 =</span> new1, <span class="at">new0 =</span> new0)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>   2.5 %   97.5 % 
-1.317451 4.407613 </code></pre>
+<pre><code>
+Variables that differ between new0 and new1:
+     smk
+new0   0
+new1   1
+
+Odds Ratio summary (2 x 3):
+       Estimate    CI_low    CI_up
+OR    2.3536121 1.2907347 4.291734
+logOR 0.8559512 0.2552116 1.456691</code></pre>
 </div>
 </div>
 <p><strong>How to read this:</strong></p>
@@ -715,81 +803,95 @@ hpt          4.044434e-04 -6.046197e-05  9.506863e-04  1.295828e-01</code></pre>
 <li><code>OR_smk &gt; 1</code> suggests higher odds of CHD among smokers (adjusted for other variables). If the 95% CI excludes 1, the association is statistically significant at the 5% level.</li>
 </ul>
 </section>
-<section id="systolic-blood-pressure-sbp-comparing-160-vs-120" class="level3" data-number="3.5.5">
-<h3 data-number="3.5.5" class="anchored" data-anchor-id="systolic-blood-pressure-sbp-comparing-160-vs-120"><span class="header-section-number">3.5.5</span> Systolic Blood Pressure (<code>sbp</code>): Comparing 160 vs 120</h3>
+<section id="or-for-systolic-blood-pressure-sbp-from-120-to-160" class="level4" data-number="3.5.2.2">
+<h4 data-number="3.5.2.2" class="anchored" data-anchor-id="or-for-systolic-blood-pressure-sbp-from-120-to-160"><span class="header-section-number">3.5.2.2</span> OR for Systolic Blood Pressure (<code>sbp</code>): from 120 to 160</h4>
 <p>We compute the adjusted OR for a 40‑unit increase in <code>sbp</code> (from 120 to 160):</p>
+<p><strong>Using the helper function</strong></p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>step_sbp <span class="ot">&lt;-</span> <span class="dv">160</span> <span class="sc">-</span> <span class="dv">120</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>A_sbp <span class="ot">&lt;-</span> step_sbp <span class="sc">*</span> <span class="fu">coef</span>(fit1)[<span class="st">"sbp"</span>]</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>OR_sbp_160_vs_120 <span class="ot">&lt;-</span> <span class="fu">exp</span>(A_sbp)</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Delta-method CI using the model-based variance</span></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>var_A_sbp <span class="ot">&lt;-</span> step_sbp<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> vcov_mat[<span class="st">"sbp"</span>, <span class="st">"sbp"</span>]</span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> <span class="fl">0.05</span></span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>z <span class="ot">&lt;-</span> <span class="fu">qnorm</span>(<span class="dv">1</span> <span class="sc">-</span> alpha<span class="sc">/</span><span class="dv">2</span>)</span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>ci_lin <span class="ot">&lt;-</span> <span class="fu">c</span>(A_sbp <span class="sc">-</span> z <span class="sc">*</span> <span class="fu">sqrt</span>(var_A_sbp), A_sbp <span class="sc">+</span> z <span class="sc">*</span> <span class="fu">sqrt</span>(var_A_sbp))</span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>CI_OR_sbp_160_vs_120 <span class="ot">&lt;-</span> <span class="fu">exp</span>(ci_lin)</span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>OR_sbp_160_vs_120</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 2) SBP OR: 160 vs 120 (other vars at their means)</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>new0 <span class="ot">&lt;-</span> base_prof; new0<span class="sc">$</span>sbp <span class="ot">&lt;-</span> <span class="dv">120</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>new1 <span class="ot">&lt;-</span> base_prof; new1<span class="sc">$</span>sbp <span class="ot">&lt;-</span> <span class="dv">160</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>res_sbp <span class="ot">&lt;-</span> <span class="fu">or_from_predict</span>(fit1, <span class="at">new1 =</span> new1, <span class="at">new0 =</span> new0)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>      sbp 
-0.7559281 </code></pre>
+<pre><code>
+Variables that differ between new0 and new1:
+     sbp
+new0 120
+new1 160
+
+Odds Ratio summary (2 x 3):
+        Estimate     CI_low     CI_up
+OR     0.7559281  0.4374721 1.3062026
+logOR -0.2798091 -0.8267423 0.2671242</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>CI_OR_sbp_160_vs_120</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>res_sbp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>      sbp       sbp 
-0.4374721 1.3062026 </code></pre>
+<pre><code>$OR
+[1] 0.7559281
+
+$CI_OR
+[1] 0.4374721 1.3062026
+
+$logOR
+[1] -0.2798091
+
+$CI_logOR
+[1] -0.8267423  0.2671242
+
+$se_logOR
+[1] 0.2790527
+
+$changes
+     sbp
+new0 120
+new1 160
+
+$table
+        Estimate     CI_low     CI_up
+OR     0.7559281  0.4374721 1.3062026
+logOR -0.2798091 -0.8267423 0.2671242</code></pre>
 </div>
 </div>
-<p><strong>Tip:</strong> Replace <code>step_sbp</code> with any clinically meaningful increment (e.g., 10 mmHg) to report interpretable ORs.</p>
 </section>
 </section>
-<section id="combined-effects-smoking-with-an-age-difference" class="level2" data-number="3.6">
-<h2 data-number="3.6" class="anchored" data-anchor-id="combined-effects-smoking-with-an-age-difference"><span class="header-section-number">3.6</span> Combined Effects: Smoking with an Age Difference</h2>
+<section id="or-for-combined-effects-of-two-variables-smoking-with-an-age-difference" class="level3" data-number="3.5.3">
+<h3 data-number="3.5.3" class="anchored" data-anchor-id="or-for-combined-effects-of-two-variables-smoking-with-an-age-difference"><span class="header-section-number">3.5.3</span> OR for Combined Effects of Two Variables: Smoking with an Age Difference</h3>
 <p>Suppose we compare two groups that differ in <strong>smoking status</strong> and <strong>age</strong>:</p>
 <ul>
 <li><strong>Group A:</strong> <code>smk = 1</code>, <code>age = 50</code> (all other covariates equal)</li>
 <li><strong>Group B:</strong> <code>smk = 0</code>, <code>age = 30</code></li>
 </ul>
-<p>The log‑odds contrast is (A = <em>{smk} + 20,</em>{age}), so the OR is ((A)).</p>
+<p>The log‑odds contrast is (<span class="math inline">\(A = \beta_{smk} + (50-20)\beta_{age}\)</span>), so the OR is (<span class="math inline">\(\exp(A)\)</span>).</p>
+<p><strong>Using the helper function</strong></p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>age_diff <span class="ot">&lt;-</span> <span class="dv">50</span> <span class="sc">-</span> <span class="dv">30</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>A_smk_age <span class="ot">&lt;-</span> <span class="fu">coef</span>(fit1)[<span class="st">"smk"</span>] <span class="sc">+</span> age_diff <span class="sc">*</span> <span class="fu">coef</span>(fit1)[<span class="st">"age"</span>]</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>OR_smk_age <span class="ot">&lt;-</span> <span class="fu">exp</span>(A_smk_age)</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Variance of the linear combo: Var(b1 + a*b_age) = Var(b1) + a^2 Var(b_age) + 2a Cov(b1, b_age)</span></span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>var_A_smk_age <span class="ot">&lt;-</span> vcov_mat[<span class="st">"smk"</span>, <span class="st">"smk"</span>] <span class="sc">+</span></span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  age_diff<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> vcov_mat[<span class="st">"age"</span>, <span class="st">"age"</span>] <span class="sc">+</span></span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>  <span class="dv">2</span> <span class="sc">*</span> age_diff <span class="sc">*</span> vcov_mat[<span class="st">"smk"</span>, <span class="st">"age"</span>]</span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>CI_OR_smk_age <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="fu">c</span>(A_smk_age <span class="sc">-</span> z <span class="sc">*</span> <span class="fu">sqrt</span>(var_A_smk_age),</span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>                       A_smk_age <span class="sc">+</span> z <span class="sc">*</span> <span class="fu">sqrt</span>(var_A_smk_age)))</span>
-<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>OR_smk_age</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>new0 <span class="ot">&lt;-</span> base_prof; new0<span class="sc">$</span>age <span class="ot">&lt;-</span> <span class="dv">30</span>; new0<span class="sc">$</span>smk <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>new1 <span class="ot">&lt;-</span> base_prof; new1<span class="sc">$</span>age <span class="ot">&lt;-</span> <span class="dv">50</span>; new1<span class="sc">$</span>smk <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>res_ageAsmk <span class="ot">&lt;-</span> <span class="fu">or_from_predict</span>(fit1, <span class="at">new1 =</span> new1, <span class="at">new0 =</span> new0)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>     smk 
-4.641668 </code></pre>
+<pre><code>
+Variables that differ between new0 and new1:
+     age smk
+new0  30   0
+new1  50   1
+
+Odds Ratio summary (2 x 3):
+      Estimate    CI_low     CI_up
+OR    4.641668 1.8546483 11.616800
+logOR 1.535074 0.6176951  2.452452</code></pre>
 </div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>CI_OR_smk_age</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>      smk       smk 
- 1.854648 11.616800 </code></pre>
 </div>
-</div>
-<p>*Question$</p>
-<p>What if the age difference is 10 or 5? Just set <code>age_diff &lt;- 10</code> (or <code>5</code>) and re‑run the chunk.</p>
+</section>
 </section>
 </section>
 

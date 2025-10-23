@@ -30,7 +30,7 @@ execute:
   echo: true
   warning: false
   message: false
-  cache: true
+  cache: false
   fig-width: 9
   fig-height: 6
     
@@ -320,7 +320,7 @@ summary(fit1)
 * For indicator variables (e.g., `smk`), `exp(beta)` is the adjusted odds ratio comparing the group with value 1 versus 0, holding others fixed.
 * For continuous predictors (e.g., `sbp`, `age`), `exp(beta)` is the multiplicative change in the odds for a one‑unit increase. For a *d*-unit increase, the OR is `exp(d * beta)`.
 
-## Inference: Confidence Intervals and Covariance Matrix
+## Inference for Coefficients: Confidence Intervals and Covariance Matrix
 
 We extract profile‑likelihood CIs and the covariance matrix to confirm standard errors.
 
@@ -335,7 +335,7 @@ vcov_mat
 se_vec  # should match the SE column in summary(fit1)
 ```
 
-## Adjusted Odds Ratios for Individual Predictors
+## Inference for Odds Ratios
 
 
 ### Interpretation of Odds Ratios in Logistic Regression
@@ -364,76 +364,161 @@ $$
 \times \exp(\beta_k x_k).
 $$
 
----
-
-### Odds Ratios Without Interactions
-
-If the model includes only **main effects** (no interaction terms), then the **odds ratio** associated with a one-unit increase in $x_j$ is constant:
-
-$$
-\text{OR}_{x_j} = \exp(\beta_j).
-$$
-
-This means that, after adjusting for all other variables, the odds of the outcome are multiplied by $\exp(\beta_j)$ for each one-unit increase in $x_j$.
-The OR is **independent of the values** of the other covariates — the relationship between $x_j$ and the outcome is the same for everyone.
-
----
-
-### Odds Ratios With Interactions
-
-If interaction terms are included, such as between $x_1$ and $x_2$:
-
-$$
-\log\left(\frac{p}{1-p}\right)
-= \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_{1,2}(x_1 \times x_2),
-$$
-
-then the effect of $x_1$ **depends on** the value of $x_2$.
-The conditional log-odds change for a one-unit increase in $x_1$ is:
-
-$$
-\Delta \log\left(\frac{p}{1-p}\right)
-= \beta_1 + \beta_{1,2} x_2,
-$$
-
-and the corresponding **odds ratio** is:
-
-$$
-\text{OR}_{x_1}(x_2)
-= \exp\big(\beta_1 + \beta_{1,2} x_2\big).
-$$
-
-Thus, when interactions are present, the OR varies with the interacting variable(s), and interpretation must be **conditional** （plugged in with) on their specified values.
-
-
-
-*Summary*
-
-* In models **without interactions**, each $\exp(\beta_j)$ gives a constant, adjusted odds ratio.
-* In models **with interactions**, the odds ratio changes with other predictors and must be interpreted conditionally.
-* In all cases, odds ratios describe **multiplicative effects on odds**, while coefficients describe **additive effects on log-odds**.
-
-### Examples of Finding ORs
-### Smoking (`smk`)
-
+**An R function for OR at two Profiles**
 ```{r}
+#| label: OR function
+# Compute OR and 95% CI via predict() on the LINK scale
+# OR = exp( eta(new1) - eta(new0) ), where eta(.) = logit{π(.)}
+# Compute OR via predict() contrast on the LINK scale, also:
+# (i) print fitted model with plugged coefficients: log(p/(1-p)) = ...
+# (ii) print a 2-row data.frame of only variables that differ between new0 and new1
+# (iii) print a 2x3 table (rows: OR, logOR; cols: Estimate, CI_low, CI_up)
+or_from_predict <- function(fit, new1, new0, level = 0.95, digits = 4, tol = 1e-12) {
+  stopifnot(is.data.frame(new1), is.data.frame(new0))
+
+  # ---- (i) Fitted model with numeric coefficients on logit scale ----
+  format_logit_formula <- function(fit, digits = 4) {
+    b   <- coef(fit)
+    nm  <- names(b)
+    fmt <- function(x) formatC(x, digits = digits, format = "fg", flag = "#")
+    rhs <- character(0)
+    for (j in seq_along(b)) {
+      term <- if (j == 1L) "(Intercept)" else nm[j]
+      coef_j <- b[j]
+      if (j == 1L) {
+        rhs <- c(rhs, fmt(coef_j))
+      } else {
+        sign <- if (coef_j >= 0) " + " else " - "
+        rhs  <- c(rhs, paste0(sign, fmt(abs(coef_j)), " * ", term))
+      }
+    }
+    paste0("log(p/(1-p)) = ", paste(rhs, collapse = ""))
+  }
+
+  # ---- (ii) Two-row data.frame with only changed variables ----
+  changes_df <- (function(new0, new1, tol) {
+    common <- intersect(names(new0), names(new1))
+    diffv  <- vapply(common, function(nm) {
+      x0 <- new0[[nm]]; x1 <- new1[[nm]]
+      if (is.numeric(x0) && is.numeric(x1)) {
+        !isTRUE(all.equal(as.numeric(x0), as.numeric(x1), tolerance = tol))
+      } else {
+        !identical(x0, x1)
+      }
+    }, logical(1))
+    keep <- common[diffv]
+    if (length(keep) == 0L) {
+      out <- data.frame(`_no_changes_` = "no differences")
+      rownames(out) <- c("new0", "new1")
+      return(out)
+    }
+    out <- rbind(new0[keep], new1[keep])
+    rownames(out) <- c("new0", "new1")
+    out
+  })(new0, new1, tol)
+
+  # ---- Linear contrast for log-OR and its variance ----
+  X1 <- model.matrix(delete.response(terms(fit)), data = new1)
+  X0 <- model.matrix(delete.response(terms(fit)), data = new0)
+  cvec      <- as.numeric(X1 - X0)
+  b         <- coef(fit)
+  V         <- vcov(fit)
+  logOR_hat <- sum(cvec * b)
+  se_logOR  <- sqrt(as.numeric(t(cvec) %*% V %*% cvec))
+
+  alpha  <- 1 - level
+  z      <- qnorm(1 - alpha / 2)
+  ci_log <- c(logOR_hat - z * se_logOR, logOR_hat + z * se_logOR)
+
+  # ---- 2x3 table: rows OR and logOR; columns Estimate, CI_low, CI_up ----
+  res_tab <- data.frame(
+    Estimate = c(exp(logOR_hat),              logOR_hat),
+    CI_low   = c(exp(ci_log[1L]),            ci_log[1L]),
+    CI_up    = c(exp(ci_log[2L]),            ci_log[2L]),
+    row.names = c("OR", "logOR")
+  )
+
+  # ---- Print requested items ----
+  cat("\nVariables that differ between new0 and new1:\n")
+  print(changes_df)
+  cat("\nOdds Ratio summary (2 x 3):\n")
+  print(res_tab)
+
+  # ---- Return (invisibly) ----
+  invisible(list(
+    OR        = exp(logOR_hat),
+    CI_OR     = exp(ci_log),
+    logOR     = logOR_hat,
+    CI_logOR  = ci_log,
+    se_logOR  = se_logOR,
+    changes   = changes_df,
+    table     = res_tab
+  ))
+}
+
+# --- Example usage ---
+# base_prof <- as.data.frame(lapply(CHD.data, function(col) if (is.numeric(col)) mean(col) else col[1]))
+# new0 <- base_prof; new0$smk <- 0
+# new1 <- base_prof; new1$smk <- 1
+# or_from_predict(fit1, new1 = new1, new0 = new0)
+
+# ---- Helpers to build profiles by fixing "other" covariates ----
+mean_profile <- function(data, vars_binary_as = c(0,1)) {
+  # Build a single-row data.frame of typical values:
+  out <- lapply(data, function(col) {
+    if (is.numeric(col)) {
+      # If strictly 0/1, keep mean (works fine for GLM prediction),
+      # or switch to mode if you prefer.
+      if (all(col %in% c(0,1))) mean(col) else mean(col, na.rm = TRUE)
+    } else {
+      # Fallback to first level for factors/characters
+      if (is.factor(col)) levels(col)[1] else unique(col)[1]
+    }
+  })
+  as.data.frame(out)
+}
+
+```
+
+
+### Examples of Finding ORs and Their CIs
+
+#### OR Smoking (`smk`) (1 vs 0)
+
+
+
+```{r include=FALSE}
 #| label: or-smk
 OR_smk <- exp(coef(fit1)["smk"])  # adjusted OR for smokers vs non-smokers
+ci_95 <- confint(fit1, level = 0.95)     # profile-likelihood CI
 CI_OR_smk <- exp(ci_95["smk", ])  # 95% CI for the OR
 OR_smk
 CI_OR_smk
 
 ```
+**Using the helper function**
+
+```{r}
+## 1) Smoking OR: smk = 1 vs 0 (other vars at their means)
+# Example profiles at sample means (adjust as you like)
+base_prof <- mean_profile(CHD.data)
+new0 <- base_prof; new0$smk <- 0
+new1 <- base_prof; new1$smk <- 1
+
+res_smk <- or_from_predict(fit1, new1 = new1, new0 = new0)
+
+```
+
 
 **How to read this:**
 
 * `OR_smk > 1` suggests higher odds of CHD among smokers (adjusted for other variables). If the 95% CI excludes 1, the association is statistically significant at the 5% level.
 
-### Systolic Blood Pressure (`sbp`): Comparing 160 vs 120
+#### OR for Systolic Blood Pressure (`sbp`): from 120 to 160
 
 We compute the adjusted OR for a 40‑unit increase in `sbp` (from 120 to 160):
 
-```{r}
+```{r include=FALSE}
 #| label: or-sbp-160-120
 step_sbp <- 160 - 120
 A_sbp <- step_sbp * coef(fit1)["sbp"]
@@ -448,20 +533,32 @@ CI_OR_sbp_160_vs_120 <- exp(ci_lin)
 
 OR_sbp_160_vs_120
 CI_OR_sbp_160_vs_120
+
 ```
 
-**Tip:** Replace `step_sbp` with any clinically meaningful increment (e.g., 10 mmHg) to report interpretable ORs.
+**Using the helper function**
 
-## Combined Effects: Smoking with an Age Difference
+```{r}
+## 2) SBP OR: 160 vs 120 (other vars at their means)
+new0 <- base_prof; new0$sbp <- 120
+new1 <- base_prof; new1$sbp <- 160
+
+res_sbp <- or_from_predict(fit1, new1 = new1, new0 = new0)
+res_sbp
+
+
+```
+
+### OR for Combined Effects of Two Variables: Smoking with an Age Difference
 
 Suppose we compare two groups that differ in **smoking status** and **age**:
 
 * **Group A:** `smk = 1`, `age = 50` (all other covariates equal)
 * **Group B:** `smk = 0`, `age = 30`
 
-The log‑odds contrast is (A = \beta_{smk} + 20,\beta_{age}), so the OR is (\exp(A)).
+The log‑odds contrast is ($A = \beta_{smk} + (50-20)\beta_{age}$), so the OR is ($\exp(A)$).
 
-```{r}
+```{r include=FALSE}
 #| label: combined-smk-age
 age_diff <- 50 - 30
 A_smk_age <- coef(fit1)["smk"] + age_diff * coef(fit1)["age"]
@@ -479,9 +576,16 @@ OR_smk_age
 CI_OR_smk_age
 ```
 
-*Question$
+**Using the helper function**
 
-What if the age difference is 10 or 5? Just set `age_diff <- 10` (or `5`) and re‑run the chunk.
+```{r}
+new0 <- base_prof; new0$age <- 30; new0$smk <- 0
+new1 <- base_prof; new1$age <- 50; new1$smk <- 1
+
+res_ageAsmk <- or_from_predict(fit1, new1 = new1, new0 = new0)
+
+
+```
 
 
 
