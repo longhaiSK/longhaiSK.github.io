@@ -160,51 +160,58 @@ window.Quarto = {
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co">#   odds_col     : color for odds(p)</span></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">#   logit_col    : color for log(odds(p))</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co">#   lwd1, lwd2   : line widths for the two curves</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>plot_odds <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">p_min =</span> <span class="fl">0.01</span>, <span class="at">p_max =</span> <span class="fl">0.99</span>, <span class="at">n =</span> <span class="dv">400</span>,</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>                      <span class="at">annotate =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>                      <span class="at">odds_col =</span> <span class="st">"steelblue"</span>,</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>                      <span class="at">logit_col =</span> <span class="st">"firebrick"</span>,</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>                      <span class="at">lwd1 =</span> <span class="dv">2</span>, <span class="at">lwd2 =</span> <span class="dv">2</span>) {</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(p_min <span class="sc">&gt;</span> <span class="dv">0</span>, p_max <span class="sc">&lt;</span> <span class="dv">1</span>, p_min <span class="sc">&lt;</span> p_max, n <span class="sc">&gt;=</span> <span class="dv">10</span>)</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">seq</span>(p_min, p_max, <span class="at">length.out =</span> n)</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  odds <span class="ot">&lt;-</span> p <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> p)</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  logit <span class="ot">&lt;-</span> <span class="fu">log</span>(odds)</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Left y-axis: odds(p)</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(p, odds, <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">lwd =</span> lwd1, <span class="at">col =</span> odds_col,</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab =</span> <span class="st">"Probability p"</span>,</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>       <span class="at">ylab =</span> <span class="st">"odds(p) = p / (1 - p)"</span>)</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (annotate) {</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">1</span>, <span class="at">v =</span> <span class="fl">0.5</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">text</span>(<span class="fl">0.52</span>, <span class="fl">1.05</span>, <span class="st">"p = 0.5 → odds = 1"</span>, <span class="at">adj =</span> <span class="dv">0</span>)</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Right y-axis: logit(p) = log(odds)</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  op <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">new =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">on.exit</span>(<span class="fu">par</span>(op), <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(p, logit, <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">lwd =</span> lwd2, <span class="at">col =</span> logit_col,</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>       <span class="at">axes =</span> <span class="cn">FALSE</span>, <span class="at">xlab =</span> <span class="st">""</span>, <span class="at">ylab =</span> <span class="st">""</span>)</span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">axis</span>(<span class="dv">4</span>)</span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mtext</span>(<span class="st">"log{odds(p)} = log{p/(1 - p)}"</span>, <span class="at">side =</span> <span class="dv">4</span>, <span class="at">line =</span> <span class="dv">3</span>)</span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (annotate) {</span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    <span class="fu">abline</span>(<span class="at">v =</span> <span class="fl">0.5</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    <span class="co"># logit(0.5) = 0 reference (horizontal) on the right-axis scale</span></span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    usr <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="st">"usr"</span>)</span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    <span class="fu">segments</span>(<span class="at">x0 =</span> usr[<span class="dv">1</span>], <span class="at">y0 =</span> <span class="dv">0</span>, <span class="at">x1 =</span> <span class="fl">0.5</span>, <span class="at">y1 =</span> <span class="dv">0</span>, <span class="at">lty =</span> <span class="dv">3</span>)</span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>logit <span class="ot">&lt;-</span> <span class="cf">function</span> (p){</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  odds <span class="ot">&lt;-</span> p <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> p)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">log</span>(odds)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>plot_odds <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">p_min =</span> <span class="fl">0.01</span>, <span class="at">p_max =</span> <span class="fl">0.99</span>, <span class="at">n =</span> <span class="dv">400</span>,</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>                      <span class="at">annotate =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>                      <span class="at">odds_col =</span> <span class="st">"steelblue"</span>,</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>                      <span class="at">logit_col =</span> <span class="st">"firebrick"</span>,</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>                      <span class="at">lwd1 =</span> <span class="dv">2</span>, <span class="at">lwd2 =</span> <span class="dv">2</span>) {</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(p_min <span class="sc">&gt;</span> <span class="dv">0</span>, p_max <span class="sc">&lt;</span> <span class="dv">1</span>, p_min <span class="sc">&lt;</span> p_max, n <span class="sc">&gt;=</span> <span class="dv">10</span>)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">seq</span>(p_min, p_max, <span class="at">length.out =</span> n)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  odds <span class="ot">&lt;-</span> p <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> p)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  logit <span class="ot">&lt;-</span> <span class="fu">log</span>(odds)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Left y-axis: odds(p)</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(p, odds, <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">lwd =</span> lwd1, <span class="at">col =</span> odds_col,</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab =</span> <span class="st">"Probability p"</span>,</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>       <span class="at">ylab =</span> <span class="st">"odds(p) = p / (1 - p)"</span>)</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (annotate) {</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">1</span>, <span class="at">v =</span> <span class="fl">0.5</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">text</span>(<span class="fl">0.52</span>, <span class="fl">1.05</span>, <span class="st">"p = 0.5 → odds = 1"</span>, <span class="at">adj =</span> <span class="dv">0</span>)</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Right y-axis: logit(p) = log(odds)</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>  op <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">new =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">on.exit</span>(<span class="fu">par</span>(op), <span class="at">add =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(p, logit, <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">lwd =</span> lwd2, <span class="at">col =</span> logit_col,</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>       <span class="at">axes =</span> <span class="cn">FALSE</span>, <span class="at">xlab =</span> <span class="st">""</span>, <span class="at">ylab =</span> <span class="st">""</span>)</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">axis</span>(<span class="dv">4</span>)</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mtext</span>(<span class="st">"log{odds(p)} = log{p/(1 - p)}"</span>, <span class="at">side =</span> <span class="dv">4</span>, <span class="at">line =</span> <span class="dv">3</span>)</span>
 <span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">legend</span>(<span class="st">"topleft"</span>,</span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>         <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">"odds(p)"</span>, <span class="st">"log{odds(p)}"</span>),</span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>         <span class="at">col =</span> <span class="fu">c</span>(odds_col, logit_col),</span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>         <span class="at">lwd =</span> <span class="fu">c</span>(lwd1, lwd2), <span class="at">bty =</span> <span class="st">"n"</span>)</span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">invisible</span>(<span class="fu">list</span>(<span class="at">p =</span> p, <span class="at">odds =</span> odds, <span class="at">logit =</span> logit))</span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a><span class="co"># Example usage:</span></span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a><span class="co"># plot_odds()  # defaults: steelblue for odds, firebrick for log-odds (right axis)</span></span>
-<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_odds</span>(<span class="at">odds_col =</span> <span class="st">"#1f77b4"</span>, <span class="at">logit_col =</span> <span class="st">"#d62728"</span>, <span class="at">n =</span> <span class="dv">600</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (annotate) {</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>    <span class="fu">abline</span>(<span class="at">v =</span> <span class="fl">0.5</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>    <span class="co"># logit(0.5) = 0 reference (horizontal) on the right-axis scale</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>    usr <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="st">"usr"</span>)</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>    <span class="fu">segments</span>(<span class="at">x0 =</span> usr[<span class="dv">1</span>], <span class="at">y0 =</span> <span class="dv">0</span>, <span class="at">x1 =</span> <span class="fl">0.5</span>, <span class="at">y1 =</span> <span class="dv">0</span>, <span class="at">lty =</span> <span class="dv">3</span>)</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">legend</span>(<span class="st">"topleft"</span>,</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>         <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">"odds(p)"</span>, <span class="st">"log{odds(p)}"</span>),</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>         <span class="at">col =</span> <span class="fu">c</span>(odds_col, logit_col),</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>         <span class="at">lwd =</span> <span class="fu">c</span>(lwd1, lwd2), <span class="at">bty =</span> <span class="st">"n"</span>)</span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">invisible</span>(<span class="fu">list</span>(<span class="at">p =</span> p, <span class="at">odds =</span> odds, <span class="at">logit =</span> logit))</span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a><span class="co"># Example usage:</span></span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a><span class="co"># plot_odds()  # defaults: steelblue for odds, firebrick for log-odds (right axis)</span></span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_odds</span>(<span class="at">odds_col =</span> <span class="st">"#1f77b4"</span>, <span class="at">logit_col =</span> <span class="st">"#d62728"</span>, <span class="at">n =</span> <span class="dv">600</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -895,46 +902,278 @@ logOR 1.535074 0.6176951  2.452452</code></pre>
 </div>
 </section>
 </section>
-<section id="overall-regression-significance-with-wilks-theorem" class="level2" data-number="3.6">
-<h2 data-number="3.6" class="anchored" data-anchor-id="overall-regression-significance-with-wilks-theorem"><span class="header-section-number">3.6</span> Overall Regression Significance with Wilks’ Theorem</h2>
+<section id="assessing-statistical-regression-significance-with-wilks-theorem" class="level2" data-number="3.6">
+<h2 data-number="3.6" class="anchored" data-anchor-id="assessing-statistical-regression-significance-with-wilks-theorem"><span class="header-section-number">3.6</span> Assessing Statistical Regression Significance with Wilks’ Theorem</h2>
 <p>In the context of logistic regression, Wilks’ theorem provides the basis for the Likelihood Ratio Test (LRT) used to assess the significance of predictor variables. The theorem states that when comparing a full model (<span class="math inline">\(M_1\)</span>) to a nested null model (<span class="math inline">\(M_0\)</span>), the test statistic, <span class="math inline">\(D\)</span>, asymptotically follows a chi-squared (<span class="math inline">\(\chi^2\)</span>) distribution under the null hypothesis (i.e., that the simpler model <span class="math inline">\(M_0\)</span> is correct).The statistic <span class="math inline">\(D\)</span> is calculated as the difference in the maximized log-likelihoods: <span id="eq-LRT"><span class="math display">\[D = -2(\log L_0 - \log L_1) \tag{2}\]</span></span> where <span class="math inline">\(\log L_0\)</span> and <span class="math inline">\(\log L_1\)</span> are the log-likelihoods of the null and full models, respectively. In logistic regression, this is equivalent to the difference in the deviances: <span class="math inline">\(D = \text{Deviance}_0 - \text{Deviance}_1\)</span>. For assessing the overall significance of a regression model (fit1), this involves comparing it to its corresponding intercept-only (null) model. The degrees of freedom for the <span class="math inline">\(\chi^2\)</span> test is the difference in the number of parameters between the two models, <span class="math inline">\(df = df_0 - df_1\)</span>, which equals the number of predictors in the full model.Here is an R code chunk demonstrating how to compute this p-value directly from a glm fit object, assuming it is named fit1.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: compute-lrt-pvalue</span></span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the Likelihood Ratio Test statistic (D) and degrees of freedom (df)</span></span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="co"># by comparing the model's deviance to the null (intercept-only) deviance,</span></span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="co"># both of which are stored in the 'fit1' object.</span></span>
-<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>lrt_statistic <span class="ot">&lt;-</span> fit1<span class="sc">$</span>null.deviance <span class="sc">-</span> fit1<span class="sc">$</span>deviance</span>
-<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>lrt_df <span class="ot">&lt;-</span> fit1<span class="sc">$</span>df.null <span class="sc">-</span> fit1<span class="sc">$</span>df.residual</span>
-<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute the p-value from the chi-squared distribution</span></span>
-<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a><span class="co"># We use lower.tail = FALSE to get P(ChiSq &gt; D)</span></span>
-<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>p_value <span class="ot">&lt;-</span> <span class="fu">pchisq</span>(lrt_statistic, lrt_df, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the result</span></span>
-<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">paste</span>(<span class="st">"Likelihood Ratio Test Statistic (D):"</span>, <span class="fu">round</span>(lrt_statistic, <span class="dv">4</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the Likelihood Ratio Test statistic (D) and degrees of freedom (df)</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="co"># by comparing the model's deviance to the null (intercept-only) deviance,</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="co"># both of which are stored in the 'fit1' object.</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Likelihood Ratio Test Statistic (D): 39.2044 </code></pre>
+<pre><code>
+Call:
+glm(formula = chd ~ smk + cat + sbp + age + chl + ecg + hpt, 
+    family = binomial(link = "logit"), data = CHD.data)
+
+Coefficients:
+             Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept) -6.048892   1.345165  -4.497  6.9e-06 ***
+smk          0.855951   0.306505   2.793  0.00523 ** 
+cat          0.732763   0.376129   1.948  0.05139 .  
+sbp         -0.006995   0.006976  -1.003  0.31600    
+age          0.033956   0.015344   2.213  0.02690 *  
+chl          0.008970   0.003274   2.740  0.00615 ** 
+ecg          0.417776   0.295553   1.414  0.15750    
+hpt          0.655498   0.359976   1.821  0.06861 .  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 438.56  on 608  degrees of freedom
+Residual deviance: 399.35  on 601  degrees of freedom
+AIC: 415.35
+
+Number of Fisher Scoring iterations: 5</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">paste</span>(<span class="st">"Degrees of Freedom (df):"</span>, lrt_df, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>lrt_statistic <span class="ot">&lt;-</span> fit1<span class="sc">$</span>null.deviance <span class="sc">-</span> fit1<span class="sc">$</span>deviance</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>lrt_df <span class="ot">&lt;-</span> fit1<span class="sc">$</span>df.null <span class="sc">-</span> fit1<span class="sc">$</span>df.residual</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute the p-value from the chi-squared distribution</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="co"># We use lower.tail = FALSE to get P(ChiSq &gt; D)</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>p_value <span class="ot">&lt;-</span> <span class="fu">pchisq</span>(lrt_statistic, lrt_df, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Create and print the result in an ANOVA-like table</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Row 1: Null model</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Row 2: Full model (fit1), showing the test against the null</span></span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>lrt_table <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Resid. Df"</span> <span class="ot">=</span> <span class="fu">c</span>(fit1<span class="sc">$</span>df.null, fit1<span class="sc">$</span>df.residual),</span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Resid. Dev"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">round</span>(fit1<span class="sc">$</span>null.deviance, <span class="dv">4</span>), <span class="fu">round</span>(fit1<span class="sc">$</span>deviance, <span class="dv">4</span>)),</span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Test Df"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="cn">NA</span>, lrt_df),</span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Test Statistic (D)"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="fu">round</span>(lrt_statistic, <span class="dv">4</span>)),</span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>  <span class="st">"p-value"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="fu">format.pval</span>(p_value, <span class="at">digits =</span> <span class="dv">4</span>)),</span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">row.names =</span> <span class="fu">c</span>(<span class="st">"Null Model"</span>, <span class="st">"Full Model (fit1)"</span>),</span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span> <span class="co"># Prevent R from changing 'p-value' to 'p.value'</span></span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Likelihood Ratio Test for Model Significance:</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Degrees of Freedom (df): 7 </code></pre>
+<pre><code>Likelihood Ratio Test for Model Significance:</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">paste</span>(<span class="st">"Overall Model P-value:"</span>, <span class="fu">format.pval</span>(p_value, <span class="at">digits =</span> <span class="dv">4</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>lrt_table</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Resid. Df"],"name":[1],"type":["int"],"align":["right"]},{"label":["Resid. Dev"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["Test Df"],"name":[3],"type":["int"],"align":["right"]},{"label":["Test Statistic (D)"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["p-value"],"name":[5],"type":["chr"],"align":["left"]}],"data":[{"1":"608","2":"438.5583","3":"NA","4":"NA","5":"NA","_rn_":"Null Model"},{"1":"601","2":"399.3539","3":"7","4":"39.2044","5":"1.787e-06","_rn_":"Full Model (fit1)"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+</section>
+<section id="assessing-prediction-effect-size-anolouge-to-r2_mathrmadj" class="level2" data-number="3.7">
+<h2 data-number="3.7" class="anchored" data-anchor-id="assessing-prediction-effect-size-anolouge-to-r2_mathrmadj"><span class="header-section-number">3.7</span> Assessing Prediction Effect-size (anolouge to <span class="math inline">\(R^2_\mathrm{adj}\)</span>)</h2>
+<p>While the LRT assesses overall model significance (in-sample fit), it’s also crucial to evaluate how well the model predicts new, unseen data (out-of-sample performance). A common method is to split the data into a training set (e.g., 2/3 of the data) and a test set (e.g., 1/3). The model is fit using only the training data and then used to make predictions for the test data. We can then compare these predictions to the actual outcomes in the test set.</p>
+<section id="understanding-the-confusion-matrix-and-metrics" class="level3" data-number="3.7.1">
+<h3 data-number="3.7.1" class="anchored" data-anchor-id="understanding-the-confusion-matrix-and-metrics"><span class="header-section-number">3.7.1</span> Understanding the Confusion Matrix and Metrics</h3>
+<p>To evaluate a model’s predictive performance, we classify its probabilistic predictions using a threshold (typically 0.5) and compare them to the true outcomes in a <strong>Confusion Matrix</strong>:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: left;"><strong>Predicted: 0</strong></th>
+<th style="text-align: left;"><strong>Predicted: 1</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Actual: 0</strong></td>
+<td style="text-align: left;">True Negative (TN)</td>
+<td style="text-align: left;">False Positive (FP)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Actual: 1</strong></td>
+<td style="text-align: left;">False Negative (FN)</td>
+<td style="text-align: left;">True Positive (TP)</td>
+</tr>
+</tbody>
+</table>
+<p>From this matrix, we derive several key performance metrics:</p>
+<ul>
+<li><p><strong>Misclassification Error Rate (ER):</strong> The proportion of all predictions that were incorrect. <span class="math display">\[
+\text{Error Rate} = \frac{FP + FN}{TP + TN + FP + FN}
+\]</span></p></li>
+<li><p><strong>Precision (Positive Predictive Value):</strong> Answers: “Of all the times the model predicted positive, how often was it correct?” This is crucial when the cost of a <strong>False Positive</strong> is high. <span class="math display">\[
+\text{Precision} = \frac{TP}{TP + FP}
+\]</span></p></li>
+<li><p><strong>Recall (Sensitivity or True Positive Rate):</strong> Answers: “Of all the actual positive cases, how many did the model find?” This is crucial when the cost of a <strong>False Negative</strong> is high. <span class="math display">\[
+\text{Recall (TPR)} = \frac{TP}{TP + FN}
+\]</span></p></li>
+<li><p><strong>ROC Curve and AUC:</strong> An <strong>ROC Curve</strong> plots the model’s performance across <em>all possible</em> thresholds by plotting the <strong>True Positive Rate (Recall)</strong> against the <strong>False Positive Rate</strong> (FPR = <span class="math inline">\(\frac{FP}{FP + TN}\)</span>). The <strong>Area Under the Curve (AUC)</strong> summarizes this plot into a single number from 0 to 1, where 0.5 is a random guess and 1.0 is a perfect model.</p></li>
+</ul>
+<!-- end list -->
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the pROC library for AUC calculation</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages("pROC") # Uncomment to install if needed</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pROC)</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 1. Split the data ---</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>) <span class="co"># for reproducibility</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(CHD.data)</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>train_size <span class="ot">&lt;-</span> <span class="fu">floor</span>(<span class="dv">2</span><span class="sc">/</span><span class="dv">3</span> <span class="sc">*</span> n)</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>train_indices <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span>n, <span class="at">size =</span> train_size)</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>train_data <span class="ot">&lt;-</span> CHD.data[train_indices, ]</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>test_data  <span class="ot">&lt;-</span> CHD.data[<span class="sc">-</span>train_indices, ]</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 2. Refit the model on the training data ---</span></span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>fit_train <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>  chd <span class="sc">~</span> smk <span class="sc">+</span> cat <span class="sc">+</span> sbp <span class="sc">+</span> age <span class="sc">+</span> chl <span class="sc">+</span> ecg <span class="sc">+</span> hpt,</span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> train_data,</span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">"logit"</span>)</span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 3. Make predictions on the test data ---</span></span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>pred_probs <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_train, <span class="at">newdata =</span> test_data, <span class="at">type =</span> <span class="st">"response"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 5. Plot sorted predicted probabilities ---</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a data frame for plotting</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>plot_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">Prob =</span> pred_probs,</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">Actual =</span> <span class="fu">as.factor</span>(test_data<span class="sc">$</span>chd)</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Sort by predicted probability</span></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>plot_data <span class="ot">&lt;-</span> plot_data[<span class="fu">order</span>(plot_data<span class="sc">$</span>Prob), ]</span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>plot_data<span class="sc">$</span>Rank <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(plot_data)</span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the plot</span></span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a><span class="co"># We use 'pch' (plot character) to set different symbols</span></span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a><span class="co"># 'pch = 1' is 'o' (default)</span></span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 'pch = 4' is 'x'</span></span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(</span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>  plot_data<span class="sc">$</span>Rank,</span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a>  plot_data<span class="sc">$</span>Prob,</span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">pch =</span> <span class="fu">ifelse</span>(plot_data<span class="sc">$</span>Actual <span class="sc">==</span> <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">4</span>),</span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="fu">ifelse</span>(plot_data<span class="sc">$</span>Actual <span class="sc">==</span> <span class="dv">0</span>, <span class="st">"blue"</span>, <span class="st">"red"</span>),</span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Index (Sorted by Predicted Probability)"</span>,</span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab =</span> <span class="st">"Log-odds of Predicted Probability"</span>,</span>
+<span id="cb34-24"><a href="#cb34-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">main =</span> <span class="st">"Predicted Probabilities vs. Actual Class"</span>,</span>
+<span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>)</span>
+<span id="cb34-26"><a href="#cb34-26" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb34-27"><a href="#cb34-27" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h=</span><span class="fl">0.5</span>)</span>
+<span id="cb34-28"><a href="#cb34-28" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h=</span><span class="fl">0.1</span>, <span class="at">col=</span><span class="st">"grey"</span>)</span>
+<span id="cb34-29"><a href="#cb34-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-30"><a href="#cb34-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Add a legend</span></span>
+<span id="cb34-31"><a href="#cb34-31" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(</span>
+<span id="cb34-32"><a href="#cb34-32" aria-hidden="true" tabindex="-1"></a>  <span class="st">"topleft"</span>,</span>
+<span id="cb34-33"><a href="#cb34-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">"Actual 0 (o)"</span>, <span class="st">"Actual 1 (x)"</span>),</span>
+<span id="cb34-34"><a href="#cb34-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">pch =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">4</span>),</span>
+<span id="cb34-35"><a href="#cb34-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"blue"</span>, <span class="st">"red"</span>)</span>
+<span id="cb34-36"><a href="#cb34-36" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="logistic_files/figure-html/plot-sorted-probabilities-1.png" class="img-fluid figure-img" width="864"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Confusion Matrix with threhold=0.5</em></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 4. Assess accuracy ---</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 4a. Misclassification Error Rate (using 0.5 threshold)</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>threhold <span class="ot">&lt;-</span> <span class="fl">0.5</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>pred_class <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(pred_probs <span class="sc">&gt;</span> <span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>conf_matrix <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="at">Actual =</span> test_data<span class="sc">$</span>chd, <span class="at">Predicted =</span> pred_class)</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(conf_matrix)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Overall Model P-value: 1.787e-06 </code></pre>
+<pre><code>      Predicted
+Actual   0   1
+     0 178   1
+     1  23   1</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>error_rate <span class="ot">&lt;-</span> <span class="fu">mean</span>(pred_class <span class="sc">!=</span> test_data<span class="sc">$</span>chd)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">paste</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Misclassification Error Rate:"</span>, <span class="fu">round</span>(error_rate, <span class="dv">4</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Misclassification Error Rate: 0.1182 </code></pre>
 </div>
 </div>
+<p><em>Confusion Matrix with threhold=0.1</em></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>threhold <span class="ot">&lt;-</span> <span class="fl">0.1</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>pred_class <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(pred_probs <span class="sc">&gt;</span> <span class="fl">0.1</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>conf_matrix <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="at">Actual =</span> test_data<span class="sc">$</span>chd, <span class="at">Predicted =</span> pred_class)</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(conf_matrix)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>      Predicted
+Actual  0  1
+     0 89 90
+     1  6 18</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>error_rate <span class="ot">&lt;-</span> <span class="fu">mean</span>(pred_class <span class="sc">!=</span> test_data<span class="sc">$</span>chd)</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">paste</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Misclassification Error Rate:"</span>, <span class="fu">round</span>(error_rate, <span class="dv">4</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Misclassification Error Rate: 0.4729 </code></pre>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 4b. Area Under the Curve (AUC)</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>roc_curve <span class="ot">&lt;-</span> <span class="fu">roc</span>(test_data<span class="sc">$</span>chd, pred_probs, <span class="at">quiet =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>auc_value <span class="ot">&lt;-</span> <span class="fu">auc</span>(roc_curve)</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">paste</span>(<span class="st">"Area Under the Curve (AUC):"</span>, <span class="fu">round</span>(auc_value, <span class="dv">4</span>), <span class="st">"</span><span class="sc">\n\n</span><span class="st">"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Area Under the Curve (AUC): 0.6872 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the ROC curve</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(roc_curve, <span class="at">main =</span> <span class="st">"ROC Curve (Test Data)"</span>, <span class="at">print.auc =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="logistic_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="864"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
 </section>
 </section>
 
