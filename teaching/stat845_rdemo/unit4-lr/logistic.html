@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Longhai Li">
-<meta name="dcterms.date" content="2025-10-23">
+<meta name="dcterms.date" content="2025-10-27">
 
 <title>Logistic Regression</title>
 <style>
@@ -132,7 +132,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 23, 2025</p>
+      <p class="date">October 27, 2025</p>
     </div>
   </div>
   
@@ -653,6 +653,8 @@ hpt          4.044434e-04 -6.046197e-05  9.506863e-04  1.295828e-01</code></pre>
 \times \exp(\beta_k x_k).
 \]</span></p>
 <p><strong>An R function for OR at two Profiles</strong></p>
+<p>The or_from_predict R function is a utility designed to calculate the Odds Ratio (OR) and its 95% confidence interval (CI) between two specific covariate profiles (new1 and new0) for a given logistic regression model (fit). The calculation is performed on the link (logit) scale. For a logistic model <span class="math inline">\(\text{logit}(p) = \eta = \mathbf{X}\boldsymbol{\beta}\)</span>, the log-Odds Ratio (logOR) is the difference between the linear predictors (<span class="math inline">\(\eta_1, \eta_0\)</span>) for the two profiles: <span id="eq-logor"><span class="math display">\[\widehat{\text{logOR}} = \eta_1 - \eta_0 = (\mathbf{x}_1^T - \mathbf{x}_0^T) \boldsymbol{\beta} = \mathbf{c}^T \boldsymbol{\beta} \tag{1}\]</span></span></p>
+<p>Here, <span class="math inline">\(\mathbf{c} = \mathbf{x}_1 - \mathbf{x}_0\)</span> is the linear contrast vector derived from the model matrices of the two profiles. The function estimates the variance of this contrast as <span class="math inline">\(\text{Var}(\widehat{\text{logOR}}) = \mathbf{c}^T \mathbf{V} \mathbf{c}\)</span>, where <span class="math inline">\(\mathbf{V}\)</span> is the model’s variance-covariance matrix (vcov(fit)). The standard error <span class="math inline">\(SE = \sqrt{\mathbf{c}^T \mathbf{V} \mathbf{c}}\)</span> is used to compute the <span class="math inline">\(100(1-\alpha)\%\)</span> confidence interval for the logOR: <span class="math display">\[\widehat{\text{logOR}} \pm z_{1-\alpha/2} \times SE.\]</span> These values (estimate and CI bounds) are then exponentiated to produce the final <span class="math inline">\(\widehat{\text{OR}} = \exp(\widehat{\text{logOR}})\)</span> and its 95% CI. The function also prints two helpful summaries to the console: a data frame showing only the variables that differ between the new0 and new1 profiles, and a 2x3 table presenting the estimates and CIs for both the OR and the logOR.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -892,6 +894,47 @@ logOR 1.535074 0.6176951  2.452452</code></pre>
 </div>
 </div>
 </section>
+</section>
+<section id="overall-regression-significance-with-wilks-theorem" class="level2" data-number="3.6">
+<h2 data-number="3.6" class="anchored" data-anchor-id="overall-regression-significance-with-wilks-theorem"><span class="header-section-number">3.6</span> Overall Regression Significance with Wilks’ Theorem</h2>
+<p>In the context of logistic regression, Wilks’ theorem provides the basis for the Likelihood Ratio Test (LRT) used to assess the significance of predictor variables. The theorem states that when comparing a full model (<span class="math inline">\(M_1\)</span>) to a nested null model (<span class="math inline">\(M_0\)</span>), the test statistic, <span class="math inline">\(D\)</span>, asymptotically follows a chi-squared (<span class="math inline">\(\chi^2\)</span>) distribution under the null hypothesis (i.e., that the simpler model <span class="math inline">\(M_0\)</span> is correct).The statistic <span class="math inline">\(D\)</span> is calculated as the difference in the maximized log-likelihoods: <span id="eq-LRT"><span class="math display">\[D = -2(\log L_0 - \log L_1) \tag{2}\]</span></span> where <span class="math inline">\(\log L_0\)</span> and <span class="math inline">\(\log L_1\)</span> are the log-likelihoods of the null and full models, respectively. In logistic regression, this is equivalent to the difference in the deviances: <span class="math inline">\(D = \text{Deviance}_0 - \text{Deviance}_1\)</span>. For assessing the overall significance of a regression model (fit1), this involves comparing it to its corresponding intercept-only (null) model. The degrees of freedom for the <span class="math inline">\(\chi^2\)</span> test is the difference in the number of parameters between the two models, <span class="math inline">\(df = df_0 - df_1\)</span>, which equals the number of predictors in the full model.Here is an R code chunk demonstrating how to compute this p-value directly from a glm fit object, assuming it is named fit1.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: compute-lrt-pvalue</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the Likelihood Ratio Test statistic (D) and degrees of freedom (df)</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="co"># by comparing the model's deviance to the null (intercept-only) deviance,</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="co"># both of which are stored in the 'fit1' object.</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>lrt_statistic <span class="ot">&lt;-</span> fit1<span class="sc">$</span>null.deviance <span class="sc">-</span> fit1<span class="sc">$</span>deviance</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>lrt_df <span class="ot">&lt;-</span> fit1<span class="sc">$</span>df.null <span class="sc">-</span> fit1<span class="sc">$</span>df.residual</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute the p-value from the chi-squared distribution</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a><span class="co"># We use lower.tail = FALSE to get P(ChiSq &gt; D)</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>p_value <span class="ot">&lt;-</span> <span class="fu">pchisq</span>(lrt_statistic, lrt_df, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the result</span></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">paste</span>(<span class="st">"Likelihood Ratio Test Statistic (D):"</span>, <span class="fu">round</span>(lrt_statistic, <span class="dv">4</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Likelihood Ratio Test Statistic (D): 39.2044 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">paste</span>(<span class="st">"Degrees of Freedom (df):"</span>, lrt_df, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Degrees of Freedom (df): 7 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">paste</span>(<span class="st">"Overall Model P-value:"</span>, <span class="fu">format.pval</span>(p_value, <span class="at">digits =</span> <span class="dv">4</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Overall Model P-value: 1.787e-06 </code></pre>
+</div>
+</div>
 </section>
 </section>
 

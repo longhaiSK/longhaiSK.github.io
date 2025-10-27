@@ -22,9 +22,6 @@ format:
         <link rel="stylesheet" href="/resources/mystyles.css?v=2">
         <script src="/resources/rendernav.js" defer></script>
         <script src="/resources/loadtoc.js" defer></script>
-    resources:
-      - mystyles.css
-      - rendernav.js
 editor: source
 execute:
   echo: true
@@ -365,6 +362,15 @@ $$
 $$
 
 **An R function for OR at two Profiles**
+
+The or_from_predict R function is a utility designed to calculate the Odds Ratio (OR) and its 95% confidence interval (CI) between two specific covariate profiles (new1 and new0) for a given logistic regression model (fit). The calculation is performed on the link (logit) scale. For a logistic model $\text{logit}(p) = \eta = \mathbf{X}\boldsymbol{\beta}$, the log-Odds Ratio (logOR) is the difference between the linear predictors ($\eta_1, \eta_0$) for the two profiles:
+$$\widehat{\text{logOR}} = \eta_1 - \eta_0 = (\mathbf{x}_1^T - \mathbf{x}_0^T) \boldsymbol{\beta} = \mathbf{c}^T \boldsymbol{\beta}$${#eq-logor}
+
+Here, $\mathbf{c} = \mathbf{x}_1 - \mathbf{x}_0$ is the linear contrast vector derived from the model matrices of the two profiles. The function estimates the variance of this contrast as $\text{Var}(\widehat{\text{logOR}}) = \mathbf{c}^T \mathbf{V} \mathbf{c}$, where $\mathbf{V}$ is the model's variance-covariance matrix (vcov(fit)). The standard error $SE = \sqrt{\mathbf{c}^T \mathbf{V} \mathbf{c}}$ is used to compute the $100(1-\alpha)\%$ confidence interval for the logOR: 
+$$\widehat{\text{logOR}} \pm z_{1-\alpha/2} \times SE.$$ 
+These values (estimate and CI bounds) are then exponentiated to produce the final $\widehat{\text{OR}} = \exp(\widehat{\text{logOR}})$ and its 95% CI. The function also prints two helpful summaries to the console: a data frame showing only the variables that differ between the new0 and new1 profiles, and a 2x3 table presenting the estimates and CIs for both the OR and the logOR.
+
+
 ```{r}
 #| label: OR function
 # Compute OR and 95% CI via predict() on the LINK scale
@@ -587,5 +593,32 @@ res_ageAsmk <- or_from_predict(fit1, new1 = new1, new0 = new0)
 
 ```
 
+## Overall Regression Significance with Wilks' Theorem
 
+In the context of logistic regression, Wilks' theorem provides the basis for the Likelihood Ratio Test (LRT) used to assess the significance of predictor variables. The theorem states that when comparing a full model ($M_1$) to a nested null model ($M_0$), the test statistic, $D$, asymptotically follows a chi-squared ($\chi^2$) distribution under the null hypothesis (i.e., that the simpler model $M_0$ is correct).The statistic $D$ is calculated as the difference in the maximized log-likelihoods:
+$$D = -2(\log L_0 - \log L_1)$${#eq-LRT}
+where $\log L_0$ and $\log L_1$ are the log-likelihoods of the null and full models, respectively. In logistic regression, this is equivalent to the difference in the deviances: $D = \text{Deviance}_0 - \text{Deviance}_1$. For assessing the overall significance of a regression model (fit1), this involves comparing it to its corresponding intercept-only (null) model. The degrees of freedom for the $\chi^2$ test is the difference in the number of parameters between the two models, $df = df_0 - df_1$, which equals the number of predictors in the full model.Here is an R code chunk demonstrating how to compute this p-value directly from a glm fit object, assuming it is named fit1.
+```{r}
+
+
+
+#| label: compute-lrt-pvalue
+#| echo: true
+
+# Calculate the Likelihood Ratio Test statistic (D) and degrees of freedom (df)
+# by comparing the model's deviance to the null (intercept-only) deviance,
+# both of which are stored in the 'fit1' object.
+lrt_statistic <- fit1$null.deviance - fit1$deviance
+lrt_df <- fit1$df.null - fit1$df.residual
+
+# Compute the p-value from the chi-squared distribution
+# We use lower.tail = FALSE to get P(ChiSq > D)
+p_value <- pchisq(lrt_statistic, lrt_df, lower.tail = FALSE)
+
+# Print the result
+cat(paste("Likelihood Ratio Test Statistic (D):", round(lrt_statistic, 4), "\n"))
+cat(paste("Degrees of Freedom (df):", lrt_df, "\n"))
+cat(paste("Overall Model P-value:", format.pval(p_value, digits = 4), "\n"))
+
+```
 
