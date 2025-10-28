@@ -1,0 +1,331 @@
+---
+title: "Logistic Regression"
+author:
+  - name: "Longhai Li"
+    url: "https://longhaisk.github.io/"
+date: today
+from: markdown+tex_math_single_backslash+tex_math_dollars
+format:
+  # make sure these files get copied alongside the page
+  html:
+    theme: cosmo            # (Rmd `theme: null`)
+    embed-resources: false # (Rmd `self_contained: false`)
+    toc: false
+    page-layout: full
+    #css: mystyles.css
+    code-fold: true
+    number-sections: true
+    df-print: paged        # (Rmd `df_print: paged`)
+    highlight-style: tango # (Rmd `highlight: tango`)
+    include-in-header:
+      text: |
+        <link rel="stylesheet" href="/resources/mystyles.css?v=2">
+        <script src="/resources/rendernav.js" defer></script>
+        <script src="/resources/loadtoc.js" defer></script>
+editor: source
+execute:
+  echo: true
+  warning: false
+  message: false
+  cache: false
+  fig-width: 9
+  fig-height: 6
+    
+editor_options: 
+  chunk_output_type: console
+---
+
+
+## Plasma Etching Experiment (Completely Randomized Design)
+
+This section analyzes data from a **Completely Randomized Design (CRD)**. In a CRD, experimental units (in this case, the silicon wafers being etched) are assigned to treatments (the RF Power levels) completely at random. The primary goal is to determine if changing the RF Power level has a statistically significant effect on the mean etch rate.
+
+### Data Setup
+
+We begin by loading the data into R. The response variable, `rate`, contains all the etch rate observations. The predictor variable, `power`, is created as a **factor**, which is R's way of representing a categorical variable. This tells R to treat the different power levels as distinct groups rather than numerical values.
+
+```{r}
+#| label: setup-crd
+#| echo: true
+
+# Response variable: etch rate
+rate <- c(575, 542, 530, 539, 570, 565, 593, 590, 579, 610,
+          600, 651, 610, 637, 629, 725, 700, 715, 685, 710)
+
+# Factor: Power
+levels <- c(160, 180, 200, 220)
+power <- factor(rep(levels, each = 5))
+```
+
+### Model Fitting with Sum-to-Zero Constraint
+
+We fit a linear model using the `lm()` function to perform an **Analysis of Variance (ANOVA)**. The model is specified as `rate ~ power`, which means we are modeling the etch rate as a function of the power level.
+
+To get interpretable estimates for the treatment effects ($\tau_i$), we need to apply a constraint. Here, we use a **sum-to-zero constraint** (`contr.sum`), which forces the sum of the treatment effects to be zero ($\sum \tau_i = 0$). This is a common and intuitive constraint that defines the overall mean $\mu$ as the average across all treatments.
+
+```{r}
+#| label: fit-sum-to-zero
+
+fit <- lm(rate ~ power, contrasts = list(power = contr.sum))
+summary.fit <- summary(fit)
+summary.fit
+```
+
+### Point Estimation of Parameters
+
+The output of the model provides estimates for the overall mean ($\hat{\mu}$) and the treatment effects for the first k-1 levels ($\hat{\tau}_1, \hat{\tau}_2, \hat{\tau}_3$).
+
+* $\hat{\mu}$ (the Intercept) is the estimate of the grand mean etch rate across all power levels.
+* $\hat{\tau}_i$ is the estimated effect of the i-th power level, representing how much that level's mean deviates from the grand mean.
+
+Using the sum-to-zero constraint, we can manually calculate the effect for the final level, $\hat{\tau}_4$, as it must be the negative sum of the others.
+
+```{r}
+#| label: point-estimation
+
+# Extract coefficients
+est <- coef(fit)
+tau4.hat <- -sum(est[-1])
+taui.hat <- c(est[-1], tau4.hat)
+print("Estimated Treatment Effects (tau_i):")
+print(taui.hat)
+
+# Estimates of treatment means (mu_i)
+mu.hat <- est[1]
+mui.hat <- mu.hat + taui.hat
+print("Estimated Treatment Means (mu_i):")
+print(mui.hat)
+```
+
+### ANOVA Table
+
+The ANOVA table is the core of this analysis. It partitions the total variation in the data into two components: the variation **between** the treatment groups (due to `power`) and the variation **within** the treatment groups (the random error or "residuals").
+
+The **F-statistic** is the ratio of the mean square for treatments to the mean square for error. A large F-statistic suggests that the variation between groups is large relative to the variation within groups. The **p-value** (Pr(>F)) tells us the probability of observing an F-statistic this large or larger if the null hypothesis (that all group means are equal) were true. A small p-value (typically < 0.05) leads us to reject the null hypothesis and conclude that at least one power level has a different mean etch rate.
+
+```{r}
+#| label: anova-crd
+
+anova(fit)
+```
+
+### 95% Confidence Intervals for Treatment Means
+
+The ANOVA test told us that the means are not all the same, but it didn't tell us what the means are. A **confidence interval** provides a range of plausible values for the true mean etch rate at each power level. A 95% confidence interval means that if we were to repeat this experiment many times, 95% of the calculated intervals would contain the true mean.
+
+```{r}
+#| label: confidence-intervals
+
+# Number of replicates
+n <- 5 
+# Extract sqrt(MSE) and error df
+sqrt.MSE <- summary.fit$sigma
+DF <- fit$df.residual
+# Find t-value
+t.value <- qt(0.975, DF)
+# Calculate CIs
+CI.lower <- mui.hat - t.value * sqrt.MSE / sqrt(n)
+CI.upper <- mui.hat + t.value * sqrt.MSE / sqrt(n)
+
+# Display CIs
+data.frame(Power_Level = levels, Mean = mui.hat, Lower_CI = CI.lower, Upper_CI = CI.upper)
+```
+
+### Comparison with Default "Treatment" Contrast
+
+It's important to know that the choice of constraint affects the interpretation of the model's coefficients ($\mu$ and $\tau_i$) but does **not** change the fundamental results: the ANOVA table, the estimated treatment means ($\mu_i$), and the overall model fit are identical regardless of the constraint used. R's default is the "treatment" contrast, which sets the effect of the first factor level to zero ($\tau_1 = 0$).
+
+```{r}
+#| label: fit-default-contrast
+
+fit1 <- lm(rate ~ power)
+summary(fit1)
+```
+
+### Pairwise Comparisons
+
+Since our ANOVA result was significant, we should perform **post-hoc tests** to determine exactly which pairs of power levels have different means.
+
+#### Tukey's HSD Test
+
+**Tukey's Honest Significant Difference (HSD)** test is a popular choice for pairwise comparisons because it controls the **family-wise error rate**. This means it adjusts the p-values to account for the fact that we are performing multiple comparisons, thereby reducing the chance of making a Type I error (incorrectly finding a significant difference).
+
+```{r}
+#| label: tukey-test
+
+fit.aov <- aov(rate ~ power)
+TukeyHSD(fit.aov)
+```
+
+#### Fisher's LSD Test
+
+The **Fisher's Least Significant Difference (LSD)** test is another method. It is more powerful than Tukey's HSD but does **not** control the family-wise error rate. It is essentially a series of t-tests performed only if the overall F-test from the ANOVA is significant. The p-values are not adjusted for multiple comparisons.
+
+```{r}
+#| label: fisher-lsd
+
+pairwise.t.test(rate, power, p.adj = "none")
+```
+
+### Checking Model Assumptions
+
+The validity of our ANOVA results depends on three key assumptions about the model's residuals (the errors). We use diagnostic plots to check them.
+
+```{r}
+#| label: residuals-setup
+
+r <- rstandard(fit)
+fitted <- fitted.values(fit)
+```
+
+#### Normality of Residuals
+
+The errors are assumed to be normally distributed. A **Normal Q-Q (Quantile-Quantile) plot** is used to check this. If the residuals are normal, the points should fall closely along the straight diagonal line.
+
+```{r}
+#| label: qq-plot
+#| fig-cap: "Normal Q-Q plot of standardized residuals."
+
+qqnorm(r)
+qqline(r)
+```
+
+#### Independence of Residuals
+
+The errors are assumed to be independent of one another. A plot of **residuals versus run order** helps check this. We look for random scatter around the zero line. Any clear patterns (e.g., a wave or a funnel shape) could suggest a lack of independence, which might occur if, for example, the machine performance drifted over time.
+
+```{r}
+#| label: residuals-vs-order
+#| fig-cap: "Standardized residuals vs. run order."
+
+plot(r, ylab = "Standardized residuals", xlab = "Run order",
+     main = "Plot of residuals vs. run order")
+abline(h = 0)
+```
+
+#### Constant Variance (Homoscedasticity)
+
+The errors are assumed to have a constant variance across all treatment levels. We check this with a plot of **residuals versus fitted values**. The plot should show a random scatter of points with a roughly constant vertical spread as you move from left to right. A funnel shape (widening or narrowing spread) would indicate non-constant variance (heteroscedasticity).
+
+```{r}
+#| label: residuals-vs-fitted
+#| fig-cap: "Standardized residuals vs. fitted values."
+
+plot(fitted, r, ylab = "Standardized residuals", 
+     xlab = "Fitted values", main = "Plot of residuals vs. fitted values")
+abline(h = 0)
+```
+
+## Unequal Sample Sizes Example
+
+The ANOVA framework can also handle **unbalanced designs**, where the number of observations in each group is not the same. The principles and interpretations remain the same, although the underlying formulas are slightly more complex. R handles this automatically.
+
+```{r}
+#| label: unequal-samples
+
+y <- c(21.8, 21.9, 21.7, 21.6, 21.7,
+       21.7, 21.4, 21.5, 21.4,
+       21.9, 21.8, 21.8, 21.6, 21.5,
+       21.9, 21.7, 21.8, 21.4)
+g <- factor(c(rep(100, 5), rep(125, 4), rep(150, 5), rep(175, 4)))
+
+fit2 <- aov(y ~ g)
+anova(fit2)
+```
+In this case, the large p-value (0.133) indicates that there is no statistically significant evidence to conclude that the firing temperature affects the brick density.
+
+## Vascular Graft Experiment (Randomized Complete Block Design)
+
+This section analyzes a **Randomized Complete Block Design (RCBD)**. An RCBD is used when there is a known source of variability that we want to control for. In this experiment, the "batches of resin" are a potential source of variation. By treating the batches as **blocks**, we can systematically account for their effect, making the comparison among the treatments (`pressure`) more precise. Within each block (batch), the treatments are assigned randomly.
+
+### Data Setup
+
+We structure the data to identify both the treatment (`pressure`) and the block (`batch`) for each observation.
+
+```{r}
+#| label: setup-rcbd
+
+y <- c(90.3, 89.2, 98.2, 93.9, 87.4, 97.9,
+       92.5, 89.5, 90.6, 94.7, 87.0, 95.8,
+       85.5, 90.8, 89.6, 86.2, 88.0, 93.4,
+       82.5, 89.5, 85.6, 87.4, 78.9, 90.7)
+
+pressure.levels <- rep(c(8500, 8700, 8900, 9100), each = 6)
+batch.levels <- rep(1:6, 4)
+
+pressure <- factor(pressure.levels)
+batch <- factor(batch.levels)
+```
+
+### Model Fitting and ANOVA
+
+The model is now `y ~ pressure + batch`. This additive model partitions the total variance into three parts: variation due to `pressure` (treatments), variation due to `batch` (blocks), and residual (error) variation. Our primary interest is in the significance of the `pressure` factor.
+
+```{r}
+#| label: fit-rcbd
+
+rcbd.fit1 <- aov(y ~ pressure + batch)
+anova(rcbd.fit1)
+```
+The very small p-value for `pressure` (0.0019) provides strong evidence that the extrusion pressure significantly affects the graft strength, even after accounting for differences between the batches of resin.
+
+### Model Adequacy Checks
+
+The assumptions for an RCBD are the same as for a CRD (normality, independence, constant variance). We perform the same diagnostic checks on the residuals from the RCBD model.
+
+```{r}
+#| label: plot-diagnostics-rcbd
+#| layout-ncol: 2
+#| fig-cap: 
+#|  - "Normal Q-Q Plot"
+#|  - "Residuals vs. Fitted Values"
+#|  - "Residuals vs. Treatment (Pressure)"
+#|  - "Residuals vs. Block (Batch)"
+
+rcbd.r1 <- rstandard(rcbd.fit1)
+rcbd.fitted1 <- fitted.values(rcbd.fit1)
+
+qqnorm(rcbd.r1, main = "Normal Q-Q Plot")
+qqline(rcbd.r1)
+
+plot(rcbd.fitted1, rcbd.r1, ylab = "Standardized residuals", 
+     xlab = "Fitted values", main = "Residuals vs. Fitted")
+abline(h = 0)
+
+plot(pressure.levels, rcbd.r1, ylab = "Standardized residuals", 
+     xlab = "Extrusion pressure", main = "Residuals vs. Treatment")
+abline(h = 0)
+
+plot(batch.levels, rcbd.r1, ylab = "Standardized residuals", 
+     xlab = "Batches of raw material", main = "Residuals vs. Block")
+abline(h = 0)
+```
+
+### Pairwise Comparisons
+
+Again, since the treatment factor (`pressure`) is significant, we perform post-hoc tests.
+
+#### Tukey's HSD Test
+
+Tukey's HSD works the same way for an RCBD, comparing all pairs of treatment levels while controlling the family-wise error rate.
+
+```{r}
+#| label: tukey-rcbd
+
+TukeyHSD(rcbd.fit1, which = "pressure")
+```
+
+#### Fisher's LSD Test
+
+The standard `pairwise.t.test()` function is not designed for RCBD models. We use the `LSD.test()` function from the `agricolae` package, which is specifically designed for agricultural and experimental designs and can correctly handle the error structure of an RCBD.
+
+```{r}
+#| label: lsd-rcbd
+#| message: false
+
+# install.packages("agricolae")
+library(agricolae)
+
+out <- LSD.test(rcbd.fit1, trt = "pressure", p.adj = "none", group = FALSE)
+print(out$comparison)
+```
