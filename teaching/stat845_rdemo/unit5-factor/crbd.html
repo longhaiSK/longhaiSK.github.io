@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Longhai Li">
+<meta name="dcterms.date" content="2025-10-28">
+
+<title>Logistic Regression</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="crbd_files/libs/clipboard/clipboard.min.js"></script>
+<script src="crbd_files/libs/quarto-html/quarto.js"></script>
+<script src="crbd_files/libs/quarto-html/popper.min.js"></script>
+<script src="crbd_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="crbd_files/libs/quarto-html/anchor.min.js"></script>
+<link href="crbd_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="crbd_files/libs/quarto-html/quarto-syntax-highlighting-0de45b8b5f35a93596f1d788d60c4c11.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="crbd_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="crbd_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="crbd_files/libs/bootstrap/bootstrap-1f6650d5089b333a4efb375bbcfc394a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="crbd_files/libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="crbd_files/libs/pagedtable-1.1/js/pagedtable.js"></script>
+<link rel="stylesheet" href="/resources/mystyles.css?v=2">
+<script src="/resources/rendernav.js" defer=""></script>
+<script src="/resources/loadtoc.js" defer=""></script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-full">
+
+<main class="content column-page" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Logistic Regression</h1>
+</div>
+
+
+
+<div class="quarto-title-meta column-page">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p><a href="https://longhaisk.github.io/">Longhai Li</a> </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">October 28, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="plasma-etching-experiment-completely-randomized-design" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="plasma-etching-experiment-completely-randomized-design"><span class="header-section-number">1</span> Plasma Etching Experiment (Completely Randomized Design)</h2>
+<p>This section analyzes data from a <strong>Completely Randomized Design (CRD)</strong>. In a CRD, experimental units (in this case, the silicon wafers being etched) are assigned to treatments (the RF Power levels) completely at random. The primary goal is to determine if changing the RF Power level has a statistically significant effect on the mean etch rate.</p>
+<section id="data-setup" class="level3" data-number="1.1">
+<h3 data-number="1.1" class="anchored" data-anchor-id="data-setup"><span class="header-section-number">1.1</span> Data Setup</h3>
+<p>We begin by loading the data into R. The response variable, <code>rate</code>, contains all the etch rate observations. The predictor variable, <code>power</code>, is created as a <strong>factor</strong>, which is R’s way of representing a categorical variable. This tells R to treat the different power levels as distinct groups rather than numerical values.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Response variable: etch rate</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>rate <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">575</span>, <span class="dv">542</span>, <span class="dv">530</span>, <span class="dv">539</span>, <span class="dv">570</span>, <span class="dv">565</span>, <span class="dv">593</span>, <span class="dv">590</span>, <span class="dv">579</span>, <span class="dv">610</span>,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>          <span class="dv">600</span>, <span class="dv">651</span>, <span class="dv">610</span>, <span class="dv">637</span>, <span class="dv">629</span>, <span class="dv">725</span>, <span class="dv">700</span>, <span class="dv">715</span>, <span class="dv">685</span>, <span class="dv">710</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Factor: Power</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>levels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">160</span>, <span class="dv">180</span>, <span class="dv">200</span>, <span class="dv">220</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>power <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">rep</span>(levels, <span class="at">each =</span> <span class="dv">5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="model-fitting-with-sum-to-zero-constraint" class="level3" data-number="1.2">
+<h3 data-number="1.2" class="anchored" data-anchor-id="model-fitting-with-sum-to-zero-constraint"><span class="header-section-number">1.2</span> Model Fitting with Sum-to-Zero Constraint</h3>
+<p>We fit a linear model using the <code>lm()</code> function to perform an <strong>Analysis of Variance (ANOVA)</strong>. The model is specified as <code>rate ~ power</code>, which means we are modeling the etch rate as a function of the power level.</p>
+<p>To get interpretable estimates for the treatment effects (<span class="math inline">\(\tau_i\)</span>), we need to apply a constraint. Here, we use a <strong>sum-to-zero constraint</strong> (<code>contr.sum</code>), which forces the sum of the treatment effects to be zero (<span class="math inline">\(\sum \tau_i = 0\)</span>). This is a common and intuitive constraint that defines the overall mean <span class="math inline">\(\mu\)</span> as the average across all treatments.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(rate <span class="sc">~</span> power, <span class="at">contrasts =</span> <span class="fu">list</span>(<span class="at">power =</span> contr.sum))</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>summary.fit <span class="ot">&lt;-</span> <span class="fu">summary</span>(fit)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>summary.fit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = rate ~ power, contrasts = list(power = contr.sum))
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+ -25.4  -13.0    2.8   13.2   25.6 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  617.750      4.085 151.234  &lt; 2e-16 ***
+power1       -66.550      7.075  -9.406 6.39e-08 ***
+power2       -30.350      7.075  -4.290 0.000563 ***
+power3         7.650      7.075   1.081 0.295602    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 18.27 on 16 degrees of freedom
+Multiple R-squared:  0.9261,    Adjusted R-squared:  0.9122 
+F-statistic:  66.8 on 3 and 16 DF,  p-value: 2.883e-09</code></pre>
+</div>
+</div>
+</section>
+<section id="point-estimation-of-parameters" class="level3" data-number="1.3">
+<h3 data-number="1.3" class="anchored" data-anchor-id="point-estimation-of-parameters"><span class="header-section-number">1.3</span> Point Estimation of Parameters</h3>
+<p>The output of the model provides estimates for the overall mean (<span class="math inline">\(\hat{\mu}\)</span>) and the treatment effects for the first k-1 levels (<span class="math inline">\(\hat{\tau}_1, \hat{\tau}_2, \hat{\tau}_3\)</span>).</p>
+<ul>
+<li><span class="math inline">\(\hat{\mu}\)</span> (the Intercept) is the estimate of the grand mean etch rate across all power levels.</li>
+<li><span class="math inline">\(\hat{\tau}_i\)</span> is the estimated effect of the i-th power level, representing how much that level’s mean deviates from the grand mean.</li>
+</ul>
+<p>Using the sum-to-zero constraint, we can manually calculate the effect for the final level, <span class="math inline">\(\hat{\tau}_4\)</span>, as it must be the negative sum of the others.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract coefficients</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>est <span class="ot">&lt;-</span> <span class="fu">coef</span>(fit)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>tau4.hat <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fu">sum</span>(est[<span class="sc">-</span><span class="dv">1</span>])</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>taui.hat <span class="ot">&lt;-</span> <span class="fu">c</span>(est[<span class="sc">-</span><span class="dv">1</span>], tau4.hat)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="st">"Estimated Treatment Effects (tau_i):"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Estimated Treatment Effects (tau_i):"</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(taui.hat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>power1 power2 power3        
+-66.55 -30.35   7.65  89.25 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimates of treatment means (mu_i)</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>mu.hat <span class="ot">&lt;-</span> est[<span class="dv">1</span>]</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>mui.hat <span class="ot">&lt;-</span> mu.hat <span class="sc">+</span> taui.hat</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="st">"Estimated Treatment Means (mu_i):"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Estimated Treatment Means (mu_i):"</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(mui.hat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>power1 power2 power3        
+ 551.2  587.4  625.4  707.0 </code></pre>
+</div>
+</div>
+</section>
+<section id="anova-table" class="level3" data-number="1.4">
+<h3 data-number="1.4" class="anchored" data-anchor-id="anova-table"><span class="header-section-number">1.4</span> ANOVA Table</h3>
+<p>The ANOVA table is the core of this analysis. It partitions the total variation in the data into two components: the variation <strong>between</strong> the treatment groups (due to <code>power</code>) and the variation <strong>within</strong> the treatment groups (the random error or “residuals”).</p>
+<p>The <strong>F-statistic</strong> is the ratio of the mean square for treatments to the mean square for error. A large F-statistic suggests that the variation between groups is large relative to the variation within groups. The <strong>p-value</strong> (Pr(&gt;F)) tells us the probability of observing an F-statistic this large or larger if the null hypothesis (that all group means are equal) were true. A small p-value (typically &lt; 0.05) leads us to reject the null hypothesis and conclude that at least one power level has a different mean etch rate.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Df"],"name":[1],"type":["int"],"align":["right"]},{"label":["Sum Sq"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["Mean Sq"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["F value"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["Pr(>F)"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"3","2":"66870.55","3":"22290.18","4":"66.79707","5":"2.882866e-09","_rn_":"power"},{"1":"16","2":"5339.20","3":"333.70","4":"NA","5":"NA","_rn_":"Residuals"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+</section>
+<section id="confidence-intervals-for-treatment-means" class="level3" data-number="1.5">
+<h3 data-number="1.5" class="anchored" data-anchor-id="confidence-intervals-for-treatment-means"><span class="header-section-number">1.5</span> 95% Confidence Intervals for Treatment Means</h3>
+<p>The ANOVA test told us that the means are not all the same, but it didn’t tell us what the means are. A <strong>confidence interval</strong> provides a range of plausible values for the true mean etch rate at each power level. A 95% confidence interval means that if we were to repeat this experiment many times, 95% of the calculated intervals would contain the true mean.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Number of replicates</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">5</span> </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract sqrt(MSE) and error df</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>sqrt.MSE <span class="ot">&lt;-</span> summary.fit<span class="sc">$</span>sigma</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>DF <span class="ot">&lt;-</span> fit<span class="sc">$</span>df.residual</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Find t-value</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>t.value <span class="ot">&lt;-</span> <span class="fu">qt</span>(<span class="fl">0.975</span>, DF)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate CIs</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>CI.lower <span class="ot">&lt;-</span> mui.hat <span class="sc">-</span> t.value <span class="sc">*</span> sqrt.MSE <span class="sc">/</span> <span class="fu">sqrt</span>(n)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>CI.upper <span class="ot">&lt;-</span> mui.hat <span class="sc">+</span> t.value <span class="sc">*</span> sqrt.MSE <span class="sc">/</span> <span class="fu">sqrt</span>(n)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Display CIs</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">Power_Level =</span> levels, <span class="at">Mean =</span> mui.hat, <span class="at">Lower_CI =</span> CI.lower, <span class="at">Upper_CI =</span> CI.upper)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Power_Level"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["Mean"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["Lower_CI"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["Upper_CI"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"160","2":"551.2","3":"533.8815","4":"568.5185","_rn_":"power1"},{"1":"180","2":"587.4","3":"570.0815","4":"604.7185","_rn_":"power2"},{"1":"200","2":"625.4","3":"608.0815","4":"642.7185","_rn_":"power3"},{"1":"220","2":"707.0","3":"689.6815","4":"724.3185","_rn_":""}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+</section>
+<section id="comparison-with-default-treatment-contrast" class="level3" data-number="1.6">
+<h3 data-number="1.6" class="anchored" data-anchor-id="comparison-with-default-treatment-contrast"><span class="header-section-number">1.6</span> Comparison with Default “Treatment” Contrast</h3>
+<p>It’s important to know that the choice of constraint affects the interpretation of the model’s coefficients (<span class="math inline">\(\mu\)</span> and <span class="math inline">\(\tau_i\)</span>) but does <strong>not</strong> change the fundamental results: the ANOVA table, the estimated treatment means (<span class="math inline">\(\mu_i\)</span>), and the overall model fit are identical regardless of the constraint used. R’s default is the “treatment” contrast, which sets the effect of the first factor level to zero (<span class="math inline">\(\tau_1 = 0\)</span>).</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>fit1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(rate <span class="sc">~</span> power)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = rate ~ power)
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+ -25.4  -13.0    2.8   13.2   25.6 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  551.200      8.169  67.471  &lt; 2e-16 ***
+power180      36.200     11.553   3.133  0.00642 ** 
+power200      74.200     11.553   6.422 8.44e-06 ***
+power220     155.800     11.553  13.485 3.73e-10 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 18.27 on 16 degrees of freedom
+Multiple R-squared:  0.9261,    Adjusted R-squared:  0.9122 
+F-statistic:  66.8 on 3 and 16 DF,  p-value: 2.883e-09</code></pre>
+</div>
+</div>
+</section>
+<section id="pairwise-comparisons" class="level3" data-number="1.7">
+<h3 data-number="1.7" class="anchored" data-anchor-id="pairwise-comparisons"><span class="header-section-number">1.7</span> Pairwise Comparisons</h3>
+<p>Since our ANOVA result was significant, we should perform <strong>post-hoc tests</strong> to determine exactly which pairs of power levels have different means.</p>
+<section id="tukeys-hsd-test" class="level4" data-number="1.7.1">
+<h4 data-number="1.7.1" class="anchored" data-anchor-id="tukeys-hsd-test"><span class="header-section-number">1.7.1</span> Tukey’s HSD Test</h4>
+<p><strong>Tukey’s Honest Significant Difference (HSD)</strong> test is a popular choice for pairwise comparisons because it controls the <strong>family-wise error rate</strong>. This means it adjusts the p-values to account for the fact that we are performing multiple comparisons, thereby reducing the chance of making a Type I error (incorrectly finding a significant difference).</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>fit.aov <span class="ot">&lt;-</span> <span class="fu">aov</span>(rate <span class="sc">~</span> power)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">TukeyHSD</span>(fit.aov)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Tukey multiple comparisons of means
+    95% family-wise confidence level
+
+Fit: aov(formula = rate ~ power)
+
+$power
+         diff        lwr       upr     p adj
+180-160  36.2   3.145624  69.25438 0.0294279
+200-160  74.2  41.145624 107.25438 0.0000455
+220-160 155.8 122.745624 188.85438 0.0000000
+200-180  38.0   4.945624  71.05438 0.0215995
+220-180 119.6  86.545624 152.65438 0.0000001
+220-200  81.6  48.545624 114.65438 0.0000146</code></pre>
+</div>
+</div>
+</section>
+<section id="fishers-lsd-test" class="level4" data-number="1.7.2">
+<h4 data-number="1.7.2" class="anchored" data-anchor-id="fishers-lsd-test"><span class="header-section-number">1.7.2</span> Fisher’s LSD Test</h4>
+<p>The <strong>Fisher’s Least Significant Difference (LSD)</strong> test is another method. It is more powerful than Tukey’s HSD but does <strong>not</strong> control the family-wise error rate. It is essentially a series of t-tests performed only if the overall F-test from the ANOVA is significant. The p-values are not adjusted for multiple comparisons.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pairwise.t.test</span>(rate, power, <span class="at">p.adj =</span> <span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pairwise comparisons using t tests with pooled SD 
+
+data:  rate and power 
+
+    160     180     200    
+180 0.0064  -       -      
+200 8.4e-06 0.0046  -      
+220 3.7e-10 1.7e-08 2.7e-06
+
+P value adjustment method: none </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="checking-model-assumptions" class="level3" data-number="1.8">
+<h3 data-number="1.8" class="anchored" data-anchor-id="checking-model-assumptions"><span class="header-section-number">1.8</span> Checking Model Assumptions</h3>
+<p>The validity of our ANOVA results depends on three key assumptions about the model’s residuals (the errors). We use diagnostic plots to check them.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>r <span class="ot">&lt;-</span> <span class="fu">rstandard</span>(fit)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>fitted <span class="ot">&lt;-</span> <span class="fu">fitted.values</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="normality-of-residuals" class="level4" data-number="1.8.1">
+<h4 data-number="1.8.1" class="anchored" data-anchor-id="normality-of-residuals"><span class="header-section-number">1.8.1</span> Normality of Residuals</h4>
+<p>The errors are assumed to be normally distributed. A <strong>Normal Q-Q (Quantile-Quantile) plot</strong> is used to check this. If the residuals are normal, the points should fall closely along the straight diagonal line.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(r)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">qqline</span>(r)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="crbd_files/figure-html/qq-plot-1.png" class="img-fluid figure-img" width="864"></p>
+<figcaption>Normal Q-Q plot of standardized residuals.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="independence-of-residuals" class="level4" data-number="1.8.2">
+<h4 data-number="1.8.2" class="anchored" data-anchor-id="independence-of-residuals"><span class="header-section-number">1.8.2</span> Independence of Residuals</h4>
+<p>The errors are assumed to be independent of one another. A plot of <strong>residuals versus run order</strong> helps check this. We look for random scatter around the zero line. Any clear patterns (e.g., a wave or a funnel shape) could suggest a lack of independence, which might occur if, for example, the machine performance drifted over time.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(r, <span class="at">ylab =</span> <span class="st">"Standardized residuals"</span>, <span class="at">xlab =</span> <span class="st">"Run order"</span>,</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Plot of residuals vs. run order"</span>)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="crbd_files/figure-html/residuals-vs-order-1.png" class="img-fluid figure-img" width="864"></p>
+<figcaption>Standardized residuals vs.&nbsp;run order.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="constant-variance-homoscedasticity" class="level4" data-number="1.8.3">
+<h4 data-number="1.8.3" class="anchored" data-anchor-id="constant-variance-homoscedasticity"><span class="header-section-number">1.8.3</span> Constant Variance (Homoscedasticity)</h4>
+<p>The errors are assumed to have a constant variance across all treatment levels. We check this with a plot of <strong>residuals versus fitted values</strong>. The plot should show a random scatter of points with a roughly constant vertical spread as you move from left to right. A funnel shape (widening or narrowing spread) would indicate non-constant variance (heteroscedasticity).</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fitted, r, <span class="at">ylab =</span> <span class="st">"Standardized residuals"</span>, </span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Fitted values"</span>, <span class="at">main =</span> <span class="st">"Plot of residuals vs. fitted values"</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="crbd_files/figure-html/residuals-vs-fitted-1.png" class="img-fluid figure-img" width="864"></p>
+<figcaption>Standardized residuals vs.&nbsp;fitted values.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="unequal-sample-sizes-example" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="unequal-sample-sizes-example"><span class="header-section-number">2</span> Unequal Sample Sizes Example</h2>
+<p>The ANOVA framework can also handle <strong>unbalanced designs</strong>, where the number of observations in each group is not the same. The principles and interpretations remain the same, although the underlying formulas are slightly more complex. R handles this automatically.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">21.8</span>, <span class="fl">21.9</span>, <span class="fl">21.7</span>, <span class="fl">21.6</span>, <span class="fl">21.7</span>,</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>       <span class="fl">21.7</span>, <span class="fl">21.4</span>, <span class="fl">21.5</span>, <span class="fl">21.4</span>,</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>       <span class="fl">21.9</span>, <span class="fl">21.8</span>, <span class="fl">21.8</span>, <span class="fl">21.6</span>, <span class="fl">21.5</span>,</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>       <span class="fl">21.9</span>, <span class="fl">21.7</span>, <span class="fl">21.8</span>, <span class="fl">21.4</span>)</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">100</span>, <span class="dv">5</span>), <span class="fu">rep</span>(<span class="dv">125</span>, <span class="dv">4</span>), <span class="fu">rep</span>(<span class="dv">150</span>, <span class="dv">5</span>), <span class="fu">rep</span>(<span class="dv">175</span>, <span class="dv">4</span>)))</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>fit2 <span class="ot">&lt;-</span> <span class="fu">aov</span>(y <span class="sc">~</span> g)</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fit2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Df"],"name":[1],"type":["int"],"align":["right"]},{"label":["Sum Sq"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["Mean Sq"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["F value"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["Pr(>F)"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"3","2":"0.1561111","3":"0.05203704","4":"2.023663","5":"0.1568748","_rn_":"g"},{"1":"14","2":"0.3600000","3":"0.02571429","4":"NA","5":"NA","_rn_":"Residuals"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>In this case, the large p-value (0.133) indicates that there is no statistically significant evidence to conclude that the firing temperature affects the brick density.</p>
+</section>
+<section id="vascular-graft-experiment-randomized-complete-block-design" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="vascular-graft-experiment-randomized-complete-block-design"><span class="header-section-number">3</span> Vascular Graft Experiment (Randomized Complete Block Design)</h2>
+<p>This section analyzes a <strong>Randomized Complete Block Design (RCBD)</strong>. An RCBD is used when there is a known source of variability that we want to control for. In this experiment, the “batches of resin” are a potential source of variation. By treating the batches as <strong>blocks</strong>, we can systematically account for their effect, making the comparison among the treatments (<code>pressure</code>) more precise. Within each block (batch), the treatments are assigned randomly.</p>
+<section id="data-setup-1" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="data-setup-1"><span class="header-section-number">3.1</span> Data Setup</h3>
+<p>We structure the data to identify both the treatment (<code>pressure</code>) and the block (<code>batch</code>) for each observation.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">90.3</span>, <span class="fl">89.2</span>, <span class="fl">98.2</span>, <span class="fl">93.9</span>, <span class="fl">87.4</span>, <span class="fl">97.9</span>,</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>       <span class="fl">92.5</span>, <span class="fl">89.5</span>, <span class="fl">90.6</span>, <span class="fl">94.7</span>, <span class="fl">87.0</span>, <span class="fl">95.8</span>,</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>       <span class="fl">85.5</span>, <span class="fl">90.8</span>, <span class="fl">89.6</span>, <span class="fl">86.2</span>, <span class="fl">88.0</span>, <span class="fl">93.4</span>,</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>       <span class="fl">82.5</span>, <span class="fl">89.5</span>, <span class="fl">85.6</span>, <span class="fl">87.4</span>, <span class="fl">78.9</span>, <span class="fl">90.7</span>)</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>pressure.levels <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">8500</span>, <span class="dv">8700</span>, <span class="dv">8900</span>, <span class="dv">9100</span>), <span class="at">each =</span> <span class="dv">6</span>)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>batch.levels <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>, <span class="dv">4</span>)</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>pressure <span class="ot">&lt;-</span> <span class="fu">factor</span>(pressure.levels)</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>batch <span class="ot">&lt;-</span> <span class="fu">factor</span>(batch.levels)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="model-fitting-and-anova" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="model-fitting-and-anova"><span class="header-section-number">3.2</span> Model Fitting and ANOVA</h3>
+<p>The model is now <code>y ~ pressure + batch</code>. This additive model partitions the total variance into three parts: variation due to <code>pressure</code> (treatments), variation due to <code>batch</code> (blocks), and residual (error) variation. Our primary interest is in the significance of the <code>pressure</code> factor.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>rcbd.fit1 <span class="ot">&lt;-</span> <span class="fu">aov</span>(y <span class="sc">~</span> pressure <span class="sc">+</span> batch)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(rcbd.fit1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Df"],"name":[1],"type":["int"],"align":["right"]},{"label":["Sum Sq"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["Mean Sq"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["F value"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["Pr(>F)"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"3","2":"178.1713","3":"59.39042","4":"8.107077","5":"0.001916300","_rn_":"pressure"},{"1":"5","2":"192.2521","3":"38.45042","4":"5.248666","5":"0.005531737","_rn_":"batch"},{"1":"15","2":"109.8863","3":"7.32575","4":"NA","5":"NA","_rn_":"Residuals"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>The very small p-value for <code>pressure</code> (0.0019) provides strong evidence that the extrusion pressure significantly affects the graft strength, even after accounting for differences between the batches of resin.</p>
+</section>
+<section id="model-adequacy-checks" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="model-adequacy-checks"><span class="header-section-number">3.3</span> Model Adequacy Checks</h3>
+<p>The assumptions for an RCBD are the same as for a CRD (normality, independence, constant variance). We perform the same diagnostic checks on the residuals from the RCBD model.</p>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>rcbd.r1 <span class="ot">&lt;-</span> <span class="fu">rstandard</span>(rcbd.fit1)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>rcbd.fitted1 <span class="ot">&lt;-</span> <span class="fu">fitted.values</span>(rcbd.fit1)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(rcbd.r1, <span class="at">main =</span> <span class="st">"Normal Q-Q Plot"</span>)</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="fu">qqline</span>(rcbd.r1)</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(rcbd.fitted1, rcbd.r1, <span class="at">ylab =</span> <span class="st">"Standardized residuals"</span>, </span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Fitted values"</span>, <span class="at">main =</span> <span class="st">"Residuals vs. Fitted"</span>)</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>)</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pressure.levels, rcbd.r1, <span class="at">ylab =</span> <span class="st">"Standardized residuals"</span>, </span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Extrusion pressure"</span>, <span class="at">main =</span> <span class="st">"Residuals vs. Treatment"</span>)</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>)</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(batch.levels, rcbd.r1, <span class="at">ylab =</span> <span class="st">"Standardized residuals"</span>, </span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Batches of raw material"</span>, <span class="at">main =</span> <span class="st">"Residuals vs. Block"</span>)</span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="crbd_files/figure-html/plot-diagnostics-rcbd-1.png" class="img-fluid figure-img" width="864"></p>
+<figcaption>Normal Q-Q Plot</figcaption>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="crbd_files/figure-html/plot-diagnostics-rcbd-2.png" class="img-fluid figure-img" width="864"></p>
+<figcaption>Residuals vs.&nbsp;Fitted Values</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="crbd_files/figure-html/plot-diagnostics-rcbd-3.png" class="img-fluid figure-img" width="864"></p>
+<figcaption>Residuals vs.&nbsp;Treatment (Pressure)</figcaption>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="crbd_files/figure-html/plot-diagnostics-rcbd-4.png" class="img-fluid figure-img" width="864"></p>
+<figcaption>Residuals vs.&nbsp;Block (Batch)</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="pairwise-comparisons-1" class="level3" data-number="3.4">
+<h3 data-number="3.4" class="anchored" data-anchor-id="pairwise-comparisons-1"><span class="header-section-number">3.4</span> Pairwise Comparisons</h3>
+<p>Again, since the treatment factor (<code>pressure</code>) is significant, we perform post-hoc tests.</p>
+<section id="tukeys-hsd-test-1" class="level4" data-number="3.4.1">
+<h4 data-number="3.4.1" class="anchored" data-anchor-id="tukeys-hsd-test-1"><span class="header-section-number">3.4.1</span> Tukey’s HSD Test</h4>
+<p>Tukey’s HSD works the same way for an RCBD, comparing all pairs of treatment levels while controlling the family-wise error rate.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">TukeyHSD</span>(rcbd.fit1, <span class="at">which =</span> <span class="st">"pressure"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Tukey multiple comparisons of means
+    95% family-wise confidence level
+
+Fit: aov(formula = y ~ pressure + batch)
+
+$pressure
+               diff        lwr       upr     p adj
+8700-8500 -1.133333  -5.637161  3.370495 0.8854831
+8900-8500 -3.900000  -8.403828  0.603828 0.1013084
+9100-8500 -7.050000 -11.553828 -2.546172 0.0020883
+8900-8700 -2.766667  -7.270495  1.737161 0.3245644
+9100-8700 -5.916667 -10.420495 -1.412839 0.0086667
+9100-8900 -3.150000  -7.653828  1.353828 0.2257674</code></pre>
+</div>
+</div>
+</section>
+<section id="fishers-lsd-test-1" class="level4" data-number="3.4.2">
+<h4 data-number="3.4.2" class="anchored" data-anchor-id="fishers-lsd-test-1"><span class="header-section-number">3.4.2</span> Fisher’s LSD Test</h4>
+<p>The standard <code>pairwise.t.test()</code> function is not designed for RCBD models. We use the <code>LSD.test()</code> function from the <code>agricolae</code> package, which is specifically designed for agricultural and experimental designs and can correctly handle the error structure of an RCBD.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages("agricolae")</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(agricolae)</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> <span class="fu">LSD.test</span>(rcbd.fit1, <span class="at">trt =</span> <span class="st">"pressure"</span>, <span class="at">p.adj =</span> <span class="st">"none"</span>, <span class="at">group =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(out<span class="sc">$</span>comparison)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>            difference pvalue signif.        LCL       UCL
+8500 - 8700   1.133333 0.4795         -2.1974047  4.464071
+8500 - 8900   3.900000 0.0247       *  0.5692620  7.230738
+8500 - 9100   7.050000 0.0004     ***  3.7192620 10.380738
+8700 - 8900   2.766667 0.0970       . -0.5640714  6.097405
+8700 - 9100   5.916667 0.0018      **  2.5859286  9.247405
+8900 - 9100   3.150000 0.0621       . -0.1807380  6.480738</code></pre>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
