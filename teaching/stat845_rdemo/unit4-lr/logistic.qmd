@@ -147,9 +147,9 @@ We then display the observed $y_i$ (binary outcomes) and the true probability cu
 set.seed(123)
 
 # -- Truth (edit as desired) --
-n     <- 400
-beta0 <- -0.5
-beta1 <-  3
+n     <- 200
+beta0 <- 0
+beta1 <-  4
 
 # -- Simulate --
 x   <- runif(n, -1, 1)             # predictor
@@ -158,7 +158,10 @@ p   <- plogis(eta)                 # true p(x)
 y   <- rbinom(n, size = 1, prob = p) # outcomes
 
 sim.data <- data.frame(x = x, y = y, p = p)
+```
 
+## Fit a logistic model to the simulated data
+```{r}
 # -- Optional: fit a model to the simulated data --
 sim.fit <- glm(y ~ x, data = sim.data, family = binomial())
 p_fit <- predict(sim.fit, newdata = data.frame(x = x), type = "response")
@@ -320,7 +323,7 @@ summary(fit1_chd)
 * For indicator variables (e.g., `smk`), `exp(beta)` is the adjusted odds ratio comparing the group with value 1 versus 0, holding others fixed.
 * For continuous predictors (e.g., `sbp`, `age`), `exp(beta)` is the multiplicative change in the odds for a one‑unit increase. For a *d*-unit increase, the OR is `exp(d * beta)`.
 
-## Inference for Coefficients: Confidence Intervals and Covariance Matrix
+# Inference for Coefficients: Confidence Intervals and Covariance Matrix
 
 We extract profile‑likelihood CIs and the covariance matrix to confirm standard errors.
 
@@ -335,10 +338,10 @@ vcov_mat
 se_vec  # should match the SE column in summary(fit1_chd)
 ```
 
-## Inference for Odds Ratios
+# Inference for Odds Ratios
 
 
-### Interpretation of Odds Ratios in Logistic Regression
+## Interpretation of Odds Ratios in Logistic Regression
 
 A multiple logistic regression model expresses the log-odds (logit) of an event as a linear function of predictors:
 
@@ -473,9 +476,9 @@ mean_profile <- function(data, vars_binary_as = c(0,1)) {
 ```
 
 
-### Examples of Finding ORs and Their CIs for the CHD Dataset
+## Examples of Finding ORs and Their CIs for the CHD Dataset
 
-#### OR Smoking (`smk`) (1 vs 0)
+### OR Smoking (`smk`) (1 vs 0)
 
 
 ```{r}
@@ -494,7 +497,7 @@ res_smk <- or_from_predict(fit1_chd, new1 = new1, new0 = new0)
 
 * `OR_smk > 1` suggests higher odds of CHD among smokers (adjusted for other variables). If the 95% CI excludes 1, the association is statistically significant at the 5% level.
 
-#### OR for Systolic Blood Pressure (`sbp`): from 120 to 160
+### OR for Systolic Blood Pressure (`sbp`): from 120 to 160
 
 We compute the adjusted OR for a 40‑unit increase in `sbp` (from 120 to 160):
 
@@ -530,7 +533,7 @@ res_ageAsmk <- or_from_predict(fit1_chd, new1 = new1, new0 = new0)
 
 ```
 
-## Assessing Statistical Regression Significance with Wilks' Theorem (Analogue of F-test for OLS)
+# Assessing Statistical Regression Significance with Wilks' Theorem (Analogue of F-test for OLS)
 
 In the context of logistic regression, Wilks' theorem provides the basis for the Likelihood Ratio Test (LRT) used to assess the significance of predictor variables. The theorem states that when comparing a full model ($M_1$) to a nested null model ($M_0$), the test statistic, $D$, asymptotically follows a chi-squared ($\chi^2$) distribution under the null hypothesis (i.e., that the simpler model $M_0$ is correct).The statistic $D$ is calculated as the difference in the maximized log-likelihoods:
 $$D = -2(\log L_0 - \log L_1)$${#eq-LRT}
@@ -579,12 +582,12 @@ anova(fit1_chd, test="LRT")
 
 ```
 
-## Assessing Predictive Effect-Size (Anolouge to $R^2_\mathrm{adj}$)
+# Assessing Predictive Effect-Size (Anolouge to $R^2_\mathrm{adj}$)
 
 
 While the LRT assesses overall model significance (in-sample fit), it's also crucial to evaluate how well the model predicts new, unseen data (out-of-sample performance). A common method is to split the data into a training set (e.g., 2/3 of the data) and a test set (e.g., 1/3). The model is fit using only the training data and then used to make predictions for the test data. We can then compare these predictions to the actual outcomes in the test set.
 
-### Understanding the Confusion Matrix and Metrics
+## Understanding the Confusion Matrix and Metrics
 
 To evaluate a model's predictive performance, we classify its probabilistic predictions using a threshold (typically 0.5) and compare them to the true outcomes in a **Confusion Matrix**:
 
@@ -617,7 +620,7 @@ From this matrix, we derive several key performance metrics:
 
 
 
-### Illustration with the Simulated Dataset
+## Illustration with the Simulated Dataset
 
 This section applies the train/test split and model evaluation workflow to the `sim.data` created in the previous step.
 
@@ -693,11 +696,11 @@ abline(h = 0.1, lty = 3, col = "grey")
 # Add a legend
 legend(
   "topleft",
-  legend = c("Actual 0 (o)", "Actual 1 (x)", "True p(x)"),
-  pch = c(1, 4, NA),
-  lty = c(NA, NA, 1),
-  lwd = c(NA, NA, 2),
-  col = c("blue", "red", "darkgreen")
+  legend = c("Actual 0 (o)", "Actual 1 (x)"),
+  pch = c(1, 4),
+  lty = c(NA, NA),
+  lwd = c(NA, NA),
+  col = c("blue", "red")
 )
 
 ```
@@ -857,7 +860,7 @@ legend("bottomleft",
 ```
 
 
-### Application to the CHD Dataset
+## Application to the CHD Dataset
 
 ```{r}
 #| label: assess-predictive-accuracy
