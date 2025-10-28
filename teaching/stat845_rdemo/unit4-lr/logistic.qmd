@@ -754,35 +754,102 @@ legend(
 
 # 4a. Misclassification Error Rate (using 0.5 threshold)
 threhold <- 0.5
-pred_class <- ifelse(pred_probs > 0.5, 1, 0)
+pred_class <- ifelse(pred_probs > threhold, 1, 0)
 conf_matrix <- table(Actual = test_data$chd, Predicted = pred_class)
-
 print(conf_matrix)
 
-error_rate <- mean(pred_class != test_data$chd)
+# Extract TP, FP, TN, FN
+# Assuming 0 is negative, 1 is positive
+#       Predicted
+# Actual   0   1
+#     0   TN  FP
+#     1   FN  TP
+TN <- conf_matrix[1, 1]
+FP <- conf_matrix[1, 2]
+FN <- conf_matrix[2, 1]
+TP <- conf_matrix[2, 2]
+
+# Calculate metrics
+error_rate <- (FP + FN) / (TP + TN + FP + FN)
+TPR_Recall <- TP / (TP + FN) # True Positive Rate (Recall / Sensitivity)
+FPR <- FP / (FP + TN)        # False Positive Rate (1 - Specificity)
+Precision <- TP / (TP + FP)  # Positive Predictive Value
+
 cat(paste("\nMisclassification Error Rate:", round(error_rate, 4), "\n"))
+cat(paste("True Positive Rate (Recall):", round(TPR_Recall, 4), "\n"))
+cat(paste("False Positive Rate:", round(FPR, 4), "\n"))
+cat(paste("Precision:", round(Precision, 4), "\n"))
 ```
 
 *Confusion Matrix with threhold=0.1*
 ```{r}
 threhold <- 0.1
-pred_class <- ifelse(pred_probs > 0.1, 1, 0)
+pred_class <- ifelse(pred_probs > threhold, 1, 0)
 conf_matrix <- table(Actual = test_data$chd, Predicted = pred_class)
 print(conf_matrix)
 
-error_rate <- mean(pred_class != test_data$chd)
+# Extract TP, FP, TN, FN
+# Assuming 0 is negative, 1 is positive
+#       Predicted
+# Actual   0   1
+#     0   TN  FP
+#     1   FN  TP
+TN <- conf_matrix[1, 1]
+FP <- conf_matrix[1, 2]
+FN <- conf_matrix[2, 1]
+TP <- conf_matrix[2, 2]
+
+# Calculate metrics
+error_rate <- (FP + FN) / (TP + TN + FP + FN)
+TPR_Recall <- TP / (TP + FN) # True Positive Rate (Recall / Sensitivity)
+FPR <- FP / (FP + TN)        # False Positive Rate (1 - Specificity)
+Precision <- TP / (TP + FP)  # Positive Predictive Value
+
 cat(paste("\nMisclassification Error Rate:", round(error_rate, 4), "\n"))
+cat(paste("True Positive Rate (Recall):", round(TPR_Recall, 4), "\n"))
+cat(paste("False Positive Rate:", round(FPR, 4), "\n"))
+cat(paste("Precision:", round(Precision, 4), "\n"))
+
 ```
 
-
+*ROC curve and Area Under the ROC (AUC)*
 ```{r}
 # 4b. Area Under the Curve (AUC)
 roc_curve <- roc(test_data$chd, pred_probs, quiet = TRUE)
-auc_value <- auc(roc_curve)
-cat(paste("Area Under the Curve (AUC):", round(auc_value, 4), "\n\n"))
 
 # Plot the ROC curve
 plot(roc_curve, main = "ROC Curve (Test Data)", print.auc = TRUE)
+
+auc_value <- auc(roc_curve)
+cat(paste("Area Under the Curve (AUC):", round(auc_value, 4), "\n\n"))
+
 ```
 
+*PR curve and Area Under PR Curve (AUPR)*
+```{r}
+library(PRROC)
+# 4c. Precision-Recall (PR) Curve
+# Scores for positive class (chd == 1)
+scores_pos <- pred_probs[test_data$chd == 1]
+# Scores for negative class (chd == 0)
+scores_neg <- pred_probs[test_data$chd == 0]
+
+# Calculate PR curve
+pr_curve <- pr.curve(scores.class0 = scores_pos, scores.class1 = scores_neg, curve = TRUE)
+
+# Plot the PR curve
+plot(pr_curve, main = "Precision-Recall Curve (Test Data)", print.auc.approx = TRUE,
+     xlim = c(0,1))
+
+# Calculate and add the 'no-skill' baseline
+baseline_precision <- sum(test_data$chd == 1) / length(test_data$chd)
+abline(h = baseline_precision, col = "blue", lty = 2)
+legend("bottomleft", 
+       legend = c("Model", paste("Baseline (", round(baseline_precision, 3), ")")), 
+       col = c("black", "blue"), 
+       lty = c(1, 2), 
+       bty = "n") # bty="n" removes the box
+
+
+```
 
