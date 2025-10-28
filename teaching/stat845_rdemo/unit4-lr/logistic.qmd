@@ -63,11 +63,6 @@ and the log-odds (logit) is
 #   logit_col    : color for log(odds(p))
 #   lwd1, lwd2   : line widths for the two curves
 
-logit <- function (p){
-  odds <- p / (1 - p)
-  log(odds)
-  
-}
 
 plot_odds <- function(p_min = 0.01, p_max = 0.99, n = 400,
                       annotate = TRUE,
@@ -121,7 +116,7 @@ Logistic regression models **log-odds** linearly in predictors, which both keeps
 
 ---
 
-# Simulate and Plot a One-Predictor Logistic Model
+# A Simulated Data 
 
 We simulate data from a logistic model where the **logit** is a linear function of $x$:
 
@@ -152,27 +147,29 @@ We then display the observed $y_i$ (binary outcomes) and the true probability cu
 set.seed(123)
 
 # -- Truth (edit as desired) --
-n     <- 200
+n     <- 400
 beta0 <- -0.5
 beta1 <-  3
 
 # -- Simulate --
-x   <- runif(n, -1, 1)                  # predictor
+x   <- runif(n, -1, 1)             # predictor
 eta <- beta0 + beta1 * x
-p   <- plogis(eta)                      # true p(x)
-y   <- rbinom(n, size = 1, prob = p)    # outcomes
+p   <- plogis(eta)                 # true p(x)
+y   <- rbinom(n, size = 1, prob = p) # outcomes
 
-dat <- data.frame(x = x, y = y, p = p)
+sim.data <- data.frame(x = x, y = y, p = p)
 
 # -- Optional: fit a model to the simulated data --
-fit <- glm(y ~ x, data = dat, family = binomial())
-p_fit <- predict(fit, newdata = data.frame(x = x), type = "response")
+sim.fit <- glm(y ~ x, data = sim.data, family = binomial())
+p_fit <- predict(sim.fit, newdata = data.frame(x = x), type = "response")
 
 # -- Plot: points for y_i (jittered), red line for true p(x) --
+# Define jitter amount
+jit <- 0.05 
 # jitter to separate 0/1 visually
-yj <- jitter(dat$y, amount = jit)
+yj <- jitter(sim.data$y, amount = jit) 
 
-plot(dat$x, yj,
+plot(sim.data$x, yj,
      pch = 16, col = rgb(0, 0, 0, 0.45),
      xlab = "x",
      ylab = "Observed y (points) & p(x) (curves)",
@@ -183,7 +180,7 @@ xg <- seq(min(x), max(x), length.out = 500)
 lines(xg, plogis(beta0 + beta1 * xg), col = "red", lwd = 2)
 
 # Optional: add fitted probability curve (dashed dark red)
-lines(xg, predict(fit, newdata = data.frame(x = xg), type = "response"),
+lines(xg, predict(sim.fit, newdata = data.frame(x = xg), type = "response"),
       col = "darkred", lwd = 2, lty = 2)
 
 legend("topleft",
@@ -193,7 +190,6 @@ legend("topleft",
        col    = c(rgb(0,0,0,0.45), "red", "darkred"),
        lwd    = c(NA, 2, 2),
        bty    = "n")
-
 
 ```
 
@@ -310,12 +306,12 @@ We fit a logistic regression with a logit link:
 
 ```{r}
 #| label: fit-logit
-fit1 <- glm(
+fit1_chd <- glm(
   chd ~ smk + cat + sbp + age + chl + ecg + hpt,
   data = CHD.data,
   family = binomial(link = "logit")
 )
-summary(fit1)
+summary(fit1_chd)
 ```
 
 **Notes for interpretation:**
@@ -330,13 +326,13 @@ We extract profile‑likelihood CIs and the covariance matrix to confirm standar
 
 ```{r}
 #| label: ci-cov
-ci_95 <- confint(fit1, level = 0.95)     # profile-likelihood CI
-vcov_mat <- vcov(fit1)                    # covariance matrix of coefficients
+ci_95 <- confint(fit1_chd, level = 0.95)     # profile-likelihood CI
+vcov_mat <- vcov(fit1_chd)                    # covariance matrix of coefficients
 se_vec   <- sqrt(diag(vcov_mat))          # standard errors
 
 ci_95
 vcov_mat
-se_vec  # should match the SE column in summary(fit1)
+se_vec  # should match the SE column in summary(fit1_chd)
 ```
 
 ## Inference for Odds Ratios
@@ -377,6 +373,7 @@ Here, $\mathbf{c} = \mathbf{x}_1 - \mathbf{x}_0$ is the linear contrast vector d
 $$\widehat{\text{logOR}} \pm z_{1-\alpha/2} \times SE.$$ 
 These values (estimate and CI bounds) are then exponentiated to produce the final $\widehat{\text{OR}} = \exp(\widehat{\text{logOR}})$ and its 95% CI. The function also prints two helpful summaries to the console: a data frame showing only the variables that differ between the new0 and new1 profiles, and a 2x3 table presenting the estimates and CIs for both the OR and the logOR.
 
+**The R function to find ORs**
 
 ```{r}
 #| label: OR function
@@ -388,25 +385,6 @@ These values (estimate and CI bounds) are then exponentiated to produce the fina
 # (iii) print a 2x3 table (rows: OR, logOR; cols: Estimate, CI_low, CI_up)
 or_from_predict <- function(fit, new1, new0, level = 0.95, digits = 4, tol = 1e-12) {
   stopifnot(is.data.frame(new1), is.data.frame(new0))
-
-  # ---- (i) Fitted model with numeric coefficients on logit scale ----
-  format_logit_formula <- function(fit, digits = 4) {
-    b   <- coef(fit)
-    nm  <- names(b)
-    fmt <- function(x) formatC(x, digits = digits, format = "fg", flag = "#")
-    rhs <- character(0)
-    for (j in seq_along(b)) {
-      term <- if (j == 1L) "(Intercept)" else nm[j]
-      coef_j <- b[j]
-      if (j == 1L) {
-        rhs <- c(rhs, fmt(coef_j))
-      } else {
-        sign <- if (coef_j >= 0) " + " else " - "
-        rhs  <- c(rhs, paste0(sign, fmt(abs(coef_j)), " * ", term))
-      }
-    }
-    paste0("log(p/(1-p)) = ", paste(rhs, collapse = ""))
-  }
 
   # ---- (ii) Two-row data.frame with only changed variables ----
   changes_df <- (function(new0, new1, tol) {
@@ -473,7 +451,7 @@ or_from_predict <- function(fit, new1, new0, level = 0.95, digits = 4, tol = 1e-
 # base_prof <- as.data.frame(lapply(CHD.data, function(col) if (is.numeric(col)) mean(col) else col[1]))
 # new0 <- base_prof; new0$smk <- 0
 # new1 <- base_prof; new1$smk <- 1
-# or_from_predict(fit1, new1 = new1, new0 = new0)
+# or_from_predict(fit1_chd, new1 = new1, new0 = new0)
 
 # ---- Helpers to build profiles by fixing "other" covariates ----
 mean_profile <- function(data, vars_binary_as = c(0,1)) {
@@ -491,25 +469,14 @@ mean_profile <- function(data, vars_binary_as = c(0,1)) {
   as.data.frame(out)
 }
 
+
 ```
 
 
-### Examples of Finding ORs and Their CIs
+### Examples of Finding ORs and Their CIs for the CHD Dataset
 
 #### OR Smoking (`smk`) (1 vs 0)
 
-
-
-```{r include=FALSE}
-#| label: or-smk
-OR_smk <- exp(coef(fit1)["smk"])  # adjusted OR for smokers vs non-smokers
-ci_95 <- confint(fit1, level = 0.95)     # profile-likelihood CI
-CI_OR_smk <- exp(ci_95["smk", ])  # 95% CI for the OR
-OR_smk
-CI_OR_smk
-
-```
-**Using the helper function**
 
 ```{r}
 ## 1) Smoking OR: smk = 1 vs 0 (other vars at their means)
@@ -518,7 +485,7 @@ base_prof <- mean_profile(CHD.data)
 new0 <- base_prof; new0$smk <- 0
 new1 <- base_prof; new1$smk <- 1
 
-res_smk <- or_from_predict(fit1, new1 = new1, new0 = new0)
+res_smk <- or_from_predict(fit1_chd, new1 = new1, new0 = new0)
 
 ```
 
@@ -531,32 +498,14 @@ res_smk <- or_from_predict(fit1, new1 = new1, new0 = new0)
 
 We compute the adjusted OR for a 40‑unit increase in `sbp` (from 120 to 160):
 
-```{r include=FALSE}
-#| label: or-sbp-160-120
-step_sbp <- 160 - 120
-A_sbp <- step_sbp * coef(fit1)["sbp"]
-OR_sbp_160_vs_120 <- exp(A_sbp)
 
-# Delta-method CI using the model-based variance
-var_A_sbp <- step_sbp^2 * vcov_mat["sbp", "sbp"]
-alpha <- 0.05
-z <- qnorm(1 - alpha/2)
-ci_lin <- c(A_sbp - z * sqrt(var_A_sbp), A_sbp + z * sqrt(var_A_sbp))
-CI_OR_sbp_160_vs_120 <- exp(ci_lin)
-
-OR_sbp_160_vs_120
-CI_OR_sbp_160_vs_120
-
-```
-
-**Using the helper function**
 
 ```{r}
 ## 2) SBP OR: 160 vs 120 (other vars at their means)
 new0 <- base_prof; new0$sbp <- 120
 new1 <- base_prof; new1$sbp <- 160
 
-res_sbp <- or_from_predict(fit1, new1 = new1, new0 = new0)
+res_sbp <- or_from_predict(fit1_chd, new1 = new1, new0 = new0)
 res_sbp
 
 
@@ -571,50 +520,31 @@ Suppose we compare two groups that differ in **smoking status** and **age**:
 
 The log‑odds contrast is ($A = \beta_{smk} + (50-20)\beta_{age}$), so the OR is ($\exp(A)$).
 
-```{r include=FALSE}
-#| label: combined-smk-age
-age_diff <- 50 - 30
-A_smk_age <- coef(fit1)["smk"] + age_diff * coef(fit1)["age"]
-OR_smk_age <- exp(A_smk_age)
-
-# Variance of the linear combo: Var(b1 + a*b_age) = Var(b1) + a^2 Var(b_age) + 2a Cov(b1, b_age)
-var_A_smk_age <- vcov_mat["smk", "smk"] +
-  age_diff^2 * vcov_mat["age", "age"] +
-  2 * age_diff * vcov_mat["smk", "age"]
-
-CI_OR_smk_age <- exp(c(A_smk_age - z * sqrt(var_A_smk_age),
-                       A_smk_age + z * sqrt(var_A_smk_age)))
-
-OR_smk_age
-CI_OR_smk_age
-```
-
-**Using the helper function**
 
 ```{r}
 new0 <- base_prof; new0$age <- 30; new0$smk <- 0
 new1 <- base_prof; new1$age <- 50; new1$smk <- 1
 
-res_ageAsmk <- or_from_predict(fit1, new1 = new1, new0 = new0)
+res_ageAsmk <- or_from_predict(fit1_chd, new1 = new1, new0 = new0)
 
 
 ```
 
-## Assessing Statistical Regression Significance with Wilks' Theorem
+## Assessing Statistical Regression Significance with Wilks' Theorem (Analogue of F-test for OLS)
 
 In the context of logistic regression, Wilks' theorem provides the basis for the Likelihood Ratio Test (LRT) used to assess the significance of predictor variables. The theorem states that when comparing a full model ($M_1$) to a nested null model ($M_0$), the test statistic, $D$, asymptotically follows a chi-squared ($\chi^2$) distribution under the null hypothesis (i.e., that the simpler model $M_0$ is correct).The statistic $D$ is calculated as the difference in the maximized log-likelihoods:
 $$D = -2(\log L_0 - \log L_1)$${#eq-LRT}
-where $\log L_0$ and $\log L_1$ are the log-likelihoods of the null and full models, respectively. In logistic regression, this is equivalent to the difference in the deviances: $D = \text{Deviance}_0 - \text{Deviance}_1$. For assessing the overall significance of a regression model (fit1), this involves comparing it to its corresponding intercept-only (null) model. The degrees of freedom for the $\chi^2$ test is the difference in the number of parameters between the two models, $df = df_0 - df_1$, which equals the number of predictors in the full model.Here is an R code chunk demonstrating how to compute this p-value directly from a glm fit object, assuming it is named fit1.
+where $\log L_0$ and $\log L_1$ are the log-likelihoods of the null and full models, respectively. In logistic regression, this is equivalent to the difference in the deviances: $D = \text{Deviance}_0 - \text{Deviance}_1$. For assessing the overall significance of a regression model (fit1_chd), this involves comparing it to its corresponding intercept-only (null) model. The degrees of freedom for the $\chi^2$ test is the difference in the number of parameters between the two models, $df = df_0 - df_1$, which equals the number of predictors in the full model.Here is an R code chunk demonstrating how to compute this p-value directly from a glm fit object, assuming it is named fit1_chd.
 ```{r}
 #| label: compute-lrt-pvalue
 #| echo: true
 
 # Calculate the Likelihood Ratio Test statistic (D) and degrees of freedom (df)
 # by comparing the model's deviance to the null (intercept-only) deviance,
-# both of which are stored in the 'fit1' object.
-summary(fit1)
-lrt_statistic <- fit1$null.deviance - fit1$deviance
-lrt_df <- fit1$df.null - fit1$df.residual
+# both of which are stored in the 'fit1_chd' object.
+summary(fit1_chd)
+lrt_statistic <- fit1_chd$null.deviance - fit1_chd$deviance
+lrt_df <- fit1_chd$df.null - fit1_chd$df.residual
 
 # Compute the p-value from the chi-squared distribution
 # We use lower.tail = FALSE to get P(ChiSq > D)
@@ -622,14 +552,14 @@ p_value <- pchisq(lrt_statistic, lrt_df, lower.tail = FALSE)
 
 # Create and print the result in an ANOVA-like table
 # Row 1: Null model
-# Row 2: Full model (fit1), showing the test against the null
+# Row 2: Full model (fit1_chd), showing the test against the null
 lrt_table <- data.frame(
-  "Resid. Df" = c(fit1$df.null, fit1$df.residual),
-  "Resid. Dev" = c(round(fit1$null.deviance, 4), round(fit1$deviance, 4)),
+  "Resid. Df" = c(fit1_chd$df.null, fit1_chd$df.residual),
+  "Resid. Dev" = c(round(fit1_chd$null.deviance, 4), round(fit1_chd$deviance, 4)),
   "Test Df" = c(NA, lrt_df),
   "Test Statistic (D)" = c(NA, round(lrt_statistic, 4)),
   "p-value" = c(NA, format.pval(p_value, digits = 4)),
-  row.names = c("Null Model", "Full Model (fit1)"),
+  row.names = c("Null Model", "Full Model (fit1_chd)"),
   check.names = FALSE # Prevent R from changing 'p-value' to 'p.value'
 )
 
@@ -639,7 +569,17 @@ lrt_table
 
 ```
 
-## Assessing Prediction Effect-size (anolouge to $R^2_\mathrm{adj}$)
+**Using built-in anova() function**
+```{r}
+
+fit0_chd <- glm (chd~1, data = CHD.data, family = binomial())
+anova(fit0_chd, fit1_chd)
+
+anova(fit1_chd, test="LRT")
+
+```
+
+## Assessing Predictive Effect-Size (Anolouge to $R^2_\mathrm{adj}$)
 
 
 While the LRT assesses overall model significance (in-sample fit), it's also crucial to evaluate how well the model predicts new, unseen data (out-of-sample performance). A common method is to split the data into a training set (e.g., 2/3 of the data) and a test set (e.g., 1/3). The model is fit using only the training data and then used to make predictions for the test data. We can then compare these predictions to the actual outcomes in the test set.
@@ -675,7 +615,231 @@ From this matrix, we derive several key performance metrics:
 
   * **ROC Curve and AUC:** An **ROC Curve** plots the model's performance across *all possible* thresholds by plotting the **True Positive Rate (Recall)** against the **False Positive Rate** (FPR = $\frac{FP}{FP + TN}$). The **Area Under the Curve (AUC)** summarizes this plot into a single number from 0 to 1, where 0.5 is a random guess and 1.0 is a perfect model.
 
-<!-- end list -->
+
+
+### Illustration with the Simulated Dataset
+
+This section applies the train/test split and model evaluation workflow to the `sim.data` created in the previous step.
+
+```{r}
+#| label: assess-predictive-accuracy-sim
+#| echo: true
+
+# Load the pROC library for AUC calculation
+# install.packages("pROC") # Uncomment to install if needed
+library(pROC)
+
+# --- 1. Split the data ---
+# We use 'sim.data' which has 200 rows
+set.seed(123) # for reproducibility
+n_sim <- nrow(sim.data)
+train_size_sim <- floor(2/3 * n_sim)
+train_indices_sim <- sample(1:n_sim, size = train_size_sim)
+train_data_sim <- sim.data[train_indices_sim, ]
+test_data_sim  <- sim.data[-train_indices_sim, ]
+
+# --- 2. Refit the model on the training data ---
+# We fit the model y ~ x on the training data
+fit_train_sim <- glm(
+  y ~ x,
+  data = train_data_sim,
+  family = binomial(link = "logit")
+)
+
+# --- 3. Make predictions on the test data ---
+# Note: The true probabilities 'p' are also in test_data_sim
+# We predict from the *fitted* model
+pred_probs_sim <- predict(fit_train_sim, newdata = test_data_sim, type = "response")
+```
+
+```{r}
+#| label: plot-sorted-probabilities-sim
+#| echo: true
+
+# --- 5. Plot sorted predicted probabilities ---
+
+# Create a data frame for plotting
+plot_data_sim <- data.frame(
+  Prob = pred_probs_sim,
+  Actual = as.factor(test_data_sim$y),
+  TrueProb = test_data_sim$p # Include true probs for comparison
+)
+
+# Sort by predicted probability
+plot_data_sim <- plot_data_sim[order(plot_data_sim$Prob), ]
+plot_data_sim$Rank <- 1:nrow(plot_data_sim)
+
+# Create the plot
+plot(
+  plot_data_sim$Rank,
+  plot_data_sim$Prob,
+  pch = ifelse(plot_data_sim$Actual == 0, 1, 4),
+  col = ifelse(plot_data_sim$Actual == 0, "blue", "red"),
+  xlab = "Index (Sorted by Predicted Probability)",
+  ylab = "Predicted Probability",
+  main = "Predicted Probabilities vs. Actual Class (Simulated Data)",
+  ylim = c(0, 1)
+)
+abline(h = 0.5, lty = 2, col = "black")
+abline(h = 0.1, lty = 3, col = "grey")
+
+# Add the true probability curve (sorted by predicted prob)
+# This shows how well the fitted model's predictions align with the true probs
+lines(plot_data_sim$Rank, plot_data_sim$TrueProb[order(plot_data_sim$Prob)], col = "darkgreen", lwd = 2)
+
+
+# Add a legend
+legend(
+  "topleft",
+  legend = c("Actual 0 (o)", "Actual 1 (x)", "True p(x)"),
+  pch = c(1, 4, NA),
+  lty = c(NA, NA, 1),
+  lwd = c(NA, NA, 2),
+  col = c("blue", "red", "darkgreen")
+)
+
+```
+
+**Confusion Matrix with threshold=0.5**
+
+```{r}
+#| label: conf-matrix-0.5
+#| echo: true
+
+# --- 4. Assess accuracy ---
+
+# 4a. Misclassification Error Rate (using 0.5 threshold)
+threshold <- 0.5
+pred_class_sim <- ifelse(pred_probs_sim > threshold, 1, 0)
+conf_matrix_sim <- table(Actual = test_data_sim$y, Predicted = pred_class_sim)
+
+# --- MODIFIED LINES START ---
+cat("Confusion Matrix (Counts, threshold = 0.5):\n")
+print(conf_matrix_sim)
+
+cat("\nRow Proportions (Given Actual, % Predicted -- Relates to TPR/FPR):\n")
+# margin = 1 calculates proportions across rows
+print(round(prop.table(conf_matrix_sim, margin = 1), 3))
+
+cat("\nColumn Proportions (Given Predicted, % Actual -- Relates to Precision):\n")
+# margin = 2 calculates proportions across columns
+print(round(prop.table(conf_matrix_sim, margin = 2), 3))
+# --- MODIFIED LINES END ---
+
+
+# Check if matrix has 2x2 dimensions, otherwise metrics will fail
+if (all(dim(conf_matrix_sim) == c(2, 2))) {
+  TN <- conf_matrix_sim[1, 1]
+  FP <- conf_matrix_sim[1, 2]
+  FN <- conf_matrix_sim[2, 1]
+  TP <- conf_matrix_sim[2, 2]
+
+  # Calculate metrics
+  error_rate <- (FP + FN) / (TP + TN + FP + FN)
+  TPR_Recall <- TP / (TP + FN) # True Positive Rate (Recall / Sensitivity)
+  FPR <- FP / (FP + TN)      # False Positive Rate (1 - Specificity)
+  Precision <- TP / (TP + FP)  # Positive Predictive Value
+
+  cat(paste("\nMisclassification Error Rate:", round(error_rate, 4), "\n"))
+  cat(paste("True Positive Rate (Recall):", round(TPR_Recall, 4), "\n"))
+  cat(paste("False Positive Rate:", round(FPR, 4), "\n"))
+  cat(paste("Precision:", round(Precision, 4), "\n"))
+} else {
+  cat("\nCannot calculate full metrics: model predicted only one class.\n")
+}
+```
+
+**Confusion Matrix with threshold=0.1**
+
+```{r}
+#| label: conf-matrix-0.1
+#| echo: true
+
+threshold <- 0.1
+pred_class_sim <- ifelse(pred_probs_sim > threshold, 1, 0)
+conf_matrix_sim <- table(Actual = test_data_sim$y, Predicted = pred_class_sim)
+
+# --- MODIFIED LINES START ---
+cat("Confusion Matrix (Counts, threshold = 0.1):\n")
+print(conf_matrix_sim)
+
+cat("\nRow Proportions (Given Actual, % Predicted -- Relates to TPR/FPR):\n")
+# margin = 1 calculates proportions across rows
+print(round(prop.table(conf_matrix_sim, margin = 1), 3))
+
+cat("\nColumn Proportions (Given Predicted, % Actual -- Relates to Precision):\n")
+# margin = 2 calculates proportions across columns
+print(round(prop.table(conf_matrix_sim, margin = 2), 3))
+# --- MODIFIED LINES END ---
+
+
+# Check if matrix has 2x2 dimensions
+if (all(dim(conf_matrix_sim) == c(2, 2))) {
+  TN <- conf_matrix_sim[1, 1]
+  FP <- conf_matrix_sim[1, 2]
+  FN <- conf_matrix_sim[2, 1]
+  TP <- conf_matrix_sim[2, 2]
+
+  # Calculate metrics
+  error_rate <- (FP + FN) / (TP + TN + FP + FN)
+  TPR_Recall <- TP / (TP + FN) # True Positive Rate (Recall / Sensitivity)
+  FPR <- FP / (FP + TN)      # False Positive Rate (1 - Specificity)
+  Precision <- TP / (TP + FP)  # Positive Predictive Value
+
+  cat(paste("\nMisclassification Error Rate:", round(error_rate, 4), "\n"))
+  cat(paste("True Positive Rate (Recall):", round(TPR_Recall, 4), "\n"))
+  cat(paste("False Positive Rate:", round(FPR, 4), "\n"))
+  cat(paste("Precision:", round(Precision, 4), "\n"))
+} else {
+  cat("\nCannot calculate full metrics: model predicted only one class.\n")
+}
+```
+
+*ROC curve and Area Under the ROC (AUC)*
+
+```{r}
+# 4b. Area Under the Curve (AUC)
+roc_curve_sim <- roc(test_data_sim$y, pred_probs_sim, quiet = TRUE)
+
+# Plot the ROC curve
+plot(roc_curve_sim, main = "ROC Curve (Simulated Test Data)", print.auc = TRUE)
+
+auc_value_sim <- auc(roc_curve_sim)
+cat(paste("Area Under the Curve (AUC):", round(auc_value_sim, 4), "\n\n"))
+
+```
+
+*PR curve and Area Under PR Curve (AUPR)*
+
+```{r}
+library(PRROC)
+# 4c. Precision-Recall (PR) Curve
+# Scores for positive class (y == 1)
+scores_pos_sim <- pred_probs_sim[test_data_sim$y == 1]
+# Scores for negative class (y == 0)
+scores_neg_sim <- pred_probs_sim[test_data_sim$y == 0]
+
+# Calculate PR curve
+pr_curve_sim <- pr.curve(scores.class0 = scores_pos_sim, scores.class1 = scores_neg_sim, curve = TRUE)
+
+# Plot the PR curve
+plot(pr_curve_sim, main = "Precision-Recall Curve (Simulated Test Data)", print.auc.approx = TRUE,
+     xlim = c(0,1))
+
+# Calculate and add the 'no-skill' baseline
+baseline_precision_sim <- sum(test_data_sim$y == 1) / length(test_data_sim$y)
+abline(h = baseline_precision_sim, col = "blue", lty = 2)
+legend("bottomleft", 
+       legend = c("Model", paste("Baseline (", round(baseline_precision_sim, 3), ")")), 
+       col = c("black", "blue"), 
+       lty = c(1, 2), 
+       bty = "n") # bty="n" removes the box
+
+```
+
+
+
+### Application to the CHD Dataset
 
 ```{r}
 #| label: assess-predictive-accuracy
@@ -704,6 +868,7 @@ fit_train <- glm(
 pred_probs <- predict(fit_train, newdata = test_data, type = "response")
 ```
 
+**Plot Predictive Probabilities**
 
 ```{r}
 #| label: plot-sorted-probabilities
@@ -748,71 +913,8 @@ legend(
 
 ```
 
-*Confusion Matrix with threhold=0.5*
-```{r}
-# --- 4. Assess accuracy ---
-
-# 4a. Misclassification Error Rate (using 0.5 threshold)
-threhold <- 0.5
-pred_class <- ifelse(pred_probs > threhold, 1, 0)
-conf_matrix <- table(Actual = test_data$chd, Predicted = pred_class)
-print(conf_matrix)
-
-# Extract TP, FP, TN, FN
-# Assuming 0 is negative, 1 is positive
-#       Predicted
-# Actual   0   1
-#     0   TN  FP
-#     1   FN  TP
-TN <- conf_matrix[1, 1]
-FP <- conf_matrix[1, 2]
-FN <- conf_matrix[2, 1]
-TP <- conf_matrix[2, 2]
-
-# Calculate metrics
-error_rate <- (FP + FN) / (TP + TN + FP + FN)
-TPR_Recall <- TP / (TP + FN) # True Positive Rate (Recall / Sensitivity)
-FPR <- FP / (FP + TN)        # False Positive Rate (1 - Specificity)
-Precision <- TP / (TP + FP)  # Positive Predictive Value
-
-cat(paste("\nMisclassification Error Rate:", round(error_rate, 4), "\n"))
-cat(paste("True Positive Rate (Recall):", round(TPR_Recall, 4), "\n"))
-cat(paste("False Positive Rate:", round(FPR, 4), "\n"))
-cat(paste("Precision:", round(Precision, 4), "\n"))
-```
-
-*Confusion Matrix with threhold=0.1*
-```{r}
-threhold <- 0.1
-pred_class <- ifelse(pred_probs > threhold, 1, 0)
-conf_matrix <- table(Actual = test_data$chd, Predicted = pred_class)
-print(conf_matrix)
-
-# Extract TP, FP, TN, FN
-# Assuming 0 is negative, 1 is positive
-#       Predicted
-# Actual   0   1
-#     0   TN  FP
-#     1   FN  TP
-TN <- conf_matrix[1, 1]
-FP <- conf_matrix[1, 2]
-FN <- conf_matrix[2, 1]
-TP <- conf_matrix[2, 2]
-
-# Calculate metrics
-error_rate <- (FP + FN) / (TP + TN + FP + FN)
-TPR_Recall <- TP / (TP + FN) # True Positive Rate (Recall / Sensitivity)
-FPR <- FP / (FP + TN)        # False Positive Rate (1 - Specificity)
-Precision <- TP / (TP + FP)  # Positive Predictive Value
-
-cat(paste("\nMisclassification Error Rate:", round(error_rate, 4), "\n"))
-cat(paste("True Positive Rate (Recall):", round(TPR_Recall, 4), "\n"))
-cat(paste("False Positive Rate:", round(FPR, 4), "\n"))
-cat(paste("Precision:", round(Precision, 4), "\n"))
-
-```
-
 *ROC curve and Area Under the ROC (AUC)*
+
 ```{r}
 # 4b. Area Under the Curve (AUC)
 roc_curve <- roc(test_data$chd, pred_probs, quiet = TRUE)
