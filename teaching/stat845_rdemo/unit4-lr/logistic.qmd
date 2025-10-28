@@ -797,7 +797,7 @@ if (all(dim(conf_matrix_sim) == c(2, 2))) {
 }
 ```
 
-*ROC curve and Area Under the ROC (AUC)*
+**ROC curve and Area Under the ROC (AUC)**
 
 ```{r}
 # 4b. Area Under the Curve (AUC)
@@ -811,34 +811,50 @@ cat(paste("Area Under the Curve (AUC):", round(auc_value_sim, 4), "\n\n"))
 
 ```
 
-*PR curve and Area Under PR Curve (AUPR)*
-
+**PR curve and Area Under PR Curve (AUPR)**
 ```{r}
-library(PRROC)
-# 4c. Precision-Recall (PR) Curve
-# Scores for positive class (y == 1)
-scores_pos_sim <- pred_probs_sim[test_data_sim$y == 1]
-# Scores for negative class (y == 0)
-scores_neg_sim <- pred_probs_sim[test_data_sim$y == 0]
+#| label: pr-curve-rocr
+#| echo: true
 
-# Calculate PR curve
-pr_curve_sim <- pr.curve(scores.class0 = scores_pos_sim, scores.class1 = scores_neg_sim, curve = TRUE)
+# Load the ROCR library
+# install.packages("ROCR") # Uncomment to install if needed
+library(ROCR)
 
-# Plot the PR curve
-plot(pr_curve_sim, main = "Precision-Recall Curve (Simulated Test Data)", print.auc.approx = TRUE,
-     xlim = c(0,1))
+# --- 1. Create a 'prediction' object ---
+# 'prediction' takes all predictions and all true labels
+pred_obj <- prediction(pred_probs_sim, test_data_sim$y)
 
-# Calculate and add the 'no-skill' baseline
+# --- 2. Create a 'performance' object for PR ---
+# "prec" is for precision, "rec" is for recall
+perf_pr <- performance(pred_obj, measure = "prec", x.measure = "rec")
+
+# --- 3. Calculate Area Under the PR Curve (AUPR) ---
+perf_auc <- performance(pred_obj, measure = "aucpr") # "aucpr" = Area Under PR Curve
+aupr_value <- perf_auc@y.values[[1]]
+cat(paste("Area Under PR Curve (AUPR):", round(aupr_value, 4), "\n"))
+
+
+# --- 4. Plot the performance object ---
+plot(perf_pr, 
+     main = "Precision-Recall Curve (Simulated Test Data)", 
+     xlim = c(0, 1), 
+     ylim = c(0, 1),
+     col = "black")
+
+# --- 5. Calculate and add the 'no-skill' baseline ---
 baseline_precision_sim <- sum(test_data_sim$y == 1) / length(test_data_sim$y)
 abline(h = baseline_precision_sim, col = "blue", lty = 2)
+
+# --- 6. Add a legend with AUPR ---
 legend("bottomleft", 
-       legend = c("Model", paste("Baseline (", round(baseline_precision_sim, 3), ")")), 
+       legend = c(
+           paste("Model (AUPR =", round(aupr_value, 4), ")"),  # <-- MODIFIED LINE
+           paste("Baseline (", round(baseline_precision_sim, 3), ")")
+       ), 
        col = c("black", "blue"), 
        lty = c(1, 2), 
        bty = "n") # bty="n" removes the box
-
 ```
-
 
 
 ### Application to the CHD Dataset
@@ -915,7 +931,7 @@ legend(
 
 ```
 
-*ROC curve and Area Under the ROC (AUC)*
+**ROC curve and Area Under the ROC (AUC)**
 
 ```{r}
 # 4b. Area Under the Curve (AUC)
@@ -929,31 +945,49 @@ cat(paste("Area Under the Curve (AUC):", round(auc_value, 4), "\n\n"))
 
 ```
 
-*PR curve and Area Under PR Curve (AUPR)*
+**PR curve and Area Under PR Curve (AUPR)**
 ```{r}
-library(PRROC)
-# 4c. Precision-Recall (PR) Curve
-# Scores for positive class (chd == 1)
-scores_pos <- pred_probs[test_data$chd == 1]
-# Scores for negative class (chd == 0)
-scores_neg <- pred_probs[test_data$chd == 0]
+#| label: pr-curve-rocr-chd
+#| echo: true
 
-# Calculate PR curve
-pr_curve <- pr.curve(scores.class0 = scores_pos, scores.class1 = scores_neg, curve = TRUE)
+# Load the ROCR library
+# install.packages("ROCR") # Uncomment to install if needed
+library(ROCR)
 
-# Plot the PR curve
-plot(pr_curve, main = "Precision-Recall Curve (Test Data)", print.auc.approx = TRUE,
-     xlim = c(0,1))
+# --- 1. Create a 'prediction' object ---
+# 'prediction' takes all predictions and all true labels
+# We use 'pred_probs' and 'test_data$chd' from the CHD data split
+pred_obj <- prediction(pred_probs, test_data$chd)
 
-# Calculate and add the 'no-skill' baseline
+# --- 2. Create a 'performance' object for PR ---
+# "prec" is for precision, "rec" is for recall
+perf_pr <- performance(pred_obj, measure = "prec", x.measure = "rec")
+
+# --- 3. Calculate Area Under the PR Curve (AUPR) ---
+perf_auc <- performance(pred_obj, measure = "aucpr") # "aucpr" = Area Under PR Curve
+aupr_value <- perf_auc@y.values[[1]]
+cat(paste("Area Under PR Curve (AUPR):", round(aupr_value, 4), "\n"))
+
+
+# --- 4. Plot the performance object ---
+plot(perf_pr, 
+     main = "Precision-Recall Curve (Test Data)", 
+     xlim = c(0, 1), 
+     ylim = c(0, 1),
+     col = "black")
+
+# --- 5. Calculate and add the 'no-skill' baseline ---
 baseline_precision <- sum(test_data$chd == 1) / length(test_data$chd)
 abline(h = baseline_precision, col = "blue", lty = 2)
+
+# --- 6. Add a legend with AUPR ---
 legend("bottomleft", 
-       legend = c("Model", paste("Baseline (", round(baseline_precision, 3), ")")), 
+       legend = c(
+           paste("Model (AUPR =", round(aupr_value, 4), ")"),  # <-- MODIFIED LINE
+           paste("Baseline (", round(baseline_precision, 3), ")")
+       ), 
        col = c("black", "blue"), 
        lty = c(1, 2), 
        bty = "n") # bty="n" removes the box
-
-
 ```
 
