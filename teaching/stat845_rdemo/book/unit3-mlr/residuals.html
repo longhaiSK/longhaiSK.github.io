@@ -1,0 +1,1945 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Longhai Li">
+<meta name="dcterms.date" content="2025-10-29">
+
+<title>4&nbsp; Understanding the Leverage for Adjusting Residuals of OLS – Introduction to Statistical Methods for Research</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../unit4-lr/logistic.html" rel="next">
+<link href="../unit3-mlr/mlr.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-626149efe8f5d16e1d391ba177679bf0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link href="../site_libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
+<script src="../site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<link href="../site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet">
+<script src="../site_libs/datatables-binding-0.34.0/datatables.js"></script>
+<script src="../site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<link href="../site_libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
+<link href="../site_libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet">
+<script src="../site_libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
+<link href="../site_libs/crosstalk-1.2.2/css/crosstalk.min.css" rel="stylesheet">
+<script src="../site_libs/crosstalk-1.2.2/js/crosstalk.min.js"></script>
+<link rel="stylesheet" href="../resources/mystyles.css?v=2">
+<script src="../resources/rendernav.js" defer=""></script>
+<script src="../resources/loadtoc.js" defer=""></script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="mystyles.css">
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../unit3-mlr/residuals.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Understanding the Leverage for Adjusting Residuals of OLS</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Introduction to Statistical Methods for Research</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction to Statistical Methods for Research</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unit2-slr/slr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Simple Linear Regression</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unit3-mlr/mlr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Multiple Linear Regression</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unit3-mlr/residuals.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Understanding the Leverage for Adjusting Residuals of OLS</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unit4-lr/logistic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Logistic Regression</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unit5-factor/crbd.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Analysis of Randomized Complete Block Design</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../unit6-factorial/factorial.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Analysis of a Two-Factor Factorial Design</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content column-page-right" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Understanding the Leverage for Adjusting Residuals of OLS</span></h1>
+<p class="subtitle lead">A Simulation Illustration with R</p>
+</div>
+
+
+<div class="quarto-title-meta-author column-page-right">
+  <div class="quarto-title-meta-heading">Author</div>
+  <div class="quarto-title-meta-heading">Affiliation</div>
+  
+    <div class="quarto-title-meta-contents">
+    <p class="author"><a href="https://longhaisk.github.io/">Longhai Li</a> </p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            University of Saskatchewan
+          </p>
+      </div>
+  </div>
+
+<div class="quarto-title-meta column-page-right">
+
+      
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">October 29, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="introduction" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Introduction</h1>
+<p>In statistical modeling, identifying data points that don’t fit—the <strong>outliers</strong>—is a critical step. The most reliable tool for this job is the <strong>externally studentized residual</strong>. Its power comes from a simple, intuitive idea: to judge a point fairly, you shouldn’t use that point when building your model. This is the core principle of <strong>Leave-One-Out Cross-Validation (LOOCV)</strong>.</p>
+<p>This article provides a complete walkthrough of this essential concept. We’ll start with the basic linear model, introduce the necessary notation, explore the flaws of simpler residuals, and then formally define and prove the equivalence of the conceptual and computational formulas for studentized residuals. Finally, we’ll make it all concrete with a simple example.</p>
+</section>
+<section id="the-linear-model" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> The Linear Model</h1>
+<p>Our discussion is based on the standard multiple linear regression model. In matrix form, the relationship between a response vector <strong>Y</strong> and a predictor matrix <strong>X</strong> is: <span class="math display">\[
+\mathbf{Y} = \mathbf{X}\beta + \epsilon
+\]</span></p>
+<p>where:</p>
+<ul>
+<li><strong>Y</strong> is an <em>n</em> x 1 vector of the observed outcomes.</li>
+<li><strong>X</strong> is the <em>n</em> x <em>p</em> design matrix of predictor variables (where <em>p</em> is the number of coefficients, including the intercept).</li>
+<li><span class="math inline">\(\beta\)</span> is the <em>p</em> x 1 vector of unknown true coefficients we want to estimate.</li>
+<li><span class="math inline">\(\epsilon\)</span> is an <em>n</em> x 1 vector of unobservable random errors, assumed to be independent and identically distributed with a mean of 0 and a variance of <span class="math inline">\(\sigma^2\)</span>.</li>
+</ul>
+</section>
+<section id="residuals-for-ols" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Residuals for OLS</h1>
+<section id="our-notations" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="our-notations"><span class="header-section-number">7.1</span> Our Notations</h2>
+<p>To discuss models fit with all data versus those with one point removed, we need clear notation.</p>
+<p><strong>Full Data Model (Using all <em>n</em> observations)</strong></p>
+<ul>
+<li><span class="math inline">\(\hat{\beta}\)</span>: The estimated coefficient vector.</li>
+<li><span class="math inline">\(\hat{y}_i\)</span>: The predicted value for observation <em>i</em> from this model.</li>
+<li><span class="math inline">\(e_i\)</span>: The <strong>ordinary residual</strong> (<span class="math inline">\(e_i = y_i - \hat{y}_i\)</span>).</li>
+<li><span class="math inline">\(\hat{\sigma}\)</span>: The estimated standard deviation of the errors (Residual Standard Error).</li>
+<li><span class="math inline">\(h_{ii}\)</span>: The <strong>leverage</strong> of observation <em>i</em>, a measure of how much its x-values influence the model.</li>
+</ul>
+<p><strong>Leave-One-Out (LOOCV) Model</strong></p>
+<ul>
+<li><span class="math inline">\(\hat{\beta}_{-i}\)</span>: The coefficient vector estimated after <strong>removing</strong> observation <em>i</em>.</li>
+<li><span class="math inline">\(\hat{y}_{i,-i}\)</span>: The predicted value for observation <em>i</em>, from the model fit <strong>without</strong> observation <em>i</em>.</li>
+<li><span class="math inline">\(e_{i,-i}\)</span>: The <strong>deleted residual</strong> (<span class="math inline">\(e_{i,-i} = y_i - \hat{y}_{i,-i}\)</span>).</li>
+<li><span class="math inline">\(\hat{\sigma}_{-i}\)</span>: The standard deviation of the errors estimated from the model fit <strong>without</strong> observation <em>i</em>.</li>
+</ul>
+</section>
+<section id="non-studentized-residuals" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="non-studentized-residuals"><span class="header-section-number">7.2</span> Non-studentized Residuals</h2>
+<p>Before getting to the correct solution, it’s crucial to understand why simpler methods of standardizing residuals are flawed.</p>
+<section id="the-ordinary-residual-e_i-too-small-and-x_i-dependent" class="level3" data-number="7.2.1">
+<h3 data-number="7.2.1" class="anchored" data-anchor-id="the-ordinary-residual-e_i-too-small-and-x_i-dependent"><span class="header-section-number">7.2.1</span> <strong>The Ordinary Residual (</strong><span class="math inline">\(e_i\)</span>): Too Small and <span class="math inline">\(x_i\)</span> Dependent</h3>
+<p>The most basic residual, <span class="math inline">\(e_i\)</span>, is problematic for two key reasons.</p>
+<p>An outlier has an undue influence on the model, pulling the regression line towards itself. This makes its own predicted value, <span class="math inline">\(\hat{y}_i\)</span>, artificially close to its actual value, <span class="math inline">\(y_i\)</span>. As a result, its residual, <span class="math inline">\(e_i\)</span>, is <strong>deceptively small</strong> and doesn’t reflect the true magnitude of the error.</p>
+<p>The variance of an ordinary residual is not constant; it depends on the point’s leverage. The variance can be derived from the hat matrix <span class="math inline">\(H = X(X^\top X)^{-1}X^\top\)</span>. Since <span class="math display">\[\hat{y} = HY,\]</span> we have <span class="math display">\[\begin{equation}
+e = (I - H)\epsilon.
+\end{equation}\]</span> Thus, <span class="math display">\[\begin{equation}
+\mathrm{Var}(e) = (I-H)\,\sigma^2\,(I-H)^\top = (I-H)\sigma^2.
+\end{equation}\]</span> Therefore, for the <span class="math inline">\(i\)</span>th residual, <span class="math display">\[\begin{equation}
+\mathrm{Var}(e_i) = \sigma^2(1 - h_{ii}).
+\end{equation}\]</span></p>
+<p>Since leverage (<span class="math inline">\(h_{ii}\)</span>) is always greater than 0, the variance of an ordinary residual is always <strong>less than the true error variance,</strong> <span class="math inline">\(\sigma^2\)</span>. High-leverage points act as “anchors” for the line and have even smaller variance.</p>
+</section>
+<section id="the-loocv-residual-e_i-i-too-large-and-x_i-dependent-variance" class="level3" data-number="7.2.2">
+<h3 data-number="7.2.2" class="anchored" data-anchor-id="the-loocv-residual-e_i-i-too-large-and-x_i-dependent-variance"><span class="header-section-number">7.2.2</span> <strong>The LOOCV Residual (</strong><span class="math inline">\(e_{i,-i}\)</span>): Too large and <span class="math inline">\(x_i\)</span>-Dependent Variance</h3>
+<p>The deleted residual, <span class="math inline">\(e_{i,-i}\)</span>, solves the “too small” problem. Because the model isn’t influenced by the point it’s predicting, the residual is an honest measure of prediction error. However, its variance is still not constant. The variance of a deleted residual also depends on leverage, but in the opposite way. <span class="math display">\[\begin{equation}
+    \text{Var}(e_{i,-i}) = \frac{\sigma^2}{1 - h_{ii}}
+    \end{equation}\]</span></p>
+<p>From the key identity <a href="#eq-key" class="quarto-xref">Equation&nbsp;<span>8.1</span></a>, <span class="math display">\[\begin{equation}
+e_{i,-i} = \frac{e_i}{1 - h_{ii}}.
+\end{equation}\]</span> Therefore, <span class="math display">\[\begin{equation}
+\mathrm{Var}(e_{i,-i}) = \frac{\mathrm{Var}(e_i)}{(1-h_{ii})^2}
+= \frac{\sigma^2(1-h_{ii})}{(1-h_{ii})^2}
+= \frac{\sigma^2}{1-h_{ii}}.
+\end{equation}\]</span></p>
+<p>Since <span class="math inline">\(1-h_{ii}\)</span> is less than 1, the variance of a deleted residual is always <strong>greater than the true error variance,</strong> <span class="math inline">\(\sigma^2\)</span>. This is because it has two sources of randomness: the error in the point itself (<span class="math inline">\(y_i\)</span>) and the error in the prediction (<span class="math inline">\(\hat{y}_{i,-i}\)</span>).</p>
+</section>
+</section>
+<section id="studentized-residuals" class="level2" data-number="7.3">
+<h2 data-number="7.3" class="anchored" data-anchor-id="studentized-residuals"><span class="header-section-number">7.3</span> Studentized Residuals</h2>
+<section id="studentized-loocv-deleted-residual" class="level3" data-number="7.3.1">
+<h3 data-number="7.3.1" class="anchored" data-anchor-id="studentized-loocv-deleted-residual"><span class="header-section-number">7.3.1</span> Studentized LOOCV (Deleted) Residual</h3>
+<p>The correct solution is to take the LOOCV residual and divide it by its true standard error, which properly accounts for its larger, x-dependent variance. This is the <strong>externally studentized residual</strong>, <span class="math inline">\(t_i\)</span>, defined as follows:</p>
+<p><span id="eq-sloo"><span class="math display">\[
+t_i = \frac{e_{i,-i}}{\text{SE}(e_{i,-i})} = \frac{e_{i,-i}}{\frac{\hat{\sigma}_{-i}}{\sqrt{1-h_{ii}}}}
+\tag{7.1}\]</span></span> This final value is a reliable diagnostic. Under the null hypothesis that the observation is not an outlier, it follows a <strong>Student’s t-distribution</strong> with <span class="math inline">\(n - p - 1\)</span> degrees of freedom.</p>
+</section>
+<section id="studentized-full-data-residuals" class="level3" data-number="7.3.2">
+<h3 data-number="7.3.2" class="anchored" data-anchor-id="studentized-full-data-residuals"><span class="header-section-number">7.3.2</span> Studentized Full Data Residuals</h3>
+<p>Calculating the conceptual formula appears to require fitting <em>n</em> different regression models—a computationally expensive task. Fortunately, a mathematical identity allows us to calculate the exact same value using only the results from the single, full data model.</p>
+<p><span id="eq-sfull"><span class="math display">\[
+t_i = \frac{e_i}{\hat{\sigma}_{-i}\sqrt{1 - h_{ii}}}
+\tag{7.2}\]</span></span> This is not an approximation; it is an <strong>exact algebraic rearrangement</strong> of the conceptual definition.</p>
+</section>
+<section id="equivalence-of-eq-sfull-and-eq-sloo" class="level3" data-number="7.3.3">
+<h3 data-number="7.3.3" class="anchored" data-anchor-id="equivalence-of-eq-sfull-and-eq-sloo"><span class="header-section-number">7.3.3</span> Equivalence of <a href="#eq-sfull" class="quarto-xref">Equation&nbsp;<span>7.2</span></a> and <a href="#eq-sloo" class="quarto-xref">Equation&nbsp;<span>7.1</span></a></h3>
+<section id="proof-of-equivalence" class="level4" data-number="7.3.3.1">
+<h4 data-number="7.3.3.1" class="anchored" data-anchor-id="proof-of-equivalence"><span class="header-section-number">7.3.3.1</span> Proof of Equivalence ⚙️</h4>
+<p>Let’s start with the conceptual definition of the studentized LOOCV residuals <a href="#eq-sloo" class="quarto-xref">Equation&nbsp;<span>7.1</span></a> and show how it transforms into <a href="#eq-sfull" class="quarto-xref">Equation&nbsp;<span>7.2</span></a>.</p>
+<ul>
+<li><p><strong>Start with the conceptual LOOCV definition:</strong> <span class="math display">\[\begin{equation}
+  t_i = \frac{e_{i,-i}}{\text{SE}(e_{i,-i})} = \frac{e_{i,-i}}{\frac{\hat{\sigma}_{-i}}{\sqrt{1-h_{ii}}}}
+  \end{equation}\]</span></p></li>
+<li><p><strong>Substitute the key identity</strong> into the numerator: <span class="math display">\[\begin{equation}
+  t_i = \frac{\frac{e_i}{1 - h_{ii}}}{\frac{\hat{\sigma}_{-i}}{\sqrt{1 - h_{ii}}}}
+  \end{equation}\]</span></p></li>
+<li><p><strong>Simplify the complex fraction.</strong> We can do this by multiplying the numerator by the reciprocal of the denominator: <span class="math display">\[\begin{equation}
+  t_i = \frac{e_i}{1-h_{ii}} \cdot \frac{\sqrt{1-h_{ii}}}{\hat{\sigma}_{-i}}
+  \end{equation}\]</span></p></li>
+<li><p><strong>Cancel the terms.</strong> Since <span class="math inline">\(1 - h_{ii} = (\sqrt{1 - h_{ii}})^2\)</span>, one of the <span class="math inline">\(\sqrt{1 - h_{ii}}\)</span> terms in the denominator cancels with the term in the numerator. This leaves us with the computational shortcut formula: <span class="math display">\[\begin{equation}
+  t_i = \frac{e_i}{\hat{\sigma}_{-i}\sqrt{1-h_{ii}}}
+  \end{equation}\]</span></p></li>
+</ul>
+<p>This proves that the two formulas are mathematically identical. The computational shortcut is simply a clever algebraic rearrangement of the more intuitive LOOCV definition, allowing for efficient and accurate calculation. ✅</p>
+<p>Of course. Here is the modified <code>.qmd</code> file with the <strong>standardized residual</strong> (which you’ve labeled <strong>STD-Full</strong>) added to the table, the descriptions, and the plot.</p>
+<p>The main changes include:</p>
+<ol type="1">
+<li>Adding the <code>STD-Full</code> column to the <code>residuals_df</code> data frame using R’s <code>rstandard()</code> function.</li>
+<li>Updating the list of calculated columns to include a description of <strong>STD-Full</strong>.</li>
+<li>Modifying the plotting code to include <strong>STD-Full</strong> with its own distinct color and shape.</li>
+</ol>
+</section>
+</section>
+</section>
+<section id="list-of-residuals" class="level2" data-number="7.4">
+<h2 data-number="7.4" class="anchored" data-anchor-id="list-of-residuals"><span class="header-section-number">7.4</span> List of Residuals</h2>
+<p>In this article, we will compare the four residuals given as:</p>
+<div id="tbl-residuals-five-plausible-residuals" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl quarto-uncaptioned" id="tbl-residuals-five-plausible-residuals-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;7.1
+</figcaption>
+<div aria-describedby="tbl-residuals-five-plausible-residuals-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 9%">
+<col style="width: 38%">
+<col style="width: 52%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Short Name</th>
+<th style="text-align: left;">Full Name</th>
+<th style="text-align: left;">Formula</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>NS-Full</strong></td>
+<td style="text-align: left;">Non-studentized Full-Data Residual</td>
+<td style="text-align: left;"><span class="math display">\[\frac{e_i}{\hat{\sigma}}\]</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>NS-LOO</strong></td>
+<td style="text-align: left;">Non-studentized LOOCV Residual</td>
+<td style="text-align: left;"><span class="math display">\[\frac{e_{i,-i}}{\hat{\sigma}_{-i}}\]</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>ST-LOO</strong></td>
+<td style="text-align: left;">Studentized LOOCV Residual</td>
+<td style="text-align: left;"><span class="math display">\[\frac{e_{i,-i}}{\hat{\sigma}_{-i}/\sqrt{1-h_{ii}}}\]</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>ST-Full</strong></td>
+<td style="text-align: left;">Studentized Full-Data Residual</td>
+<td style="text-align: left;"><span class="math display">\[\frac{e_i}{\hat{\sigma}_{-i}\sqrt{1-h_{ii}}}\]</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>STD-Full</strong></td>
+<td style="text-align: left;">Standardized (Internal Studentized) Residual</td>
+<td style="text-align: left;"><span class="math display">\[\frac{e_i}{\hat{\sigma}\sqrt{1-h_{ii}}}\]</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="example-of-various-residuals" class="level2" data-number="7.5">
+<h2 data-number="7.5" class="anchored" data-anchor-id="example-of-various-residuals"><span class="header-section-number">7.5</span> Example of Various Residuals</h2>
+<section id="the-linear-model-1" class="level3" data-number="7.5.1">
+<h3 data-number="7.5.1" class="anchored" data-anchor-id="the-linear-model-1"><span class="header-section-number">7.5.1</span> The Linear Model</h3>
+<p>The simulation uses a <strong>simple linear regression model</strong> to describe the relationship between a single predictor variable, <span class="math inline">\(x_i\)</span>, and a response variable, <span class="math inline">\(y_i\)</span>. The underlying “true” model from which the data is generated is: <span class="math display">\[y_i = 2 + 3x_i + \epsilon_i\]</span> This means we have a true intercept of 2, a true slope of 3, and a random error term, <span class="math inline">\(\epsilon_i\)</span>, drawn from a normal distribution with a mean of 0 and a standard deviation of 5. One artificial outlier is added to this data to test the behavior of the different residual types. 5 unrelated predictors are added to the dataset.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load libraries</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 1) Data and full-model fit</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">20</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>n</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">+</span> <span class="dv">3</span> <span class="sc">*</span> x <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">5</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>y[<span class="dv">1</span>] <span class="ot">&lt;-</span> y[<span class="dv">1</span>] <span class="sc">+</span> <span class="dv">30</span>  </span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">#y[11] &lt;- y[11] - 30 </span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>o.index <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>flag.outlier <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">20</span>, n)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>flag.outlier[o.index] <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>full_data  <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> x, <span class="fu">replicate</span>(<span class="dv">5</span>, <span class="fu">rnorm</span> (n)), <span class="at">y =</span> y)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(y<span class="sc">~</span>x, <span class="at">data=</span>full_data, <span class="at">pch=</span> flag.outlier, <span class="at">col=</span>flag.outlier)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(y<span class="sc">~</span>., <span class="at">data=</span>full_data)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span> (fit)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span> (<span class="at">a=</span><span class="dv">2</span>, <span class="at">b=</span><span class="dv">3</span>, <span class="at">col=</span><span class="st">"red"</span>, <span class="at">lwd=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="residuals_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="description-of-calculated-columns" class="level3" data-number="7.5.2">
+<h3 data-number="7.5.2" class="anchored" data-anchor-id="description-of-calculated-columns"><span class="header-section-number">7.5.2</span> Description of Calculated Columns</h3>
+<p>The final table compiles several important quantities calculated during the simulation. Here’s what each column represents:</p>
+<ul>
+<li><span class="math inline">\(x_i\)</span>: The predictor variable, which is simply the index of the observation from 1 to 20.</li>
+<li><span class="math inline">\(h_i\)</span>: The <strong>leverage</strong> of the i-th observation. It measures how influential a point’s x-value is in determining the model’s fit. A higher value indicates a more influential point.</li>
+<li><span class="math inline">\(e_i\)</span>: The <strong>ordinary residual</strong>, calculated as the difference between the actual value (<span class="math inline">\(y_i\)</span>) and the predicted value (<span class="math inline">\(\hat{y}_i\)</span>) from the model fit on all data.</li>
+<li><span class="math inline">\(\hat{\sigma}\)</span>: The <strong>residual standard error</strong> (or Root Mean Square Error) of the full model, representing the typical size of an ordinary residual.</li>
+<li><span class="math inline">\(e_{i,-i}\)</span>: The <strong>deleted (or LOOCV) residual</strong>. This is the difference between the actual value (<span class="math inline">\(y_i\)</span>) and the value predicted for it by a model that was fit on all other data <em>except</em> point <em>i</em>.</li>
+<li><span class="math inline">\(\hat{e}_{i,-i}\)</span>: This column shows the deleted residual calculated using the efficient algebraic shortcut (<span class="math inline">\(e_i / (1-h_{ii})\)</span>), verifying it’s identical to the brute-force <span class="math inline">\(e_{i,-i}\)</span>.</li>
+<li><span class="math inline">\(\hat{\sigma}_{-i}\)</span>: The <strong>LOOCV residual standard error</strong>, calculated from a model that was fit after removing observation <em>i</em>.</li>
+<li><span class="math inline">\(\tilde{\sigma}_{-i}\)</span>: The <strong>LOOCV residual standard error</strong>, calculated from the shortcut formula <span class="quarto-unresolved-ref">?eq-sigma</span>_-i.</li>
+<li><strong>NS-Full</strong>: The <strong>Non-studentized Full-Data Residual</strong>, calculated as the ordinary residual divided by the full model’s standard error (<span class="math inline">\(e_i / \hat{\sigma}\)</span>).</li>
+<li><strong>NS-LOO</strong>: The <strong>Non-studentized LOOCV Residual</strong>, calculated as the deleted residual divided by the corresponding LOOCV standard error (<span class="math inline">\(e_{i,-i} / \hat{\sigma}_{-i}\)</span>).</li>
+<li><strong>STD-Full</strong>: The <strong>Standardized (or Internally Studentized) Residual</strong>, calculated as the ordinary residual divided by its estimated standard error (<span class="math inline">\(e_i / (\hat{\sigma}\sqrt{1-h_{ii}})\)</span>). This is provided by R’s <code>rstandard()</code> function.</li>
+<li><strong>ST-LOO</strong>: The <strong>Studentized LOOCV Residual</strong>, calculated using the conceptual formula by dividing the deleted residual by its true standard error.</li>
+<li><strong>ST-Full</strong>: The <strong>Studentized Full-Data Residual</strong>, calculated using the efficient shortcut formula, which is provided by R’s <code>rstudent()</code> function.</li>
+</ul>
+<!-- end list -->
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>full_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> ., <span class="at">data =</span> full_data)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">coef</span>(full_model))</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>leverage    <span class="ot">&lt;-</span> <span class="fu">hatvalues</span>(full_model)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>e_full      <span class="ot">&lt;-</span> <span class="fu">resid</span>(full_model)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>sigma_hat_val  <span class="ot">&lt;-</span> <span class="fu">summary</span>(full_model)<span class="sc">$</span>sigma</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>rss_full <span class="ot">&lt;-</span> <span class="fu">sum</span>(e_full<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>df_loo <span class="ot">&lt;-</span> n <span class="sc">-</span> p <span class="sc">-</span> <span class="dv">1</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>sigma_minus_i_shortcut <span class="ot">&lt;-</span> <span class="fu">sqrt</span>((rss_full <span class="sc">-</span> (e_full<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> leverage))) <span class="sc">/</span> df_loo)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 2) LOOCV quantities (refit n times)</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>e_del_val <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>sigma_minus_i_val <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n) {</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  loocv_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> ., <span class="at">data =</span> full_data[<span class="sc">-</span>i, ])</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  yhat_minus  <span class="ot">&lt;-</span> <span class="fu">predict</span>(loocv_model, <span class="at">newdata =</span> full_data[i, , <span class="at">drop =</span> <span class="cn">FALSE</span>])</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  e_del_val[i]    <span class="ot">&lt;-</span> full_data<span class="sc">$</span>y[i] <span class="sc">-</span> yhat_minus</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  sigma_minus_i_val[i] <span class="ot">&lt;-</span> <span class="fu">summary</span>(loocv_model)<span class="sc">$</span>sigma</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="co"># 3) Assemble and round results</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>residuals_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> full_data<span class="sc">$</span>x,</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">h =</span> <span class="fu">as.numeric</span>(leverage),</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">e_i =</span> <span class="fu">as.numeric</span>(e_full),</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">sigma_hat =</span> <span class="fu">as.numeric</span>(sigma_hat_val),</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">e_i_minus_i =</span> <span class="fu">as.numeric</span>(e_del_val),</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">e_i_minus_i_2 =</span> e_full<span class="sc">/</span>(<span class="dv">1</span><span class="sc">-</span>leverage),</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">sigma_minus_i =</span> <span class="fu">as.numeric</span>(sigma_minus_i_val),</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">sigma_minus_i_shortcut =</span> <span class="fu">as.numeric</span>(sigma_minus_i_shortcut),</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">NS-Full</span><span class="st">`</span> <span class="ot">=</span> e_full <span class="sc">/</span> sigma_hat_val,</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">NS-LOO</span><span class="st">`</span> <span class="ot">=</span> e_del_val <span class="sc">/</span> sigma_minus_i_val,</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">STD-Full</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">rstandard</span>(full_model), <span class="co"># &lt;-- ADDED STANDARDIZED RESIDUAL</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">ST-LOO</span><span class="st">`</span> <span class="ot">=</span> e_del_val <span class="sc">/</span> (sigma_minus_i_val <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="dv">1</span> <span class="sc">-</span> leverage)),</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">ST-Full</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">rstudent</span>(full_model)</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric), <span class="sc">~</span> <span class="fu">round</span>(.x, <span class="dv">3</span>)))</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a><span class="co"># 4) Create simple display names</span></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>display_names <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"$x_i$"</span>, <span class="st">"$h_i$"</span>, <span class="st">"$e_i$"</span>, <span class="st">"$</span><span class="sc">\\</span><span class="st">hat{</span><span class="sc">\\</span><span class="st">sigma}$"</span>, </span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>                   <span class="st">"$e_{i,-i}$"</span>, <span class="st">"$</span><span class="sc">\\</span><span class="st">hat{e}_{i,-i}$"</span>,</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>                   <span class="st">"$</span><span class="sc">\\</span><span class="st">hat{</span><span class="sc">\\</span><span class="st">sigma}_{-i}$"</span>, <span class="st">"$</span><span class="sc">\\</span><span class="st">tilde{</span><span class="sc">\\</span><span class="st">sigma}_{-i}$"</span>, </span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>                   <span class="st">"NS-Full"</span>, <span class="st">"NS-LOO"</span>, <span class="st">"STD-Full"</span>, <span class="st">"ST-LOO"</span>, <span class="st">"ST-Full"</span>) <span class="co"># &lt;-- ADDED LABEL</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a><span class="co"># 5) Display the table</span></span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a><span class="co"># Conditional check for output format</span></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (knitr<span class="sc">::</span><span class="fu">is_html_output</span>()) {</span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Code for HTML Output (using kableExtra) ---</span></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>    residuals_df,</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Residual variants"</span>,</span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> display_names,</span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="st">"r"</span>,</span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>    <span class="co">#format="html",</span></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>    <span class="at">escape =</span> <span class="cn">FALSE</span> <span class="co"># Allows LaTeX and &lt;br/&gt; to render</span></span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>  ) </span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Code for PDF/Other Output (using kableExtra) ---</span></span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>    residuals_df,</span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Residual variants."</span>,</span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> display_names,</span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="st">"r"</span>,</span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>    <span class="at">format =</span> <span class="st">"latex"</span>,</span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>    <span class="at">booktabs =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>    <span class="at">escape =</span> <span class="cn">FALSE</span> <span class="co"># Allows LaTeX and \\ to render</span></span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>    <span class="fu">kable_styling</span>(</span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>      <span class="at">latex_options =</span> <span class="st">"scale_down"</span></span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Residual variants</caption>
+<colgroup>
+<col style="width: 4%">
+<col style="width: 4%">
+<col style="width: 4%">
+<col style="width: 10%">
+<col style="width: 7%">
+<col style="width: 11%">
+<col style="width: 13%">
+<col style="width: 15%">
+<col style="width: 5%">
+<col style="width: 4%">
+<col style="width: 6%">
+<col style="width: 4%">
+<col style="width: 5%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;"><span class="math inline">\(x_i\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(h_i\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(e_i\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(\hat{\sigma}\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(e_{i,-i}\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(\hat{e}_{i,-i}\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(\hat{\sigma}_{-i}\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(\tilde{\sigma}_{-i}\)</span></th>
+<th style="text-align: right;">NS-Full</th>
+<th style="text-align: right;">NS-LOO</th>
+<th style="text-align: right;">STD-Full</th>
+<th style="text-align: right;">ST-LOO</th>
+<th style="text-align: right;">ST-Full</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.247</td>
+<td style="text-align: right;">17.638</td>
+<td style="text-align: right;">7.57</td>
+<td style="text-align: right;">23.434</td>
+<td style="text-align: right;">23.434</td>
+<td style="text-align: right;">5.257</td>
+<td style="text-align: right;">5.257</td>
+<td style="text-align: right;">2.330</td>
+<td style="text-align: right;">4.457</td>
+<td style="text-align: right;">2.686</td>
+<td style="text-align: right;">3.867</td>
+<td style="text-align: right;">3.867</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.241</td>
+<td style="text-align: right;">-7.909</td>
+<td style="text-align: right;">7.57</td>
+<td style="text-align: right;">-10.418</td>
+<td style="text-align: right;">-10.418</td>
+<td style="text-align: right;">7.431</td>
+<td style="text-align: right;">7.431</td>
+<td style="text-align: right;">-1.045</td>
+<td style="text-align: right;">-1.402</td>
+<td style="text-align: right;">-1.199</td>
+<td style="text-align: right;">-1.222</td>
+<td style="text-align: right;">-1.222</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.364</td>
+<td style="text-align: right;">-3.271</td>
+<td style="text-align: right;">7.57</td>
+<td style="text-align: right;">-5.147</td>
+<td style="text-align: right;">-5.147</td>
+<td style="text-align: right;">7.790</td>
+<td style="text-align: right;">7.790</td>
+<td style="text-align: right;">-0.432</td>
+<td style="text-align: right;">-0.661</td>
+<td style="text-align: right;">-0.542</td>
+<td style="text-align: right;">-0.527</td>
+<td style="text-align: right;">-0.527</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0.555</td>
+<td style="text-align: right;">1.553</td>
+<td style="text-align: right;">7.57</td>
+<td style="text-align: right;">3.490</td>
+<td style="text-align: right;">3.490</td>
+<td style="text-align: right;">7.851</td>
+<td style="text-align: right;">7.851</td>
+<td style="text-align: right;">0.205</td>
+<td style="text-align: right;">0.445</td>
+<td style="text-align: right;">0.308</td>
+<td style="text-align: right;">0.297</td>
+<td style="text-align: right;">0.297</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.257</td>
+<td style="text-align: right;">-1.515</td>
+<td style="text-align: right;">7.57</td>
+<td style="text-align: right;">-2.038</td>
+<td style="text-align: right;">-2.038</td>
+<td style="text-align: right;">7.863</td>
+<td style="text-align: right;">7.863</td>
+<td style="text-align: right;">-0.200</td>
+<td style="text-align: right;">-0.259</td>
+<td style="text-align: right;">-0.232</td>
+<td style="text-align: right;">-0.223</td>
+<td style="text-align: right;">-0.223</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0.400</td>
+<td style="text-align: right;">-0.400</td>
+<td style="text-align: right;">7.57</td>
+<td style="text-align: right;">-0.666</td>
+<td style="text-align: right;">-0.666</td>
+<td style="text-align: right;">7.878</td>
+<td style="text-align: right;">7.878</td>
+<td style="text-align: right;">-0.053</td>
+<td style="text-align: right;">-0.085</td>
+<td style="text-align: right;">-0.068</td>
+<td style="text-align: right;">-0.066</td>
+<td style="text-align: right;">-0.066</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">0.253</td>
+<td style="text-align: right;">0.247</td>
+<td style="text-align: right;">7.57</td>
+<td style="text-align: right;">0.331</td>
+<td style="text-align: right;">0.331</td>
+<td style="text-align: right;">7.879</td>
+<td style="text-align: right;">7.879</td>
+<td style="text-align: right;">0.033</td>
+<td style="text-align: right;">0.042</td>
+<td style="text-align: right;">0.038</td>
+<td style="text-align: right;">0.036</td>
+<td style="text-align: right;">0.036</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">0.303</td>
+<td style="text-align: right;">-8.972</td>
+<td style="text-align: right;">7.57</td>
+<td style="text-align: right;">-12.871</td>
+<td style="text-align: right;">-12.871</td>
+<td style="text-align: right;">7.243</td>
+<td style="text-align: right;">7.243</td>
+<td style="text-align: right;">-1.185</td>
+<td style="text-align: right;">-1.777</td>
+<td style="text-align: right;">-1.419</td>
+<td style="text-align: right;">-1.484</td>
+<td style="text-align: right;">-1.484</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">0.347</td>
+<td style="text-align: right;">-8.394</td>
+<td style="text-align: right;">7.57</td>
+<td style="text-align: right;">-12.852</td>
+<td style="text-align: right;">-12.852</td>
+<td style="text-align: right;">7.287</td>
+<td style="text-align: right;">7.287</td>
+<td style="text-align: right;">-1.109</td>
+<td style="text-align: right;">-1.764</td>
+<td style="text-align: right;">-1.372</td>
+<td style="text-align: right;">-1.425</td>
+<td style="text-align: right;">-1.425</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.573</td>
+<td style="text-align: right;">-5.696</td>
+<td style="text-align: right;">7.57</td>
+<td style="text-align: right;">-13.342</td>
+<td style="text-align: right;">-13.342</td>
+<td style="text-align: right;">7.467</td>
+<td style="text-align: right;">7.467</td>
+<td style="text-align: right;">-0.752</td>
+<td style="text-align: right;">-1.787</td>
+<td style="text-align: right;">-1.152</td>
+<td style="text-align: right;">-1.168</td>
+<td style="text-align: right;">-1.168</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">0.117</td>
+<td style="text-align: right;">7.175</td>
+<td style="text-align: right;">7.57</td>
+<td style="text-align: right;">8.127</td>
+<td style="text-align: right;">8.127</td>
+<td style="text-align: right;">7.565</td>
+<td style="text-align: right;">7.565</td>
+<td style="text-align: right;">0.948</td>
+<td style="text-align: right;">1.074</td>
+<td style="text-align: right;">1.009</td>
+<td style="text-align: right;">1.009</td>
+<td style="text-align: right;">1.009</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">0.441</td>
+<td style="text-align: right;">0.998</td>
+<td style="text-align: right;">7.57</td>
+<td style="text-align: right;">1.786</td>
+<td style="text-align: right;">1.786</td>
+<td style="text-align: right;">7.870</td>
+<td style="text-align: right;">7.870</td>
+<td style="text-align: right;">0.132</td>
+<td style="text-align: right;">0.227</td>
+<td style="text-align: right;">0.176</td>
+<td style="text-align: right;">0.170</td>
+<td style="text-align: right;">0.170</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">0.359</td>
+<td style="text-align: right;">1.298</td>
+<td style="text-align: right;">7.57</td>
+<td style="text-align: right;">2.026</td>
+<td style="text-align: right;">2.026</td>
+<td style="text-align: right;">7.865</td>
+<td style="text-align: right;">7.865</td>
+<td style="text-align: right;">0.171</td>
+<td style="text-align: right;">0.258</td>
+<td style="text-align: right;">0.214</td>
+<td style="text-align: right;">0.206</td>
+<td style="text-align: right;">0.206</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">0.395</td>
+<td style="text-align: right;">0.698</td>
+<td style="text-align: right;">7.57</td>
+<td style="text-align: right;">1.153</td>
+<td style="text-align: right;">1.153</td>
+<td style="text-align: right;">7.875</td>
+<td style="text-align: right;">7.875</td>
+<td style="text-align: right;">0.092</td>
+<td style="text-align: right;">0.146</td>
+<td style="text-align: right;">0.119</td>
+<td style="text-align: right;">0.114</td>
+<td style="text-align: right;">0.114</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">0.228</td>
+<td style="text-align: right;">-1.221</td>
+<td style="text-align: right;">7.57</td>
+<td style="text-align: right;">-1.583</td>
+<td style="text-align: right;">-1.583</td>
+<td style="text-align: right;">7.869</td>
+<td style="text-align: right;">7.869</td>
+<td style="text-align: right;">-0.161</td>
+<td style="text-align: right;">-0.201</td>
+<td style="text-align: right;">-0.184</td>
+<td style="text-align: right;">-0.177</td>
+<td style="text-align: right;">-0.177</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">0.402</td>
+<td style="text-align: right;">7.998</td>
+<td style="text-align: right;">7.57</td>
+<td style="text-align: right;">13.365</td>
+<td style="text-align: right;">13.365</td>
+<td style="text-align: right;">7.292</td>
+<td style="text-align: right;">7.292</td>
+<td style="text-align: right;">1.057</td>
+<td style="text-align: right;">1.833</td>
+<td style="text-align: right;">1.366</td>
+<td style="text-align: right;">1.418</td>
+<td style="text-align: right;">1.418</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">0.433</td>
+<td style="text-align: right;">3.996</td>
+<td style="text-align: right;">7.57</td>
+<td style="text-align: right;">7.048</td>
+<td style="text-align: right;">7.048</td>
+<td style="text-align: right;">7.729</td>
+<td style="text-align: right;">7.729</td>
+<td style="text-align: right;">0.528</td>
+<td style="text-align: right;">0.912</td>
+<td style="text-align: right;">0.701</td>
+<td style="text-align: right;">0.687</td>
+<td style="text-align: right;">0.687</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">0.414</td>
+<td style="text-align: right;">-3.369</td>
+<td style="text-align: right;">7.57</td>
+<td style="text-align: right;">-5.746</td>
+<td style="text-align: right;">-5.746</td>
+<td style="text-align: right;">7.776</td>
+<td style="text-align: right;">7.776</td>
+<td style="text-align: right;">-0.445</td>
+<td style="text-align: right;">-0.739</td>
+<td style="text-align: right;">-0.581</td>
+<td style="text-align: right;">-0.566</td>
+<td style="text-align: right;">-0.566</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">0.258</td>
+<td style="text-align: right;">3.073</td>
+<td style="text-align: right;">7.57</td>
+<td style="text-align: right;">4.141</td>
+<td style="text-align: right;">4.141</td>
+<td style="text-align: right;">7.812</td>
+<td style="text-align: right;">7.812</td>
+<td style="text-align: right;">0.406</td>
+<td style="text-align: right;">0.530</td>
+<td style="text-align: right;">0.471</td>
+<td style="text-align: right;">0.457</td>
+<td style="text-align: right;">0.457</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">0.414</td>
+<td style="text-align: right;">-3.930</td>
+<td style="text-align: right;">7.57</td>
+<td style="text-align: right;">-6.707</td>
+<td style="text-align: right;">-6.707</td>
+<td style="text-align: right;">7.739</td>
+<td style="text-align: right;">7.739</td>
+<td style="text-align: right;">-0.519</td>
+<td style="text-align: right;">-0.867</td>
+<td style="text-align: right;">-0.678</td>
+<td style="text-align: right;">-0.663</td>
+<td style="text-align: right;">-0.663</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load libraries</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 3) Plotting Code with Updated Names</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Prepare data for plotting</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>plot_df <span class="ot">&lt;-</span> residuals_df <span class="sc">%&gt;%</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Use the new, simple column names (R converts '-' to '.')</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    x,</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    NS.Full,</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    NS.LOO,</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    STD.Full, <span class="co"># &lt;-- ADDED FOR PLOTTING</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    ST.LOO,</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    ST.Full</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="sc">-</span>x,</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"residual_type"</span>,</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"residual_value"</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Update the names in the mapping vectors</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>shape_map <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">NS.Full  =</span> <span class="dv">16</span>,  <span class="co"># solid circle</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">NS.LOO   =</span> <span class="dv">1</span>,   <span class="co"># hollow circle</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">STD.Full =</span> <span class="dv">2</span>,   <span class="co"># hollow triangle &lt;-- ADDED</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">ST.LOO   =</span> <span class="dv">6</span>,   <span class="co"># asterisk</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">ST.Full  =</span> <span class="dv">10</span>   <span class="co"># asterisk</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>labels_map <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>  <span class="at">NS.Full  =</span> <span class="st">"NS-Full"</span>,</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>  <span class="at">NS.LOO   =</span> <span class="st">"NS-LOO"</span>,</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>  <span class="at">STD.Full =</span> <span class="st">"STD-Full"</span>, <span class="co"># &lt;-- ADDED</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>  <span class="at">ST.LOO   =</span> <span class="st">"ST-LOO"</span>,</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>  <span class="at">ST.Full  =</span> <span class="st">"ST-Full"</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>color_map <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>  <span class="at">NS.Full  =</span> <span class="st">"#1f77b4"</span>,  <span class="co"># blue</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>  <span class="at">NS.LOO   =</span> <span class="st">"#ff7f0e"</span>, <span class="co"># orange</span></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>  <span class="at">STD.Full =</span> <span class="st">"#9467bd"</span>,  <span class="co"># purple &lt;-- ADDED</span></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>  <span class="at">ST.LOO   =</span> <span class="st">"#2ca02c"</span>,  <span class="co"># green</span></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>  <span class="at">ST.Full  =</span> <span class="st">"#d62728"</span>   <span class="co"># red</span></span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate the plot</span></span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>  plot_df,</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> residual_value,</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>      <span class="at">shape =</span> residual_type, <span class="at">color =</span> residual_type, <span class="at">group =</span> residual_type)</span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">stroke =</span> <span class="fl">1.2</span>) <span class="sc">+</span> <span class="co"># Increased stroke for visibility</span></span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_shape_manual</span>(</span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> shape_map,</span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">names</span>(labels_map),</span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> <span class="fu">unname</span>(labels_map),</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"Residual Type"</span></span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(</span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> color_map,</span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">names</span>(labels_map),</span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> <span class="fu">unname</span>(labels_map),</span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"Residual Type"</span></span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Five Residual Variants vs x"</span>,</span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"x_i"</span>,</span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Residual value"</span></span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"right"</span>,</span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>)</span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="residuals_files/figure-html/plot-five-residuals-new-names-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption>Five residual variants plotted against the predictor variable x.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>From the above simulation results, we observe the following important facts:</p>
+<ul>
+<li><p><strong>Leverage and Influence:</strong> The simulation confirms that leverage (<span class="math inline">\(h_{ii}\)</span>) measures an observation’s influence on the model’s coefficients. It shows that points with higher leverage pull the regression line toward them, resulting in smaller, deceptively conservative full-data residuals (<span class="math inline">\(e_i\)</span>).</p></li>
+<li><p><strong>Conservative Residuals:</strong> The study highlights that the ordinary residual (<span class="math inline">\(e_i\)</span>) is a “conservative” measure of error because its value for an outlier is systematically reduced by that same outlier’s influence on the model.</p></li>
+<li><p><strong>Identity Verification:</strong> The numerical results validated the key algebraic identity that connects the full-data residual (<span class="math inline">\(e_i\)</span>) to the leave-one-out (deleted) residual (<span class="math inline">\(e_{i,-i}\)</span>), as well as the identity for calculating the LOOCV standard error (<span class="math inline">\(\hat{\sigma}_{-i}\)</span>) from the full model’s statistics. This demonstrates that all key LOOCV errors can be calculated efficiently from a single model fit.</p></li>
+<li><p><strong>Effective Studentization:</strong> The final step of studentization, which uses leverage to properly scale the residuals, is shown to be crucial. It successfully transforms the residuals into a reliable diagnostic tool with a constant variance across all predictor values (<span class="math inline">\(x_i\)</span>), causing them to behave much more like a standard normal or t-distribution.</p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="cooks-distance" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Cook’s Distance</h1>
+<section id="definition-from-the-change-in-coefficients" class="level2" data-number="8.1">
+<h2 data-number="8.1" class="anchored" data-anchor-id="definition-from-the-change-in-coefficients"><span class="header-section-number">8.1</span> Definition from the change in coefficients</h2>
+<p>Let <span class="math inline">\(\hat{\boldsymbol\beta}\)</span> be the OLS estimate on all <span class="math inline">\(n\)</span> cases and <span class="math inline">\(\hat{\boldsymbol\beta}_{(-i)}\)</span> the estimate after deleting case <span class="math inline">\(i\)</span>.<br>
+With <span class="math inline">\(p\)</span> parameters (including intercept) and <span class="math inline">\(\hat\sigma^2=\mathrm{MSE}\)</span>,</p>
+<p><span class="math display">\[
+D_i
+= \frac{\big(\hat{\boldsymbol\beta}-\hat{\boldsymbol\beta}_{(-i)}\big)^{\!\top}
+(X^{\!\top}X)\,\big(\hat{\boldsymbol\beta}-\hat{\boldsymbol\beta}_{(-i)}\big)}{p\,\hat\sigma^{2}} \, .
+\]</span></p>
+<p>This measures how far the whole coefficient vector moves (in the <span class="math inline">\(X^{\!\top}X\)</span> metric) when case <span class="math inline">\(i\)</span> is removed, scaled <strong>per parameter</strong>.</p>
+<section id="express-d_i-via-the-studentized-loocv-residual-t_i" class="level3" data-number="8.1.1">
+<h3 data-number="8.1.1" class="anchored" data-anchor-id="express-d_i-via-the-studentized-loocv-residual-t_i"><span class="header-section-number">8.1.1</span> Express <span class="math inline">\(D_i\)</span> via the <strong>studentized LOOCV residual</strong>: <span class="math inline">\(t_i\)</span></h3>
+<p>Let <span class="math inline">\(h_{ii}\)</span> be the leverage and define the LOOCV quantities <span class="math inline">\(e_{i,-i}\)</span> and <span class="math inline">\(\hat\sigma_{-i}\)</span> from the model refit <strong>without</strong> case <span class="math inline">\(i\)</span>.<br>
+The externally studentized residual is</p>
+<p><span class="math display">\[
+t_i
+=\frac{e_i}{\hat{\sigma}_{-i}\sqrt{\,1-h_{ii}\,}}
+=\frac{e_{i,-i}\,\sqrt{\,1-h_{ii}\,}}{\hat{\sigma}_{-i}},
+\qquad\text{since}\quad e_{i,-i}=\frac{e_i}{1-h_{ii}}.
+\]</span></p>
+<p>Then Cook’s distance can be written as</p>
+<p><span class="math display">\[
+D_i
+= \frac{n-p}{p}\;\frac{h_{ii}}{1-h_{ii}}\;
+\frac{t_i^{\,2}}{(n-p-1)+t_i^{\,2}} \, .
+\]</span></p>
+</section>
+<section id="exact-null-distribution" class="level3" data-number="8.1.2">
+<h3 data-number="8.1.2" class="anchored" data-anchor-id="exact-null-distribution"><span class="header-section-number">8.1.2</span> Exact null distribution</h3>
+<p>Under the classical linear model,</p>
+<p><span class="math display">\[
+t_i^{\,2}\ \sim\ F_{1,\ \nu},\qquad \nu=n-p-1 .
+\]</span></p>
+<p>Let</p>
+<p><span class="math display">\[
+c_i=\frac{n-p}{p}\cdot\frac{h_{ii}}{1-h_{ii}},\qquad
+W_i=\frac{t_i^{\,2}}{\nu+t_i^{\,2}} .
+\]</span></p>
+<p>Because <span class="math inline">\(t_i^{\,2}\sim F_{1,\nu}\)</span>,</p>
+<p><span class="math display">\[
+W_i\sim \mathrm{Beta}\!\Big(\tfrac12,\tfrac{\nu}{2}\Big),
+\qquad
+\frac{D_i}{c_i}=W_i\in[0,1] \, .
+\]</span></p>
+<p>This yields exact, per–case <span class="math inline">\(p\)</span>-values and critical values:</p>
+<p><span class="math display">\[
+p_i=\Pr\!\left(W_i\ge \frac{D_i}{c_i}\right)
+= S_\mathrm{Beta}\!\left(\frac{D_i}{c_i};\,\tfrac12,\,\tfrac{n-p-1}{2}\right),
+\]</span></p>
+<p><span class="math display">\[
+d_{i,\alpha}=c_i\ q_\mathrm{Beta}\!\Big(1-\alpha;\tfrac12,\tfrac{n-p-1}{2}\Big).
+\]</span></p>
+<p>where <span class="math inline">\(S_\mathrm{Beta}\)</span> and <span class="math inline">\(q_\mathrm{Beta}\)</span> stand for the survival and quantile functions of Beta distribution.</p>
+</section>
+<section id="the-rough-4n-rule-average-leverage-simplification" class="level3" data-number="8.1.3">
+<h3 data-number="8.1.3" class="anchored" data-anchor-id="the-rough-4n-rule-average-leverage-simplification"><span class="header-section-number">8.1.3</span> The rough <span class="math inline">\(4/n\)</span> rule (average-leverage simplification)</h3>
+<p>Approximating a “typical” case by <strong>average leverage</strong> <span class="math inline">\(h_{ii}\approx p/n\)</span> gives</p>
+<p><span class="math display">\[
+c_i=\frac{n-p}{p}\cdot\frac{p/n}{1-p/n}\approx 1 .
+\]</span></p>
+<p>The 95th percentile of <span class="math inline">\(W_i\)</span> is</p>
+<p><span class="math display">\[
+\mathrm{qbeta}\!\Big(0.95;\tfrac12,\tfrac{n-p-1}{2}\Big)
+\ \approx\ \frac{F_{1,\nu,\,0.95}}{\nu+F_{1,\nu,\,0.95}}
+\ \approx\ \frac{3.84}{\,n-p-1\,}
+\ \approx\ \frac{4}{n}\quad (\text{when }p\ll n).
+\]</span></p>
+<p>So <span class="math inline">\(4/n\)</span> is a <strong>rule-of-thumb</strong> 95% cutoff for an <strong>average-leverage</strong> point; the exact leverage–aware cutoff is <span class="math inline">\(d_{i,\alpha}\)</span> above (larger for high <span class="math inline">\(h_{ii}\)</span>, smaller for low <span class="math inline">\(h_{ii}\)</span>).</p>
+</section>
+<section id="comparing-4n-rules-with-the-actual-critical-values" class="level3" data-number="8.1.4">
+<h3 data-number="8.1.4" class="anchored" data-anchor-id="comparing-4n-rules-with-the-actual-critical-values"><span class="header-section-number">8.1.4</span> Comparing <span class="math inline">\(4/n\)</span> rules with the actual critical values</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Exact 95% Cook's D cutoff under average leverage h_ii = p/n (so c_i = 1):</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># d_{i,0.95} = qbeta(0.95; 1/2, (n - p - 1)/2), valid when nu = n - p - 1 &gt; 0</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>cook_crit_avg <span class="ot">&lt;-</span> <span class="cf">function</span>(n, p, <span class="at">alpha =</span> <span class="fl">0.05</span>) {</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  nu <span class="ot">&lt;-</span> n <span class="sc">-</span> p <span class="sc">-</span> <span class="dv">1</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (nu <span class="sc">&lt;=</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NA_real_</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  stats<span class="sc">::</span><span class="fu">qbeta</span>(<span class="dv">1</span> <span class="sc">-</span> alpha, <span class="at">shape1 =</span> <span class="fl">0.5</span>, <span class="at">shape2 =</span> nu <span class="sc">/</span> <span class="dv">2</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Grids (edit as needed)</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>n_vals <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">20</span>, <span class="dv">30</span>, <span class="dv">50</span>, <span class="dv">80</span>, <span class="dv">100</span>, <span class="dv">150</span>, <span class="dv">200</span>, <span class="dv">500</span>)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>p_vals <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">15</span>, <span class="dv">20</span>, <span class="dv">30</span>, <span class="dv">50</span>)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> tidyr<span class="sc">::</span><span class="fu">crossing</span>(<span class="at">n =</span> n_vals, <span class="at">p =</span> p_vals) <span class="sc">%&gt;%</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">valid =</span> p <span class="sc">&lt;=</span> n <span class="sc">-</span> <span class="dv">2</span>,</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>         <span class="at">nu    =</span> n <span class="sc">-</span> p <span class="sc">-</span> <span class="dv">1</span>L) <span class="sc">%&gt;%</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rowwise</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">cook_crit_95 =</span> <span class="cf">if</span> (valid) <span class="fu">cook_crit_avg</span>(n, p, <span class="fl">0.05</span>) <span class="cf">else</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">4/n</span><span class="st">`</span>        <span class="ot">=</span> <span class="dv">4</span> <span class="sc">/</span> n,</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">ratio        =</span> cook_crit_95 <span class="sc">/</span> <span class="st">`</span><span class="at">4/n</span><span class="st">`</span>,</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">p/n</span><span class="st">`</span>        <span class="ot">=</span> p <span class="sc">/</span> n</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(valid) <span class="sc">%&gt;%</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(n, p, <span class="st">`</span><span class="at">p/n</span><span class="st">`</span>, nu, cook_crit_95, <span class="st">`</span><span class="at">4/n</span><span class="st">`</span>, ratio) <span class="sc">%&gt;%</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">p/n</span><span class="st">`</span>         <span class="ot">=</span> <span class="fu">round</span>(<span class="st">`</span><span class="at">p/n</span><span class="st">`</span>, <span class="dv">3</span>),</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">cook_crit_95  =</span> <span class="fu">round</span>(cook_crit_95, <span class="dv">6</span>),</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">4/n</span><span class="st">`</span>         <span class="ot">=</span> <span class="fu">round</span>(<span class="st">`</span><span class="at">4/n</span><span class="st">`</span>, <span class="dv">6</span>),</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">ratio         =</span> <span class="fu">round</span>(ratio, <span class="dv">4</span>)</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (knitr<span class="sc">::</span><span class="fu">is_html_output</span>()) {</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>  <span class="co"># HTML → Quarto prints `df` as a paged table and uses tbl-cap</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(DT)</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>  DT<span class="sc">::</span><span class="fu">datatable</span>(</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>    df,</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">rownames =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">options =</span> <span class="fu">list</span>(<span class="at">pageLength =</span> <span class="dv">10</span>, <span class="at">scrollX =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> htmltools<span class="sc">::</span>tags<span class="sc">$</span><span class="fu">caption</span>(</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>      <span class="at">style =</span> <span class="st">'caption-side: top; text-align: left;'</span>,</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>      htmltools<span class="sc">::</span><span class="fu">HTML</span>(<span class="st">"Exact 95% Cook&amp;#39;s D critical value (average leverage $h_{ii}=p/n </span><span class="sc">\\</span><span class="st">Rightarrow c_i=1$) vs heuristic $4/n$."</span>)</span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Non-HTML (PDF, DOCX) → fall back to kable</span></span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>    df,</span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="st">"r"</span>,</span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">booktabs =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Exact 95% Cook's D critical value (average leverage $h_{ii}=p/n </span><span class="sc">\\</span><span class="st">Rightarrow c_i=1$) vs heuristic $4/n$."</span></span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>  ) </span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div class="datatables html-widget html-fill-item" id="htmlwidget-fc8df40fd67c2027a709" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-fc8df40fd67c2027a709">{"x":{"filter":"none","vertical":false,"caption":"<caption style=\"caption-side: top; text-align: left;\">Exact 95% Cook&#39;s D critical value (average leverage $h_{ii}=p/n \\Rightarrow c_i=1$) vs heuristic $4/n$.<\/caption>","data":[[20,20,20,20,20,30,30,30,30,30,30,50,50,50,50,50,50,50,80,80,80,80,80,80,80,80,100,100,100,100,100,100,100,100,150,150,150,150,150,150,150,150,200,200,200,200,200,200,200,200,500,500,500,500,500,500,500,500],[2,3,5,10,15,2,3,5,10,15,20,2,3,5,10,15,20,30,2,3,5,10,15,20,30,50,2,3,5,10,15,20,30,50,2,3,5,10,15,20,30,50,2,3,5,10,15,20,30,50,2,3,5,10,15,20,30,50],[0.1,0.15,0.25,0.5,0.75,0.067,0.1,0.167,0.333,0.5,0.667,0.04,0.06,0.1,0.2,0.3,0.4,0.6,0.025,0.038,0.062,0.125,0.188,0.25,0.375,0.625,0.02,0.03,0.05,0.1,0.15,0.2,0.3,0.5,0.013,0.02,0.033,0.067,0.1,0.133,0.2,0.333,0.01,0.015,0.025,0.05,0.075,0.1,0.15,0.25,0.004,0.006,0.01,0.02,0.03,0.04,0.06,0.1],[17,16,14,9,4,27,26,24,19,14,9,47,46,44,39,34,29,19,77,76,74,69,64,59,49,29,97,96,94,89,84,79,69,49,147,146,144,139,134,129,119,99,197,196,194,189,184,179,169,149,497,496,494,489,484,479,469,449],[0.207508,0.219284,0.247316,0.362487,0.658372,0.134893,0.139791,0.150733,0.187366,0.247316,0.362487,0.07928200000000001,0.080951,0.08451,0.094944,0.108314,0.126058,0.187366,0.048973,0.049605,0.05092,0.054533,0.058698,0.063551,0.076141,0.126058,0.039025,0.039425,0.040251,0.042476,0.044961,0.047756,0.054533,0.076141,0.02588,0.026056,0.026414,0.027355,0.028364,0.029452,0.031897,0.038248,0.019359,0.019457,0.019657,0.020173,0.020717,0.021291,0.02254,0.025536,0.007707,0.007723,0.007754,0.007833,0.007913999999999999,0.007996,0.008166,0.008529],[0.2,0.2,0.2,0.2,0.2,0.133333,0.133333,0.133333,0.133333,0.133333,0.133333,0.08,0.08,0.08,0.08,0.08,0.08,0.08,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.026667,0.026667,0.026667,0.026667,0.026667,0.026667,0.026667,0.026667,0.02,0.02,0.02,0.02,0.02,0.02,0.02,0.02,0.008,0.008,0.008,0.008,0.008,0.008,0.008,0.008],[1.0375,1.0964,1.2366,1.8124,3.2919,1.0117,1.0484,1.1305,1.4052,1.8549,2.7187,0.991,1.0119,1.0564,1.1868,1.3539,1.5757,2.3421,0.9795,0.9921,1.0184,1.0907,1.174,1.271,1.5228,2.5212,0.9756,0.9856,1.0063,1.0619,1.124,1.1939,1.3633,1.9035,0.9705,0.9771,0.9905,1.0258,1.0637,1.1044,1.1961,1.4343,0.968,0.9729,0.9828,1.0086,1.0358,1.0645,1.127,1.2768,0.9634,0.9653,0.9692,0.9791,0.9892,0.9995000000000001,1.0207,1.0661]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>n<\/th>\n      <th>p<\/th>\n      <th>p/n<\/th>\n      <th>nu<\/th>\n      <th>cook_crit_95<\/th>\n      <th>4/n<\/th>\n      <th>ratio<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"scrollX":true,"columnDefs":[{"className":"dt-right","targets":[0,1,2,3,4,5,6]},{"name":"n","targets":0},{"name":"p","targets":1},{"name":"p/n","targets":2},{"name":"nu","targets":3},{"name":"cook_crit_95","targets":4},{"name":"4/n","targets":5},{"name":"ratio","targets":6}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+</section>
+</section>
+<section id="example-for-cooks-distance" class="level2" data-number="8.2">
+<h2 data-number="8.2" class="anchored" data-anchor-id="example-for-cooks-distance"><span class="header-section-number">8.2</span> Example for Cook’s Distance:</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 1) Data and full-model fit (your setup)</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">20</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>n</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">+</span> <span class="dv">3</span> <span class="sc">*</span> x <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">5</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>y[<span class="dv">1</span>] <span class="ot">&lt;-</span> y[<span class="dv">1</span>] <span class="sc">+</span> <span class="dv">30</span>   <span class="co"># add an outlier at i = 1</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>y[<span class="dv">11</span>] <span class="ot">&lt;-</span> y[<span class="dv">11</span>] <span class="sc">+</span> <span class="dv">30</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>full_data  <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> x, <span class="fu">replicate</span>(<span class="dv">5</span>, <span class="fu">rnorm</span>(n)), <span class="at">y =</span> y)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> ., <span class="at">data =</span> full_data)</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 2) Ingredients for Cook's D and thresholds</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>p      <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">coef</span>(fit))        <span class="co"># includes intercept</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>h      <span class="ot">&lt;-</span> <span class="fu">hatvalues</span>(fit)           <span class="co"># leverage h_ii</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>D      <span class="ot">&lt;-</span> <span class="fu">cooks.distance</span>(fit)      <span class="co"># Cook's D_i</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>nu     <span class="ot">&lt;-</span> n <span class="sc">-</span> p <span class="sc">-</span> <span class="dv">1</span>                <span class="co"># df for deleted-studentized residual</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>alpha  <span class="ot">&lt;-</span> <span class="fl">0.05</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Per-case scaling factor: c_i = ((n-p)/p) * (h_ii/(1-h_ii))</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>c_i        <span class="ot">&lt;-</span> ((n <span class="sc">-</span> p) <span class="sc">/</span> p) <span class="sc">*</span> (h <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> h))</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Exact per-case Beta 95% critical values:</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="co"># D_i / c_i ~ Beta(1/2, (n-p-1)/2)  =&gt;  D_crit_i = c_i * qbeta(0.95, 1/2, (n-p-1)/2)</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>crit_beta_i <span class="ot">&lt;-</span> c_i <span class="sc">*</span> <span class="fu">qbeta</span>(<span class="dv">1</span> <span class="sc">-</span> alpha, <span class="at">shape1 =</span> <span class="fl">0.5</span>, <span class="at">shape2 =</span> nu <span class="sc">/</span> <span class="dv">2</span>)</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Average-leverage Beta 95% critical value:</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="co"># If h_ii = p/n (average leverage), then c_i = 1 exactly</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>crit_beta_avg <span class="ot">&lt;-</span> <span class="fu">qbeta</span>(<span class="dv">1</span> <span class="sc">-</span> alpha, <span class="at">shape1 =</span> <span class="fl">0.5</span>, <span class="at">shape2 =</span> nu <span class="sc">/</span> <span class="dv">2</span>)</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Heuristic 4/n line</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>crit_heur <span class="ot">&lt;-</span> <span class="dv">4</span> <span class="sc">/</span> n</span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 3) Assemble results table</span></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>df_cook <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>  <span class="at">i            =</span> <span class="fu">seq_len</span>(n),</span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>  <span class="at">h_ii         =</span> <span class="fu">as.numeric</span>(h),</span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>  <span class="at">D_i          =</span> <span class="fu">as.numeric</span>(D),</span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>  <span class="at">c_i          =</span> <span class="fu">as.numeric</span>(c_i),</span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>  <span class="at">crit_beta_i  =</span> <span class="fu">as.numeric</span>(crit_beta_i),</span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>  <span class="at">crit_beta_avg =</span> crit_beta_avg,</span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>  <span class="at">crit_heur    =</span> crit_heur</span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a><span class="co"># Print a compact table</span></span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>  df_cook <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric), <span class="sc">~</span> <span class="fu">round</span>(.x, <span class="dv">5</span>))),</span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Cook's D, leverage, and thresholds: per-case Beta 95%, average-leverage Beta 95%, and 4/n."</span></span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Cook’s D, leverage, and thresholds: per-case Beta 95%, average-leverage Beta 95%, and 4/n.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">i</th>
+<th style="text-align: right;">h_ii</th>
+<th style="text-align: right;">D_i</th>
+<th style="text-align: right;">c_i</th>
+<th style="text-align: right;">crit_beta_i</th>
+<th style="text-align: right;">crit_beta_avg</th>
+<th style="text-align: right;">crit_heur</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.67204</td>
+<td style="text-align: right;">1.62738</td>
+<td style="text-align: right;">3.80555</td>
+<td style="text-align: right;">1.07873</td>
+<td style="text-align: right;">0.28346</td>
+<td style="text-align: right;">0.2</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.31296</td>
+<td style="text-align: right;">0.07715</td>
+<td style="text-align: right;">0.84595</td>
+<td style="text-align: right;">0.23979</td>
+<td style="text-align: right;">0.28346</td>
+<td style="text-align: right;">0.2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.49722</td>
+<td style="text-align: right;">0.08784</td>
+<td style="text-align: right;">1.83660</td>
+<td style="text-align: right;">0.52061</td>
+<td style="text-align: right;">0.28346</td>
+<td style="text-align: right;">0.2</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0.61111</td>
+<td style="text-align: right;">0.23875</td>
+<td style="text-align: right;">2.91831</td>
+<td style="text-align: right;">0.82724</td>
+<td style="text-align: right;">0.28346</td>
+<td style="text-align: right;">0.2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.21633</td>
+<td style="text-align: right;">0.02983</td>
+<td style="text-align: right;">0.51265</td>
+<td style="text-align: right;">0.14532</td>
+<td style="text-align: right;">0.28346</td>
+<td style="text-align: right;">0.2</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0.14309</td>
+<td style="text-align: right;">0.00469</td>
+<td style="text-align: right;">0.31011</td>
+<td style="text-align: right;">0.08790</td>
+<td style="text-align: right;">0.28346</td>
+<td style="text-align: right;">0.2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">0.47629</td>
+<td style="text-align: right;">0.07632</td>
+<td style="text-align: right;">1.68900</td>
+<td style="text-align: right;">0.47877</td>
+<td style="text-align: right;">0.28346</td>
+<td style="text-align: right;">0.2</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">0.41204</td>
+<td style="text-align: right;">0.00004</td>
+<td style="text-align: right;">1.30148</td>
+<td style="text-align: right;">0.36892</td>
+<td style="text-align: right;">0.28346</td>
+<td style="text-align: right;">0.2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">0.40499</td>
+<td style="text-align: right;">0.29801</td>
+<td style="text-align: right;">1.26407</td>
+<td style="text-align: right;">0.35832</td>
+<td style="text-align: right;">0.28346</td>
+<td style="text-align: right;">0.2</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.17593</td>
+<td style="text-align: right;">0.00026</td>
+<td style="text-align: right;">0.39648</td>
+<td style="text-align: right;">0.11239</td>
+<td style="text-align: right;">0.28346</td>
+<td style="text-align: right;">0.2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">0.39917</td>
+<td style="text-align: right;">0.73199</td>
+<td style="text-align: right;">1.23380</td>
+<td style="text-align: right;">0.34974</td>
+<td style="text-align: right;">0.28346</td>
+<td style="text-align: right;">0.2</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">0.10715</td>
+<td style="text-align: right;">0.00088</td>
+<td style="text-align: right;">0.22287</td>
+<td style="text-align: right;">0.06318</td>
+<td style="text-align: right;">0.28346</td>
+<td style="text-align: right;">0.2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">0.21158</td>
+<td style="text-align: right;">0.01277</td>
+<td style="text-align: right;">0.49837</td>
+<td style="text-align: right;">0.14127</td>
+<td style="text-align: right;">0.28346</td>
+<td style="text-align: right;">0.2</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">0.30757</td>
+<td style="text-align: right;">0.00026</td>
+<td style="text-align: right;">0.82491</td>
+<td style="text-align: right;">0.23383</td>
+<td style="text-align: right;">0.28346</td>
+<td style="text-align: right;">0.2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">0.26786</td>
+<td style="text-align: right;">0.04549</td>
+<td style="text-align: right;">0.67944</td>
+<td style="text-align: right;">0.19260</td>
+<td style="text-align: right;">0.28346</td>
+<td style="text-align: right;">0.2</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">0.71261</td>
+<td style="text-align: right;">0.48354</td>
+<td style="text-align: right;">4.60490</td>
+<td style="text-align: right;">1.30532</td>
+<td style="text-align: right;">0.28346</td>
+<td style="text-align: right;">0.2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">0.20630</td>
+<td style="text-align: right;">0.01202</td>
+<td style="text-align: right;">0.48271</td>
+<td style="text-align: right;">0.13683</td>
+<td style="text-align: right;">0.28346</td>
+<td style="text-align: right;">0.2</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">0.27965</td>
+<td style="text-align: right;">0.00082</td>
+<td style="text-align: right;">0.72098</td>
+<td style="text-align: right;">0.20437</td>
+<td style="text-align: right;">0.28346</td>
+<td style="text-align: right;">0.2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">0.29482</td>
+<td style="text-align: right;">0.03388</td>
+<td style="text-align: right;">0.77642</td>
+<td style="text-align: right;">0.22009</td>
+<td style="text-align: right;">0.28346</td>
+<td style="text-align: right;">0.2</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">0.29132</td>
+<td style="text-align: right;">0.00775</td>
+<td style="text-align: right;">0.76341</td>
+<td style="text-align: right;">0.21640</td>
+<td style="text-align: right;">0.28346</td>
+<td style="text-align: right;">0.2</td>
+</tr>
+</tbody>
+</table>
+<p>Cook’s D by case with heuristic 4/n (red dotted), per-case Beta 95% critical values (blue dashed), and average-leverage Beta 95% line (purple dot-dash).</p>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 4) Plot D_i with thresholds</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>thresh_df <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  df_cook <span class="sc">%&gt;%</span> <span class="fu">transmute</span>(i, <span class="at">value =</span> crit_beta_i,   <span class="at">Type =</span> <span class="st">"Beta 95% (per-case)"</span>),</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">i =</span> <span class="fu">seq_len</span>(n), <span class="at">value =</span> crit_beta_avg,   <span class="at">Type =</span> <span class="st">"Beta 95% (avg leverage)"</span>),</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">i =</span> <span class="fu">seq_len</span>(n), <span class="at">value =</span> crit_heur,       <span class="at">Type =</span> <span class="st">"4/n rule"</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_cook, <span class="fu">aes</span>(<span class="at">x =</span> i, <span class="at">y =</span> D_i)) <span class="sc">+</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> thresh_df,</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">y =</span> value, <span class="at">color =</span> Type, <span class="at">linetype =</span> Type),</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>            <span class="at">linewidth =</span> <span class="fl">0.9</span>) <span class="sc">+</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Beta 95% (per-case)"</span>      <span class="ot">=</span> <span class="st">"#1f77b4"</span>,</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Beta 95% (avg leverage)"</span>  <span class="ot">=</span> <span class="st">"#7f3c8d"</span>,</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"4/n rule"</span>                 <span class="ot">=</span> <span class="st">"#d62728"</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">+</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_linetype_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Beta 95% (per-case)"</span>      <span class="ot">=</span> <span class="st">"dashed"</span>,</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Beta 95% (avg leverage)"</span>  <span class="ot">=</span> <span class="st">"dotdash"</span>,</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">"4/n rule"</span>                 <span class="ot">=</span> <span class="st">"dotted"</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">+</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Observation i"</span>, <span class="at">y =</span> <span class="st">"Cook's D_i"</span>) <span class="sc">+</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.title =</span> <span class="fu">element_blank</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="residuals_files/figure-html/cooksD-compute-and-plot-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption>Cook’s D by case with heuristic 4/n (red dotted), per-case Beta 95% critical values (blue dashed), and average-leverage Beta 95% line (purple dot-dash).</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="appendix-key-identities" class="level1 unnumbered">
+<h1 class="unnumbered">Appendix: Key Identities</h1>
+<p>The power of modern regression diagnostics comes from algebraic shortcuts that allow us to find the results of a leave-one-out process without the computational cost of refitting the model <em>n</em> times. The following two identities are fundamental to this efficiency.</p>
+<section id="finding-the-loocv-residual-e_i-i-from-the-ordinary-residual-e_i" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="finding-the-loocv-residual-e_i-i-from-the-ordinary-residual-e_i">Finding the LOOCV Residual (<span class="math inline">\(e_{i,-i}\)</span>) from the Ordinary Residual (<span class="math inline">\(e_i\)</span>)</h2>
+<p>This identity shows that we can find the “pure” leave-one-out residual using only the results from the single model fit on all data.</p>
+<p><span id="eq-key"><span class="math display">\[e_{i,-i} = \frac{e_i}{1 - h_{ii}} \tag{8.1}\]</span></span></p>
+</section>
+<section id="finding-the-loocv-standard-error-from-the-full-model-standard-error" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="finding-the-loocv-standard-error-from-the-full-model-standard-error">Finding the LOOCV Standard Error from the Full-Model Standard Error</h2>
+<p>Similarly, this formula provides an efficient shortcut to see how the model’s overall error changes when a single point is removed.</p>
+<p><span id="eq-sigma_-i"><span class="math display">\[\hat{\sigma}_{-i} = \sqrt{\frac{(n-p)\hat{\sigma}^2 - \frac{e_i^2}{1-h_{ii}}}{n-p-1}} \tag{8.2}\]</span></span></p>
+<p>The derivation of this formula relies on first proving the relationship between the full model’s Residual Sum of Squares (<span class="math inline">\(RSS\)</span>) and the leave-one-out version (<span class="math inline">\(RSS_{-i}\)</span>).</p>
+<ol type="1">
+<li><p><strong>Start with the definition</strong> of the leave-one-out residual sum of squares: <span class="math display">\[
+RSS_{-i} = \sum_{k \neq i} (y_k - \mathbf{x}_k^T\hat{\beta}_{-i})^2
+\]</span></p></li>
+<li><p><strong>Introduce the key identity</strong> that relates the leave-one-out coefficient vector (<span class="math inline">\(\hat{\beta}_{-i}\)</span>) to the full model’s coefficient vector (<span class="math inline">\(\hat{\beta}\)</span>): <span class="math display">\[
+\hat{\beta}_{-i} = \hat{\beta} - (X^TX)^{-1}\mathbf{x}_i \frac{e_i}{1 - h_{ii}}
+\]</span></p></li>
+<li><p><strong>Substitute this identity</strong> into the expression for a generic leave-one-out residual, <span class="math inline">\(e_{k,-i} = y_k - \mathbf{x}_k^T\hat{\beta}_{-i}\)</span>. After simplification, this yields: <span class="math display">\[
+e_{k,-i} = e_k + h_{ki} \frac{e_i}{1 - h_{ii}}
+\]</span> where <span class="math inline">\(e_k\)</span> is the ordinary residual and <span class="math inline">\(h_{ki}\)</span> is the <span class="math inline">\((k,i)\)</span>-th element of the hat matrix.</p></li>
+<li><p><strong>Substitute this back into the definition of</strong> <span class="math inline">\(RSS_{-i}\)</span>. After expanding the squared term and performing the summation (which involves considerable but standard matrix algebra), the expression simplifies to the elegant result: <span class="math display">\[
+RSS_{-i} = RSS - \frac{e_i^2}{1 - h_{ii}}
+\]</span></p></li>
+<li><p><strong>Finally, derive the formula for</strong> <span class="math inline">\(\hat{\sigma}_{-i}\)</span>. We know that <span class="math inline">\(\hat{\sigma}^2_{-i} = \frac{RSS_{-i}}{n-p-1}\)</span> and that <span class="math inline">\(RSS = (n-p)\hat{\sigma}^2\)</span>. By substituting the result from Step 4, we arrive at the formula for the variance, and taking the square root gives us the standard error. ✅</p></li>
+</ol>
+
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation column-page-right">
+  <div class="nav-page nav-page-previous">
+      <a href="../unit3-mlr/mlr.html" class="pagination-link" aria-label="Multiple Linear Regression">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Multiple Linear Regression</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../unit4-lr/logistic.html" class="pagination-link" aria-label="Logistic Regression">
+        <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Logistic Regression</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
