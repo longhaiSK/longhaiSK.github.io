@@ -383,41 +383,56 @@ These values (estimate and CI bounds) are then exponentiated to produce the fina
 # Compute OR and 95% CI via predict() on the LINK scale
 # OR = exp( eta(new1) - eta(new0) ), where eta(.) = logit{π(.)}
 # Compute OR via predict() contrast on the LINK scale, also:
-# (i) print fitted model with plugged coefficients: log(p/(1-p)) = ...
 # (ii) print a 2-row data.frame of only variables that differ between new0 and new1
 # (iii) print a 2x3 table (rows: OR, logOR; cols: Estimate, CI_low, CI_up)
 or_from_predict <- function(fit, new1, new0, level = 0.95, digits = 4, tol = 1e-12) {
   stopifnot(is.data.frame(new1), is.data.frame(new0))
 
+  # --- REFACTORED SECTION START ---
   # ---- (ii) Two-row data.frame with only changed variables ----
-  changes_df <- (function(new0, new1, tol) {
-    common <- intersect(names(new0), names(new1))
+  
+  # Helper function to find differing variables between two profiles
+  # This is defined *inside* or_from_predict for encapsulation
+  get_changed_vars <- function(d0, d1, tolerance) {
+    common <- intersect(names(d0), names(d1))
     diffv  <- vapply(common, function(nm) {
-      x0 <- new0[[nm]]; x1 <- new1[[nm]]
+      x0 <- d0[[nm]]; x1 <- d1[[nm]]
       if (is.numeric(x0) && is.numeric(x1)) {
-        !isTRUE(all.equal(as.numeric(x0), as.numeric(x1), tolerance = tol))
+        !isTRUE(all.equal(as.numeric(x0), as.numeric(x1), tolerance = tolerance))
       } else {
         !identical(x0, x1)
       }
     }, logical(1))
+    
     keep <- common[diffv]
     if (length(keep) == 0L) {
       out <- data.frame(`_no_changes_` = "no differences")
       rownames(out) <- c("new0", "new1")
       return(out)
     }
-    out <- rbind(new0[keep], new1[keep])
+    out <- rbind(d0[keep], d1[keep])
     rownames(out) <- c("new0", "new1")
     out
-  })(new0, new1, tol)
+  }
+  
+  # Call the helper function
+  changes_df <- get_changed_vars(new0, new1, tol)
+  # --- REFACTORED SECTION END ---
+
 
   # ---- Linear contrast for log-OR and its variance ----
+  
+  # (i) Calculate logOR estimate using predict(type="link")
+  # eta(.) = logit{p(.)}
+  eta1 <- predict(fit, newdata = new1, type = "link")
+  eta0 <- predict(fit, newdata = new0, type = "link")
+  logOR_hat <- as.numeric(eta1 - eta0) # logOR = eta1 - eta0
+  
+  # (ii) Calculate standard error using the contrast vector 'cvec'
   X1 <- model.matrix(delete.response(terms(fit)), data = new1)
   X0 <- model.matrix(delete.response(terms(fit)), data = new0)
   cvec      <- as.numeric(X1 - X0)
-  b         <- coef(fit)
   V         <- vcov(fit)
-  logOR_hat <- sum(cvec * b)
   se_logOR  <- sqrt(as.numeric(t(cvec) %*% V %*% cvec))
 
   alpha  <- 1 - level
@@ -426,17 +441,17 @@ or_from_predict <- function(fit, new1, new0, level = 0.95, digits = 4, tol = 1e-
 
   # ---- 2x3 table: rows OR and logOR; columns Estimate, CI_low, CI_up ----
   res_tab <- data.frame(
-    Estimate = c(exp(logOR_hat),              logOR_hat),
-    CI_low   = c(exp(ci_log[1L]),            ci_log[1L]),
-    CI_up    = c(exp(ci_log[2L]),            ci_log[2L]),
+    Estimate = c(exp(logOR_hat),          logOR_hat),
+    CI_low   = c(exp(ci_log[1L]),         ci_log[1L]),
+    CI_up    = c(exp(ci_log[2L]),         ci_log[2L]),
     row.names = c("OR", "logOR")
   )
 
   # ---- Print requested items ----
   cat("\nVariables that differ between new0 and new1:\n")
   print(changes_df)
-  cat("\nOdds Ratio summary (2 x 3):\n")
-  print(res_tab)
+  cat("\nOdds Ratio summary:\n")
+  print(round(res_tab, digits = digits)) # Added rounding for neatness
 
   # ---- Return (invisibly) ----
   invisible(list(
@@ -451,12 +466,13 @@ or_from_predict <- function(fit, new1, new0, level = 0.95, digits = 4, tol = 1e-
 }
 
 # --- Example usage ---
+# Suppose 'fit1_chd' is your fitted model and 'CHD.data' is your data
 # base_prof <- as.data.frame(lapply(CHD.data, function(col) if (is.numeric(col)) mean(col) else col[1]))
 # new0 <- base_prof; new0$smk <- 0
 # new1 <- base_prof; new1$smk <- 1
 # or_from_predict(fit1_chd, new1 = new1, new0 = new0)
 
-# ---- Helpers to build profiles by fixing "other" covariates ----
+
 mean_profile <- function(data, vars_binary_as = c(0,1)) {
   # Build a single-row data.frame of typical values:
   out <- lapply(data, function(col) {
@@ -471,8 +487,6 @@ mean_profile <- function(data, vars_binary_as = c(0,1)) {
   })
   as.data.frame(out)
 }
-
-
 ```
 
 
@@ -509,7 +523,6 @@ new0 <- base_prof; new0$sbp <- 120
 new1 <- base_prof; new1$sbp <- 160
 
 res_sbp <- or_from_predict(fit1_chd, new1 = new1, new0 = new0)
-res_sbp
 
 
 ```
@@ -533,11 +546,144 @@ res_ageAsmk <- or_from_predict(fit1_chd, new1 = new1, new0 = new0)
 
 ```
 
-# Assessing Statistical Regression Significance with Wilks' Theorem (Analogue of F-test for OLS)
+# Assessing Statistical Significance with Wilks' Theorem (Analogue of F-test for OLS)
 
-In the context of logistic regression, Wilks' theorem provides the basis for the Likelihood Ratio Test (LRT) used to assess the significance of predictor variables. The theorem states that when comparing a full model ($M_1$) to a nested null model ($M_0$), the test statistic, $D$, asymptotically follows a chi-squared ($\chi^2$) distribution under the null hypothesis (i.e., that the simpler model $M_0$ is correct).The statistic $D$ is calculated as the difference in the maximized log-likelihoods:
-$$D = -2(\log L_0 - \log L_1)$${#eq-LRT}
-where $\log L_0$ and $\log L_1$ are the log-likelihoods of the null and full models, respectively. In logistic regression, this is equivalent to the difference in the deviances: $D = \text{Deviance}_0 - \text{Deviance}_1$. For assessing the overall significance of a regression model (fit1_chd), this involves comparing it to its corresponding intercept-only (null) model. The degrees of freedom for the $\chi^2$ test is the difference in the number of parameters between the two models, $df = df_0 - df_1$, which equals the number of predictors in the full model.Here is an R code chunk demonstrating how to compute this p-value directly from a glm fit object, assuming it is named fit1_chd.
+
+In the context of logistic regression, Wilks' theorem provides the basis for the Likelihood Ratio Test (LRT) used to assess the significance of predictor variables. The theorem states that when comparing a full model ($M_1$) to a nested null model ($M_0$), the test statistic, $\Lambda$, asymptotically follows a chi-squared ($\chi^2$) distribution under the null hypothesis (i.e., that the simpler model $M_0$ is correct).
+
+The statistic $\Lambda$ is calculated as the difference in the maximized log-likelihoods:
+$$\Lambda = -2(\log L_0 - \log L_1)$${#eq-LRT}
+where $\log L_0$ and $\log L_1$ are the log-likelihoods of the null and full models, respectively. In logistic regression, this is equivalent to the difference in the deviances: $\Lambda = \text{Deviance}_0 - \text{Deviance}_1$. This test statistic $\Lambda$ represents the reduction in deviance (a measure of badness-of-fit) achieved by adding the extra predictors to the model.
+
+The following R code chunk generates a conceptual plot of this relationship:
+
+```{r}
+
+#| label: plot-lrt-concept
+#| echo: false
+#| fig-cap: "Conceptual plot of Deviance versus Number of Parameters, illustrating the Likelihood Ratio Test statistic (Λ) and Residual Deviance. Λ is the drop from the Null Model to the Full Model. The Saturated Model represents perfect fit (Deviance = 0)."
+
+library(ggplot2)
+
+# 1. Create conceptual data for the plot
+# These are just for illustration
+n_obs <- 60 # Number of observations
+p0 <- 1     # Parameters in null model (intercept)
+p1 <- 21    # Parameters in full model (e.g., intercept + 7 predictors)
+psat <- n_obs # Parameters in saturated model (1 per observation)
+
+D0 <- 41 # Null deviance
+D1 <- 20 # Full model deviance (residual deviance of M1)
+D_sat <- 0 # Saturated model deviance
+
+# Data frame for the three points
+plot_data <- data.frame(
+  model = c("M_0 (Null)", "M_1 (Full)", "M_Sat (Saturated)"),
+  params = c(p0, p1, psat),
+  deviance = c(D0, D1, D_sat),
+  # Add custom justification and nudges for labels
+  hjust_val = c(0.5, 0.5, 1.1), # Right-align the last label
+  nudge_x_val = c(0, 0, 0) 
+)
+
+# 2. Create the ggplot
+ggplot(plot_data, aes(x = params, y = deviance)) +
+  # Draw dashed guide lines for D0 and D1
+  geom_segment(aes(x = p0, y = D0, xend = p1, yend = D0), linetype = "dashed", color = "grey70") +
+  geom_segment(aes(x = p1, y = D1, xend = psat, yend = D1), linetype = "dashed", color = "grey70") +
+  
+  # Connect the points with lines
+  geom_line(color = "black", linetype = "solid", linewidth = 0.5) +
+  
+  # Draw the main points
+  geom_point(size = 4, aes(color = model)) +
+  
+  # --- MODIFIED LABEL PLACEMENT ---
+  # Label the points using custom nudge/justification
+  geom_text(
+    aes(label = model, hjust = hjust_val, nudge_x = nudge_x_val), 
+    nudge_y = 2.5,  # Use a much smaller vertical nudge
+    size = 4
+  ) +
+  
+  # --- ADDED BACK D0 and D1 ANNOTATIONS ---
+  # D0 (Null Deviance)
+  geom_segment(
+    aes(x = p0 - 2, y = D0, xend = p0 - 2, yend = D_sat), # Nudged left
+    arrow = arrow(ends = "both", length = unit(0.1, "inches")),
+    color = "darkgreen",
+    linewidth = 1
+  ) +
+  annotate(
+    "text",
+    x = p0 - 3, y = D0 / 2, # Nudged left
+    label = "D[0]", parse = TRUE,
+    color = "darkgreen", hjust = 0.5, size = 5
+  ) +
+  
+  # D1 (Residual Deviance of Full Model)
+  geom_segment(
+    aes(x = psat + 2, y = D1, xend = psat + 2, yend = D_sat), # Nudged right
+    arrow = arrow(ends = "both", length = unit(0.1, "inches")),
+    color = "darkblue",
+    linewidth = 1
+  ) +
+  annotate(
+    "text",
+    x = psat + 3, y = D1 / 2, # Nudged right
+    label = "D[1]", parse = TRUE,
+    color = "darkblue", hjust = 0.5, size = 5
+  ) +
+  
+  # LRT statistic Λ = D0 - D1
+  geom_segment(
+    aes(x = p1 + 2, y = D0, xend = p1 + 2, yend = D1), # Nudged right
+    arrow = arrow(ends = "both", length = unit(0.1, "inches")),
+    color = "red",
+    linewidth = 1
+  ) +
+  annotate(
+    "text",
+    x = p1 + 3, y = D1 + (D0 - D1) / 2, # Nudged right
+    label = "Lambda == D[0] - D[1]",
+    parse = TRUE,
+    color = "red", hjust = 0, size = 5
+  ) +
+  
+  # Customize axes to show the symbolic labels
+  scale_x_continuous(
+    breaks = c(p0, p1, psat),
+    labels = c(expression(p[0]), expression(p[1]), expression(n)),
+    expand = expansion(mult = 0.1) # Add some padding
+  ) +
+  scale_y_continuous(
+    breaks = c(D_sat, D1, D0),
+    labels = c(expression(0), expression(D[1]), expression(D[0]))
+  ) +
+  
+  # Labels and Title
+  labs(
+    title = "Relationship between Deviance and Model Complexity",
+    x = "Number of Parameters",
+    y = "Model Deviance"
+  ) +
+  
+  # Clean theme
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    legend.position = "none" # Remove legend, as points are labeled
+  ) +
+  scale_color_manual(values = c("M_0 (Null)" = "blue", "M_1 (Full)" = "blue", "M_Sat (Saturated)" = "red"))
+```
+
+As the diagram illustrates, the null model ($M_0$) has fewer parameters ($p_0$) and a higher deviance ($D_0$, or worse fit), while the full model ($M_1$) has more parameters ($p_1$) and a lower deviance ($D_1$). The Likelihood Ratio Test statistic $D$ is the magnitude of this drop in deviance.
+
+For assessing the overall significance of a regression model (`fit1_chd`), this involves comparing it to its corresponding intercept-only (null) model. The degrees of freedom for the $\chi^2$ test is the difference in the number of parameters, $df = p_1 - p_0$, which equals the number of predictors in the full model.
+
+Here is an R code chunk demonstrating how to compute this p-value directly from a `glm` fit object, assuming it is named `fit1_chd`.
+
+
 ```{r}
 #| label: compute-lrt-pvalue
 #| echo: true
@@ -582,8 +728,7 @@ anova(fit1_chd, test="LRT")
 
 ```
 
-# Assessing Predictive Effect-Size (Anolouge to $R^2_\mathrm{adj}$)
-
+# Assessing Predictive Effect-Size (Anologue to $R^2_\mathrm{adj}$)
 
 While the LRT assesses overall model significance (in-sample fit), it's also crucial to evaluate how well the model predicts new, unseen data (out-of-sample performance). A common method is to split the data into a training set (e.g., 2/3 of the data) and a test set (e.g., 1/3). The model is fit using only the training data and then used to make predictions for the test data. We can then compare these predictions to the actual outcomes in the test set.
 
@@ -598,27 +743,31 @@ To evaluate a model's predictive performance, we classify its probabilistic pred
 
 From this matrix, we derive several key performance metrics:
 
-  * **Misclassification Error Rate (ER):** The proportion of all predictions that were incorrect.
+* **Misclassification Error Rate (ER):** The proportion of all predictions that were incorrect.
     $$
     \text{Error Rate} = \frac{FP + FN}{TP + TN + FP + FN}
     $$
     
 
-  * **Precision (Positive Predictive Value):** Answers: "Of all the times the model predicted positive, how often was it correct?" This is crucial when the cost of a **False Positive** is high.
+* **Precision (Positive Predictive Value):** Answers: "Of all the times the model predicted positive, how often was it correct?" This is crucial when the cost of a **False Positive** is high.
     $$
     \text{Precision} = \frac{TP}{TP + FP}
     $$
     
  
-  * **Recall (Sensitivity or True Positive Rate):** Answers: "Of all the actual positive cases, how many did the model find?" This is crucial when the cost of a **False Negative** is high.
+* **Recall (Sensitivity or True Positive Rate):** Answers: "Of all the actual positive cases, how many did the model find?" This is crucial when the cost of a **False Negative** is high.
     $$
     \text{Recall (TPR)} = \frac{TP}{TP + FN}
     $$
     
 
-  * **ROC Curve and AUC:** An **ROC Curve** plots the model's performance across *all possible* thresholds by plotting the **True Positive Rate (Recall)** against the **False Positive Rate** (FPR = $\frac{FP}{FP + TN}$). The **Area Under the Curve (AUC)** summarizes this plot into a single number from 0 to 1, where 0.5 is a random guess and 1.0 is a perfect model.
+* **ROC Curve and AUC:** An **ROC (Receiver Operating Characteristic) Curve** is a graph that shows a model's diagnostic ability across *all possible classification thresholds*. It plots the **True Positive Rate (Recall)** on the y-axis against the **False Positive Rate** (FPR = $\frac{FP}{FP + TN}$) on the x-axis.
+    * **Interpretation:** The curve shows the trade-off between sensitivity (finding all the positives) and specificity (not mislabeling negatives). A random "no-skill" classifier is represented by a diagonal line from (0,0) to (1,1). A perfect classifier would hug the **top-left corner** (TPR = 1, FPR = 0).
+    * **AUC (Area Under the Curve):** The AUC summarizes the entire curve into a single number from 0 to 1. An AUC of 0.5 corresponds to a random guess, while an AUC of 1.0 represents a perfect model.
 
-
+* **Precision-Recall (PR) Curve:** A **PR Curve** plots **Precision** (y-axis) against **Recall** (x-axis) at all possible thresholds.
+    * **Interpretation:** This curve shows the trade-off between how *reliable* a positive prediction is (Precision) and how *complete* the model is at finding all positives (Recall).
+    * **When to Use:** The PR curve is particularly informative when the dataset is **imbalanced** (i.e., one class, like "fraud" or "disease," is much rarer than the other). Unlike the ROC curve, the PR curve's baseline (the "no-skill" line) is a horizontal line at the proportion of positive cases, which makes it easier to see if the model is performing significantly better than chance in a low-positive-rate scenario. A perfect classifier would hug the **top-right corner** (Precision = 1, Recall = 1).
 
 ## Illustration with the Simulated Dataset
 
