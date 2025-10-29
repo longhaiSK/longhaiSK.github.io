@@ -301,7 +301,7 @@ In this case, the large p-value (0.133) indicates that there is no statistically
 
 This section analyzes a **Randomized Complete Block Design (RCBD)**, used to control for a known source of variability (here, "batches of resin," treated as **blocks**).
 
-### Data Setup
+### Data and Visulization
 
 We structure the data in a `data.frame` to identify the response, treatment (`pressure`), and block (`batch`) for each observation.
 
@@ -328,11 +328,35 @@ graft_df
 ```
 
 **Visualize the Block and Treatment Effects**
+
 ```{r}
 par (mfrow = c(1,2))
 #boxplot
 plot(strength ~ batch, data=graft_df , main = "Block")
 plot(strength ~ pressure, data=graft_df , main = "Pressure")
+```
+
+
+**Interaction Plots**
+
+
+
+```{r}
+#| label: plot-interaction
+#| fig-cap: "Interaction between Material Type and Temperature."
+
+ggplot(graft_df, aes(x = pressure, y = strength, group = batch, color = batch)) +
+  stat_summary(fun = mean, geom = "line", size = 1) +
+  stat_summary(fun = mean, geom = "point", size = 3) +
+  labs(
+    title = "Interaction Plot: Batch and Pressure",
+    x = "Pressue",
+    y = "Strength",
+    color = "Batch"
+  ) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
 ```
 
 ### Model Fitting and ANOVA
