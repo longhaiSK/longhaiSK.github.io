@@ -9,7 +9,7 @@
 <meta name="author" content="Longhai Li">
 <meta name="dcterms.date" content="2025-10-29">
 
-<title>Analysis of Randomized Complete Block Design</title>
+<title>Simple Linear Regression</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -115,7 +115,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Analysis of Randomized Complete Block Design</h1>
+<h1 class="title">Simple Linear Regression</h1>
 </div>
 
 
@@ -148,33 +148,40 @@ window.Quarto = {
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(<span class="st">"knitr"</span>)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">comment =</span> <span class="st">"#"</span>,</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">fig.width=</span><span class="dv">8</span>, </span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">fig.height=</span><span class="dv">6</span>, </span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">cache =</span> <span class="cn">TRUE</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">comment =</span> <span class="st">"#"</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.width =</span> <span class="dv">8</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.height =</span> <span class="dv">6</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">cache =</span> <span class="cn">TRUE</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">47</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<section id="example-1-vehicle-insurance-premium" class="level1" data-number="1">
-<h1 data-number="1"><span class="header-section-number">1</span> Example 1: Vehicle Insurance Premium</h1>
-<section id="input-data" class="level2" data-number="1.1">
-<h2 data-number="1.1" class="anchored" data-anchor-id="input-data"><span class="header-section-number">1.1</span> Input data</h2>
+<section id="overview-of-simple-linear-regression" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Overview of Simple Linear Regression</h1>
+<p>To make the simple linear regression model concrete, let’s first visualize a simulated dataset that follows <span class="math display">\[
+Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i, \qquad
+\varepsilon_i \sim \mathcal N(0, \sigma^2).
+\]</span></p>
+<p>Here, <span class="math inline">\(\beta_0\)</span> is the intercept, <span class="math inline">\(\beta_1\)</span> is the slope, and <span class="math inline">\(\varepsilon_i\)</span> represents random noise.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>issu <span class="ot">&lt;-</span> <span class="fu">data.frame</span> (</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">driving =</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">2</span>, <span class="dv">12</span>, <span class="dv">9</span>, <span class="dv">15</span>, <span class="dv">6</span>, <span class="dv">25</span>, <span class="dv">16</span>),</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">premium =</span> <span class="fu">c</span>(<span class="dv">64</span>, <span class="dv">87</span>, <span class="dv">50</span>, <span class="dv">71</span>, <span class="dv">44</span>, <span class="dv">56</span>, <span class="dv">42</span>, <span class="dv">60</span>)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> issu<span class="sc">$</span>premium</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> issu<span class="sc">$</span>driving</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>xbar <span class="ot">&lt;-</span> <span class="fu">mean</span>(x)</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>ybar <span class="ot">&lt;-</span> <span class="fu">mean</span>(y)</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">length</span>(y)</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(x,y, <span class="at">xlab =</span> <span class="st">"Driving"</span>, <span class="at">ylab =</span> <span class="st">"Premium"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2025</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">40</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>beta0 <span class="ot">&lt;-</span> <span class="dv">2</span>; beta1 <span class="ot">&lt;-</span> <span class="fl">1.5</span>; sigma <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">runif</span>(n, <span class="dv">0</span>, <span class="dv">10</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> beta0 <span class="sc">+</span> beta1 <span class="sc">*</span> x <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, sigma)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(x, y)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x, <span class="at">data =</span> dat)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(x, y, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">col =</span> <span class="st">"steelblue"</span>,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Predictor X"</span>, <span class="at">ylab =</span> <span class="st">"Response Y"</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Simulated Data with Fitted Linear Regression Line"</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(fit, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topleft"</span>, <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">"Observed data"</span>, <span class="st">"Fitted line"</span>),</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>       <span class="at">pch =</span> <span class="fu">c</span>(<span class="dv">19</span>, <span class="cn">NA</span>), <span class="at">lty =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="dv">1</span>), <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"steelblue"</span>, <span class="st">"red"</span>), <span class="at">bty =</span> <span class="st">"n"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -184,15 +191,171 @@ window.Quarto = {
 </div>
 </div>
 </div>
+<p>The scatterplot shows data points scattered around a line — the red line is the fitted regression model.</p>
+<hr>
+<section id="least-squares-estimation" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="least-squares-estimation"><span class="header-section-number">1.1</span> Least Squares Estimation</h2>
+<p><strong>Goal:</strong> Find <span class="math inline">\(\hat\beta_0\)</span> and <span class="math inline">\(\hat\beta_1\)</span> that minimize <span class="math display">\[
+\mathrm{SSE} = \sum_{i=1}^n (y_i - \hat\beta_0 - \hat\beta_1 x_i)^2.
+\]</span></p>
+<p><strong>Solutions:</strong> <span class="math display">\[
+\hat\beta_1 = \frac{\sum_i (x_i - \bar x)(y_i - \bar y)}{\sum_i (x_i - \bar x)^2}
+= \frac{S_{xy}}{S_{xx}},
+\qquad
+\hat\beta_0 = \bar y - \hat\beta_1\,\bar x.
+\]</span></p>
+<p>Here <span class="math display">\[
+S_{xy} = \sum_i (x_i - \bar x)(y_i - \bar y),
+\qquad
+S_{xx} = \sum_i (x_i - \bar x)^2.
+\]</span></p>
+<p><strong>Shortcut (computational) formulas:</strong> <span class="math display">\[
+S_{xy} = \sum_i x_i y_i - n\,\bar x\,\bar y,
+\qquad
+S_{xx} = \sum_i x_i^2 - n\,\bar x^2.
+\]</span></p>
+<p><strong>Interpretation:</strong><br>
+- <span class="math inline">\(\hat\beta_1\)</span> measures the estimated change in <span class="math inline">\(Y\)</span> for each unit increase in <span class="math inline">\(X\)</span>.<br>
+- <span class="math inline">\(\hat\beta_0\)</span> represents the fitted value of <span class="math inline">\(Y\)</span> when <span class="math inline">\(X=0\)</span>.</p>
+<hr>
 </section>
-<section id="estimating-regression-coefficients" class="level2" data-number="1.2">
-<h2 data-number="1.2" class="anchored" data-anchor-id="estimating-regression-coefficients"><span class="header-section-number">1.2</span> Estimating regression coefficients</h2>
+<section id="residual-and-sum-of-squares-definitions" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="residual-and-sum-of-squares-definitions"><span class="header-section-number">1.2</span> Residual and Sum of Squares Definitions</h2>
+<p>Let <span class="math inline">\(\hat y_i = \hat\beta_0 + \hat\beta_1 x_i\)</span> and <span class="math inline">\(e_i = y_i - \hat y_i\)</span>.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 16%">
+<col style="width: 71%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Symbol</th>
+<th style="text-align: left;">Definition</th>
+<th style="text-align: left;">Computing Formula (in terms of <span class="math inline">\(S_{xx}, S_{xy}\)</span>, etc.)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>SST</strong></td>
+<td style="text-align: left;">Total Sum of Squares</td>
+<td style="text-align: left;"><span class="math inline">\(\displaystyle \sum_i (y_i - \bar y)^2 = S_{yy} = \sum_i y_i^2 - n\,\bar y^2\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>SSR</strong></td>
+<td style="text-align: left;">Regression Sum of Squares</td>
+<td style="text-align: left;"><span class="math inline">\(\displaystyle \sum_i (\hat y_i - \bar y)^2 = \hat\beta_1^2 S_{xx} = \frac{S_{xy}^2}{S_{xx}}\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>SSE</strong></td>
+<td style="text-align: left;">Error (Residual) Sum of Squares</td>
+<td style="text-align: left;"><span class="math inline">\(\displaystyle \sum_i (y_i - \hat y_i)^2 = S_{yy} - \frac{S_{xy}^2}{S_{xx}}\)</span></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Identity:</strong> <span class="math display">\[
+\mathrm{SST} = \mathrm{SSR} + \mathrm{SSE}.
+\]</span></p>
+<p>Here, <span class="math display">\[
+S_{xx} = \sum_i (x_i - \bar x)^2 = \sum_i x_i^2 - n\bar x^2, \qquad
+S_{yy} = \sum_i (y_i - \bar y)^2 = \sum_i y_i^2 - n\bar y^2, \qquad
+S_{xy} = \sum_i (x_i - \bar x)(y_i - \bar y) = \sum_i x_i y_i - n\bar x \bar y.
+\]</span></p>
+<hr>
+</section>
+<section id="coefficient-of-determination-r2" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="coefficient-of-determination-r2"><span class="header-section-number">1.3</span> Coefficient of Determination (<span class="math inline">\(R^2\)</span>)</h2>
+<p>Measures the proportion of total variation in <span class="math inline">\(Y\)</span> explained by <span class="math inline">\(X\)</span>: <span class="math display">\[
+R^2 = \frac{\mathrm{SSR}}{\mathrm{SST}}
+= 1 - \frac{\mathrm{SSE}}{\mathrm{SST}}.
+\]</span></p>
+<p><strong>Interpretation:</strong></p>
+<ul>
+<li><span class="math inline">\(R^2 = 1\)</span> means perfect linear fit;</li>
+<li><span class="math inline">\(R^2 = 0\)</span> means the model explains none of the variation.</li>
+</ul>
+<hr>
+</section>
+<section id="f-test-for-overall-significance" class="level2" data-number="1.4">
+<h2 data-number="1.4" class="anchored" data-anchor-id="f-test-for-overall-significance"><span class="header-section-number">1.4</span> F-test for Overall Significance</h2>
+<p>Tests whether <span class="math inline">\(X\)</span> is linearly related to <span class="math inline">\(Y\)</span>.</p>
+<p><strong>Hypotheses:</strong> <span class="math display">\[
+H_0: \beta_1 = 0
+\quad \text{vs.} \quad
+H_A: \beta_1 \ne 0.
+\]</span></p>
+<p><strong>Test Statistic:</strong> <span class="math display">\[
+F = \frac{\text{MSR}}{\text{MSE}}
+= \frac{\text{SSR}/1}{\text{SSE}/(n-2)}
+\sim F_{1,n-2}\quad (H_0).
+\]</span></p>
+<p><strong>p-value approach for observe <span class="math inline">\(F^{\mathrm{obs}}\)</span>:</strong></p>
+<p>Given the observed statistic (F^{}) with ((1,,n-2)) df, <span class="math display">\[
+p-\text{value} \;=\; \Pr\!\big(F_{1,\,n-2} \ge F^{\text{obs}}\big)
+\;=\; \mathrm{pf}\!\big(F^{\text{obs}},\,1,\,n-2,\ \text{lower.tail}= \mathrm{FALSE}\big).
+\]</span></p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fit.issu <span class="ot">&lt;-</span> <span class="fu">lm</span>(y<span class="sc">~</span>x)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(x,y)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span> (fit.issu)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># -- Inputs (provide these from your analysis context) -------------------------</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># n   &lt;- ...   # sample size</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># SSR &lt;- ...   # regression sum of squares</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># SSE &lt;- ...   # error sum of squares</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>n   <span class="ot">&lt;-</span> <span class="dv">20</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>SSR <span class="ot">&lt;-</span> <span class="dv">5</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>SSE <span class="ot">&lt;-</span> <span class="dv">40</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>df1  <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>df2  <span class="ot">&lt;-</span> n <span class="sc">-</span> <span class="dv">2</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>Fobs <span class="ot">&lt;-</span> (SSR<span class="sc">/</span>df1) <span class="sc">/</span> (SSE<span class="sc">/</span>df2)         <span class="co"># observed F</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>pval <span class="ot">&lt;-</span> <span class="fu">pf</span>(Fobs, <span class="at">df1 =</span> df1, <span class="at">df2 =</span> df2, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>pval</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># [1] 0.1509505</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># -- Plot F density and shade the p-value tail (with proper annotations) -------</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>xmax <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">qf</span>(<span class="fl">0.995</span>, df1, df2), Fobs <span class="sc">*</span> <span class="fl">1.2</span>)  <span class="co"># extra space for labels</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>peak <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">df</span>(<span class="fu">seq</span>(<span class="dv">0</span>, xmax, <span class="at">length.out =</span> <span class="dv">500</span>), df1, df2))</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Density curve</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="fu">curve</span>(<span class="fu">df</span>(x, df1, df2), <span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> xmax,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">xlab =</span> <span class="st">"F"</span>, <span class="at">ylab =</span> <span class="st">"Density"</span>,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">main =</span> <span class="fu">sprintf</span>(<span class="st">"F(%d, %d) density  |  observed F = %.3f"</span>, df1, df2, Fobs))</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Shade right tail (p-value region)</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>xs <span class="ot">&lt;-</span> <span class="fu">seq</span>(Fobs, xmax, <span class="at">length.out =</span> <span class="dv">300</span>)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>ys <span class="ot">&lt;-</span> <span class="fu">df</span>(xs, df1, df2)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="fu">polygon</span>(<span class="fu">c</span>(Fobs, xs, xmax), <span class="fu">c</span>(<span class="dv">0</span>, ys, <span class="dv">0</span>),</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">col =</span> <span class="fu">rgb</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">0.18</span>), <span class="at">border =</span> <span class="cn">NA</span>)</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Vertical line at Fobs (optional visual aid)</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> Fobs, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- Annotation for F^obs pointing to the x-axis value (Fobs, 0) -------------</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>x_txt_F <span class="ot">&lt;-</span> Fobs <span class="sc">+</span> <span class="fl">0.06</span> <span class="sc">*</span> xmax</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>y_txt_F <span class="ot">&lt;-</span> <span class="fl">0.45</span> <span class="sc">*</span> peak</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="fu">arrows</span>(<span class="at">x0 =</span> x_txt_F, <span class="at">y0 =</span> y_txt_F, <span class="at">x1 =</span> Fobs, <span class="at">y1 =</span> <span class="dv">0</span>,</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>       <span class="at">length =</span> <span class="fl">0.08</span>, <span class="at">lwd =</span> <span class="fl">1.5</span>)</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(x_txt_F, y_txt_F,</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>     <span class="at">labels =</span> <span class="fu">bquote</span>(F<span class="sc">^</span>{obs} <span class="sc">==</span> .(<span class="fu">format</span>(Fobs, <span class="at">digits =</span> <span class="dv">3</span>))),</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>     <span class="at">pos =</span> <span class="dv">4</span>)</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- Annotation for p-value pointing into the shaded tail --------------------</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>x_tip_p <span class="ot">&lt;-</span> (Fobs <span class="sc">+</span> xmax) <span class="sc">/</span> <span class="fl">1.7</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>y_tip_p <span class="ot">&lt;-</span> <span class="fu">df</span>(x_tip_p, df1, df2)</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>x_txt_p <span class="ot">&lt;-</span> Fobs <span class="sc">+</span> <span class="fl">0.08</span> <span class="sc">*</span> xmax</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>y_txt_p <span class="ot">&lt;-</span> <span class="fl">0.80</span> <span class="sc">*</span> peak</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="fu">arrows</span>(<span class="at">x0 =</span> x_txt_p, <span class="at">y0 =</span> y_txt_p, <span class="at">x1 =</span> x_tip_p, <span class="at">y1 =</span> y_tip_p,</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>       <span class="at">length =</span> <span class="fl">0.08</span>, <span class="at">lwd =</span> <span class="fl">1.5</span>)</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(x_txt_p, y_txt_p,</span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>     <span class="at">labels =</span> <span class="fu">bquote</span>(p <span class="sc">==</span> .(<span class="fu">format</span>(pval, <span class="at">digits =</span> <span class="dv">4</span>, <span class="at">scientific =</span> <span class="cn">TRUE</span>))),</span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>     <span class="at">pos =</span> <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -202,31 +365,123 @@ window.Quarto = {
 </div>
 </div>
 </div>
+<hr>
 </section>
-<section id="sum-squares-of-residuals" class="level2" data-number="1.3">
-<h2 data-number="1.3" class="anchored" data-anchor-id="sum-squares-of-residuals"><span class="header-section-number">1.3</span> Sum Squares of Residuals</h2>
+<section id="t-test-for-the-slope-beta_1" class="level2" data-number="1.5">
+<h2 data-number="1.5" class="anchored" data-anchor-id="t-test-for-the-slope-beta_1"><span class="header-section-number">1.5</span> t-test for the Slope <span class="math inline">\(\beta_1\)</span></h2>
+<p>Equivalent to the <span class="math inline">\(F\)</span>-test in simple regression since <span class="math inline">\(t^2 = F\)</span>.</p>
+<p><strong>Formula:</strong> <span class="math display">\[
+t = \frac{\hat\beta_1}{\operatorname{SE}(\hat\beta_1)},
+\qquad
+\operatorname{SE}(\hat\beta_1) = \sqrt{\frac{\hat\sigma^2}{\sum_i (x_i - \bar x)^2}},
+\qquad
+\hat\sigma^2 = \frac{\mathrm{SSE}}{n-2}.
+\]</span></p>
+<p><strong>Distribution:</strong> <span class="math display">\[
+t \sim t_{n-2}\quad (H_0:\beta_1=0).
+\]</span></p>
+<hr>
+</section>
+<section id="prediction-for-a-new-case-x_0" class="level2" data-number="1.6">
+<h2 data-number="1.6" class="anchored" data-anchor-id="prediction-for-a-new-case-x_0"><span class="header-section-number">1.6</span> Prediction for a New Case <span class="math inline">\(x_0\)</span></h2>
+<p><strong>Predicted mean response:</strong> <span class="math display">\[
+\hat y(x_0) = \hat\beta_0 + \hat\beta_1 x_0.
+\]</span></p>
+<p><strong>95% Confidence interval for mean response:</strong> <span class="math display">\[
+\hat y(x_0) \pm t_{1-\alpha/2,,n-2},
+\hat\sigma,\sqrt{\frac{1}{n} + \frac{(x_0 - \bar x)^2}{\sum_i (x_i - \bar x)^2}}.
+\]</span></p>
+<p><strong>95% Prediction interval for a new observation:</strong> <span class="math display">\[
+\hat y(x_0) \pm t_{1-\alpha/2,,n-2},
+\hat\sigma,\sqrt{1 + \frac{1}{n} + \frac{(x_0 - \bar x)^2}{\sum_i (x_i - \bar x)^2}}.
+\]</span></p>
+<hr>
+<p><strong>Summary Cheat Sheet</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 84%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Concept</th>
+<th style="text-align: left;">Key Formula</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Model</td>
+<td style="text-align: left;"><span class="math inline">\(Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">LS Estimates</td>
+<td style="text-align: left;"><span class="math inline">\(\hat\beta_1 = S_{xy}/S_{xx}\)</span>, <span class="math inline">\(\hat\beta_0 = \bar y - \hat\beta_1\bar x\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Decomposition</td>
+<td style="text-align: left;"><span class="math inline">\(\mathrm{SST} = \mathrm{SSR} + \mathrm{SSE}\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(R^2\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(R^2 = 1 - \mathrm{SSE}/\mathrm{SST}\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(F\)</span>-test</td>
+<td style="text-align: left;"><span class="math inline">\(F = (\mathrm{SSR}/1)/(\mathrm{SSE}/(n-2))\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(t\)</span>-test</td>
+<td style="text-align: left;"><span class="math inline">\(t = \hat\beta_1 / \operatorname{SE}(\hat\beta_1)\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Prediction</td>
+<td style="text-align: left;"><span class="math inline">\(\hat y(x_0) = \hat\beta_0 + \hat\beta_1 x_0\)</span></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="example-1-vehicle-insurance-premium-warm-up" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Example 1: Vehicle Insurance Premium (warm-up)</h1>
+<p>We examine premiums <span class="math inline">\(y\)</span> vs.&nbsp;driving amount <span class="math inline">\(x\)</span>. The scatterplot hints at a <strong>downward</strong> trend.</p>
+<section id="input-data" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="input-data"><span class="header-section-number">2.1</span> Input data</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>beta0 <span class="ot">&lt;-</span> fit.issu<span class="sc">$</span>coefficients[<span class="dv">1</span>]</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>beta1 <span class="ot">&lt;-</span> fit.issu<span class="sc">$</span>coefficients[<span class="dv">2</span>]</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>fitted1 <span class="ot">&lt;-</span> beta0<span class="sc">+</span>beta1<span class="sc">*</span>x</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>fitted0 <span class="ot">&lt;-</span> <span class="fu">rep</span>(ybar, n)</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>residual1 <span class="ot">&lt;-</span> y <span class="sc">-</span> fitted1</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>residual0 <span class="ot">&lt;-</span> y <span class="sc">-</span> fitted0</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span> (y, fitted0, residual0, fitted1, residual1, <span class="at">diff.residual=</span>fitted1<span class="sc">-</span>fitted0)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>issu <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">driving =</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">2</span>, <span class="dv">12</span>, <span class="dv">9</span>, <span class="dv">15</span>, <span class="dv">6</span>, <span class="dv">25</span>, <span class="dv">16</span>),</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">premium =</span> <span class="fu">c</span>(<span class="dv">64</span>, <span class="dv">87</span>, <span class="dv">50</span>, <span class="dv">71</span>, <span class="dv">44</span>, <span class="dv">56</span>, <span class="dv">42</span>, <span class="dv">60</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> issu<span class="sc">$</span>premium</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> issu<span class="sc">$</span>driving</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>xbar <span class="ot">&lt;-</span> <span class="fu">mean</span>(x); ybar <span class="ot">&lt;-</span> <span class="fu">mean</span>(y); n <span class="ot">&lt;-</span> <span class="fu">length</span>(y)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(x, y, <span class="at">xlab =</span> <span class="st">"Driving"</span>, <span class="at">ylab =</span> <span class="st">"Premium"</span>,</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Vehicle Insurance: Premium vs. Driving"</span>)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> ybar, <span class="at">lty =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div data-pagedtable="false">
-  <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["y"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["fitted0"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["residual0"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["fitted1"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["residual1"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["diff.residual"],"name":[6],"type":["dbl"],"align":["right"]}],"data":[{"1":"64","2":"59.25","3":"4.75","4":"68.92243","5":"-4.922425","6":"9.672425"},{"1":"87","2":"59.25","3":"27.75","4":"73.56519","5":"13.434811","6":"14.315189"},{"1":"50","2":"59.25","3":"-9.25","4":"58.08931","5":"-8.089309","6":"-1.160691"},{"1":"71","2":"59.25","3":"11.75","4":"62.73207","5":"8.267927","6":"3.482073"},{"1":"44","2":"59.25","3":"-15.25","4":"53.44654","5":"-9.446545","6":"-5.803455"},{"1":"56","2":"59.25","3":"-3.25","4":"67.37484","5":"-11.374837","6":"8.124837"},{"1":"42","2":"59.25","3":"-17.25","4":"37.97066","5":"4.029335","6":"-21.279335"},{"1":"60","2":"59.25","3":"0.75","4":"51.89896","5":"8.101043","6":"-7.351043"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
+<div>
+<figure class="figure">
+<p><img src="slr_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
 </div>
 </div>
 </div>
-<p>Visualize the fitted line, fitted values, and residuals</p>
+<p><strong>Narrative.</strong> The horizontal line at <span class="math inline">\(\bar y\)</span> represents the intercept-only model. Any fitted line that tilts away from this must earn its keep by reducing residual variation enough to offset the loss of one degree of freedom.</p>
+</section>
+<section id="estimating-regression-coefficients" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="estimating-regression-coefficients"><span class="header-section-number">2.2</span> Estimating regression coefficients</h2>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fit.issu <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(x, y, <span class="at">xlab =</span> <span class="st">"Driving"</span>, <span class="at">ylab =</span> <span class="st">"Premium"</span>,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Fitted Simple Linear Regression"</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(fit.issu, <span class="at">lwd =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -235,192 +490,185 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p><strong>Definitions of SSR, SSE, SST</strong>:</p>
+<p>The slope estimate <span class="math inline">\(\hat\beta_1\)</span> captures the <strong>marginal change in premium per unit of driving</strong> (units of <span class="math inline">\(y\)</span> per unit of <span class="math inline">\(x\)</span>). Inference on <span class="math inline">\(\beta_1\)</span> tells us whether the pattern rises above noise.</p>
+</section>
+<section id="residuals-and-fitted-values-geometry-picture" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="residuals-and-fitted-values-geometry-picture"><span class="header-section-number">2.3</span> Residuals and fitted values (geometry picture)</h2>
+<p>Let <span class="math inline">\(\hat y_i=\hat\beta_0+\hat\beta_1 x_i\)</span> and <span class="math inline">\(\tilde y_i=\bar y\)</span>. Residuals are <span class="math inline">\(e_i=y_i-\hat y_i\)</span> (model) and <span class="math inline">\(y_i-\bar y\)</span> (null). Visualizing all three clarifies the ANOVA identity.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>SST <span class="ot">&lt;-</span> <span class="fu">sum</span>((y<span class="sc">-</span>fitted0)<span class="sc">^</span><span class="dv">2</span>); SST</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>beta0 <span class="ot">&lt;-</span> <span class="fu">coef</span>(fit.issu)[<span class="dv">1</span>]</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>beta1 <span class="ot">&lt;-</span> <span class="fu">coef</span>(fit.issu)[<span class="dv">2</span>]</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>fitted1 <span class="ot">&lt;-</span> beta0 <span class="sc">+</span> beta1 <span class="sc">*</span> x</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>fitted0 <span class="ot">&lt;-</span> <span class="fu">rep</span>(ybar, n)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>residual1 <span class="ot">&lt;-</span> y <span class="sc">-</span> fitted1</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>residual0 <span class="ot">&lt;-</span> y <span class="sc">-</span> fitted0</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(y, fitted0, residual0, fitted1, residual1,</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>           <span class="at">diff.fitted =</span> fitted1 <span class="sc">-</span> fitted0)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["y"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["fitted0"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["residual0"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["fitted1"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["residual1"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["diff.fitted"],"name":[6],"type":["dbl"],"align":["right"]}],"data":[{"1":"64","2":"59.25","3":"4.75","4":"68.92243","5":"-4.922425","6":"9.672425"},{"1":"87","2":"59.25","3":"27.75","4":"73.56519","5":"13.434811","6":"14.315189"},{"1":"50","2":"59.25","3":"-9.25","4":"58.08931","5":"-8.089309","6":"-1.160691"},{"1":"71","2":"59.25","3":"11.75","4":"62.73207","5":"8.267927","6":"3.482073"},{"1":"44","2":"59.25","3":"-15.25","4":"53.44654","5":"-9.446545","6":"-5.803455"},{"1":"56","2":"59.25","3":"-3.25","4":"67.37484","5":"-11.374837","6":"8.124837"},{"1":"42","2":"59.25","3":"-17.25","4":"37.97066","5":"4.029335","6":"-21.279335"},{"1":"60","2":"59.25","3":"0.75","4":"51.89896","5":"8.101043","6":"-7.351043"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="slr_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sst-ssr-sse-and-their-meanings" class="level2" data-number="2.4">
+<h2 data-number="2.4" class="anchored" data-anchor-id="sst-ssr-sse-and-their-meanings"><span class="header-section-number">2.4</span> SST, SSR, SSE and their meanings</h2>
+<ul>
+<li><span class="math inline">\(\text{SST}=\sum (y_i-\bar y)^2\)</span> quantifies <strong>total</strong> variability around the mean.</li>
+<li><span class="math inline">\(\text{SSR}=\sum (\hat y_i-\bar y)^2\)</span> is the part <strong>explained by <span class="math inline">\(x\)</span></strong>.</li>
+<li><span class="math inline">\(\text{SSE}=\sum (y_i-\hat y_i)^2\)</span> is the <strong>leftover</strong> (unexplained) variability.</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>SST <span class="ot">&lt;-</span> <span class="fu">sum</span>((y <span class="sc">-</span> fitted0)<span class="sc">^</span><span class="dv">2</span>); SST</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code># [1] 1557.5</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>SSE <span class="ot">&lt;-</span> <span class="fu">sum</span> ((y<span class="sc">-</span>fitted1)<span class="sc">^</span><span class="dv">2</span>);SSE</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>SSE <span class="ot">&lt;-</span> <span class="fu">sum</span>((y <span class="sc">-</span> fitted1)<span class="sc">^</span><span class="dv">2</span>); SSE</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code># [1] 639.0065</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>SSR <span class="ot">&lt;-</span> SST<span class="sc">-</span>SSE;SSR</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>SSR <span class="ot">&lt;-</span> SST <span class="sc">-</span> SSE; SSR</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code># [1] 918.4935</code></pre>
 </div>
 </div>
-<p>SSR can be computed directly with</p>
+<p>Direct check: <span class="math inline">\(\text{SSR}=\sum(\hat y_i-\bar y)^2\)</span>.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>((fitted1<span class="sc">-</span>fitted0)<span class="sc">^</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>((fitted1 <span class="sc">-</span> fitted0)<span class="sc">^</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code># [1] 918.4935</code></pre>
 </div>
 </div>
-<p><strong>Plot of Residual Sum Squares</strong></p>
+</section>
+<section id="visual-anova-on-an-rss-plot" class="level2" data-number="2.5">
+<h2 data-number="2.5" class="anchored" data-anchor-id="visual-anova-on-an-rss-plot"><span class="header-section-number">2.5</span> Visual ANOVA on an RSS plot</h2>
+<p>We place the <strong>residual sum of squares</strong> against model dimension to show the trade-off between fit and df.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Assumed Setup Code (from your previous file) ---</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co"># This data and model fit are needed for the calculations</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Assumed Setup Code (from your previous file) ---</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># This data and model fit are needed for the calculations</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>issu <span class="ot">&lt;-</span> <span class="fu">data.frame</span> (</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">driving =</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">2</span>, <span class="dv">12</span>, <span class="dv">9</span>, <span class="dv">15</span>, <span class="dv">6</span>, <span class="dv">25</span>, <span class="dv">16</span>),</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">premium =</span> <span class="fu">c</span>(<span class="dv">64</span>, <span class="dv">87</span>, <span class="dv">50</span>, <span class="dv">71</span>, <span class="dv">44</span>, <span class="dv">56</span>, <span class="dv">42</span>, <span class="dv">60</span>)</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> issu<span class="sc">$</span>premium</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> issu<span class="sc">$</span>driving</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">length</span>(y)</span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>fit.issu <span class="ot">&lt;-</span> <span class="fu">lm</span>(y<span class="sc">~</span>x)</span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="co"># --- End of Setup ---</span></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Calculations for ANOVA components ---</span></span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>SST <span class="ot">&lt;-</span> <span class="fu">sum</span>((y <span class="sc">-</span> <span class="fu">mean</span>(y))<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>SSE <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">resid</span>(fit.issu)<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>SSR <span class="ot">&lt;-</span> SST <span class="sc">-</span> SSE</span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>df_SSR <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="co"># For simple linear regression (change from 1 to 2 parameters)</span></span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>df_SSE <span class="ot">&lt;-</span> n <span class="sc">-</span> <span class="dv">2</span></span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Create the Plot ---</span></span>
-<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Set plot margins to make extra space at the bottom for the df segments</span></span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">2</span>) <span class="sc">+</span> <span class="fl">0.1</span>)</span>
-<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the main plot, expanding x-axis to 14</span></span>
-<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, n), <span class="fu">c</span>(SST, SSE, <span class="dv">0</span>), <span class="at">type=</span><span class="st">"b"</span>, <span class="at">pch =</span> <span class="dv">19</span>,</span>
-<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Number of Parameters in Model"</span>,</span>
-<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">"Residual Sum of Squares (RSS)"</span>,</span>
-<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Visualizing ANOVA on the RSS Plot"</span>,</span>
-<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">14</span>), <span class="co"># Expanded x-axis limit</span></span>
-<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">400</span>, SST <span class="sc">*</span> <span class="fl">1.1</span>), <span class="co"># Extend y-axis below 0</span></span>
-<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>     <span class="at">xaxt =</span> <span class="st">"n"</span> <span class="co"># Turn off default x-axis to draw a custom one</span></span>
-<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>     )</span>
-<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a><span class="fu">axis</span>(<span class="dv">1</span>, <span class="at">at =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, n), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"1 (Intercept)"</span>, <span class="st">"2 (+ Slope)"</span>, <span class="fu">paste</span>(n, <span class="st">"(Saturated)"</span>)))</span>
-<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h=</span><span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">2000</span>, <span class="at">by=</span><span class="dv">100</span>), <span class="at">lty=</span><span class="dv">3</span>, <span class="at">col=</span><span class="st">"grey"</span>)</span>
-<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Allow drawing outside the main plot area ---</span></span>
-<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">xpd=</span><span class="cn">TRUE</span>)</span>
-<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Draw Repositioned Segments ---</span></span>
-<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Show SSE (blue) - at x=9</span></span>
-<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a><span class="fu">arrows</span>(<span class="at">x0 =</span> <span class="dv">9</span>, <span class="at">y0 =</span> <span class="dv">0</span>, <span class="at">x1 =</span> <span class="dv">9</span>, <span class="at">y1 =</span> SSE, <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">code =</span> <span class="dv">3</span>, <span class="at">angle =</span> <span class="dv">90</span>, <span class="at">length =</span> <span class="fl">0.1</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
-<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="at">x =</span> <span class="dv">9</span>, <span class="at">y =</span> SSE <span class="sc">/</span> <span class="dv">2</span>, <span class="st">"SSE"</span>, <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">pos =</span> <span class="dv">4</span>, <span class="at">font =</span> <span class="dv">2</span>, <span class="at">cex =</span> <span class="fl">1.2</span>)</span>
-<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Show SSR (red) - at x=9</span></span>
-<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a><span class="fu">arrows</span>(<span class="at">x0 =</span> <span class="dv">9</span>, <span class="at">y0 =</span> SSE, <span class="at">x1 =</span> <span class="dv">9</span>, <span class="at">y1 =</span> SST, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">code =</span> <span class="dv">3</span>, <span class="at">angle =</span> <span class="dv">90</span>, <span class="at">length =</span> <span class="fl">0.1</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
-<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="at">x =</span> <span class="dv">9</span>, <span class="at">y =</span> (SST <span class="sc">+</span> SSE) <span class="sc">/</span> <span class="dv">2</span>, <span class="st">"SSR"</span>, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">pos =</span> <span class="dv">4</span>, <span class="at">font =</span> <span class="dv">2</span>, <span class="at">cex =</span> <span class="fl">1.2</span>)</span>
-<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Show df_SSE (blue) - below y=0</span></span>
-<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a><span class="fu">arrows</span>(<span class="at">x0 =</span> <span class="dv">2</span>, <span class="at">y0 =</span> <span class="sc">-</span><span class="dv">200</span>, <span class="at">x1 =</span> n, <span class="at">y1 =</span> <span class="sc">-</span><span class="dv">200</span>, <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">code =</span> <span class="dv">3</span>, <span class="at">angle =</span> <span class="dv">90</span>, <span class="at">length =</span> <span class="fl">0.1</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
-<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="at">x =</span> (<span class="dv">2</span> <span class="sc">+</span> n) <span class="sc">/</span> <span class="dv">2</span>, <span class="at">y =</span> <span class="sc">-</span><span class="dv">250</span>, <span class="fu">paste</span>(<span class="st">"df_SSE ="</span>, df_SSE), <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">font =</span> <span class="dv">2</span>)</span>
-<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Show df_SSR (red) - below y=0</span></span>
-<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a><span class="fu">arrows</span>(<span class="at">x0 =</span> <span class="dv">1</span>, <span class="at">y0 =</span> <span class="sc">-</span><span class="dv">200</span>, <span class="at">x1 =</span> <span class="dv">2</span>, <span class="at">y1 =</span> <span class="sc">-</span><span class="dv">200</span>, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">code =</span> <span class="dv">3</span>, <span class="at">angle =</span> <span class="dv">90</span>, <span class="at">length =</span> <span class="fl">0.1</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
-<span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="at">x =</span> <span class="fl">1.5</span>, <span class="at">y =</span> <span class="sc">-</span><span class="dv">250</span>, <span class="fu">paste</span>(<span class="st">"df_SSR ="</span>, df_SSR), <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">font =</span> <span class="dv">2</span>)</span>
-<span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-61"><a href="#cb13-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-62"><a href="#cb13-62" aria-hidden="true" tabindex="-1"></a><span class="co"># --- NEW CODE: Add ANOVA F and p-value to top-right corner ---</span></span>
-<span id="cb13-63"><a href="#cb13-63" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Calculate the F-statistic and p-value</span></span>
-<span id="cb13-64"><a href="#cb13-64" aria-hidden="true" tabindex="-1"></a>f_value <span class="ot">&lt;-</span> (SSR<span class="sc">/</span>df_SSR) <span class="sc">/</span> (SSE<span class="sc">/</span>df_SSE)</span>
-<span id="cb13-65"><a href="#cb13-65" aria-hidden="true" tabindex="-1"></a>p_value <span class="ot">&lt;-</span> <span class="fu">pf</span>(f_value, <span class="at">df1=</span>df_SSR, <span class="at">df2=</span>df_SSE, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb13-66"><a href="#cb13-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-67"><a href="#cb13-67" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Format the text strings for display</span></span>
-<span id="cb13-68"><a href="#cb13-68" aria-hidden="true" tabindex="-1"></a>f_stat_text <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"F-statistic: %.2f"</span>, f_value)</span>
-<span id="cb13-69"><a href="#cb13-69" aria-hidden="true" tabindex="-1"></a>p_val_text  <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"p-value: %.3f"</span>, p_value)</span>
-<span id="cb13-70"><a href="#cb13-70" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-71"><a href="#cb13-71" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Use legend() to create an info box on the plot</span></span>
-<span id="cb13-72"><a href="#cb13-72" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(</span>
-<span id="cb13-73"><a href="#cb13-73" aria-hidden="true" tabindex="-1"></a>  <span class="st">"topright"</span>, <span class="co"># Position of the box</span></span>
-<span id="cb13-74"><a href="#cb13-74" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend =</span> <span class="fu">c</span>(f_stat_text, p_val_text),</span>
-<span id="cb13-75"><a href="#cb13-75" aria-hidden="true" tabindex="-1"></a>  <span class="at">title =</span> <span class="st">"ANOVA Results"</span>,</span>
-<span id="cb13-76"><a href="#cb13-76" aria-hidden="true" tabindex="-1"></a>  <span class="at">bty =</span> <span class="st">"o"</span>,  <span class="co"># Draw a box around the legend</span></span>
-<span id="cb13-77"><a href="#cb13-77" aria-hidden="true" tabindex="-1"></a>  <span class="at">cex =</span> <span class="fl">0.9</span>   <span class="co"># Adjust character size</span></span>
-<span id="cb13-78"><a href="#cb13-78" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Recompute cleanly</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>SST <span class="ot">&lt;-</span> <span class="fu">sum</span>((y <span class="sc">-</span> <span class="fu">mean</span>(y))<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>SSE <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">resid</span>(fit.issu)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>SSR <span class="ot">&lt;-</span> SST <span class="sc">-</span> SSE</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>df_SSR <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>df_SSE <span class="ot">&lt;-</span> n <span class="sc">-</span> <span class="dv">2</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">2</span>) <span class="sc">+</span> <span class="fl">0.1</span>)</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, n), <span class="fu">c</span>(SST, SSE, <span class="dv">0</span>), <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">pch =</span> <span class="dv">19</span>,</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Number of Parameters in Model"</span>,</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">"Residual Sum of Squares (RSS)"</span>,</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"ANOVA Geometry on RSS vs. Model Size"</span>,</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">14</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">400</span>, SST <span class="sc">*</span> <span class="fl">1.1</span>), <span class="at">xaxt =</span> <span class="st">"n"</span>)</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="fu">axis</span>(<span class="dv">1</span>, <span class="at">at =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, n), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"1 (Intercept)"</span>, <span class="st">"2 (+Slope)"</span>, <span class="fu">paste</span>(n, <span class="st">"(Saturated)"</span>)))</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">2000</span>, <span class="at">by =</span> <span class="dv">100</span>), <span class="at">lty =</span> <span class="dv">3</span>, <span class="at">col =</span> <span class="st">"grey"</span>)</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">xpd =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a><span class="fu">arrows</span>(<span class="dv">9</span>, <span class="dv">0</span>, <span class="dv">9</span>, SSE, <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">code =</span> <span class="dv">3</span>, <span class="at">angle =</span> <span class="dv">90</span>, <span class="at">length =</span> <span class="fl">0.1</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="dv">9</span>, SSE<span class="sc">/</span><span class="dv">2</span>, <span class="st">"SSE"</span>, <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">pos =</span> <span class="dv">4</span>, <span class="at">font =</span> <span class="dv">2</span>, <span class="at">cex =</span> <span class="fl">1.2</span>)</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a><span class="fu">arrows</span>(<span class="dv">9</span>, SSE, <span class="dv">9</span>, SST, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">code =</span> <span class="dv">3</span>, <span class="at">angle =</span> <span class="dv">90</span>, <span class="at">length =</span> <span class="fl">0.1</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="dv">9</span>, (SST <span class="sc">+</span> SSE)<span class="sc">/</span><span class="dv">2</span>, <span class="st">"SSR"</span>, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">pos =</span> <span class="dv">4</span>, <span class="at">font =</span> <span class="dv">2</span>, <span class="at">cex =</span> <span class="fl">1.2</span>)</span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a><span class="fu">arrows</span>(<span class="dv">2</span>, <span class="sc">-</span><span class="dv">200</span>, n, <span class="sc">-</span><span class="dv">200</span>, <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">code =</span> <span class="dv">3</span>, <span class="at">angle =</span> <span class="dv">90</span>, <span class="at">length =</span> <span class="fl">0.1</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>((<span class="dv">2</span> <span class="sc">+</span> n)<span class="sc">/</span><span class="dv">2</span>, <span class="sc">-</span><span class="dv">250</span>, <span class="fu">paste</span>(<span class="st">"df_SSE ="</span>, df_SSE), <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">font =</span> <span class="dv">2</span>)</span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a><span class="fu">arrows</span>(<span class="dv">1</span>, <span class="sc">-</span><span class="dv">200</span>, <span class="dv">2</span>, <span class="sc">-</span><span class="dv">200</span>, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">code =</span> <span class="dv">3</span>, <span class="at">angle =</span> <span class="dv">90</span>, <span class="at">length =</span> <span class="fl">0.1</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="fl">1.5</span>, <span class="sc">-</span><span class="dv">250</span>, <span class="fu">paste</span>(<span class="st">"df_SSR ="</span>, df_SSR), <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">font =</span> <span class="dv">2</span>)</span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">xpd =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>f_value <span class="ot">&lt;-</span> (SSR<span class="sc">/</span>df_SSR) <span class="sc">/</span> (SSE<span class="sc">/</span>df_SSE)</span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>p_value <span class="ot">&lt;-</span> <span class="fu">pf</span>(f_value, <span class="at">df1 =</span> df_SSR, <span class="at">df2 =</span> df_SSE, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topright"</span>,</span>
+<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a>       <span class="at">legend =</span> <span class="fu">c</span>(<span class="fu">sprintf</span>(<span class="st">"F-statistic: %.2f"</span>, f_value),</span>
+<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">sprintf</span>(<span class="st">"p-value: %.3f"</span>, p_value)),</span>
+<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"ANOVA Results"</span>, <span class="at">bty =</span> <span class="st">"o"</span>, <span class="at">cex =</span> <span class="fl">0.9</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="slr_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="768"></p>
+<p><img src="slr_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="768"></p>
 </figure>
-</div>
-</div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Reset clipping to default for any subsequent plots</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">xpd=</span><span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-</div>
-<p><strong>Coefficient of Determination: <span class="math inline">\(R^2\)</span></strong></p>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>R2 <span class="ot">&lt;-</span> SSR<span class="sc">/</span>SST; R2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code># [1] 0.5897229</code></pre>
-</div>
-</div>
-<p><strong>Mean Sum Squares and F statististic</strong></p>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>f <span class="ot">&lt;-</span> (SSR<span class="sc">/</span><span class="dv">1</span>)<span class="sc">/</span>(SSE<span class="sc">/</span>(n<span class="dv">-2</span>)); f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code># [1] 8.624264</code></pre>
-</div>
-</div>
-<p>p-value to assess whether the relationship exists (statistical significance measure)</p>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>pvf <span class="ot">&lt;-</span> <span class="fu">pf</span>(f, <span class="at">df1=</span><span class="dv">1</span>, <span class="at">df2=</span>n<span class="dv">-2</span>, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>); pvf</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code># [1] 0.0260588</code></pre>
-</div>
-</div>
-<p><strong>ANOVA table</strong></p>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>Ftable <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">df =</span> <span class="fu">c</span>(<span class="dv">1</span>,n<span class="dv">-2</span>), <span class="at">SS=</span><span class="fu">c</span>(SSR,SSE), </span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>                     <span class="at">MSS =</span> <span class="fu">c</span>(SSR<span class="sc">/</span><span class="dv">1</span>, SSE<span class="sc">/</span>(n<span class="dv">-2</span>)), <span class="at">Fstat=</span><span class="fu">c</span>(f,<span class="cn">NA</span>),</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">p.value =</span> <span class="fu">c</span>(pvf, <span class="cn">NA</span>),</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">R2 =</span> <span class="fu">c</span>(SSR, SSE)<span class="sc">/</span>SST)</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>Ftable</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output-display">
-<div data-pagedtable="false">
-  <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["df"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["SS"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["MSS"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["Fstat"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["R2"],"name":[6],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"918.4935","3":"918.4935","4":"8.624264","5":"0.0260588","6":"0.5897229"},{"1":"6","2":"639.0065","3":"106.5011","4":"NA","5":"NA","6":"0.4102771"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
 </div>
 </div>
 </div>
 </section>
-<section id="a-single-function-to-produce-anova-table" class="level2" data-number="1.4">
-<h2 data-number="1.4" class="anchored" data-anchor-id="a-single-function-to-produce-anova-table"><span class="header-section-number">1.4</span> A single function to produce ANOVA table</h2>
+<section id="r2-f-and-a-compact-anova-table" class="level2" data-number="2.6">
+<h2 data-number="2.6" class="anchored" data-anchor-id="r2-f-and-a-compact-anova-table"><span class="header-section-number">2.6</span> <span class="math inline">\(R^2\)</span>, <span class="math inline">\(F\)</span> and a compact ANOVA table</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>fit.issu <span class="ot">&lt;-</span> <span class="fu">lm</span>(y<span class="sc">~</span>x)</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fit.issu)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>R2 <span class="ot">&lt;-</span> SSR <span class="sc">/</span> SST; R2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># [1] 0.5897229</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>f  <span class="ot">&lt;-</span> (SSR<span class="sc">/</span><span class="dv">1</span>) <span class="sc">/</span> (SSE<span class="sc">/</span>(n<span class="dv">-2</span>)); f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># [1] 8.624264</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>pvf <span class="ot">&lt;-</span> <span class="fu">pf</span>(f, <span class="at">df1 =</span> <span class="dv">1</span>, <span class="at">df2 =</span> n<span class="dv">-2</span>, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>); pvf</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># [1] 0.0260588</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>Ftable <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Source =</span> <span class="fu">c</span>(<span class="st">"Regression"</span>, <span class="st">"Error"</span>),</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">df     =</span> <span class="fu">c</span>(<span class="dv">1</span>, n <span class="sc">-</span> <span class="dv">2</span>),</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">SS     =</span> <span class="fu">c</span>(SSR, SSE),</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">MS     =</span> <span class="fu">c</span>(SSR<span class="sc">/</span><span class="dv">1</span>, SSE<span class="sc">/</span>(n<span class="dv">-2</span>)),</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">F      =</span> <span class="fu">c</span>(f, <span class="cn">NA</span>),</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">pvalue =</span> <span class="fu">c</span>(pvf, <span class="cn">NA</span>),</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">R2part =</span> <span class="fu">c</span>(SSR, SSE) <span class="sc">/</span> SST</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>Ftable</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["Source"],"name":[1],"type":["chr"],"align":["left"]},{"label":["df"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["SS"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["MS"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["F"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["pvalue"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["R2part"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"Regression","2":"1","3":"918.4935","4":"918.4935","5":"8.624264","6":"0.0260588","7":"0.5897229"},{"1":"Error","2":"6","3":"639.0065","4":"106.5011","5":"NA","6":"NA","7":"0.4102771"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>A call to <code>anova()</code> reproduces the same test:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fit.issu)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div data-pagedtable="false">
@@ -431,60 +679,83 @@ window.Quarto = {
 </div>
 </div>
 </section>
-<section id="animation-for-understanding-the-sampling-distributions-of-ss-and-f" class="level2" data-number="1.5">
-<h2 data-number="1.5" class="anchored" data-anchor-id="animation-for-understanding-the-sampling-distributions-of-ss-and-f"><span class="header-section-number">1.5</span> Animation for Understanding the Sampling Distributions of SS and F</h2>
-<section id="when-the-slope-is-0-h_0-is-true" class="level3" data-number="1.5.1">
-<h3 data-number="1.5.1" class="anchored" data-anchor-id="when-the-slope-is-0-h_0-is-true"><span class="header-section-number">1.5.1</span> When the slope is 0 (<span class="math inline">\(H_0\)</span> is true)</h3>
+<section id="sampling-distributions-via-animation" class="level2" data-number="2.7">
+<h2 data-number="2.7" class="anchored" data-anchor-id="sampling-distributions-via-animation"><span class="header-section-number">2.7</span> Sampling distributions via animation</h2>
+<p>Under <span class="math inline">\(H_0:\beta_1=0\)</span>, <span class="math inline">\(F\)</span> follows <span class="math inline">\(F_{1,n-2}\)</span>. Under <span class="math inline">\(H_A\)</span>, the distribution shifts right (noncentral <span class="math inline">\(F\)</span>).</p>
+<section id="null-world-h_0-true" class="level3" data-number="2.7.1">
+<h3 data-number="2.7.1" class="anchored" data-anchor-id="null-world-h_0-true"><span class="header-section-number">2.7.1</span> Null world (<span class="math inline">\(H_0\)</span> true)</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r fold-hide code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get parameters from the original fit to use in the simulation</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Get parameters from the original fit to use in the simulation</span></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>original_fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(y<span class="sc">~</span>x)</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>intercept_H0 <span class="ot">&lt;-</span> <span class="fu">coef</span>(original_fit)[<span class="dv">1</span>] <span class="co"># beta_0</span></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>model_sigma <span class="ot">&lt;-</span> <span class="fu">sigma</span>(original_fit)   <span class="co"># sigma</span></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Loop to generate frames for an animation</span></span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (n.sim <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">50</span>) {</span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Simulate a dataset where H0 is true (slope = 0)</span></span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  sim.y <span class="ot">&lt;-</span> intercept_H0 <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, model_sigma)</span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Plotting Section ---</span></span>
-<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Set up a 1x2 plot layout</span></span>
-<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
-<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Left Plot: Scatterplot ---</span></span>
-<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>  fit.sim.y <span class="ot">&lt;-</span> <span class="fu">lm</span>(sim.y<span class="sc">~</span>x)</span>
-<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(sim.y<span class="sc">~</span>x, <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">100</span>), <span class="at">main=</span><span class="st">"Data Simulated Under H0 (Slope=0)"</span>) </span>
-<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(fit.sim.y,<span class="at">col=</span><span class="st">"red"</span>, <span class="at">lwd=</span><span class="dv">2</span>)   <span class="co"># Fitted line for simulated data</span></span>
-<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">h=</span><span class="fu">mean</span>(sim.y),<span class="at">col=</span><span class="st">"blue"</span>) <span class="co"># Null model line</span></span>
-<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Right Plot: RSS Plot with ANOVA Info ---</span></span>
-<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a>  anova.fit.sim.y <span class="ot">&lt;-</span> <span class="fu">anova</span>(fit.sim.y)</span>
-<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a>  ss.sim.y <span class="ot">&lt;-</span> anova.fit.sim.y<span class="sc">$</span><span class="st">`</span><span class="at">Sum Sq</span><span class="st">`</span></span>
-<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a>  rss.sim.y <span class="ot">&lt;-</span> <span class="fu">rev</span>(<span class="fu">cumsum</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">rev</span>(ss.sim.y))))</span>
-<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a>  num.par <span class="ot">&lt;-</span> <span class="fu">cumsum</span>(<span class="fu">c</span>(<span class="dv">1</span>,anova.fit.sim.y<span class="sc">$</span>Df))</span>
-<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(rss.sim.y<span class="sc">~</span>num.par,<span class="at">xlab=</span><span class="st">"Number of Parameters"</span>, <span class="at">ylab =</span> <span class="st">"Residual Sum Squares"</span>, <span class="at">type =</span><span class="st">"b"</span>)</span>
-<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">v=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">25</span>, <span class="at">h=</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">50</span>)<span class="sc">*</span><span class="dv">100</span>,<span class="at">lty=</span><span class="dv">3</span>,<span class="at">col=</span><span class="st">"grey"</span>)</span>
-<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- NEW CODE: Add ANOVA table info to the right plot ---</span></span>
-<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 1. Extract the F-statistic and p-value</span></span>
-<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a>  f_value <span class="ot">&lt;-</span> anova.fit.sim.y<span class="sc">$</span><span class="st">"F value"</span>[<span class="dv">1</span>]</span>
-<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a>  p_value <span class="ot">&lt;-</span> anova.fit.sim.y<span class="sc">$</span><span class="st">"Pr(&gt;F)"</span>[<span class="dv">1</span>]</span>
-<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 2. Format the text strings for display</span></span>
-<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a>  f_stat_text <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"F-statistic: %.2f"</span>, f_value)</span>
-<span id="cb23-37"><a href="#cb23-37" aria-hidden="true" tabindex="-1"></a>  p_val_text  <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"p-value: %.3f"</span>, p_value)</span>
-<span id="cb23-38"><a href="#cb23-38" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb23-39"><a href="#cb23-39" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 3. Use legend() to create an info box on the plot</span></span>
-<span id="cb23-40"><a href="#cb23-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">legend</span>(</span>
-<span id="cb23-41"><a href="#cb23-41" aria-hidden="true" tabindex="-1"></a>    <span class="st">"topright"</span>, <span class="co"># Position of the box</span></span>
-<span id="cb23-42"><a href="#cb23-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend =</span> <span class="fu">c</span>(f_stat_text, p_val_text),</span>
-<span id="cb23-43"><a href="#cb23-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"ANOVA Results"</span>,</span>
-<span id="cb23-44"><a href="#cb23-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">bty =</span> <span class="st">"o"</span>, <span class="co"># Type of box ("o" for a full box, "n" for no box)</span></span>
-<span id="cb23-45"><a href="#cb23-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">cex =</span> <span class="fl">0.9</span>  <span class="co"># Character size</span></span>
-<span id="cb23-46"><a href="#cb23-46" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb23-47"><a href="#cb23-47" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r fold-hide code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>original_fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>intercept_H0 <span class="ot">&lt;-</span> <span class="fu">coef</span>(original_fit)[<span class="dv">1</span>]</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>model_sigma  <span class="ot">&lt;-</span> <span class="fu">sigma</span>(original_fit)</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (iter <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">50</span>) {</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  sim.y <span class="ot">&lt;-</span> intercept_H0 <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, model_sigma)</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  fit.sim.y <span class="ot">&lt;-</span> <span class="fu">lm</span>(sim.y <span class="sc">~</span> x)</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(sim.y <span class="sc">~</span> x, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">100</span>), <span class="at">main =</span> <span class="st">"Data under H0 (slope = 0)"</span>)</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(fit.sim.y, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">h =</span> <span class="fu">mean</span>(sim.y), <span class="at">col =</span> <span class="st">"blue"</span>)</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> <span class="fu">anova</span>(fit.sim.y)</span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>  ss <span class="ot">&lt;-</span> a<span class="sc">$</span><span class="st">`</span><span class="at">Sum Sq</span><span class="st">`</span>; rss <span class="ot">&lt;-</span> <span class="fu">rev</span>(<span class="fu">cumsum</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">rev</span>(ss))))</span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>  num.par <span class="ot">&lt;-</span> <span class="fu">cumsum</span>(<span class="fu">c</span>(<span class="dv">1</span>, a<span class="sc">$</span>Df))</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(rss <span class="sc">~</span> num.par, <span class="at">xlab =</span> <span class="st">"Number of Parameters"</span>, <span class="at">ylab =</span> <span class="st">"RSS"</span>, <span class="at">type =</span> <span class="st">"b"</span>)</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">v =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">25</span>, <span class="at">h =</span> (<span class="dv">0</span><span class="sc">:</span><span class="dv">50</span>)<span class="sc">*</span><span class="dv">100</span>, <span class="at">lty =</span> <span class="dv">3</span>, <span class="at">col =</span> <span class="st">"grey"</span>)</span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>  f_value <span class="ot">&lt;-</span> a<span class="sc">$</span><span class="st">"F value"</span>[<span class="dv">1</span>]</span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>  p_value <span class="ot">&lt;-</span> a<span class="sc">$</span><span class="st">"Pr(&gt;F)"</span>[<span class="dv">1</span>]</span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">legend</span>(<span class="st">"topright"</span>,</span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>         <span class="at">legend =</span> <span class="fu">c</span>(<span class="fu">sprintf</span>(<span class="st">"F: %.2f"</span>, f_value),</span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">sprintf</span>(<span class="st">"p: %.3f"</span>, p_value)),</span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>         <span class="at">title =</span> <span class="st">"ANOVA"</span>, <span class="at">bty =</span> <span class="st">"o"</span>, <span class="at">cex =</span> <span class="fl">0.9</span>)</span>
+<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="slr_files/figure-html/unnamed-chunk-13-.gif" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="alternative-world-h_1-true" class="level3" data-number="2.7.2">
+<h3 data-number="2.7.2" class="anchored" data-anchor-id="alternative-world-h_1-true"><span class="header-section-number">2.7.2</span> Alternative world (<span class="math inline">\(H_1\)</span> true)</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r fold-hide code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>original_fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>intercept_HA <span class="ot">&lt;-</span> <span class="fu">coef</span>(original_fit)[<span class="dv">1</span>]</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>model_sigma  <span class="ot">&lt;-</span> <span class="fu">sigma</span>(original_fit)</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>slope_HA     <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">2</span>  <span class="co"># pick a non-zero slope</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (iter <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">50</span>) {</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  mean_y <span class="ot">&lt;-</span> intercept_HA <span class="sc">+</span> slope_HA <span class="sc">*</span> x</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>  sim.y  <span class="ot">&lt;-</span> mean_y <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, model_sigma)</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>  fit.sim.y <span class="ot">&lt;-</span> <span class="fu">lm</span>(sim.y <span class="sc">~</span> x)</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(sim.y <span class="sc">~</span> x, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">80</span>), <span class="at">main =</span> <span class="st">"Data under HA (slope = -2)"</span>)</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(fit.sim.y, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">h =</span> <span class="fu">mean</span>(sim.y), <span class="at">col =</span> <span class="st">"blue"</span>)</span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> <span class="fu">anova</span>(fit.sim.y)</span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>  ss <span class="ot">&lt;-</span> a<span class="sc">$</span><span class="st">`</span><span class="at">Sum Sq</span><span class="st">`</span>; rss <span class="ot">&lt;-</span> <span class="fu">rev</span>(<span class="fu">cumsum</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">rev</span>(ss))))</span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>  num.par <span class="ot">&lt;-</span> <span class="fu">cumsum</span>(<span class="fu">c</span>(<span class="dv">1</span>, a<span class="sc">$</span>Df))</span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(rss <span class="sc">~</span> num.par, <span class="at">xlab =</span> <span class="st">"Number of Parameters"</span>, <span class="at">ylab =</span> <span class="st">"RSS"</span>, <span class="at">type =</span> <span class="st">"b"</span>)</span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">v =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">25</span>, <span class="at">h =</span> (<span class="dv">0</span><span class="sc">:</span><span class="dv">50</span>)<span class="sc">*</span><span class="dv">100</span>, <span class="at">lty =</span> <span class="dv">3</span>, <span class="at">col =</span> <span class="st">"grey"</span>)</span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>  f_value <span class="ot">&lt;-</span> a<span class="sc">$</span><span class="st">"F value"</span>[<span class="dv">1</span>]</span>
+<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>  p_value <span class="ot">&lt;-</span> a<span class="sc">$</span><span class="st">"Pr(&gt;F)"</span>[<span class="dv">1</span>]</span>
+<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">legend</span>(<span class="st">"topright"</span>,</span>
+<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>         <span class="at">legend =</span> <span class="fu">c</span>(<span class="fu">sprintf</span>(<span class="st">"F: %.2f"</span>, f_value),</span>
+<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">sprintf</span>(<span class="st">"p: %.3e"</span>, p_value)),</span>
+<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a>         <span class="at">title =</span> <span class="st">"ANOVA"</span>, <span class="at">bty =</span> <span class="st">"o"</span>, <span class="at">cex =</span> <span class="fl">0.9</span>)</span>
+<span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -494,103 +765,31 @@ window.Quarto = {
 </div>
 </div>
 </div>
-</section>
-<section id="when-the-slope-is-non-zero-h_1-is-true" class="level3" data-number="1.5.2">
-<h3 data-number="1.5.2" class="anchored" data-anchor-id="when-the-slope-is-non-zero-h_1-is-true"><span class="header-section-number">1.5.2</span> When the slope is non-zero (<span class="math inline">\(H_1\)</span> is true)</h3>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r fold-hide code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Assumed Setup Code (from your previous file) ---</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Get parameters from the original fit to use in the simulation</span></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>original_fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(y<span class="sc">~</span>x)</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>intercept_HA <span class="ot">&lt;-</span> <span class="fu">coef</span>(original_fit)[<span class="dv">1</span>] <span class="co"># beta_0</span></span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>model_sigma <span class="ot">&lt;-</span> <span class="fu">sigma</span>(original_fit)   <span class="co"># sigma</span></span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>slope_HA <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">2</span>                       <span class="co"># A specified non-zero slope for the alternative hypothesis</span></span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Loop to generate frames for an animation</span></span>
-<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (n.sim <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">50</span>) {</span>
-<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Simulate a dataset where H0 is false (true slope = -2)</span></span>
-<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>  mean_y <span class="ot">&lt;-</span> intercept_HA <span class="sc">+</span> slope_HA <span class="sc">*</span> x</span>
-<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>  sim.y <span class="ot">&lt;-</span> mean_y <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, model_sigma)</span>
-<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Plotting Section ---</span></span>
-<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Set up a 1x2 plot layout</span></span>
-<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
-<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Left Plot: Scatterplot ---</span></span>
-<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>  fit.sim.y <span class="ot">&lt;-</span> <span class="fu">lm</span>(sim.y<span class="sc">~</span>x)</span>
-<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(sim.y<span class="sc">~</span>x, <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">80</span>), <span class="at">main=</span><span class="st">"Data Simulated Under HA (Slope=-2)"</span>) </span>
-<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(fit.sim.y,<span class="at">col=</span><span class="st">"red"</span>, <span class="at">lwd=</span><span class="dv">2</span>)   <span class="co"># Fitted line for simulated data</span></span>
-<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">h=</span><span class="fu">mean</span>(sim.y),<span class="at">col=</span><span class="st">"blue"</span>) <span class="co"># Null model line</span></span>
-<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Right Plot: RSS Plot with ANOVA Info ---</span></span>
-<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a>  anova.fit.sim.y <span class="ot">&lt;-</span> <span class="fu">anova</span>(fit.sim.y)</span>
-<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a>  ss.sim.y <span class="ot">&lt;-</span> anova.fit.sim.y<span class="sc">$</span><span class="st">`</span><span class="at">Sum Sq</span><span class="st">`</span></span>
-<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>  rss.sim.y <span class="ot">&lt;-</span> <span class="fu">rev</span>(<span class="fu">cumsum</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">rev</span>(ss.sim.y))))</span>
-<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a>  num.par <span class="ot">&lt;-</span> <span class="fu">cumsum</span>(<span class="fu">c</span>(<span class="dv">1</span>,anova.fit.sim.y<span class="sc">$</span>Df))</span>
-<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(rss.sim.y<span class="sc">~</span>num.par,<span class="at">xlab=</span><span class="st">"Number of Parameters"</span>, <span class="at">ylab =</span> <span class="st">"Residual Sum Squares"</span>, <span class="at">type =</span><span class="st">"b"</span>)</span>
-<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">v=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">25</span>, <span class="at">h=</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">50</span>)<span class="sc">*</span><span class="dv">100</span>,<span class="at">lty=</span><span class="dv">3</span>,<span class="at">col=</span><span class="st">"grey"</span>)</span>
-<span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- NEW CODE: Add ANOVA table info to the right plot ---</span></span>
-<span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 1. Extract the F-statistic and p-value</span></span>
-<span id="cb24-35"><a href="#cb24-35" aria-hidden="true" tabindex="-1"></a>  f_value <span class="ot">&lt;-</span> anova.fit.sim.y<span class="sc">$</span><span class="st">"F value"</span>[<span class="dv">1</span>]</span>
-<span id="cb24-36"><a href="#cb24-36" aria-hidden="true" tabindex="-1"></a>  p_value <span class="ot">&lt;-</span> anova.fit.sim.y<span class="sc">$</span><span class="st">"Pr(&gt;F)"</span>[<span class="dv">1</span>]</span>
-<span id="cb24-37"><a href="#cb24-37" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb24-38"><a href="#cb24-38" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 2. Format the text strings for display</span></span>
-<span id="cb24-39"><a href="#cb24-39" aria-hidden="true" tabindex="-1"></a>  f_stat_text <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"F-statistic: %.2f"</span>, f_value)</span>
-<span id="cb24-40"><a href="#cb24-40" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Use scientific notation for potentially very small p-values</span></span>
-<span id="cb24-41"><a href="#cb24-41" aria-hidden="true" tabindex="-1"></a>  p_val_text  <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"p-value: %.3e"</span>, p_value) </span>
-<span id="cb24-42"><a href="#cb24-42" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb24-43"><a href="#cb24-43" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 3. Use legend() to create an info box on the plot</span></span>
-<span id="cb24-44"><a href="#cb24-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">legend</span>(</span>
-<span id="cb24-45"><a href="#cb24-45" aria-hidden="true" tabindex="-1"></a>    <span class="st">"topright"</span>, <span class="co"># Position of the box</span></span>
-<span id="cb24-46"><a href="#cb24-46" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend =</span> <span class="fu">c</span>(f_stat_text, p_val_text),</span>
-<span id="cb24-47"><a href="#cb24-47" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"ANOVA Results"</span>,</span>
-<span id="cb24-48"><a href="#cb24-48" aria-hidden="true" tabindex="-1"></a>    <span class="at">bty =</span> <span class="st">"o"</span>, <span class="co"># Type of box</span></span>
-<span id="cb24-49"><a href="#cb24-49" aria-hidden="true" tabindex="-1"></a>    <span class="at">cex =</span> <span class="fl">0.9</span>  <span class="co"># Character size</span></span>
-<span id="cb24-50"><a href="#cb24-50" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb24-51"><a href="#cb24-51" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="slr_files/figure-html/unnamed-chunk-15-.gif" class="img-fluid figure-img" width="768"></p>
-</figure>
-</div>
-</div>
-</div>
-</section>
-</section>
-</section>
-<section id="example-2-oxygen-purity-data" class="level1" data-number="2">
-<h1 data-number="2"><span class="header-section-number">2</span> Example 2: Oxygen Purity Data</h1>
-<p>This section performs a simple linear regression analysis on oxygen purity data. We will model the purity of oxygen (<code>y</code>) as a function of the hydrocarbon level (<code>x</code>).</p>
 <hr>
-<section id="data-input" class="level2" data-number="2.1">
-<h2 data-number="2.1" class="anchored" data-anchor-id="data-input"><span class="header-section-number">2.1</span> 1. Data Input</h2>
-<p>First, we define the <code>x</code> (Hydrocarbon Level) and <code>y</code> (Purity) variables and combine them into a data frame called <code>purity.data</code>.</p>
+</section>
+</section>
+</section>
+<section id="example-2-oxygen-purity-data" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Example 2: Oxygen Purity Data</h1>
+<p>We model oxygen purity <span class="math inline">\(y\)</span> as a function of hydrocarbon level <span class="math inline">\(x\)</span> and report both <strong>mean response</strong> and <strong>prediction</strong> uncertainty.</p>
+<section id="data" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="data"><span class="header-section-number">3.1</span> Data</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the data vectors</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.99</span>, <span class="fl">1.02</span>, <span class="fl">1.15</span>, <span class="fl">1.29</span>, <span class="fl">1.46</span>, <span class="fl">1.36</span>, <span class="fl">0.87</span>, <span class="fl">1.23</span>, <span class="fl">1.55</span>, <span class="fl">1.40</span>, <span class="fl">1.19</span>, </span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>       <span class="fl">1.15</span>, <span class="fl">0.98</span>, <span class="fl">1.01</span>, <span class="fl">1.11</span>, <span class="fl">1.20</span>, <span class="fl">1.26</span>, <span class="fl">1.32</span>, <span class="fl">1.43</span>, <span class="fl">0.95</span>)</span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">90.01</span>, <span class="fl">89.05</span>, <span class="fl">91.43</span>, <span class="fl">93.74</span>, <span class="fl">96.73</span>, <span class="fl">94.45</span>, <span class="fl">87.59</span>, <span class="fl">91.77</span>, <span class="fl">99.42</span>, <span class="fl">93.65</span>, </span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>       <span class="fl">93.54</span>, <span class="fl">92.52</span>, <span class="fl">90.56</span>, <span class="fl">89.54</span>, <span class="fl">89.85</span>, <span class="fl">90.39</span>, <span class="fl">93.25</span>, <span class="fl">93.41</span>, <span class="fl">94.98</span>, <span class="fl">87.33</span>)</span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the number of observations</span></span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">length</span>(x)</span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>n</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.99</span>, <span class="fl">1.02</span>, <span class="fl">1.15</span>, <span class="fl">1.29</span>, <span class="fl">1.46</span>, <span class="fl">1.36</span>, <span class="fl">0.87</span>, <span class="fl">1.23</span>, <span class="fl">1.55</span>, <span class="fl">1.40</span>, <span class="fl">1.19</span>,</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>       <span class="fl">1.15</span>, <span class="fl">0.98</span>, <span class="fl">1.01</span>, <span class="fl">1.11</span>, <span class="fl">1.20</span>, <span class="fl">1.26</span>, <span class="fl">1.32</span>, <span class="fl">1.43</span>, <span class="fl">0.95</span>)</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">90.01</span>, <span class="fl">89.05</span>, <span class="fl">91.43</span>, <span class="fl">93.74</span>, <span class="fl">96.73</span>, <span class="fl">94.45</span>, <span class="fl">87.59</span>, <span class="fl">91.77</span>, <span class="fl">99.42</span>, <span class="fl">93.65</span>,</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>       <span class="fl">93.54</span>, <span class="fl">92.52</span>, <span class="fl">90.56</span>, <span class="fl">89.54</span>, <span class="fl">89.85</span>, <span class="fl">90.39</span>, <span class="fl">93.25</span>, <span class="fl">93.41</span>, <span class="fl">94.98</span>, <span class="fl">87.33</span>)</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">length</span>(x); n</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code># [1] 20</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a data frame</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>purity.data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> x, <span class="at">y =</span> y)</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(purity.data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>purity.data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> x, <span class="at">y =</span> y)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(purity.data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div data-pagedtable="false">
@@ -600,19 +799,14 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<hr>
 </section>
-<section id="model-fitting-and-summary" class="level2" data-number="2.2">
-<h2 data-number="2.2" class="anchored" data-anchor-id="model-fitting-and-summary"><span class="header-section-number">2.2</span> 2. Model Fitting and Summary</h2>
-<p>We fit a linear model using the <code>lm()</code> function and then print the detailed summary of the model, which includes coefficients, R-squared, and other statistics.</p>
+<section id="fit-and-quick-summary" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="fit-and-quick-summary"><span class="header-section-number">3.2</span> Fit and quick summary</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit the model using the lm() function</span></span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x, <span class="at">data =</span> purity.data)</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the summary of the fit</span></span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x, <span class="at">data =</span> purity.data)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code># 
@@ -635,21 +829,17 @@ window.Quarto = {
 # F-statistic: 128.9 on 1 and 18 DF,  p-value: 1.227e-09</code></pre>
 </div>
 </div>
-<hr>
+<p><strong>Interpretation.</strong> The slope’s sign gives the direction of association; its <span class="math inline">\(t\)</span> test (or <span class="math inline">\(F\)</span> with 1 df) assesses evidence for a trend. Look at <span class="math inline">\(\hat\sigma\)</span> for noise scale and <span class="math inline">\(R^2\)</span> for variance explained.</p>
 </section>
-<section id="visualization-and-diagnostics" class="level2" data-number="2.3">
-<h2 data-number="2.3" class="anchored" data-anchor-id="visualization-and-diagnostics"><span class="header-section-number">2.3</span> 3. Visualization and Diagnostics</h2>
-<section id="scatter-plot-with-fitted-line" class="level3" data-number="2.3.1">
-<h3 data-number="2.3.1" class="anchored" data-anchor-id="scatter-plot-with-fitted-line"><span class="header-section-number">2.3.1</span> Scatter Plot with Fitted Line</h3>
-<p>Here we visualize the relationship between hydrocarbon level and purity with the fitted regression line overlaid.</p>
+<section id="scatter-with-fitted-line" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="scatter-with-fitted-line"><span class="header-section-number">3.3</span> Scatter with fitted line</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create scatter diagram and add the fitted line</span></span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(purity.data<span class="sc">$</span>x, purity.data<span class="sc">$</span>y, </span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Hydrocarbon level (x)"</span>, <span class="at">ylab =</span> <span class="st">"Purity (y)"</span>,</span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Oxygen Purity vs. Hydrocarbon Level"</span>)</span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(fit, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(purity.data<span class="sc">$</span>x, purity.data<span class="sc">$</span>y,</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Hydrocarbon level (x)"</span>, <span class="at">ylab =</span> <span class="st">"Purity (y)"</span>,</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Oxygen Purity vs Hydrocarbon Level"</span>)</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(fit, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -660,14 +850,12 @@ window.Quarto = {
 </div>
 </div>
 </section>
-<section id="confidence-intervals-and-anova" class="level3" data-number="2.3.2">
-<h3 data-number="2.3.2" class="anchored" data-anchor-id="confidence-intervals-and-anova"><span class="header-section-number">2.3.2</span> Confidence Intervals and ANOVA</h3>
-<p>We can compute the 95% confidence intervals for the regression coefficients and generate the ANOVA table for the model.</p>
+<section id="coefficient-cis-and-anova" class="level2" data-number="3.4">
+<h2 data-number="3.4" class="anchored" data-anchor-id="coefficient-cis-and-anova"><span class="header-section-number">3.4</span> Coefficient CIs and ANOVA</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Confidence intervals of the regression coefficients</span></span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(fit, <span class="at">level =</span> <span class="fl">0.95</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(fit, <span class="at">level =</span> <span class="fl">0.95</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>#                2.5 %   97.5 %
@@ -676,8 +864,7 @@ window.Quarto = {
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ANOVA table</span></span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div data-pagedtable="false">
@@ -687,49 +874,31 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<hr>
 </section>
-</section>
-<section id="mean-response-and-prediction-intervals" class="level2" data-number="2.4">
-<h2 data-number="2.4" class="anchored" data-anchor-id="mean-response-and-prediction-intervals"><span class="header-section-number">2.4</span> 4. Mean Response and Prediction Intervals</h2>
-<p>We will now calculate and visualize the confidence bands for the mean response and the prediction bands for new observations.</p>
-<section id="generating-bands" class="level3" data-number="2.4.1">
-<h3 data-number="2.4.1" class="anchored" data-anchor-id="generating-bands"><span class="header-section-number">2.4.1</span> Generating Bands</h3>
-<p>First, we create a sequence of <code>x</code> values to make predictions. Then, we use the <code>predict()</code> function to calculate the confidence and prediction intervals.</p>
+<section id="mean-response-and-prediction-bands" class="level2" data-number="3.5">
+<h2 data-number="3.5" class="anchored" data-anchor-id="mean-response-and-prediction-bands"><span class="header-section-number">3.5</span> Mean-response and prediction bands</h2>
+<p>The <strong>mean-response CI</strong> narrows near <span class="math inline">\(\bar x\)</span> and widens at the extremes; the <strong>prediction band</strong> is wider by the irreducible noise term.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a new data frame with values of x for which we want to predict/estimate</span></span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>x0 <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fu">min</span>(purity.data<span class="sc">$</span>x), <span class="fu">max</span>(purity.data<span class="sc">$</span>x), <span class="at">length =</span> <span class="dv">50</span>)</span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>newdata <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> x0)</span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Confidence interval for the mean response</span></span>
-<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>est.mean <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">newdata =</span> newdata, <span class="at">interval =</span> <span class="st">"confidence"</span>, <span class="at">level =</span> <span class="fl">0.95</span>)</span>
-<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Prediction interval for a new observation</span></span>
-<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>pred.new <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">newdata =</span> newdata, <span class="at">interval =</span> <span class="st">"prediction"</span>, <span class="at">level =</span> <span class="fl">0.95</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>x0 <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fu">min</span>(purity.data<span class="sc">$</span>x), <span class="fu">max</span>(purity.data<span class="sc">$</span>x), <span class="at">length =</span> <span class="dv">50</span>)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>newdata <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> x0)</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>est.mean <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">newdata =</span> newdata, <span class="at">interval =</span> <span class="st">"confidence"</span>, <span class="at">level =</span> <span class="fl">0.95</span>)</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>pred.new <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">newdata =</span> newdata, <span class="at">interval =</span> <span class="st">"prediction"</span>, <span class="at">level =</span> <span class="fl">0.95</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-</section>
-<section id="plotting-bands" class="level3" data-number="2.4.2">
-<h3 data-number="2.4.2" class="anchored" data-anchor-id="plotting-bands"><span class="header-section-number">2.4.2</span> Plotting Bands</h3>
-<p>This plot shows the fitted regression line along with the 95% confidence bands (blue dashed lines) and 95% prediction bands (red dotted lines).</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the data and the fitted line</span></span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(purity.data<span class="sc">$</span>x, purity.data<span class="sc">$</span>y,</span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Hydrocarbon level (x)"</span>, <span class="at">ylab =</span> <span class="st">"Purity (y)"</span>,</span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Regression Line with Confidence and Prediction Bands"</span>)</span>
-<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(fit)</span>
-<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Add the confidence and prediction bands</span></span>
-<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a><span class="fu">matlines</span>(x0, est.mean[, <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>], <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">lty =</span> <span class="dv">2</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
-<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a><span class="fu">matlines</span>(x0, pred.new[, <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>], <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lty =</span> <span class="dv">3</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
-<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Add a legend</span></span>
-<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topleft"</span>, <span class="fu">c</span>(<span class="st">"Confidence Bands"</span>, <span class="st">"Prediction Bands"</span>),</span>
-<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"blue"</span>, <span class="st">"red"</span>), <span class="at">lty =</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>, <span class="at">bty =</span> <span class="st">"n"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(purity.data<span class="sc">$</span>x, purity.data<span class="sc">$</span>y,</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Hydrocarbon level (x)"</span>, <span class="at">ylab =</span> <span class="st">"Purity (y)"</span>,</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Regression Line with Confidence and Prediction Bands"</span>)</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(fit)</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="fu">matlines</span>(x0, est.mean[, <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>], <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">lty =</span> <span class="dv">2</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a><span class="fu">matlines</span>(x0, pred.new[, <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>], <span class="at">col =</span> <span class="st">"red"</span>,  <span class="at">lty =</span> <span class="dv">3</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topleft"</span>, <span class="fu">c</span>(<span class="st">"Confidence Bands (mean)"</span>, <span class="st">"Prediction Bands (new y)"</span>),</span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"blue"</span>, <span class="st">"red"</span>), <span class="at">lty =</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>, <span class="at">bty =</span> <span class="st">"n"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -739,42 +908,22 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<hr>
 </section>
-</section>
-<section id="residual-analysis" class="level2" data-number="2.5">
-<h2 data-number="2.5" class="anchored" data-anchor-id="residual-analysis"><span class="header-section-number">2.5</span> 5. Residual Analysis</h2>
-<p>To check the model’s assumptions, we analyze the residuals. We extract the standardized residuals and create a set of diagnostic plots.</p>
+<section id="residual-diagnostics-assumptions-check" class="level2" data-number="3.6">
+<h2 data-number="3.6" class="anchored" data-anchor-id="residual-diagnostics-assumptions-check"><span class="header-section-number">3.6</span> Residual diagnostics (assumptions check)</h2>
+<p>We look for <strong>no pattern</strong> in residuals vs.&nbsp;fits and <strong>approximate straightness</strong> in the Q–Q plot.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract fitted values and residuals</span></span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>pred <span class="ot">&lt;-</span> <span class="fu">fitted.values</span>(fit)</span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>e <span class="ot">&lt;-</span> <span class="fu">resid</span>(fit)</span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute standardized residuals</span></span>
-<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> e <span class="sc">/</span> <span class="fu">summary</span>(fit)<span class="sc">$</span>sigma</span>
-<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a 2x2 layout for plots</span></span>
-<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
-<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Scatter plot with regression line</span></span>
-<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(purity.data<span class="sc">$</span>x, purity.data<span class="sc">$</span>y, <span class="at">xlab =</span> <span class="st">"x"</span>, <span class="at">ylab =</span> <span class="st">"y"</span>)</span>
-<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(fit)</span>
-<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Normal Q-Q plot of standardized residuals</span></span>
-<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(d, <span class="at">main =</span> <span class="st">"Normal Q-Q Plot"</span>)</span>
-<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a><span class="fu">qqline</span>(d)</span>
-<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Standardized residuals vs. Predicted values</span></span>
-<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred, d, <span class="at">xlab =</span> <span class="st">"Predicted values"</span>, <span class="at">ylab =</span> <span class="st">"Standardized residuals"</span>,</span>
-<span id="cb36-21"><a href="#cb36-21" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Residuals vs. Fits"</span>)</span>
-<span id="cb36-22"><a href="#cb36-22" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
-<span id="cb36-23"><a href="#cb36-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-24"><a href="#cb36-24" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Standardized residuals vs. Observation order</span></span>
-<span id="cb36-25"><a href="#cb36-25" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="dv">1</span><span class="sc">:</span>n, d, <span class="at">xlab =</span> <span class="st">"Observation Order"</span>, <span class="at">ylab =</span> <span class="st">"Standardized residuals"</span>,</span>
-<span id="cb36-26"><a href="#cb36-26" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Residuals vs. Order"</span>)</span>
-<span id="cb36-27"><a href="#cb36-27" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>pred <span class="ot">&lt;-</span> <span class="fu">fitted.values</span>(fit)</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>e <span class="ot">&lt;-</span> <span class="fu">resid</span>(fit)</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> e <span class="sc">/</span> <span class="fu">summary</span>(fit)<span class="sc">$</span>sigma</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(purity.data<span class="sc">$</span>x, purity.data<span class="sc">$</span>y, <span class="at">xlab =</span> <span class="st">"x"</span>, <span class="at">ylab =</span> <span class="st">"y"</span>); <span class="fu">abline</span>(fit)</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(d, <span class="at">main =</span> <span class="st">"Normal Q–Q"</span>); <span class="fu">qqline</span>(d)</span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred, d, <span class="at">xlab =</span> <span class="st">"Fitted"</span>, <span class="at">ylab =</span> <span class="st">"Std. residuals"</span>, <span class="at">main =</span> <span class="st">"Residuals vs Fits"</span>); <span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="dv">1</span><span class="sc">:</span>n, d, <span class="at">xlab =</span> <span class="st">"Order"</span>, <span class="at">ylab =</span> <span class="st">"Std. residuals"</span>, <span class="at">main =</span> <span class="st">"Residuals vs Order"</span>); <span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -783,29 +932,29 @@ window.Quarto = {
 </figure>
 </div>
 </div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 <hr>
 </section>
 </section>
-<section id="correlation-analysis" class="level1" data-number="3">
-<h1 data-number="3"><span class="header-section-number">3</span> Correlation Analysis</h1>
-<p>This section performs a correlation analysis between the strength and length of a certain material.</p>
-<section id="data-and-visualization" class="level2" data-number="3.1">
-<h2 data-number="3.1" class="anchored" data-anchor-id="data-and-visualization"><span class="header-section-number">3.1</span> 1. Data and Visualization</h2>
-<p>We define the <code>strength</code> and <code>length</code> data and create a scatter plot to visualize their relationship.</p>
+<section id="correlation-analysis-for-comparison-not-causation" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Correlation analysis (for comparison, not causation)</h1>
+<p>Correlation summarizes linear association without fitting a line or making model assumptions.</p>
+<section id="data-and-scatter" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="data-and-scatter"><span class="header-section-number">4.1</span> Data and scatter</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the data vectors</span></span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>strength <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">9.95</span>, <span class="fl">24.45</span>, <span class="fl">31.75</span>, <span class="fl">35.00</span>, <span class="fl">25.02</span>, <span class="fl">16.86</span>, <span class="fl">14.38</span>, <span class="fl">9.60</span>, <span class="fl">24.35</span>,</span>
-<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>              <span class="fl">27.50</span>, <span class="fl">17.08</span>, <span class="fl">37.00</span>, <span class="fl">41.95</span>, <span class="fl">11.66</span>, <span class="fl">21.65</span>, <span class="fl">17.89</span>, <span class="fl">69.00</span>, <span class="fl">10.30</span>, </span>
-<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>              <span class="fl">34.93</span>, <span class="fl">46.59</span>, <span class="fl">44.88</span>, <span class="fl">54.12</span>, <span class="fl">56.63</span>, <span class="fl">22.13</span>, <span class="fl">21.15</span>)</span>
-<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>length <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">8</span>, <span class="dv">11</span>, <span class="dv">10</span>, <span class="dv">8</span>, <span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">9</span>, <span class="dv">8</span>, <span class="dv">4</span>, <span class="dv">11</span>, <span class="dv">12</span>, <span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">20</span>, <span class="dv">1</span>, <span class="dv">10</span>,</span>
-<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>            <span class="dv">15</span>, <span class="dv">15</span>, <span class="dv">16</span>, <span class="dv">17</span>, <span class="dv">6</span>, <span class="dv">5</span>)</span>
-<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the relationship</span></span>
-<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(length, strength, <span class="at">xlab =</span> <span class="st">"Length"</span>, <span class="at">ylab =</span> <span class="st">"Strength"</span>,</span>
-<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Strength vs. Length"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>strength <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">9.95</span>,<span class="fl">24.45</span>,<span class="fl">31.75</span>,<span class="fl">35.00</span>,<span class="fl">25.02</span>,<span class="fl">16.86</span>,<span class="fl">14.38</span>,<span class="fl">9.60</span>,<span class="fl">24.35</span>,</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>              <span class="fl">27.50</span>,<span class="fl">17.08</span>,<span class="fl">37.00</span>,<span class="fl">41.95</span>,<span class="fl">11.66</span>,<span class="fl">21.65</span>,<span class="fl">17.89</span>,<span class="fl">69.00</span>,<span class="fl">10.30</span>,</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>              <span class="fl">34.93</span>,<span class="fl">46.59</span>,<span class="fl">44.88</span>,<span class="fl">54.12</span>,<span class="fl">56.63</span>,<span class="fl">22.13</span>,<span class="fl">21.15</span>)</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>length <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">8</span>,<span class="dv">11</span>,<span class="dv">10</span>,<span class="dv">8</span>,<span class="dv">4</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">9</span>,<span class="dv">8</span>,<span class="dv">4</span>,<span class="dv">11</span>,<span class="dv">12</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">4</span>,<span class="dv">20</span>,<span class="dv">1</span>,<span class="dv">10</span>,</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>            <span class="dv">15</span>,<span class="dv">15</span>,<span class="dv">16</span>,<span class="dv">17</span>,<span class="dv">6</span>,<span class="dv">5</span>)</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(length, strength, <span class="at">xlab =</span> <span class="st">"Length"</span>, <span class="at">ylab =</span> <span class="st">"Strength"</span>,</span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Strength vs Length (scatter)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -816,22 +965,19 @@ window.Quarto = {
 </div>
 </div>
 </section>
-<section id="correlation-test" class="level2" data-number="3.2">
-<h2 data-number="3.2" class="anchored" data-anchor-id="correlation-test"><span class="header-section-number">3.2</span> 2. Correlation Test</h2>
-<p>We calculate the Pearson correlation coefficient and perform a formal hypothesis test for the correlation.</p>
+<section id="pearson-correlation-and-test" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="pearson-correlation-and-test"><span class="header-section-number">4.2</span> Pearson correlation and test</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the correlation coefficient</span></span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(strength, length)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(strength, length)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code># [1] 0.9818118</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform the correlation test</span></span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cor.test</span>(strength, length)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor.test</span>(strength, length)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code># 
@@ -847,8 +993,19 @@ window.Quarto = {
 # 0.9818118</code></pre>
 </div>
 </div>
-<p>The results show a strong positive correlation between length and strength, and the p-value is highly significant, indicating that this relationship is not due to random chance.</p>
+<p><strong>Note.</strong> A large <span class="math inline">\(|r|\)</span> and small <span class="math inline">\(p\)</span> indicate linear association; regression further quantifies the slope and supports prediction, with diagnostics to check assumptions.</p>
+<hr>
 </section>
+</section>
+<section id="what-to-report-checklist" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> What to report (checklist)</h1>
+<ul>
+<li>Estimated line <span class="math inline">\(\hat y=\hat\beta_0+\hat\beta_1 x\)</span> with units.</li>
+<li><span class="math inline">\(t\)</span>/<span class="math inline">\(F\)</span> test for slope, <span class="math inline">\(p\)</span>-value and CI for <span class="math inline">\(\beta_1\)</span>.</li>
+<li><span class="math inline">\(R^2\)</span> and <span class="math inline">\(\hat\sigma\)</span> (RMSE) for fit quality.</li>
+<li>Mean-response and prediction intervals at substantively relevant <span class="math inline">\(x_0\)</span>.</li>
+<li>Residual diagnostics and any remedies (transformations, robust methods) if needed.</li>
+</ul>
 </section>
 
 </main>
