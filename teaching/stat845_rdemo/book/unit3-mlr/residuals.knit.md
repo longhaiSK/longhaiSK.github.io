@@ -6,15 +6,9 @@ author:
     affiliation: "University of Saskatchewan"
     url: "https://longhaisk.github.io/"
 date: today
-format: 
-  pdf:
-    toc: true
-    number-sections: true
-    shift-heading-level-by: 0
-    include-in-header:
-      text: |
-        \usepackage{amsmath}
 ---
+
+
 
 
 
@@ -168,6 +162,8 @@ The simulation uses a **simple linear regression model** to describe the relatio
 
 
 
+
+
 ::: {.cell}
 
 ```{.r .cell-code}
@@ -202,6 +198,8 @@ abline (a=2, b=3, col="red", lwd=2)
 
 
 
+
+
 ### Description of Calculated Columns
 
 The final table compiles several important quantities calculated during the simulation. Here's what each column represents:
@@ -221,6 +219,8 @@ The final table compiles several important quantities calculated during the simu
   - **ST-Full**: The **Studentized Full-Data Residual**, calculated using the efficient shortcut formula, which is provided by R's `rstudent()` function.
 
 <!-- end list -->
+
+
 
 
 
@@ -435,6 +435,8 @@ ggplot(
 
 
 
+
+
 From the above simulation results, we observe the following important facts:
 
   - **Leverage and Influence:** The simulation confirms that leverage ($h_{ii}$) measures an observation's influence on the model's coefficients. It shows that points with higher leverage pull the regression line toward them, resulting in smaller, deceptively conservative full-data residuals ($e_i$).
@@ -548,6 +550,8 @@ So $4/n$ is a **rule-of-thumb** 95% cutoff for an **average-leverage** point; th
 
 
 
+
+
 ::: {.cell}
 
 ```{.r .cell-code}
@@ -625,7 +629,11 @@ if (knitr::is_html_output()) {
 
 
 
+
+
 ## Example for Cook's Distance: 
+
+
 
 
 
@@ -751,6 +759,8 @@ ggplot(df_cook, aes(x = i, y = D_i)) +
 ![Cook's D by case with heuristic 4/n (red dotted), per-case Beta 95% critical values (blue dashed), and average-leverage Beta 95% line (purple dot-dash).](residuals_files/figure-html/cooksD-compute-and-plot-1.png){width=576}
 :::
 :::
+
+
 
 
 
