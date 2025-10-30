@@ -77,6 +77,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-9f849cbbbd34ccda4fce30280e8b4082.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/videojs/video.min.js"></script>
+<link href="../site_libs/quarto-contrib/videojs/video-js.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -207,7 +209,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../unit5-factor/crbd.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Randomized Complete Block Design</span></span></a>
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">One-factor Design</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -271,11 +273,11 @@ window.Quarto = {
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read data. Change the path as necessary.</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Example: bond.data &lt;- read.csv("wire-bond.csv")</span></span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Read data. Change the path as necessary.</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">## Example: bond.data &lt;- read.csv("wire-bond.csv")</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>bond.data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"wire-bond.csv"</span>)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># This will now be automatically rendered as a paged table</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## This will now be automatically rendered as a paged table</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>bond.data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
@@ -292,21 +294,21 @@ window.Quarto = {
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">1</span>))</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1) length vs strength</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="do">## 1) length vs strength</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>i1 <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="sc">!</span><span class="fu">is.na</span>(bond.data<span class="sc">$</span>length) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(bond.data<span class="sc">$</span>strength))</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bond.data<span class="sc">$</span>length[i1], bond.data<span class="sc">$</span>strength[i1],</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Wire Length"</span>, <span class="at">ylab =</span> <span class="st">"Pull strength"</span>, <span class="at">pch =</span> <span class="dv">19</span>)</span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(bond.data<span class="sc">$</span>length[i1], bond.data<span class="sc">$</span>strength[i1],</span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>     <span class="at">labels =</span> i1, <span class="at">pos =</span> <span class="dv">1</span>, <span class="at">offset =</span> <span class="fl">0.4</span>, <span class="at">cex =</span> <span class="fl">0.75</span>)</span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 2) height vs strength</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="do">## 2) height vs strength</span></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>i2 <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="sc">!</span><span class="fu">is.na</span>(bond.data<span class="sc">$</span>height) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(bond.data<span class="sc">$</span>strength))</span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bond.data<span class="sc">$</span>height[i2], bond.data<span class="sc">$</span>strength[i2],</span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Die height"</span>, <span class="at">ylab =</span> <span class="st">"Pull strength"</span>, <span class="at">pch =</span> <span class="dv">19</span>)</span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(bond.data<span class="sc">$</span>height[i2], bond.data<span class="sc">$</span>strength[i2],</span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>     <span class="at">labels =</span> i2, <span class="at">pos =</span> <span class="dv">1</span>, <span class="at">offset =</span> <span class="fl">0.4</span>, <span class="at">cex =</span> <span class="fl">0.75</span>)</span>
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co"># 3) height vs length</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="do">## 3) height vs length</span></span>
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>i3 <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="sc">!</span><span class="fu">is.na</span>(bond.data<span class="sc">$</span>height) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(bond.data<span class="sc">$</span>length))</span>
 <span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bond.data<span class="sc">$</span>height[i3], bond.data<span class="sc">$</span>length[i3],</span>
 <span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Die height"</span>, <span class="at">ylab =</span> <span class="st">"Length"</span>, <span class="at">pch =</span> <span class="dv">19</span>)</span>
@@ -391,7 +393,7 @@ F-statistic: 572.2 on 2 and 22 DF,  p-value: &lt; 2.2e-16</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Confidence intervals</span></span>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Confidence intervals</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
@@ -402,7 +404,7 @@ height      0.006724246 0.01833138</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fitted values and residuals</span></span>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Fitted values and residuals</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>pred <span class="ot">&lt;-</span> <span class="fu">fitted.values</span>(fit)</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>e <span class="ot">&lt;-</span> <span class="fu">resid</span>(fit)</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">y =</span> bond.data<span class="sc">$</span>strength, <span class="at">y.hat =</span> pred, <span class="at">e =</span> e)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -416,7 +418,7 @@ height      0.006724246 0.01833138</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Covariance matrix and standard errors</span></span>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Covariance matrix and standard errors</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>cov.mat <span class="ot">&lt;-</span> <span class="fu">vcov</span>(fit)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>cov.mat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
@@ -599,7 +601,7 @@ E[\mathrm{SSR}_{\mathrm{adj}}]
 </section>
 </section>
 <section id="a-simulation-study-to-understand-the-distributions-of-rss" class="level3" data-number="4.2.3">
-<h3 data-number="4.2.3" class="anchored" data-anchor-id="a-simulation-study-to-understand-the-distributions-of-rss"><span class="header-section-number">4.2.3</span> A Simulation Study to Understand the Distributions of RSS</h3>
+<h3 data-number="4.2.3" class="anchored"><span class="header-section-number">4.2.3</span> A Simulation Study to Understand the Distributions of RSS</h3>
 <p><strong>Data Generating Model</strong></p>
 <p>For <span class="math inline">\(n=30\)</span> and <span class="math inline">\(p_{max}=20\)</span>, simulate with either <span class="math inline">\(H_0:\beta=\mathbf 0\)</span> or <span class="math inline">\(H_1\)</span> where only <span class="math inline">\(\beta_1\neq 0\)</span>; <span class="math inline">\(\epsilon_i\sim N(0,1)\)</span>.</p>
 <p><strong>Sequence of Fitted Models</strong></p>
@@ -647,16 +649,28 @@ E[\mathrm{SSR}_{\mathrm{adj}}]
 </table>
 <section id="when-h_0-is-true" class="level4" data-number="4.2.3.1">
 <h4 data-number="4.2.3.1" class="anchored" data-anchor-id="when-h_0-is-true"><span class="header-section-number">4.2.3.1</span> When <span class="math inline">\(H_0\)</span> is true</h4>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">'&lt;video controls style="width:100%%;height:auto;"&gt;&lt;source src="%s" type="video/mp4"&gt;&lt;/video&gt;'</span>,<span class="st">"rss-h0.mp4"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<video controls="" style="width:100%;height:auto;">
-<source src="rss-h0.mp4" type="video/mp4">
-</video>
+<div class="quarto-video"><video id="video_shortcode_videojs_video1" class="video-js vjs-default-skin vjs-fluid" controls="" preload="auto" data-setup="{}" title=""><source src="rss-h0.mp4"></video></div>
+<div class="cell" data-context="pdf">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="frames0/f001.png" class="img-fluid figure-img" width="600"></p>
+<figcaption>A single representative frame from the simulation.</figcaption>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="when-h_1-is-true" class="level4" data-number="4.2.3.2">
-<h4 data-number="4.2.3.2" class="anchored" data-anchor-id="when-h_1-is-true"><span class="header-section-number">4.2.3.2</span> When <span class="math inline">\(H_1\)</span> is true</h4>
+<h4 data-number="4.2.3.2" class="anchored"><span class="header-section-number">4.2.3.2</span> When <span class="math inline">\(H_1\)</span> is true</h4>
+<div class="cell" data-context="html">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(av)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>pngs <span class="ot">&lt;-</span> <span class="fu">list.files</span>(<span class="st">"frames1"</span>, <span class="st">"</span><span class="sc">\\</span><span class="st">.png$"</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span>); pngs <span class="ot">&lt;-</span> pngs[<span class="fu">order</span>(pngs)]</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">av_encode_video</span>(pngs, <span class="st">"rss-h1.mp4"</span>, <span class="at">framerate =</span> <span class="dv">1</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>)  <span class="co"># H.264 MP4</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<p>[1] “/Users/lol553/GitHub/longhaiSK.github.io/teaching/stat845_rdemo/book/unit3-mlr/rss-h1.mp4”</p>
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">'&lt;video controls style="width:100%%;height:auto;"&gt;&lt;source src="%s" type="video/mp4"&gt;&lt;/video&gt;'</span>,<span class="st">"rss-h1.mp4"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -664,14 +678,23 @@ E[\mathrm{SSR}_{\mathrm{adj}}]
 <video controls="" style="width:100%;height:auto;">
 <source src="rss-h1.mp4" type="video/mp4">
 </video>
-</section>
-</section>
+<p>:::</p>
+<div class="cell" data-context="pdf">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="frames1/f001.png" class="img-fluid figure-img" width="600"></p>
+<figcaption>A single representative frame from the simulation.</figcaption>
+</figure>
+</div>
+</div>
+</div>
 <section id="example" class="level3" data-number="4.2.4">
 <h3 data-number="4.2.4" class="anchored" data-anchor-id="example"><span class="header-section-number">4.2.4</span> Example</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Data: Weight, height and age of children</span></span>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Data: Weight, height and age of children</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>wgt <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">64</span>, <span class="dv">71</span>, <span class="dv">53</span>, <span class="dv">67</span>, <span class="dv">55</span>, <span class="dv">58</span>, <span class="dv">77</span>, <span class="dv">57</span>, <span class="dv">56</span>, <span class="dv">51</span>, <span class="dv">76</span>, <span class="dv">68</span>)</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>hgt <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">57</span>, <span class="dv">59</span>, <span class="dv">49</span>, <span class="dv">62</span>, <span class="dv">51</span>, <span class="dv">50</span>, <span class="dv">55</span>, <span class="dv">48</span>, <span class="dv">42</span>, <span class="dv">42</span>, <span class="dv">61</span>, <span class="dv">57</span>)</span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>age <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">8</span>, <span class="dv">10</span>, <span class="dv">6</span>, <span class="dv">11</span>, <span class="dv">8</span>, <span class="dv">7</span>, <span class="dv">10</span>, <span class="dv">9</span>, <span class="dv">10</span>, <span class="dv">6</span>, <span class="dv">12</span>, <span class="dv">9</span>)</span>
@@ -820,7 +843,6 @@ F-statistic: 15.95 on 2 and 9 DF,  p-value: 0.001099</code></pre>
 <li>The p-value from t-test (output of <em>summary(lm())</em>) is the same as anova test for: <span class="math inline">\(H_0: \beta_j = 0\)</span> vs <span class="math inline">\(H_1\)</span>: all covaraites have non-zero effects.</li>
 </ul>
 </section>
-</section>
 <section id="predictions-for-mean-response-and-a-future-observation" class="level2" data-number="4.3">
 <h2 data-number="4.3" class="anchored" data-anchor-id="predictions-for-mean-response-and-a-future-observation"><span class="header-section-number">4.3</span> Predictions for Mean Response and a Future Observation</h2>
 <section id="confidence-interval-for-mean-response" class="level3" data-number="4.3.1">
@@ -896,7 +918,7 @@ F-statistic: 15.95 on 2 and 9 DF,  p-value: 0.001099</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="mlr_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="576"></p>
+<p><img src="mlr_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="576"></p>
 </figure>
 </div>
 </div>
@@ -926,7 +948,7 @@ F-statistic: 15.95 on 2 and 9 DF,  p-value: 0.001099</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages("olsrr") # Run once if needed</span></span>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="do">## install.packages("olsrr") # Run once if needed</span></span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(olsrr)</span>
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ols_plot_cooksd_chart</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -934,7 +956,7 @@ F-statistic: 15.95 on 2 and 9 DF,  p-value: 0.001099</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="mlr_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="576"></p>
+<p><img src="mlr_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid figure-img" width="576"></p>
 </figure>
 </div>
 </div>
@@ -945,7 +967,7 @@ F-statistic: 15.95 on 2 and 9 DF,  p-value: 0.001099</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="mlr_files/figure-html/unnamed-chunk-20-2.png" class="img-fluid figure-img" width="576"></p>
+<p><img src="mlr_files/figure-html/unnamed-chunk-22-2.png" class="img-fluid figure-img" width="576"></p>
 </figure>
 </div>
 </div>
@@ -956,7 +978,7 @@ F-statistic: 15.95 on 2 and 9 DF,  p-value: 0.001099</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="mlr_files/figure-html/unnamed-chunk-20-3.png" class="img-fluid figure-img" width="576"></p>
+<p><img src="mlr_files/figure-html/unnamed-chunk-22-3.png" class="img-fluid figure-img" width="576"></p>
 </figure>
 </div>
 </div>
@@ -1004,7 +1026,7 @@ F-statistic:  1767 on 2 and 9 DF,  p-value: 2.096e-12</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="mlr_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid figure-img" width="576"></p>
+<p><img src="mlr_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="576"></p>
 </figure>
 </div>
 </div>
@@ -1030,7 +1052,7 @@ F-statistic:  1767 on 2 and 9 DF,  p-value: 2.096e-12</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Note: Update this path to your local file location</span></span>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Note: Update this path to your local file location</span></span>
 <span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>sbpdata <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"sbpdata.csv"</span>)</span>
 <span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>sbpdata</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
@@ -1049,37 +1071,37 @@ F-statistic:  1767 on 2 and 9 DF,  p-value: 2.096e-12</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ensure sex is a factor (labels will appear in the legend)</span></span>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Ensure sex is a factor (labels will appear in the legend)</span></span>
 <span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>sbpdata<span class="sc">$</span>sex <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(sbpdata<span class="sc">$</span>sex)</span>
 <span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit (you already have this)</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="do">## Fit (you already have this)</span></span>
 <span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>fit.age <span class="ot">&lt;-</span> <span class="fu">lm</span>(sbp <span class="sc">~</span> age, <span class="at">data =</span> sbpdata)</span>
 <span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate predictions over the observed age range</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a><span class="do">## Generate predictions over the observed age range</span></span>
 <span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>new_age <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fu">min</span>(sbpdata<span class="sc">$</span>age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
 <span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>               <span class="fu">max</span>(sbpdata<span class="sc">$</span>age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
 <span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>               <span class="at">length.out =</span> <span class="dv">200</span>)</span>
 <span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>pred <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit.age, <span class="at">newdata =</span> <span class="fu">data.frame</span>(<span class="at">age =</span> new_age))</span>
 <span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Simple palette for the sex levels (works for 1–3 levels; expand if needed)</span></span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a><span class="do">## Simple palette for the sex levels (works for 1–3 levels; expand if needed)</span></span>
 <span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a>lev  <span class="ot">&lt;-</span> <span class="fu">levels</span>(sbpdata<span class="sc">$</span>sex)</span>
 <span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a>cols <span class="ot">&lt;-</span> <span class="fu">setNames</span>(<span class="fu">c</span>(<span class="st">"steelblue3"</span>, <span class="st">"tomato3"</span>, <span class="st">"darkorchid3"</span>)[<span class="fu">seq_along</span>(lev)], lev)</span>
 <span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Scatter plot with colored points by sex</span></span>
+<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a><span class="do">## Scatter plot with colored points by sex</span></span>
 <span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sbp <span class="sc">~</span> age, <span class="at">data =</span> sbpdata,</span>
 <span id="cb40-19"><a href="#cb40-19" aria-hidden="true" tabindex="-1"></a>     <span class="at">col =</span> cols[sbpdata<span class="sc">$</span>sex], <span class="at">pch =</span> <span class="dv">16</span>,</span>
 <span id="cb40-20"><a href="#cb40-20" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Age"</span>, <span class="at">ylab =</span> <span class="st">"Systolic BP"</span>)</span>
 <span id="cb40-21"><a href="#cb40-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-22"><a href="#cb40-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Add predicted line</span></span>
+<span id="cb40-22"><a href="#cb40-22" aria-hidden="true" tabindex="-1"></a><span class="do">## Add predicted line</span></span>
 <span id="cb40-23"><a href="#cb40-23" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(new_age, pred, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
 <span id="cb40-24"><a href="#cb40-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-25"><a href="#cb40-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Legend</span></span>
+<span id="cb40-25"><a href="#cb40-25" aria-hidden="true" tabindex="-1"></a><span class="do">## Legend</span></span>
 <span id="cb40-26"><a href="#cb40-26" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topleft"</span>, <span class="at">legend =</span> lev, <span class="at">col =</span> cols[lev], <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">bty =</span> <span class="st">"n"</span>, <span class="at">title =</span> <span class="st">"Sex"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="mlr_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid figure-img" width="576"></p>
+<p><img src="mlr_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid figure-img" width="576"></p>
 </figure>
 </div>
 </div>
@@ -1117,41 +1139,41 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Parallelism: H0: beta3=0 (Sex has additive effect)</span></span>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Parallelism: H0: beta3=0 (Sex has additive effect)</span></span>
 <span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>fit.agePLUSsex <span class="ot">&lt;-</span> <span class="fu">lm</span>(sbp <span class="sc">~</span> age <span class="sc">+</span> sex, <span class="at">data =</span> sbpdata)</span>
 <span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Ensure sex is a factor for labeling/colors</span></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a><span class="do">## Ensure sex is a factor for labeling/colors</span></span>
 <span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>sbpdata<span class="sc">$</span>sex <span class="ot">&lt;-</span> <span class="fu">factor</span>(sbpdata<span class="sc">$</span>sex)</span>
 <span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit (additive: parallelism)</span></span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a><span class="do">## Fit (additive: parallelism)</span></span>
 <span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>fit.agePLUSsex <span class="ot">&lt;-</span> <span class="fu">lm</span>(sbp <span class="sc">~</span> age <span class="sc">+</span> sex, <span class="at">data =</span> sbpdata)</span>
 <span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a><span class="co"># X-range and palette</span></span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a><span class="do">## X-range and palette</span></span>
 <span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a>ages <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fu">min</span>(sbpdata<span class="sc">$</span>age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
 <span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a>            <span class="fu">max</span>(sbpdata<span class="sc">$</span>age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
 <span id="cb44-13"><a href="#cb44-13" aria-hidden="true" tabindex="-1"></a>            <span class="at">length.out =</span> <span class="dv">200</span>)</span>
 <span id="cb44-14"><a href="#cb44-14" aria-hidden="true" tabindex="-1"></a>lev  <span class="ot">&lt;-</span> <span class="fu">levels</span>(sbpdata<span class="sc">$</span>sex)</span>
 <span id="cb44-15"><a href="#cb44-15" aria-hidden="true" tabindex="-1"></a>cols <span class="ot">&lt;-</span> <span class="fu">setNames</span>(<span class="fu">c</span>(<span class="st">"steelblue3"</span>, <span class="st">"tomato3"</span>, <span class="st">"darkorchid3"</span>)[<span class="fu">seq_along</span>(lev)], lev)</span>
 <span id="cb44-16"><a href="#cb44-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb44-17"><a href="#cb44-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Scatter with colored points by sex</span></span>
+<span id="cb44-17"><a href="#cb44-17" aria-hidden="true" tabindex="-1"></a><span class="do">## Scatter with colored points by sex</span></span>
 <span id="cb44-18"><a href="#cb44-18" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sbp <span class="sc">~</span> age, <span class="at">data =</span> sbpdata,</span>
 <span id="cb44-19"><a href="#cb44-19" aria-hidden="true" tabindex="-1"></a>     <span class="at">col =</span> cols[sbpdata<span class="sc">$</span>sex], <span class="at">pch =</span> <span class="dv">16</span>,</span>
 <span id="cb44-20"><a href="#cb44-20" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Age"</span>, <span class="at">ylab =</span> <span class="st">"Systolic BP"</span>)</span>
 <span id="cb44-21"><a href="#cb44-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb44-22"><a href="#cb44-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Parallel fitted lines: one per sex (same slope, different intercepts)</span></span>
+<span id="cb44-22"><a href="#cb44-22" aria-hidden="true" tabindex="-1"></a><span class="do">## Parallel fitted lines: one per sex (same slope, different intercepts)</span></span>
 <span id="cb44-23"><a href="#cb44-23" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (sx <span class="cf">in</span> lev) {</span>
 <span id="cb44-24"><a href="#cb44-24" aria-hidden="true" tabindex="-1"></a>  nd <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">age =</span> ages, <span class="at">sex =</span> <span class="fu">factor</span>(sx, <span class="at">levels =</span> lev))</span>
 <span id="cb44-25"><a href="#cb44-25" aria-hidden="true" tabindex="-1"></a>  yhat <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit.agePLUSsex, <span class="at">newdata =</span> nd)</span>
 <span id="cb44-26"><a href="#cb44-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lines</span>(ages, yhat, <span class="at">col =</span> cols[sx], <span class="at">lwd =</span> <span class="dv">2</span>)</span>
 <span id="cb44-27"><a href="#cb44-27" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb44-28"><a href="#cb44-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb44-29"><a href="#cb44-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Legend</span></span>
+<span id="cb44-29"><a href="#cb44-29" aria-hidden="true" tabindex="-1"></a><span class="do">## Legend</span></span>
 <span id="cb44-30"><a href="#cb44-30" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topleft"</span>, <span class="at">legend =</span> lev, <span class="at">col =</span> cols[lev], <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">bty =</span> <span class="st">"n"</span>, <span class="at">title =</span> <span class="st">"Sex"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="mlr_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid figure-img" width="576"></p>
+<p><img src="mlr_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid figure-img" width="576"></p>
 </figure>
 </div>
 </div>
@@ -1190,38 +1212,38 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Make sure sex is a factor (for colors/legend)</span></span>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Make sure sex is a factor (for colors/legend)</span></span>
 <span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>sbpdata<span class="sc">$</span>sex <span class="ot">&lt;-</span> <span class="fu">factor</span>(sbpdata<span class="sc">$</span>sex)</span>
 <span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit (interaction: different slopes by sex)</span></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a><span class="do">## Fit (interaction: different slopes by sex)</span></span>
 <span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>fit.age.TIMES.sex <span class="ot">&lt;-</span> <span class="fu">lm</span>(sbp <span class="sc">~</span> age <span class="sc">+</span> sex <span class="sc">+</span> age<span class="sc">:</span>sex, <span class="at">data =</span> sbpdata)</span>
 <span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Age grid and palette</span></span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a><span class="do">## Age grid and palette</span></span>
 <span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>ages <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fu">min</span>(sbpdata<span class="sc">$</span>age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
 <span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>            <span class="fu">max</span>(sbpdata<span class="sc">$</span>age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
 <span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>            <span class="at">length.out =</span> <span class="dv">200</span>)</span>
 <span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a>lev  <span class="ot">&lt;-</span> <span class="fu">levels</span>(sbpdata<span class="sc">$</span>sex)</span>
 <span id="cb48-12"><a href="#cb48-12" aria-hidden="true" tabindex="-1"></a>cols <span class="ot">&lt;-</span> <span class="fu">setNames</span>(<span class="fu">c</span>(<span class="st">"steelblue3"</span>, <span class="st">"tomato3"</span>, <span class="st">"darkorchid3"</span>)[<span class="fu">seq_along</span>(lev)], lev)</span>
 <span id="cb48-13"><a href="#cb48-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb48-14"><a href="#cb48-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Scatter: color points by sex</span></span>
+<span id="cb48-14"><a href="#cb48-14" aria-hidden="true" tabindex="-1"></a><span class="do">## Scatter: color points by sex</span></span>
 <span id="cb48-15"><a href="#cb48-15" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sbp <span class="sc">~</span> age, <span class="at">data =</span> sbpdata,</span>
 <span id="cb48-16"><a href="#cb48-16" aria-hidden="true" tabindex="-1"></a>     <span class="at">col =</span> cols[sbpdata<span class="sc">$</span>sex], <span class="at">pch =</span> <span class="dv">16</span>,</span>
 <span id="cb48-17"><a href="#cb48-17" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Age"</span>, <span class="at">ylab =</span> <span class="st">"Systolic BP"</span>)</span>
 <span id="cb48-18"><a href="#cb48-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb48-19"><a href="#cb48-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Fitted lines: one per sex (different slopes allowed)</span></span>
+<span id="cb48-19"><a href="#cb48-19" aria-hidden="true" tabindex="-1"></a><span class="do">## Fitted lines: one per sex (different slopes allowed)</span></span>
 <span id="cb48-20"><a href="#cb48-20" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (sx <span class="cf">in</span> lev) {</span>
 <span id="cb48-21"><a href="#cb48-21" aria-hidden="true" tabindex="-1"></a>  nd <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">age =</span> ages, <span class="at">sex =</span> <span class="fu">factor</span>(sx, <span class="at">levels =</span> lev))</span>
 <span id="cb48-22"><a href="#cb48-22" aria-hidden="true" tabindex="-1"></a>  yhat <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit.age.TIMES.sex, <span class="at">newdata =</span> nd)</span>
 <span id="cb48-23"><a href="#cb48-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lines</span>(ages, yhat, <span class="at">col =</span> cols[sx], <span class="at">lwd =</span> <span class="dv">2</span>)</span>
 <span id="cb48-24"><a href="#cb48-24" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb48-25"><a href="#cb48-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb48-26"><a href="#cb48-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Legend</span></span>
+<span id="cb48-26"><a href="#cb48-26" aria-hidden="true" tabindex="-1"></a><span class="do">## Legend</span></span>
 <span id="cb48-27"><a href="#cb48-27" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topleft"</span>, <span class="at">legend =</span> lev, <span class="at">col =</span> cols[lev], <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">bty =</span> <span class="st">"n"</span>, <span class="at">title =</span> <span class="st">"Sex"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="mlr_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid figure-img" width="576"></p>
+<p><img src="mlr_files/figure-html/unnamed-chunk-31-1.png" class="img-fluid figure-img" width="576"></p>
 </figure>
 </div>
 </div>
@@ -1289,39 +1311,39 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Make sure sex is a factor (for colors/legend)</span></span>
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Make sure sex is a factor (for colors/legend)</span></span>
 <span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>sbpdata<span class="sc">$</span>sex <span class="ot">&lt;-</span> <span class="fu">factor</span>(sbpdata<span class="sc">$</span>sex)</span>
 <span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit (interaction: different slopes by sex)</span></span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a><span class="do">## Fit (interaction: different slopes by sex)</span></span>
 <span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>fit.equal.intercept <span class="ot">&lt;-</span> <span class="fu">lm</span>(sbp <span class="sc">~</span> age <span class="sc">+</span> age<span class="sc">:</span>sex, <span class="at">data =</span> sbpdata)</span>
 <span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Age grid and palette</span></span>
+<span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a><span class="do">## Age grid and palette</span></span>
 <span id="cb54-9"><a href="#cb54-9" aria-hidden="true" tabindex="-1"></a>ages <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fu">min</span>(sbpdata<span class="sc">$</span>age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
 <span id="cb54-10"><a href="#cb54-10" aria-hidden="true" tabindex="-1"></a>            <span class="fu">max</span>(sbpdata<span class="sc">$</span>age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
 <span id="cb54-11"><a href="#cb54-11" aria-hidden="true" tabindex="-1"></a>            <span class="at">length.out =</span> <span class="dv">200</span>)</span>
 <span id="cb54-12"><a href="#cb54-12" aria-hidden="true" tabindex="-1"></a>lev  <span class="ot">&lt;-</span> <span class="fu">levels</span>(sbpdata<span class="sc">$</span>sex)</span>
 <span id="cb54-13"><a href="#cb54-13" aria-hidden="true" tabindex="-1"></a>cols <span class="ot">&lt;-</span> <span class="fu">setNames</span>(<span class="fu">c</span>(<span class="st">"steelblue3"</span>, <span class="st">"tomato3"</span>, <span class="st">"darkorchid3"</span>)[<span class="fu">seq_along</span>(lev)], lev)</span>
 <span id="cb54-14"><a href="#cb54-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb54-15"><a href="#cb54-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Scatter: color points by sex</span></span>
+<span id="cb54-15"><a href="#cb54-15" aria-hidden="true" tabindex="-1"></a><span class="do">## Scatter: color points by sex</span></span>
 <span id="cb54-16"><a href="#cb54-16" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sbp <span class="sc">~</span> age, <span class="at">data =</span> sbpdata,</span>
 <span id="cb54-17"><a href="#cb54-17" aria-hidden="true" tabindex="-1"></a>     <span class="at">col =</span> cols[sbpdata<span class="sc">$</span>sex], <span class="at">pch =</span> <span class="dv">16</span>,</span>
 <span id="cb54-18"><a href="#cb54-18" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Age"</span>, <span class="at">ylab =</span> <span class="st">"Systolic BP"</span>)</span>
 <span id="cb54-19"><a href="#cb54-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb54-20"><a href="#cb54-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Fitted lines: one per sex (different slopes allowed)</span></span>
+<span id="cb54-20"><a href="#cb54-20" aria-hidden="true" tabindex="-1"></a><span class="do">## Fitted lines: one per sex (different slopes allowed)</span></span>
 <span id="cb54-21"><a href="#cb54-21" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (sx <span class="cf">in</span> lev) {</span>
 <span id="cb54-22"><a href="#cb54-22" aria-hidden="true" tabindex="-1"></a>  nd <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">age =</span> ages, <span class="at">sex =</span> <span class="fu">factor</span>(sx, <span class="at">levels =</span> lev))</span>
 <span id="cb54-23"><a href="#cb54-23" aria-hidden="true" tabindex="-1"></a>  yhat <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit.equal.intercept, <span class="at">newdata =</span> nd)</span>
 <span id="cb54-24"><a href="#cb54-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lines</span>(ages, yhat, <span class="at">col =</span> cols[sx], <span class="at">lwd =</span> <span class="dv">2</span>)</span>
 <span id="cb54-25"><a href="#cb54-25" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb54-26"><a href="#cb54-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb54-27"><a href="#cb54-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Legend</span></span>
+<span id="cb54-27"><a href="#cb54-27" aria-hidden="true" tabindex="-1"></a><span class="do">## Legend</span></span>
 <span id="cb54-28"><a href="#cb54-28" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topleft"</span>, <span class="at">legend =</span> lev, <span class="at">col =</span> cols[lev], <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">bty =</span> <span class="st">"n"</span>, <span class="at">title =</span> <span class="st">"Sex"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="mlr_files/figure-html/unnamed-chunk-31-1.png" class="img-fluid figure-img" width="576"></p>
+<p><img src="mlr_files/figure-html/unnamed-chunk-33-1.png" class="img-fluid figure-img" width="576"></p>
 </figure>
 </div>
 </div>
@@ -1500,7 +1522,7 @@ F-statistic: 75.02 on 3 and 65 DF,  p-value: &lt; 2.2e-16</code></pre>
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(olsrr)</span>
-<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Note: Update this path to your local file location</span></span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a><span class="do">## Note: Update this path to your local file location</span></span>
 <span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a>wine <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"wine.csv"</span>)</span>
 <span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a>model.wine <span class="ot">&lt;-</span> <span class="fu">lm</span>(quality <span class="sc">~</span> ., <span class="at">data =</span> wine)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1551,7 +1573,7 @@ AIC: Akaike Information Criteria
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Backward Elimination (alpha_out = 0.1)</span></span>
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Backward Elimination (alpha_out = 0.1)</span></span>
 <span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ols_step_backward_p</span>(model.wine, <span class="at">p_val =</span> <span class="fl">0.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
@@ -1604,7 +1626,7 @@ Total         154.788        37
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Forward Selection (alpha_in = 0.1)</span></span>
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Forward Selection (alpha_in = 0.1)</span></span>
 <span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ols_step_forward_p</span>(model.wine, <span class="at">p_val =</span> <span class="fl">0.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
@@ -1658,7 +1680,7 @@ Total         154.788        37
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Stepwise Regression (alpha_in = 0.1, alpha_out = 0.1)</span></span>
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Stepwise Regression (alpha_in = 0.1, alpha_out = 0.1)</span></span>
 <span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ols_step_both_p</span>(model.wine, <span class="at">p_enter =</span> <span class="fl">0.1</span>, <span class="at">p_remove =</span> <span class="fl">0.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
@@ -1810,7 +1832,7 @@ oakiness  0.18321471 0.2016444  0.1521059  0.17976051 1.0000000</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="co"># VIF using olsrr (data frame output)</span></span>
+<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="do">## VIF using olsrr (data frame output)</span></span>
 <span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ols_vif_tol</span>(model.wine)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
@@ -1827,7 +1849,7 @@ oakiness  0.18321471 0.2016444  0.1521059  0.17976051 1.0000000</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Data: Weight, height and age of children</span></span>
+<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Data: Weight, height and age of children</span></span>
 <span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a>wgt <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">64</span>, <span class="dv">71</span>, <span class="dv">53</span>, <span class="dv">67</span>, <span class="dv">55</span>, <span class="dv">58</span>, <span class="dv">77</span>, <span class="dv">57</span>, <span class="dv">56</span>, <span class="dv">51</span>, <span class="dv">76</span>, <span class="dv">68</span>)</span>
 <span id="cb88-3"><a href="#cb88-3" aria-hidden="true" tabindex="-1"></a>hgt <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">57</span>, <span class="dv">59</span>, <span class="dv">49</span>, <span class="dv">62</span>, <span class="dv">51</span>, <span class="dv">50</span>, <span class="dv">55</span>, <span class="dv">48</span>, <span class="dv">42</span>, <span class="dv">42</span>, <span class="dv">61</span>, <span class="dv">57</span>)</span>
 <span id="cb88-4"><a href="#cb88-4" aria-hidden="true" tabindex="-1"></a>age <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">8</span>, <span class="dv">10</span>, <span class="dv">6</span>, <span class="dv">11</span>, <span class="dv">8</span>, <span class="dv">7</span>, <span class="dv">10</span>, <span class="dv">9</span>, <span class="dv">10</span>, <span class="dv">6</span>, <span class="dv">12</span>, <span class="dv">9</span>)</span>
@@ -1845,6 +1867,10 @@ oakiness  0.18321471 0.2016444  0.1521059  0.17976051 1.0000000</code></pre>
 </div>
 
 
+</section>
+</section>
+</div>
+</section>
 </section>
 </section>
 
@@ -2585,6 +2611,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   </div>
 </nav>
 </div> <!-- /content -->
+<script>videojs(video_shortcode_videojs_video1);</script>
 
 
 

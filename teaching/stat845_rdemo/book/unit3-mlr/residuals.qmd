@@ -8,13 +8,13 @@ author:
 date: today
 ---
 
-# Introduction
+## Introduction
 
 In statistical modeling, identifying data points that don't fit—the **outliers**—is a critical step. The most reliable tool for this job is the **externally studentized residual**. Its power comes from a simple, intuitive idea: to judge a point fairly, you shouldn't use that point when building your model. This is the core principle of **Leave-One-Out Cross-Validation (LOOCV)**.
 
 This article provides a complete walkthrough of this essential concept. We'll start with the basic linear model, introduce the necessary notation, explore the flaws of simpler residuals, and then formally define and prove the equivalence of the conceptual and computational formulas for studentized residuals. Finally, we'll make it all concrete with a simple example.
 
-# The Linear Model
+## The Linear Model
 
 Our discussion is based on the standard multiple linear regression model. In matrix form, the relationship between a response vector **Y** and a predictor matrix **X** is: $$
 \mathbf{Y} = \mathbf{X}\beta + \epsilon
@@ -27,9 +27,9 @@ where:
 -   $\beta$ is the *p* x 1 vector of unknown true coefficients we want to estimate.
 -   $\epsilon$ is an *n* x 1 vector of unobservable random errors, assumed to be independent and identically distributed with a mean of 0 and a variance of $\sigma^2$.
 
-# Residuals for OLS
+## Residuals for OLS
 
-## Our Notations 
+### Our Notations 
 
 To discuss models fit with all data versus those with one point removed, we need clear notation.
 
@@ -48,11 +48,11 @@ To discuss models fit with all data versus those with one point removed, we need
 -   $e_{i,-i}$: The **deleted residual** ($e_{i,-i} = y_i - \hat{y}_{i,-i}$).
 -   $\hat{\sigma}_{-i}$: The standard deviation of the errors estimated from the model fit **without** observation *i*.
 
-## Non-studentized Residuals
+### Non-studentized Residuals
 
 Before getting to the correct solution, it's crucial to understand why simpler methods of standardizing residuals are flawed.
 
-### **The Ordinary Residual (**$e_i$): Too Small and $x_i$ Dependent
+#### **The Ordinary Residual (**$e_i$): Too Small and $x_i$ Dependent
 
 The most basic residual, $e_i$, is problematic for two key reasons.
 
@@ -68,7 +68,7 @@ e = (I - H)\epsilon.
 
 Since leverage ($h_{ii}$) is always greater than 0, the variance of an ordinary residual is always **less than the true error variance,** $\sigma^2$. High-leverage points act as "anchors" for the line and have even smaller variance.
 
-### **The LOOCV Residual (**$e_{i,-i}$): Too large and $x_i$-Dependent Variance
+#### **The LOOCV Residual (**$e_{i,-i}$): Too large and $x_i$-Dependent Variance
 
 The deleted residual, $e_{i,-i}$, solves the "too small" problem. Because the model isn't influenced by the point it's predicting, the residual is an honest measure of prediction error. However, its variance is still not constant. The variance of a deleted residual also depends on leverage, but in the opposite way. \begin{equation}
     \text{Var}(e_{i,-i}) = \frac{\sigma^2}{1 - h_{ii}}
@@ -84,9 +84,9 @@ e_{i,-i} = \frac{e_i}{1 - h_{ii}}.
 
 Since $1-h_{ii}$ is less than 1, the variance of a deleted residual is always **greater than the true error variance,** $\sigma^2$. This is because it has two sources of randomness: the error in the point itself ($y_i$) and the error in the prediction ($\hat{y}_{i,-i}$).
 
-## Studentized Residuals
+### Studentized Residuals
 
-### Studentized LOOCV (Deleted) Residual
+#### Studentized LOOCV (Deleted) Residual
 
 The correct solution is to take the LOOCV residual and divide it by its true standard error, which properly accounts for its larger, x-dependent variance. This is the **externally studentized residual**, $t_i$, defined as follows:
 
@@ -94,7 +94,7 @@ $$
 t_i = \frac{e_{i,-i}}{\text{SE}(e_{i,-i})} = \frac{e_{i,-i}}{\frac{\hat{\sigma}_{-i}}{\sqrt{1-h_{ii}}}}
 $$ {#eq-sloo} This final value is a reliable diagnostic. Under the null hypothesis that the observation is not an outlier, it follows a **Student's t-distribution** with $n - p - 1$ degrees of freedom.
 
-### Studentized Full Data Residuals
+#### Studentized Full Data Residuals
 
 Calculating the conceptual formula appears to require fitting *n* different regression models—a computationally expensive task. Fortunately, a mathematical identity allows us to calculate the exact same value using only the results from the single, full data model.
 
@@ -102,9 +102,9 @@ $$
 t_i = \frac{e_i}{\hat{\sigma}_{-i}\sqrt{1 - h_{ii}}}
 $$ {#eq-sfull} This is not an approximation; it is an **exact algebraic rearrangement** of the conceptual definition.
 
-### Equivalence of @eq-sfull and @eq-sloo
+#### Equivalence of @eq-sfull and @eq-sloo
 
-#### Proof of Equivalence ⚙️
+##### Proof of Equivalence ⚙️
 
 Let's start with the conceptual definition of the studentized LOOCV residuals @eq-sloo and show how it transforms into @eq-sfull.
 
@@ -136,7 +136,7 @@ The main changes include:
 
 
 
-## List of Residuals
+### List of Residuals
 
 In this article, we will compare the four residuals given as:
 
@@ -150,22 +150,22 @@ In this article, we will compare the four residuals given as:
 
 : {\#tbl-residuals Five Plausible Residuals}
 
-## Example of Various Residuals
+### Example of Various Residuals
 
-### The Linear Model
+#### The Linear Model
 
 The simulation uses a **simple linear regression model** to describe the relationship between a single predictor variable, $x_i$, and a response variable, $y_i$. The underlying "true" model from which the data is generated is: $$y_i = 2 + 3x_i + \epsilon_i$$ This means we have a true intercept of 2, a true slope of 3, and a random error term, $\epsilon_i$, drawn from a normal distribution with a mean of 0 and a standard deviation of 5. One artificial outlier is added to this data to test the behavior of the different residual types. 5 unrelated predictors are added to the dataset.
 
 ```{r}
 #| message: false
 #| warning: false
-# Load libraries
+## Load libraries
 library(dplyr)
 library(knitr)
 
-# -------------------------------
-# 1) Data and full-model fit
-# -------------------------------
+## -------------------------------
+## 1) Data and full-model fit
+## -------------------------------
 set.seed(123)
 n <- 20
 x <- 1:n
@@ -183,7 +183,7 @@ abline (fit)
 abline (a=2, b=3, col="red", lwd=2)
 ```
 
-### Description of Calculated Columns
+#### Description of Calculated Columns
 
 The final table compiles several important quantities calculated during the simulation. Here's what each column represents:
 
@@ -221,9 +221,9 @@ rss_full <- sum(e_full^2)
 df_loo <- n - p - 1
 sigma_minus_i_shortcut <- sqrt((rss_full - (e_full^2 / (1 - leverage))) / df_loo)
 
-# -------------------------------
-# 2) LOOCV quantities (refit n times)
-# -------------------------------
+## -------------------------------
+## 2) LOOCV quantities (refit n times)
+## -------------------------------
 e_del_val <- numeric(n)
 sigma_minus_i_val <- numeric(n)
 
@@ -234,9 +234,9 @@ for (i in 1:n) {
   sigma_minus_i_val[i] <- summary(loocv_model)$sigma
 }
 
-# -------------------------------
-# 3) Assemble and round results
-# -------------------------------
+## -------------------------------
+## 3) Assemble and round results
+## -------------------------------
 residuals_df <- data.frame(
   x = full_data$x,
   h = as.numeric(leverage),
@@ -255,16 +255,16 @@ residuals_df <- data.frame(
   mutate(across(where(is.numeric), ~ round(.x, 3)))
 
 
-# 4) Create simple display names
+## 4) Create simple display names
 display_names <- c("$x_i$", "$h_i$", "$e_i$", "$\\hat{\\sigma}$", 
                    "$e_{i,-i}$", "$\\hat{e}_{i,-i}$",
                    "$\\hat{\\sigma}_{-i}$", "$\\tilde{\\sigma}_{-i}$", 
                    "NS-Full", "NS-LOO", "STD-Full", "ST-LOO", "ST-Full") # <-- ADDED LABEL
 
-# 5) Display the table
-# Conditional check for output format
+## 5) Display the table
+## Conditional check for output format
 if (knitr::is_html_output()) {
-  # --- Code for HTML Output (using kableExtra) ---
+  ## --- Code for HTML Output (using kableExtra) ---
   knitr::kable(
     residuals_df,
     caption = "Residual variants",
@@ -274,7 +274,7 @@ if (knitr::is_html_output()) {
     escape = FALSE # Allows LaTeX and <br/> to render
   ) 
 } else {
-  # --- Code for PDF/Other Output (using kableExtra) ---
+  ## --- Code for PDF/Other Output (using kableExtra) ---
   knitr::kable(
     residuals_df,
     caption = "Residual variants.",
@@ -297,20 +297,20 @@ if (knitr::is_html_output()) {
 #| warning: false
 #| fig-cap: "Five residual variants plotted against the predictor variable x."
 
-# Load libraries
+## Load libraries
 library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(knitr)
 
 
-# -------------------------------
-# 3) Plotting Code with Updated Names
-# -------------------------------
+## -------------------------------
+## 3) Plotting Code with Updated Names
+## -------------------------------
 
-# Prepare data for plotting
+## Prepare data for plotting
 plot_df <- residuals_df %>%
-  # Use the new, simple column names (R converts '-' to '.')
+  ## Use the new, simple column names (R converts '-' to '.')
   select(
     x,
     NS.Full,
@@ -325,7 +325,7 @@ plot_df <- residuals_df %>%
     values_to = "residual_value"
   )
 
-# Update the names in the mapping vectors
+## Update the names in the mapping vectors
 shape_map <- c(
   NS.Full  = 16,  # solid circle
   NS.LOO   = 1,   # hollow circle
@@ -350,7 +350,7 @@ color_map <- c(
   ST.Full  = "#d62728"   # red
 )
 
-# Generate the plot
+## Generate the plot
 ggplot(
   plot_df,
   aes(x = x, y = residual_value,
@@ -393,10 +393,10 @@ From the above simulation results, we observe the following important facts:
   - **Effective Studentization:** The final step of studentization, which uses leverage to properly scale the residuals, is shown to be crucial. It successfully transforms the residuals into a reliable diagnostic tool with a constant variance across all predictor values ($x_i$), causing them to behave much more like a standard normal or t-distribution.
   
 
-# Cook's Distance
+## Cook's Distance
 
 
-##  Definition from the change in coefficients
+###  Definition from the change in coefficients
 
 Let $\hat{\boldsymbol\beta}$ be the OLS estimate on all $n$ cases and $\hat{\boldsymbol\beta}_{(-i)}$ the estimate after deleting case $i$.  
 With $p$ parameters (including intercept) and $\hat\sigma^2=\mathrm{MSE}$,
@@ -411,7 +411,7 @@ This measures how far the whole coefficient vector moves (in the $X^{\!\top}X$ m
 
 
 
-### Express $D_i$ via the **studentized LOOCV residual**: $t_i$
+#### Express $D_i$ via the **studentized LOOCV residual**: $t_i$
 
 Let $h_{ii}$ be the leverage and define the LOOCV quantities $e_{i,-i}$ and $\hat\sigma_{-i}$ from the model refit **without** case $i$.  
 The externally studentized residual is
@@ -433,7 +433,7 @@ $$
 
 
 
-###  Exact null distribution
+####  Exact null distribution
 
 Under the classical linear model,
 
@@ -470,7 +470,7 @@ $$
 where $S_\mathrm{Beta}$ and $q_\mathrm{Beta}$ stand for the survival and quantile functions of Beta distribution.
 
 
-###  The rough $4/n$ rule (average-leverage simplification)
+####  The rough $4/n$ rule (average-leverage simplification)
 
 Approximating a “typical” case by **average leverage** $h_{ii}\approx p/n$ gives
 
@@ -491,7 +491,7 @@ So $4/n$ is a **rule-of-thumb** 95% cutoff for an **average-leverage** point; th
 
 
 
-### Comparing $4/n$ rules with the actual critical values
+#### Comparing $4/n$ rules with the actual critical values
 
 ```{r}
 #| label: cooksD-crit-table
@@ -505,15 +505,15 @@ library(tidyr)
 library(knitr)
 library(kableExtra)
 
-# Exact 95% Cook's D cutoff under average leverage h_ii = p/n (so c_i = 1):
-# d_{i,0.95} = qbeta(0.95; 1/2, (n - p - 1)/2), valid when nu = n - p - 1 > 0
+## Exact 95% Cook's D cutoff under average leverage h_ii = p/n (so c_i = 1):
+## d_{i,0.95} = qbeta(0.95; 1/2, (n - p - 1)/2), valid when nu = n - p - 1 > 0
 cook_crit_avg <- function(n, p, alpha = 0.05) {
   nu <- n - p - 1
   if (nu <= 0) return(NA_real_)
   stats::qbeta(1 - alpha, shape1 = 0.5, shape2 = nu / 2)
 }
 
-# Grids (edit as needed)
+## Grids (edit as needed)
 n_vals <- c(20, 30, 50, 80, 100, 150, 200, 500)
 p_vals <- c(2, 3, 5, 10, 15, 20, 30, 50)
 
@@ -539,7 +539,7 @@ df <- tidyr::crossing(n = n_vals, p = p_vals) %>%
 
 
 if (knitr::is_html_output()) {
-  # HTML → Quarto prints `df` as a paged table and uses tbl-cap
+  ## HTML → Quarto prints `df` as a paged table and uses tbl-cap
   library(DT)
   DT::datatable(
     df,
@@ -551,7 +551,7 @@ if (knitr::is_html_output()) {
     )
   )
 } else {
-  # Non-HTML (PDF, DOCX) → fall back to kable
+  ## Non-HTML (PDF, DOCX) → fall back to kable
 
   knitr::kable(
     df,
@@ -563,7 +563,7 @@ if (knitr::is_html_output()) {
 
 ```
 
-## Example for Cook's Distance: 
+### Example for Cook's Distance: 
 
 ```{r}
 #| label: cooksD-compute-and-plot
@@ -576,7 +576,7 @@ library(dplyr)
 library(ggplot2)
 library(knitr)
 
-# --- 1) Data and full-model fit (your setup)
+## --- 1) Data and full-model fit (your setup)
 
 n <- 20
 x <- 1:n
@@ -587,28 +587,28 @@ full_data  <- data.frame(x = x, replicate(5, rnorm(n)), y = y)
 
 fit <- lm(y ~ ., data = full_data)
 
-# --- 2) Ingredients for Cook's D and thresholds
+## --- 2) Ingredients for Cook's D and thresholds
 p      <- length(coef(fit))        # includes intercept
 h      <- hatvalues(fit)           # leverage h_ii
 D      <- cooks.distance(fit)      # Cook's D_i
 nu     <- n - p - 1                # df for deleted-studentized residual
 alpha  <- 0.05
 
-# Per-case scaling factor: c_i = ((n-p)/p) * (h_ii/(1-h_ii))
+## Per-case scaling factor: c_i = ((n-p)/p) * (h_ii/(1-h_ii))
 c_i        <- ((n - p) / p) * (h / (1 - h))
 
-# Exact per-case Beta 95% critical values:
-# D_i / c_i ~ Beta(1/2, (n-p-1)/2)  =>  D_crit_i = c_i * qbeta(0.95, 1/2, (n-p-1)/2)
+## Exact per-case Beta 95% critical values:
+## D_i / c_i ~ Beta(1/2, (n-p-1)/2)  =>  D_crit_i = c_i * qbeta(0.95, 1/2, (n-p-1)/2)
 crit_beta_i <- c_i * qbeta(1 - alpha, shape1 = 0.5, shape2 = nu / 2)
 
-# Average-leverage Beta 95% critical value:
-# If h_ii = p/n (average leverage), then c_i = 1 exactly
+## Average-leverage Beta 95% critical value:
+## If h_ii = p/n (average leverage), then c_i = 1 exactly
 crit_beta_avg <- qbeta(1 - alpha, shape1 = 0.5, shape2 = nu / 2)
 
-# Heuristic 4/n line
+## Heuristic 4/n line
 crit_heur <- 4 / n
 
-# --- 3) Assemble results table
+## --- 3) Assemble results table
 df_cook <- tibble(
   i            = seq_len(n),
   h_ii         = as.numeric(h),
@@ -619,13 +619,13 @@ df_cook <- tibble(
   crit_heur    = crit_heur
 )
 
-# Print a compact table
+## Print a compact table
 knitr::kable(
   df_cook %>% mutate(across(where(is.numeric), ~ round(.x, 5))),
   caption = "Cook's D, leverage, and thresholds: per-case Beta 95%, average-leverage Beta 95%, and 4/n."
 )
 
-# --- 4) Plot D_i with thresholds
+## --- 4) Plot D_i with thresholds
 thresh_df <- bind_rows(
   df_cook %>% transmute(i, value = crit_beta_i,   Type = "Beta 95% (per-case)"),
   tibble(i = seq_len(n), value = crit_beta_avg,   Type = "Beta 95% (avg leverage)"),
@@ -654,17 +654,17 @@ ggplot(df_cook, aes(x = i, y = D_i)) +
 ```
 
 
-# Appendix: Key Identities {.unnumbered}
+## Appendix: Key Identities {.unnumbered}
 
 The power of modern regression diagnostics comes from algebraic shortcuts that allow us to find the results of a leave-one-out process without the computational cost of refitting the model *n* times. The following two identities are fundamental to this efficiency.
 
-## Finding the LOOCV Residual ($e_{i,-i}$) from the Ordinary Residual ($e_i$) {.unnumbered}
+### Finding the LOOCV Residual ($e_{i,-i}$) from the Ordinary Residual ($e_i$) {.unnumbered}
 
 This identity shows that we can find the "pure" leave-one-out residual using only the results from the single model fit on all data.
 
 $$e_{i,-i} = \frac{e_i}{1 - h_{ii}}$$ {#eq-key}
 
-## Finding the LOOCV Standard Error from the Full-Model Standard Error {.unnumbered}
+### Finding the LOOCV Standard Error from the Full-Model Standard Error {.unnumbered}
 
 Similarly, this formula provides an efficient shortcut to see how the model's overall error changes when a single point is removed.
 

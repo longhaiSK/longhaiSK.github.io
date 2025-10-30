@@ -21,7 +21,7 @@ editor_options:
 jit <- 0.05
 ```
 
-# Odds as a Function of Probability
+## Odds as a Function of Probability
 
 For an event with probability \(p\), the odds is 
 \[\mathrm{odds}(p)=\frac{p}{1-p}\] 
@@ -33,16 +33,16 @@ and the log-odds (logit) is
 ```{r}
 #| label: plot-odds-colored
 #| echo: true
-# Plot odds(p) with a right-hand axis for log(odds(p)),
-# using different line colors for the two curves.
-# Defaults: p in [0.01, 0.99].
-# Args:
-#   p_min, p_max : endpoints for p-grid (0<p_min<p_max<1)
-#   n            : number of grid points
-#   annotate     : add reference lines/labels if TRUE
-#   odds_col     : color for odds(p)
-#   logit_col    : color for log(odds(p))
-#   lwd1, lwd2   : line widths for the two curves
+## Plot odds(p) with a right-hand axis for log(odds(p)),
+## using different line colors for the two curves.
+## Defaults: p in [0.01, 0.99].
+## Args:
+##   p_min, p_max : endpoints for p-grid (0<p_min<p_max<1)
+##   n            : number of grid points
+##   annotate     : add reference lines/labels if TRUE
+##   odds_col     : color for odds(p)
+##   logit_col    : color for log(odds(p))
+##   lwd1, lwd2   : line widths for the two curves
 
 
 plot_odds <- function(p_min = 0.01, p_max = 0.99, n = 400,
@@ -55,7 +55,7 @@ plot_odds <- function(p_min = 0.01, p_max = 0.99, n = 400,
   odds <- p / (1 - p)
   logit <- log(odds)
 
-  # Left y-axis: odds(p)
+  ## Left y-axis: odds(p)
   plot(p, odds, type = "l", lwd = lwd1, col = odds_col,
        xlab = "Probability p",
        ylab = "odds(p) = p / (1 - p)")
@@ -64,7 +64,7 @@ plot_odds <- function(p_min = 0.01, p_max = 0.99, n = 400,
     text(0.52, 1.05, "p = 0.5 → odds = 1", adj = 0)
   }
 
-  # Right y-axis: logit(p) = log(odds)
+  ## Right y-axis: logit(p) = log(odds)
   op <- par(new = TRUE)
   on.exit(par(op), add = TRUE)
   plot(p, logit, type = "l", lwd = lwd2, col = logit_col,
@@ -87,8 +87,8 @@ plot_odds <- function(p_min = 0.01, p_max = 0.99, n = 400,
   invisible(list(p = p, odds = odds, logit = logit))
 }
 
-# Example usage:
-# plot_odds()  # defaults: steelblue for odds, firebrick for log-odds (right axis)
+## Example usage:
+## plot_odds()  # defaults: steelblue for odds, firebrick for log-odds (right axis)
 plot_odds(odds_col = "#1f77b4", logit_col = "#d62728", n = 600)
 ```
 
@@ -97,7 +97,7 @@ Logistic regression models **log-odds** linearly in predictors, which both keeps
 
 ---
 
-# A Simulated Data 
+## A Simulated Data 
 
 We simulate data from a logistic model where the **logit** is a linear function of $x$:
 
@@ -127,12 +127,12 @@ We then display the observed $y_i$ (binary outcomes) and the true probability cu
 #| echo: true
 set.seed(123)
 
-# -- Truth (edit as desired) --
+## -- Truth (edit as desired) --
 n     <- 200
 beta0 <- 0
 beta1 <-  4
 
-# -- Simulate --
+## -- Simulate --
 x   <- runif(n, -1, 1)             # predictor
 eta <- beta0 + beta1 * x
 p   <- plogis(eta)                 # true p(x)
@@ -141,16 +141,16 @@ y   <- rbinom(n, size = 1, prob = p) # outcomes
 sim.data <- data.frame(x = x, y = y, p = p)
 ```
 
-## Fit a logistic model to the simulated data
+### Fit a logistic model to the simulated data
 ```{r}
-# -- Optional: fit a model to the simulated data --
+## -- Optional: fit a model to the simulated data --
 sim.fit <- glm(y ~ x, data = sim.data, family = binomial())
 p_fit <- predict(sim.fit, newdata = data.frame(x = x), type = "response")
 
-# -- Plot: points for y_i (jittered), red line for true p(x) --
-# Define jitter amount
+## -- Plot: points for y_i (jittered), red line for true p(x) --
+## Define jitter amount
 jit <- 0.05 
-# jitter to separate 0/1 visually
+## jitter to separate 0/1 visually
 yj <- jitter(sim.data$y, amount = jit) 
 
 plot(sim.data$x, yj,
@@ -159,11 +159,11 @@ plot(sim.data$x, yj,
      ylab = "Observed y (points) & p(x) (curves)",
      ylim = c(-0.1, 1.1))
 
-# True probability curve (red)
+## True probability curve (red)
 xg <- seq(min(x), max(x), length.out = 500)
 lines(xg, plogis(beta0 + beta1 * xg), col = "red", lwd = 2)
 
-# Optional: add fitted probability curve (dashed dark red)
+## Optional: add fitted probability curve (dashed dark red)
 lines(xg, predict(sim.fit, newdata = data.frame(x = xg), type = "response"),
       col = "darkred", lwd = 2, lty = 2)
 
@@ -177,9 +177,9 @@ legend("topleft",
 
 ```
 
-# Example of Coronary Heart Disease Data
+## Example of Coronary Heart Disease Data
 
-## Load a dataset
+### Load a dataset
 This dataset is about a follow-up study to determine the development of coronary heart disease (CHD) over 9 years of follow-up of 609 white males from Evans County, Georgia.
 
 **Variable meanings (as provided):**
@@ -195,10 +195,10 @@ This dataset is about a follow-up study to determine the development of coronary
 
 ```{r}
 #| label: setup
-# Adjust the path if needed. The default is your original V: drive path.
+## Adjust the path if needed. The default is your original V: drive path.
 data_path <- "evans.dat"
 
-# Read data (expects a header row)
+## Read data (expects a header row)
 CHD.data <- read.table(data_path, header = TRUE)
 
 CHD.data
@@ -208,7 +208,7 @@ colnames(CHD.data)
 ```
 
 
-## Fit Logistic Regression Model for a Single Variable
+### Fit Logistic Regression Model for a Single Variable
 
 ```{r}
 #| label: chd-univariate-2x2-jitter-fixedlogit
@@ -217,10 +217,10 @@ colnames(CHD.data)
 vars <- c("smk", "sbp", "age", "chl")
 #jit  <- 0.01  # global jitter amount for y
 
-# par(mfrow = c(2, 2), mar = c(4, 4, 2, 4) + 0.1)  # extra right margin for axis(4)
+## par(mfrow = c(2, 2), mar = c(4, 4, 2, 4) + 0.1)  # extra right margin for axis(4)
 
 for (v in vars) {
-  # Univariate logistic regression using ORIGINAL variable name in the formula
+  ## Univariate logistic regression using ORIGINAL variable name in the formula
   fit <- glm(
     formula = reformulate(v, response = "chd"),
     data    = CHD.data,
@@ -228,7 +228,7 @@ for (v in vars) {
   )
   print(summary(fit))
 
-  # Base scatter of chd with small jitter (left axis: probability scale)
+  ## Base scatter of chd with small jitter (left axis: probability scale)
   plot(
     CHD.data[[v]],
     jitter(CHD.data$chd, amount = jit),
@@ -238,7 +238,7 @@ for (v in vars) {
     ylim = c(-0.1, 1.1)
   )
 
-  # Fitted π(x) in red (left axis)
+  ## Fitted π(x) in red (left axis)
   if (length(unique(CHD.data[[v]])) == 2) {
     # binary predictor
     xcat <- sort(unique(CHD.data[[v]]))
@@ -284,7 +284,7 @@ for (v in vars) {
 
 
 
-## Fit Logistic Regression Model with all variables
+### Fit Logistic Regression Model with all variables
 
 We fit a logistic regression with a logit link:
 
@@ -304,7 +304,7 @@ summary(fit1_chd)
 * For indicator variables (e.g., `smk`), `exp(beta)` is the adjusted odds ratio comparing the group with value 1 versus 0, holding others fixed.
 * For continuous predictors (e.g., `sbp`, `age`), `exp(beta)` is the multiplicative change in the odds for a one‑unit increase. For a *d*-unit increase, the OR is `exp(d * beta)`.
 
-# Inference for Coefficients: Confidence Intervals and Covariance Matrix
+## Inference for Coefficients: Confidence Intervals and Covariance Matrix
 
 We extract profile‑likelihood CIs and the covariance matrix to confirm standard errors.
 
@@ -319,10 +319,10 @@ vcov_mat
 se_vec  # should match the SE column in summary(fit1_chd)
 ```
 
-# Inference for Odds Ratios
+## Inference for Odds Ratios
 
 
-## Interpretation of Odds Ratios in Logistic Regression
+### Interpretation of Odds Ratios in Logistic Regression
 
 A multiple logistic regression model expresses the log-odds (logit) of an event as a linear function of predictors:
 
@@ -361,19 +361,19 @@ These values (estimate and CI bounds) are then exponentiated to produce the fina
 
 ```{r}
 #| label: OR function
-# Compute OR and 95% CI via predict() on the LINK scale
-# OR = exp( eta(new1) - eta(new0) ), where eta(.) = logit{π(.)}
-# Compute OR via predict() contrast on the LINK scale, also:
-# (ii) print a 2-row data.frame of only variables that differ between new0 and new1
-# (iii) print a 2x3 table (rows: OR, logOR; cols: Estimate, CI_low, CI_up)
+## Compute OR and 95% CI via predict() on the LINK scale
+## OR = exp( eta(new1) - eta(new0) ), where eta(.) = logit{π(.)}
+## Compute OR via predict() contrast on the LINK scale, also:
+## (ii) print a 2-row data.frame of only variables that differ between new0 and new1
+## (iii) print a 2x3 table (rows: OR, logOR; cols: Estimate, CI_low, CI_up)
 or_from_predict <- function(fit, new1, new0, level = 0.95, digits = 4, tol = 1e-12) {
   stopifnot(is.data.frame(new1), is.data.frame(new0))
 
-  # --- REFACTORED SECTION START ---
-  # ---- (ii) Two-row data.frame with only changed variables ----
+  ## --- REFACTORED SECTION START ---
+  ## ---- (ii) Two-row data.frame with only changed variables ----
   
-  # Helper function to find differing variables between two profiles
-  # This is defined *inside* or_from_predict for encapsulation
+  ## Helper function to find differing variables between two profiles
+  ## This is defined *inside* or_from_predict for encapsulation
   get_changed_vars <- function(d0, d1, tolerance) {
     common <- intersect(names(d0), names(d1))
     diffv  <- vapply(common, function(nm) {
@@ -396,20 +396,20 @@ or_from_predict <- function(fit, new1, new0, level = 0.95, digits = 4, tol = 1e-
     out
   }
   
-  # Call the helper function
+  ## Call the helper function
   changes_df <- get_changed_vars(new0, new1, tol)
-  # --- REFACTORED SECTION END ---
+  ## --- REFACTORED SECTION END ---
 
 
-  # ---- Linear contrast for log-OR and its variance ----
+  ## ---- Linear contrast for log-OR and its variance ----
   
-  # (i) Calculate logOR estimate using predict(type="link")
-  # eta(.) = logit{p(.)}
+  ## (i) Calculate logOR estimate using predict(type="link")
+  ## eta(.) = logit{p(.)}
   eta1 <- predict(fit, newdata = new1, type = "link")
   eta0 <- predict(fit, newdata = new0, type = "link")
   logOR_hat <- as.numeric(eta1 - eta0) # logOR = eta1 - eta0
   
-  # (ii) Calculate standard error using the contrast vector 'cvec'
+  ## (ii) Calculate standard error using the contrast vector 'cvec'
   X1 <- model.matrix(delete.response(terms(fit)), data = new1)
   X0 <- model.matrix(delete.response(terms(fit)), data = new0)
   cvec      <- as.numeric(X1 - X0)
@@ -420,7 +420,7 @@ or_from_predict <- function(fit, new1, new0, level = 0.95, digits = 4, tol = 1e-
   z      <- qnorm(1 - alpha / 2)
   ci_log <- c(logOR_hat - z * se_logOR, logOR_hat + z * se_logOR)
 
-  # ---- 2x3 table: rows OR and logOR; columns Estimate, CI_low, CI_up ----
+  ## ---- 2x3 table: rows OR and logOR; columns Estimate, CI_low, CI_up ----
   res_tab <- data.frame(
     Estimate = c(exp(logOR_hat),          logOR_hat),
     CI_low   = c(exp(ci_log[1L]),         ci_log[1L]),
@@ -428,13 +428,13 @@ or_from_predict <- function(fit, new1, new0, level = 0.95, digits = 4, tol = 1e-
     row.names = c("OR", "logOR")
   )
 
-  # ---- Print requested items ----
+  ## ---- Print requested items ----
   cat("\nVariables that differ between new0 and new1:\n")
   print(changes_df)
   cat("\nOdds Ratio summary:\n")
   print(round(res_tab, digits = digits)) # Added rounding for neatness
 
-  # ---- Return (invisibly) ----
+  ## ---- Return (invisibly) ----
   invisible(list(
     OR        = exp(logOR_hat),
     CI_OR     = exp(ci_log),
@@ -446,16 +446,16 @@ or_from_predict <- function(fit, new1, new0, level = 0.95, digits = 4, tol = 1e-
   ))
 }
 
-# --- Example usage ---
-# Suppose 'fit1_chd' is your fitted model and 'CHD.data' is your data
-# base_prof <- as.data.frame(lapply(CHD.data, function(col) if (is.numeric(col)) mean(col) else col[1]))
-# new0 <- base_prof; new0$smk <- 0
-# new1 <- base_prof; new1$smk <- 1
-# or_from_predict(fit1_chd, new1 = new1, new0 = new0)
+## --- Example usage ---
+## Suppose 'fit1_chd' is your fitted model and 'CHD.data' is your data
+## base_prof <- as.data.frame(lapply(CHD.data, function(col) if (is.numeric(col)) mean(col) else col[1]))
+## new0 <- base_prof; new0$smk <- 0
+## new1 <- base_prof; new1$smk <- 1
+## or_from_predict(fit1_chd, new1 = new1, new0 = new0)
 
 
 mean_profile <- function(data, vars_binary_as = c(0,1)) {
-  # Build a single-row data.frame of typical values:
+  ## Build a single-row data.frame of typical values:
   out <- lapply(data, function(col) {
     if (is.numeric(col)) {
       # If strictly 0/1, keep mean (works fine for GLM prediction),
@@ -471,14 +471,14 @@ mean_profile <- function(data, vars_binary_as = c(0,1)) {
 ```
 
 
-## Examples of Finding ORs and Their CIs for the CHD Dataset
+### Examples of Finding ORs and Their CIs for the CHD Dataset
 
-### OR Smoking (`smk`) (1 vs 0)
+#### OR Smoking (`smk`) (1 vs 0)
 
 
 ```{r}
-## 1) Smoking OR: smk = 1 vs 0 (other vars at their means)
-# Example profiles at sample means (adjust as you like)
+### 1) Smoking OR: smk = 1 vs 0 (other vars at their means)
+## Example profiles at sample means (adjust as you like)
 base_prof <- mean_profile(CHD.data)
 new0 <- base_prof; new0$smk <- 0
 new1 <- base_prof; new1$smk <- 1
@@ -492,14 +492,14 @@ res_smk <- or_from_predict(fit1_chd, new1 = new1, new0 = new0)
 
 * `OR_smk > 1` suggests higher odds of CHD among smokers (adjusted for other variables). If the 95% CI excludes 1, the association is statistically significant at the 5% level.
 
-### OR for Systolic Blood Pressure (`sbp`): from 120 to 160
+#### OR for Systolic Blood Pressure (`sbp`): from 120 to 160
 
 We compute the adjusted OR for a 40‑unit increase in `sbp` (from 120 to 160):
 
 
 
 ```{r}
-## 2) SBP OR: 160 vs 120 (other vars at their means)
+### 2) SBP OR: 160 vs 120 (other vars at their means)
 new0 <- base_prof; new0$sbp <- 120
 new1 <- base_prof; new1$sbp <- 160
 
@@ -508,7 +508,7 @@ res_sbp <- or_from_predict(fit1_chd, new1 = new1, new0 = new0)
 
 ```
 
-### OR for Combined Effects of Two Variables: Smoking with an Age Difference
+#### OR for Combined Effects of Two Variables: Smoking with an Age Difference
 
 Suppose we compare two groups that differ in **smoking status** and **age**:
 
@@ -527,7 +527,7 @@ res_ageAsmk <- or_from_predict(fit1_chd, new1 = new1, new0 = new0)
 
 ```
 
-# Assessing Statistical Significance with Wilks' Theorem (Analogue of F-test for OLS)
+## Assessing Statistical Significance with Wilks' Theorem (Analogue of F-test for OLS)
 
 
 In the context of logistic regression, Wilks' theorem provides the basis for the Likelihood Ratio Test (LRT) used to assess the significance of predictor variables. The theorem states that when comparing a full model ($M_1$) to a nested null model ($M_0$), the test statistic, $\Lambda$, asymptotically follows a chi-squared ($\chi^2$) distribution under the null hypothesis (i.e., that the simpler model $M_0$ is correct).
@@ -546,8 +546,8 @@ The following R code chunk generates a conceptual plot of this relationship:
 
 library(ggplot2)
 
-# 1. Create conceptual data for the plot
-# These are just for illustration
+## 1. Create conceptual data for the plot
+## These are just for illustration
 n_obs <- 60 # Number of observations
 p0 <- 1     # Parameters in null model (intercept)
 p1 <- 21    # Parameters in full model (e.g., intercept + 7 predictors)
@@ -557,38 +557,38 @@ D0 <- 41 # Null deviance
 D1 <- 20 # Full model deviance (residual deviance of M1)
 D_sat <- 0 # Saturated model deviance
 
-# Data frame for the three points
+## Data frame for the three points
 plot_data <- data.frame(
   model = c("M_0 (Null)", "M_1 (Full)", "M_Sat (Saturated)"),
   params = c(p0, p1, psat),
   deviance = c(D0, D1, D_sat),
-  # Add custom justification and nudges for labels
+  ## Add custom justification and nudges for labels
   hjust_val = c(0.5, 0.5, 1.1), # Right-align the last label
   nudge_x_val = c(0, 0, 0) 
 )
 
-# 2. Create the ggplot
+## 2. Create the ggplot
 ggplot(plot_data, aes(x = params, y = deviance)) +
-  # Draw dashed guide lines for D0 and D1
+  ## Draw dashed guide lines for D0 and D1
   geom_segment(aes(x = p0, y = D0, xend = p1, yend = D0), linetype = "dashed", color = "grey70") +
   geom_segment(aes(x = p1, y = D1, xend = psat, yend = D1), linetype = "dashed", color = "grey70") +
   
-  # Connect the points with lines
+  ## Connect the points with lines
   geom_line(color = "black", linetype = "solid", linewidth = 0.5) +
   
-  # Draw the main points
+  ## Draw the main points
   geom_point(size = 4, aes(color = model)) +
   
-  # --- MODIFIED LABEL PLACEMENT ---
-  # Label the points using custom nudge/justification
+  ## --- MODIFIED LABEL PLACEMENT ---
+  ## Label the points using custom nudge/justification
   geom_text(
     aes(label = model, hjust = hjust_val, nudge_x = nudge_x_val), 
     nudge_y = 2.5,  # Use a much smaller vertical nudge
     size = 4
   ) +
   
-  # --- ADDED BACK D0 and D1 ANNOTATIONS ---
-  # D0 (Null Deviance)
+  ## --- ADDED BACK D0 and D1 ANNOTATIONS ---
+  ## D0 (Null Deviance)
   geom_segment(
     aes(x = p0 - 2, y = D0, xend = p0 - 2, yend = D_sat), # Nudged left
     arrow = arrow(ends = "both", length = unit(0.1, "inches")),
@@ -602,7 +602,7 @@ ggplot(plot_data, aes(x = params, y = deviance)) +
     color = "darkgreen", hjust = 0.5, size = 5
   ) +
   
-  # D1 (Residual Deviance of Full Model)
+  ## D1 (Residual Deviance of Full Model)
   geom_segment(
     aes(x = psat + 2, y = D1, xend = psat + 2, yend = D_sat), # Nudged right
     arrow = arrow(ends = "both", length = unit(0.1, "inches")),
@@ -616,7 +616,7 @@ ggplot(plot_data, aes(x = params, y = deviance)) +
     color = "darkblue", hjust = 0.5, size = 5
   ) +
   
-  # LRT statistic Λ = D0 - D1
+  ## LRT statistic Λ = D0 - D1
   geom_segment(
     aes(x = p1 + 2, y = D0, xend = p1 + 2, yend = D1), # Nudged right
     arrow = arrow(ends = "both", length = unit(0.1, "inches")),
@@ -631,7 +631,7 @@ ggplot(plot_data, aes(x = params, y = deviance)) +
     color = "red", hjust = 0, size = 5
   ) +
   
-  # Customize axes to show the symbolic labels
+  ## Customize axes to show the symbolic labels
   scale_x_continuous(
     breaks = c(p0, p1, psat),
     labels = c(expression(p[0]), expression(p[1]), expression(n)),
@@ -642,14 +642,14 @@ ggplot(plot_data, aes(x = params, y = deviance)) +
     labels = c(expression(0), expression(D[1]), expression(D[0]))
   ) +
   
-  # Labels and Title
+  ## Labels and Title
   labs(
     title = "Relationship between Deviance and Model Complexity",
     x = "Number of Parameters",
     y = "Model Deviance"
   ) +
   
-  # Clean theme
+  ## Clean theme
   theme_minimal(base_size = 14) +
   theme(
     plot.title = element_text(hjust = 0.5),
@@ -669,20 +669,20 @@ Here is an R code chunk demonstrating how to compute this p-value directly from 
 #| label: compute-lrt-pvalue
 #| echo: true
 
-# Calculate the Likelihood Ratio Test statistic (D) and degrees of freedom (df)
-# by comparing the model's deviance to the null (intercept-only) deviance,
-# both of which are stored in the 'fit1_chd' object.
+## Calculate the Likelihood Ratio Test statistic (D) and degrees of freedom (df)
+## by comparing the model's deviance to the null (intercept-only) deviance,
+## both of which are stored in the 'fit1_chd' object.
 summary(fit1_chd)
 lrt_statistic <- fit1_chd$null.deviance - fit1_chd$deviance
 lrt_df <- fit1_chd$df.null - fit1_chd$df.residual
 
-# Compute the p-value from the chi-squared distribution
-# We use lower.tail = FALSE to get P(ChiSq > D)
+## Compute the p-value from the chi-squared distribution
+## We use lower.tail = FALSE to get P(ChiSq > D)
 p_value <- pchisq(lrt_statistic, lrt_df, lower.tail = FALSE)
 
-# Create and print the result in an ANOVA-like table
-# Row 1: Null model
-# Row 2: Full model (fit1_chd), showing the test against the null
+## Create and print the result in an ANOVA-like table
+## Row 1: Null model
+## Row 2: Full model (fit1_chd), showing the test against the null
 lrt_table <- data.frame(
   "Resid. Df" = c(fit1_chd$df.null, fit1_chd$df.residual),
   "Resid. Dev" = c(round(fit1_chd$null.deviance, 4), round(fit1_chd$deviance, 4)),
@@ -709,11 +709,11 @@ anova(fit1_chd, test="LRT")
 
 ```
 
-# Assessing Predictive Effect-Size (Anologue to $R^2_\mathrm{adj}$)
+## Assessing Predictive Effect-Size (Anologue to $R^2_\mathrm{adj}$)
 
 While the LRT assesses overall model significance (in-sample fit), it's also crucial to evaluate how well the model predicts new, unseen data (out-of-sample performance). A common method is to split the data into a training set (e.g., 2/3 of the data) and a test set (e.g., 1/3). The model is fit using only the training data and then used to make predictions for the test data. We can then compare these predictions to the actual outcomes in the test set.
 
-## Understanding the Confusion Matrix and Metrics
+### Understanding the Confusion Matrix and Metrics
 
 To evaluate a model's predictive performance, we classify its probabilistic predictions using a threshold (typically 0.5) and compare them to the true outcomes in a **Confusion Matrix**:
 
@@ -750,7 +750,7 @@ From this matrix, we derive several key performance metrics:
     * **Interpretation:** This curve shows the trade-off between how *reliable* a positive prediction is (Precision) and how *complete* the model is at finding all positives (Recall).
     * **When to Use:** The PR curve is particularly informative when the dataset is **imbalanced** (i.e., one class, like "fraud" or "disease," is much rarer than the other). Unlike the ROC curve, the PR curve's baseline (the "no-skill" line) is a horizontal line at the proportion of positive cases, which makes it easier to see if the model is performing significantly better than chance in a low-positive-rate scenario. A perfect classifier would hug the **top-right corner** (Precision = 1, Recall = 1).
 
-## Illustration with the Simulated Dataset
+### Illustration with the Simulated Dataset
 
 This section applies the train/test split and model evaluation workflow to the `sim.data` created in the previous step.
 
@@ -758,12 +758,12 @@ This section applies the train/test split and model evaluation workflow to the `
 #| label: assess-predictive-accuracy-sim
 #| echo: true
 
-# Load the pROC library for AUC calculation
-# install.packages("pROC") # Uncomment to install if needed
+## Load the pROC library for AUC calculation
+## install.packages("pROC") # Uncomment to install if needed
 library(pROC)
 
-# --- 1. Split the data ---
-# We use 'sim.data' which has 200 rows
+## --- 1. Split the data ---
+## We use 'sim.data' which has 200 rows
 set.seed(123) # for reproducibility
 n_sim <- nrow(sim.data)
 train_size_sim <- floor(2/3 * n_sim)
@@ -771,17 +771,17 @@ train_indices_sim <- sample(1:n_sim, size = train_size_sim)
 train_data_sim <- sim.data[train_indices_sim, ]
 test_data_sim  <- sim.data[-train_indices_sim, ]
 
-# --- 2. Refit the model on the training data ---
-# We fit the model y ~ x on the training data
+## --- 2. Refit the model on the training data ---
+## We fit the model y ~ x on the training data
 fit_train_sim <- glm(
   y ~ x,
   data = train_data_sim,
   family = binomial(link = "logit")
 )
 
-# --- 3. Make predictions on the test data ---
-# Note: The true probabilities 'p' are also in test_data_sim
-# We predict from the *fitted* model
+## --- 3. Make predictions on the test data ---
+## Note: The true probabilities 'p' are also in test_data_sim
+## We predict from the *fitted* model
 pred_probs_sim <- predict(fit_train_sim, newdata = test_data_sim, type = "response")
 ```
 
@@ -791,20 +791,20 @@ pred_probs_sim <- predict(fit_train_sim, newdata = test_data_sim, type = "respon
 #| label: plot-sorted-probabilities-sim
 #| echo: true
 
-# --- 5. Plot sorted predicted probabilities ---
+## --- 5. Plot sorted predicted probabilities ---
 
-# Create a data frame for plotting
+## Create a data frame for plotting
 plot_data_sim <- data.frame(
   Prob = pred_probs_sim,
   Actual = as.factor(test_data_sim$y),
   TrueProb = test_data_sim$p # Include true probs for comparison
 )
 
-# Sort by predicted probability
+## Sort by predicted probability
 plot_data_sim <- plot_data_sim[order(plot_data_sim$Prob), ]
 plot_data_sim$Rank <- 1:nrow(plot_data_sim)
 
-# Create the plot
+## Create the plot
 plot(
   plot_data_sim$Rank,
   plot_data_sim$Prob,
@@ -818,12 +818,12 @@ plot(
 abline(h = 0.5, lty = 2, col = "black")
 abline(h = 0.1, lty = 3, col = "grey")
 
-# Add the true probability curve (sorted by predicted prob)
-# This shows how well the fitted model's predictions align with the true probs
+## Add the true probability curve (sorted by predicted prob)
+## This shows how well the fitted model's predictions align with the true probs
 #lines(plot_data_sim$Rank, plot_data_sim$TrueProb[order(plot_data_sim$Prob)], col = "darkgreen", lwd = 2)
 
 
-# Add a legend
+## Add a legend
 legend(
   "topleft",
   legend = c("Actual 0 (o)", "Actual 1 (x)"),
@@ -841,35 +841,35 @@ legend(
 #| label: conf-matrix-0.5
 #| echo: true
 
-# --- 4. Assess accuracy ---
+## --- 4. Assess accuracy ---
 
-# 4a. Misclassification Error Rate (using 0.5 threshold)
+## 4a. Misclassification Error Rate (using 0.5 threshold)
 threshold <- 0.5
 pred_class_sim <- ifelse(pred_probs_sim > threshold, 1, 0)
 conf_matrix_sim <- table(Actual = test_data_sim$y, Predicted = pred_class_sim)
 
-# --- MODIFIED LINES START ---
+## --- MODIFIED LINES START ---
 cat("Confusion Matrix (Counts, threshold = 0.5):\n")
 print(conf_matrix_sim)
 
 cat("\nRow Proportions (Given Actual, % Predicted -- Relates to TPR/FPR):\n")
-# margin = 1 calculates proportions across rows
+## margin = 1 calculates proportions across rows
 print(round(prop.table(conf_matrix_sim, margin = 1), 3))
 
 cat("\nColumn Proportions (Given Predicted, % Actual -- Relates to Precision):\n")
-# margin = 2 calculates proportions across columns
+## margin = 2 calculates proportions across columns
 print(round(prop.table(conf_matrix_sim, margin = 2), 3))
-# --- MODIFIED LINES END ---
+## --- MODIFIED LINES END ---
 
 
-# Check if matrix has 2x2 dimensions, otherwise metrics will fail
+## Check if matrix has 2x2 dimensions, otherwise metrics will fail
 if (all(dim(conf_matrix_sim) == c(2, 2))) {
   TN <- conf_matrix_sim[1, 1]
   FP <- conf_matrix_sim[1, 2]
   FN <- conf_matrix_sim[2, 1]
   TP <- conf_matrix_sim[2, 2]
 
-  # Calculate metrics
+  ## Calculate metrics
   error_rate <- (FP + FN) / (TP + TN + FP + FN)
   TPR_Recall <- TP / (TP + FN) # True Positive Rate (Recall / Sensitivity)
   FPR <- FP / (FP + TN)      # False Positive Rate (1 - Specificity)
@@ -894,28 +894,28 @@ threshold <- 0.1
 pred_class_sim <- ifelse(pred_probs_sim > threshold, 1, 0)
 conf_matrix_sim <- table(Actual = test_data_sim$y, Predicted = pred_class_sim)
 
-# --- MODIFIED LINES START ---
+## --- MODIFIED LINES START ---
 cat("Confusion Matrix (Counts, threshold = 0.1):\n")
 print(conf_matrix_sim)
 
 cat("\nRow Proportions (Given Actual, % Predicted -- Relates to TPR/FPR):\n")
-# margin = 1 calculates proportions across rows
+## margin = 1 calculates proportions across rows
 print(round(prop.table(conf_matrix_sim, margin = 1), 3))
 
 cat("\nColumn Proportions (Given Predicted, % Actual -- Relates to Precision):\n")
-# margin = 2 calculates proportions across columns
+## margin = 2 calculates proportions across columns
 print(round(prop.table(conf_matrix_sim, margin = 2), 3))
-# --- MODIFIED LINES END ---
+## --- MODIFIED LINES END ---
 
 
-# Check if matrix has 2x2 dimensions
+## Check if matrix has 2x2 dimensions
 if (all(dim(conf_matrix_sim) == c(2, 2))) {
   TN <- conf_matrix_sim[1, 1]
   FP <- conf_matrix_sim[1, 2]
   FN <- conf_matrix_sim[2, 1]
   TP <- conf_matrix_sim[2, 2]
 
-  # Calculate metrics
+  ## Calculate metrics
   error_rate <- (FP + FN) / (TP + TN + FP + FN)
   TPR_Recall <- TP / (TP + FN) # True Positive Rate (Recall / Sensitivity)
   FPR <- FP / (FP + TN)      # False Positive Rate (1 - Specificity)
@@ -933,10 +933,10 @@ if (all(dim(conf_matrix_sim) == c(2, 2))) {
 **ROC curve and Area Under the ROC (AUC)**
 
 ```{r}
-# 4b. Area Under the Curve (AUC)
+## 4b. Area Under the Curve (AUC)
 roc_curve_sim <- roc(test_data_sim$y, pred_probs_sim, quiet = TRUE)
 
-# Plot the ROC curve
+## Plot the ROC curve
 plot(roc_curve_sim, main = "ROC Curve (Simulated Test Data)", print.auc = TRUE)
 
 auc_value_sim <- auc(roc_curve_sim)
@@ -949,36 +949,36 @@ cat(paste("Area Under the Curve (AUC):", round(auc_value_sim, 4), "\n\n"))
 #| label: pr-curve-rocr
 #| echo: true
 
-# Load the ROCR library
-# install.packages("ROCR") # Uncomment to install if needed
+## Load the ROCR library
+## install.packages("ROCR") # Uncomment to install if needed
 library(ROCR)
 
-# --- 1. Create a 'prediction' object ---
-# 'prediction' takes all predictions and all true labels
+## --- 1. Create a 'prediction' object ---
+## 'prediction' takes all predictions and all true labels
 pred_obj <- prediction(pred_probs_sim, test_data_sim$y)
 
-# --- 2. Create a 'performance' object for PR ---
-# "prec" is for precision, "rec" is for recall
+## --- 2. Create a 'performance' object for PR ---
+## "prec" is for precision, "rec" is for recall
 perf_pr <- performance(pred_obj, measure = "prec", x.measure = "rec")
 
-# --- 3. Calculate Area Under the PR Curve (AUPR) ---
+## --- 3. Calculate Area Under the PR Curve (AUPR) ---
 perf_auc <- performance(pred_obj, measure = "aucpr") # "aucpr" = Area Under PR Curve
 aupr_value <- perf_auc@y.values[[1]]
 cat(paste("Area Under PR Curve (AUPR):", round(aupr_value, 4), "\n"))
 
 
-# --- 4. Plot the performance object ---
+## --- 4. Plot the performance object ---
 plot(perf_pr, 
      main = "Precision-Recall Curve (Simulated Test Data)", 
      xlim = c(0, 1), 
      ylim = c(0, 1),
      col = "black")
 
-# --- 5. Calculate and add the 'no-skill' baseline ---
+## --- 5. Calculate and add the 'no-skill' baseline ---
 baseline_precision_sim <- sum(test_data_sim$y == 1) / length(test_data_sim$y)
 abline(h = baseline_precision_sim, col = "blue", lty = 2)
 
-# --- 6. Add a legend with AUPR ---
+## --- 6. Add a legend with AUPR ---
 legend("bottomleft", 
        legend = c(
            paste("Model (AUPR =", round(aupr_value, 4), ")"),  # <-- MODIFIED LINE
@@ -990,17 +990,17 @@ legend("bottomleft",
 ```
 
 
-## Application to the CHD Dataset
+### Application to the CHD Dataset
 
 ```{r}
 #| label: assess-predictive-accuracy
 #| echo: true
 
-# Load the pROC library for AUC calculation
-# install.packages("pROC") # Uncomment to install if needed
+## Load the pROC library for AUC calculation
+## install.packages("pROC") # Uncomment to install if needed
 library(pROC)
 
-# --- 1. Split the data ---
+## --- 1. Split the data ---
 set.seed(123) # for reproducibility
 n <- nrow(CHD.data)
 train_size <- floor(2/3 * n)
@@ -1008,14 +1008,14 @@ train_indices <- sample(1:n, size = train_size)
 train_data <- CHD.data[train_indices, ]
 test_data  <- CHD.data[-train_indices, ]
 
-# --- 2. Refit the model on the training data ---
+## --- 2. Refit the model on the training data ---
 fit_train <- glm(
   chd ~ smk + cat + sbp + age + chl + ecg + hpt,
   data = train_data,
   family = binomial(link = "logit")
 )
 
-# --- 3. Make predictions on the test data ---
+## --- 3. Make predictions on the test data ---
 pred_probs <- predict(fit_train, newdata = test_data, type = "response")
 ```
 
@@ -1025,22 +1025,22 @@ pred_probs <- predict(fit_train, newdata = test_data, type = "response")
 #| label: plot-sorted-probabilities
 #| echo: true
 
-# --- 5. Plot sorted predicted probabilities ---
+## --- 5. Plot sorted predicted probabilities ---
 
-# Create a data frame for plotting
+## Create a data frame for plotting
 plot_data <- data.frame(
   Prob = pred_probs,
   Actual = as.factor(test_data$chd)
 )
 
-# Sort by predicted probability
+## Sort by predicted probability
 plot_data <- plot_data[order(plot_data$Prob), ]
 plot_data$Rank <- 1:nrow(plot_data)
 
-# Create the plot
-# We use 'pch' (plot character) to set different symbols
-# 'pch = 1' is 'o' (default)
-# 'pch = 4' is 'x'
+## Create the plot
+## We use 'pch' (plot character) to set different symbols
+## 'pch = 1' is 'o' (default)
+## 'pch = 4' is 'x'
 plot(
   plot_data$Rank,
   plot_data$Prob,
@@ -1054,7 +1054,7 @@ plot(
 abline(h=0.5)
 abline(h=0.1, col="grey")
 
-# Add a legend
+## Add a legend
 legend(
   "topleft",
   legend = c("Actual 0 (o)", "Actual 1 (x)"),
@@ -1067,10 +1067,10 @@ legend(
 **ROC curve and Area Under the ROC (AUC)**
 
 ```{r}
-# 4b. Area Under the Curve (AUC)
+## 4b. Area Under the Curve (AUC)
 roc_curve <- roc(test_data$chd, pred_probs, quiet = TRUE)
 
-# Plot the ROC curve
+## Plot the ROC curve
 plot(roc_curve, main = "ROC Curve (Test Data)", print.auc = TRUE)
 
 auc_value <- auc(roc_curve)
@@ -1083,37 +1083,37 @@ cat(paste("Area Under the Curve (AUC):", round(auc_value, 4), "\n\n"))
 #| label: pr-curve-rocr-chd
 #| echo: true
 
-# Load the ROCR library
-# install.packages("ROCR") # Uncomment to install if needed
+## Load the ROCR library
+## install.packages("ROCR") # Uncomment to install if needed
 library(ROCR)
 
-# --- 1. Create a 'prediction' object ---
-# 'prediction' takes all predictions and all true labels
-# We use 'pred_probs' and 'test_data$chd' from the CHD data split
+## --- 1. Create a 'prediction' object ---
+## 'prediction' takes all predictions and all true labels
+## We use 'pred_probs' and 'test_data$chd' from the CHD data split
 pred_obj <- prediction(pred_probs, test_data$chd)
 
-# --- 2. Create a 'performance' object for PR ---
-# "prec" is for precision, "rec" is for recall
+## --- 2. Create a 'performance' object for PR ---
+## "prec" is for precision, "rec" is for recall
 perf_pr <- performance(pred_obj, measure = "prec", x.measure = "rec")
 
-# --- 3. Calculate Area Under the PR Curve (AUPR) ---
+## --- 3. Calculate Area Under the PR Curve (AUPR) ---
 perf_auc <- performance(pred_obj, measure = "aucpr") # "aucpr" = Area Under PR Curve
 aupr_value <- perf_auc@y.values[[1]]
 cat(paste("Area Under PR Curve (AUPR):", round(aupr_value, 4), "\n"))
 
 
-# --- 4. Plot the performance object ---
+## --- 4. Plot the performance object ---
 plot(perf_pr, 
      main = "Precision-Recall Curve (Test Data)", 
      xlim = c(0, 1), 
      ylim = c(0, 1),
      col = "black")
 
-# --- 5. Calculate and add the 'no-skill' baseline ---
+## --- 5. Calculate and add the 'no-skill' baseline ---
 baseline_precision <- sum(test_data$chd == 1) / length(test_data$chd)
 abline(h = baseline_precision, col = "blue", lty = 2)
 
-# --- 6. Add a legend with AUPR ---
+## --- 6. Add a legend with AUPR ---
 legend("bottomleft", 
        legend = c(
            paste("Model (AUPR =", round(aupr_value, 4), ")"),  # <-- MODIFIED LINE
