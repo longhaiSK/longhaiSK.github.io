@@ -5,14 +5,6 @@ author:
     affiliation: "University of Saskatchewan"
     url: "https://longhaisk.github.io/"
 editor: source
-execute:
-  echo: true
-  warning: false
-  message: false
-  cache: true
-  fig-width: 9
-  fig-height: 6
-    
 editor_options: 
   chunk_output_type: console
 ---
@@ -103,162 +95,6 @@ fit <- lm(strength ~ length + height, data = bond.data)
 s3d$plane3d(fit, lty.box = "solid")
 ```
 
-
-
-```{r include=FALSE,  eval=FALSE}
-# *Dynamic 3D Visualization of 3D Data**
-# Load necessary libraries
-library(plotly)
-library(dplyr)
-library(viridisLite)
-
-# --- 1. Create Reproducible Sample Data ---
-# This part is just to make the example runnable.
-# You can replace this with your own `bond.data` and `fit` objects.
-# Create a sample linear model fit
-fit <- lm(strength ~ length + height, data = bond.data)
-
-bond.data <- bond.data %>%
-  mutate(case = row_number())
-# --- 2. Build the Plot (Corrected Version) ---
-
-# Initialize the base scatter plot
-fig <- plot_ly(
-  data = bond.data,
-  x = ~length, y = ~height, z = ~strength,
-  type = "scatter3d", mode = "markers",
-  color = ~strength,
-  colors = viridis(256),
-  marker = list(
-    showscale = TRUE,
-    colorbar = list(title = "Strength")
-  ),
-  text = ~case,
-  hovertemplate = paste(
-    "<b>Case: %{text}</b><br>",
-    "Length: %{x:.2f}<br>",
-    "Height: %{y:.2f}<br>",
-    "Strength: %{z:.2f}<extra></extra>"
-  )
-)
-
-# Add text labels on top of the markers
-# inherit = FALSE prevents warnings about 'marker' and 'textfont.color'
-fig <- fig %>% add_trace(
-  type = "scatter3d",
-  mode = "text",
-  x = ~length, y = ~height, z = ~strength,
-  text = ~case,
-  textfont = list(color = 'black', size = 12),
-  showlegend = FALSE,
-  hoverinfo = "skip",
-  inherit = FALSE  # <-- Key correction
-)
-
-# Prepare the data for the regression surface
-resolution <- 20
-axis_x <- seq(min(bond.data$length), max(bond.data$length), length.out = resolution)
-axis_y <- seq(min(bond.data$height), max(bond.data$height), length.out = resolution)
-
-z_matrix <- outer(
-  axis_x,
-  axis_y,
-  function(len, ht) {
-    predict(fit, newdata = data.frame(length = len, height = ht))
-  }
-)
-
-# Add the regression surface
-# inherit = FALSE prevents warnings about invalid 'surface' attributes
-fig <- fig %>% add_surface(
-  x = ~axis_x,
-  y = ~axis_y,
-  z = ~z_matrix,
-  colorscale = 'Blues',
-  opacity = 0.7,
-  showscale = FALSE,
-  name = 'Regression Plane',
-  hoverinfo = "skip",
-  inherit = FALSE  # <-- Key correction
-)
-
-# Apply the final layout
-fig <- fig %>% layout(
-  title = "Interactive 3D Scatter Plot of Bond Strength",
-  scene = list(
-    xaxis = list(title = "Length"),
-    yaxis = list(title = "Height"),
-    zaxis = list(title = "Strength")
-  )
-)
-
-# Display the figure
-fig
-
-```
-
-```{r include=FALSE,  eval=FALSE}
-# --- 1. Clear the environment to prevent variable mix-ups ---
-rm(list = ls())
-
-# --- 2. Load libraries ---
-library(plotly)
-library(dplyr)
-
-# --- 3. Define the perfect data ---
-perfect_data <- data.frame(
-  length = c(1, 3, 1, 3),
-  height = c(2, 1, 4, 3),
-  strength = c(4, 7, 6, 9)
-)
-
-# --- 4. Fit the model ONLY on the perfect data ---
-fit_perfect <- lm(strength ~ length + height, data = perfect_data)
-
-# --- 5. Prepare the surface grid from the perfect fit ---
-axis_x <- seq(min(perfect_data$length), max(perfect_data$length), length.out = 10)
-axis_y <- seq(min(perfect_data$height), max(perfect_data$height), length.out = 10)
-
-z_matrix <- outer(
-  axis_x,
-  axis_y,
-  function(len, ht) {
-    predict(fit_perfect, newdata = data.frame(length = len, height = ht))
-  }
-)
-
-# --- 6. Build the plot ---
-fig <- plot_ly(data = perfect_data, x = ~length, y = ~height, z = ~strength,
-               type = "scatter3d", mode = "markers", 
-               marker = list(size=8, color="red"), name = "Data Points") %>%
-  add_surface(x = ~axis_x, y = ~axis_y, z = ~z_matrix, 
-              opacity = 0.7, name = "Fitted Surface") %>%
-  layout(title = "Fit on a Perfect, Noise-Free Dataset")
-
-# --- 7. Display the plot ---
-fig
-
-```
-
-```{r include=FALSE,  eval=FALSE}
-par(mfrow = c(1,1))
-s3d <- with(perfect_data, scatterplot3d(
-  x = length,
-  y = height,
-  z = strength,
-  pch = 19,
-  color = "steelblue",
-  main = "3D Scatterplot: Strength vs. Length and Height",
-  xlab = "Length",
-  ylab = "Height",
-  zlab = "Strength",
-  angle = 60
-))
-
-fit <- lm(strength ~ length + height, data = perfect_data)
-s3d$plane3d(fit, lty.box = "solid")
-```
-
 ## Model Fitting and Summary
 
 We fit a multiple linear regression model with `strength` as the response variable and `length` and `height` as predictors.
@@ -295,25 +131,26 @@ The general linear model is:
 
 $$y = X\beta + \epsilon$$
 
-* **$y$**: $n \times 1$ vector of responses
-* **$X$**: $n \times p$ design matrix (first column often ones)
-* **$\beta$**: $p \times 1$ parameter vector, where $p=k+1$
-* **$\epsilon$**: $n \times 1$ error vector
+-   $y$: $n \times 1$ vector of responses
+-   $X$: $n \times p$ design matrix (first column often ones)
+-   $\beta$: $p \times 1$ parameter vector, where $p=k+1$
+-   $\epsilon$: $n \times 1$ error vector
 
 ## RSS-Based Quantities
 
 ### RSS-Based Quantities
 
-| Source | Sum of Squares | $R^2$ | df | Mean Squares | $F$ | SS$_\mathrm{adj}$ | $\hat{\sigma}^2$| $R^2_{\mathrm{adj}}$ |
-|:--|:--|:--|:--:|:--|:--|:--|:--|:--|
+| Source | Sum of Squares | $R^2$ | df | Mean Squares | $F$ | SS$_\mathrm{adj}$ | $\hat{\sigma}^2$ | $R^2_{\mathrm{adj}}$ |
+|:-------|:-------|:-------|:------:|:-------|:-------|:-------|:-------|:-------|
 | $x^\top\beta$ | $\mathrm{SSR} = \displaystyle \sum_{i=1}^n (\hat y_i - \bar y)^2$ | $\displaystyle \frac{\mathrm{SSR}}{\mathrm{SST}}$ | $k$ | $\displaystyle \mathrm{MSR} = \frac{\mathrm{SSR}}{k}$ | $\displaystyle \frac{\mathrm{MSR}}{\mathrm{MSE}}$ | $\mathrm{SSR}_{\mathrm{adj}}$ | $\displaystyle \hat{\sigma}^2_{x^\top\beta} = \frac{\mathrm{SSR}_{\mathrm{adj}}}{n-1}$ | $\displaystyle \frac{\mathrm{SSR}_{\mathrm{adj}}}{\mathrm{SST}} = 1 - \frac{\mathrm{MSE}}{\mathrm{MST}}$ |
 | $\epsilon$ | $\mathrm{SSE} = \displaystyle \sum_{i=1}^n (y_i - \hat y_i)^2$ | — | $n-p$ | $\displaystyle \mathrm{MSE} = \frac{\mathrm{SSE}}{n-p}$ | — | $\mathrm{SSE}$ | $\displaystyle \hat{\sigma}^2_{\epsilon} = \mathrm{MSE}$ | — |
 | $y$ | $\mathrm{SST} = \displaystyle \sum_{i=1}^n (y_i - \bar y)^2$ | — | $n-1$ | $\displaystyle \mathrm{MST} = \frac{\mathrm{SST}}{n-1}$ | — | $\mathrm{SST}$ | $\displaystyle \hat{\sigma}^2_{y} = \mathrm{MST}$ | — |
----
 
-**Interpretation of the $\hat{\sigma}^2$ Column**
+------------------------------------------------------------------------
 
-The $\hat{\sigma}^2$ column highlights how each sum of squares corresponds to an estimated variance.  
+**Interpretation of the** $\hat{\sigma}^2$ Column
+
+The $\hat{\sigma}^2$ column highlights how each sum of squares corresponds to an estimated variance.\
 This view makes the adjusted coefficient of determination clear:
 
 $$
@@ -324,8 +161,7 @@ $$
 
 Hence, the adjusted $R^2$ simply expresses the **proportion of total estimated variance** attributable to the fitted model $X\beta$ rather than the residual noise $\epsilon$.
 
-
-## Remarks 
+## Remarks
 
 ### Fundamental Identities
 
@@ -336,17 +172,17 @@ $$
 \end{aligned}
 $$
 
-where  
+where
 
 $$
 \mathrm{SSR}_{\mathrm{adj}} = (n-1)MST-(n-p+k)\mathrm{MSE} = \mathrm{SST}-\mathrm{SSE} - k\,\mathrm{MSE} = \mathrm{SSR} - k\,\mathrm{MSE}.
 $$
 
----
+------------------------------------------------------------------------
 
 ### Difference of $\hat{\sigma}^2$ and Mean Squares
 
-The quantity $\hat{\sigma}^2$ represents the **estimated variance** associated with each component of the model.  MSE and MST are the estimated variances of the $\epsilon$ and $y$ itself. However, the MSR, although called **Mean Square for Regression (MSR)** is *NOT* an estimate of the variance or sample variance of $x^\top \beta$.  The name of "mean" here is used to indicate a different thing.  Its name “Mean Square” reflects that it is also an estimate estimate of noise variance $\sigma^2$ under $H_0\!:\,\beta = 0$:
+The quantity $\hat{\sigma}^2$ represents the **estimated variance** associated with each component of the model. MSE and MST are the estimated variances of the $\epsilon$ and $y$ itself. However, the MSR, although called **Mean Square for Regression (MSR)** is *NOT* an estimate of the variance or sample variance of $x^\top \beta$. The name of "mean" here is used to indicate a different thing. Its name “Mean Square” reflects that it is also an estimate estimate of noise variance $\sigma^2$ under $H_0\!:\,\beta = 0$:
 
 $$
 E[\mathrm{MSR} \mid H_0] = \sigma^2,
@@ -358,20 +194,17 @@ Hence the F-statistic
 
 $$
 F = \frac{\mathrm{MSR}}{\mathrm{MSE}}
-$$
-is approximately equal to 1 subject to the variability as characterized with F-distribution with degree freedoms of $k$ and $n-p$. This test is to test whether any regression coefficients are not equal to 0. 
+$$ is approximately equal to 1 subject to the variability as characterized with F-distribution with degree freedoms of $k$ and $n-p$. This test is to test whether any regression coefficients are not equal to 0.
 
----
+------------------------------------------------------------------------
 
 ### $\hat \sigma^2_{x^\top\beta}=\frac{\mathrm{SSR}_{\text{adj}}}{n-1}$
-$\hat \sigma^2_{x^\top\beta}$ is an unbiased estimator of the variance of linear signal when $x$ is a regarded as a random variable. This can be seen from the following equations:
-$$
+
+$\hat \sigma^2_{x^\top\beta}$ is an unbiased estimator of the variance of linear signal when $x$ is a regarded as a random variable. This can be seen from the following equations: $$
 E[\mathrm{SSR}] = k\,\sigma^2 + \beta^\top X^\top (I - J/n)\,X\,\beta,
 \qquad
 E[\mathrm{MSE}] = \sigma^2.
-$$
-Hence,
-$$
+$$ Hence, $$
 \begin{aligned}
 E[\mathrm{SSR}_{\mathrm{adj}}]
 &= E[\mathrm{SSR}] - k\,E[\mathrm{MSE}] \\
@@ -385,16 +218,13 @@ where $$
 \mu_i &= x_i^\top \beta \\
 \bar\mu &= \tfrac{1}{n}\sum_{i=1}^n \mu_i
 \end{aligned}
-$$
-For fixed $X$, $\mathrm{SSR}_{\text{adj}}/(n-1)$ equals the **sample variance** of the true means $\{\mu_i\}$ over the observed design points.  If the rows of $X$ are independently sampled with covariance matrix $\Sigma_X$ (the random-$X$ model), then
+$$ For fixed $X$, $\mathrm{SSR}_{\text{adj}}/(n-1)$ equals the **sample variance** of the true means $\{\mu_i\}$ over the observed design points. If the rows of $X$ are independently sampled with covariance matrix $\Sigma_X$ (the random-$X$ model), then
 
 $$
 \mathbb{E}_X\!\left[\frac{\mathrm{SSR}_{\text{adj}}}{n-1}\right]
 = \beta^\top \Sigma_X \beta
 = \mathrm{Var}(x^\top \beta),
 $$
-
-
 
 ### Connection to Rao-Blackwell Formula
 
@@ -404,12 +234,10 @@ $$
 \mathrm{Var}(y) = \mathrm{Var}\!\big(E[y \mid x]\big) + E\!\big(\mathrm{Var}[y \mid x]\big).
 $$
 
-Here, 
+Here,
 
-- $\mathrm{Var}\!\big(E[y \mid x]\big)$ corresponds to the **explained variation** due to the regression component $x^\top\beta$, and  
-- $E\!\big(\mathrm{Var}[y \mid x]\big)$ corresponds to the **residual variation** due to $\epsilon$.
-
-
+-   $\mathrm{Var}\!\big(E[y \mid x]\big)$ corresponds to the **explained variation** due to the regression component $x^\top\beta$, and\
+-   $E\!\big(\mathrm{Var}[y \mid x]\big)$ corresponds to the **residual variation** due to $\epsilon$.
 
 ## A Simulation Study to Understand the Distributions of RSS
 
@@ -419,12 +247,12 @@ For $n=30$ and $p_{max}=20$, simulate with either $H_0:\beta=\mathbf 0$ or $H_1$
 
 **Sequence of Fitted Models**
 
-| Model Name  | # of Predictors (k) | # of Parameters (p) | R Formula              |
-| :---------- | :-----------------: | :-----------------: | :--------------------- |
-| Model 0     |          0          |          1          | `y ~ 1`                |
-| Model 1     |          2          |          3          | `y ~ x_1 + x_2`        |
-| ...         |         ...         |         ...         | ...                    |
-| Final Model |          20         |          21         | `y ~ x_1 + ... + x_20` |
+| Model Name | \# of Predictors (k) | \# of Parameters (p) | R Formula |
+|:----------------|:----------------:|:----------------:|:--------------------|
+| Model 0 | 0 | 1 | `y ~ 1` |
+| Model 1 | 2 | 3 | `y ~ x_1 + x_2` |
+| ... | ... | ... | ... |
+| Final Model | 20 | 21 | `y ~ x_1 + ... + x_20` |
 
 ```{r, include=FALSE}
 require("latex2exp")
@@ -505,7 +333,6 @@ cat(sprintf('<video controls style="width:100%%;height:auto;"><source src="%s" t
 
 ```
 
-
 ### When $H_1$ is true
 
 ```{r}
@@ -581,7 +408,6 @@ cat(sprintf('<video controls style="width:100%%;height:auto;"><source src="%s" t
 
 ```
 
-
 ## Example
 
 ```{r}
@@ -616,8 +442,8 @@ anova(fit_age, fit_age_hgt)
 
 ## Relationship between t-test and partial F-test
 
-- A t-test for a single coefficient is a special case of the partial F-test; the relationship is $F = t^2$ for 1 df in the numerator. 
-- The p-value from t-test (output of *summary(lm())*) is the same as anova test for: $H_0: \beta_j = 0$ vs $H_1$: all covaraites have non-zero effects.  
+-   A t-test for a single coefficient is a special case of the partial F-test; the relationship is $F = t^2$ for 1 df in the numerator.
+-   The p-value from t-test (output of *summary(lm())*) is the same as anova test for: $H_0: \beta_j = 0$ vs $H_1$: all covaraites have non-zero effects.
 
 # Predictions for Mean Response and a Future Observation
 
@@ -715,12 +541,10 @@ sbpdata <- read.csv("sbpdata.csv")
 sbpdata
 ```
 
-
-
-
 ## Four Models Involving "sex"
 
 ### Coincidence Model (Age Only)
+
 ```{r}
 #| echo: true
 # Ensure sex is a factor (labels will appear in the legend)
@@ -751,6 +575,7 @@ lines(new_age, pred, lwd = 2)
 legend("topleft", legend = lev, col = cols[lev], pch = 16, bty = "n", title = "Sex")
 
 ```
+
 ```{r}
 #| echo: true
 data.frame(model.matrix(fit.age)) 
@@ -794,7 +619,6 @@ legend("topleft", legend = lev, col = cols[lev], pch = 16, lwd = 2, bty = "n", t
 
 ```
 
-
 ```{r}
 #| echo: true
 data.frame(model.matrix(fit.agePLUSsex))
@@ -802,6 +626,7 @@ print(anova(fit.age, fit.agePLUSsex))
 ```
 
 ### Varying Intercept and Varying Slope Model (Age + Sex + Age:Sex)
+
 ```{r}
 #| echo: true
 # Make sure sex is a factor (for colors/legend)
@@ -845,8 +670,8 @@ summary(fit.age.TIMES.sex)
 print(anova(fit.age,fit.agePLUSsex,fit.age.TIMES.sex))
 ```
 
-
 ### Varying Slope, Equal Intercept Model (Age + Age:Sex)
+
 ```{r}
 #| echo: true
 # Make sure sex is a factor (for colors/legend)
@@ -881,6 +706,7 @@ legend("topleft", legend = lev, col = cols[lev], pch = 16, lwd = 2, bty = "n", t
 ```
 
 ## Orders of Terms Matters in ANOVA and Warnings in Interpreting t-test Tables
+
 ```{r}
 #| echo: true
 #| message: true
@@ -899,7 +725,6 @@ summary(fit.age.TIMES.sex)
 
 
 ```
-
 
 # Model Building
 
@@ -971,4 +796,3 @@ age <- c(8, 10, 6, 11, 8, 7, 10, 9, 10, 6, 12, 9)
 fit_age_hgt <- lm(wgt ~ hgt + age, data = child.data)
 ols_vif_tol(fit_age_hgt)
 ```
-
