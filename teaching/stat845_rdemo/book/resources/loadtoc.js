@@ -1,3 +1,4 @@
+<script>
 /* loadtoc.js — overlay TOC drawer (no layout shift, up to h3)
    - Creates a fixed-position overlay panel + backdrop
    - Clones existing Quarto TOC if found; else builds from <main> h2/h3
@@ -10,9 +11,10 @@
   // ===== Config =====
   const CFG = {
     side: 'right',            // 'right' | 'left'
-    width: 500,               // px
+    fontSize: '14px',
+    width: 400,               // px
     maxWidthVw: 92,           // %
-    headerOffset: 64,         // px: scroll margin for headings
+    headerOffset: 80,         // px: scroll margin for headings
     zBase: 2000,              // base z-index for overlay/backdrop
     buildFromHeadingsIfMissingSidebar: true, // fallback builder
     headingSelector: 'main :is(h2,h3)',      // used if building fallback
@@ -41,15 +43,20 @@
     const style = document.createElement('style');
     style.setAttribute('data-toc-style', 'overlay');
     style.textContent = `
-      :root { --toc-width:${CFG.width}px; --toc-offset:${CFG.headerOffset}px; --toc-z:${CFG.zBase}; }
+      :root { 
+        --toc-width:${CFG.width}px; 
+        --toc-offset:${CFG.headerOffset}px; 
+        --toc-z:${CFG.zBase}; 
+        --toc-font-size:${CFG.fontSize};
+      }
       main :is(h1,h2,h3,h4,h5,h6){ scroll-margin-top: var(--toc-offset); }
 
       #toc-toggle-btn {
         position: fixed; top: 50px; ${CFG.side}: 10px;
         z-index: calc(var(--toc-z) + 2);
-        padding: .55rem .8rem; border: 1px solid #ddd; border-radius: 999px;
+        padding: 0.1rem 0.6rem; border: 1px solid #ddd; border-radius: 999px;
         background: #fff; cursor: pointer; box-shadow: 0 8px 24px rgba(0,0,0,.10);
-        font: 800 16px system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        font: 1000 42px system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
       }
 
       #toc-backdrop {
@@ -77,7 +84,11 @@
       }
       #toc-head h3{ margin:0; font:600 16px system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
 
-      #toc-content { overflow:auto; padding:.6rem .85rem 1rem; }
+      #toc-content { 
+        overflow:auto; 
+        padding:.6rem .85rem 1rem; 
+        font-size: var(--toc-font-size);  
+      }
       #toc-content nav, #toc-content .book-toc { line-height:1.5; }
       #toc-content ul { list-style:none; margin:.25rem 0; padding-left:1rem; }
       #toc-content li { margin:.1rem 0; }
@@ -111,7 +122,7 @@
       toggle.setAttribute('aria-expanded','false');
       toggle.setAttribute('aria-controls','toc-panel');
       toggle.title = 'Open Table of Contents';
-      toggle.textContent = '☰ TOC';
+      toggle.textContent = '☰';
       document.body.appendChild(toggle);
     }
 
@@ -291,3 +302,5 @@
     init();
   }
 })();
+
+</script>
