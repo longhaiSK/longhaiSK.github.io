@@ -1,0 +1,85 @@
+/* book-toc.css — overlay book TOC without pushing layout */
+
+/* Reserve no space for Quarto's default book sidebar */
+#quarto-sidebar, 
+.sidebar, 
+.sidebar-navigation {
+  display: none !important;  /* sidebar removed from layout */
+}
+
+/* Expand content to full width (Quarto grid fallback) */
+.page-columns, 
+.quarto-container .page-columns {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+/* Helpful when Quarto uses CSS vars for sidebar width */
+:root {
+  --sidebar-width: 0px !important;
+}
+
+/* Overlay drawer + backdrop + toggle */
+:root {
+  --book-toc-width: 320px;
+  --book-toc-offset: 64px;   /* top anchor offset if you have a fixed header */
+  --book-toc-z: 2000;
+}
+
+main :is(h1,h2,h3,h4,h5,h6) { scroll-margin-top: var(--book-toc-offset); }
+
+/* Toggle button */
+#book-toc-toggle {
+  position: fixed; bottom: 24px; right: 24px; z-index: calc(var(--book-toc-z) + 2);
+  padding: .55rem .8rem; border: 1px solid #ddd; border-radius: 999px;
+  background: #fff; cursor: pointer; box-shadow: 0 8px 24px rgba(0,0,0,.10);
+  font: 500 14px system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+/* Backdrop */
+#book-toc-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,.25);
+  opacity: 0; pointer-events: none; transition: opacity .2s ease;
+  z-index: var(--book-toc-z);
+}
+body.book-toc-open #book-toc-backdrop { opacity: 1; pointer-events: auto; }
+
+/* Panel */
+#book-toc-panel {
+  position: fixed; top: 0; right: 0; height: 100vh;
+  width: var(--book-toc-width); max-width: 92vw; background: #fff;
+  box-shadow: -16px 0 32px rgba(0,0,0,.08);
+  transform: translateX(100%); transition: transform .22s ease;
+  z-index: calc(var(--book-toc-z) + 1); display: flex; flex-direction: column;
+}
+body.book-toc-open #book-toc-panel { transform: translateX(0); }
+body.book-toc-open { overflow: hidden; }
+
+#book-toc-head {
+  display:flex; align-items:center; justify-content:space-between;
+  gap:.5rem; padding:.75rem .9rem; border-bottom:1px solid #eee;
+}
+#book-toc-head h3 { margin:0; font:600 14px system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
+
+#book-toc-content { overflow:auto; padding:.6rem .85rem 1rem; }
+#book-toc-content nav, #book-toc-content .book-toc { line-height:1.45; }
+#book-toc-content ul { list-style:none; margin:.25rem 0; padding-left:1rem; }
+#book-toc-content li { margin:.1rem 0; }
+#book-toc-content a { text-decoration:none; }
+#book-toc-content .lvl-1 > a { font-weight:600; }
+#book-toc-content .lvl-2 > a { font-weight:500; }
+#book-toc-content .lvl-3 > a { font-weight:400; }
+
+.toc-icon-btn {
+  border:1px solid #ddd; border-radius:8px; padding:.35rem .55rem; background:#fff; cursor:pointer;
+}
+
+/* caret collapse */
+.toc-caret { margin-right:.35rem; user-select:none; cursor:pointer; }
+.toc-collapsed > ul { display:none; }
+.toc-caret::before { content: '▾'; display:inline-block; transform: rotate(0deg); transition: transform .12s linear; }
+.toc-collapsed > .toc-row .toc-caret::before { transform: rotate(-90deg); }
+.toc-row { display:flex; align-items:center; gap:.25rem; }
+
+@media (max-width: 600px) {
+  :root { --book-toc-width: 90vw; }
+}
