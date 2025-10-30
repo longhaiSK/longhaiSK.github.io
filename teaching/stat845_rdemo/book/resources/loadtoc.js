@@ -1,5 +1,11 @@
+// loadtoc.js — namespaced, self-contained TOC (right side, collapsible)
+// - Injects its own CSS (namespaced with "my-")
+// - Right-docked slide-in panel + toggle button (chevron flips for right side)
+// - Collapsible subsections with chevrons
+// - Default: ONLY H1 expanded initially; H2 shown (collapsed), H3+ hidden
+// - Uniform alignment: caret/bullet share the same icon column
+// - Robust (no Array.prototype.at), Quarto/Bootstrap friendly
 
-// loadmytoc.js — namespaced, self-contained TOC (right side, collapsible)
 document.addEventListener('DOMContentLoaded', function () {
   // ---------- 1) Inject CSS ----------
   const css = `
@@ -7,7 +13,8 @@ document.addEventListener('DOMContentLoaded', function () {
     --my-toc-width: 300px;
     --my-navbar-height: 56px;
   }
-  /* Panel (right) */
+
+  /* Panel (right-docked) */
   #my-toc-container {
     position: fixed;
     top: var(--my-navbar-height, 56px);
@@ -15,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
     left: auto;
     width: var(--my-toc-width);
     max-height: calc(100vh - var(--my-navbar-height, 56px) - 24px);
-    transform: translateX(calc(100% + 10px));
+    transform: translateX(calc(100% + 10px)); /* hidden offscreen to the right */
     overflow-y: auto;
     z-index: 999;
     background-color: #f9f9f9;
@@ -30,9 +37,13 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   #my-toc-container.my-active { transform: translateX(0); }
 
-  body.my-toc-open { margin-right: var(--my-toc-width); transition: margin-right 0.35s ease-in-out; }
+  /* Push page content when open (desktop) */
+  body.my-toc-open {
+    margin-right: var(--my-toc-width);
+    transition: margin-right 0.35s ease-in-out;
+  }
 
-  /* Toggle button */
+  /* Toggle button (right edge) */
   #my-toc-toggle-button {
     position: fixed;
     top: var(--my-navbar-height, 56px);
@@ -52,45 +63,122 @@ document.addEventListener('DOMContentLoaded', function () {
     transition: background-color 0.25s ease-in-out, transform 0.35s ease-in-out;
   }
   #my-toc-toggle-button:hover { background-color: #d0d0d0; }
-  #my-toc-toggle-button:focus-visible { outline: 2px solid royalblue; outline-offset: 2px; }
-  #my-toc-toggle-button svg { width: 40px; height: 40px; color: royalblue; display: block; transition: transform 0.25s ease-in-out; }
+  #my-toc-toggle-button:focus-visible {
+    outline: 2px solid royalblue;
+    outline-offset: 2px;
+  }
+  /* Chevron: CLOSED points LEFT (◀) for right-docked panel */
+  #my-toc-toggle-button svg {
+    width: 40px; height: 40px; color: royalblue; display: block;
+    transition: transform 0.25s ease-in-out;
+    transform: rotate(180deg);
+  }
+  /* When open: slide button left & point RIGHT (▶) */
   #my-toc-toggle-button[aria-expanded="true"] { transform: translateX(calc(-1 * var(--my-toc-width))); }
-  #my-toc-toggle-button[aria-expanded="true"] svg { transform: scale(0.9) rotate(-180deg); }
+  #my-toc-toggle-button[aria-expanded="true"] svg { transform: rotate(0deg) scale(0.9); }
 
-  /* Title + list */
-  .my-toc-title { margin: 0 0 10px 0; font-size: 1.05em; font-weight: 700; color: #000; }
-  .my-toc-list, .my-toc-sublist { margin: 0; padding-left: 20px; }
-  .my-toc-list { list-style-type: disc; }
-  .my-toc-sublist { list-style-type: circle; margin-top: 4px; }
-  .my-toc-link { text-decoration: none; color: royalblue; display: block; padding: 4px 0; font-size: 1em; }
+  /* Title */
+  .my-toc-title {
+    margin: 0 0 10px 0;
+    font-size: 1.05em;
+    font-weight: 700;
+    color: #000;
+  }
+
+  /* --- Lists: remove native bullets so we control alignment --- */
+  .my-toc-list, .my-toc-sublist {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+  }
+  /* Indentation for nested lists */
+  .my-toc-sublist { margin-left: 1.1rem; }
+
+  /* --- Rows: two-column grid [icon][text] for perfect alignment --- */
+  .my-toc-row {
+    display: grid;
+    grid-template-columns: 1.25em 1fr; /* icon rail, then text */
+    align-items: center;
+    column-gap: 6px;
+  }
+
+  /* Links (text column) */
+  .my-toc-link {
+    grid-column: 2;
+    text-decoration: none;
+    color: royalblue;
+    display: block;
+    padding: 3px 0; /* slightly tighter rhythm */
+    font-size: 1em;
+  }
   .my-toc-link:hover, .my-toc-link:focus { text-decoration: underline; }
-  .my-toc-link:focus-visible { outline: 2px solid royalblue; outline-offset: 2px; }
+  .my-toc-link:focus-visible {
+    outline: 2px solid royalblue;
+    outline-offset: 2px;
+  }
 
+  /* Caret button (icon column) */
+  .my-toc-caret-btn {
+    grid-column: 1;
+    width: 1.25em;
+    height: 1.25em;
+    appearance: none;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+  }
+  .my-toc-caret-btn:hover { background: rgba(0,0,0,0.05); }
+  .my-toc-caret-btn:focus-visible {
+    outline: 2px solid royalblue;
+    outline-offset: 2px;
+  }
+  .my-toc-caret {
+    width: 1em;
+    height: 1em;
+    transition: transform 0.2s ease;
+  }
+  /* Branch collapsed: caret points RIGHT (▶) */
+  .my-toc-item.my-has-children:not(.my-is-open) > .my-toc-row .my-toc-caret { transform: rotate(-90deg); }
+
+  /* Leaf rows (no children): draw a pseudo-bullet in the icon column for alignment */
+  .my-toc-item:not(.my-has-children) > .my-toc-row::before {
+    content: "";
+    grid-column: 1;
+    width: 0.5em;
+    height: 0.5em;
+    border-radius: 50%;
+    background: currentColor; /* matches link color (royalblue / dark-mode variant) */
+    opacity: 0.6;
+    justify-self: center;
+  }
+  /* Ensure branches don't get pseudo-bullets */
+  .my-toc-item.my-has-children > .my-toc-row::before { content: none; }
+
+  /* Hide children when collapsed */
+  .my-toc-item.my-has-children:not(.my-is-open) > .my-toc-sublist { display: none; }
+  /* Optional: emphasize parent link when open */
+  .my-toc-item.my-has-children.my-is-open > .my-toc-row > .my-toc-link { font-weight: 600; }
+
+  /* Up link above the title */
   .my-toc-up-link { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 8px; color: inherit; text-decoration: none; }
   .my-toc-up-link.icon-only svg { width: 22px; height: 22px; }
   .my-toc-up-link.my-disabled { opacity: 0.4; pointer-events: none; }
 
-  /* Collapsible */
-  .my-toc-item { position: relative; }
-  .my-toc-item.my-has-children { list-style-type: none; padding-left: 0; }
-  .my-toc-row { display: flex; align-items: center; gap: 6px; }
-  .my-toc-caret-btn {
-    appearance: none; background: none; border: none; padding: 2px; margin: 0;
-    cursor: pointer; line-height: 1; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px;
-  }
-  .my-toc-caret-btn:hover { background: rgba(0,0,0,0.05); }
-  .my-toc-caret-btn:focus-visible { outline: 2px solid royalblue; outline-offset: 2px; }
-  .my-toc-caret { width: 1em; height: 1em; transition: transform 0.2s ease; }
-  .my-toc-item.my-has-children:not(.my-is-open) > .my-toc-row .my-toc-caret { transform: rotate(-90deg); }
-  .my-toc-item.my-has-children:not(.my-is-open) > .my-toc-sublist { display: none; }
-  .my-toc-item.my-has-children.my-is-open > .my-toc-row > .my-toc-link { font-weight: 600; }
-
+  /* Small screens: overlay (don’t push content) */
   @media (max-width: 800px) {
     body.my-toc-open { margin-right: 0; }
     #my-toc-toggle-button[aria-expanded="true"] { transform: translateX(0); }
     #my-toc-container { max-width: min(85vw, var(--my-toc-width)); width: min(85vw, var(--my-toc-width)); }
   }
 
+  /* Dark mode */
   @media (prefers-color-scheme: dark) {
     #my-toc-container { background-color: #1f1f1f; border-color: #333; box-shadow: -2px 0 6px rgba(0,0,0,0.6); }
     #my-toc-toggle-button { background-color: #2a2a2a; border-color: #3a3a3a; }
@@ -100,10 +188,12 @@ document.addEventListener('DOMContentLoaded', function () {
     .my-toc-caret-btn:hover { background: rgba(255,255,255,0.06); }
   }
 
+  /* Reduced motion */
   @media (prefers-reduced-motion: reduce) {
     #my-toc-container, #my-toc-toggle-button, body.my-toc-open { transition: none !important; }
   }
 
+  /* Print */
   @media print {
     #my-toc-container, #my-toc-toggle-button { display: none !important; }
   }`;
@@ -112,121 +202,184 @@ document.addEventListener('DOMContentLoaded', function () {
   style.textContent = css;
   document.head.appendChild(style);
 
-  // ---------- 2) Build container ----------
-  const headings = Array.from(document.querySelectorAll('h1,h2,h3,h4,h5,h6'))
-    .filter(h => !h.closest('#my-toc-container') && !h.closest('.my-no-toc'));
-  if (headings.length === 0) return;
+  // ---------- 2) Collect headings ----------
+  const headings = Array.prototype.slice.call(
+    document.querySelectorAll('h1,h2,h3,h4,h5,h6')
+  ).filter(function(h){
+    return !h.closest('#my-toc-container') && !h.closest('.my-no-toc');
+  });
 
+  if (!headings || headings.length === 0) return;
+
+  // ---------- 3) Build container + toggle ----------
   const toc = document.createElement('nav');
   toc.id = 'my-toc-container';
 
-  const toggle = document.createElement('button');
-  toggle.id = 'my-toc-toggle-button';
-  toggle.type = 'button';
-  toggle.setAttribute('aria-expanded', 'false');
-  toggle.innerHTML = `
-    <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>`;
+  const toggleBtn = document.createElement('button');
+  toggleBtn.id = 'my-toc-toggle-button';
+  toggleBtn.type = 'button';
+  toggleBtn.setAttribute('aria-expanded', 'false');
+  toggleBtn.setAttribute('aria-label', 'Toggle Table of Contents');
+  toggleBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>';
 
-  // Up link
-  function getParentDir(p){let path=p;if(path.endsWith('/index.html'))path=path.slice(0,-10);
-    if(!path.endsWith('/'))path=path.slice(0,path.lastIndexOf('/')+1);
-    const cut=path.slice(0,-1).lastIndexOf('/');return cut<=0?'/':path.substring(0,cut+1);}
-  const parent=getParentDir(location.pathname);
-  const atRoot=location.pathname==='/'||location.pathname==='/index.html';
-  const up=document.createElement('a');
-  up.classList.add('my-toc-up-link','icon-only');
-  if(atRoot){up.classList.add('my-disabled');} else {up.href=parent;}
-  up.innerHTML=`<svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2.5">
-  <polyline points="18 14 12 8 6 14"/><polyline points="18 18 12 12 6 18"/></svg>`;
+  // Up link helpers
+  function getParentDir(p){
+    var path = p;
+    if (path.slice(-11) === '/index.html') path = path.slice(0, -11);
+    if (path.slice(-1) !== '/') path = path.slice(0, path.lastIndexOf('/') + 1);
+    var noTrail = path.slice(-1) === '/' ? path.slice(0, -1) : path;
+    var cut = noTrail.lastIndexOf('/');
+    return (cut <= 0) ? '/' : noTrail.substring(0, cut + 1);
+  }
+  var parentHref = getParentDir(location.pathname);
+  var atRoot = (location.pathname === '/' || location.pathname === '' || location.pathname === '/index.html');
+
+  const up = document.createElement('a');
+  up.className = 'my-toc-up-link icon-only';
+  if (atRoot) {
+    up.classList.add('my-disabled');
+    up.setAttribute('aria-disabled', 'true');
+    up.setAttribute('tabindex', '-1');
+  } else {
+    up.href = parentHref;
+    up.setAttribute('target', '_self');
+  }
+  up.innerHTML = '<svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2.5" aria-hidden="true"><polyline points="18 14 12 8 6 14"></polyline><polyline points="18 18 12 12 6 18"></polyline></svg>';
   toc.appendChild(up);
 
-  const title=document.createElement('h3');
-  title.textContent='Table of Contents';
-  title.className='my-toc-title';
+  const title = document.createElement('h3');
+  title.className = 'my-toc-title';
+  title.textContent = 'Table of Contents';
   toc.appendChild(title);
 
-  const list=document.createElement('ul');
-  list.className='my-toc-list';
-  const stack=[list];
-  headings.forEach((h,i)=>{
-    const li=document.createElement('li');
-    li.className='my-toc-item';
-    const a=document.createElement('a');
-    a.className='my-toc-link';
-    if(!h.id)h.id='my-toc-heading-'+i;
-    a.href='#'+h.id; a.textContent=h.textContent.trim();
-    const level=parseInt(h.tagName.substring(1));
-    if(i>0){
-      const prev=parseInt(headings[i-1].tagName.substring(1));
-      if(level>prev){
-        const parentLi=stack.at(-1).lastElementChild;
-        if(parentLi){const sub=document.createElement('ul');
-          sub.className='my-toc-list my-toc-sublist'; parentLi.appendChild(sub); stack.push(sub);}
-      }else if(level<prev){
-        for(let j=0;j<(prev-level)&&stack.length>1;j++)stack.pop();
+  // ---------- 4) Build nested list & tag levels ----------
+  const list = document.createElement('ul');
+  list.className = 'my-toc-list';
+  var stack = [list];
+
+  headings.forEach(function(h, i){
+    var li = document.createElement('li');
+    li.className = 'my-toc-item';
+
+    var a = document.createElement('a');
+    a.className = 'my-toc-link';
+    if (!h.id) h.id = 'my-toc-heading-' + i;
+    var text = (h.textContent || '').trim();
+    a.textContent = text;
+    a.href = '#' + h.id;
+    a.title = text;
+
+    // Row wrapper for caret/bullet + link
+    var row = document.createElement('div');
+    row.className = 'my-toc-row';
+    row.appendChild(a);
+    li.appendChild(row);
+
+    var level = parseInt(h.tagName.substring(1), 10);
+    li.dataset.level = String(level);
+
+    if (i > 0) {
+      var prevLevel = parseInt(headings[i - 1].tagName.substring(1), 10);
+      if (level > prevLevel) {
+        // attach sublist to last LI in current top of stack
+        var parentList = stack[stack.length - 1];
+        var parentLi = parentList ? parentList.lastElementChild : null;
+        if (parentLi) {
+          var sub = document.createElement('ul');
+          sub.className = 'my-toc-list my-toc-sublist';
+          parentLi.appendChild(sub);
+          stack.push(sub);
+        }
+      } else if (level < prevLevel) {
+        var upCount = prevLevel - level;
+        while (upCount-- > 0 && stack.length > 1) stack.pop();
       }
     }
-    const row=document.createElement('div'); row.className='my-toc-row'; row.appendChild(a);
-    li.appendChild(row); stack.at(-1).appendChild(li);
+
+    var currentList = stack[stack.length - 1] || list;
+    currentList.appendChild(li);
   });
+
   toc.appendChild(list);
   document.body.appendChild(toc);
-  document.body.appendChild(toggle);
+  document.body.appendChild(toggleBtn);
 
-  // ---------- 3) Collapsible ----------
-  let uid=0; const nextId=p=>p+(++uid);
-  toc.querySelectorAll('li').forEach(li=>{
-    const sub=li.querySelector(':scope > .my-toc-sublist');
-    const link=li.querySelector(':scope > .my-toc-row > .my-toc-link');
-    if(!sub||!link)return;
+  // ---------- 5) Collapsible with chevrons; default H1 expanded, H2+ collapsed ----------
+  var uid = 0;
+  function nextId(prefix){ uid += 1; return (prefix || 'my-sub-') + uid; }
+
+  Array.prototype.forEach.call(toc.querySelectorAll('li'), function(li){
+    var sub = li.querySelector(':scope > .my-toc-sublist');
+    var link = li.querySelector(':scope > .my-toc-row > .my-toc-link');
+    if (!sub || !link) return; // leaf: uses pseudo-bullet via CSS
+
     li.classList.add('my-has-children');
-    if(!sub.id)sub.id=nextId('my-sub-');
-    const btn=document.createElement('button');
-    btn.className='my-toc-caret-btn'; btn.type='button';
-    btn.setAttribute('aria-controls',sub.id); btn.setAttribute('aria-expanded','false');
-    btn.innerHTML=`<svg class="my-toc-caret" viewBox="0 0 24 24"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>`;
-    li.querySelector(':scope > .my-toc-row').insertBefore(btn,link);
-    const toggleSub=()=>{const open=li.classList.toggle('my-is-open');
-      btn.setAttribute('aria-expanded',String(open));};
-    btn.addEventListener('click',toggleSub);
-    btn.addEventListener('keydown',e=>{
-      if(e.key==='ArrowRight'&&btn.getAttribute('aria-expanded')==='false'){e.preventDefault();toggleSub();}
-      if(e.key==='ArrowLeft'&&btn.getAttribute('aria-expanded')==='true'){e.preventDefault();toggleSub();}
+    if (!sub.id) sub.id = nextId('my-sub-');
+
+    var btn = document.createElement('button');
+    btn.className = 'my-toc-caret-btn';
+    btn.type = 'button';
+    btn.setAttribute('aria-controls', sub.id);
+    btn.setAttribute('aria-expanded', 'false');
+    btn.innerHTML = '<svg class="my-toc-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>';
+
+    var rowEl = li.querySelector(':scope > .my-toc-row');
+    if (rowEl) rowEl.insertBefore(btn, link);
+
+    function toggleSub(){
+      var open = li.classList.toggle('my-is-open');
+      btn.setAttribute('aria-expanded', String(open));
+    }
+    btn.addEventListener('click', toggleSub);
+    btn.addEventListener('keydown', function(e){
+      if (e.key === 'ArrowRight' && btn.getAttribute('aria-expanded') === 'false') { e.preventDefault(); toggleSub(); }
+      if (e.key === 'ArrowLeft'  && btn.getAttribute('aria-expanded') === 'true')  { e.preventDefault(); toggleSub(); }
     });
-    if(li.parentElement.classList.contains('my-toc-list')){li.classList.add('my-is-open');btn.setAttribute('aria-expanded','true');}
+
+    // Default: expand ONLY H1; collapse H2+ (so H3+ are hidden)
+    var lvl = parseInt(li.dataset.level || '999', 10);
+    if (lvl <= 1) {
+      li.classList.add('my-is-open');
+      btn.setAttribute('aria-expanded', 'true');
+    } else {
+      li.classList.remove('my-is-open');
+      btn.setAttribute('aria-expanded', 'false');
+    }
   });
 
-  // ---------- 4) Toggle panel ----------
-  const setExpanded=exp=>{
-    toggle.setAttribute('aria-expanded',String(exp));
-    toc.classList.toggle('my-active',exp);
-    document.body.classList.toggle('my-toc-open',exp);
-  };
-  toggle.addEventListener('click',()=>{
-    const exp=toggle.getAttribute('aria-expanded')==='true';
-    setExpanded(!exp);
+  // ---------- 6) Panel open/close ----------
+  function setExpanded(expanded){
+    toggleBtn.setAttribute('aria-expanded', String(expanded));
+    toc.classList.toggle('my-active', expanded);
+    document.body.classList.toggle('my-toc-open', expanded);
+  }
+  toggleBtn.addEventListener('click', function(){
+    var expanded = toggleBtn.getAttribute('aria-expanded') === 'true';
+    setExpanded(!expanded);
   });
-  document.addEventListener('click',e=>{
-    if(!toggle||!toc)return;
-    const exp=toggle.getAttribute('aria-expanded')==='true';
-    if(!exp)return;
-    if(!toc.contains(e.target)&&!toggle.contains(e.target))setExpanded(false);
+  document.addEventListener('click', function(e){
+    var expanded = toggleBtn.getAttribute('aria-expanded') === 'true';
+    if (!expanded) return;
+    if (!toc.contains(e.target) && !toggleBtn.contains(e.target)) setExpanded(false);
   });
 
-  // ---------- 5) Smooth scroll ----------
-  toc.querySelectorAll('.my-toc-link[href^="#"]').forEach(a=>{
-    a.addEventListener('click',e=>{
-      const id=a.getAttribute('href').substring(1);
-      const t=document.getElementById(id); if(!t)return;
-      e.preventDefault(); t.scrollIntoView({behavior:'smooth',block:'start'});
+  // ---------- 7) Smooth in-page scroll ----------
+  Array.prototype.forEach.call(toc.querySelectorAll('.my-toc-link[href^="#"]'), function(anchor){
+    anchor.addEventListener('click', function(e){
+      var href = anchor.getAttribute('href');
+      if (!href || href.length <= 1) return;
+      var target = document.getElementById(href.substring(1));
+      if (!target) return;
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (history.pushState) history.pushState(null, '', href);
     });
   });
 
-  // ---------- 6) Navbar height ----------
-  requestAnimationFrame(()=>{
-    const nav=document.querySelector('.responsive-nav,.navbar,header.navbar,.quarto-navbar,nav.navbar');
-    const h=Math.ceil((nav&&nav.getBoundingClientRect().height)||56);
-    document.documentElement.style.setProperty('--my-navbar-height',h+'px');
+  // ---------- 8) Auto-measure navbar height ----------
+  requestAnimationFrame(function(){
+    var nav = document.querySelector('.responsive-nav, .navbar, header.navbar, .quarto-navbar, nav.navbar');
+    var h = Math.ceil((nav && nav.getBoundingClientRect().height) || 56);
+    document.documentElement.style.setProperty('--my-navbar-height', h + 'px');
   });
 });
-
