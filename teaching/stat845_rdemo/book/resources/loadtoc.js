@@ -1,165 +1,232 @@
-// loadtoc.js (ToC + "Up" icon above the title; fixed order & vars)
+
+// loadmytoc.js — namespaced, self-contained TOC (right side, collapsible)
 document.addEventListener('DOMContentLoaded', function () {
-  const headings = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6'))
-    .filter(h => !h.closest('#toc-container') && !h.closest('.no-toc'));
+  // ---------- 1) Inject CSS ----------
+  const css = `
+  :root{
+    --my-toc-width: 300px;
+    --my-navbar-height: 56px;
+  }
+  /* Panel (right) */
+  #my-toc-container {
+    position: fixed;
+    top: var(--my-navbar-height, 56px);
+    right: 0;
+    left: auto;
+    width: var(--my-toc-width);
+    max-height: calc(100vh - var(--my-navbar-height, 56px) - 24px);
+    transform: translateX(calc(100% + 10px));
+    overflow-y: auto;
+    z-index: 999;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-right: none;
+    border-radius: 8px 0 0 8px;
+    padding: 14px 16px;
+    font-family: Arial, sans-serif;
+    box-sizing: border-box;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+    transition: transform 0.35s ease-in-out;
+  }
+  #my-toc-container.my-active { transform: translateX(0); }
 
-  if (headings.length === 0) {
-    console.log("ToC: No headings found, ToC will not be generated.");
-    return;
+  body.my-toc-open { margin-right: var(--my-toc-width); transition: margin-right 0.35s ease-in-out; }
+
+  /* Toggle button */
+  #my-toc-toggle-button {
+    position: fixed;
+    top: var(--my-navbar-height, 56px);
+    right: 0;
+    left: auto;
+    z-index: 1001;
+    background-color: #e0e0e0;
+    border: 1px solid #ccc;
+    border-right: none;
+    border-radius: 8px 0 0 8px;
+    padding: 2px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+    transition: background-color 0.25s ease-in-out, transform 0.35s ease-in-out;
+  }
+  #my-toc-toggle-button:hover { background-color: #d0d0d0; }
+  #my-toc-toggle-button:focus-visible { outline: 2px solid royalblue; outline-offset: 2px; }
+  #my-toc-toggle-button svg { width: 40px; height: 40px; color: royalblue; display: block; transition: transform 0.25s ease-in-out; }
+  #my-toc-toggle-button[aria-expanded="true"] { transform: translateX(calc(-1 * var(--my-toc-width))); }
+  #my-toc-toggle-button[aria-expanded="true"] svg { transform: scale(0.9) rotate(-180deg); }
+
+  /* Title + list */
+  .my-toc-title { margin: 0 0 10px 0; font-size: 1.05em; font-weight: 700; color: #000; }
+  .my-toc-list, .my-toc-sublist { margin: 0; padding-left: 20px; }
+  .my-toc-list { list-style-type: disc; }
+  .my-toc-sublist { list-style-type: circle; margin-top: 4px; }
+  .my-toc-link { text-decoration: none; color: royalblue; display: block; padding: 4px 0; font-size: 1em; }
+  .my-toc-link:hover, .my-toc-link:focus { text-decoration: underline; }
+  .my-toc-link:focus-visible { outline: 2px solid royalblue; outline-offset: 2px; }
+
+  .my-toc-up-link { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 8px; color: inherit; text-decoration: none; }
+  .my-toc-up-link.icon-only svg { width: 22px; height: 22px; }
+  .my-toc-up-link.my-disabled { opacity: 0.4; pointer-events: none; }
+
+  /* Collapsible */
+  .my-toc-item { position: relative; }
+  .my-toc-item.my-has-children { list-style-type: none; padding-left: 0; }
+  .my-toc-row { display: flex; align-items: center; gap: 6px; }
+  .my-toc-caret-btn {
+    appearance: none; background: none; border: none; padding: 2px; margin: 0;
+    cursor: pointer; line-height: 1; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px;
+  }
+  .my-toc-caret-btn:hover { background: rgba(0,0,0,0.05); }
+  .my-toc-caret-btn:focus-visible { outline: 2px solid royalblue; outline-offset: 2px; }
+  .my-toc-caret { width: 1em; height: 1em; transition: transform 0.2s ease; }
+  .my-toc-item.my-has-children:not(.my-is-open) > .my-toc-row .my-toc-caret { transform: rotate(-90deg); }
+  .my-toc-item.my-has-children:not(.my-is-open) > .my-toc-sublist { display: none; }
+  .my-toc-item.my-has-children.my-is-open > .my-toc-row > .my-toc-link { font-weight: 600; }
+
+  @media (max-width: 800px) {
+    body.my-toc-open { margin-right: 0; }
+    #my-toc-toggle-button[aria-expanded="true"] { transform: translateX(0); }
+    #my-toc-container { max-width: min(85vw, var(--my-toc-width)); width: min(85vw, var(--my-toc-width)); }
   }
 
-  // --- Create core elements *before* using them ---
-  const tocContainer = document.createElement('nav');
-  tocContainer.id = 'toc-container';
-
-  const toggleButton = document.createElement('button');
-  toggleButton.id = 'toc-toggle-button';
-  toggleButton.setAttribute('aria-label', 'Toggle Table of Contents');
-  toggleButton.innerHTML = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-         viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <line x1="9" y1="6" x2="20" y2="6"></line>
-      <line x1="9" y1="12" x2="20" y2="12"></line>
-      <line x1="9" y1="18" x2="20" y2="18"></line>
-      <circle cx="5" cy="6" r="1"></circle>
-      <circle cx="5" cy="12" r="1"></circle>
-      <circle cx="5" cy="18" r="1"></circle>
-    </svg>`;
-
-  // --- Helpers for Up link ---
-  function getParentDirUrlFrom(pathname) {
-    let path = pathname;
-    if (path.endsWith('/index.html')) path = path.slice(0, -('index.html'.length));
-    if (!path.endsWith('/')) path = path.slice(0, path.lastIndexOf('/') + 1);
-    const withoutTrailing = path.endsWith('/') ? path.slice(0, -1) : path;
-    const cut = withoutTrailing.lastIndexOf('/');
-    if (cut <= 0) return '/';
-    return withoutTrailing.substring(0, cut + 1);
-  }
-  function isCurrentAtRoot(pathname) {
-    return pathname === '/' || pathname === '' || pathname === '/index.html';
+  @media (prefers-color-scheme: dark) {
+    #my-toc-container { background-color: #1f1f1f; border-color: #333; box-shadow: -2px 0 6px rgba(0,0,0,0.6); }
+    #my-toc-toggle-button { background-color: #2a2a2a; border-color: #3a3a3a; }
+    #my-toc-toggle-button:hover { background-color: #333; }
+    .my-toc-title { color: #fff; }
+    .my-toc-link { color: #9ab6ff; }
+    .my-toc-caret-btn:hover { background: rgba(255,255,255,0.06); }
   }
 
-  const parentUrl = getParentDirUrlFrom(window.location.pathname);
-  const atRootNow = isCurrentAtRoot(window.location.pathname);
-
-  // --- Up icon ABOVE the title ---
-  const upLink = document.createElement('a');
-  upLink.classList.add('toc-up-link', 'icon-only');
-  upLink.setAttribute('role', 'button');
-  upLink.setAttribute('aria-label', atRootNow ? 'Already at site root' : 'Go to parent directory');
-  upLink.innerHTML = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-         viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-         aria-hidden="true">
-      <polyline points="18 14 12 8 6 14"></polyline>
-      <polyline points="18 18 12 12 6 18"></polyline>
-    </svg>
-  `;
-  if (atRootNow) {
-    upLink.classList.add('disabled');
-    upLink.setAttribute('aria-disabled', 'true');
-    upLink.setAttribute('tabindex', '-1');
-    upLink.addEventListener('click', (e) => e.preventDefault());
-  } else {
-    upLink.href = parentUrl;
-    upLink.setAttribute('target', '_self');
+  @media (prefers-reduced-motion: reduce) {
+    #my-toc-container, #my-toc-toggle-button, body.my-toc-open { transition: none !important; }
   }
-  tocContainer.appendChild(upLink);
 
-  // --- Title ---
-  const tocTitle = document.createElement('h3');
-  tocTitle.textContent = 'Table of Contents';
-  tocTitle.classList.add('toc-title');
-  tocContainer.appendChild(tocTitle);
+  @media print {
+    #my-toc-container, #my-toc-toggle-button { display: none !important; }
+  }`;
 
-  // --- Build ToC list ---
-  const tocList = document.createElement('ul');
-  tocList.classList.add('toc-list');
-  const levelStack = [tocList];
+  const style = document.createElement('style');
+  style.textContent = css;
+  document.head.appendChild(style);
 
-  headings.forEach((heading, index) => {
-    const li = document.createElement('li');
-    li.classList.add('toc-item');
-    const a = document.createElement('a');
-    a.classList.add('toc-link');
+  // ---------- 2) Build container ----------
+  const headings = Array.from(document.querySelectorAll('h1,h2,h3,h4,h5,h6'))
+    .filter(h => !h.closest('#my-toc-container') && !h.closest('.my-no-toc'));
+  if (headings.length === 0) return;
 
-    if (!heading.id) heading.id = `toc-heading-${index}`;
-    const text = heading.textContent.trim();
-    a.textContent = text;
-    a.href = `#${heading.id}`;
-    a.title = text;
-    li.appendChild(a);
+  const toc = document.createElement('nav');
+  toc.id = 'my-toc-container';
 
-    const level = parseInt(heading.tagName.substring(1));
-    if (index > 0) {
-      const prev = parseInt(headings[index - 1].tagName.substring(1));
-      if (level > prev) {
-        const parentLi = levelStack[levelStack.length - 1].lastChild;
-        if (parentLi) {
-          const sub = document.createElement('ul');
-          sub.classList.add('toc-list', 'toc-sublist');
-          parentLi.appendChild(sub);
-          levelStack.push(sub);
-        }
-      } else if (level < prev) {
-        for (let i = 0; i < (prev - level); i++) {
-          if (levelStack.length > 1) levelStack.pop();
-        }
+  const toggle = document.createElement('button');
+  toggle.id = 'my-toc-toggle-button';
+  toggle.type = 'button';
+  toggle.setAttribute('aria-expanded', 'false');
+  toggle.innerHTML = `
+    <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>`;
+
+  // Up link
+  function getParentDir(p){let path=p;if(path.endsWith('/index.html'))path=path.slice(0,-10);
+    if(!path.endsWith('/'))path=path.slice(0,path.lastIndexOf('/')+1);
+    const cut=path.slice(0,-1).lastIndexOf('/');return cut<=0?'/':path.substring(0,cut+1);}
+  const parent=getParentDir(location.pathname);
+  const atRoot=location.pathname==='/'||location.pathname==='/index.html';
+  const up=document.createElement('a');
+  up.classList.add('my-toc-up-link','icon-only');
+  if(atRoot){up.classList.add('my-disabled');} else {up.href=parent;}
+  up.innerHTML=`<svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2.5">
+  <polyline points="18 14 12 8 6 14"/><polyline points="18 18 12 12 6 18"/></svg>`;
+  toc.appendChild(up);
+
+  const title=document.createElement('h3');
+  title.textContent='Table of Contents';
+  title.className='my-toc-title';
+  toc.appendChild(title);
+
+  const list=document.createElement('ul');
+  list.className='my-toc-list';
+  const stack=[list];
+  headings.forEach((h,i)=>{
+    const li=document.createElement('li');
+    li.className='my-toc-item';
+    const a=document.createElement('a');
+    a.className='my-toc-link';
+    if(!h.id)h.id='my-toc-heading-'+i;
+    a.href='#'+h.id; a.textContent=h.textContent.trim();
+    const level=parseInt(h.tagName.substring(1));
+    if(i>0){
+      const prev=parseInt(headings[i-1].tagName.substring(1));
+      if(level>prev){
+        const parentLi=stack.at(-1).lastElementChild;
+        if(parentLi){const sub=document.createElement('ul');
+          sub.className='my-toc-list my-toc-sublist'; parentLi.appendChild(sub); stack.push(sub);}
+      }else if(level<prev){
+        for(let j=0;j<(prev-level)&&stack.length>1;j++)stack.pop();
       }
     }
-    levelStack[levelStack.length - 1].appendChild(li);
+    const row=document.createElement('div'); row.className='my-toc-row'; row.appendChild(a);
+    li.appendChild(row); stack.at(-1).appendChild(li);
+  });
+  toc.appendChild(list);
+  document.body.appendChild(toc);
+  document.body.appendChild(toggle);
+
+  // ---------- 3) Collapsible ----------
+  let uid=0; const nextId=p=>p+(++uid);
+  toc.querySelectorAll('li').forEach(li=>{
+    const sub=li.querySelector(':scope > .my-toc-sublist');
+    const link=li.querySelector(':scope > .my-toc-row > .my-toc-link');
+    if(!sub||!link)return;
+    li.classList.add('my-has-children');
+    if(!sub.id)sub.id=nextId('my-sub-');
+    const btn=document.createElement('button');
+    btn.className='my-toc-caret-btn'; btn.type='button';
+    btn.setAttribute('aria-controls',sub.id); btn.setAttribute('aria-expanded','false');
+    btn.innerHTML=`<svg class="my-toc-caret" viewBox="0 0 24 24"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>`;
+    li.querySelector(':scope > .my-toc-row').insertBefore(btn,link);
+    const toggleSub=()=>{const open=li.classList.toggle('my-is-open');
+      btn.setAttribute('aria-expanded',String(open));};
+    btn.addEventListener('click',toggleSub);
+    btn.addEventListener('keydown',e=>{
+      if(e.key==='ArrowRight'&&btn.getAttribute('aria-expanded')==='false'){e.preventDefault();toggleSub();}
+      if(e.key==='ArrowLeft'&&btn.getAttribute('aria-expanded')==='true'){e.preventDefault();toggleSub();}
+    });
+    if(li.parentElement.classList.contains('my-toc-list')){li.classList.add('my-is-open');btn.setAttribute('aria-expanded','true');}
   });
 
-  tocContainer.appendChild(tocList);
-  document.body.appendChild(tocContainer);
-  document.body.appendChild(toggleButton);
-
-  // --- Interactions ---
-  toggleButton.addEventListener('click', () => {
-    tocContainer.classList.toggle('active');
-    toggleButton.classList.toggle('active');
+  // ---------- 4) Toggle panel ----------
+  const setExpanded=exp=>{
+    toggle.setAttribute('aria-expanded',String(exp));
+    toc.classList.toggle('my-active',exp);
+    document.body.classList.toggle('my-toc-open',exp);
+  };
+  toggle.addEventListener('click',()=>{
+    const exp=toggle.getAttribute('aria-expanded')==='true';
+    setExpanded(!exp);
+  });
+  document.addEventListener('click',e=>{
+    if(!toggle||!toc)return;
+    const exp=toggle.getAttribute('aria-expanded')==='true';
+    if(!exp)return;
+    if(!toc.contains(e.target)&&!toggle.contains(e.target))setExpanded(false);
   });
 
-  document.addEventListener('click', (event) => {
-    if (!tocContainer.classList.contains('active')) return;
-    const insideToc = tocContainer.contains(event.target);
-    const onButton = toggleButton.contains(event.target);
-    if (!insideToc && !onButton) {
-      tocContainer.classList.remove('active');
-      toggleButton.classList.remove('active');
-    }
-  });
-
-  // --- Position to match nav height ---
-  requestAnimationFrame(() => {
-    const navBar = document.querySelector('.responsive-nav');
-    let navBarHeight = 60;
-    if (navBar) navBarHeight = navBar.offsetHeight;
-
-    const finalTopOffset = navBarHeight;
-    const finalMaxHeight = `calc(100vh - ${finalTopOffset}px - 20px)`;
-
-    tocContainer.style.setProperty('--toc-top-offset', finalTopOffset + 'px');
-    tocContainer.style.setProperty('--toc-max-height', finalMaxHeight);
-    toggleButton.style.setProperty('--toc-top-offset', finalTopOffset + 'px');
-  });
-
-  // --- Smooth-scroll for in-page anchors (skip the Up link) ---
-  document.querySelectorAll('#toc-container a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-      if (this.classList.contains('disabled')) return;
-      const href = this.getAttribute('href');
-      if (!href || href.length <= 1 || !href.startsWith('#')) return;
-      e.preventDefault();
-
-      const target = document.getElementById(href.substring(1));
-      if (target) {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        if (history.pushState) history.pushState(null, null, href);
-      }
+  // ---------- 5) Smooth scroll ----------
+  toc.querySelectorAll('.my-toc-link[href^="#"]').forEach(a=>{
+    a.addEventListener('click',e=>{
+      const id=a.getAttribute('href').substring(1);
+      const t=document.getElementById(id); if(!t)return;
+      e.preventDefault(); t.scrollIntoView({behavior:'smooth',block:'start'});
     });
   });
+
+  // ---------- 6) Navbar height ----------
+  requestAnimationFrame(()=>{
+    const nav=document.querySelector('.responsive-nav,.navbar,header.navbar,.quarto-navbar,nav.navbar');
+    const h=Math.ceil((nav&&nav.getBoundingClientRect().height)||56);
+    document.documentElement.style.setProperty('--my-navbar-height',h+'px');
+  });
 });
+
