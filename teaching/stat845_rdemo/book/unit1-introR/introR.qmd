@@ -1,0 +1,186 @@
+
+---
+title: "A Quick Introduction to using R for Data Analysis"
+author: "Longhai Li"
+date: today
+output:
+  html_document:
+       theme: united
+       toc: true
+       toc_float: no
+       number_sections: true
+       highlight: tango
+       fig_width: 10
+       fig_height: 8
+       df_print: paged
+  pdf_document:
+    toc: yes
+    fig_height: 6
+    fig_width: 10
+    number_sections: yes
+header-includes: \usepackage{pdfpages}
+---
+# Basic R Objects and Operations
+
+```{r }
+# create a vector
+x <- 1:10
+x <- seq (30,3, by = -2)
+a <- c(66.32, 69.87, 70.12, 90.37, 50.08, 61.20, 65.00, 57.65)
+d <- a [1]
+a [1] <- 85.34
+
+mean (a)
+ma <- mean (a)
+# read a vector of numbers from a file
+x <- scan("numbers.txt")
+x2 <- scan("number2.txt")
+
+# one can also read number withoug saving to a file
+y <- scan(text = "7  8  9 10 11 12 13 13 14 17 17 45")
+
+# create a matrix
+A <- matrix (0, 4, 2)
+
+A <- matrix (1:8, 4,2)
+
+A
+
+D <- matrix (a, 4, 2, byrow=T)
+
+D <- matrix(1:8, 2, 4)
+D
+# create another matrix with all entry 0
+B <- matrix (1:5000, 100, 50)
+
+# assign a number to B
+B[2,4] <- 45
+B[1,]
+B[,1]
+B[1,] <- 1:50
+
+
+# create a list
+E <- list (newa = a, newA = A)
+# list the names of components
+names (E)
+# to look at the component of E
+E$newA 
+
+E$newa <- 10:17
+
+# create a dataframe
+scores <- c (30, 45, 50)
+names <- c("Peter", "John", "Alice")
+stat245_scores <- data.frame (names, scores)
+stat245_scores
+stat245_scores$names
+stat245_scores$scores [1] <- 40
+stat245_scores
+stat245_scores$perc <- stat245_scores$scores/50 * 100
+stat245_scores
+stat245_scores$adj <- stat245_scores$perc + 10
+stat245_scores
+
+
+###############################################################################
+```
+
+# Import a dataset into R environment and Simple Operation
+
+```{r }
+###############################################################################
+
+# import myagpop.csv into an R data frame called 'myagpop'
+agpop <- read.csv("agpop.csv")
+
+# Now, we can use the data:
+
+# preview agpop
+head (agpop)
+
+# look at the variable name
+colnames (agpop) 
+
+# find number of cols
+ncol (agpop) 
+
+# find number of rows
+nrow (agpop) 
+
+# access a certain row 
+agpop [2, ]
+# access a certain column
+agpop [1:20, "acres92"] ## equivalent to 
+agpop$acres92[1:20]
+agpop$largef92[1:20]
+# find mean of acres92
+mean (agpop $acres92)
+# find sd of acres92
+sd (agpop $acres92)
+
+agpop_AK  <- agpop [agpop$state == "AK", ]
+
+agpop_AK <- subset (agpop, state == "AK")
+
+agpop_W <- subset (agpop, region == "W")
+
+agpop_largefarm <- subset (agpop, largef92 > 10)
+
+## simple analysis
+summary (agpop)
+
+
+hist (agpop$acres92)
+```
+
+Produce Plots
+
+```{r }
+#pdf ("hist_acres92.pdf") ## use this command and dev.off to save the output to a file
+hist (agpop$acres92)
+#dev.off()
+
+#jpeg ("agpop_acres_87v92.jpg")
+
+plot (agpop$acres87, agpop$acres92)
+abline (a = 0, b = 1)
+
+#dev.off()## this is used to close the jpeg file
+```
+
+# Create your own function
+
+```{r }
+## data is a matrix or data.frame
+means_col <- function (data)
+{
+    n <- ncol (data)
+    cmeans <- rep (NA, n)
+    for (j in 1:n)
+    {
+        cmeans[j] <- mean (data[,j])
+        
+    }
+    cmeans
+}
+
+## apply function
+means_col (agpop[, 3:13])
+## R built-in function
+colMeans (agpop[, 3:13])
+```
+
+# Include Images Saved in An External File
+
+Using the following R code to include your images saved in an external file.  
+```{r}
+knitr::include_graphics("handwriting.png")
+```
+
+You can hide the above R code by setting "echo=FALSE" for the r chunk. For example, I will include the image once again as follows:
+
+```{r echo=FALSE}
+knitr::include_graphics("handwriting.png")
+```
+
