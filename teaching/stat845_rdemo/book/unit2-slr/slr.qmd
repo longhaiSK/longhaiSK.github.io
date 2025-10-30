@@ -28,7 +28,7 @@ require("animation")
 ```
 
 
-# Overview of Simple Linear Regression
+## Overview of Simple Linear Regression
 
 To make the simple linear regression model concrete, let’s first visualize a simulated dataset that follows
 $$
@@ -60,7 +60,7 @@ The scatterplot shows data points scattered around a line — the red line is th
 
 ---
 
-## Least Squares Estimation
+### Least Squares Estimation
 
 **Goal:** Find $\hat\beta_0$ and $\hat\beta_1$ that minimize
 $$
@@ -95,7 +95,7 @@ $$
 
 ---
 
-## Residual and Sum of Squares Definitions
+### Residual and Sum of Squares Definitions
 
 Let $\hat y_i = \hat\beta_0 + \hat\beta_1 x_i$ and $e_i = y_i - \hat y_i$.
 
@@ -118,7 +118,7 @@ S_{xy} = \sum_i (x_i - \bar x)(y_i - \bar y) = \sum_i x_i y_i - n\bar x \bar y.
 $$
 ---
 
-## Coefficient of Determination ($R^2$)
+### Coefficient of Determination ($R^2$)
 
 Measures the proportion of total variation in $Y$ explained by $X$:
 $$
@@ -133,7 +133,7 @@ $$
 
 ---
 
-## F-test for Overall Significance
+### F-test for Overall Significance
 
 Tests whether $X$ is linearly related to $Y$.
 
@@ -160,10 +160,10 @@ p-\text{value} \;=\; \Pr\!\big(F_{1,\,n-2} \ge F^{\text{obs}}\big)
 \;=\; \mathrm{pf}\!\big(F^{\text{obs}},\,1,\,n-2,\ \text{lower.tail}= \mathrm{FALSE}\big).
 $$
 ```{r}
-# -- Inputs (provide these from your analysis context) -------------------------
-# n   <- ...   # sample size
-# SSR <- ...   # regression sum of squares
-# SSE <- ...   # error sum of squares
+## -- Inputs (provide these from your analysis context) -------------------------
+## n   <- ...   # sample size
+## SSR <- ...   # regression sum of squares
+## SSE <- ...   # error sum of squares
 n   <- 20
 SSR <- 5
 SSE <- 40
@@ -176,25 +176,25 @@ df2  <- n - 2
 Fobs <- (SSR/df1) / (SSE/df2)         # observed F
 pval <- pf(Fobs, df1 = df1, df2 = df2, lower.tail = FALSE)
 pval
-# -- Plot F density and shade the p-value tail (with proper annotations) -------
+## -- Plot F density and shade the p-value tail (with proper annotations) -------
 xmax <- max(qf(0.995, df1, df2), Fobs * 1.2)  # extra space for labels
 peak <- max(df(seq(0, xmax, length.out = 500), df1, df2))
 
-# Density curve
+## Density curve
 curve(df(x, df1, df2), from = 0, to = xmax,
       xlab = "F", ylab = "Density",
       main = sprintf("F(%d, %d) density  |  observed F = %.3f", df1, df2, Fobs))
 
-# Shade right tail (p-value region)
+## Shade right tail (p-value region)
 xs <- seq(Fobs, xmax, length.out = 300)
 ys <- df(xs, df1, df2)
 polygon(c(Fobs, xs, xmax), c(0, ys, 0),
         col = rgb(0, 0, 0, 0.18), border = NA)
 
-# Vertical line at Fobs (optional visual aid)
+## Vertical line at Fobs (optional visual aid)
 abline(v = Fobs, lwd = 2)
 
-# ---- Annotation for F^obs pointing to the x-axis value (Fobs, 0) -------------
+## ---- Annotation for F^obs pointing to the x-axis value (Fobs, 0) -------------
 x_txt_F <- Fobs + 0.06 * xmax
 y_txt_F <- 0.45 * peak
 arrows(x0 = x_txt_F, y0 = y_txt_F, x1 = Fobs, y1 = 0,
@@ -203,7 +203,7 @@ text(x_txt_F, y_txt_F,
      labels = bquote(F^{obs} == .(format(Fobs, digits = 3))),
      pos = 4)
 
-# ---- Annotation for p-value pointing into the shaded tail --------------------
+## ---- Annotation for p-value pointing into the shaded tail --------------------
 x_tip_p <- (Fobs + xmax) / 1.7
 y_tip_p <- df(x_tip_p, df1, df2)
 x_txt_p <- Fobs + 0.08 * xmax
@@ -219,7 +219,7 @@ text(x_txt_p, y_txt_p,
 
 ---
 
-## t-test for the Slope $\beta_1$
+### t-test for the Slope $\beta_1$
 
 Equivalent to the $F$-test in simple regression since $t^2 = F$.
 
@@ -239,7 +239,7 @@ $$
 
 ---
 
-## Prediction for a New Case $x_0$
+### Prediction for a New Case $x_0$
 
 **Predicted mean response:**
 $$
@@ -277,11 +277,11 @@ $$
 
 
 
-# Example 1: Vehicle Insurance Premium (warm-up)
+## Example 1: Vehicle Insurance Premium (warm-up)
 
 We examine premiums $y$ vs. driving amount $x$. The scatterplot hints at a **downward** trend.
 
-## Input data
+### Input data
 
 ```{r}
 issu <- data.frame(
@@ -300,7 +300,7 @@ abline(h = ybar, lty = 3)
 
 **Narrative.** The horizontal line at $\bar y$ represents the intercept-only model. Any fitted line that tilts away from this must earn its keep by reducing residual variation enough to offset the loss of one degree of freedom.
 
-## Estimating regression coefficients
+### Estimating regression coefficients
 
 ```{r}
 fit.issu <- lm(y ~ x)
@@ -311,7 +311,7 @@ abline(fit.issu, lwd = 2)
 
 The slope estimate $\hat\beta_1$ captures the **marginal change in premium per unit of driving** (units of $y$ per unit of $x$). Inference on $\beta_1$ tells us whether the pattern rises above noise.
 
-## Residuals and fitted values (geometry picture)
+### Residuals and fitted values (geometry picture)
 
 Let $\hat y_i=\hat\beta_0+\hat\beta_1 x_i$ and $\tilde y_i=\bar y$. Residuals are $e_i=y_i-\hat y_i$ (model) and $y_i-\bar y$ (null). Visualizing all three clarifies the ANOVA identity.
 
@@ -330,14 +330,14 @@ data.frame(y, fitted0, residual0, fitted1, residual1,
 ```{r echo=FALSE, fig.height=5}
 par(mfrow = c(1,3))
 
-# Residuals under null model
+## Residuals under null model
 plot(premium ~ driving, data = issu, ylim = range(y, fitted1, fitted0))
 abline(h = mean(y))
 points(x, fitted0, pch = 4, col = 4)
 for (i in 1:length(y)) arrows(x[i], fitted0[i], x[i], y[i], length = 0.1, col = 4)
 title(main = TeX("Residuals (Null): $y_i-\\bar{y}$"))
 
-# Residuals under fitted line
+## Residuals under fitted line
 plot(premium ~ driving, data = issu, ylim = range(y, fitted1, fitted0))
 abline(h = mean(y))
 abline(a = beta0, b = beta1)
@@ -345,7 +345,7 @@ points(x, fitted1, pch = 3, col = 3)
 for (i in 1:length(y)) arrows(x[i], fitted1[i], x[i], y[i], length = 0.1, col = 3)
 title(main = TeX("Residuals (Model): $y_i-\\hat{y}_i$"))
 
-# Gain explained by the line
+## Gain explained by the line
 plot(premium ~ driving, data = issu, ylim = range(y, fitted1, fitted0))
 abline(h = mean(y))
 abline(a = beta0, b = beta1)
@@ -356,7 +356,7 @@ title(main = TeX("Explained Part: $\\hat{y}_i-\\bar{y}$"))
 par(mfrow = c(1,1))
 ```
 
-## SST, SSR, SSE and their meanings
+### SST, SSR, SSE and their meanings
 
 * $\text{SST}=\sum (y_i-\bar y)^2$ quantifies **total** variability around the mean.
 * $\text{SSR}=\sum (\hat y_i-\bar y)^2$ is the part **explained by $x$**.
@@ -374,12 +374,12 @@ Direct check: $\text{SSR}=\sum(\hat y_i-\bar y)^2$.
 sum((fitted1 - fitted0)^2)
 ```
 
-## Visual ANOVA on an RSS plot
+### Visual ANOVA on an RSS plot
 
 We place the **residual sum of squares** against model dimension to show the trade-off between fit and df.
 
 ```{r}
-# Recompute cleanly
+## Recompute cleanly
 SST <- sum((y - mean(y))^2)
 SSE <- sum(resid(fit.issu)^2)
 SSR <- SST - SSE
@@ -417,7 +417,7 @@ legend("topright",
        title = "ANOVA Results", bty = "o", cex = 0.9)
 ```
 
-## $R^2$, $F$ and a compact ANOVA table
+### $R^2$, $F$ and a compact ANOVA table
 
 ```{r}
 R2 <- SSR / SST; R2
@@ -442,11 +442,11 @@ A call to `anova()` reproduces the same test:
 anova(fit.issu)
 ```
 
-## Sampling distributions via animation
+### Sampling distributions via animation
 
 Under $H_0:\beta_1=0$, $F$ follows $F_{1,n-2}$. Under $H_A$, the distribution shifts right (noncentral $F$).
 
-### Null world ($H_0$ true)
+#### Null world ($H_0$ true)
 
 ```{{r}} 
 #| label: fig-simulation-animation
@@ -456,7 +456,7 @@ Under $H_0:\beta_1=0$, $F$ follows $F_{1,n-2}$. Under $H_A$, the distribution sh
 #| cache: false
 #| class.source: "fold-hide"
 
-# --- This code only runs for HTML output ---
+## --- This code only runs for HTML output ---
 original_fit <- lm(y ~ x)
 intercept_H0 <- coef(original_fit)[1]
 model_sigma  <- sigma(original_fit)
@@ -493,12 +493,12 @@ for (iter in 1:50) {
 #| cache: false
 #| class.source: "fold-hide"
 
-# --- This code only runs for PDF output ---
+## --- This code only runs for PDF output ---
 original_fit <- lm(y ~ x)
 intercept_H0 <- coef(original_fit)[1]
 model_sigma  <- sigma(original_fit)
 
-# We run the simulation just once for the static plot
+## We run the simulation just once for the static plot
 sim.y <- intercept_H0 + rnorm(n, 0, model_sigma)
 
 par(mfrow = c(1,2))
@@ -521,7 +521,7 @@ legend("topright",
        title = "ANOVA", bty = "o", cex = 0.9)
 ```
 
-### Alternative world ($H_1$ true)
+#### Alternative world ($H_1$ true)
 
 ```{{r}}
 #| label: fig-simulation-animation-H1-html
@@ -601,11 +601,11 @@ for (iter in 1:1) {
 
 ---
 
-# Example 2: Oxygen Purity Data
+## Example 2: Oxygen Purity Data
 
 We model oxygen purity $y$ as a function of hydrocarbon level $x$ and report both **mean response** and **prediction** uncertainty.
 
-## Data
+### Data
 
 ```{r data-input}
 x <- c(0.99, 1.02, 1.15, 1.29, 1.46, 1.36, 0.87, 1.23, 1.55, 1.40, 1.19,
@@ -617,7 +617,7 @@ purity.data <- data.frame(x = x, y = y)
 head(purity.data)
 ```
 
-## Fit and quick summary
+### Fit and quick summary
 
 ```{r fit-model}
 fit <- lm(y ~ x, data = purity.data)
@@ -626,7 +626,7 @@ summary(fit)
 
 **Interpretation.** The slope’s sign gives the direction of association; its $t$ test (or $F$ with 1 df) assesses evidence for a trend. Look at $\hat\sigma$ for noise scale and $R^2$ for variance explained.
 
-## Scatter with fitted line
+### Scatter with fitted line
 
 ```{r plot-fit}
 plot(purity.data$x, purity.data$y,
@@ -635,14 +635,14 @@ plot(purity.data$x, purity.data$y,
 abline(fit, col = "red", lwd = 2)
 ```
 
-## Coefficient CIs and ANOVA
+### Coefficient CIs and ANOVA
 
 ```{r anova-ci}
 confint(fit, level = 0.95)
 anova(fit)
 ```
 
-## Mean-response and prediction bands
+### Mean-response and prediction bands
 
 The **mean-response CI** narrows near $\bar x$ and widens at the extremes; the **prediction band** is wider by the irreducible noise term.
 
@@ -665,7 +665,7 @@ legend("topleft", c("Confidence Bands (mean)", "Prediction Bands (new y)"),
        col = c("blue", "red"), lty = 2:3, bty = "n")
 ```
 
-## Residual diagnostics (assumptions check)
+### Residual diagnostics (assumptions check)
 
 We look for **no pattern** in residuals vs. fits and **approximate straightness** in the Q–Q plot.
 
@@ -684,11 +684,11 @@ par(mfrow = c(1,1))
 
 ---
 
-# Correlation analysis (for comparison, not causation)
+## Correlation analysis (for comparison, not causation)
 
 Correlation summarizes linear association without fitting a line or making model assumptions.
 
-## Data and scatter
+### Data and scatter
 
 ```{r correlation-data}
 strength <- c(9.95,24.45,31.75,35.00,25.02,16.86,14.38,9.60,24.35,
@@ -700,7 +700,7 @@ plot(length, strength, xlab = "Length", ylab = "Strength",
      main = "Strength vs Length (scatter)")
 ```
 
-## Pearson correlation and test
+### Pearson correlation and test
 
 ```{r correlation-test}
 cor(strength, length)
@@ -711,7 +711,7 @@ cor.test(strength, length)
 
 ---
 
-# What to report (checklist)
+## What to report (checklist)
 
 * Estimated line $\hat y=\hat\beta_0+\hat\beta_1 x$ with units.
 * $t$/$F$ test for slope, $p$-value and CI for $\beta_1$.

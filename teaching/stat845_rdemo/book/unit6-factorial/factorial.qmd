@@ -16,38 +16,38 @@ editor_options:
   chunk_output_type: console
 ---
 
-# Battery Design Experiment
+## Battery Design Experiment
 
 This analysis explores data from a **two-factor factorial experiment** designed to assess the lifespan of a battery. The experiment investigates two factors: **material type** (with 3 levels) and **operating temperature** (with 3 levels: 15°C, 70°C, and 125°C). The primary goal is to understand not only how each factor individually affects battery life but, more importantly, whether the effect of temperature depends on the material type used. This combined effect is known as an **interaction**.
 
-# Data Setup and Preparation
+## Data Setup and Preparation
 
 First, we organize the raw data into a structured `data.frame`. This is a best practice in R that makes the data easier to manage and the code more readable. We create columns for the response variable `life` and the two factors, `material` and `temperature`, ensuring they are treated as categorical variables (factors) for the analysis.
 
 ```{r}
 #| label: setup-data
 
-# Response variable: battery life
+## Response variable: battery life
 life <- c(130,155,74,180,  34,40,80,75,   20,70,82,58,
           150,188,159,126, 136,122,106,115, 25,70,58,45,
           138,110,168,160, 174,120,150,139, 96,104,82,60)
 
-# Create the data frame
+## Create the data frame
 battery_df <- data.frame(
   life = life,
   material = factor(rep(1:3, each = 12)),
   temperature = factor(rep(rep(c(15, 70, 125), each = 4), 3))
 )
 
-# Preview the data
+## Preview the data
 battery_df
 ```
 
-# Exploratory Data Analysis and Visualization
+## Exploratory Data Analysis and Visualization
 
 Before fitting a formal model, we visualize the data to get an intuition for the relationships between the factors and the response.
 
-# Boxplots of Main Effects
+## Boxplots of Main Effects
 
 Boxplots are excellent for examining the distribution of battery life for each level of our factors independently. This gives us a preliminary look at the **main effects**—the individual impact of material type and temperature.
 
@@ -58,14 +58,14 @@ Boxplots are excellent for examining the distribution of battery life for each l
 
 library(ggplot2)
 
-# Boxplot for Material Type
+## Boxplot for Material Type
 ggplot(battery_df, aes(x = material, y = life, fill = material)) +
   geom_boxplot() +
   labs(title = "Battery Life by Material Type", x = "Material Type", y = "Life (hours)") +
   theme_minimal() +
   theme(legend.position = "none")
 
-# Boxplot for Temperature
+## Boxplot for Temperature
 ggplot(battery_df, aes(x = temperature, y = life, fill = temperature)) +
   geom_boxplot() +
   labs(title = "Battery Life by Temperature", x = "Temperature (°C)", y = "Life (hours)") +
@@ -73,7 +73,7 @@ ggplot(battery_df, aes(x = temperature, y = life, fill = temperature)) +
   theme(legend.position = "none")
 ```
 
-# Interaction Plot
+## Interaction Plot
 
 The most crucial plot for a factorial experiment is the **interaction plot**. It displays the mean battery life for each combination of material and temperature. If the lines are parallel, it suggests there is no interaction. If the lines are not parallel (i.e., they cross or diverge), it indicates that the effect of temperature on battery life is different for each material type, signaling a likely interaction.
 
@@ -96,27 +96,27 @@ ggplot(battery_df, aes(x = temperature, y = life, group = material, color = mate
 
 The non-parallel lines in the plot strongly suggest that a significant interaction effect is present. Specifically, the performance of Material 3 drops less dramatically with increasing temperature compared to Materials 1 and 2.
 
-# Model Fitting and Analysis of Variance (ANOVA)
+## Model Fitting and Analysis of Variance (ANOVA)
 
 We now fit a linear model to formally test the significance of the main effects and the interaction term. The model `life ~ material * temperature` is shorthand for `life ~ material + temperature + material:temperature`. We use a sum-to-zero contrast (`contr.sum`) for balanced interpretation of the effects. The **ANOVA table** will tell us if the variation caused by our factors is statistically significant compared to the random variation in the data.
 
 ```{r}
 #| label: fit-model
 
-# Fit the full factorial model
+## Fit the full factorial model
 battery_fit <- lm(life ~ material * temperature, 
                   data = battery_df,
                   contrasts = list(material = contr.sum, temperature = contr.sum))
 
 summary(battery_fit)
 
-# Generate the ANOVA table
+## Generate the ANOVA table
 anova(battery_fit)
 ```
 
 The ANOVA table shows very small p-values (`Pr(>F)`) for `material`, `temperature`, and, most importantly, the `material:temperature` interaction. This confirms our visual inspection: all effects are statistically significant. **Because the interaction is significant, our interpretation should focus on the interaction itself rather than the main effects in isolation.**
 
-# Model Adequacy Checks
+## Model Adequacy Checks
 
 The validity of our ANOVA results depends on the model's residuals meeting certain assumptions (normality, constant variance, independence). We check these with diagnostic plots.
 
@@ -125,20 +125,20 @@ The validity of our ANOVA results depends on the model's residuals meeting certa
 #| fig-cap: "Diagnostic plots for the battery life model."
 #| layout-ncol: 2
 
-# Extract standardized residuals and fitted values
+## Extract standardized residuals and fitted values
 battery_fit_diag <- data.frame(
   residuals = rstandard(battery_fit),
   fitted = fitted.values(battery_fit)
 )
 
-# Normal Q-Q Plot
+## Normal Q-Q Plot
 p1 <- ggplot(battery_fit_diag, aes(sample = residuals)) +
   stat_qq() +
   stat_qq_line() +
   labs(title = "Normal Q-Q Plot", x = "Theoretical Quantiles", y = "Standardized Residuals") +
   theme_minimal()
 
-# Residuals vs. Fitted Plot
+## Residuals vs. Fitted Plot
 p2 <- ggplot(battery_fit_diag, aes(x = fitted, y = residuals)) +
   geom_point() +
   geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
@@ -151,25 +151,25 @@ p2
 
 The Normal Q-Q plot shows the points falling roughly along the line, suggesting the normality assumption is met. The Residuals vs. Fitted plot shows a random scatter of points around the zero line, indicating that the variance is reasonably constant. The model assumptions appear to be satisfied.
 
-# Post-Hoc Analysis: Pairwise Comparisons
+## Post-Hoc Analysis: Pairwise Comparisons
 
 Since the interaction is significant, we must compare the means of the nine specific treatment combinations (3 materials × 3 temperatures). Simply comparing the average effect of Material 1 vs. Material 2 would be misleading, as that difference depends on the temperature.
 
-# Tukey's HSD Test
+## Tukey's HSD Test
 
 **Tukey's Honest Significant Difference (HSD)** test is a post-hoc test that compares all possible pairs of means while controlling the family-wise error rate. We apply it to an `aov` model object. The output for the `material:temperature` interaction shows which specific combinations are significantly different from one another.
 
 ```{r}
 #| label: test-tukey
 
-# Fit the model using aov() for Tukey's test
+## Fit the model using aov() for Tukey's test
 battery_aov <- aov(life ~ material * temperature, data = battery_df)
 
-# Perform Tukey's HSD test
+## Perform Tukey's HSD test
 TukeyHSD(battery_aov)
 ```
 
-# Fisher's LSD Method
+## Fisher's LSD Method
 
 The **Fisher's Least Significant Difference (LSD)** method is another option for pairwise comparisons. To test the interaction means, we must specify both factors in the `trt` argument.
 
@@ -178,11 +178,11 @@ The **Fisher's Least Significant Difference (LSD)** method is another option for
 
 library(agricolae)
 
-# Perform LSD test on the interaction term
+## Perform LSD test on the interaction term
 lsd_results <- LSD.test(battery_aov, trt = c("material", "temperature"),
                         p.adj = "none", group = FALSE)
 
-# Print the comparison table
+## Print the comparison table
 print(lsd_results$comparison)
 ```
 

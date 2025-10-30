@@ -17,12 +17,12 @@ editor_options:
   chunk_output_type: console
 ---
 
-# Completely Randomized Design
-## Plasma Etching Experiment
+## Completely Randomized Design
+### Plasma Etching Experiment
 
 This section analyzes data from a **Completely Randomized Design (CRD)**. In a CRD, experimental units (in this case, the silicon wafers being etched) are assigned to treatments (the RF Power levels) completely at random. The primary goal is to determine if changing the RF Power level has a statistically significant effect on the mean etch rate.
 
-### Data and Visualization
+#### Data and Visualization
 
 We begin by loading the data into a single, tidy `data.frame`. The response variable, `rate`, contains all the etch rate observations. The predictor variable, `power`, is a **factor**, which is R's way of representing a categorical variable. This tells R to treat the different power levels as distinct groups.
 
@@ -30,18 +30,18 @@ We begin by loading the data into a single, tidy `data.frame`. The response vari
 #| label: setup-crd
 #| echo: true
 
-# Define the data vectors
+## Define the data vectors
 rate <- c(575, 542, 530, 539, 570, 565, 593, 590, 579, 610,
           600, 651, 610, 637, 629, 725, 700, 715, 685, 710)
 power_levels <- c(160, 180, 200, 220)
 
-# Create the data frame
+## Create the data frame
 etching_df <- data.frame(
   rate = rate,
   power = factor(rep(power_levels, each = 5))
 )
 
-# Display the first few rows
+## Display the first few rows
 etching_df
 ```
 
@@ -59,7 +59,7 @@ boxplot(rate~power, data=etching_df)
 library(ggplot2)
 library(dplyr) # Using dplyr for easier data manipulation
 
-# Calculate group means and their start/end indices
+## Calculate group means and their start/end indices
 mean_rates <- etching_df %>%
   mutate(obs_index = row_number()) %>%
   group_by(power) %>%
@@ -88,7 +88,7 @@ ggplot(etching_df, aes(x = 1:nrow(etching_df), y = rate, color = power)) +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-### Model Fitting with Sum-to-Zero Constraint
+#### Model Fitting with Sum-to-Zero Constraint
 
 We fit a linear model using the `lm()` function to perform an **Analysis of Variance (ANOVA)**. The model is specified as `rate ~ power`, and we now include the `data = etching_df` argument.
 
@@ -106,7 +106,7 @@ cat ("Summary of lm fitting results:\n")
 summary.fit
 ```
 
-### Point Estimation of Parameters
+#### Point Estimation of Parameters
 
 The output of the model provides estimates for the overall mean ($\hat{\mu}$) and the treatment effects for the first k-1 levels ($\hat{\tau}_1, \hat{\tau}_2, \hat{\tau}_3$).
 
@@ -118,21 +118,21 @@ Using the sum-to-zero constraint, we can manually calculate the effect for the f
 ```{r}
 #| label: point-estimation
 
-# Extract coefficients
+## Extract coefficients
 est <- coef(fit)
 tau4.hat <- -sum(est[-1])
 taui.hat <- c(est[-1], tau4.hat)
 print("Estimated Treatment Effects (tau_i):")
 print(taui.hat)
 
-# Estimates of treatment means (mu_i)
+## Estimates of treatment means (mu_i)
 mu.hat <- est[1]
 mui.hat <- mu.hat + taui.hat
 print("Estimated Treatment Means (mu_i):")
 print(mui.hat)
 ```
 
-### ANOVA Table
+#### ANOVA Table
 
 The ANOVA table partitions the total variation into variation **between** treatment groups (`power`) and variation **within** treatment groups (random error). The **p-value** (Pr(>F)) indicates if the treatment has a significant effect.
 
@@ -142,25 +142,25 @@ The ANOVA table partitions the total variation into variation **between** treatm
 anova(fit)
 ```
 
-### 95% Confidence Intervals for Treatment Means
+#### 95% Confidence Intervals for Treatment Means
 
 A **confidence interval** provides a range of plausible values for the true mean etch rate at each power level.
 
 ```{r}
 #| label: confidence-intervals
 
-# Number of replicates
+## Number of replicates
 n <- 5 
-# Extract sqrt(MSE) and error df
+## Extract sqrt(MSE) and error df
 sqrt.MSE <- summary.fit$sigma
 DF <- fit$df.residual
-# Find t-value
+## Find t-value
 t.value <- qt(0.975, DF)
-# Calculate CIs
+## Calculate CIs
 CI.lower <- mui.hat - t.value * sqrt.MSE / sqrt(n)
 CI.upper <- mui.hat + t.value * sqrt.MSE / sqrt(n)
 
-# Display CIs
+## Display CIs
 data.frame(Power_Level = power_levels, Mean = mui.hat, Lower_CI = CI.lower, Upper_CI = CI.upper)
 ```
 
@@ -171,7 +171,7 @@ summary(fit_nointercpt)
 confint(fit_nointercpt)
 ```
 
-### Comparison with Default "Treatment" Contrast
+#### Comparison with Default "Treatment" Contrast
 
 Fitting the model without specifying contrasts uses R's default ("treatment" contrast), which sets $\tau_1 = 0$. The fundamental results (ANOVA, treatment means) remain unchanged.
 
@@ -182,11 +182,11 @@ fit1 <- lm(rate ~ power, data = etching_df)
 summary(fit1)
 ```
 
-### Pairwise Comparisons
+#### Pairwise Comparisons
 
 Since our ANOVA result was significant, we perform **post-hoc tests** to determine exactly which pairs of power levels have different means.
 
-#### Tukey's HSD Test
+##### Tukey's HSD Test
 
 **Tukey's Honest Significant Difference (HSD)** controls the **family-wise error rate**, adjusting p-values to account for multiple comparisons.
 
@@ -197,7 +197,7 @@ fit.aov <- aov(rate ~ power, data = etching_df)
 TukeyHSD(fit.aov)
 ```
 
-#### Fisher's LSD Test
+##### Fisher's LSD Test
 
 The **Fisher's Least Significant Difference (LSD)** test does not control the family-wise error rate but is more powerful.
 
@@ -207,7 +207,7 @@ The **Fisher's Least Significant Difference (LSD)** test does not control the fa
 with(etching_df, pairwise.t.test(rate, power, p.adj = "none"))
 ```
 
-### Checking Model Assumptions
+#### Checking Model Assumptions
 
 The validity of our ANOVA results depends on three key assumptions about the model's residuals. We use diagnostic plots to check them.
 
@@ -218,7 +218,7 @@ r <- rstudent(fit)
 fitted <- fitted.values(fit)
 ```
 
-#### Normality of Residuals
+##### Normality of Residuals
 
 A **Normal Q-Q plot** is used to check if the residuals are normally distributed. The points should fall closely along the straight diagonal line.
 
@@ -230,7 +230,7 @@ qqnorm(r)
 qqline(r)
 ```
 
-#### Independence of Residuals
+##### Independence of Residuals
 
 A plot of **residuals versus run order** helps check for independence. We look for random scatter around the zero line.
 
@@ -243,7 +243,7 @@ plot(r, ylab = "Standardized residuals", xlab = "Run order",
 abline(h = 0)
 ```
 
-#### Constant Variance (Homoscedasticity)
+##### Constant Variance (Homoscedasticity)
 
 A plot of **residuals versus fitted values** helps check for constant variance. The spread of residuals should be roughly constant across all fitted values.
 
@@ -256,14 +256,14 @@ plot(fitted, r, ylab = "Standardized residuals",
 abline(h = 0)
 ```
 
-# Unbalanced Designs with nequal Sample Sizes
+## Unbalanced Designs with nequal Sample Sizes
 
 The ANOVA framework also handles **unbalanced designs**. We again start by creating a data frame.
 
 ```{r}
 #| label: unequal-samples
 
-# Create the data frame
+## Create the data frame
 bricks_df <- data.frame(
   density = c(21.8, 21.9, 21.7, 21.6, 21.7,
               21.7, 21.4, 21.5, 21.4,
@@ -274,7 +274,7 @@ bricks_df <- data.frame(
 
 bricks_df
 
-# Fit the model and get the ANOVA table
+## Fit the model and get the ANOVA table
 fit2 <- lm(density ~ temperature, data = bricks_df)
 summary(fit2)
 anova(fit2)
@@ -282,19 +282,19 @@ anova(fit2)
 
 In this case, the large p-value (0.133) indicates that there is no statistically significant evidence that firing temperature affects brick density.
 
-# Randomized Complete Block Design
-## Vascular Graft Experiment 
+## Randomized Complete Block Design
+### Vascular Graft Experiment 
 
 This section analyzes a **Randomized Complete Block Design (RCBD)**, used to control for a known source of variability (here, "batches of resin," treated as **blocks**).
 
-### Data and Visulization
+#### Data and Visulization
 
 We structure the data in a `data.frame` to identify the response, treatment (`pressure`), and block (`batch`) for each observation.
 
 ```{r}
 #| label: setup-rcbd
 
-# Define data vectors
+## Define data vectors
 strength <- c(90.3, 89.2, 98.2, 93.9, 87.4, 97.9,
               92.5, 89.5, 90.6, 94.7, 87.0, 95.8,
               85.5, 90.8, 89.6, 86.2, 88.0, 93.4,
@@ -302,7 +302,7 @@ strength <- c(90.3, 89.2, 98.2, 93.9, 87.4, 97.9,
 pressure_levels <- rep(c(8500, 8700, 8900, 9100), each = 6)
 batch_levels <- rep(1:6, 4)
 
-# Create the data frame
+## Create the data frame
 graft_df <- data.frame(
   strength = strength,
   pressure = factor(pressure_levels),
@@ -345,7 +345,7 @@ ggplot(graft_df, aes(x = pressure, y = strength, group = batch, color = batch)) 
 ```
 ```
 
-### Model Fitting and ANOVA
+#### Model Fitting and ANOVA
 
 The model `strength ~ pressure + batch` partitions the total variance into treatment, block, and error components. Our primary interest is in the significance of the `pressure` factor.
 
@@ -358,7 +358,7 @@ anova(rcbd.fit1)
 
 The small p-value for `pressure` (0.0019) provides strong evidence that extrusion pressure significantly affects graft strength after accounting for batch differences.
 
-### Model Adequacy Checks
+#### Model Adequacy Checks
 
 The assumptions for an RCBD are the same as for a CRD. We perform the same diagnostic checks.
 
@@ -390,11 +390,11 @@ plot(graft_df$batch, rcbd.r1, ylab = "Standardized residuals",
 abline(h = 0)
 ```
 
-### Pairwise Comparisons
+#### Pairwise Comparisons
 
 Again, since the treatment factor (`pressure`) is significant, we perform post-hoc tests.
 
-#### Tukey's HSD Test
+##### Tukey's HSD Test
 
 Tukey's HSD compares all pairs of treatment levels while controlling the family-wise error rate.
 
@@ -404,7 +404,7 @@ Tukey's HSD compares all pairs of treatment levels while controlling the family-
 TukeyHSD(rcbd.fit1, which = "pressure")
 ```
 
-#### Fisher's LSD Test
+##### Fisher's LSD Test
 
 The `LSD.test()` function from the `agricolae` package correctly handles the error structure of an RCBD.
 
@@ -412,7 +412,7 @@ The `LSD.test()` function from the `agricolae` package correctly handles the err
 #| label: lsd-rcbd
 #| message: false
 
-# install.packages("agricolae")
+## install.packages("agricolae")
 library(agricolae)
 
 out <- LSD.test(rcbd.fit1, trt = "pressure", p.adj = "none", group = FALSE)
