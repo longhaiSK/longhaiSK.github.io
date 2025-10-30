@@ -275,13 +275,13 @@ window.Quarto = {
 </header>
 
 
-<section id="introduction" class="level2" data-number="5">
-<h2 data-number="5" class="anchored" data-anchor-id="introduction"><span class="header-section-number">5</span> Introduction</h2>
+<section id="introduction" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="introduction"><span class="header-section-number">4.1</span> Introduction</h2>
 <p>In statistical modeling, identifying data points that don’t fit—the <strong>outliers</strong>—is a critical step. The most reliable tool for this job is the <strong>externally studentized residual</strong>. Its power comes from a simple, intuitive idea: to judge a point fairly, you shouldn’t use that point when building your model. This is the core principle of <strong>Leave-One-Out Cross-Validation (LOOCV)</strong>.</p>
 <p>This article provides a complete walkthrough of this essential concept. We’ll start with the basic linear model, introduce the necessary notation, explore the flaws of simpler residuals, and then formally define and prove the equivalence of the conceptual and computational formulas for studentized residuals. Finally, we’ll make it all concrete with a simple example.</p>
 </section>
-<section id="the-linear-model" class="level2" data-number="6">
-<h2 data-number="6" class="anchored" data-anchor-id="the-linear-model"><span class="header-section-number">6</span> The Linear Model</h2>
+<section id="the-linear-model" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="the-linear-model"><span class="header-section-number">4.2</span> The Linear Model</h2>
 <p>Our discussion is based on the standard multiple linear regression model. In matrix form, the relationship between a response vector <strong>Y</strong> and a predictor matrix <strong>X</strong> is: <span class="math display">\[
 \mathbf{Y} = \mathbf{X}\beta + \epsilon
 \]</span></p>
@@ -293,10 +293,10 @@ window.Quarto = {
 <li><span class="math inline">\(\epsilon\)</span> is an <em>n</em> x 1 vector of unobservable random errors, assumed to be independent and identically distributed with a mean of 0 and a variance of <span class="math inline">\(\sigma^2\)</span>.</li>
 </ul>
 </section>
-<section id="residuals-for-ols" class="level2" data-number="7">
-<h2 data-number="7" class="anchored" data-anchor-id="residuals-for-ols"><span class="header-section-number">7</span> Residuals for OLS</h2>
-<section id="our-notations" class="level3" data-number="7.1">
-<h3 data-number="7.1" class="anchored" data-anchor-id="our-notations"><span class="header-section-number">7.1</span> Our Notations</h3>
+<section id="residuals-for-ols" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="residuals-for-ols"><span class="header-section-number">4.3</span> Residuals for OLS</h2>
+<section id="our-notations" class="level3" data-number="4.3.1">
+<h3 data-number="4.3.1" class="anchored" data-anchor-id="our-notations"><span class="header-section-number">4.3.1</span> Our Notations</h3>
 <p>To discuss models fit with all data versus those with one point removed, we need clear notation.</p>
 <p><strong>Full Data Model (Using all <em>n</em> observations)</strong></p>
 <ul>
@@ -314,11 +314,11 @@ window.Quarto = {
 <li><span class="math inline">\(\hat{\sigma}_{-i}\)</span>: The standard deviation of the errors estimated from the model fit <strong>without</strong> observation <em>i</em>.</li>
 </ul>
 </section>
-<section id="non-studentized-residuals" class="level3" data-number="7.2">
-<h3 data-number="7.2" class="anchored" data-anchor-id="non-studentized-residuals"><span class="header-section-number">7.2</span> Non-studentized Residuals</h3>
+<section id="non-studentized-residuals" class="level3" data-number="4.3.2">
+<h3 data-number="4.3.2" class="anchored" data-anchor-id="non-studentized-residuals"><span class="header-section-number">4.3.2</span> Non-studentized Residuals</h3>
 <p>Before getting to the correct solution, it’s crucial to understand why simpler methods of standardizing residuals are flawed.</p>
-<section id="the-ordinary-residual-e_i-too-small-and-x_i-dependent" class="level4" data-number="7.2.1">
-<h4 data-number="7.2.1" class="anchored" data-anchor-id="the-ordinary-residual-e_i-too-small-and-x_i-dependent"><span class="header-section-number">7.2.1</span> <strong>The Ordinary Residual (</strong><span class="math inline">\(e_i\)</span>): Too Small and <span class="math inline">\(x_i\)</span> Dependent</h4>
+<section id="the-ordinary-residual-e_i-too-small-and-x_i-dependent" class="level4" data-number="4.3.2.1">
+<h4 data-number="4.3.2.1" class="anchored" data-anchor-id="the-ordinary-residual-e_i-too-small-and-x_i-dependent"><span class="header-section-number">4.3.2.1</span> <strong>The Ordinary Residual (</strong><span class="math inline">\(e_i\)</span>): Too Small and <span class="math inline">\(x_i\)</span> Dependent</h4>
 <p>The most basic residual, <span class="math inline">\(e_i\)</span>, is problematic for two key reasons.</p>
 <p>An outlier has an undue influence on the model, pulling the regression line towards itself. This makes its own predicted value, <span class="math inline">\(\hat{y}_i\)</span>, artificially close to its actual value, <span class="math inline">\(y_i\)</span>. As a result, its residual, <span class="math inline">\(e_i\)</span>, is <strong>deceptively small</strong> and doesn’t reflect the true magnitude of the error.</p>
 <p>The variance of an ordinary residual is not constant; it depends on the point’s leverage. The variance can be derived from the hat matrix <span class="math inline">\(H = X(X^\top X)^{-1}X^\top\)</span>. Since <span class="math display">\[\hat{y} = HY,\]</span> we have <span class="math display">\[\begin{equation}
@@ -330,12 +330,12 @@ e = (I - H)\epsilon.
 \end{equation}\]</span></p>
 <p>Since leverage (<span class="math inline">\(h_{ii}\)</span>) is always greater than 0, the variance of an ordinary residual is always <strong>less than the true error variance,</strong> <span class="math inline">\(\sigma^2\)</span>. High-leverage points act as “anchors” for the line and have even smaller variance.</p>
 </section>
-<section id="the-loocv-residual-e_i-i-too-large-and-x_i-dependent-variance" class="level4" data-number="7.2.2">
-<h4 data-number="7.2.2" class="anchored" data-anchor-id="the-loocv-residual-e_i-i-too-large-and-x_i-dependent-variance"><span class="header-section-number">7.2.2</span> <strong>The LOOCV Residual (</strong><span class="math inline">\(e_{i,-i}\)</span>): Too large and <span class="math inline">\(x_i\)</span>-Dependent Variance</h4>
+<section id="the-loocv-residual-e_i-i-too-large-and-x_i-dependent-variance" class="level4" data-number="4.3.2.2">
+<h4 data-number="4.3.2.2" class="anchored" data-anchor-id="the-loocv-residual-e_i-i-too-large-and-x_i-dependent-variance"><span class="header-section-number">4.3.2.2</span> <strong>The LOOCV Residual (</strong><span class="math inline">\(e_{i,-i}\)</span>): Too large and <span class="math inline">\(x_i\)</span>-Dependent Variance</h4>
 <p>The deleted residual, <span class="math inline">\(e_{i,-i}\)</span>, solves the “too small” problem. Because the model isn’t influenced by the point it’s predicting, the residual is an honest measure of prediction error. However, its variance is still not constant. The variance of a deleted residual also depends on leverage, but in the opposite way. <span class="math display">\[\begin{equation}
     \text{Var}(e_{i,-i}) = \frac{\sigma^2}{1 - h_{ii}}
     \end{equation}\]</span></p>
-<p>From the key identity <a href="#eq-key" class="quarto-xref">Equation&nbsp;<span>8.1</span></a>, <span class="math display">\[\begin{equation}
+<p>From the key identity <a href="#eq-key" class="quarto-xref">Equation&nbsp;<span>4.3</span></a>, <span class="math display">\[\begin{equation}
 e_{i,-i} = \frac{e_i}{1 - h_{ii}}.
 \end{equation}\]</span> Therefore, <span class="math display">\[\begin{equation}
 \mathrm{Var}(e_{i,-i}) = \frac{\mathrm{Var}(e_i)}{(1-h_{ii})^2}
@@ -345,27 +345,27 @@ e_{i,-i} = \frac{e_i}{1 - h_{ii}}.
 <p>Since <span class="math inline">\(1-h_{ii}\)</span> is less than 1, the variance of a deleted residual is always <strong>greater than the true error variance,</strong> <span class="math inline">\(\sigma^2\)</span>. This is because it has two sources of randomness: the error in the point itself (<span class="math inline">\(y_i\)</span>) and the error in the prediction (<span class="math inline">\(\hat{y}_{i,-i}\)</span>).</p>
 </section>
 </section>
-<section id="studentized-residuals" class="level3" data-number="7.3">
-<h3 data-number="7.3" class="anchored" data-anchor-id="studentized-residuals"><span class="header-section-number">7.3</span> Studentized Residuals</h3>
-<section id="studentized-loocv-deleted-residual" class="level4" data-number="7.3.1">
-<h4 data-number="7.3.1" class="anchored" data-anchor-id="studentized-loocv-deleted-residual"><span class="header-section-number">7.3.1</span> Studentized LOOCV (Deleted) Residual</h4>
+<section id="studentized-residuals" class="level3" data-number="4.3.3">
+<h3 data-number="4.3.3" class="anchored" data-anchor-id="studentized-residuals"><span class="header-section-number">4.3.3</span> Studentized Residuals</h3>
+<section id="studentized-loocv-deleted-residual" class="level4" data-number="4.3.3.1">
+<h4 data-number="4.3.3.1" class="anchored" data-anchor-id="studentized-loocv-deleted-residual"><span class="header-section-number">4.3.3.1</span> Studentized LOOCV (Deleted) Residual</h4>
 <p>The correct solution is to take the LOOCV residual and divide it by its true standard error, which properly accounts for its larger, x-dependent variance. This is the <strong>externally studentized residual</strong>, <span class="math inline">\(t_i\)</span>, defined as follows:</p>
 <p><span id="eq-sloo"><span class="math display">\[
 t_i = \frac{e_{i,-i}}{\text{SE}(e_{i,-i})} = \frac{e_{i,-i}}{\frac{\hat{\sigma}_{-i}}{\sqrt{1-h_{ii}}}}
-\tag{7.1}\]</span></span> This final value is a reliable diagnostic. Under the null hypothesis that the observation is not an outlier, it follows a <strong>Student’s t-distribution</strong> with <span class="math inline">\(n - p - 1\)</span> degrees of freedom.</p>
+\tag{4.1}\]</span></span> This final value is a reliable diagnostic. Under the null hypothesis that the observation is not an outlier, it follows a <strong>Student’s t-distribution</strong> with <span class="math inline">\(n - p - 1\)</span> degrees of freedom.</p>
 </section>
-<section id="studentized-full-data-residuals" class="level4" data-number="7.3.2">
-<h4 data-number="7.3.2" class="anchored" data-anchor-id="studentized-full-data-residuals"><span class="header-section-number">7.3.2</span> Studentized Full Data Residuals</h4>
+<section id="studentized-full-data-residuals" class="level4" data-number="4.3.3.2">
+<h4 data-number="4.3.3.2" class="anchored" data-anchor-id="studentized-full-data-residuals"><span class="header-section-number">4.3.3.2</span> Studentized Full Data Residuals</h4>
 <p>Calculating the conceptual formula appears to require fitting <em>n</em> different regression models—a computationally expensive task. Fortunately, a mathematical identity allows us to calculate the exact same value using only the results from the single, full data model.</p>
 <p><span id="eq-sfull"><span class="math display">\[
 t_i = \frac{e_i}{\hat{\sigma}_{-i}\sqrt{1 - h_{ii}}}
-\tag{7.2}\]</span></span> This is not an approximation; it is an <strong>exact algebraic rearrangement</strong> of the conceptual definition.</p>
+\tag{4.2}\]</span></span> This is not an approximation; it is an <strong>exact algebraic rearrangement</strong> of the conceptual definition.</p>
 </section>
-<section id="equivalence-of-eq-sfull-and-eq-sloo" class="level4" data-number="7.3.3">
-<h4 data-number="7.3.3" class="anchored" data-anchor-id="equivalence-of-eq-sfull-and-eq-sloo"><span class="header-section-number">7.3.3</span> Equivalence of <a href="#eq-sfull" class="quarto-xref">Equation&nbsp;<span>7.2</span></a> and <a href="#eq-sloo" class="quarto-xref">Equation&nbsp;<span>7.1</span></a></h4>
-<section id="proof-of-equivalence" class="level5" data-number="7.3.3.1">
-<h5 data-number="7.3.3.1" class="anchored" data-anchor-id="proof-of-equivalence"><span class="header-section-number">7.3.3.1</span> Proof of Equivalence ⚙️</h5>
-<p>Let’s start with the conceptual definition of the studentized LOOCV residuals <a href="#eq-sloo" class="quarto-xref">Equation&nbsp;<span>7.1</span></a> and show how it transforms into <a href="#eq-sfull" class="quarto-xref">Equation&nbsp;<span>7.2</span></a>.</p>
+<section id="equivalence-of-eq-sfull-and-eq-sloo" class="level4" data-number="4.3.3.3">
+<h4 data-number="4.3.3.3" class="anchored" data-anchor-id="equivalence-of-eq-sfull-and-eq-sloo"><span class="header-section-number">4.3.3.3</span> Equivalence of <a href="#eq-sfull" class="quarto-xref">Equation&nbsp;<span>4.2</span></a> and <a href="#eq-sloo" class="quarto-xref">Equation&nbsp;<span>4.1</span></a></h4>
+<section id="proof-of-equivalence" class="level5" data-number="4.3.3.3.1">
+<h5 data-number="4.3.3.3.1" class="anchored" data-anchor-id="proof-of-equivalence"><span class="header-section-number">4.3.3.3.1</span> Proof of Equivalence ⚙️</h5>
+<p>Let’s start with the conceptual definition of the studentized LOOCV residuals <a href="#eq-sloo" class="quarto-xref">Equation&nbsp;<span>4.1</span></a> and show how it transforms into <a href="#eq-sfull" class="quarto-xref">Equation&nbsp;<span>4.2</span></a>.</p>
 <ul>
 <li><p><strong>Start with the conceptual LOOCV definition:</strong> <span class="math display">\[\begin{equation}
   t_i = \frac{e_{i,-i}}{\text{SE}(e_{i,-i})} = \frac{e_{i,-i}}{\frac{\hat{\sigma}_{-i}}{\sqrt{1-h_{ii}}}}
@@ -391,13 +391,13 @@ t_i = \frac{e_i}{\hat{\sigma}_{-i}\sqrt{1 - h_{ii}}}
 </section>
 </section>
 </section>
-<section id="list-of-residuals" class="level3" data-number="7.4">
-<h3 data-number="7.4" class="anchored" data-anchor-id="list-of-residuals"><span class="header-section-number">7.4</span> List of Residuals</h3>
+<section id="list-of-residuals" class="level3" data-number="4.3.4">
+<h3 data-number="4.3.4" class="anchored" data-anchor-id="list-of-residuals"><span class="header-section-number">4.3.4</span> List of Residuals</h3>
 <p>In this article, we will compare the four residuals given as:</p>
 <div id="tbl-residuals-five-plausible-residuals" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl quarto-uncaptioned" id="tbl-residuals-five-plausible-residuals-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;7.1
+Table&nbsp;4.1
 </figcaption>
 <div aria-describedby="tbl-residuals-five-plausible-residuals-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
@@ -445,10 +445,10 @@ Table&nbsp;7.1
 </figure>
 </div>
 </section>
-<section id="example-of-various-residuals" class="level3" data-number="7.5">
-<h3 data-number="7.5" class="anchored" data-anchor-id="example-of-various-residuals"><span class="header-section-number">7.5</span> Example of Various Residuals</h3>
-<section id="the-linear-model-1" class="level4" data-number="7.5.1">
-<h4 data-number="7.5.1" class="anchored" data-anchor-id="the-linear-model-1"><span class="header-section-number">7.5.1</span> The Linear Model</h4>
+<section id="example-of-various-residuals" class="level3" data-number="4.3.5">
+<h3 data-number="4.3.5" class="anchored" data-anchor-id="example-of-various-residuals"><span class="header-section-number">4.3.5</span> Example of Various Residuals</h3>
+<section id="the-linear-model-1" class="level4" data-number="4.3.5.1">
+<h4 data-number="4.3.5.1" class="anchored" data-anchor-id="the-linear-model-1"><span class="header-section-number">4.3.5.1</span> The Linear Model</h4>
 <p>The simulation uses a <strong>simple linear regression model</strong> to describe the relationship between a single predictor variable, <span class="math inline">\(x_i\)</span>, and a response variable, <span class="math inline">\(y_i\)</span>. The underlying “true” model from which the data is generated is: <span class="math display">\[y_i = 2 + 3x_i + \epsilon_i\]</span> This means we have a true intercept of 2, a true slope of 3, and a random error term, <span class="math inline">\(\epsilon_i\)</span>, drawn from a normal distribution with a mean of 0 and a standard deviation of 5. One artificial outlier is added to this data to test the behavior of the different residual types. 5 unrelated predictors are added to the dataset.</p>
 <div class="cell">
 <details class="code-fold">
@@ -485,8 +485,8 @@ Table&nbsp;7.1
 </div>
 </div>
 </section>
-<section id="description-of-calculated-columns" class="level4" data-number="7.5.2">
-<h4 data-number="7.5.2" class="anchored" data-anchor-id="description-of-calculated-columns"><span class="header-section-number">7.5.2</span> Description of Calculated Columns</h4>
+<section id="description-of-calculated-columns" class="level4" data-number="4.3.5.2">
+<h4 data-number="4.3.5.2" class="anchored" data-anchor-id="description-of-calculated-columns"><span class="header-section-number">4.3.5.2</span> Description of Calculated Columns</h4>
 <p>The final table compiles several important quantities calculated during the simulation. Here’s what each column represents:</p>
 <ul>
 <li><span class="math inline">\(x_i\)</span>: The predictor variable, which is simply the index of the observation from 1 to 20.</li>
@@ -1033,10 +1033,10 @@ Table&nbsp;7.1
 </section>
 </section>
 </section>
-<section id="cooks-distance" class="level2" data-number="8">
-<h2 data-number="8" class="anchored" data-anchor-id="cooks-distance"><span class="header-section-number">8</span> Cook’s Distance</h2>
-<section id="definition-from-the-change-in-coefficients" class="level3" data-number="8.1">
-<h3 data-number="8.1" class="anchored" data-anchor-id="definition-from-the-change-in-coefficients"><span class="header-section-number">8.1</span> Definition from the change in coefficients</h3>
+<section id="cooks-distance" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="cooks-distance"><span class="header-section-number">4.4</span> Cook’s Distance</h2>
+<section id="definition-from-the-change-in-coefficients" class="level3" data-number="4.4.1">
+<h3 data-number="4.4.1" class="anchored" data-anchor-id="definition-from-the-change-in-coefficients"><span class="header-section-number">4.4.1</span> Definition from the change in coefficients</h3>
 <p>Let <span class="math inline">\(\hat{\boldsymbol\beta}\)</span> be the OLS estimate on all <span class="math inline">\(n\)</span> cases and <span class="math inline">\(\hat{\boldsymbol\beta}_{(-i)}\)</span> the estimate after deleting case <span class="math inline">\(i\)</span>.<br>
 With <span class="math inline">\(p\)</span> parameters (including intercept) and <span class="math inline">\(\hat\sigma^2=\mathrm{MSE}\)</span>,</p>
 <p><span class="math display">\[
@@ -1045,8 +1045,8 @@ D_i
 (X^{\!\top}X)\,\big(\hat{\boldsymbol\beta}-\hat{\boldsymbol\beta}_{(-i)}\big)}{p\,\hat\sigma^{2}} \, .
 \]</span></p>
 <p>This measures how far the whole coefficient vector moves (in the <span class="math inline">\(X^{\!\top}X\)</span> metric) when case <span class="math inline">\(i\)</span> is removed, scaled <strong>per parameter</strong>.</p>
-<section id="express-d_i-via-the-studentized-loocv-residual-t_i" class="level4" data-number="8.1.1">
-<h4 data-number="8.1.1" class="anchored" data-anchor-id="express-d_i-via-the-studentized-loocv-residual-t_i"><span class="header-section-number">8.1.1</span> Express <span class="math inline">\(D_i\)</span> via the <strong>studentized LOOCV residual</strong>: <span class="math inline">\(t_i\)</span></h4>
+<section id="express-d_i-via-the-studentized-loocv-residual-t_i" class="level4" data-number="4.4.1.1">
+<h4 data-number="4.4.1.1" class="anchored" data-anchor-id="express-d_i-via-the-studentized-loocv-residual-t_i"><span class="header-section-number">4.4.1.1</span> Express <span class="math inline">\(D_i\)</span> via the <strong>studentized LOOCV residual</strong>: <span class="math inline">\(t_i\)</span></h4>
 <p>Let <span class="math inline">\(h_{ii}\)</span> be the leverage and define the LOOCV quantities <span class="math inline">\(e_{i,-i}\)</span> and <span class="math inline">\(\hat\sigma_{-i}\)</span> from the model refit <strong>without</strong> case <span class="math inline">\(i\)</span>.<br>
 The externally studentized residual is</p>
 <p><span class="math display">\[
@@ -1062,8 +1062,8 @@ D_i
 \frac{t_i^{\,2}}{(n-p-1)+t_i^{\,2}} \, .
 \]</span></p>
 </section>
-<section id="exact-null-distribution" class="level4" data-number="8.1.2">
-<h4 data-number="8.1.2" class="anchored" data-anchor-id="exact-null-distribution"><span class="header-section-number">8.1.2</span> Exact null distribution</h4>
+<section id="exact-null-distribution" class="level4" data-number="4.4.1.2">
+<h4 data-number="4.4.1.2" class="anchored" data-anchor-id="exact-null-distribution"><span class="header-section-number">4.4.1.2</span> Exact null distribution</h4>
 <p>Under the classical linear model,</p>
 <p><span class="math display">\[
 t_i^{\,2}\ \sim\ F_{1,\ \nu},\qquad \nu=n-p-1 .
@@ -1089,8 +1089,8 @@ d_{i,\alpha}=c_i\ q_\mathrm{Beta}\!\Big(1-\alpha;\tfrac12,\tfrac{n-p-1}{2}\Big).
 \]</span></p>
 <p>where <span class="math inline">\(S_\mathrm{Beta}\)</span> and <span class="math inline">\(q_\mathrm{Beta}\)</span> stand for the survival and quantile functions of Beta distribution.</p>
 </section>
-<section id="the-rough-4n-rule-average-leverage-simplification" class="level4" data-number="8.1.3">
-<h4 data-number="8.1.3" class="anchored" data-anchor-id="the-rough-4n-rule-average-leverage-simplification"><span class="header-section-number">8.1.3</span> The rough <span class="math inline">\(4/n\)</span> rule (average-leverage simplification)</h4>
+<section id="the-rough-4n-rule-average-leverage-simplification" class="level4" data-number="4.4.1.3">
+<h4 data-number="4.4.1.3" class="anchored" data-anchor-id="the-rough-4n-rule-average-leverage-simplification"><span class="header-section-number">4.4.1.3</span> The rough <span class="math inline">\(4/n\)</span> rule (average-leverage simplification)</h4>
 <p>Approximating a “typical” case by <strong>average leverage</strong> <span class="math inline">\(h_{ii}\approx p/n\)</span> gives</p>
 <p><span class="math display">\[
 c_i=\frac{n-p}{p}\cdot\frac{p/n}{1-p/n}\approx 1 .
@@ -1104,8 +1104,8 @@ c_i=\frac{n-p}{p}\cdot\frac{p/n}{1-p/n}\approx 1 .
 \]</span></p>
 <p>So <span class="math inline">\(4/n\)</span> is a <strong>rule-of-thumb</strong> 95% cutoff for an <strong>average-leverage</strong> point; the exact leverage–aware cutoff is <span class="math inline">\(d_{i,\alpha}\)</span> above (larger for high <span class="math inline">\(h_{ii}\)</span>, smaller for low <span class="math inline">\(h_{ii}\)</span>).</p>
 </section>
-<section id="comparing-4n-rules-with-the-actual-critical-values" class="level4" data-number="8.1.4">
-<h4 data-number="8.1.4" class="anchored" data-anchor-id="comparing-4n-rules-with-the-actual-critical-values"><span class="header-section-number">8.1.4</span> Comparing <span class="math inline">\(4/n\)</span> rules with the actual critical values</h4>
+<section id="comparing-4n-rules-with-the-actual-critical-values" class="level4" data-number="4.4.1.4">
+<h4 data-number="4.4.1.4" class="anchored" data-anchor-id="comparing-4n-rules-with-the-actual-critical-values"><span class="header-section-number">4.4.1.4</span> Comparing <span class="math inline">\(4/n\)</span> rules with the actual critical values</h4>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -1177,8 +1177,8 @@ c_i=\frac{n-p}{p}\cdot\frac{p/n}{1-p/n}\approx 1 .
 </div>
 </section>
 </section>
-<section id="example-for-cooks-distance" class="level3" data-number="8.2">
-<h3 data-number="8.2" class="anchored" data-anchor-id="example-for-cooks-distance"><span class="header-section-number">8.2</span> Example for Cook’s Distance:</h3>
+<section id="example-for-cooks-distance" class="level3" data-number="4.4.2">
+<h3 data-number="4.4.2" class="anchored" data-anchor-id="example-for-cooks-distance"><span class="header-section-number">4.4.2</span> Example for Cook’s Distance:</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -1479,12 +1479,12 @@ c_i=\frac{n-p}{p}\cdot\frac{p/n}{1-p/n}\approx 1 .
 <section id="finding-the-loocv-residual-e_i-i-from-the-ordinary-residual-e_i" class="level3 unnumbered">
 <h3 class="unnumbered anchored" data-anchor-id="finding-the-loocv-residual-e_i-i-from-the-ordinary-residual-e_i">Finding the LOOCV Residual (<span class="math inline">\(e_{i,-i}\)</span>) from the Ordinary Residual (<span class="math inline">\(e_i\)</span>)</h3>
 <p>This identity shows that we can find the “pure” leave-one-out residual using only the results from the single model fit on all data.</p>
-<p><span id="eq-key"><span class="math display">\[e_{i,-i} = \frac{e_i}{1 - h_{ii}} \tag{8.1}\]</span></span></p>
+<p><span id="eq-key"><span class="math display">\[e_{i,-i} = \frac{e_i}{1 - h_{ii}} \tag{4.3}\]</span></span></p>
 </section>
 <section id="finding-the-loocv-standard-error-from-the-full-model-standard-error" class="level3 unnumbered">
 <h3 class="unnumbered anchored" data-anchor-id="finding-the-loocv-standard-error-from-the-full-model-standard-error">Finding the LOOCV Standard Error from the Full-Model Standard Error</h3>
 <p>Similarly, this formula provides an efficient shortcut to see how the model’s overall error changes when a single point is removed.</p>
-<p><span id="eq-sigma_-i"><span class="math display">\[\hat{\sigma}_{-i} = \sqrt{\frac{(n-p)\hat{\sigma}^2 - \frac{e_i^2}{1-h_{ii}}}{n-p-1}} \tag{8.2}\]</span></span></p>
+<p><span id="eq-sigma_-i"><span class="math display">\[\hat{\sigma}_{-i} = \sqrt{\frac{(n-p)\hat{\sigma}^2 - \frac{e_i^2}{1-h_{ii}}}{n-p-1}} \tag{4.4}\]</span></span></p>
 <p>The derivation of this formula relies on first proving the relationship between the full model’s Residual Sum of Squares (<span class="math inline">\(RSS\)</span>) and the leave-one-out version (<span class="math inline">\(RSS_{-i}\)</span>).</p>
 <ol type="1">
 <li><p><strong>Start with the definition</strong> of the leave-one-out residual sum of squares: <span class="math display">\[
