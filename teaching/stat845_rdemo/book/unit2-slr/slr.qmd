@@ -448,7 +448,15 @@ Under $H_0:\beta_1=0$, $F$ follows $F_{1,n-2}$. Under $H_A$, the distribution sh
 
 ### Null world ($H_0$ true)
 
-```{r cache=FALSE, fig.show="animate", class.source="fold-hide", fig.height=4}
+```{{r}} 
+#| label: fig-simulation-animation
+#| context: html
+#| fig.show: "animate"
+#| fig.height: 4
+#| cache: false
+#| class.source: "fold-hide"
+
+# --- This code only runs for HTML output ---
 original_fit <- lm(y ~ x)
 intercept_H0 <- coef(original_fit)[1]
 model_sigma  <- sigma(original_fit)
@@ -477,15 +485,96 @@ for (iter in 1:50) {
 }
 ```
 
+
+```{r}
+#| label: fig-simulation-static
+#| context: pdf
+#| fig.height: 4
+#| cache: false
+#| class.source: "fold-hide"
+
+# --- This code only runs for PDF output ---
+original_fit <- lm(y ~ x)
+intercept_H0 <- coef(original_fit)[1]
+model_sigma  <- sigma(original_fit)
+
+# We run the simulation just once for the static plot
+sim.y <- intercept_H0 + rnorm(n, 0, model_sigma)
+
+par(mfrow = c(1,2))
+fit.sim.y <- lm(sim.y ~ x)
+plot(sim.y ~ x, ylim = c(0,100), main = "Data under H0 (slope = 0)")
+abline(fit.sim.y, col = "red", lwd = 2)
+abline(h = mean(sim.y), col = "blue")
+
+a <- anova(fit.sim.y)
+ss <- a$`Sum Sq`; rss <- rev(cumsum(c(0, rev(ss))))
+num.par <- cumsum(c(1, a$Df))
+plot(rss ~ num.par, xlab = "Number of Parameters", ylab = "RSS", type = "b")
+abline(v = 1:25, h = (0:50)*100, lty = 3, col = "grey")
+
+f_value <- a$"F value"[1]
+p_value <- a$"Pr(>F)"[1]
+legend("topright",
+       legend = c(sprintf("F: %.2f", f_value),
+                  sprintf("p: %.3f", p_value)),
+       title = "ANOVA", bty = "o", cex = 0.9)
+```
+
 ### Alternative world ($H_1$ true)
 
-```{r cache=FALSE, fig.show="animate", class.source="fold-hide", fig.height=4}
+```{{r}}
+#| label: fig-simulation-animation-H1-html
+#| context: html
+#| fig.show: "animate"
+#| fig.height: 4
+#| cache: false
+#| class.source: "fold-hide"
+
 original_fit <- lm(y ~ x)
 intercept_HA <- coef(original_fit)[1]
 model_sigma  <- sigma(original_fit)
 slope_HA     <- -2  # pick a non-zero slope
 
 for (iter in 1:50) {
+  mean_y <- intercept_HA + slope_HA * x
+  sim.y  <- mean_y + rnorm(n, 0, model_sigma)
+
+  par(mfrow = c(1,2))
+  fit.sim.y <- lm(sim.y ~ x)
+  plot(sim.y ~ x, ylim = c(0,80), main = "Data under HA (slope = -2)")
+  abline(fit.sim.y, col = "red", lwd = 2)
+  abline(h = mean(sim.y), col = "blue")
+
+  a <- anova(fit.sim.y)
+  ss <- a$`Sum Sq`; rss <- rev(cumsum(c(0, rev(ss))))
+  num.par <- cumsum(c(1, a$Df))
+  plot(rss ~ num.par, xlab = "Number of Parameters", ylab = "RSS", type = "b")
+  abline(v = 1:25, h = (0:50)*100, lty = 3, col = "grey")
+
+  f_value <- a$"F value"[1]
+  p_value <- a$"Pr(>F)"[1]
+  legend("topright",
+         legend = c(sprintf("F: %.2f", f_value),
+                    sprintf("p: %.3e", p_value)),
+         title = "ANOVA", bty = "o", cex = 0.9)
+}
+```
+
+
+```{r} 
+#| label: fig-simulation-animation-H1
+#| context: pdf
+#| fig.height: 4
+#| cache: false
+#| class.source: "fold-hide"
+
+original_fit <- lm(y ~ x)
+intercept_HA <- coef(original_fit)[1]
+model_sigma  <- sigma(original_fit)
+slope_HA     <- -2  # pick a non-zero slope
+
+for (iter in 1:1) {
   mean_y <- intercept_HA + slope_HA * x
   sim.y  <- mean_y + rnorm(n, 0, model_sigma)
 
