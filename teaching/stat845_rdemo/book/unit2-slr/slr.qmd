@@ -22,6 +22,8 @@ knitr::opts_chunk$set(
   cache = TRUE
 )
 set.seed(47)
+
+options(sim_rebuild=FALSE)
 ```
 
 ```{r include=FALSE}
@@ -451,61 +453,34 @@ Under $H_0:\beta_1=0$, $F$ follows $F_{1,n-2}$. Under $H_A$, the distribution sh
 #### Null world ($H_0$ true)
 
 ```{r} 
-#| label: fig-simulation-animation
-#| context: html
-#| fig.show: "animate"
-#| fig.height: 4
+#| label: fig-simulation
+#| echo: false
 #| cache: false
-#| class.source: "fold-hide"
+#| fig.align: center
+#| fig.cap: "Simulation under H0: animated GIF (HTML) and static PNG (PDF)."
 
-## --- This code only runs for HTML output ---
+# --- knobs (fast by default) ---
+
+n_frames <- getOption("sim_frames", 15L)       # set options(sim_frames=50) for more frames
+rebuild   <- isTRUE(getOption("sim_rebuild"))  # set  to force rebuild
+
+# --- output files ---
+
+dir.create("figs", showWarnings = FALSE)
+gif_path <- "figs/sim_h0.gif"
+png_path <- "figs/sim_h0.png"
+
+# --- data/model setup (assumes x, y exist in the environment) ---
+
 original_fit <- lm(y ~ x)
+n <- length(y)
 intercept_H0 <- coef(original_fit)[1]
 model_sigma  <- sigma(original_fit)
 
-for (iter in 1:50) {
-  sim.y <- intercept_H0 + rnorm(n, 0, model_sigma)
-
-  par(mfrow = c(1,2))
-  fit.sim.y <- lm(sim.y ~ x)
-  plot(sim.y ~ x, ylim = c(0,100), main = "Data under H0 (slope = 0)")
-  abline(fit.sim.y, col = "red", lwd = 2)
-  abline(h = mean(sim.y), col = "blue")
-
-  a <- anova(fit.sim.y)
-  ss <- a$`Sum Sq`; rss <- rev(cumsum(c(0, rev(ss))))
-  num.par <- cumsum(c(1, a$Df))
-  plot(rss ~ num.par, xlab = "Number of Parameters", ylab = "RSS", type = "b")
-  abline(v = 1:25, h = (0:50)*100, lty = 3, col = "grey")
-
-  f_value <- a$"F value"[1]
-  p_value <- a$"Pr(>F)"[1]
-  legend("topright",
-         legend = c(sprintf("F: %.2f", f_value),
-                    sprintf("p: %.3f", p_value)),
-         title = "ANOVA", bty = "o", cex = 0.9)
-}
-```
-
-
-```{r}
-#| label: fig-simulation-static
-#| context: pdf
-#| fig.height: 4
-#| cache: false
-#| class.source: "fold-hide"
-
-## --- This code only runs for PDF output ---
-original_fit <- lm(y ~ x)
-intercept_H0 <- coef(original_fit)[1]
-model_sigma  <- sigma(original_fit)
-
-## We run the simulation just once for the static plot
-sim.y <- intercept_H0 + rnorm(n, 0, model_sigma)
-
-par(mfrow = c(1,2))
+make_plots_once <- function(sim.y) {
+par(mfrow = c(1, 2))
 fit.sim.y <- lm(sim.y ~ x)
-plot(sim.y ~ x, ylim = c(0,100), main = "Data under H0 (slope = 0)")
+plot(sim.y ~ x, ylim = c(0, 100), main = "Data under H0 (slope = 0)")
 abline(fit.sim.y, col = "red", lwd = 2)
 abline(h = mean(sim.y), col = "blue")
 
@@ -513,92 +488,134 @@ a <- anova(fit.sim.y)
 ss <- a$`Sum Sq`; rss <- rev(cumsum(c(0, rev(ss))))
 num.par <- cumsum(c(1, a$Df))
 plot(rss ~ num.par, xlab = "Number of Parameters", ylab = "RSS", type = "b")
-abline(v = 1:25, h = (0:50)*100, lty = 3, col = "grey")
+abline(v = 1:25, h = (0:50) * 100, lty = 3, col = "grey")
 
-f_value <- a$"F value"[1]
-p_value <- a$"Pr(>F)"[1]
 legend("topright",
-       legend = c(sprintf("F: %.2f", f_value),
-                  sprintf("p: %.3f", p_value)),
-       title = "ANOVA", bty = "o", cex = 0.9)
-```
+legend = c(sprintf("F: %.2f", a$`F value`[1]),
+sprintf("p: %.3f", a$`Pr(>F)`[1])),
+title = "ANOVA", bty = "o", cex = 0.9)
+}
 
+if (knitr::is_html_output()) {
+
+# Build GIF once (or when forced), otherwise just reuse it
+
+if (!file.exists(gif_path) || rebuild) {
+if (!requireNamespace("gifski", quietly = TRUE)) {
+stop("Package 'gifski' is required to create the GIF. Install it with install.packages('gifski').")
+}
+gifski::save_gif(
+expr = {
+for (iter in seq_len(n_frames)) {
+sim.y <- intercept_H0 + rnorm(n, 0, model_sigma)
+make_plots_once(sim.y)
+}
+},
+gif_file = gif_path,
+width = 900, height = 500, delay = 1
+)
+}
+knitr::include_graphics(gif_path)
+
+} else if (knitr::is_latex_output()) {
+
+# Build PNG once (or when forced), otherwise reuse it
+
+if (!file.exists(png_path) || rebuild) {
+png(png_path, width = 1600, height = 900, res = 200)
+sim.y <- intercept_H0 + rnorm(n, 0, model_sigma)
+make_plots_once(sim.y)
+dev.off()
+}
+knitr::include_graphics(png_path)
+}
+
+```
 #### Alternative world ($H_1$ true)
 
 ```{r}
-#| label: fig-simulation-animation-H1-html
-#| context: html
-#| fig.show: "animate"
-#| fig.height: 4
+#| label: fig-simulation-HA
+#| echo: false
 #| cache: false
-#| class.source: "fold-hide"
+#| fig.align: center
+#| fig.cap: "Simulation under HA (slope = -2): animated GIF for HTML, static PNG for PDF."
+
+# --- knobs (fast by default) ---
+
+n_frames <- getOption("sim_frames", 15L)       # set options(sim_frames=50) for more frames
+rebuild   <- isTRUE(getOption("sim_rebuild"))  # set options(sim_rebuild=TRUE) to force rebuild
+
+# --- output files ---
+
+dir.create("figs", showWarnings = FALSE)
+gif_path <- "figs/sim_HA.gif"
+png_path <- "figs/sim_HA.png"
+
+# --- data/model setup (assumes x, y exist) ---
 
 original_fit <- lm(y ~ x)
+n <- length(y)
 intercept_HA <- coef(original_fit)[1]
 model_sigma  <- sigma(original_fit)
-slope_HA     <- -2  # pick a non-zero slope
+slope_HA     <- -2   # non-zero slope
 
-for (iter in 1:50) {
-  mean_y <- intercept_HA + slope_HA * x
-  sim.y  <- mean_y + rnorm(n, 0, model_sigma)
+make_plots_once_HA <- function(sim.y) {
+par(mfrow = c(1, 2))
+fit.sim.y <- lm(sim.y ~ x)
+plot(sim.y ~ x, ylim = c(0, 80), main = "Data under HA (slope = -2)")
+abline(fit.sim.y, col = "red", lwd = 2)
+abline(h = mean(sim.y), col = "blue")
 
-  par(mfrow = c(1,2))
-  fit.sim.y <- lm(sim.y ~ x)
-  plot(sim.y ~ x, ylim = c(0,80), main = "Data under HA (slope = -2)")
-  abline(fit.sim.y, col = "red", lwd = 2)
-  abline(h = mean(sim.y), col = "blue")
+a <- anova(fit.sim.y)
+ss <- a$`Sum Sq`; rss <- rev(cumsum(c(0, rev(ss))))
+num.par <- cumsum(c(1, a$Df))
+plot(rss ~ num.par, xlab = "Number of Parameters", ylab = "RSS", type = "b")
+abline(v = 1:25, h = (0:50) * 100, lty = 3, col = "grey")
 
-  a <- anova(fit.sim.y)
-  ss <- a$`Sum Sq`; rss <- rev(cumsum(c(0, rev(ss))))
-  num.par <- cumsum(c(1, a$Df))
-  plot(rss ~ num.par, xlab = "Number of Parameters", ylab = "RSS", type = "b")
-  abline(v = 1:25, h = (0:50)*100, lty = 3, col = "grey")
-
-  f_value <- a$"F value"[1]
-  p_value <- a$"Pr(>F)"[1]
-  legend("topright",
-         legend = c(sprintf("F: %.2f", f_value),
-                    sprintf("p: %.3e", p_value)),
-         title = "ANOVA", bty = "o", cex = 0.9)
+f_value <- a$`F value`[1]
+p_value <- a$`Pr(>F)`[1]
+legend("topright",
+legend = c(sprintf("F: %.2f", f_value),
+sprintf("p: %.3e", p_value)),
+title = "ANOVA", bty = "o", cex = 0.9)
 }
-```
 
+if (knitr::is_html_output()) {
 
-```{r} 
-#| label: fig-simulation-animation-H1
-#| context: pdf
-#| fig.height: 4
-#| cache: false
-#| class.source: "fold-hide"
+# Build GIF once (or when forced), then reuse
 
-original_fit <- lm(y ~ x)
-intercept_HA <- coef(original_fit)[1]
-model_sigma  <- sigma(original_fit)
-slope_HA     <- -2  # pick a non-zero slope
-
-for (iter in 1:1) {
-  mean_y <- intercept_HA + slope_HA * x
-  sim.y  <- mean_y + rnorm(n, 0, model_sigma)
-
-  par(mfrow = c(1,2))
-  fit.sim.y <- lm(sim.y ~ x)
-  plot(sim.y ~ x, ylim = c(0,80), main = "Data under HA (slope = -2)")
-  abline(fit.sim.y, col = "red", lwd = 2)
-  abline(h = mean(sim.y), col = "blue")
-
-  a <- anova(fit.sim.y)
-  ss <- a$`Sum Sq`; rss <- rev(cumsum(c(0, rev(ss))))
-  num.par <- cumsum(c(1, a$Df))
-  plot(rss ~ num.par, xlab = "Number of Parameters", ylab = "RSS", type = "b")
-  abline(v = 1:25, h = (0:50)*100, lty = 3, col = "grey")
-
-  f_value <- a$"F value"[1]
-  p_value <- a$"Pr(>F)"[1]
-  legend("topright",
-         legend = c(sprintf("F: %.2f", f_value),
-                    sprintf("p: %.3e", p_value)),
-         title = "ANOVA", bty = "o", cex = 0.9)
+if (!file.exists(gif_path) || rebuild) {
+if (!requireNamespace("gifski", quietly = TRUE)) {
+stop("Package 'gifski' is required to create the GIF. Install it with install.packages('gifski').")
 }
+gifski::save_gif(
+expr = {
+for (iter in seq_len(n_frames)) {
+mean_y <- intercept_HA + slope_HA * x
+sim.y  <- mean_y + rnorm(n, 0, model_sigma)
+make_plots_once_HA(sim.y)
+}
+},
+gif_file = gif_path,
+width = 900, height = 500, delay = 1
+)
+}
+knitr::include_graphics(gif_path)
+
+} else if (knitr::is_latex_output()) {
+
+# Build PNG once (or when forced), then reuse
+
+if (!file.exists(png_path) || rebuild) {
+png(png_path, width = 1600, height = 900, res = 200)
+mean_y <- intercept_HA + slope_HA * x
+sim.y  <- mean_y + rnorm(n, 0, model_sigma)
+make_plots_once_HA(sim.y)
+dev.off()
+}
+knitr::include_graphics(png_path)
+}
+
 ```
 
 ---
