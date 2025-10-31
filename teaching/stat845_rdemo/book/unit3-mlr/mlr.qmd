@@ -264,6 +264,7 @@ require("animation")
 
 ```{r}
 #| include: false
+#| #| label: fig-sim-h0
 ## --- Setup & params ---
 library(ggplot2); library(patchwork)
 dir.create("frames0", showWarnings = FALSE)
@@ -328,7 +329,6 @@ for (j in seq_len(N_sim)) {
 ```
 
 ```{r}
-#| context: html
 #| include: false
 #| echo: false
 
@@ -336,27 +336,16 @@ for (j in seq_len(N_sim)) {
 library(av)
 pngs <- list.files("frames0", "\\.png$", full.names = TRUE)
 pngs <- pngs[order(nchar(pngs), pngs)] # A more robust sort for frame numbers
-av_encode_video(pngs, "rss-h0.mp4", framerate = 2, verbose = FALSE)
+av_encode_video(pngs, "rss-h0.mp4", framerate = 1, verbose = FALSE)
 ```
 
 {{< video rss-h0.mp4 >}}
-
-```{r}
-#| context: pdf
-#| echo: false
-#| fig.cap: "A single representative frame from the simulation."
-
-## This chunk grabs the first frame to display in the PDF
-pngs <- list.files("frames0", "\\.png$", full.names = TRUE)
-pngs <- pngs[order(nchar(pngs), pngs)] # Sort frames
-first_frame <- pngs[1]
-knitr::include_graphics(first_frame)
-```
 
 #### When $H_1$ is true
 
 ```{r}
 #| include: false
+#| label: fig-sim-h1
 ## --- Setup & params ---
 library(ggplot2); library(patchwork)
 dir.create("frames1", showWarnings = FALSE)
@@ -418,29 +407,13 @@ for (j in seq_len(N_sim)) {
 
   ggsave(sprintf("frames1/f%03d.png", j), g1 / g2, width = 8, height = 8, dpi = 150)
 }
-```
 
-```{r results='asis'}
-#| context: html
-library(av)
 pngs <- list.files("frames1", "\\.png$", full.names = TRUE); pngs <- pngs[order(pngs)]
 av_encode_video(pngs, "rss-h1.mp4", framerate = 1, verbose = FALSE)  # H.264 MP4
 
-cat(sprintf('<video controls style="width:100%%;height:auto;"><source src="%s" type="video/mp4"></video>',"rss-h1.mp4"))
-
 ```
 
-```{r}
-#| context: pdf
-#| echo: false
-#| fig.cap: "A single representative frame from the simulation."
-
-## This chunk grabs the first frame to display in the PDF
-pngs <- list.files("frames1", "\\.png$", full.names = TRUE)
-pngs <- pngs[order(nchar(pngs), pngs)] # Sort frames
-first_frame <- pngs[1]
-knitr::include_graphics(first_frame)
-```
+{{< video rss-h1.mp4 >}}
 
 ### Example
 
