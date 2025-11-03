@@ -1,4 +1,4 @@
-//<script>
+<script>
 /* loadtoc.js — overlay TOC drawer (no layout shift, up to h3)
    - Creates a fixed-position overlay panel + backdrop
    - Clones existing Quarto TOC if found; else builds from <main> h2/h3
@@ -303,4 +303,4 @@
   }
 })();
 
-//</script>
+</script>
