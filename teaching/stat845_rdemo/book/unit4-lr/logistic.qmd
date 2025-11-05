@@ -92,12 +92,42 @@ plot_odds <- function(p_min = 0.01, p_max = 0.99, n = 400,
 plot_odds(odds_col = "#1f77b4", logit_col = "#d62728", n = 600)
 ```
 
-Logistic regression models **log-odds** linearly in predictors, which both keeps fitted probabilities in \((0,1)\) and turns multiplicative effects on odds into **additive** effects on the linear predictor.
 
 
----
+## Logistic Regression
 
-## A Simulated Data 
+Let $Y_i \in \{0,1\}$ denote a binary outcome, and let $\mathbf{x}_i = (x_{i1}, \ldots, x_{ip})^\top$ be the vector of predictors **excluding** the intercept.  
+Let $\boldsymbol{\beta} = (\beta_1, \ldots, \beta_p)^\top$ denote the slope coefficients, and $\beta_0$ the intercept.  
+The logistic regression model specifies
+$$
+p_i \;=\; P(Y_i = 1 \mid \mathbf{x}_i),
+$$
+with
+$$
+\log\!\left(\frac{p_i}{1 - p_i}\right)
+\;=\; \beta_0 + \mathbf{x}_i^\top \boldsymbol{\beta}
+\;=\; \beta_0 + \sum_{j=1}^p \beta_j x_{ij}.
+$$
+
+Equivalently, the fitted probability is
+$$
+p_i(\mathbf{x}_i;\boldsymbol{\beta})
+\;=\;
+\frac{\exp(\beta_0 + \mathbf{x}_i^\top \boldsymbol{\beta})}
+     {1+\exp(\beta_0 + \mathbf{x}_i^\top \boldsymbol{\beta})}
+\;=\;
+\frac{1}{1+\exp\!\big(-(\beta_0 + \mathbf{x}_i^\top \boldsymbol{\beta})\big)}.
+$$
+
+This formulation expresses the **log-odds** of success as a linear function of predictors, ensuring that fitted probabilities remain in the range $(0,1)$.  
+The **odds** satisfy
+$$
+\frac{p_i}{1-p_i} \;=\; \exp(\beta_0 + \mathbf{x}_i^\top \boldsymbol{\beta}),
+$$
+so a one-unit increase in $x_{ij}$ (holding other predictors fixed) multiplies the odds of success by $\exp(\beta_j)$.
+
+
+## A Dataset Simulated from Logistic Regression
 
 We simulate data from a logistic model where the **logit** is a linear function of $x$:
 
@@ -116,7 +146,7 @@ p(x)
 =
 \operatorname{logit}^{-1}(\beta_0+\beta_1 x)
 =
-\frac{1}{1+\exp{-(\beta_0+\beta_1 x)}}.
+\frac{1}{1+\exp\{-(\beta_0+\beta_1 x)\}}.
 $$
 
 We then display the observed $y_i$ (binary outcomes) and the true probability curve $p(x)$ in red.
@@ -177,7 +207,7 @@ legend("topleft",
 
 ```
 
-## Example of Coronary Heart Disease Data
+## Example: Coronary Heart Disease Data
 
 ### Load a dataset
 This dataset is about a follow-up study to determine the development of coronary heart disease (CHD) over 9 years of follow-up of 609 white males from Evans County, Georgia.
