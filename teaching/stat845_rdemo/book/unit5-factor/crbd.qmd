@@ -109,6 +109,8 @@ ggplot(etching_df, aes(x = 1:nrow(etching_df), y = rate, color = power)) +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
+
+
 #### Cell Mean Models (zero-intercept)
 
 ```{r}
@@ -117,6 +119,16 @@ model.matrix(fit_nointercpt)
 summary(fit_nointercpt)
 confint(fit_nointercpt)
 anova(fit_nointercpt)
+```
+
+
+This ANOVA result is typically unwanted. If we want to see the causal effect of power, we need to compare to intercept-only model:
+```{r}
+#| label: cell-means-anova
+
+
+fit_intercept <- lm(rate ~ 1, data = etching_df)
+anova(fit_intercept, fit_nointercpt)
 ```
 
 #### Centralized Effect Model (Sum-to-Zero Constraint)
@@ -140,31 +152,11 @@ model.matrix(fit)
 
 Summary of lm fitting results:
 ```{r}
-summary(fit)
+summary.fit <- summary(fit)
+summary.fit
 ```
 
 Confidence Interval for Centralized Effects:
-```{r}
-#| label: CI-effects
-# Define a named vector of all linear combinations
-#
-# NOTE: Replace 'power1', 'power2', 'power3' with the
-# actual names from your coef(fit) output.
-#
-# The names on the left (e.g., "Level_1_Effect") are
-# for you; they will label the output rows.
-library(biostat3)
-k_all_levels <- c(
-  "Level_1_Effect = power1",
-  "Level_2_Effect = power2",
-  "Level_3_Effect = power3",
-  "Level_4_Effect = -power1 - power2 - power3"
-)
-
-# Run lincom on the whole vector
-lincom(fit, k_all_levels)
-##### Estimate of Treatment Means
-```
 
 
 
@@ -176,27 +168,39 @@ The output of the model provides estimates for the overall mean ($\hat{\mu}$) an
 Using the sum-to-zero constraint, we can manually calculate the effect for the final level, $\hat{\tau}_4$.
 
 ```{r}
+#| label: CI-effects
+# Define a named vector of all linear combinations
+#
+# NOTE: Replace 'power1', 'power2', 'power3' with the
+# actual names from your coef(fit) output.
+#
+# The names on the left (e.g., "Level_1_Effect") are
+# for you; they will label the output rows.
+library(biostat3)
+k_all_levels <- c(
+  "Effect for Level 1" = "power1",
+  "Effect for Level 2" = "power2",
+  "Effect for Level 3" = "power3",
+  "Effect for Level 4" = "-power1 - power2 - power3"
+)
+# Run lincom on the whole vector
+lincom(fit, k_all_levels)
+##### Estimate of Treatment Means
+```
+
+We can verify the above results by looking at the point estimate of centralized effect by direct calculation. The construction of CI is more complicated, hence, omitted. 
+
+```{r}
 #| label: point-estimation
 
 ## Extract coefficients
 est <- coef(fit)
 tau4.hat <- -sum(est[-1])
 taui.hat <- c(est[-1], tau4.hat)
-print("Estimated Treatment Effects (tau_i):")
 print(taui.hat)
-
-## Estimates of treatment means (mu_i)
-mu.hat <- est[1]
-mui.hat <- mu.hat + taui.hat
 ```
 
-Estimated Treatment Means ($mu_i$):
-
-```{r}
-mui.hat
-```
-
-##### ANOVA Table
+##### ANOVA
 
 The ANOVA table partitions the total variation into variation **between** treatment groups (`power`) and variation **within** treatment groups (random error). The **p-value** (Pr(>F)) indicates if the treatment has a significant effect.
 
@@ -206,28 +210,6 @@ The ANOVA table partitions the total variation into variation **between** treatm
 anova(fit)
 ```
 
-##### 95% Confidence Intervals for Treatment (Cell) Means
-
-A **confidence interval** provides a range of plausible values for the true mean etch rate at each power level.
-
-```{r}
-#| label: confidence-intervals
-
-## Number of replicates
-n <- 5 
-## Extract sqrt(MSE) and error df
-sqrt.MSE <- summary.fit$sigma
-DF <- fit$df.residual
-se <- sqrt.MSE / sqrt(n)
-t.value <- qt(0.975, DF)
-me <- se*t.value
-## Calculate CIs
-CI.lower <- mui.hat - me
-CI.upper <- mui.hat + me
-
-## Display CIs
-data.frame(Power_Level = power_levels, Mean = mui.hat, SE = se, Lower_CI = CI.lower, Upper_CI = CI.upper, row.names = NULL)
-```
 
 
 #### Baseline Contrast Model (Default for R)
