@@ -1,5 +1,5 @@
 ---
-title: "One-factor Design"
+title: "Randomized Complete Block Design"
 author:
   - name: "Longhai Li"
     affiliation: "University of Saskatchewan"
@@ -129,15 +129,44 @@ To get interpretable estimates for the treatment effects ($\tau_i$), we use a **
 #| label: fit-sum-to-zero
 
 fit <- lm(rate ~ power, data = etching_df, contrasts = list(power = contr.sum))
-cat ("Model Matrix:\n")
-model.matrix(fit)
-summary.fit <- summary(fit)
-cat ("Summary of lm fitting results:\n")
-
-summary.fit
 ```
 
-##### Point Estimation of Parameters
+Model Matrix:
+
+```{r}
+model.matrix(fit)
+
+```
+
+Summary of lm fitting results:
+```{r}
+summary(fit)
+```
+
+Confidence Interval for Centralized Effects:
+```{r}
+#| label: CI-effects
+# Define a named vector of all linear combinations
+#
+# NOTE: Replace 'power1', 'power2', 'power3' with the
+# actual names from your coef(fit) output.
+#
+# The names on the left (e.g., "Level_1_Effect") are
+# for you; they will label the output rows.
+library(biostat3)
+k_all_levels <- c(
+  "Level_1_Effect = power1",
+  "Level_2_Effect = power2",
+  "Level_3_Effect = power3",
+  "Level_4_Effect = -power1 - power2 - power3"
+)
+
+# Run lincom on the whole vector
+lincom(fit, k_all_levels)
+##### Estimate of Treatment Means
+```
+
+
 
 The output of the model provides estimates for the overall mean ($\hat{\mu}$) and the treatment effects for the first k-1 levels ($\hat{\tau}_1, \hat{\tau}_2, \hat{\tau}_3$).
 
@@ -159,8 +188,12 @@ print(taui.hat)
 ## Estimates of treatment means (mu_i)
 mu.hat <- est[1]
 mui.hat <- mu.hat + taui.hat
-print("Estimated Treatment Means (mu_i):")
-print(mui.hat)
+```
+
+Estimated Treatment Means ($mu_i$):
+
+```{r}
+mui.hat
 ```
 
 ##### ANOVA Table
@@ -173,7 +206,7 @@ The ANOVA table partitions the total variation into variation **between** treatm
 anova(fit)
 ```
 
-##### 95% Confidence Intervals for Treatment Means
+##### 95% Confidence Intervals for Treatment (Cell) Means
 
 A **confidence interval** provides a range of plausible values for the true mean etch rate at each power level.
 
@@ -185,14 +218,15 @@ n <- 5
 ## Extract sqrt(MSE) and error df
 sqrt.MSE <- summary.fit$sigma
 DF <- fit$df.residual
-## Find t-value
+se <- sqrt.MSE / sqrt(n)
 t.value <- qt(0.975, DF)
+me <- se*t.value
 ## Calculate CIs
-CI.lower <- mui.hat - t.value * sqrt.MSE / sqrt(n)
-CI.upper <- mui.hat + t.value * sqrt.MSE / sqrt(n)
+CI.lower <- mui.hat - me
+CI.upper <- mui.hat + me
 
 ## Display CIs
-data.frame(Power_Level = power_levels, Mean = mui.hat, Lower_CI = CI.lower, Upper_CI = CI.upper)
+data.frame(Power_Level = power_levels, Mean = mui.hat, SE = se, Lower_CI = CI.lower, Upper_CI = CI.upper, row.names = NULL)
 ```
 
 
