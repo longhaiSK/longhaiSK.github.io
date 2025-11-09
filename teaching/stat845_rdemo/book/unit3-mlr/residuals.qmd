@@ -538,27 +538,42 @@ df <- tidyr::crossing(n = n_vals, p = p_vals) %>%
   )
 
 
-if (knitr::is_html_output()) {
-  ## HTML → Quarto prints `df` as a paged table and uses tbl-cap
-  library(DT)
-  DT::datatable(
-    df,
-    rownames = FALSE,
-    options = list(pageLength = 10, scrollX = TRUE),
-    caption = htmltools::tags$caption(
-      style = 'caption-side: top; text-align: left;',
-      htmltools::HTML("Exact 95% Cook&#39;s D critical value (average leverage $h_{ii}=p/n \\Rightarrow c_i=1$) vs heuristic $4/n$.")
-    )
-  )
-} else {
-  ## Non-HTML (PDF, DOCX) → fall back to kable
+library(knitr)
+library(kableExtra)
 
-  knitr::kable(
+cap <- "Exact 95% Cook's D critical value (average leverage $h_{ii}=p/n \\Rightarrow c_i=1$) vs heuristic $4/n$."
+
+if (knitr::is_html_output()) {
+  kable(
     df,
-    align = "r",
+    format   = "html",
+    row.names = FALSE,
+    align    = "r",
+    escape   = FALSE,
+    caption  = cap
+  ) |>
+    kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed", "responsive")) |>
+    scroll_box(width = "100%")
+} else if (knitr::is_latex_output()) {
+  kable(
+    df,
+    format   = "latex",
+    row.names = FALSE,
+    align    = "r",
     booktabs = TRUE,
-    caption = "Exact 95% Cook's D critical value (average leverage $h_{ii}=p/n \\Rightarrow c_i=1$) vs heuristic $4/n$."
-  ) 
+    escape   = FALSE,
+    caption  = cap
+  ) |>
+    kable_styling(full_width = FALSE, latex_options = "hold_position")
+} else {
+  # e.g., Word/RTF
+  kable(
+    df,
+    row.names = FALSE,
+    align    = "r",
+    escape   = FALSE,
+    caption  = cap
+  )
 }
 
 ```
