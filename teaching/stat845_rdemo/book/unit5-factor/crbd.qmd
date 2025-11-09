@@ -224,14 +224,15 @@ model.matrix(fit1)
 summary(fit1)
 ```
 
-**An important trick for handling levels of factor in R**
+
+**Using 200 as the baseline**
 
 If we want to treat power200 as the baseline, we do this:
+
 ```{r}
-etching_df_200 <- etching_df
-etching_df_200$power <- factor(etching_df$power, levels=c("200","160", "180", "220"))
-etching_df_200
-levels(etching_df_200$power)
+# modifying the levels of power
+etching_df$power <- factor(etching_df$power, levels=c("200","160", "180", "220"))
+ 
 ```
 
 
@@ -239,7 +240,7 @@ levels(etching_df_200$power)
 #| label: fit-default-contrast2
 
 
-fit1_200 <- lm(rate ~ power, data = etching_df_200)
+fit1_200 <- lm(rate ~ power, data = etching_df)
 model.matrix(fit1_200)
 summary(fit1_200)
 ```
@@ -250,9 +251,43 @@ anova(fit1_200)
 ```
 
 
+
+**Using 220 as the baseline**
+
+If we want to treat power220 as the baseline, we do this:
+
+```{r}
+etching_df$power <- factor(etching_df$power, levels=c("220","160", "180","200" ))
+```
+
+
+```{r}
+#| label: fit-default-contrast3
+
+
+fit1_220 <- lm(rate ~ power, data = etching_df)
+model.matrix(fit1_220)
+summary(fit1_220)
+```
+
+**ANOVA**
+```{r}
+anova(fit1_220)
+```
+
 #### Pairwise Comparisons
 
 Since our ANOVA result was significant, we perform **post-hoc tests** to determine exactly which pairs of power levels have different means.
+
+##### Fisher's LSD Test
+
+The **Fisher's Least Significant Difference (LSD)** test does not control the family-wise error rate but is more powerful.
+
+```{r}
+#| label: fisher-lsd
+
+with(etching_df, pairwise.t.test(rate, power, p.adj = "none"))
+```
 
 ##### Tukey's HSD Test
 
@@ -265,15 +300,7 @@ fit.aov <- aov(rate ~ power, data = etching_df)
 TukeyHSD(fit.aov)
 ```
 
-##### Fisher's LSD Test
 
-The **Fisher's Least Significant Difference (LSD)** test does not control the family-wise error rate but is more powerful.
-
-```{r}
-#| label: fisher-lsd
-
-with(etching_df, pairwise.t.test(rate, power, p.adj = "none"))
-```
 
 #### Checking Model Assumptions
 
