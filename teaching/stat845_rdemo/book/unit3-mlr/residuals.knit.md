@@ -8,7 +8,7 @@ author:
 date: today
 ---
 
-## Introduction 
+## Introduction
 
 In statistical modeling, identifying data points that don't fit—the **outliers**—is a critical step. The most reliable tool for this job is the **externally studentized residual**. Its power comes from a simple, intuitive idea: to judge a point fairly, you shouldn't use that point when building your model. This is the core principle of **Leave-One-Out Cross-Validation (LOOCV)**.
 
@@ -156,9 +156,9 @@ In this article, we will compare the four residuals given as:
 
 The simulation uses a **simple linear regression model** to describe the relationship between a single predictor variable, $x_i$, and a response variable, $y_i$. The underlying "true" model from which the data is generated is: $$y_i = 2 + 3x_i + \epsilon_i$$ This means we have a true intercept of 2, a true slope of 3, and a random error term, $\epsilon_i$, drawn from a normal distribution with a mean of 0 and a standard deviation of 5. One artificial outlier is added to this data to test the behavior of the different residual types. 5 unrelated predictors are added to the dataset.
 
-```{r}
-#| message: false
-#| warning: false
+::: {.cell}
+
+```{.r .cell-code}
 ## Load libraries
 library(dplyr)
 library(knitr)
@@ -183,6 +183,11 @@ abline (fit)
 abline (a=2, b=3, col="red", lwd=2)
 ```
 
+::: {.cell-output-display}
+![](residuals_files/figure-html/unnamed-chunk-1-1.png){width=576}
+:::
+:::
+
 #### Description of Calculated Columns
 
 The final table compiles several important quantities calculated during the simulation. Here's what each column represents:
@@ -203,12 +208,9 @@ The final table compiles several important quantities calculated during the simu
 
 <!-- end list -->
 
-```{r}
-#| label: plaintext
-#| echo: true
-#| message: false
-#| warning: false
+::: {.cell}
 
+```{.r .cell-code}
 library(kableExtra)
 
 full_model <- lm(y ~ ., data = full_data)
@@ -290,13 +292,41 @@ if (knitr::is_html_output()) {
 }
 ```
 
-```{r}
-#| label: plot-five-residuals-new-names
-#| echo: true
-#| message: false
-#| warning: false
-#| fig-cap: "Five residual variants plotted against the predictor variable x."
+::: {.cell-output-display}
 
+
+Table: Residual variants
+
+| $x_i$| $h_i$|  $e_i$| $\hat{\sigma}$| $e_{i,-i}$| $\hat{e}_{i,-i}$| $\hat{\sigma}_{-i}$| $\tilde{\sigma}_{-i}$| NS-Full| NS-LOO| STD-Full| ST-LOO| ST-Full|
+|-----:|-----:|------:|--------------:|----------:|----------------:|-------------------:|---------------------:|-------:|------:|--------:|------:|-------:|
+|     1| 0.247| 17.638|           7.57|     23.434|           23.434|               5.257|                 5.257|   2.330|  4.457|    2.686|  3.867|   3.867|
+|     2| 0.241| -7.909|           7.57|    -10.418|          -10.418|               7.431|                 7.431|  -1.045| -1.402|   -1.199| -1.222|  -1.222|
+|     3| 0.364| -3.271|           7.57|     -5.147|           -5.147|               7.790|                 7.790|  -0.432| -0.661|   -0.542| -0.527|  -0.527|
+|     4| 0.555|  1.553|           7.57|      3.490|            3.490|               7.851|                 7.851|   0.205|  0.445|    0.308|  0.297|   0.297|
+|     5| 0.257| -1.515|           7.57|     -2.038|           -2.038|               7.863|                 7.863|  -0.200| -0.259|   -0.232| -0.223|  -0.223|
+|     6| 0.400| -0.400|           7.57|     -0.666|           -0.666|               7.878|                 7.878|  -0.053| -0.085|   -0.068| -0.066|  -0.066|
+|     7| 0.253|  0.247|           7.57|      0.331|            0.331|               7.879|                 7.879|   0.033|  0.042|    0.038|  0.036|   0.036|
+|     8| 0.303| -8.972|           7.57|    -12.871|          -12.871|               7.243|                 7.243|  -1.185| -1.777|   -1.419| -1.484|  -1.484|
+|     9| 0.347| -8.394|           7.57|    -12.852|          -12.852|               7.287|                 7.287|  -1.109| -1.764|   -1.372| -1.425|  -1.425|
+|    10| 0.573| -5.696|           7.57|    -13.342|          -13.342|               7.467|                 7.467|  -0.752| -1.787|   -1.152| -1.168|  -1.168|
+|    11| 0.117|  7.175|           7.57|      8.127|            8.127|               7.565|                 7.565|   0.948|  1.074|    1.009|  1.009|   1.009|
+|    12| 0.441|  0.998|           7.57|      1.786|            1.786|               7.870|                 7.870|   0.132|  0.227|    0.176|  0.170|   0.170|
+|    13| 0.359|  1.298|           7.57|      2.026|            2.026|               7.865|                 7.865|   0.171|  0.258|    0.214|  0.206|   0.206|
+|    14| 0.395|  0.698|           7.57|      1.153|            1.153|               7.875|                 7.875|   0.092|  0.146|    0.119|  0.114|   0.114|
+|    15| 0.228| -1.221|           7.57|     -1.583|           -1.583|               7.869|                 7.869|  -0.161| -0.201|   -0.184| -0.177|  -0.177|
+|    16| 0.402|  7.998|           7.57|     13.365|           13.365|               7.292|                 7.292|   1.057|  1.833|    1.366|  1.418|   1.418|
+|    17| 0.433|  3.996|           7.57|      7.048|            7.048|               7.729|                 7.729|   0.528|  0.912|    0.701|  0.687|   0.687|
+|    18| 0.414| -3.369|           7.57|     -5.746|           -5.746|               7.776|                 7.776|  -0.445| -0.739|   -0.581| -0.566|  -0.566|
+|    19| 0.258|  3.073|           7.57|      4.141|            4.141|               7.812|                 7.812|   0.406|  0.530|    0.471|  0.457|   0.457|
+|    20| 0.414| -3.930|           7.57|     -6.707|           -6.707|               7.739|                 7.739|  -0.519| -0.867|   -0.678| -0.663|  -0.663|
+
+
+:::
+:::
+
+::: {.cell}
+
+```{.r .cell-code}
 ## Load libraries
 library(dplyr)
 library(tidyr)
@@ -381,6 +411,11 @@ ggplot(
     legend.title = element_text(face = "bold")
   )
 ```
+
+::: {.cell-output-display}
+![Five residual variants plotted against the predictor variable x.](residuals_files/figure-html/plot-five-residuals-new-names-1.png){width=576}
+:::
+:::
 
 From the above simulation results, we observe the following important facts:
 
@@ -493,16 +528,13 @@ So $4/n$ is a **rule-of-thumb** 95% cutoff for an **average-leverage** point; th
 
 #### Comparing $4/n$ rules with the actual critical values
 
-```{r}
-#| label: cooksD-crit-table
-#| echo: true
-#| warning: false
-#| message: false
+::: {.cell}
 
-
+```{.r .cell-code}
 library(dplyr)
 library(tidyr)
 library(knitr)
+library(kableExtra)
 
 ## Exact 95% Cook's D cutoff under average leverage h_ii = p/n (so c_i = 1):
 ## d_{i,0.95} = qbeta(0.95; 1/2, (n - p - 1)/2), valid when nu = n - p - 1 > 0
@@ -537,54 +569,45 @@ df <- tidyr::crossing(n = n_vals, p = p_vals) %>%
   )
 
 
-library(knitr)
-library(kableExtra)
-
-cap <- "Exact 95% Cook's D critical value (average leverage $h_{ii}=p/n \\Rightarrow c_i=1$) vs heuristic $4/n$."
-
 if (knitr::is_html_output()) {
-  kable(
+  ## HTML → Quarto prints `df` as a paged table and uses tbl-cap
+  library(DT)
+  DT::datatable(
     df,
-    format   = "html",
-    row.names = FALSE,
-    align    = "r",
-    escape   = FALSE,
-    caption  = cap
-  ) |>
-    kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed", "responsive")) |>
-    scroll_box(width = "100%")
-} else if (knitr::is_latex_output()) {
-  kable(
-    df,
-    format   = "latex",
-    row.names = FALSE,
-    align    = "r",
-    booktabs = TRUE,
-    escape   = FALSE,
-    caption  = cap
-  ) 
-} else {
-  # e.g., Word/RTF
-  kable(
-    df,
-    row.names = FALSE,
-    align    = "r",
-    escape   = FALSE,
-    caption  = cap
+    rownames = FALSE,
+    options = list(pageLength = 10, scrollX = TRUE),
+    caption = htmltools::tags$caption(
+      style = 'caption-side: top; text-align: left;',
+      htmltools::HTML("Exact 95% Cook&#39;s D critical value (average leverage $h_{ii}=p/n \\Rightarrow c_i=1$) vs heuristic $4/n$.")
+    )
   )
-}
+} else {
+  ## Non-HTML (PDF, DOCX) → fall back to kable
 
+  knitr::kable(
+    df,
+    align = "r",
+    booktabs = TRUE,
+    caption = "Exact 95% Cook's D critical value (average leverage $h_{ii}=p/n \\Rightarrow c_i=1$) vs heuristic $4/n$."
+  ) 
+}
 ```
+
+::: {.cell-output-display}
+
+```{=html}
+<div class="datatables html-widget html-fill-item" id="htmlwidget-fc8df40fd67c2027a709" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-fc8df40fd67c2027a709">{"x":{"filter":"none","vertical":false,"caption":"<caption style=\"caption-side: top; text-align: left;\">Exact 95% Cook&#39;s D critical value (average leverage $h_{ii}=p/n \\Rightarrow c_i=1$) vs heuristic $4/n$.<\/caption>","data":[[20,20,20,20,20,30,30,30,30,30,30,50,50,50,50,50,50,50,80,80,80,80,80,80,80,80,100,100,100,100,100,100,100,100,150,150,150,150,150,150,150,150,200,200,200,200,200,200,200,200,500,500,500,500,500,500,500,500],[2,3,5,10,15,2,3,5,10,15,20,2,3,5,10,15,20,30,2,3,5,10,15,20,30,50,2,3,5,10,15,20,30,50,2,3,5,10,15,20,30,50,2,3,5,10,15,20,30,50,2,3,5,10,15,20,30,50],[0.1,0.15,0.25,0.5,0.75,0.067,0.1,0.167,0.333,0.5,0.667,0.04,0.06,0.1,0.2,0.3,0.4,0.6,0.025,0.038,0.062,0.125,0.188,0.25,0.375,0.625,0.02,0.03,0.05,0.1,0.15,0.2,0.3,0.5,0.013,0.02,0.033,0.067,0.1,0.133,0.2,0.333,0.01,0.015,0.025,0.05,0.075,0.1,0.15,0.25,0.004,0.006,0.01,0.02,0.03,0.04,0.06,0.1],[17,16,14,9,4,27,26,24,19,14,9,47,46,44,39,34,29,19,77,76,74,69,64,59,49,29,97,96,94,89,84,79,69,49,147,146,144,139,134,129,119,99,197,196,194,189,184,179,169,149,497,496,494,489,484,479,469,449],[0.207508,0.219284,0.247316,0.362487,0.658372,0.134893,0.139791,0.150733,0.187366,0.247316,0.362487,0.07928200000000001,0.080951,0.08451,0.094944,0.108314,0.126058,0.187366,0.048973,0.049605,0.05092,0.054533,0.058698,0.063551,0.076141,0.126058,0.039025,0.039425,0.040251,0.042476,0.044961,0.047756,0.054533,0.076141,0.02588,0.026056,0.026414,0.027355,0.028364,0.029452,0.031897,0.038248,0.019359,0.019457,0.019657,0.020173,0.020717,0.021291,0.02254,0.025536,0.007707,0.007723,0.007754,0.007833,0.007913999999999999,0.007996,0.008166,0.008529],[0.2,0.2,0.2,0.2,0.2,0.133333,0.133333,0.133333,0.133333,0.133333,0.133333,0.08,0.08,0.08,0.08,0.08,0.08,0.08,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.026667,0.026667,0.026667,0.026667,0.026667,0.026667,0.026667,0.026667,0.02,0.02,0.02,0.02,0.02,0.02,0.02,0.02,0.008,0.008,0.008,0.008,0.008,0.008,0.008,0.008],[1.0375,1.0964,1.2366,1.8124,3.2919,1.0117,1.0484,1.1305,1.4052,1.8549,2.7187,0.991,1.0119,1.0564,1.1868,1.3539,1.5757,2.3421,0.9795,0.9921,1.0184,1.0907,1.174,1.271,1.5228,2.5212,0.9756,0.9856,1.0063,1.0619,1.124,1.1939,1.3633,1.9035,0.9705,0.9771,0.9905,1.0258,1.0637,1.1044,1.1961,1.4343,0.968,0.9729,0.9828,1.0086,1.0358,1.0645,1.127,1.2768,0.9634,0.9653,0.9692,0.9791,0.9892,0.9995000000000001,1.0207,1.0661]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>n<\/th>\n      <th>p<\/th>\n      <th>p/n<\/th>\n      <th>nu<\/th>\n      <th>cook_crit_95<\/th>\n      <th>4/n<\/th>\n      <th>ratio<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"scrollX":true,"columnDefs":[{"className":"dt-right","targets":[0,1,2,3,4,5,6]},{"name":"n","targets":0},{"name":"p","targets":1},{"name":"p/n","targets":2},{"name":"nu","targets":3},{"name":"cook_crit_95","targets":4},{"name":"4/n","targets":5},{"name":"ratio","targets":6}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+```
+
+:::
+:::
 
 ### Example for Cook's Distance: 
 
-```{r}
-#| label: cooksD-compute-and-plot
-#| echo: true
-#| message: false
-#| warning: false
-#| fig-cap: "Cook's D by case with heuristic 4/n (red dotted), per-case Beta 95% critical values (blue dashed), and average-leverage Beta 95% line (purple dot-dash)."
+::: {.cell}
 
+```{.r .cell-code}
 library(dplyr)
 library(ggplot2)
 library(knitr)
@@ -637,7 +660,42 @@ knitr::kable(
   df_cook %>% mutate(across(where(is.numeric), ~ round(.x, 5))),
   caption = "Cook's D, leverage, and thresholds: per-case Beta 95%, average-leverage Beta 95%, and 4/n."
 )
+```
 
+::: {.cell-output-display}
+
+
+Table: Cook's D, leverage, and thresholds: per-case Beta 95%, average-leverage Beta 95%, and 4/n.
+
+|  i|    h_ii|     D_i|     c_i| crit_beta_i| crit_beta_avg| crit_heur|
+|--:|-------:|-------:|-------:|-----------:|-------------:|---------:|
+|  1| 0.67204| 1.62738| 3.80555|     1.07873|       0.28346|       0.2|
+|  2| 0.31296| 0.07715| 0.84595|     0.23979|       0.28346|       0.2|
+|  3| 0.49722| 0.08784| 1.83660|     0.52061|       0.28346|       0.2|
+|  4| 0.61111| 0.23875| 2.91831|     0.82724|       0.28346|       0.2|
+|  5| 0.21633| 0.02983| 0.51265|     0.14532|       0.28346|       0.2|
+|  6| 0.14309| 0.00469| 0.31011|     0.08790|       0.28346|       0.2|
+|  7| 0.47629| 0.07632| 1.68900|     0.47877|       0.28346|       0.2|
+|  8| 0.41204| 0.00004| 1.30148|     0.36892|       0.28346|       0.2|
+|  9| 0.40499| 0.29801| 1.26407|     0.35832|       0.28346|       0.2|
+| 10| 0.17593| 0.00026| 0.39648|     0.11239|       0.28346|       0.2|
+| 11| 0.39917| 0.73199| 1.23380|     0.34974|       0.28346|       0.2|
+| 12| 0.10715| 0.00088| 0.22287|     0.06318|       0.28346|       0.2|
+| 13| 0.21158| 0.01277| 0.49837|     0.14127|       0.28346|       0.2|
+| 14| 0.30757| 0.00026| 0.82491|     0.23383|       0.28346|       0.2|
+| 15| 0.26786| 0.04549| 0.67944|     0.19260|       0.28346|       0.2|
+| 16| 0.71261| 0.48354| 4.60490|     1.30532|       0.28346|       0.2|
+| 17| 0.20630| 0.01202| 0.48271|     0.13683|       0.28346|       0.2|
+| 18| 0.27965| 0.00082| 0.72098|     0.20437|       0.28346|       0.2|
+| 19| 0.29482| 0.03388| 0.77642|     0.22009|       0.28346|       0.2|
+| 20| 0.29132| 0.00775| 0.76341|     0.21640|       0.28346|       0.2|
+
+
+
+Cook's D by case with heuristic 4/n (red dotted), per-case Beta 95% critical values (blue dashed), and average-leverage Beta 95% line (purple dot-dash).
+:::
+
+```{.r .cell-code}
 ## --- 4) Plot D_i with thresholds
 thresh_df <- bind_rows(
   df_cook %>% transmute(i, value = crit_beta_i,   Type = "Beta 95% (per-case)"),
@@ -663,8 +721,12 @@ ggplot(df_cook, aes(x = i, y = D_i)) +
   labs(x = "Observation i", y = "Cook's D_i") +
   theme_bw() +
   theme(legend.title = element_blank())
-
 ```
+
+::: {.cell-output-display}
+![Cook's D by case with heuristic 4/n (red dotted), per-case Beta 95% critical values (blue dashed), and average-leverage Beta 95% line (purple dot-dash).](residuals_files/figure-html/cooksD-compute-and-plot-1.png){width=576}
+:::
+:::
 
 
 ## Appendix: Key Identities {.unnumbered}
@@ -702,3 +764,4 @@ The derivation of this formula relies on first proving the relationship between 
     $$
 
 5.  **Finally, derive the formula for** $\hat{\sigma}_{-i}$. We know that $\hat{\sigma}^2_{-i} = \frac{RSS_{-i}}{n-p-1}$ and that $RSS = (n-p)\hat{\sigma}^2$. By substituting the result from Step 4, we arrive at the formula for the variance, and taking the square root gives us the standard error. ✅
+
