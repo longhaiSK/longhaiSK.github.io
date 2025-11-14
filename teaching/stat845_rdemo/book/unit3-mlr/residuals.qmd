@@ -6,6 +6,7 @@ author:
     affiliation: "University of Saskatchewan"
     url: "https://longhaisk.github.io/"
 date: today
+format: pdf
 ---
 
 
@@ -499,16 +500,17 @@ So $4/n$ is a **rule-of-thumb** 95% cutoff for an **average-leverage** point; th
 
 #### Comparing $4/n$ rules with the actual critical values
 
+
 ```{r}
 #| label: cooksD-crit-table
+#| tbl-cap: "Exact 95% Cook's D critical value (average leverage $h_{ii}=p/n \\Rightarrow c_i=1$) vs heuristic $4/n$."
 #| echo: true
 #| warning: false
 #| message: false
 
-
 library(dplyr)
 library(tidyr)
-library(knitr)
+library(gt)
 
 ## Exact 95% Cook's D cutoff under average leverage h_ii = p/n (so c_i = 1):
 ## d_{i,0.95} = qbeta(0.95; 1/2, (n - p - 1)/2), valid when nu = n - p - 1 > 0
@@ -542,45 +544,23 @@ df <- tidyr::crossing(n = n_vals, p = p_vals) %>%
     ratio         = round(ratio, 4)
   )
 
-
-library(knitr)
-library(kableExtra)
-
-cap <- "Exact 95% Cook's D critical value (average leverage $h_{ii}=p/n \\Rightarrow c_i=1$) vs heuristic $4/n$."
-
-if (knitr::is_html_output()) {
-  kable(
-    df,
-    format   = "html",
-    row.names = FALSE,
-    align    = "r",
-    escape   = FALSE,
-    caption  = cap
+df |>
+  gt() |>
+  cols_label(
+    n            = md("$n$"),
+    p            = md("$p$"),
+    `p/n`        = md("$p/n$"),
+    nu           = md("$\\nu = n - p - 1$"),
+    cook_crit_95 = md("$d_{i,0.95}$"),
+    `4/n`        = md("$4/n$"),
+    ratio        = md("$d_{i,0.95} / (4/n)$")
   ) |>
-    kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed", "responsive")) |>
-    scroll_box(width = "100%")
-} else if (knitr::is_latex_output()) {
-  kable(
-    df,
-    format   = "latex",
-    row.names = FALSE,
-    align    = "r",
-    booktabs = TRUE,
-    escape   = FALSE,
-    caption  = cap
-  ) 
-} else {
-  # e.g., Word/RTF
-  kable(
-    df,
-    row.names = FALSE,
-    align    = "r",
-    escape   = FALSE,
-    caption  = cap
+  cols_align(
+    align   = "right",
+    columns = everything()
   )
-}
-
 ```
+
 
 ### Example for Cook's Distance: 
 
