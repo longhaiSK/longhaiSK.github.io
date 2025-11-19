@@ -1,0 +1,1127 @@
+---
+title: "STAT 845: Assignment 3"
+params:
+  show_solutions: false
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+
+## The r chunk or as chunk are hidden by default if show_solution is true. To include a specific chunk, set echo/include = TRUE for it. 
+## dynamically controling whether the solutions (r chunk or asis chunk) are shown )
+show_solutions <- params$show_solutions
+knitr::opts_chunk$set(
+include = show_solutions,
+echo = show_solutions,
+eval = show_solutions,
+message=FALSE,
+cache=show_solutions
+)
+
+```
+
+## Instructions {.unnumbered}
+  - Attach all of your R code and your analysis results (numbers, table, figures)
+  - Write clearly to answer the questions or what you have discovered from the analysis.
+  - Present your results in a nice format that differentiates R code, output, and written report using different formatting. 
+  - Using qmd and rmd to make your report is a professional, efficient and productive tool. It is not required but highly recommended
+  - Upload a single PDF file to Canvas.
+
+
+```{r create-datasets, include=FALSE, echo=FALSE, eval=TRUE, cache=TRUE}
+# This hidden chunk creates the datasets as external files,
+# as requested.
+
+# --- Problem 1 Data (from dengue.csv, now cleaned) ---
+# This code reproduces the original dengue.csv file
+# and then converts the sector dummy variables into a single 'sector' factor.
+
+library(dplyr) # Using dplyr for case_when and select
+
+# 1. Reproduce the original data from the file
+dengue_data_from_file <- read.csv("problem1-data.csv")
+# 2. Create the single 'sector' column
+dengue_data_cleaned <- dengue_data_from_file %>%
+  mutate(
+    sector = case_when(
+      sector1 == 1 ~ "1",
+      sector2 == 1 ~ "2",
+      sector3 == 1 ~ "3",
+      sector4 == 1 ~ "4",
+      TRUE ~ "5" # Default case for "other" (where all dummies are 0)
+    )
+  ) %>%
+  # 3. Remove the original dummy columns
+  select(-sector1, -sector2, -sector3, -sector4)
+
+# 4. Save the cleaned data frame to 'dengue.csv'
+# This file will be read by the 'load-p1-data' chunk
+write.csv(dengue_data_cleaned, "dengue.csv", row.names = FALSE)
+
+# --- Problem 2 Data ---
+p2_data <- data.frame(
+  Design = factor(rep(1:4, each = 5)),
+  Noise = c(
+    19, 20, 19, 30, 8,   # Design 1
+    80, 61, 73, 56, 80,  # Design 2
+    47, 26, 25, 35, 50,  # Design 3
+    95, 46, 83, 78, 97   # Design 4
+  )
+)
+write.csv(p2_data, "circuit_noise.csv", row.names = FALSE)
+
+```
+
+
+## Problem 1 [40 points]
+
+Dengue fever is an acute infectious disease caused by a virus transmitted by the Aedes mosquito.  A retrospective survey of an epidemic of dengue fever was carried out in three Mexican cities in 1984.  Consider analyses of a subset of the data from this study obtained on a two-stage stratified random sample of 196 persons from the city of Puerto Vallarta, 57 of whom were determined to be suffering cases of dengue fever.  The goal of the analyses was to identify risk factors associated with having the disease, especially the effect of the absence of mosquito netting on a subject's bed as a determinant of the disease. 
+
+**Variable Description:**
+
+  * **Subject ID:** `id` 
+  * **Dengue fever status:** `dengue` (1 if yes, 0 if no) 
+  * **Age in years:** `age` 
+  * **Use of mosquito netting:** `mosnet` (1 if yes, 0 if no) 
+  * **Graphical sector in which a subject lived:** the number represents the sector ID.
+
+The dataset is available as `dengue.csv`. A portion of the dataset is displayed as [@tbl-dengue].
+
+```{r include=TRUE, echo=show_solutions, eval=TRUE}
+#| label: tbl-dengue
+
+library(knitr)
+library(pROC)
+library(PRROC)
+
+# Load the data
+dengue_data <- read.csv("dengue.csv")
+
+# Convert 'sector' to a factor
+dengue_data$sector <- factor(dengue_data$sector)
+
+kable(head(dengue_data), caption = "Head of Dengue Data")
+```
+
+
+```{asis}
+## 🔑 Solutions for Problem 1
+```
+
+
+### (a) Fit a logistic regression model that regress the dichotomous outcome variable `dengue` on the predictors `mosnet`, `age`, `sector`. 
+
+
+
+
+```{r fit-p1, include=show_solutions, echo=show_solutions, eval=TRUE}
+# Fit the model
+fit_p1a <- glm(dengue ~ mosnet + age + sector,
+               data = dengue_data,
+               family = "binomial")
+
+# Print the summary
+summary(fit_p1a)
+```
+
+### (b) Compute the estimated odds ratio for contracting dengue fever for persons who did not use mosquito netting relative to persons who did use mosquito netting, controlling for the other variables.  Also, find the 95% confidence interval for this odds ratio.  Draw conclusion. 
+
+```{r solution-p1b-code}
+
+# Solution code for 1(b)
+# This chunk obeys the global 'show_solutions' parameter
+
+# The model uses mosnet=0 (no) as the reference level.
+# The question asks for "did not use" (0) relative to "did use" (1).
+# This is the reciprocal of the model's coefficient for 'mosnet'.
+
+# 1. Get log-odds for mosnet=1 (yes) vs. mosnet=0 (no)
+log_odds_yes_vs_no <- coef(fit_p1a)["mosnet"]
+log_ci_yes_vs_no <- confint(fit_p1a, "mosnet", level = 0.95)
+
+# 2. Calculate OR and 95% CI for mosnet=0 (no) vs. mosnet=1 (yes)
+# We take the reciprocal (negative) of the log-odds
+or_mosnet <- exp(-log_odds_yes_vs_no)
+or_mosnet
+ci_mosnet <- exp(-rev(log_ci_yes_vs_no)) # use rev() to flip CI
+names(ci_mosnet) <- c("2.5%", "97.5%")
+ci_mosnet
+```
+
+```{r solution-p1b-answer, results='asis', echo=FALSE, eval=show_solutions}
+library("glue")
+
+# 1. Determine dynamic text components and format numbers
+# Use the correct variable names from the calculation chunk (or_mosnet, ci_mosnet)
+or_fmt <- formatC(or_mosnet, format = "f", digits = 3)
+ci_low_fmt <- formatC(ci_mosnet[1], format = "f", digits = 3)
+ci_high_fmt <- formatC(ci_mosnet[2], format = "f", digits = 3)
+
+# Check if 1 is outside the CI (Significance test)
+is_significant <- (ci_mosnet[1] > 1 || ci_mosnet[2] < 1)
+
+# Control the word "cannot": adds " **cannot**" if 1 is inside the CI
+cannot_text <- if (!is_significant) " **cannot**" else ""
+
+# Describe the direction of the point estimate (Higher/Lower)
+direction_text <- if (or_mosnet > 1) "higher" else "lower"
+
+# Describe the position of the CI relative to 1
+ci_position_text <- if (ci_mosnet[1] > 1) {
+  "entirely above 1"
+} else if (ci_mosnet[2] < 1) {
+  "entirely below 1"
+} else {
+  "includes 1"
+}
+
+# 2. Print the answer using glue for clean interpolation
+print(glue(r"(
+**Answer**: 
+The estimated odds ratio for contracting dengue fever for persons who **did not** use mosquito netting (mosnet=0) relative to persons who **did** use mosquito netting (mosnet=1) is **{or_fmt}**.
+
+The 95% confidence interval for this odds ratio is **[{ci_low_fmt}, {ci_high_fmt}]**.
+
+**Conclusion:** Since the 95% CI [{ci_low_fmt}, {ci_high_fmt}] {ci_position_text}, we{cannot_text} conclude that there is a statistically significant association. The point estimate suggests that not using mosquito netting is associated with **{direction_text} odds** of contracting dengue fever, controlling for age and sector.
+)"))
+```
+
+
+
+### (c) Compute the estimated odds ratio for contracting dengue fever for two persons with a five-year age difference, controlling for the other variables. Also, find the 95% confidence interval for this odds ratio. Draw conclusion.
+
+```{r solution-p1c-code}
+# Solution code for 1(c)
+# This chunk obeys the global 'show_solutions' parameter
+
+# 1. Get log-odds and 95% CI for a 1-year age increase
+log_odds_1yr <- coef(fit_p1a)["age"]
+log_ci_1yr <- confint(fit_p1a, "age", level = 0.95)
+
+# 2. Calculate OR and 95% CI for a 5-year age increase
+or_age_5yr <- exp(5 * log_odds_1yr)
+ci_age_5yr <- exp(5 * log_ci_1yr)
+ci_age_5yr
+```
+
+```{r solution-p1c-answer, results='asis', echo=FALSE, eval=show_solutions}
+library("glue")
+
+# 1. Format numbers
+or_fmt <- formatC(or_age_5yr, format = "f", digits = 3)
+ci_low_fmt <- formatC(ci_age_5yr[1], format = "f", digits = 3)
+ci_high_fmt <- formatC(ci_age_5yr[2], format = "f", digits = 3)
+
+# 2. Determine dynamic text components
+
+# Check if 1 is outside the CI (Significance test)
+is_significant <- (ci_age_5yr[1] > 1 || ci_age_5yr[2] < 1)
+
+# Control the word "cannot": adds " **cannot**" if 1 is inside the CI
+cannot_text <- if (!is_significant) " **cannot**" else ""
+
+# Describe the direction of the point estimate (Higher/Lower)
+direction_text <- if (or_age_5yr > 1) "higher" else "lower"
+
+# Describe the position of the CI relative to 1
+ci_position_text <- if (ci_age_5yr[1] > 1) {
+  "entirely above 1"
+} else if (ci_age_5yr[2] < 1) {
+  "entirely below 1"
+} else {
+  "includes 1"
+}
+
+# 3. Print the answer using glue for clean interpolation
+print(glue(r"(
+**Answer**: 
+The estimated odds ratio for contracting dengue fever for a **five-year increase in age** is **{or_fmt}**.
+
+The 95% confidence interval for this odds ratio is **[{ci_low_fmt}, {ci_high_fmt}]**.
+
+**Conclusion:** Since the 95% CI [{ci_low_fmt}, {ci_high_fmt}] {ci_position_text}, we{cannot_text} conclude that there is a statistically significant association. The point estimate suggests that a 5-year increase in age is associated with **{direction_text} odds** of contracting dengue fever, controlling for mosquito net use and sector.
+)"))
+```
+
+### (d) Using $\chi^2$ test to test the overall regression significance of the regressors considered here.
+
+```{r solution-p1d-code}
+# Solution code for 1(d)
+# This chunk obeys the global 'show_solutions' parameter
+
+# We perform a Likelihood Ratio Test (LRT) by comparing
+# our full model (fit_p1a) to a null (intercept-only) model.
+
+# 1. Fit the null model
+fit_null <- glm(dengue ~ 1,
+                data = dengue_data,
+                family = "binomial")
+
+# 2. Perform the LRT
+lrt <- anova(fit_null, fit_p1a, test = "LRT")
+
+print(lrt)
+
+# 3. Extract values for the answer
+lrt_chi_sq <- lrt$Deviance[2]
+lrt_df <- lrt$Df[2]
+lrt_p_value <- lrt$`Pr(>Chi)`[2]
+
+```
+
+```{r solution-p1d-text, results="asis"}
+
+library("glue")
+
+# 1. Format numbers
+
+lrt_chi_sq_fmt <- formatC(lrt_chi_sq, format = "f", digits = 3)
+lrt_df_fmt     <- lrt_df
+lrt_p_fmt      <- formatC(lrt_p_value, format = "f", digits = 5)
+alpha_level    <- 0.05
+alpha_fmt      <- formatC(alpha_level, format = "f", digits = 2)
+
+# 2. Construct decision and small text toggles directly from the p-value
+
+decision_verb <- if (lrt_p_value < alpha_level) "reject" else "fail to reject"
+
+do_not_text <- if (lrt_p_value < alpha_level) "" else " do not"
+not_text    <- if (lrt_p_value < alpha_level) "" else " not"
+
+# 3. Print the answer using glue for clean interpolation
+
+print(glue(r"(
+
+**Answers:**
+
+To test the overall significance, we perform a Likelihood Ratio Test (LRT) comparing the full model (`mosnet + age + sector`) to the null intercept-only model.
+
+**Hypotheses:**
+
+* $H_0$: All regression coefficients (for `mosnet`, `age`, and `sector` indicators) are equal to zero.
+* $H_a$: At least one regression coefficient is not equal to zero.
+
+The Likelihood Ratio Test statistic is **{lrt_chi_sq_fmt}** on **{lrt_df_fmt}** degrees of freedom, with a p-value of **{lrt_p_fmt}**. At significance level $\alpha = {alpha_fmt}$, we **{decision_verb}** the null hypothesis. We{do_not_text} have sufficient evidence that the model as a whole is statistically significant: at least one of the predictors (`mosnet`, `age`, or `sector`) is{not_text} associated with the odds of contracting dengue fever.
+)"))
+```
+
+### (e) Split the dataset into 2/3 and 1/3 for training and testing. Draw the ROC and PRC and compute the AUC and AUPRC. How do you interpret the predictive power of these three variables to the onset of dengue disease?
+
+```{r solution-p1e-code}
+#| fig-height: 4
+
+library(ROCR)
+# Solution code for 1(e)
+# This chunk splits data, fits, predicts, and PLOTS.
+# The plot output will be controlled by the 'include' option.
+
+# 1. Split the data
+set.seed(845) # for reproducibility
+n <- nrow(dengue_data)
+train_size <- floor(2/3 * n)
+train_indices <- sample(seq_len(n), size = train_size)
+
+train_data <- dengue_data[train_indices, ]
+test_data  <- dengue_data[-train_indices, ]
+
+# Store sizes for reporting
+n_train <- nrow(train_data)
+n_test  <- nrow(test_data)
+
+# 2. Fit the model on TRAINING data
+fit_train <- glm(dengue ~ mosnet + age + sector,
+                 data = train_data,
+                 family = "binomial")
+
+# 3. Get predicted probabilities on TESTING data
+test_probs <- predict(fit_train, newdata = test_data, type = "response")
+
+# 4. ROC Curve and AUC (pROC)
+roc_curve <- roc(response = test_data$dengue, predictor = test_probs)
+auc_val <- auc(roc_curve)
+
+# 5. PR Curve and AUPRC (ROCR)
+
+# ROCR prediction object
+pred_rocr <- prediction(test_probs, test_data$dengue)
+
+# Precision–recall curve
+pr_perf <- performance(pred_rocr, measure = "prec", x.measure = "rec")
+
+# Extract recall (x) and precision (y), removing NAs
+recall_vals <- pr_perf@x.values[[1]]
+prec_vals   <- pr_perf@y.values[[1]]
+
+valid <- which(!is.na(recall_vals) & !is.na(prec_vals))
+recall_vals <- recall_vals[valid]
+prec_vals   <- prec_vals[valid]
+
+# Baseline prevalence for PRC
+prevalence <- mean(train_data$dengue)
+
+# Numerically approximate AUPRC using trapezoidal rule
+# (recall_vals should be in ascending order; ROCR gives it that way)
+if (length(recall_vals) > 1) {
+  auprc_val <- sum(
+    diff(recall_vals) *
+      (head(prec_vals, -1) + tail(prec_vals, -1)) / 2
+  )
+} else {
+  auprc_val <- NA_real_
+}
+
+# 6. Plot the curves
+par(mfrow = c(1, 2), mar=c(4,4,3,1))
+
+## ROC curve
+plot(
+  roc_curve,
+  main      = "ROC Curve",
+  print.auc = TRUE,
+  col       = "blue",
+  cex.main  = 0.9   # shrink title
+)
+
+## PR curve using ROCR values (no AUC in title)
+plot(
+  recall_vals,
+  prec_vals,
+  type     = "l",
+  xlab     = "Recall",
+  ylab     = "Precision",
+  main     = "Precision-Recall Curve",
+  col      = "red",
+  cex.main = 0.9    # shrink title
+)
+
+# Add baseline (prevalence) as horizontal line
+abline(h = prevalence, lty = 2, col = "gray")
+
+# Legend with AUPRC and baseline prevalence
+legend(
+  "bottomright",
+  legend = c(
+    paste0(
+      "Model (AUPRC = ",
+      formatC(auprc_val, digits = 3, format = "f"),
+      ")"
+    ),
+    paste0(
+      "Baseline (Prev = ",
+      formatC(prevalence, digits = 3, format = "f"),
+      ")"
+    )
+  ),
+  col = c("red", "gray"),
+  lty = c(1, 2),
+  cex = 0.5
+)
+
+par(mfrow = c(1, 1)) # Reset plot layout  
+
+```
+
+```{r solution-p1e-answer, results='asis', echo=FALSE, eval=show_solutions}
+
+
+library("glue")
+
+# 1. Format numbers nicely for printing
+
+auc_fmt         <- formatC(auc_val,       format = "f", digits = 3)
+auprc_fmt       <- formatC(auprc_val,     format = "f", digits = 3)
+prevalence_fmt  <- formatC(prevalence,    format = "f", digits = 3)
+auc_pct_fmt     <- formatC(auc_val * 100, format = "f", digits = 1)
+
+# 2. Describe how much better/worse AUPRC is than the baseline prevalence
+
+improvement_text <- if (auprc_val > prevalence * 1.1) {
+"substantially higher than"
+} else if (auprc_val > prevalence) {
+"slightly higher than"
+} else if (abs(auprc_val - prevalence) < 1e-6) {
+"about the same as"
+} else {
+"lower than"
+}
+
+# 3. Print the answer using glue and a raw string
+
+print(glue(r"(
+
+**Answers:**
+The dataset was split into a training set (n = {n_train}) and a testing set (n = {n_test}).
+A logistic regression model with predictors `mosnet`, `age`, and `sector` was fit on the training data and evaluated on the testing data. The ROC and precision–recall (PR) curves are shown above.
+
+The **Area Under the ROC Curve (AUC)** is **{auc_fmt}**.
+The **Area Under the PR Curve (AUPRC)** is **{auprc_fmt}**.
+The baseline AUPRC for a random-guess classifier equals the prevalence of dengue in the training data, which is **{prevalence_fmt}**.
+
+**Interpretation:**
+
+1. **AUC:**
+   An AUC of {auc_fmt} measures the model's ability to discriminate between subjects with and without dengue.
+   An AUC of 0.5 corresponds to random guessing, and 1.0 to a perfect classifier.
+   Our value suggests the model has a **moderate-to-good discriminative ability**. It implies there is about a **{auc_pct_fmt}%** chance that the model will correctly rank a randomly chosen person *with* dengue higher than a randomly chosen person *without* dengue.
+
+2. **AUPRC:**
+   The AUPRC of {auprc_fmt} is particularly informative when the outcome is imbalanced. This value should be compared to the baseline prevalence {prevalence_fmt} (the AUPRC of a random-guess model).
+
+   Since the model's AUPRC is {improvement_text} this baseline, it indicates that the model has **meaningful predictive power**, offering an improvement over random guessing in identifying dengue cases.
+
+Overall, the three predictors (`mosnet`, `age`, and `sector`) provide **useful, though not perfect, predictive power** for the onset of dengue disease.
+)"))
+
+```
+
+### (f) How do you explain the differences in the conclusions with $\chi^2$ p-value and AUC/AUPRC?
+
+```{r solution-p1f-answer, results='asis', echo=FALSE, eval=show_solutions}
+
+library("glue")
+
+print(glue(r"(
+
+**Answers:**
+
+The apparent disagreement comes from the fact that the $\chi^2$ p-value and the AUC/AUPRC are answering **different questions**.
+
+1. **$\chi^2$ test (part d):**
+   The likelihood ratio test compares the full logistic model (`mosnet`, `age`, `sector`) to a null model with intercept only.
+   A very small p-value tells us that *at least one* of these predictors is associated with dengue in the sample; that is, the model fits the data significantly better than a model with no predictors. This is mainly a question of **whether any association exists**, not how large or useful it is.
+
+2. **AUC and AUPRC (part e):**
+   The AUC and AUPRC are **effect-size / performance measures** that describe how well the model can **discriminate** between dengue and non-dengue cases, especially on new data.
+   The fact that the observed AUC and AUPRC are only slightly above the values expected by random guessing means that, in practice, the model has only **weak predictive ability**, even though a non-zero association is detectable.
+
+
+**Summary:**
+The small $\chi^2$ p-value shows that the three predictors are statistically associated with dengue status, but the low AUC and AUPRC indicate that this association is **not strong enough to yield highly accurate predictions for individual subjects**. In other words, the model is statistically significant but only modestly useful as a predictive tool.
+)"))
+```
+
+
+## Problem 2 [30 points]: Completely Randomized Design
+
+Four different designs for a digital computer circuit are being studied in order to compare the amount of noise present.  The following data have been obtained:
+
+```{r include=TRUE}
+library(knitr)
+library(kableExtra)
+
+dat <- data.frame(
+  `Circuit Design` = 1:4,
+  `1` = c(19, 80, 47, 95),
+  `2` = c(20, 61, 26, 46),
+  `3` = c(19, 73, 25, 83),
+  `4` = c(30, 56, 35, 78),
+  `5` = c(8, 80, 50, 97)
+)
+colnames(dat) <- c("Circuit Design", rep("", 5))
+kable(
+  dat,
+  booktabs = TRUE,
+  align = c("c", rep("c", 5)),
+  caption = "Noise measurements for four circuit designs."
+) |>
+  add_header_above(c(" " = 1, "Noise Observed" = 5))
+
+```
+
+The dataset is available as `circuit_noise.csv`.
+
+
+```{asis}
+## 🔑 Solutions for Problem 2
+```
+
+
+```{asis}
+**Import the dataset**
+```
+
+```{r load-p2-data}
+# This chunk always runs and shows, to load the data
+noise_data <- read.csv("circuit_noise.csv")
+# Convert Design to factor
+noise_data$Design <- factor(noise_data$Design)
+kable(head(noise_data), caption = "Head of Circuit Noise Data")
+```
+
+### (a) Fitting centralized effect and baseline models using matrix forms.  Write down the two fitted linear models using matrix form or mathematical equations. Explain clearly the meanings of the coefficients.
+
+```{r solution-p2a-code}
+# Note: The 'Design' variable must be a factor for contrasts to apply.
+# We assume noise_data$Design is already a factor.
+
+# 1. Baseline (Treatment/Corner-Point) Model 🛠️
+# The intercept represents the mean of the first factor level (Design 1).
+# The coefficients represent the difference from Design 1.
+fit_baseline <- lm(
+  Noise ~ Design,
+  data = noise_data,
+  contrasts = list(Design = contr.treatment)
+)
+coef_base <- coef(fit_baseline)
+
+# 2. Centralized Effect (Sum-to-Zero) Model ⚖️
+# The intercept represents the grand mean.
+# The coefficients represent the deviation from the grand mean (alpha_i).
+fit_central <- lm(
+  Noise ~ Design,
+  data = noise_data,
+  contrasts = list(Design = contr.sum)
+)
+coef_cent <- coef(fit_central)
+```
+
+```{r solution-p2a-code-answer, echo=FALSE}
+# 3. Output Summaries (for comparison)
+cat("\n--- Summary for Baseline Model ---\n")
+print(summary(fit_baseline))
+
+cat("\n--- Summary for Centralized Model ---\n")
+print(summary(fit_central))
+```
+```{r solution-p2a-answer, results='asis', echo=FALSE}
+library(glue)
+
+# Formatting helper
+fmt <- function(x) formatC(x, format = "f", digits = 2)
+
+# Coefs (assuming they were calculated in the previous chunk, 
+# naming convention is maintained for the R variables holding the values)
+mu_base    <- fmt(coef_base[1])
+tau2_base  <- fmt(coef_base[2])
+tau3_base  <- fmt(coef_base[3])
+tau4_base  <- fmt(coef_base[4])
+
+mu_grand   <- fmt(coef_cent[1])
+alpha1_cen <- fmt(coef_cent[2])
+alpha2_cen <- fmt(coef_cent[3])
+alpha3_cen <- fmt(coef_cent[4])
+# Recalculate alpha4 based on the sum-to-zero constraint
+alpha4_cen <- fmt(-1 * sum(coef_cent[2:4]))
+
+txt <- glue(.open = "<<", .close = ">>", 
+r"(
+**Answers:**
+
+---
+
+### 1. Baseline Model 
+
+In this parameterization, **Design 1** is the reference group. The general model equation is:
+$$y_{ij} = \beta_0 + \beta_{i} + \epsilon_{ij}, \quad \text{where } \beta_{1} = 0$$
+
+The fitted equation is:
+$$\hat{y} = <<mu_base>> + <<tau2_base>> I_{(Design=2)} + <<tau3_base>> I_{(Design=3)} + <<tau4_base>> I_{(Design=4)}$$
+
+* **Intercept ($\mu$ = <<mu_base>>):** The estimated mean noise for **Design 1** (the baseline).
+* **Coefficients ($\beta_{i}$):** The estimated *difference* in mean noise between the specific Design ($i$) and Design 1.
+
+---
+
+### 2. Centralized (Sum-to-Zero) Model 
+
+In this parameterization, parameters represent deviations from the grand mean. The general model equation is:
+$$y_{ij} = \mu + \tau_{i} + \epsilon_{ij}, \quad \sum \tau_{i} = 0$$
+
+The fitted equation is:
+$$\hat{y} = <<mu_grand>> + \hat{\tau}_{i}$$
+where the estimated effects ($\hat{\tau}_{i}$) are:
+
+* Design 1 ($\hat{\tau}_{1}$): **<<alpha1_cen>>**
+* Design 2 ($\hat{\tau}_{2}$): **<<alpha2_cen>>**
+* Design 3 ($\hat{\tau}_{3}$): **<<alpha3_cen>>**
+* Design 4 ($\hat{\tau}_{4}$): **<<alpha4_cen>>**
+
+* **Intercept ($\mu$ = <<mu_grand>>):** The estimated **grand mean** of noise across all designs.
+* **Coefficients ($\tau_{i}$):** The deviation of Design $i$'s mean from the grand mean.
+)"
+    
+)
+
+cat(txt)
+
+```
+
+### (b) Conducting ANOVA to test whether the means of noise are the same for all four designs.
+
+```{r solution-p2b-code}
+# Fit ANOVA model
+# Calculate the ANOVA table directly from the lm object
+anova_table <- anova(fit_baseline)
+
+print(anova_table)
+
+
+```
+
+```{r solution-p2b-answer, results='asis', echo=FALSE}
+# Extract Mean Squared Error (MSE) and Degrees of Freedom (df_err)
+mse <- anova_table["Residuals", "Mean Sq"]
+df_err <- anova_table["Residuals", "Df"]
+
+# Extract F-statistic, P-value, and Degrees of Freedom for the Design factor
+f_stat <- anova_table["Design", "F value"]
+p_val  <- anova_table["Design", "Pr(>F)"]
+df_num <- anova_table["Design", "Df"]
+df_den <- df_err # df_den is equivalent to df_err
+# Formatting
+p_val_str <- if(p_val < 0.001) "< 0.001" else formatC(p_val, format="f", digits=3)
+f_str     <- formatC(f_stat, format="f", digits=2)
+
+print(glue(r"(
+**Hypotheses:**
+$H_0: \mu_1 = \mu_2 = \mu_3 = \mu_4$ (All means are equal)
+
+$H_a:$ At least one mean is different.
+
+**Results:**
+The ANOVA test yields an F-statistic of $F_{{ {df_num}, {df_den} }} = {f_str}$ with a p-value of **{p_val_str}**.
+
+**Conclusion:**
+Since the p-value is less than $\alpha = 0.05$, we **reject the null hypothesis**. There is strong statistical evidence to suggest that the mean noise levels differ among the four circuit designs.
+)"))
+```
+
+
+
+### (c) 99% CI for the means of each design (Hint: using zero-intercept model)
+```{asis}
+To use `confint()` to find the confidence interval for each group mean ($\mu_i$) directly, we first fit a **zero-intercept model** ($Y = \beta_i + \epsilon_{ij}$). In this model, the coefficients ($\beta_1, \beta_2, \dots$) are the estimated group means.
+```
+```{r solution-p2c-confint-code}
+library(knitr)
+library(glue)
+
+# 1. Fit the Zero-Intercept Model (Coefficients = Group Means)
+fit_zero <- lm(Noise ~ Design + 0, data = noise_data)
+
+# 2. Compute 99% Confidence Intervals (alpha = 0.01)
+ci_means_99 <- confint(fit_zero, level = 0.99)
+
+# Extract means for the table
+group_means <- coef(fit_zero)
+
+# Create table for output
+ci_df_c <- data.frame(
+    Design = rownames(ci_means_99),
+    Mean = group_means,
+    Lower_99 = ci_means_99[, 1],
+    Upper_99 = ci_means_99[, 2]
+)
+ci_df_c
+```
+
+
+
+### (d) 95% CI for Difference of Noise Mean Between All Design Levels to Design 4
+
+```{asis}
+The strategy is to make **Design 4** the reference level. In the resulting baseline model, the coefficient for $\text{Design}_{\mathbf{3}}$ will estimate $\mu_3 - \mu_4$.
+
+**R Code Implementation**
+```
+
+```{r solution-p2d-relevel-code}
+# 1. Change the reference level of the Design factor to '4'
+noise_data$Design <- factor(noise_data$Design, levels = c("4", "1", "2", "3"))
+
+# 2. Fit the new linear model (Baseline model with Design 4 as reference)
+# The intercept estimates mu4.
+# The coefficient for 'Design_4_Base3' estimates mu3 - mu4.
+fit_4_base <- lm(Noise ~ Design, data = noise_data)
+
+# 3. Compute 95% CI using confint on the relevant coefficient
+# The coefficient name is 'Design_4_Base3'
+ci_diff_34_95 <- confint(fit_4_base, level = 0.95)
+
+ci_diff_34_95
+
+
+```
+
+
+
+
+### (e) Tukey HSD test for all pairs of means
+
+```{asis}
+The Tukey HSD test involves computing simultaneous confidence intervals for all pairwise mean differences using R's `TukeyHSD` function.
+```
+
+```{r solution-p2e-confint-code}
+
+# 1. Convert the lm object (fit_baseline) to an aov object
+# or, more simply, fit the model again using aov()
+fit_aov <- aov(Noise ~ Design, data = noise_data)
+
+# 2. Perform Tukey HSD test. The result *is* the confidence interval object.
+# The result is a list containing the HSD output for the 'Design' factor.
+tukey_hsd_result <- TukeyHSD(fit_aov, which = "Design", conf.level = 0.95)
+
+# 3. Extract results into a dataframe for display.
+# Access the specific data frame within the list output, named 'Design'.
+tukey_df_e <- as.data.frame(tukey_hsd_result$Design)
+
+# Rename the columns for clarity (they are named 'diff', 'lwr', 'upr', 'p adj')
+colnames(tukey_df_e) <- c("Estimate", "lwr", "upr", "p_adj")
+
+# Add the comparison name as a column
+tukey_df_e$comparison <- rownames(tukey_df_e)
+
+# Determine significance (if the lower bound is > 0 OR the upper bound is < 0)
+tukey_df_e$Significance <- ifelse(
+    (tukey_df_e$lwr > 0) | (tukey_df_e$upr < 0),
+    "Significant",
+    "Not Significant"
+)
+
+# Select and order the columns for the final table
+tukey_df_e[, c("comparison", "lwr", "upr", "Significance", "p_adj")]
+```
+
+
+
+### (f) Residual diagnostics for Checking the Model Assumptions
+
+```{asis}
+
+**R Code for Diagnostics**
+
+The base R `plot()` function, when applied to an `lm` object, automatically generates the necessary diagnostic plots. We will explicitly test for normality using the Shapiro-Wilk test and check for homoscedasticity visually and with the non-parametric **Bartlett test** (which requires the grouping factor).
+```
+
+```{r solution-p2f-code}
+#| fig-height: 4
+
+# Standard diagnostic plots (Normality and Homoscedasticity)
+par(mfrow = c(1, 2))
+
+# 1. Residuals vs Fitted (Checks Homoscedasticity)
+plot(fit_baseline, which = 1, main = "Residuals vs Fitted (Homoscedasticity)", 
+     caption = "", sub = "", cex.main=1)
+
+# 2. Normal Q-Q Plot (Checks Normality of residuals)
+plot(fit_baseline, which = 2, main = "Normal Q-Q Plot (Normality)", 
+     caption = "", sub = "", cex.main=1)
+
+par(mfrow = c(1, 1))
+
+# Statistical Test for Normality
+shapiro.test(residuals(fit_baseline))
+
+# Statistical Test for Homoscedasticity (Equal Variance)
+# Requires running Bartlett on the raw data grouped by Design
+# Note: The Bartlett test is sensitive to non-normality.
+bartlett.test(Noise ~ Design, data = noise_data)
+
+```
+
+
+```{asis}
+
+**Analysis of Diagnostic Results**
+
+The analysis of variance (ANOVA) assumptions are: **Independence**, **Normality**, and **Homoscedasticity**.
+
+**1\. Independence** 
+
+The independence of errors ($\epsilon_{ij}$) is usually ensured by the experimental design (randomized data collection). We assume the noise measurements for different circuits were taken independently.
+
+**2\. Normality of Residuals**
+
+  * **Normal Q-Q Plot:** The points fall approximately along the diagonal line, indicating that the residuals follow a normal distribution reasonably well.
+  * **Shapiro-Wilk Test:** The test statistic $W$ yields a p-value of **`r formatC(shapiro_res$p.value, format="f", digits=3)`**. Since this p-value is greater than $\alpha=0.05$, we **fail to reject the null hypothesis ($H_0$)** that the residuals are normally distributed.
+
+**3\. Homoscedasticity (Equal Variances)**
+
+  * **Residuals vs Fitted Plot:** This plot shows the residuals plotted against the fitted values ($\hat{y}_{ij}$). We look for a random scatter of points around the zero line, with roughly the same vertical spread across all fitted values (groups). The scatter looks reasonably **uniform** across the four design means.
+  * **Bartlett Test:** The test statistic yields a p-value of **`r formatC(bartlett_res$p.value, format="f", digits=3)`**. Since this p-value is greater than $\alpha=0.05$, we **fail to reject the null hypothesis ($H_0$)** that the variances are equal across the groups.
+
+**Conclusion**
+
+The statistical tests and visual plots suggest that the **ANOVA assumptions (Normality and Homoscedasticity)** are **satisfied** for this dataset, validating the results of the ANOVA F-test and the pairwise comparisons.
+
+```
+
+## Problem 3 [30points]: Two-Factor Experiment - Battery Life Study
+
+
+```{r p3-data-setup, include=FALSE}
+# --- HIDDEN CHUNK: Create the data ---
+set.seed(42)
+
+# Define factors and levels
+A_levels <- factor(c("Low", "Medium", "High"))
+B_levels <- factor(c("Type 1", "Type 2"))
+n_rep <- 3
+
+# Define theoretical means (Significant A and B, Zero A:B interaction)
+# Grand Mean = 100
+mu_A <- c(-15, 0, 15) # A_effects: -15, 0, 15 (Avg 0)
+mu_B <- c(-5, 5)     # B_effects: -5, 5 (Avg 0)
+
+# Generate cell means (Additive effects)
+means <- outer(mu_A, mu_B, "+") + 100
+# Expected Means:
+# (80, 90, 105) for B1
+# (100, 110, 120) for B2
+
+# Create data frame structure
+Factor_A <- rep(A_levels, each = length(B_levels) * n_rep)
+Factor_B <- rep(B_levels, each = n_rep, times = length(A_levels))
+Obs_Index <- rep(1:(length(A_levels) * length(B_levels) * n_rep))
+
+# Calculate theoretical life for each observation
+Life <- numeric(length(Factor_A))
+for (i in 1:length(Factor_A)) {
+    a_idx <- match(Factor_A[i], A_levels)
+    b_idx <- match(Factor_B[i], B_levels)
+    Life[i] <- means[a_idx, b_idx] + rnorm(1, 0, 10) # Add small noise
+}
+
+battery_data <- data.frame(Life = round(Life, 0), Concentration = Factor_A, Material = Factor_B)
+write.csv(battery_data, "battery_life.csv", row.names = FALSE)
+```
+
+A study was conducted to determine the optimal design for lithium-ion battery life based on two factors: **Electrolyte Concentration (Factor A)** and **Cathode Material Type (Factor B)**. There are 3 levels for Factor A (Low, Medium, High) and 2 levels for Factor B (Type 1, Type 2). The response variable is **Battery Life (hours)**.
+
+The design is a $3 \times 2$ factorial experiment with $n=3$ replicates per treatment combination, for a total of 18 observations.
+
+The dataset is available as `battery_life.csv`. The following is a tabular display of the dataset:
+
+```{r load-p3-data-tab, include=TRUE, eval=TRUE, echo=FALSE}
+# This chunk loads the data, converts factors, and displays the full table
+battery_data <- read.csv("battery_life.csv")
+
+# Convert to factors with explicit levels for correct contrasts/ordering
+battery_data$Concentration <- factor(battery_data$Concentration, levels = c("Low", "Medium", "High"))
+battery_data$Material <- factor(battery_data$Material)
+
+# Display the entire dataset in long format using kable
+knitr::kable(
+  row.names = TRUE,
+  battery_data,
+  booktabs = TRUE,
+  caption = "Full Battery Life Dataset (Long Format)"
+)
+```
+
+
+
+```{asis}
+## 🔑 Solutions for Problem 3
+```
+
+```{asis}
+**Import the dataset:**
+```
+```{r load-p3-data}
+# This chunk loads the data
+battery_data <- read.csv("battery_life.csv")
+battery_data$Concentration <- factor(battery_data$Concentration, levels = c("Low", "Medium", "High"))
+battery_data$Material <- factor(battery_data$Material)
+knitr::kable(head(battery_data), caption = "Head of Battery Life Data")
+```
+
+
+
+### (a) Fit a linear model with only additive effects to the dataset. Write down the fitted mathematical equation.
+
+```{r solution-p3a-code**}
+# Fit the additive model: Life ~ Concentration + Material
+fit_additive <- lm(Life ~ Concentration + Material, data = battery_data)
+coefs_a <- coef(fit_additive)
+
+summary(fit_additive)
+```
+
+```{r solution-p3a-answer, results='asis'}
+library(glue)
+# Grand mean and effects for the fitted equation
+mu_a0 <- formatC(coefs_a["(Intercept)"], format = "f", digits = 2)
+a2_a <- formatC(coefs_a["ConcentrationMedium"], format = "f", digits = 2)
+a3_a <- formatC(coefs_a["ConcentrationHigh"], format = "f", digits = 2)
+b2_a <- formatC(coefs_a["MaterialType 2"], format = "f", digits = 2)
+
+print(glue(
+r"(
+The additive model is fit using **Treatment (Baseline) Contrasts**, with the lowest levels of each factor being the reference ($\text{Concentration} = \text{Low}$, $\text{Material} = \text{Type 1}$).
+
+The mathematical equation for the additive model is:
+$$Y_{{ijk}} = \mu + \alpha_{{i}} + \beta_{{j}} + \epsilon_{{ijk}}$$
+
+The fitted equation is:
+$$\hat{{Y}} = <<mu_a0>> + <<a2_a>> I_{{(\text{A}=\text{Medium})}} + <<a3_a>> I_{{(\text{A}=\text{High})}} + <<b2_a>> I_{{(\text{B}=\text{Type 2})}}$$
+
+* **Intercept ($\mu$ = <<mu_a0>>):** This estimates the mean battery life for the reference cell ($\mathbf{A}=\mathbf{Low}$, $\mathbf{B}=\mathbf{Type\ 1}$).
+* **Concentration Coefficients:** These estimate the **change in life** when moving from Low to Medium or High concentration, assuming Type 1 material.
+* **Material Coefficient (<<b2_a>>):** This estimates the **change in life** when switching from Type 1 to Type 2 material, assuming Low concentration.
+)", 
+.open = "<<", .close = ">>"))
+```
+
+ 
+
+### (b) Conduct ANOVA to test the significance of the two factors in different orders. Do they give the same results? Explain your observation.
+
+
+
+```{r solution-p3b-code-order1}
+# 1. Order 1: Concentration then Material (Type I Sums of Squares)
+anova_order1 <- anova(fit_additive)
+anova_order1_result <- knitr::kable(anova_order1, caption = "ANOVA (Type I) Order: A then B")
+
+anova_order1_result
+```
+
+
+```{r solution-p3b-code-order2}
+# 2. Order 2: Material then Concentration (Type I Sums of Squares)
+# We must fit a new lm object with the factors swapped to change Type I order
+fit_swapped <- lm(Life ~ Material + Concentration, data = battery_data)
+anova_order2 <- anova(fit_swapped)
+
+anova_order2_result <- knitr::kable(anova_order2, caption = "ANOVA (Type I) Order: B then A")
+
+anova_order2_result
+```
+
+
+```{r solution-p3b-code-typeII}
+# 3. Use car::Anova for Type II/III comparison (optional, but instructive)
+library(car)
+anova_typeII <- Anova(fit_additive, type = 2)
+
+anova_typeII
+```
+
+```{r solution-p3b-answer, results='asis'}
+# Extract ANOVA results for comparison
+a_order1_SS <- anova_order1["Concentration", "Sum Sq"]
+b_order1_SS <- anova_order1["Material", "Sum Sq"]
+b_order2_SS <- anova_order2["Material", "Sum Sq"]
+a_order2_SS <- anova_order2["Concentration", "Sum Sq"]
+
+print(glue(r"(
+The ANOVA results using the base R `anova()` function (which calculates **Type I Sums of Squares**) are show above
+
+
+**Comparison:**
+For the **Additive Model** (no interaction term), the Sums of Squares for the main effects are the **same** regardless of the order they are entered into the model.
+
+* $SS_{{A}}$ (Order 1) = <<formatC(a_order1_SS, format = "f", digits=2)>> $\approx SS_{{A}}$ (Order 2) = <<formatC(a_order2_SS, format = "f", digits=2)>>
+* $SS_{{B}}$ (Order 1) = <<formatC(b_order1_SS, format = "f", digits=2)>> $\approx SS_{{B}}$ (Order 2) = <<formatC(b_order2_SS, format = "f", digits=2)>>
+
+**Explanation:**
+In a **balanced, additive design** (like this $3 \times 2$ design with equal $n$), the main effects ($\text{Concentration}$ and $\text{Material}$) are **orthogonal** (or nearly orthogonal). This means the variance explained by one factor is completely independent of the variance explained by the other factor. Therefore, the Sum of Squares ($SS$) attributed to a factor does not change based on whether the other factor was entered first (Type I SS = Type II SS).
+)", .open = "<<", .close = ">>"))
+```
+
+ 
+
+### (c) Are the marginal effects of Factor A (Concentration) and Factor B (Material) statistically significant at $\alpha=0.05$?
+
+```{r solution-p3c-code}
+# Use the ANOVA table from order 1 for significance checks
+p_val_A <- anova_order1["Concentration", "Pr(>F)"]
+p_val_B <- anova_order1["Material", "Pr(>F)"]
+
+sig_A <- p_val_A < 0.05
+sig_B <- p_val_B < 0.05
+```
+
+```{r solution-p3c-answer, results='asis'}
+print(glue(r"(
+We use the F-tests from the ANOVA table (from part b):
+
+| Factor | F-Statistic | p-value | Significance ($\alpha=0.05$) |
+|:---:|:---:|:---:|:---:|
+| Concentration (A) | <<formatC(anova_order1['Concentration', 'F value'], digits=2)>> | <<formatC(p_val_A, format='f', digits=3)>> | **<<ifelse(sig_A, 'Yes (Reject H0)', 'No (Fail to Reject H0)')>>** |
+| Material (B) | <<formatC(anova_order1['Material', 'F value'], digits=2)>> | <<formatC(p_val_B, format='f', digits=3)>> | **<<ifelse(sig_B, 'Yes (Reject H0)', 'No (Fail to Reject H0)')>>** |
+
+**Conclusion:**
+
+1.  **Factor A (Concentration):** The p-value (<<formatC(p_val_A, format='f', digits=3)>>) is <<ifelse(sig_A, 'less than 0.05', 'greater than 0.05')>>. We **<<ifelse(sig_A, 'reject', 'fail to reject')>>** the null hypothesis. The marginal effect of Concentration is **<<ifelse(sig_A, 'statistically significant', 'not statistically significant')>>**.
+2.  **Factor B (Material):** The p-value (<<formatC(p_val_B, format='f', digits=3)>>) is <<ifelse(sig_B, 'less than 0.05', 'greater than 0.05')>>. We **<<ifelse(sig_B, 'reject', 'fail to reject')>>** the null hypothesis. The marginal effect of Material is **<<ifelse(sig_B, 'statistically significant', 'not statistically significant')>>**.
+)", .open = "<<", .close = ">>"))
+```
+
+ 
+
+### (d) Is the interaction effect (Concentration × Material) statistically significant? Fit the full model and explain why the interaction term is important to test.
+
+```{asis}
+We fit the **Full Factorial Model** to test the interaction:
+
+$$\text{Life} = \text{Concentration} + \text{Material} + \text{Concentration} \times \text{Material} + \epsilon$$
+
+```
+
+```{r solution-p3d-answer, results='asis'}
+library(glue)
+library(knitr) # Needed for kable
+# Fit the full interaction model
+fit_full <- lm(Life ~ Concentration * Material, data = battery_data)
+anova_full <- anova(fit_full)
+
+
+# Extract interaction p-value
+p_val_interaction <- anova_full["Concentration:Material", "Pr(>F)"]
+sig_interaction <- p_val_interaction < 0.05
+# Ensure variables are available from solution-p3d-code (anova_full, p_val_interaction, sig_interaction)
+anova_full_result <- knitr::kable(anova_full, caption = "ANOVA for Full Factorial Model (Type I SS)", digits=3)
+
+
+# --- Print Block 2: The ANOVA Table (Outside of glue) ---
+print(anova_full_result)
+
+# --- Text Block 3: Statistical Conclusion ---
+cat(glue(
+r"(
+The p-value for the **Concentration:Material interaction** is **<<formatC(p_val_interaction, format='f', digits=3)>>**.
+Since this p-value is **<<ifelse(sig_interaction, 'less than 0.05', 'greater than 0.05')>>**, we **<<ifelse(sig_interaction, 'reject', 'fail to reject')>>** the null hypothesis ($H_0$: Interaction effect is zero). The interaction is **<<ifelse(sig_interaction, 'statistically significant', 'not statistically significant')>>**.
+
+### Importance of the Interaction Test
+
+The interaction term is crucial because it tests whether the **effect of one factor depends on the level of the other factor**. 
+)", 
+.open = "<<", .close = ">>"))
+
+# --- Text Block 4: Interpretation and Conclusion ---
+cat(glue(
+r"(
+
+* **Significant Interaction:** If the interaction were significant, it would mean that the optimal concentration level for Type 1 material might be different from the optimal concentration level for Type 2 material. Marginal effects would be misleading.
+* **Non-Significant Interaction (Our Case):** Since the interaction is not significant, we confirm the **additivity** of the effects. The effect of changing concentration is roughly the same, regardless of the cathode material used. This simplifies our interpretation: we can look at the main effects independently.
+)", 
+.open = "<<", .close = ">>"))
+```
+ 
+
+### (e) Find the adjusted $R^2$ to measure the predictive effect size of the two factors (Additive Model). How do you interpret this value?
+
+```{r solution-p3e-code}
+# Use the additive model fit from (a)
+summary_additive <- summary(fit_additive)
+adj_r_squared <- summary_additive$adj.r.squared
+```
+
+```{r solution-p3e-answer, results='asis'}
+adj_r_sq_fmt <- formatC(adj_r_squared, format="f", digits=4)
+adj_r_pct <- formatC(adj_r_squared * 100, format="f", digits=1)
+
+print(glue(r"(
+The adjusted $R^2$ is a measure of the proportion of variance in the response variable (Battery Life) explained by the model, adjusted for the number of predictors.
+
+From the summary of the Additive Model:
+$$\text{Adjusted } R^2 = \mathbf{<<adj_r_sq_fmt>>}$$
+
+**Interpretation:**
+This means that approximately **<<adj_r_pct>>%** of the total variability in the Battery Life (hours) is explained by the combination of Electrolyte Concentration and Cathode Material Type. Since this value is very high, the two factors have a strong **predictive effect size** on the battery life, confirming the visual observation of large differences between the factor levels.
+)", .open = "<<", .close = ">>"))
+```

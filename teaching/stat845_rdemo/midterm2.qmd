@@ -1,0 +1,524 @@
+---
+title: "STAT 845: Midterm 2"
+author: ""
+date: ""
+params:
+  show_solutions: true
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+
+## The r chunk or as chunk are hidden by default if show_solution is true. To include a specific chunk, set echo/include = TRUE for it. 
+## dynamically controling whether the solutions (r chunk or asis chunk) are shown )
+show_solutions <- params$show_solutions
+knitr::opts_chunk$set(
+include = show_solutions,
+echo = show_solutions,
+eval = show_solutions,
+message=FALSE,
+cache=show_solutions
+)
+
+```
+
+
+#### Date: Nov 27, 1:00-2:20
+
+## Instructions {.unnumbered}
+  - Show your works (computer code, calculation process, etc.) for obtaining the final answers. 
+  - Include unnecessary/irrelevant works may affect your grades.
+  - Write clearly to answer the questions or what you have discovered from the analysis.
+  - Present your answers in a nice format. 
+  - Upload a single PDF file to Canvas.
+  
+
+
+
+## Problem 1: Logistic Regression
+
+We consider a simulated dataset where the binary outcome is denoted by `y`, and there are two predictors:
+
+- `x1`: a continuous covariate
+- `x2`: a binary covariate (0/1)
+
+```{r sim-data, echo=FALSE, eval=TRUE, include=FALSE}
+set.seed(845)
+
+n  <- 300
+x1 <- runif(n, 0, 10)      # continuous predictor in [0, 10]
+x2 <- rbinom(n, 1, 0.5)    # binary predictor
+
+# True coefficients (for simulation)
+beta0 <- -2
+beta1 <- 0.35
+beta2 <- 0.8
+
+linpred <- beta0 + beta1 * x1 + beta2 * x2
+p       <- 1 / (1 + exp(-linpred))
+
+y <- rbinom(n, 1, p)
+
+sim_data <- data.frame(y = y, x1 = x1, x2 = factor(x2))
+```
+
+### Model Fitting and Output
+
+We fit a logistic regression model with `y` as the response and `x1` and `x2` as predictors:
+
+```{r fit-sim, include=TRUE, eval=TRUE, echo=show_solutions}
+fit_sim <- glm(y ~ x1 + x2,
+               data   = sim_data,
+               family = binomial)
+
+summary(fit_sim)
+```
+
+The $95\%$ CI of the regression coefficients are as follows:
+
+```{r ci-sim, include=TRUE, eval=TRUE, echo=show_solutions}
+knitr::kable(confint(fit_sim), digits=3)
+```
+We also examine the analysis of deviance table:
+
+```{r anova-sim, include=TRUE, eval=TRUE, echo=show_solutions}
+knitr::kable(anova(fit_sim, test = "Chisq"),digits=3)
+```
+
+Finally, we draw a precision–recall (PR) curve using the fitted probabilities from this model:
+
+```{r prc-sim, include=TRUE, eval=TRUE, echo=show_solutions, fig.height=4}
+library(ROCR)
+
+# Predicted probabilities
+prob_hat <- predict(fit_sim, type = "response")
+
+# ROCR objects
+pred_rocr <- prediction(prob_hat, sim_data$y)
+pr_perf   <- performance(pred_rocr, measure = "prec", x.measure = "rec")
+
+recall_vals <- pr_perf@x.values[[1]]
+prec_vals   <- pr_perf@y.values[[1]]
+
+auprc_perf <- performance(pred_rocr, measure = "aucpr")
+
+# This is a list; extract the numeric value
+auprc_sim <- auprc_perf@y.values[[1]]
+
+# Remove NA pairs
+valid <- which(!is.na(recall_vals) & !is.na(prec_vals))
+recall_vals <- recall_vals[valid]
+prec_vals   <- prec_vals[valid]
+
+
+# Baseline prevalence
+prev_sim <- mean(sim_data$y)
+
+
+plot(
+  recall_vals, prec_vals,
+  type = "l",
+  xlab = "Recall",
+  ylab = "Precision",
+  main = "Precision–Recall Curve"
+)
+abline(h = prev_sim, lty = 2, col = "gray")
+
+lab_model <- if (params$show_solutions) {
+  paste0(
+    "Model (AUPRC ≈ ",
+    formatC(auprc_sim, format = "f", digits = 3),
+    ")"
+  )
+} else {
+  "Model (AUPRC = ???)"
+}
+
+# Baseline label: always show prevalence
+lab_base <- paste0(
+  "Baseline (Prev = ",
+  formatC(prev_sim, format = "f", digits = 3),
+  ")"
+)
+legend(
+  "topright",
+  legend = c(lab_model, lab_base),
+  col    = c("red", "gray"),
+  lty    = c(1, 2),
+  cex    = 0.5
+)
+```
+
+
+
+### (a) Compute the predictive probability of `y = 1` for a subject with `x1 = 3` and `x2 = 1`, using the fitted logistic regression model.
+
+```{r solution-q2a-code, echo=show_solutions, include=show_solutions}
+# Predictive probability at x1 = 3, x2 = 1
+new_obs <- data.frame(x1 = 3, x2 = factor(1, levels = c(0, 1)))
+p_hat_3_1 <- predict(fit_sim, newdata = new_obs, type = "response")
+p_hat_3_1
+```
+
+```{r solution-q2a-answer, results='asis', echo=FALSE, eval=show_solutions}
+cat("**Solution (a):**\n\n")
+cat("The estimated probability P(y = 1 | x1 = 3, x2 = 1) from the fitted model is\n")
+cat("  ", formatC(p_hat_3_1, format = "f", digits = 3), ".\n", sep = "")
+```
+
+
+
+### (b) Compute the estimated odds ratio for `y = 1` for two persons whose `x1` differs from 1 to 6 (i.e., comparing `x1 = 6` to `x1 = 1`), holding `x2` fixed. Also find the 95% confidence interval for this odds ratio and draw a conclusion.
+
+```{r solution-q2b-code, echo=show_solutions, include=show_solutions}
+# Coefficient and CI for x1
+beta1_hat     <- coef(fit_sim)["x1"]
+beta1_ci      <- confint(fit_sim, "x1", level = 0.95)
+
+# OR for change from 1 to 6: difference of 5 units
+delta_x       <- 5
+or_x1_1to6    <- exp(delta_x * beta1_hat)
+ci_or_x1_1to6 <- exp(delta_x * beta1_ci)
+
+or_x1_1to6
+ci_or_x1_1to6
+```
+
+```{r solution-q2b-answer, results='asis', echo=FALSE, eval=show_solutions}
+or_est   <- or_x1_1to6
+ci_low   <- ci_or_x1_1to6[1]
+ci_high  <- ci_or_x1_1to6[2]
+
+cat("**Solution (b):**\n\n")
+cat("The estimated odds ratio for y = 1 when x1 increases from 1 to 6 (a 5-unit increase),\n",
+    "holding x2 fixed, is OR ≈ ", formatC(or_est,  format = "f", digits = 3), ".\n", sep = "")
+cat("A 95% confidence interval for this odds ratio is [",
+    formatC(ci_low,  format = "f", digits = 3), ", ",
+    formatC(ci_high, format = "f", digits = 3), "].\n\n", sep = "")
+
+if (ci_low > 1 || ci_high < 1) {
+  cat("Since the interval does not contain 1, there is evidence that x1 has a statistically significant effect on the odds of y = 1.\n")
+} else {
+  cat("Since the interval includes 1, we do not have strong evidence that x1 has a statistically significant effect on the odds of y = 1.\n")
+}
+```
+
+
+
+### (c) Use a $\chi^2$ test to test the overall regression effect of `x1` and `x2` in the model.
+
+```{r solution-q2c-code, echo=show_solutions, include=show_solutions}
+# Null (intercept-only) model
+fit_null_sim <- glm(y ~ 1,
+                    data   = sim_data,
+                    family = binomial)
+
+# Likelihood Ratio Test comparing null vs full model
+lrt_sim <- anova(fit_null_sim, fit_sim, test = "LRT")
+lrt_sim
+
+# Extract statistics
+lrt_chi_sq   <- lrt_sim$Deviance[2]
+lrt_df       <- lrt_sim$Df[2]
+lrt_p_value  <- lrt_sim$`Pr(>Chi)`[2]
+```
+
+```{r solution-q2c-answer, results='asis', echo=FALSE, eval=show_solutions}
+alpha_level <- 0.05
+
+cat("**Solution (c):**\n\n")
+cat("We compare the full model (x1, x2) to the null model (intercept only) using an LRT.\n")
+cat("The likelihood ratio test statistic is ",
+    formatC(lrt_chi_sq, format = "f", digits = 3),
+    " on ", lrt_df, " degrees of freedom,\n",
+    "with p-value = ", formatC(lrt_p_value, format = "f", digits = 5), ".\n\n",
+    sep = "")
+
+if (lrt_p_value < alpha_level) {
+  cat("At significance level α = 0.05, we reject $H_0$ and conclude that at least one of x1 or x2\n",
+      "is associated with the outcome y.\n", sep = "")
+} else {
+  cat("At significance level α = 0.05, we fail to reject H0; the data do not provide strong\n",
+      "evidence that x1 and x2 jointly improve the model over the intercept-only model.\n", sep = "")
+}
+```
+
+
+
+### (d) 'Guess' the AUPRC value based on the PR curve and comment on the predictive power of the model.
+
+```{r solution-q2d-code, echo=show_solutions, include=show_solutions}
+# AUPRC and prevalence were computed in the PRC chunk: auprc_sim, prev_sim
+auprc_val <- auprc_sim
+prev_val  <- prev_sim
+
+auprc_val
+prev_val
+```
+
+```{r solution-q2d-answer, results='asis', echo=FALSE, eval=show_solutions}
+cat("**Solution (d):**\n\n")
+cat("The estimated Area Under the Precision–Recall Curve (AUPRC) is ",
+    formatC(auprc_val, format = "f", digits = 3), ".\n", sep = "")
+cat("For comparison, the baseline AUPRC of a random classifier equals the outcome prevalence,\n",
+    "which here is ", formatC(prev_val, format = "f", digits = 3), ".\n\n", sep = "")
+
+if (is.finite(auprc_val) && auprc_val > prev_val * 1.1) {
+  cat("Since the model's AUPRC is substantially higher than the baseline, the model has\n",
+      "meaningful predictive power for distinguishing y = 1 from y = 0.\n")
+} else if (is.finite(auprc_val) && auprc_val > prev_val) {
+  cat("The model's AUPRC is slightly higher than the baseline, indicating modest predictive ability.\n")
+} else {
+  cat("The model's AUPRC is not clearly better than the baseline, indicating limited predictive power.\n")
+}
+```
+
+
+## Problem 2: One-Way ANOVA
+
+We consider a simulated experiment with a continuous response variable `y` and a categorical predictor `x` with 4 levels: 1, 2, 3, and 4.
+
+```{r sim-anova-data, eval=TRUE, include=FALSE}
+set.seed(845)
+
+n_per <- 12                     # observations per group
+x      <- factor(rep(1:4, each = n_per))
+mu     <- c(10, 11.5, 13, 14)   # true group means
+sigma  <- 2
+
+eps <- rnorm(4 * n_per, sd = sigma)
+y   <- mu[x] + eps
+
+anova_data <- data.frame(y = y, x = x)
+
+# Baseline (treatment-contrast) model
+options(contrasts = c("contr.treatment", "contr.poly"))
+fit_base <- lm(y ~ x, data = anova_data)
+```
+
+#### Output 1: Summary of the baseline linear model
+
+```{r summary-lm-base, include=TRUE, eval=TRUE, echo=show_solutions}
+summary(fit_base)
+```
+
+#### Output 2: ANOVA table
+
+```{r anova-lm-base, include=TRUE, eval=TRUE, echo=show_solutions}
+anova_fit <- anova(fit_base)
+anova_fit
+```
+
+#### Output 3: 95% confidence intervals for the regression coefficients
+
+```{r confint-lm-base, include=TRUE, eval=TRUE, echo=show_solutions}
+confint(fit_base)
+```
+
+#### Output 4: Shapiro–Wilk test on residuals
+
+```{r shapiro-lm-base, include=TRUE, eval=TRUE, echo=show_solutions}
+shapiro_res <- shapiro.test(residuals(fit_base))
+shapiro_res
+```
+
+
+
+Using the outputs above, answer the following questions.
+
+**(a)** Estimate the *centralized (sum-to-zero) effects* $\tau_i$ for the four levels of $x$, where
+$\tau_i = \mu_i - \bar{\mu}$ and $\sum_{i=1}^4 \tau_i = 0$.
+
+**(b)** Find the predicted value of $y$ for a case with $x = 2$.
+
+**(c)** At significance level $\alpha = 0.05$, is the effect of $x$ statistically significant?
+
+**(d)** Using only the values in the ANOVA table, compute the $F$ statistic for testing the effect of $x$, and the adjusted $R^2$ value $R^2_{\text{adj}}$.
+
+**(e)** Based on the Shapiro–Wilk test and any other information provided, does the one-way ANOVA model appear appropriate?
+
+
+
+```{asis}
+### Solutions to Problem 2
+```
+```{asis}
+#### (a) Estimating the centralized effects
+```
+```{r solution-anova-a-code, echo=show_solutions, include=show_solutions}
+# Group means and grand mean
+group_means <- tapply(anova_data$y, anova_data$x, mean)
+grand_mean  <- mean(anova_data$y)
+
+alpha_hat <- group_means - grand_mean
+group_means
+grand_mean
+alpha_hat
+```
+
+```{r solution-anova-a-answer, results='asis', echo=FALSE, eval=show_solutions}
+cat("**Solution (a):**\n\n")
+
+cat("Sample means ($\\hat{\\mu}_i$) for $x = 1,2,3,4$ are:\n")
+
+knitr::kable(t(group_means))
+
+cat(
+  "\nThe grand mean is $\\bar{\\mu}$:\n  ",
+  formatC(grand_mean, format = "f", digits = 3),
+  "\n\n",
+  sep = ""
+)
+
+cat(
+  "The centralized effects are ",
+  "$\\hat{\\tau}_i = \\hat{\\mu}_i - \\bar{\\mu}$:\n",
+  sep = ""
+)
+print(alpha_hat)
+
+cat(
+  "\nBy construction, these satisfy ",
+  "$\\sum_i \\hat{\\tau}_i \\approx 0$ (up to rounding).\n",
+  sep = ""
+)
+```
+
+```{asis}
+#### (b) Predicting $y$ for a case with $x = 2$
+```
+
+```{r solution-anova-b-code, echo=show_solutions, include=show_solutions}
+new_case <- data.frame(x = factor(2, levels = levels(anova_data$x)))
+y_hat_x2 <- predict(fit_base, newdata = new_case)
+y_hat_x2
+```
+
+```{r solution-anova-b-answer, results='asis', echo=FALSE, eval=show_solutions}
+cat("**Solution (b):**\n\n")
+cat("The predicted value of y for a case with x = 2 is\n")
+cat("  ", formatC(y_hat_x2, format = "f", digits = 3), ".\n", sep = "")
+```
+
+
+
+```{asis}
+#### (c) Testing the effect of $x$ at $\alpha = 0.05$
+```
+```{r solution-anova-c-code, echo=show_solutions, include=show_solutions}
+p_x <- anova_fit["x", "Pr(>F)"]
+p_x
+```
+
+```{r solution-anova-c-answer, results='asis', echo=FALSE, eval=show_solutions}
+alpha_level <- 0.05
+
+cat("**Solution (c):**\n\n")
+cat("From the ANOVA table, the p-value for the effect of x is\n",
+    "  p = ", formatC(p_x, format = "f", digits = 4), ".\n\n", sep = "")
+
+if (p_x < alpha_level) {
+  cat("Since p < 0.05, we reject H0 and conclude that at least one group mean differs from the others.\n")
+} else {
+  cat("Since p ≥ 0.05, we fail to reject H0; we do not have strong evidence that the group means differ.\n")
+}
+```
+
+```{asis}
+
+#### (d) Computing $F$ and $R^2_{\text{adj}}$ from the ANOVA table
+```
+```{r solution-anova-d-answer, results='asis', echo=FALSE, eval=show_solutions}
+ss_model <- anova_fit["x",         "Sum Sq"]
+ss_res   <- anova_fit["Residuals", "Sum Sq"]
+df_model <- anova_fit["x",         "Df"]
+df_res   <- anova_fit["Residuals", "Df"]
+
+ms_model <- anova_fit["x",         "Mean Sq"]
+ms_res   <- anova_fit["Residuals", "Mean Sq"]
+
+F_calc <- ms_model / ms_res
+
+ss_total <- ss_model + ss_res
+n        <- df_model + df_res + 1
+R2       <- ss_model / ss_total
+R2_adj   <- 1 - (ss_res / df_res) / (ss_total / (n - 1))
+
+cat("**Solution (d):**\n\n")
+
+cat("From the ANOVA table we read:\n\n")
+cat("* Model sum of squares: $SS_{\\text{model}} = ",
+    formatC(ss_model, format = "f", digits = 3), "$\n", sep = "")
+cat("* Residual sum of squares: $SS_{\\text{res}} = ",
+    formatC(ss_res, format = "f", digits = 3), "$\n", sep = "")
+cat("* Model degrees of freedom: $df_{\\text{model}}$ = ", df_model, "\n", sep = "")
+cat("* Residual degrees of freedom: $df_{\\text{res}}$ = ", df_res, "\n\n", sep = "")
+
+## 1. F statistic
+cat("1. **Compute the F statistic.**\n")
+cat("The mean squares are\n")
+cat("$$MS_{\\text{model}} = \\frac{SS_{\\text{model}}}{df_{\\text{model}}}, \\quad",
+    "MS_{\\text{res}} = \\frac{SS_{\\text{res}}}{df_{\\text{res}}}.$$\n\n")
+
+cat("Then the F statistic for testing the effect of x is\n")
+cat("$$F = \\frac{MS_{\\text{model}}}{MS_{\\text{res}}}.$$\n")
+cat("Using the table values, this gives\n")
+cat("$$F \\approx ", formatC(F_calc, format = "f", digits = 3), ".$$\n\n", sep = "")
+
+## 2. R^2 from sums of squares
+cat("2. **Compute $R^2$ from sums of squares.**\n")
+cat("The total sum of squares is\n")
+cat("$$SS_{\\text{tot}} = SS_{\\text{model}} + SS_{\\text{res}} = ",
+    formatC(ss_total, format = "f", digits = 3), ".$$\n\n", sep = "")
+
+cat("The coefficient of determination is\n")
+cat("$$R^2 = 1 - \\frac{SS_{\\text{res}}}{SS_{\\text{tot}}}.$$\n")
+cat("Substituting the ANOVA values gives\n")
+cat("$$R^2 \\approx ", formatC(R2, format = "f", digits = 3), ".$$\n\n", sep = "")
+
+## 3. Adjusted R^2
+cat("3. **Compute the adjusted $R^2$.**\n")
+cat("The total degrees of freedom are\n")
+cat("$$df_{\\text{tot}} = df_{\\text{model}} + df_{\\text{res}} = n - 1.$$\n\n")
+
+cat("The adjusted $R^2$ is defined by\n")
+cat("$$R^2_{\\text{adj}} = 1 -",
+    " \\frac{SS_{\\text{res}}/df_{\\text{res}}}{SS_{\\text{tot}}/df_{\\text{tot}}}$$\n")
+cat("which we can also write as\n")
+cat("$$R^2_{\\text{adj}} = 1 - \\frac{MS_{\\text{res}}}{SS_{\\text{tot}}/(n-1)}.$$\n\n")
+
+cat("Using the ANOVA table quantities, this evaluates to\n")
+cat("$$R^2_{\\text{adj}} \\approx ",
+    formatC(R2_adj, format = "f", digits = 3), ".$$\n", sep = "")
+
+```
+
+
+```{asis}
+#### (e) Model appropriateness
+```
+```{r solution-anova-e-code, echo=show_solutions, include=show_solutions}
+sw_p <- shapiro_res$p.value
+sw_p
+```
+
+```{r solution-anova-e-answer, results='asis', echo=FALSE, eval=show_solutions}
+cat("**Solution (e):**\n\n")
+cat("The Shapiro–Wilk test for normality of the residuals gives p-value\n")
+cat("  p_SW = ", formatC(sw_p, format = "f", digits = 4), ".\n\n", sep = "")
+
+if (sw_p > 0.05) {
+  cat("Since p_SW > 0.05, we do not reject the null hypothesis of normality; the residuals are\n",
+      "consistent with a normal distribution.\n\n", sep = "")
+} else {
+  cat("Since p_SW ≤ 0.05, there is some evidence of non-normality in the residuals.\n\n", sep = "")
+}
+
+cat("Combining this with the ANOVA results (and assuming no strong outliers or heteroscedasticity\n",
+    "in diagnostic plots), the one-way ANOVA model appears ", 
+    if (sw_p > 0.05) "reasonably appropriate" else "questionable from a normality perspective",
+    " for these data.\n", sep = "")
+```
+
+
