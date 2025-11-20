@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Longhai Li">
-<meta name="dcterms.date" content="2025-11-14">
+<meta name="dcterms.date" content="2025-11-20">
 
-<title>5&nbsp; Understanding the Leverage for Adjusting Residuals of OLS – Statistical Methods for Research</title>
+<title>5&nbsp; Residual Diagnostics for Regression Modelling – Statistical Inference and Learning Methods for Research</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -22,6 +22,7 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+q { quotes: "“" "”" "‘" "’"; }
 /* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { line-height: 1.25; }
@@ -149,7 +150,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../unit3-mlr/residuals.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Understanding the Leverage for Adjusting Residuals of OLS</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../unit3-mlr/residuals.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Residual Diagnostics for Regression Modelling</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -164,7 +165,7 @@ window.Quarto = {
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="../">Statistical Methods for Research</a> 
+      <a href="../">Statistical Inference and Learning Methods for Research</a> 
     </div>
       </div>
         <div class="mt-2 flex-shrink-0 align-items-center">
@@ -177,13 +178,13 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction to Statistical Methods for Research</span></span></a>
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Preface</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../unit1-introR/introR.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">R for Data Analysis</span></span></a>
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Data Science with R and Quarto</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -201,7 +202,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../unit3-mlr/residuals.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Understanding the Leverage for Adjusting Residuals of OLS</span></span></a>
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Residual Diagnostics for Regression Modelling</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -233,8 +234,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Understanding the Leverage for Adjusting Residuals of OLS</span></h1>
-<p class="subtitle lead">A Simulation Illustration with R</p>
+<h1 class="title"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Residual Diagnostics for Regression Modelling</span></h1>
 </div>
 
 
@@ -258,7 +258,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">November 14, 2025</p>
+      <p class="date">November 20, 2025</p>
     </div>
   </div>
   
@@ -327,11 +327,11 @@ e = (I - H)\epsilon.
 \end{equation}\]</span> Therefore, for the <span class="math inline">\(i\)</span>th residual, <span class="math display">\[\begin{equation}
 \mathrm{Var}(e_i) = \sigma^2(1 - h_{ii}).
 \end{equation}\]</span></p>
-<p>Since leverage (<span class="math inline">\(h_{ii}\)</span>) is always greater than 0, the variance of an ordinary residual is always <strong>less than the true error variance,</strong> <span class="math inline">\(\sigma^2\)</span>. High-leverage points act as “anchors” for the line and have even smaller variance.</p>
+<p>Since leverage (<span class="math inline">\(h_{ii}\)</span>) is always greater than 0, the variance of an ordinary residual is always <strong>less than the true error variance,</strong> <span class="math inline">\(\sigma^2\)</span>. High-leverage points act as <q>anchors</q> for the line and have even smaller variance.</p>
 </section>
 <section id="the-loocv-residual-e_i-i-too-large-and-x_i-dependent-variance" class="level4" data-number="5.4.2.2">
 <h4 data-number="5.4.2.2" class="anchored" data-anchor-id="the-loocv-residual-e_i-i-too-large-and-x_i-dependent-variance"><span class="header-section-number">5.4.2.2</span> <strong>The LOOCV Residual (</strong><span class="math inline">\(e_{i,-i}\)</span>): Too large and <span class="math inline">\(x_i\)</span>-Dependent Variance</h4>
-<p>The deleted residual, <span class="math inline">\(e_{i,-i}\)</span>, solves the “too small” problem. Because the model isn’t influenced by the point it’s predicting, the residual is an honest measure of prediction error. However, its variance is still not constant. The variance of a deleted residual also depends on leverage, but in the opposite way. <span class="math display">\[\begin{equation}
+<p>The deleted residual, <span class="math inline">\(e_{i,-i}\)</span>, solves the <q>too small</q> problem. Because the model isn’t influenced by the point it’s predicting, the residual is an honest measure of prediction error. However, its variance is still not constant. The variance of a deleted residual also depends on leverage, but in the opposite way. <span class="math display">\[\begin{equation}
     \text{Var}(e_{i,-i}) = \frac{\sigma^2}{1 - h_{ii}}
     \end{equation}\]</span></p>
 <p>From the key identity <a href="#eq-key" class="quarto-xref">Equation&nbsp;<span>5.3</span></a>, <span class="math display">\[\begin{equation}
@@ -448,7 +448,7 @@ Table&nbsp;5.1
 <h3 data-number="5.4.5" class="anchored" data-anchor-id="example-of-various-residuals"><span class="header-section-number">5.4.5</span> Example of Various Residuals</h3>
 <section id="the-linear-model-1" class="level4" data-number="5.4.5.1">
 <h4 data-number="5.4.5.1" class="anchored" data-anchor-id="the-linear-model-1"><span class="header-section-number">5.4.5.1</span> The Linear Model</h4>
-<p>The simulation uses a <strong>simple linear regression model</strong> to describe the relationship between a single predictor variable, <span class="math inline">\(x_i\)</span>, and a response variable, <span class="math inline">\(y_i\)</span>. The underlying “true” model from which the data is generated is: <span class="math display">\[y_i = 2 + 3x_i + \epsilon_i\]</span> This means we have a true intercept of 2, a true slope of 3, and a random error term, <span class="math inline">\(\epsilon_i\)</span>, drawn from a normal distribution with a mean of 0 and a standard deviation of 5. One artificial outlier is added to this data to test the behavior of the different residual types. 5 unrelated predictors are added to the dataset.</p>
+<p>The simulation uses a <strong>simple linear regression model</strong> to describe the relationship between a single predictor variable, <span class="math inline">\(x_i\)</span>, and a response variable, <span class="math inline">\(y_i\)</span>. The underlying <q>true</q> model from which the data is generated is: <span class="math display">\[y_i = 2 + 3x_i + \epsilon_i\]</span> This means we have a true intercept of 2, a true slope of 3, and a random error term, <span class="math inline">\(\epsilon_i\)</span>, drawn from a normal distribution with a mean of 0 and a standard deviation of 5. One artificial outlier is added to this data to test the behavior of the different residual types. 5 unrelated predictors are added to the dataset.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -1025,7 +1025,7 @@ Table&nbsp;5.1
 <p>From the above simulation results, we observe the following important facts:</p>
 <ul>
 <li><p><strong>Leverage and Influence:</strong> The simulation confirms that leverage (<span class="math inline">\(h_{ii}\)</span>) measures an observation’s influence on the model’s coefficients. It shows that points with higher leverage pull the regression line toward them, resulting in smaller, deceptively conservative full-data residuals (<span class="math inline">\(e_i\)</span>).</p></li>
-<li><p><strong>Conservative Residuals:</strong> The study highlights that the ordinary residual (<span class="math inline">\(e_i\)</span>) is a “conservative” measure of error because its value for an outlier is systematically reduced by that same outlier’s influence on the model.</p></li>
+<li><p><strong>Conservative Residuals:</strong> The study highlights that the ordinary residual (<span class="math inline">\(e_i\)</span>) is a <q>conservative</q> measure of error because its value for an outlier is systematically reduced by that same outlier’s influence on the model.</p></li>
 <li><p><strong>Identity Verification:</strong> The numerical results validated the key algebraic identity that connects the full-data residual (<span class="math inline">\(e_i\)</span>) to the leave-one-out (deleted) residual (<span class="math inline">\(e_{i,-i}\)</span>), as well as the identity for calculating the LOOCV standard error (<span class="math inline">\(\hat{\sigma}_{-i}\)</span>) from the full model’s statistics. This demonstrates that all key LOOCV errors can be calculated efficiently from a single model fit.</p></li>
 <li><p><strong>Effective Studentization:</strong> The final step of studentization, which uses leverage to properly scale the residuals, is shown to be crucial. It successfully transforms the residuals into a reliable diagnostic tool with a constant variance across all predictor values (<span class="math inline">\(x_i\)</span>), causing them to behave much more like a standard normal or t-distribution.</p></li>
 </ul>
@@ -1090,7 +1090,7 @@ d_{i,\alpha}=c_i\ q_\mathrm{Beta}\!\Big(1-\alpha;\tfrac12,\tfrac{n-p-1}{2}\Big).
 </section>
 <section id="the-rough-4n-rule-average-leverage-simplification" class="level4" data-number="5.5.1.3">
 <h4 data-number="5.5.1.3" class="anchored" data-anchor-id="the-rough-4n-rule-average-leverage-simplification"><span class="header-section-number">5.5.1.3</span> The rough <span class="math inline">\(4/n\)</span> rule (average-leverage simplification)</h4>
-<p>Approximating a “typical” case by <strong>average leverage</strong> <span class="math inline">\(h_{ii}\approx p/n\)</span> gives</p>
+<p>Approximating a <q>typical</q> case by <strong>average leverage</strong> <span class="math inline">\(h_{ii}\approx p/n\)</span> gives</p>
 <p><span class="math display">\[
 c_i=\frac{n-p}{p}\cdot\frac{p/n}{1-p/n}\approx 1 .
 \]</span></p>
@@ -2078,7 +2078,7 @@ c_i=\frac{n-p}{p}\cdot\frac{p/n}{1-p/n}\approx 1 .
 <p>The power of modern regression diagnostics comes from algebraic shortcuts that allow us to find the results of a leave-one-out process without the computational cost of refitting the model <em>n</em> times. The following two identities are fundamental to this efficiency.</p>
 <section id="finding-the-loocv-residual-e_i-i-from-the-ordinary-residual-e_i" class="level3 unnumbered">
 <h3 class="unnumbered anchored" data-anchor-id="finding-the-loocv-residual-e_i-i-from-the-ordinary-residual-e_i">Finding the LOOCV Residual (<span class="math inline">\(e_{i,-i}\)</span>) from the Ordinary Residual (<span class="math inline">\(e_i\)</span>)</h3>
-<p>This identity shows that we can find the “pure” leave-one-out residual using only the results from the single model fit on all data.</p>
+<p>This identity shows that we can find the <q>pure</q> leave-one-out residual using only the results from the single model fit on all data.</p>
 <p><span id="eq-key"><span class="math display">\[e_{i,-i} = \frac{e_i}{1 - h_{ii}} \tag{5.3}\]</span></span></p>
 </section>
 <section id="finding-the-loocv-standard-error-from-the-full-model-standard-error" class="level3 unnumbered">
