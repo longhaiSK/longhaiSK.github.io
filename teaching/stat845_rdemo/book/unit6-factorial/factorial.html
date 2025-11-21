@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Longhai Li">
-<meta name="dcterms.date" content="2025-11-20">
+<meta name="dcterms.date" content="2025-11-21">
 
 <title>8&nbsp; Factorial Design and Design – Statistical Inference and Learning Methods for Research</title>
 <style>
@@ -106,6 +106,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
 <script src="../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../resources/mystyles.css">
 </head>
@@ -227,7 +256,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">November 20, 2025</p>
+      <p class="date">November 21, 2025</p>
     </div>
   </div>
   
@@ -241,7 +270,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="battery-design-experiment" class="level2" data-number="8.1">
 <h2 data-number="8.1" class="anchored" data-anchor-id="battery-design-experiment"><span class="header-section-number">8.1</span> Battery Design Experiment</h2>
-<p>This analysis explores data from a <strong>two-factor factorial experiment</strong> designed to assess the lifespan of a battery. The experiment investigates two factors: <strong>material type</strong> (with 3 levels) and <strong>operating temperature</strong> (with 3 levels: 15°C, 70°C, and 125°C). The primary goal is to understand not only how each factor individually affects battery life but, more importantly, whether the effect of temperature depends on the material type used. This combined effect is known as an <strong>interaction</strong>.</p>
+<p>“This analysis explores data from a reliability engineering study designed to select the optimal power source for industrial sensors used in harsh environments (e.g., downhole drilling or autoclaves). The experiment investigates the Service Life (in hours) of the batteries based on two factors:</p>
+<p>Here is the modified and formatted text, ready for your R Markdown file:</p>
+<ul>
+<li><strong>Factor 1: Battery Material</strong> (3 levels)
+<ul>
+<li><code>1</code>: Standard Li-ion</li>
+<li><code>2</code>: Industrial Li-MnO<span class="math inline">\(_2\)</span></li>
+<li><code>3</code>: High-Temp Li-SOCl<span class="math inline">\(_2\)</span></li>
+</ul></li>
+<li><strong>Factor 2: Ambient Temperature</strong> (3 levels)
+<ul>
+<li><span class="math inline">\(15^\circ\text{C}\)</span> (Cold Start)</li>
+<li><span class="math inline">\(70^\circ\text{C}\)</span> (Operating Temp)</li>
+<li><span class="math inline">\(125^\circ\text{C}\)</span> (Extreme Heat)</li>
+</ul></li>
+</ul>
+<p>The objective is to characterize the reliability of these power sources across the full thermal range. A critical specific aim is to investigate the presence of an interaction effect: to determine if the ‘High-Temp’ chemistry successfully maintains its voltage stability at 125°C, a point where standard consumer-grade batteries are expected to suffer catastrophic capacity loss.</p>
 </section>
 <section id="data-setup-and-preparation" class="level2" data-number="8.2">
 <h2 data-number="8.2" class="anchored" data-anchor-id="data-setup-and-preparation"><span class="header-section-number">8.2</span> Data Setup and Preparation</h2>
@@ -345,7 +390,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>The non-parallel lines in the plot strongly suggest that a significant interaction effect is present. Specifically, the performance of Material 3 drops less dramatically with increasing temperature compared to Materials 1 and 2.</p>
+<p>The interaction plot reveals a strong <strong>interaction effect</strong> between Material Type and Temperature, meaning the performance profile is distinct for each chemistry:</p>
+<ul>
+<li><strong>Material 1 (Standard Li-ion):</strong>
+<ul>
+<li>This material is suitable <strong>only for cool environments</strong>. While it provides adequate life at <span class="math inline">\(15^\circ\text{C}\)</span> (~135 hours), it suffers a catastrophic drop in performance at <span class="math inline">\(70^\circ\text{C}\)</span> and stays consistently poor at <span class="math inline">\(125^\circ\text{C}\)</span> (~55 hours). It is not viable for high-temperature operations.</li>
+</ul></li>
+<li><strong>Material 2 (Industrial Li-MnO<span class="math inline">\(_2\)</span>):</strong>
+<ul>
+<li>This is the <strong>superior choice for cold starts</strong>, offering the highest lifespan of all materials at <span class="math inline">\(15^\circ\text{C}\)</span> (~155 hours). However, it degrades linearly and severely as temperature rises, ultimately becoming the worst performer at extreme heat (<span class="math inline">\(125^\circ\text{C}\)</span>), dropping to ~50 hours.</li>
+</ul></li>
+<li><strong>Material 3 (High-Temp Li-SOCl<span class="math inline">\(_2\)</span>):</strong>
+<ul>
+<li>This material demonstrates <strong>exceptional thermal stability</strong>. Unlike the others, its performance actually peaks at the operating temperature of <span class="math inline">\(70^\circ\text{C}\)</span>. Crucially, it is the <strong>only viable option</strong> for extreme heat (<span class="math inline">\(125^\circ\text{C}\)</span>), maintaining a usable lifespan of ~85 hours when others have failed.</li>
+</ul></li>
+</ul>
+<p><strong>Summary:</strong> There is no single “best” material overall. The optimal choice depends entirely on the environment: <strong>Material 2</strong> for cold applications and <strong>Material 3</strong> for any environment exceeding room temperature.</p>
 </section>
 <section id="model-fitting-and-analysis-of-variance-anova" class="level2" data-number="8.6">
 <h2 data-number="8.6" class="anchored" data-anchor-id="model-fitting-and-analysis-of-variance-anova"><span class="header-section-number">8.6</span> Model Fitting and Analysis of Variance (ANOVA)</h2>
