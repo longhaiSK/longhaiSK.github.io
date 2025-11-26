@@ -11,7 +11,7 @@ execute:
   fig-width: 9
   fig-height: 6
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 
 ## Battery Design Experiment
@@ -137,8 +137,14 @@ battery_fit <- lm(life ~ material * temperature,
 
 summary(battery_fit)
 
+
+```
+
+**ANOVA Results**
+```{r anova_battery_fit}
 ## Generate the ANOVA table
-anova(battery_fit)
+knitr::kable(anova(battery_fit), digits=3)
+
 ```
 
 The ANOVA table shows very small p-values (`Pr(>F)`) for `material`, `temperature`, and, most importantly, the `material:temperature` interaction. This confirms our visual inspection: all effects are statistically significant. **Because the interaction is significant, our interpretation should focus on the interaction itself rather than the main effects in isolation.**
@@ -215,7 +221,31 @@ print(lsd_results$comparison)
 
 The results from both Tukey's HSD and Fisher's LSD provide detailed p-values for comparing pairs of treatment combinations, allowing us to make specific conclusions, such as "at 125°C, Material 3 has a significantly longer life than Materials 1 and 2."
 
-```{r, include=FALSE, echo=FALSE}
-devtools::install_github("longhaiSK/ANOEN")
+## Analysis of Entropy
+
+```{r, include=FALSE, echo=TRUE}
+
+# Replace the placeholder path with the path to your ANOEN source directory
+if(!requireNamespace("ANOEN"))
+  devtools::install("~/GitHub/ANOEN",
+                    upgrade = "never",
+                    build = FALSE,
+                    args = c("--no-byte-compile", "--no-test-load")
+  )
+library(ANOEN)
+
 ```
 
+**ANOEN Table**
+```{r batter-anoen-table}
+print(anoen(battery_fit), format = "kable", caption="ANOEN Table of Linear Model for Battery Data")
+```
+**ANOEN Pie Chart**
+
+ @{fig-battery-r2} shows the component $R^2_\text{adj}$. This pie chart shows us the percentage of contributions of each term in the total variance of battery life. 
+ 
+```{r battery-anoen-r2}
+#| label: fig-battery-r2
+#| fig-cap: "Component $R^2_\\text{adj}$ of Linear Model for Battery Data"
+graph.compR2(anoen(battery_fit))
+```
