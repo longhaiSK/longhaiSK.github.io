@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>4&nbsp; Review of Matrix Algebra – Statistical Theory for Linear Models</title>
+<title>4&nbsp; Spectral Theory and Generalized Inverse – Statistical Theory for Linear Models</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -30,6 +30,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
+<link href="./lec4-mvn.html" rel="next">
 <link href="./lec2-vecspace.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -113,7 +114,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./lec3-matrix.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Review of Matrix Algebra</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./lec3-matrix.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Spectral Theory and Generalized Inverse</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -159,7 +160,13 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./lec3-matrix.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Review of Matrix Algebra</span></span></a>
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Spectral Theory and Generalized Inverse</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lec4-mvn.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Multivariate Normal</span></span></a>
   </div>
 </li>
     </ul>
@@ -479,7 +486,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Review of Matrix Algebra</span></h1>
+<h1 class="title"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Spectral Theory and Generalized Inverse</span></h1>
 </div>
 
 
@@ -525,17 +532,35 @@ A = Q \Lambda Q' = \sum_{i=1}^n \lambda_i q_i q_i'
 <li><span class="math inline">\(Q = (q_1, \dots, q_n)\)</span> contains the corresponding orthonormal eigenvectors (<span class="math inline">\(q_i'q_j = \delta_{ij}\)</span>).</li>
 </ul>
 </div>
-<p>This allows us to view the transformation <span class="math inline">\(Ax\)</span> as a rotation (<span class="math inline">\(Q'\)</span>), a scaling (<span class="math inline">\(\Lambda\)</span>), and a rotation back (<span class="math inline">\(Q\)</span>).</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="lec20_images/page03_spectral.png" class="img-fluid figure-img" style="width:70.0%"></p>
-<figcaption>Spectral Decomposition Geometry</figcaption>
-</figure>
+<p><strong>Explantion</strong>: This allows us to view the transformation <span class="math inline">\(Ax\)</span> as a rotation (<span class="math inline">\(Q'\)</span>), a scaling (<span class="math inline">\(\Lambda\)</span>), and a rotation back (<span class="math inline">\(Q\)</span>). For a symmetric matrix <span class="math inline">\(A\)</span>, we can write the spectral decomposition as a product of the eigenvector matrix <span class="math inline">\(Q\)</span> and eigenvalue matrix <span class="math inline">\(\Lambda\)</span>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+A &amp;= Q \Lambda Q' \\
+  &amp;= \begin{pmatrix} q_1 &amp; q_2 &amp; \cdots &amp; q_n \end{pmatrix}
+     \begin{pmatrix} \lambda_1 &amp; 0 &amp; \cdots &amp; 0 \\ 0 &amp; \lambda_2 &amp; \cdots &amp; 0 \\ \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\ 0 &amp; 0 &amp; \cdots &amp; \lambda_n \end{pmatrix}
+     \begin{pmatrix} q_1' \\ q_2' \\ \vdots \\ q_n' \end{pmatrix} \\
+  &amp;= \begin{pmatrix} \lambda_1 q_1 &amp; \lambda_2 q_2 &amp; \cdots &amp; \lambda_n q_n \end{pmatrix}
+     \begin{pmatrix} q_1' \\ q_2' \\ \vdots \\ q_n' \end{pmatrix} \\
+  &amp;= \lambda_1 q_1 q_1' + \lambda_2 q_2 q_2' + \cdots + \lambda_n q_n q_n' \\
+  &amp;= \sum_{i=1}^n \lambda_i q_i q_i'
+\end{aligned}
+\]</span></p>
+<p>where the eigenvectors <span class="math inline">\(q_i\)</span> satisfy the orthogonality conditions: <span class="math display">\[
+q_i' q_j = \begin{cases} 1 &amp; \text{if } i=j \\ 0 &amp; \text{if } i \ne j \end{cases}
+\]</span> And <span class="math inline">\(Q\)</span> is an orthogonal matrix: <span class="math inline">\(Q'Q = Q Q' = I_n\)</span>.</p>
+</section>
+<section id="quadratic-form" class="level3" data-number="4.1.3">
+<h3 data-number="4.1.3" class="anchored" data-anchor-id="quadratic-form"><span class="header-section-number">4.1.3</span> Quadratic Form</h3>
+<div id="def-quadratic-form" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 4.2</strong></span> A <strong>quadratic form</strong> in <span class="math inline">\(n\)</span> variables <span class="math inline">\(x_1, x_2, \dots, x_n\)</span> is a scalar function defined by a symmetric matrix <span class="math inline">\(A\)</span>: <span class="math display">\[
+Q(x) = x'Ax = \sum_{i=1}^n \sum_{j=1}^n a_{ij} x_i x_j
+\]</span></p>
 </div>
 </section>
-<section id="properties-of-symmetric-matrices" class="level3" data-number="4.1.3">
-<h3 data-number="4.1.3" class="anchored" data-anchor-id="properties-of-symmetric-matrices"><span class="header-section-number">4.1.3</span> Properties of Symmetric Matrices</h3>
-<p>Several important properties follow from the spectral decomposition:</p>
+<section id="properties-of-symmetric-matrices" class="level3" data-number="4.1.4">
+<h3 data-number="4.1.4" class="anchored" data-anchor-id="properties-of-symmetric-matrices"><span class="header-section-number">4.1.4</span> Properties of Symmetric Matrices</h3>
+<div id="thm-symmetric-properties" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 4.2 (Properties of Symmetric Matrices)</strong></span> Let <span class="math inline">\(A\)</span> be a symmetric matrix with spectral decomposition <span class="math inline">\(A = Q \Lambda Q'\)</span>. The following properties hold:</p>
 <ol type="1">
 <li><strong>Trace:</strong> <span class="math inline">\(\text{tr}(A) = \sum \lambda_i\)</span>.</li>
 <li><strong>Determinant:</strong> <span class="math inline">\(|A| = \prod \lambda_i\)</span>.</li>
@@ -543,22 +568,19 @@ A = Q \Lambda Q' = \sum_{i=1}^n \lambda_i q_i q_i'
 <li><strong>Inverse:</strong> If <span class="math inline">\(A\)</span> is non-singular (<span class="math inline">\(\lambda_i \ne 0\)</span>), then <span class="math inline">\(A^{-1} = Q \Lambda^{-1} Q'\)</span>.</li>
 <li><strong>Powers:</strong> <span class="math inline">\(A^k = Q \Lambda^k Q'\)</span>.
 <ul>
-<li>Square Root: <span class="math inline">\(A^{1/2} = Q \Lambda^{1/2} Q'\)</span> (if <span class="math inline">\(\lambda_i \ge 0\)</span>).</li>
+<li><em>Square Root:</em> <span class="math inline">\(A^{1/2} = Q \Lambda^{1/2} Q'\)</span> (if <span class="math inline">\(\lambda_i \ge 0\)</span>).</li>
 </ul></li>
-</ol>
-</section>
-<section id="quadratic-forms" class="level3" data-number="4.1.4">
-<h3 data-number="4.1.4" class="anchored" data-anchor-id="quadratic-forms"><span class="header-section-number">4.1.4</span> Quadratic Forms</h3>
-<p>The quadratic form associated with a symmetric matrix <span class="math inline">\(A\)</span> is defined as <span class="math inline">\(x'Ax\)</span>. Using spectral decomposition:</p>
-<p><span class="math display">\[
+<li><strong>Spectral Representation of Quadratic Forms:</strong> The quadratic form <span class="math inline">\(x'Ax\)</span> can be diagonalized using the eigenvectors of <span class="math inline">\(A\)</span>: <span class="math display">\[
 x'Ax = x' Q \Lambda Q' x = y' \Lambda y = \sum_{i=1}^n \lambda_i y_i^2
-\]</span> where <span class="math inline">\(y = Q'x\)</span>.</p>
+\]</span> where <span class="math inline">\(y = Q'x\)</span> represents a rotation of the coordinate system.</li>
+</ol>
+</div>
 </section>
-<section id="projection-matrices" class="level3" data-number="4.1.5">
-<h3 data-number="4.1.5" class="anchored" data-anchor-id="projection-matrices"><span class="header-section-number">4.1.5</span> Projection Matrices</h3>
+<section id="spectral-representation-of-projection-matrices" class="level3" data-number="4.1.5">
+<h3 data-number="4.1.5" class="anchored" data-anchor-id="spectral-representation-of-projection-matrices"><span class="header-section-number">4.1.5</span> Spectral Representation of Projection Matrices</h3>
 <p>We revisit projection matrices in the context of eigenvalues.</p>
 <div id="thm-proj-eigen" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 4.2 (Eigenvalues of Projection Matrices)</strong></span> A symmetric matrix <span class="math inline">\(P\)</span> is a projection matrix (idempotent, <span class="math inline">\(P^2=P\)</span>) if and only if its eigenvalues are either 0 or 1.</p>
+<p><span class="theorem-title"><strong>Theorem 4.3 (Eigenvalues of Projection Matrices)</strong></span> A symmetric matrix <span class="math inline">\(P\)</span> is a projection matrix (idempotent, <span class="math inline">\(P^2=P\)</span>) if and only if its eigenvalues are either 0 or 1.</p>
 <p><span class="math display">\[
 P^2 x = \lambda^2 x \quad \text{and} \quad Px = \lambda x \implies \lambda^2 = \lambda \implies \lambda \in \{0, 1\}
 \]</span></p>
@@ -569,12 +591,14 @@ P^2 x = \lambda^2 x \quad \text{and} \quad Px = \lambda x \implies \lambda^2 = \
 <li>If <span class="math inline">\(x \perp Col(P)\)</span>, <span class="math inline">\(Px = 0\)</span> (Eigenvalue 0).</li>
 <li><span class="math inline">\(\text{rank}(P) = \text{tr}(P) = \sum \lambda_i\)</span> (Count of 1s).</li>
 </ul>
-<p><strong>Example:</strong> For <span class="math inline">\(P = \frac{1}{n} J_n J_n'\)</span>, the rank is <span class="math inline">\(\text{tr}(P) = 1\)</span>.</p>
+<div id="exm-trace-P" class="theorem example">
+<p><span class="theorem-title"><strong>Example 4.1</strong></span> For <span class="math inline">\(P = \frac{1}{n} J_n J_n'\)</span>, the rank is <span class="math inline">\(\text{tr}(P) = 1\)</span>.</p>
+</div>
 </section>
 <section id="positive-definite-matrices" class="level3" data-number="4.1.6">
 <h3 data-number="4.1.6" class="anchored" data-anchor-id="positive-definite-matrices"><span class="header-section-number">4.1.6</span> Positive Definite Matrices</h3>
 <div id="def-pos-def" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 4.2 (Positive Definite (p.d.) Matrix)</strong></span> A symmetric matrix <span class="math inline">\(A\)</span> is <strong>positive definite</strong> if: <span class="math display">\[
+<p><span class="theorem-title"><strong>Definition 4.3 (Positive Definite (p.d.) Matrix)</strong></span> A symmetric matrix <span class="math inline">\(A\)</span> is <strong>positive definite</strong> if: <span class="math display">\[
 x'Ax &gt; 0 \quad \forall x \ne 0
 \]</span> It is <strong>positive semi-definite (p.s.d.)</strong> if: <span class="math display">\[
 x'Ax \ge 0 \quad \forall x
@@ -595,94 +619,260 @@ x'Ax \ge 0 \quad \forall x
 </section>
 <section id="singular-value-decomposition-svd" class="level3" data-number="4.1.7">
 <h3 data-number="4.1.7" class="anchored" data-anchor-id="singular-value-decomposition-svd"><span class="header-section-number">4.1.7</span> Singular Value Decomposition (SVD)</h3>
-<p>For any <span class="math inline">\(n \times p\)</span> matrix <span class="math inline">\(X\)</span> with rank <span class="math inline">\(r \le \min(n, p)\)</span>, <span class="math inline">\(X\)</span> can be decomposed as:</p>
+<div id="thm-svd" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 4.4 (Singular Value Decomposition (SVD))</strong></span> Let <span class="math inline">\(X\)</span> be an <span class="math inline">\(n \times p\)</span> matrix with rank <span class="math inline">\(r \le \min(n, p)\)</span>. <span class="math inline">\(X\)</span> can be decomposed into the product of three matrices:</p>
 <p><span class="math display">\[
-X = U \Lambda V' = (U_1, U_2) \begin{pmatrix} \Lambda_r &amp; 0 \\ 0 &amp; 0 \end{pmatrix} \begin{pmatrix} V_1' \\ V_2' \end{pmatrix}
+X = U \mathbf{D} V'
 \]</span></p>
-<p>where:</p>
+<p><strong>1. Partitioned Matrix Form</strong></p>
+<p><span class="math display">\[
+X = \underset{n \times n}{(U_1, U_2)}
+\begin{pmatrix}
+\Lambda_r &amp; O_{r \times (p-r)} \\
+O_{(n-r) \times r} &amp; O_{(n-r) \times (p-r)}
+\end{pmatrix}
+\underset{p \times p}{
+\begin{pmatrix}
+V_1' \\
+V_2'
+\end{pmatrix}
+}
+\]</span></p>
+<p><strong>2. Detailed Matrix Form</strong></p>
+<p>Expanding the diagonal matrix explicitly:</p>
+<p><span class="math display">\[
+X = \underset{n \times n}{(u_1, \dots, u_n)}
+\left(
+\begin{array}{cccc|c}
+\lambda_1 &amp; 0 &amp; \dots &amp; 0 &amp;  \\
+0 &amp; \lambda_2 &amp; \dots &amp; 0 &amp; O_{12} \\
+\vdots &amp; \vdots &amp; \ddots &amp; \vdots &amp;  \\
+0 &amp; 0 &amp; \dots &amp; \lambda_r &amp;  \\
+\hline
+&amp; O_{21} &amp; &amp; &amp; O_{22}
+\end{array}
+\right)
+\underset{p \times p}{
+\begin{pmatrix}
+v_1' \\
+\vdots \\
+v_p'
+\end{pmatrix}
+}
+\]</span></p>
+<p><strong>3. Reduced Form</strong></p>
+<p><span class="math display">\[
+X = U_1 \Lambda_r V_1' = \sum_{i=1}^r \lambda_i u_i v_i'
+\]</span></p>
+<p><strong>Properties:</strong></p>
+<ol type="1">
+<li><strong>Singular Values (<span class="math inline">\(\Lambda_r\)</span>):</strong> <span class="math inline">\(\Lambda_r = \text{diag}(\lambda_1, \dots, \lambda_r)\)</span> contains the singular values (<span class="math inline">\(\lambda_i &gt; 0\)</span>), which are the square roots of the non-zero eigenvalues of <span class="math inline">\(X'X\)</span>.</li>
+<li><strong>Orthogonality:</strong>
 <ul>
-<li><span class="math inline">\(\Lambda_r = \text{diag}(\lambda_1, \dots, \lambda_r)\)</span> contains the singular values (square roots of non-zero eigenvalues of <span class="math inline">\(X'X\)</span>).</li>
 <li><span class="math inline">\(U\)</span> is <span class="math inline">\(n \times n\)</span> orthogonal (<span class="math inline">\(U'U = I_n\)</span>).</li>
 <li><span class="math inline">\(V\)</span> is <span class="math inline">\(p \times p\)</span> orthogonal (<span class="math inline">\(V'V = I_p\)</span>).</li>
-</ul>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="lec20_images/page12_svd.png" class="img-fluid figure-img" style="width:70.0%"></p>
-<figcaption>Singular Value Decomposition Structure</figcaption>
-</figure>
+</ul></li>
+</ol>
 </div>
+<section id="connection-to-gram-matrices" class="level4" data-number="4.1.7.1">
+<h4 data-number="4.1.7.1" class="anchored" data-anchor-id="connection-to-gram-matrices"><span class="header-section-number">4.1.7.1</span> Connection to Gram Matrices</h4>
+<p>The matrices <span class="math inline">\(U\)</span> and <span class="math inline">\(V\)</span> provide the basis vectors (eigenvectors) for the Gram matrices of <span class="math inline">\(X\)</span>.</p>
+<ol type="1">
+<li><strong>Right Singular Vectors (<span class="math inline">\(V\)</span>):</strong> The columns of <span class="math inline">\(V\)</span> are the eigenvectors of the Gram matrix <span class="math inline">\(X'X\)</span>. <span class="math display">\[
+X'X = (U \Lambda V')' (U \Lambda V') = V \Lambda U' U \Lambda V' = V \Lambda^2 V'
+\]</span>
+<ul>
+<li>The eigenvalues of <span class="math inline">\(X'X\)</span> are the squared singular values <span class="math inline">\(\lambda_i^2\)</span>.</li>
+</ul></li>
+<li><strong>Left Singular Vectors (<span class="math inline">\(U\)</span>):</strong> The columns of <span class="math inline">\(U\)</span> are the eigenvectors of the Gram matrix <span class="math inline">\(XX'\)</span>. <span class="math display">\[
+XX' = (U \Lambda V') (U \Lambda V')' = U \Lambda V' V \Lambda U' = U \Lambda^2 U'
+\]</span>
+<ul>
+<li>The eigenvalues of <span class="math inline">\(XX'\)</span> are also <span class="math inline">\(\lambda_i^2\)</span> (for non-zero values).</li>
+</ul></li>
+</ol>
+</section>
+<section id="numerical-example" class="level4" data-number="4.1.7.2">
+<h4 data-number="4.1.7.2" class="anchored" data-anchor-id="numerical-example"><span class="header-section-number">4.1.7.2</span> Numerical Example</h4>
+<p>Consider the matrix <span class="math inline">\(X = \begin{pmatrix} 1 &amp; 1 \\ 2 &amp; 2 \end{pmatrix}\)</span>.</p>
+<ol type="1">
+<li><strong>Compute <span class="math inline">\(X'X\)</span> and find <span class="math inline">\(V\)</span>:</strong> <span class="math display">\[
+X'X = \begin{pmatrix} 1 &amp; 2 \\ 1 &amp; 2 \end{pmatrix} \begin{pmatrix} 1 &amp; 1 \\ 2 &amp; 2 \end{pmatrix} = \begin{pmatrix} 5 &amp; 5 \\ 5 &amp; 5 \end{pmatrix}
+\]</span>
+<ul>
+<li>Eigenvalues of <span class="math inline">\(X'X\)</span>: Trace is 10, Determinant is 0. Thus, <span class="math inline">\(\mu_1 = 10, \mu_2 = 0\)</span>.</li>
+<li><strong>Singular Values:</strong> <span class="math inline">\(\lambda_1 = \sqrt{10}, \lambda_2 = 0\)</span>.</li>
+<li>Eigenvector for <span class="math inline">\(\mu_1=10\)</span>: Normalized <span class="math inline">\(v_1 = \frac{1}{\sqrt{2}}\begin{pmatrix} 1 \\ 1 \end{pmatrix}\)</span>.</li>
+<li>Eigenvector for <span class="math inline">\(\mu_2=0\)</span>: Normalized <span class="math inline">\(v_2 = \frac{1}{\sqrt{2}}\begin{pmatrix} 1 \\ -1 \end{pmatrix}\)</span>.</li>
+<li>Therefore, <span class="math inline">\(V = \frac{1}{\sqrt{2}}\begin{pmatrix} 1 &amp; 1 \\ 1 &amp; -1 \end{pmatrix}\)</span>.</li>
+</ul></li>
+<li><strong>Compute <span class="math inline">\(XX'\)</span> and find <span class="math inline">\(U\)</span>:</strong> <span class="math display">\[
+XX' = \begin{pmatrix} 1 &amp; 1 \\ 2 &amp; 2 \end{pmatrix} \begin{pmatrix} 1 &amp; 2 \\ 1 &amp; 2 \end{pmatrix} = \begin{pmatrix} 2 &amp; 4 \\ 4 &amp; 8 \end{pmatrix}
+\]</span>
+<ul>
+<li>Eigenvalues are again 10 and 0.</li>
+<li>Eigenvector for <span class="math inline">\(\mu_1=10\)</span>: Normalized <span class="math inline">\(u_1 = \frac{1}{\sqrt{5}}\begin{pmatrix} 1 \\ 2 \end{pmatrix}\)</span>.</li>
+<li>Eigenvector for <span class="math inline">\(\mu_2=0\)</span>: Normalized <span class="math inline">\(u_2 = \frac{1}{\sqrt{5}}\begin{pmatrix} 2 \\ -1 \end{pmatrix}\)</span>.</li>
+<li>Therefore, <span class="math inline">\(U = \frac{1}{\sqrt{5}}\begin{pmatrix} 1 &amp; 2 \\ 2 &amp; -1 \end{pmatrix}\)</span>.</li>
+</ul></li>
+<li><strong>Verification:</strong> <span class="math display">\[
+X = \sqrt{10} u_1 v_1' = \sqrt{10} \begin{pmatrix} \frac{1}{\sqrt{5}} \\ \frac{2}{\sqrt{5}} \end{pmatrix} \begin{pmatrix} \frac{1}{\sqrt{2}} &amp; \frac{1}{\sqrt{2}} \end{pmatrix} = \begin{pmatrix} 1 &amp; 1 \\ 2 &amp; 2 \end{pmatrix}
+\]</span></li>
+</ol>
+</section>
 </section>
 </section>
 <section id="cholesky-decomposition" class="level2" data-number="4.2">
 <h2 data-number="4.2" class="anchored" data-anchor-id="cholesky-decomposition"><span class="header-section-number">4.2</span> Cholesky Decomposition</h2>
-<p>If <span class="math inline">\(A\)</span> is a positive definite (p.d.) matrix, there exists an upper triangular matrix <span class="math inline">\(B\)</span> such that:</p>
+<p>A symmetric matrix <span class="math inline">\(A\)</span> has a Cholesky decomposition if and only if it is <strong>non-negative definite</strong> (i.e., <span class="math inline">\(x'Ax \ge 0\)</span> for all <span class="math inline">\(x\)</span>).</p>
 <p><span class="math display">\[
 A = B'B
 \]</span></p>
-<p>The factorization is unique if we require the diagonal elements of <span class="math inline">\(B\)</span> to be positive.</p>
+<p>where <span class="math inline">\(B\)</span> is an <strong>upper triangular</strong> matrix with non-negative diagonal entries.</p>
+<section id="matrix-representation-of-the-algorithm" class="level3" data-number="4.2.1">
+<h3 data-number="4.2.1" class="anchored" data-anchor-id="matrix-representation-of-the-algorithm"><span class="header-section-number">4.2.1</span> Matrix Representation of the Algorithm</h3>
+<p>To derive the algorithm, we equate the elements of <span class="math inline">\(A\)</span> with the product of the lower triangular matrix <span class="math inline">\(B'\)</span> and the upper triangular matrix <span class="math inline">\(B\)</span>.</p>
+<p>For a <span class="math inline">\(3 \times 3\)</span> matrix, this looks like:</p>
 <p><span class="math display">\[
-B = \begin{pmatrix}
-b_{11} &amp; b_{12} &amp; \cdots &amp; b_{1n} \\
-0 &amp; b_{22} &amp; \cdots &amp; b_{2n} \\
-\vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
-0 &amp; 0 &amp; \cdots &amp; b_{nn}
+\underbrace{\begin{pmatrix}
+a_{11} &amp; a_{12} &amp; a_{13} \\
+a_{21} &amp; a_{22} &amp; a_{23} \\
+a_{31} &amp; a_{32} &amp; a_{33}
+\end{pmatrix}}_{A}
+=
+\underbrace{\begin{pmatrix}
+b_{11} &amp; 0 &amp; 0 \\
+b_{12} &amp; b_{22} &amp; 0 \\
+b_{13} &amp; b_{23} &amp; b_{33}
+\end{pmatrix}}_{B'}
+\underbrace{\begin{pmatrix}
+b_{11} &amp; b_{12} &amp; b_{13} \\
+0 &amp; b_{22} &amp; b_{23} \\
+0 &amp; 0 &amp; b_{33}
+\end{pmatrix}}_{B}
+\]</span></p>
+<p>Multiplying the matrices on the right yields the system of equations:</p>
+<p><span class="math display">\[
+A = \begin{pmatrix}
+\mathbf{b_{11}^2} &amp; b_{11}b_{12} &amp; b_{11}b_{13} \\
+b_{12}b_{11} &amp; \mathbf{b_{12}^2 + b_{22}^2} &amp; b_{12}b_{13} + b_{22}b_{23} \\
+b_{13}b_{11} &amp; b_{13}b_{12} + b_{23}b_{22} &amp; \mathbf{b_{13}^2 + b_{23}^2 + b_{33}^2}
 \end{pmatrix}
 \]</span></p>
-<p>The elements of <span class="math inline">\(B\)</span> can be solved recursively: <span class="math display">\[
-\begin{aligned}
-b_{11}^2 &amp;= a_{11} \implies b_{11} = \sqrt{a_{11}} \\
-b_{11}b_{1j} &amp;= a_{1j} \implies b_{1j} = a_{1j}/b_{11} \\
-b_{12}^2 + b_{22}^2 &amp;= a_{22} \implies b_{22} = \sqrt{a_{22} - b_{12}^2}
-\end{aligned}
+<p>By solving for the bolded diagonal terms and substituting known values from previous rows, we get the recursive algorithm.</p>
+</section>
+<section id="the-algorithm" class="level3" data-number="4.2.2">
+<h3 data-number="4.2.2" class="anchored" data-anchor-id="the-algorithm"><span class="header-section-number">4.2.2</span> The Algorithm</h3>
+<ol type="1">
+<li><strong>Row 1:</strong> Solve for <span class="math inline">\(b_{11}\)</span> using <span class="math inline">\(a_{11}\)</span>, then solve the rest of the row (<span class="math inline">\(b_{1j}\)</span>) by division.
+<ul>
+<li><span class="math inline">\(b_{11} = \sqrt{a_{11}}\)</span></li>
+<li><span class="math inline">\(b_{1j} = a_{1j}/b_{11}\)</span></li>
+</ul></li>
+<li><strong>Row 2:</strong> Solve for <span class="math inline">\(b_{22}\)</span> using <span class="math inline">\(a_{22}\)</span> and the known <span class="math inline">\(b_{12}\)</span>, then solve <span class="math inline">\(b_{2j}\)</span>.
+<ul>
+<li><span class="math inline">\(b_{22} = \sqrt{a_{22} - b_{12}^2}\)</span></li>
+<li><span class="math inline">\(b_{2j} = (a_{2j} - b_{12}b_{1j}) / b_{22}\)</span></li>
+</ul></li>
+<li><strong>Row 3:</strong> Solve for <span class="math inline">\(b_{33}\)</span> using <span class="math inline">\(a_{33}\)</span> and the known <span class="math inline">\(b_{13}, b_{23}\)</span>.
+<ul>
+<li><span class="math inline">\(b_{33} = \sqrt{a_{33} - b_{13}^2 - b_{23}^2}\)</span></li>
+</ul></li>
+</ol>
+</section>
+<section id="numerical-example-1" class="level3" data-number="4.2.3">
+<h3 data-number="4.2.3" class="anchored" data-anchor-id="numerical-example-1"><span class="header-section-number">4.2.3</span> Numerical Example</h3>
+<p>Consider the positive definite matrix <span class="math inline">\(A\)</span>: <span class="math display">\[
+A = \begin{pmatrix}
+4 &amp; 2 &amp; -2 \\
+2 &amp; 10 &amp; 2 \\
+-2 &amp; 2 &amp; 6
+\end{pmatrix}
 \]</span></p>
-<p><strong>Why Cholesky?</strong> Calculating the inverse of an upper triangular matrix <span class="math inline">\(B\)</span> is computationally easy, making <span class="math inline">\(A^{-1} = (B'B)^{-1} = B^{-1}(B')^{-1}\)</span> efficient to compute.</p>
+<p>We find <span class="math inline">\(B\)</span> such that <span class="math inline">\(A = B'B\)</span>:</p>
+<ol type="1">
+<li><strong>First Row of B (<span class="math inline">\(b_{11}, b_{12}, b_{13}\)</span>):</strong>
+<ul>
+<li><span class="math inline">\(b_{11} = \sqrt{4} = 2\)</span></li>
+<li><span class="math inline">\(b_{12} = 2 / 2 = 1\)</span></li>
+<li><span class="math inline">\(b_{13} = -2 / 2 = -1\)</span></li>
+</ul></li>
+<li><strong>Second Row of B (<span class="math inline">\(b_{22}, b_{23}\)</span>):</strong>
+<ul>
+<li><span class="math inline">\(b_{22} = \sqrt{10 - (1)^2} = \sqrt{9} = 3\)</span></li>
+<li><span class="math inline">\(b_{23} = (2 - (1)(-1)) / 3 = 3/3 = 1\)</span></li>
+</ul></li>
+<li><strong>Third Row of B (<span class="math inline">\(b_{33}\)</span>):</strong>
+<ul>
+<li><span class="math inline">\(b_{33} = \sqrt{6 - (-1)^2 - (1)^2} = \sqrt{4} = 2\)</span></li>
+</ul></li>
+</ol>
+<p><strong>Result:</strong> <span class="math display">\[
+B = \begin{pmatrix}
+2 &amp; 1 &amp; -1 \\
+0 &amp; 3 &amp; 1 \\
+0 &amp; 0 &amp; 2
+\end{pmatrix}
+\]</span></p>
+</section>
 </section>
 <section id="generalized-inverses" class="level2" data-number="4.3">
 <h2 data-number="4.3" class="anchored" data-anchor-id="generalized-inverses"><span class="header-section-number">4.3</span> Generalized Inverses</h2>
 <section id="motivation" class="level3" data-number="4.3.1">
 <h3 data-number="4.3.1" class="anchored" data-anchor-id="motivation"><span class="header-section-number">4.3.1</span> Motivation</h3>
-<p>Consider the linear system <span class="math inline">\(X\beta = y\)</span>. In <span class="math inline">\(\mathbb{R}^2\)</span>, if <span class="math inline">\(X = [x_1, x_2]\)</span> is invertible, the solution is unique: <span class="math inline">\(\beta = X^{-1}y\)</span>. This satisfies <span class="math inline">\(X(X^{-1}y) = y\)</span>.</p>
-<p>However, if <span class="math inline">\(X\)</span> is not square or not invertible (e.g., <span class="math inline">\(X\)</span> is <span class="math inline">\(2 \times 3\)</span>), <span class="math inline">\(X\beta = y\)</span> does not have a unique solution. We seek a matrix <span class="math inline">\(G\)</span> such that <span class="math inline">\(\beta = Gy\)</span> provides a solution whenever <span class="math inline">\(y \in C(X)\)</span> (the column space of X).</p>
-<p>Substituting <span class="math inline">\(\beta = Gy\)</span> into the equation <span class="math inline">\(X\beta = y\)</span>: <span class="math display">\[
+<p>Consider the linear system <span class="math inline">\(X\beta = y\)</span>. In <span class="math inline">\(\mathbb{R}^2\)</span>, if <span class="math inline">\(X = [x_1, x_2]\)</span> is invertible, the solution is unique: <span class="math inline">\(\beta = X^{-1}y\)</span>. This satisfies <span class="math inline">\(X(X^{-1}y) = y\)</span>.However, if <span class="math inline">\(X\)</span> is not square or not invertible (e.g., <span class="math inline">\(X\)</span> is <span class="math inline">\(2 \times 3\)</span>), <span class="math inline">\(X\beta = y\)</span> does not have a unique solution. We seek a matrix <span class="math inline">\(G\)</span> such that <span class="math inline">\(\beta = Gy\)</span> provides a solution whenever <span class="math inline">\(y \in C(X)\)</span> (the column space of X). Substituting <span class="math inline">\(\beta = Gy\)</span> into the equation <span class="math inline">\(X\beta = y\)</span>: <span class="math display">\[
 X(Gy) = y \quad \forall y \in C(X)
 \]</span> Since any <span class="math inline">\(y \in C(X)\)</span> can be written as <span class="math inline">\(Xw\)</span> for some vector <span class="math inline">\(w\)</span>: <span class="math display">\[
 XGXw = Xw \quad \forall w
 \]</span> This implies the defining condition: <span class="math display">\[
 XGX = X
 \]</span></p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="lec20_images/page15_motivation.png" class="img-fluid figure-img" style="width:70.0%"></p>
-<figcaption>Geometric Motivation for Generalized Inverses</figcaption>
-</figure>
-</div>
 </section>
 <section id="definition-of-generalized-inverse" class="level3" data-number="4.3.2">
 <h3 data-number="4.3.2" class="anchored" data-anchor-id="definition-of-generalized-inverse"><span class="header-section-number">4.3.2</span> Definition of Generalized Inverse</h3>
 <div id="def-gen-inverse" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 4.3 (Generalized Inverse)</strong></span> Let <span class="math inline">\(X\)</span> be an <span class="math inline">\(n \times p\)</span> matrix. A matrix <span class="math inline">\(X^-\)</span> of size <span class="math inline">\(p \times n\)</span> is called a <strong>generalized inverse</strong> of <span class="math inline">\(X\)</span> if it satisfies: <span class="math display">\[
+<p><span class="theorem-title"><strong>Definition 4.4 (Generalized Inverse)</strong></span> Let <span class="math inline">\(X\)</span> be an <span class="math inline">\(n \times p\)</span> matrix. A matrix <span class="math inline">\(X^-\)</span> of size <span class="math inline">\(p \times n\)</span> is called a <strong>generalized inverse</strong> of <span class="math inline">\(X\)</span> if it satisfies: <span class="math display">\[
 XX^-X = X
 \]</span></p>
 </div>
-</section>
-<section id="examples" class="level3" data-number="4.3.3">
-<h3 data-number="4.3.3" class="anchored" data-anchor-id="examples"><span class="header-section-number">4.3.3</span> Examples</h3>
-<p><strong>Example 1: Diagonal Matrix</strong> If <span class="math inline">\(X = \text{diag}(\lambda_1, \lambda_2, 0, 0)\)</span>, a generalized inverse is obtained by inverting the non-zero elements: <span class="math display">\[
-X^- = \text{diag}(\lambda_1^{-1}, \lambda_2^{-1}, 0, 0)
-\]</span></p>
-<p><strong>Example 2: Row Vector</strong> Let <span class="math inline">\(X = (1, 2, 3)\)</span>. One possible generalized inverse is <span class="math inline">\(X^- = (1, 0, 0)'\)</span>. Verification: <span class="math display">\[
-XX^-X = (1, 2, 3) \begin{pmatrix} 1 \\ 0 \\ 0 \end{pmatrix} (1, 2, 3) = 1 \cdot (1, 2, 3) = X
-\]</span> Other valid generalized inverses include <span class="math inline">\((0, 1/2, 0)'\)</span> or <span class="math inline">\((0, 0, 1/3)'\)</span>.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="lec20_images/page18_ex_diag.png" class="img-fluid figure-img" style="width:70.0%"></p>
-<figcaption>Example: Diagonal Matrix Generalized Inverse</figcaption>
-</figure>
+<div id="exm-ginverse" class="theorem example">
+<p><span class="theorem-title"><strong>Example 4.2 (Examples of Generalized Inverse)</strong></span> &nbsp;</p>
+<ul>
+<li><p><strong>Example 1: Diagonal Matrix</strong> If <span class="math inline">\(X = \text{diag}(\lambda_1, \lambda_2, 0, 0)\)</span>, we can write it in matrix form as: <span class="math display">\[
+  X = \begin{pmatrix}
+  \lambda_1 &amp; 0 &amp; 0 &amp; 0 \\
+  0 &amp; \lambda_2 &amp; 0 &amp; 0 \\
+  0 &amp; 0 &amp; 0 &amp; 0 \\
+  0 &amp; 0 &amp; 0 &amp; 0
+  \end{pmatrix}
+  \]</span> A generalized inverse is obtained by inverting the non-zero elements: <span class="math display">\[
+  X^- = \begin{pmatrix}
+  \lambda_1^{-1} &amp; 0 &amp; 0 &amp; 0 \\
+  0 &amp; \lambda_2^{-1} &amp; 0 &amp; 0 \\
+  0 &amp; 0 &amp; 0 &amp; 0 \\
+  0 &amp; 0 &amp; 0 &amp; 0
+  \end{pmatrix}
+  \]</span></p></li>
+<li><p><strong>Example 2: Row Vector</strong> Let <span class="math inline">\(X = (1, 2, 3)\)</span>. One possible generalized inverse is a column vector where the first element is the reciprocal of the first non-zero element of <span class="math inline">\(X\)</span> (which is <span class="math inline">\(1\)</span>), and others are zero: <span class="math display">\[
+  X^- = \begin{pmatrix} 1 \\ 0 \\ 0 \end{pmatrix}
+  \]</span> <strong>Verification:</strong> <span class="math display">\[
+  XX^-X = (1, 2, 3) \begin{pmatrix} 1 \\ 0 \\ 0 \end{pmatrix} (1, 2, 3) = (1) \cdot (1, 2, 3) = (1, 2, 3) = X
+  \]</span> Other valid generalized inverses include <span class="math inline">\(\begin{pmatrix} 0 \\ 1/2 \\ 0 \end{pmatrix}\)</span> or <span class="math inline">\(\begin{pmatrix} 0 \\ 0 \\ 1/3 \end{pmatrix}\)</span>.</p></li>
+<li><p><strong>Example 3: Rank Deficient Matrix</strong> Let <span class="math inline">\(A = \begin{pmatrix} 2 &amp; 2 &amp; 3 \\ 1 &amp; 0 &amp; 1 \\ 3 &amp; 2 &amp; 4 \end{pmatrix}\)</span>. Note that Row 3 = Row 1 + Row 2, so Rank<span class="math inline">\((A) = 2\)</span>.</p>
+<p><strong>Solution:</strong> A generalized inverse can be found by locating a non-singular <span class="math inline">\(2 \times 2\)</span> submatrix, inverting it, and padding the rest with zeros. Let’s take the top-left minor <span class="math inline">\(M = \begin{pmatrix} 2 &amp; 2 \\ 1 &amp; 0 \end{pmatrix}\)</span>. The inverse is <span class="math inline">\(M^{-1} = \frac{1}{-2}\begin{pmatrix} 0 &amp; -2 \\ -1 &amp; 2 \end{pmatrix} = \begin{pmatrix} 0 &amp; 1 \\ 0.5 &amp; -1 \end{pmatrix}\)</span>.</p>
+<p>Placing this in the corresponding position in <span class="math inline">\(A^-\)</span> and setting the rest to 0: <span class="math display">\[
+  A^- = \begin{pmatrix} 0 &amp; 1 &amp; 0 \\ 0.5 &amp; -1 &amp; 0 \\ 0 &amp; 0 &amp; 0 \end{pmatrix}
+  \]</span></p>
+<p><strong>Verification (<span class="math inline">\(AA^-A = A\)</span>):</strong> First, compute <span class="math inline">\(AA^-\)</span>: <span class="math display">\[
+  AA^- = \begin{pmatrix} 2 &amp; 2 &amp; 3 \\ 1 &amp; 0 &amp; 1 \\ 3 &amp; 2 &amp; 4 \end{pmatrix} \begin{pmatrix} 0 &amp; 1 &amp; 0 \\ 0.5 &amp; -1 &amp; 0 \\ 0 &amp; 0 &amp; 0 \end{pmatrix} = \begin{pmatrix} 1 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; 0 \\ 1 &amp; 1 &amp; 0 \end{pmatrix}
+  \]</span> Then multiply by <span class="math inline">\(A\)</span>: <span class="math display">\[
+  (AA^-)A = \begin{pmatrix} 1 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; 0 \\ 1 &amp; 1 &amp; 0 \end{pmatrix} \begin{pmatrix} 2 &amp; 2 &amp; 3 \\ 1 &amp; 0 &amp; 1 \\ 3 &amp; 2 &amp; 4 \end{pmatrix} = \begin{pmatrix} 2 &amp; 2 &amp; 3 \\ 1 &amp; 0 &amp; 1 \\ 3 &amp; 2 &amp; 4 \end{pmatrix} = A
+  \]</span></p></li>
+</ul>
 </div>
-<p><strong>Example 3: Rank Deficient Matrix</strong> Let <span class="math inline">\(A = \begin{pmatrix} 2 &amp; 2 &amp; 3 \\ 1 &amp; 0 &amp; 1 \\ 3 &amp; 2 &amp; 4 \end{pmatrix}\)</span>. Note that Row 3 = Row 1 + Row 2. Rank<span class="math inline">\((A) = 2\)</span>. A generalized inverse can be found by finding a non-singular submatrix.</p>
 </section>
-<section id="a-procedure-to-find-a-generalized-inverse" class="level3" data-number="4.3.4">
-<h3 data-number="4.3.4" class="anchored" data-anchor-id="a-procedure-to-find-a-generalized-inverse"><span class="header-section-number">4.3.4</span> A Procedure to Find a Generalized Inverse</h3>
+<section id="a-general-procedure-to-find-a-generalized-inverse" class="level3" data-number="4.3.3">
+<h3 data-number="4.3.3" class="anchored" data-anchor-id="a-general-procedure-to-find-a-generalized-inverse"><span class="header-section-number">4.3.3</span> A General Procedure to Find a Generalized Inverse</h3>
 <p>If we can partition <span class="math inline">\(X\)</span> (possibly after permuting rows/columns) such that <span class="math inline">\(R_{11}\)</span> is a non-singular rank <span class="math inline">\(r\)</span> submatrix:</p>
 <p><span class="math display">\[
 X = \begin{pmatrix} R_{11} &amp; R_{12} \\ R_{21} &amp; R_{22} \end{pmatrix}
@@ -691,16 +881,15 @@ X = \begin{pmatrix} R_{11} &amp; R_{12} \\ R_{21} &amp; R_{22} \end{pmatrix}
 <p><span class="math display">\[
 X^- = \begin{pmatrix} R_{11}^{-1} &amp; 0 \\ 0 &amp; 0 \end{pmatrix}
 \]</span></p>
-<p><strong>Verification:</strong> <span class="math display">\[
+<p><strong>Verification:</strong></p>
+<p><span class="math display">\[
 \begin{aligned}
 XX^-X &amp;= \begin{pmatrix} R_{11} &amp; R_{12} \\ R_{21} &amp; R_{22} \end{pmatrix} \begin{pmatrix} R_{11}^{-1} &amp; 0 \\ 0 &amp; 0 \end{pmatrix} \begin{pmatrix} R_{11} &amp; R_{12} \\ R_{21} &amp; R_{22} \end{pmatrix} \\
 &amp;= \begin{pmatrix} I_r &amp; 0 \\ R_{21}R_{11}^{-1} &amp; 0 \end{pmatrix} \begin{pmatrix} R_{11} &amp; R_{12} \\ R_{21} &amp; R_{22} \end{pmatrix} \\
 &amp;= \begin{pmatrix} R_{11} &amp; R_{12} \\ R_{21} &amp; R_{21}R_{11}^{-1}R_{12} \end{pmatrix}
 \end{aligned}
 \]</span> Note that since rank<span class="math inline">\((X) = \text{rank}(R_{11})\)</span>, the rows of <span class="math inline">\([R_{21}, R_{22}]\)</span> are linear combinations of <span class="math inline">\([R_{11}, R_{12}]\)</span>, implying <span class="math inline">\(R_{22} = R_{21}R_{11}^{-1}R_{12}\)</span>. Thus, <span class="math inline">\(XX^-X = X\)</span>.</p>
-</section>
-<section id="algorithm-for-finding-a-generalized-inverse" class="level3" data-number="4.3.5">
-<h3 data-number="4.3.5" class="anchored" data-anchor-id="algorithm-for-finding-a-generalized-inverse"><span class="header-section-number">4.3.5</span> Algorithm for Finding a Generalized Inverse</h3>
+<p><strong>An Algorithm for Finding a Generalized Inverse</strong></p>
 <p>A systematic procedure to find a generalized inverse <span class="math inline">\(A^-\)</span> for any matrix <span class="math inline">\(A\)</span>:</p>
 <ol type="1">
 <li>Find any non-singular <span class="math inline">\(r \times r\)</span> submatrix <span class="math inline">\(C\)</span>, where <span class="math inline">\(r\)</span> is the rank of <span class="math inline">\(A\)</span>. It is not necessary for the elements of <span class="math inline">\(C\)</span> to occupy adjacent rows and columns in <span class="math inline">\(A\)</span>.</li>
@@ -709,22 +898,30 @@ XX^-X &amp;= \begin{pmatrix} R_{11} &amp; R_{12} \\ R_{21} &amp; R_{22} \end{pma
 <li>Replace all other elements in <span class="math inline">\(A\)</span> with zeros.</li>
 <li>Transpose the resulting matrix.</li>
 </ol>
-<p><span class="math display">\[
-\begin{pmatrix}
+<p><strong>Matrix Visual Representation</strong> <span class="math display">\[
+\underset{\text{Original } A}{\begin{pmatrix}
 \times &amp; \otimes &amp; \times &amp; \otimes \\
 \times &amp; \otimes &amp; \times &amp; \otimes \\
 \times &amp; \times &amp; \times &amp; \times
-\end{pmatrix} \xrightarrow{C^{-1}} \dots \xrightarrow{T} A^-
+\end{pmatrix}}
+\xrightarrow[\text{with } (C^{-1})']{\text{Replace } C}
+\underset{\text{Intermediate}}{\begin{pmatrix}
+\times &amp; \triangle &amp; \times &amp; \triangle \\
+\times &amp; \triangle &amp; \times &amp; \triangle \\
+\times &amp; \times &amp; \times &amp; \times
+\end{pmatrix}}
+\xrightarrow[\text{Result}]{\text{Transpose}}
+\underset{\text{Final } A^-}{\begin{pmatrix}
+\times &amp; \times &amp; \times \\
+\square &amp; \square &amp; \times \\
+\times &amp; \times &amp; \times \\
+\square &amp; \square &amp; \times
+\end{pmatrix}}
 \]</span></p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="lec20_images/page21_algorithm.png" class="img-fluid figure-img" style="width:70.0%"></p>
-<figcaption>Algorithm Visualization</figcaption>
-</figure>
-</div>
+<p><strong>Legend:</strong> * <span class="math inline">\(\otimes\)</span>: Elements of submatrix <span class="math inline">\(C\)</span> * <span class="math inline">\(\triangle\)</span>: Elements of <span class="math inline">\((C^{-1})'\)</span> * <span class="math inline">\(\square\)</span>: Elements of <span class="math inline">\(C^{-1}\)</span> (after transposition) * <span class="math inline">\(\times\)</span>: Other elements (replaced by 0 in the final calculation)</p>
 </section>
-<section id="moore-penrose-inverse" class="level3" data-number="4.3.6">
-<h3 data-number="4.3.6" class="anchored" data-anchor-id="moore-penrose-inverse"><span class="header-section-number">4.3.6</span> Moore-Penrose Inverse</h3>
+<section id="moore-penrose-inverse" class="level3" data-number="4.3.4">
+<h3 data-number="4.3.4" class="anchored" data-anchor-id="moore-penrose-inverse"><span class="header-section-number">4.3.4</span> Moore-Penrose Inverse</h3>
 <p>The Moore-Penrose inverse (denoted <span class="math inline">\(X^+\)</span>) is a unique generalized inverse defined via Singular Value Decomposition (SVD).</p>
 <p>If <span class="math inline">\(X\)</span> has SVD: <span class="math display">\[
 X = U \begin{pmatrix} \Lambda_r &amp; 0 \\ 0 &amp; 0 \end{pmatrix} V'
@@ -732,77 +929,125 @@ X = U \begin{pmatrix} \Lambda_r &amp; 0 \\ 0 &amp; 0 \end{pmatrix} V'
 <p>Then the Moore-Penrose inverse is: <span class="math display">\[
 X^+ = V \begin{pmatrix} \Lambda_r^{-1} &amp; 0 \\ 0 &amp; 0 \end{pmatrix} U'
 \]</span></p>
-<p>Where <span class="math inline">\(\Lambda_r = \text{diag}(\lambda_1, \dots, \lambda_r)\)</span> contains the singular values. Unlike standard generalized inverses, <span class="math inline">\(X^+\)</span> is unique.</p>
+<p>where <span class="math inline">\(\Lambda_r = \text{diag}(\lambda_1, \dots, \lambda_r)\)</span> contains the singular values. Unlike standard generalized inverses, <span class="math inline">\(X^+\)</span> is unique.</p>
+<p><strong>Verification:</strong></p>
+<p>We verify that <span class="math inline">\(X^+\)</span> satisfies the condition <span class="math inline">\(XX^+X = X\)</span>.</p>
+<ol type="1">
+<li><p><strong>Substitute definitions:</strong> <span class="math display">\[
+XX^+X = \left[ U \begin{pmatrix} \Lambda_r &amp; 0 \\ 0 &amp; 0 \end{pmatrix} V' \right] \left[ V \begin{pmatrix} \Lambda_r^{-1} &amp; 0 \\ 0 &amp; 0 \end{pmatrix} U' \right] \left[ U \begin{pmatrix} \Lambda_r &amp; 0 \\ 0 &amp; 0 \end{pmatrix} V' \right]
+\]</span></p></li>
+<li><p><strong>Apply orthogonality:</strong> Recall that <span class="math inline">\(V'V = I\)</span> and <span class="math inline">\(U'U = I\)</span>. <span class="math display">\[
+= U \begin{pmatrix} \Lambda_r &amp; 0 \\ 0 &amp; 0 \end{pmatrix} \underbrace{(V'V)}_{I} \begin{pmatrix} \Lambda_r^{-1} &amp; 0 \\ 0 &amp; 0 \end{pmatrix} \underbrace{(U'U)}_{I} \begin{pmatrix} \Lambda_r &amp; 0 \\ 0 &amp; 0 \end{pmatrix} V'
+\]</span></p></li>
+<li><p><strong>Multiply diagonal matrices:</strong> <span class="math display">\[
+= U \left[ \begin{pmatrix} \Lambda_r &amp; 0 \\ 0 &amp; 0 \end{pmatrix} \begin{pmatrix} \Lambda_r^{-1} &amp; 0 \\ 0 &amp; 0 \end{pmatrix} \begin{pmatrix} \Lambda_r &amp; 0 \\ 0 &amp; 0 \end{pmatrix} \right] V'
+\]</span> Since <span class="math inline">\(\Lambda_r \Lambda_r^{-1} \Lambda_r = I \cdot \Lambda_r = \Lambda_r\)</span>: <span class="math display">\[
+= U \begin{pmatrix} \Lambda_r &amp; 0 \\ 0 &amp; 0 \end{pmatrix} V' = X
+\]</span></p></li>
+</ol>
 </section>
-<section id="solving-linear-systems" class="level3" data-number="4.3.7">
-<h3 data-number="4.3.7" class="anchored" data-anchor-id="solving-linear-systems"><span class="header-section-number">4.3.7</span> Solving Linear Systems</h3>
+<section id="solving-linear-systems-with-generalized-inverse" class="level3" data-number="4.3.5">
+<h3 data-number="4.3.5" class="anchored" data-anchor-id="solving-linear-systems-with-generalized-inverse"><span class="header-section-number">4.3.5</span> Solving Linear Systems with Generalized Inverse</h3>
 <p>We apply generalized inverses to solve systems of linear equations <span class="math inline">\(X\beta = c\)</span> where <span class="math inline">\(X\)</span> is <span class="math inline">\(n \times p\)</span>.</p>
-<div id="thm-consistency" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 4.3 (Consistency and Solution)</strong></span> The system <span class="math inline">\(X\beta = c\)</span> is consistent if and only if <span class="math inline">\(c \in \mathcal{C}(X)\)</span> (the column space of <span class="math inline">\(X\)</span>). If consistent, <span class="math inline">\(\beta = X^- c\)</span> is a solution.</p>
+<div id="def-consistency" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 4.5 (Consistency and Solution)</strong></span> The system <span class="math inline">\(X\beta = c\)</span> is consistent if and only if <span class="math inline">\(c \in \mathcal{C}(X)\)</span> (the column space of <span class="math inline">\(X\)</span>). If consistent, <span class="math inline">\(\beta = X^- c\)</span> is a solution.</p>
 </div>
 <p><strong>Proof:</strong> If the system is consistent, there exists some <span class="math inline">\(b\)</span> such that <span class="math inline">\(Xb = c\)</span>. Using the definition <span class="math inline">\(XX^-X = X\)</span>: <span class="math display">\[
 X(X^- c) = X(X^- X b) = (XX^-X)b = Xb = c
 \]</span> Thus, <span class="math inline">\(X^-c\)</span> is a solution. Note that the solution is not unique if <span class="math inline">\(X\)</span> is not full rank.</p>
-</section>
-<section id="examples-of-solutions" class="level3" data-number="4.3.8">
-<h3 data-number="4.3.8" class="anchored" data-anchor-id="examples-of-solutions"><span class="header-section-number">4.3.8</span> Examples of Solutions</h3>
-<p><strong>Example 1:</strong> Let <span class="math inline">\(X = (1, 2, 3)\)</span>. Solve <span class="math inline">\(X\beta = 4\)</span>. One generalized inverse is <span class="math inline">\(X^- = (1, 0, 0)'\)</span>. <span class="math display">\[
+<div id="exm-gi-sol-ls" class="theorem example">
+<p><span class="theorem-title"><strong>Example 4.3 (Examples of Solutions of Linear System with Generalized Inverse)</strong></span> &nbsp;</p>
+<ul>
+<li><p><strong>Example 1: Underdetermined System</strong></p>
+<p>Let <span class="math inline">\(X = \begin{pmatrix} 1 &amp; 2 &amp; 3 \end{pmatrix}\)</span> and we want to solve <span class="math inline">\(X\beta = 4\)</span>.</p>
+<p><strong>Solution 1:</strong> Using the generalized inverse <span class="math inline">\(X^- = \begin{pmatrix} 1 \\ 0 \\ 0 \end{pmatrix}\)</span>: <span class="math display">\[
 \beta = X^- \cdot 4 = \begin{pmatrix} 1 \\ 0 \\ 0 \end{pmatrix} 4 = \begin{pmatrix} 4 \\ 0 \\ 0 \end{pmatrix}
-\]</span> Another <span class="math inline">\(X^- = (0, 0, 1/3)'\)</span> yields solution <span class="math inline">\(\beta = (0, 0, 4/3)'\)</span>.</p>
-<p><strong>Example 2:</strong> Let <span class="math inline">\(X = (1, 2, 3)'\)</span>. Solve <span class="math inline">\(X\beta = \begin{pmatrix} 2 \\ 4 \\ 6 \end{pmatrix} = c\)</span>. Here <span class="math inline">\(c = 2X\)</span>, so the system is consistent. Various generalized inverses (e.g., <span class="math inline">\((1, 0, 0)\)</span>, <span class="math inline">\((0, 1/2, 0)\)</span>) all yield <span class="math inline">\(\beta = 2\)</span>.</p>
-</section>
-<section id="least-squares-solutions" class="level3" data-number="4.3.9">
-<h3 data-number="4.3.9" class="anchored" data-anchor-id="least-squares-solutions"><span class="header-section-number">4.3.9</span> Least Squares Solutions</h3>
-<div id="thm-ols" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 4.4 (OLS Estimator)</strong></span> For the normal equations <span class="math inline">\((X'X)\beta = X'y\)</span>, a solution is given by: <span class="math display">\[
-\hat{\beta} = (X'X)^- X'y
+\]</span> <strong>Verification:</strong> <span class="math display">\[
+X\beta = \begin{pmatrix} 1 &amp; 2 &amp; 3 \end{pmatrix} \begin{pmatrix} 4 \\ 0 \\ 0 \end{pmatrix} = 1(4) + 2(0) + 3(0) = 4 \quad \checkmark
 \]</span></p>
+<p><strong>Solution 2:</strong> Using another generalized inverse <span class="math inline">\(X^- = \begin{pmatrix} 0 \\ 0 \\ 1/3 \end{pmatrix}\)</span>: <span class="math display">\[
+\beta = X^- \cdot 4 = \begin{pmatrix} 0 \\ 0 \\ 1/3 \end{pmatrix} 4 = \begin{pmatrix} 0 \\ 0 \\ 4/3 \end{pmatrix}
+\]</span> <strong>Verification:</strong> <span class="math display">\[
+X\beta = \begin{pmatrix} 1 &amp; 2 &amp; 3 \end{pmatrix} \begin{pmatrix} 0 \\ 0 \\ 4/3 \end{pmatrix} = 0 + 0 + 3(4/3) = 4 \quad \checkmark
+\]</span></p></li>
+<li><p><strong>Example 2: Overdetermined System</strong></p>
+<p>Let <span class="math inline">\(X = \begin{pmatrix} 1 \\ 2 \\ 3 \end{pmatrix}\)</span>. Solve <span class="math inline">\(X\beta = \begin{pmatrix} 2 \\ 4 \\ 6 \end{pmatrix} = c\)</span>. Here <span class="math inline">\(c = 2X\)</span>, so the system is consistent. Since <span class="math inline">\(X\)</span> is a column vector, <span class="math inline">\(\beta\)</span> is a scalar.</p>
+<p><strong>Solution:</strong> Using the generalized inverse <span class="math inline">\(X^- = \begin{pmatrix} 1 &amp; 0 &amp; 0 \end{pmatrix}\)</span>: <span class="math display">\[
+\beta = X^- c = \begin{pmatrix} 1 &amp; 0 &amp; 0 \end{pmatrix} \begin{pmatrix} 2 \\ 4 \\ 6 \end{pmatrix} = 1(2) + 0(4) + 0(6) = 2
+\]</span> <strong>Verification:</strong> <span class="math display">\[
+X\beta = \begin{pmatrix} 1 \\ 2 \\ 3 \end{pmatrix} (2) = \begin{pmatrix} 2 \\ 4 \\ 6 \end{pmatrix} = c \quad \checkmark
+\]</span></p></li>
+</ul>
 </div>
-<p>The fitted values are <span class="math inline">\(\hat{y} = X\hat{\beta} = X(X'X)^- X'y\)</span>. This <span class="math inline">\(\hat{y}\)</span> represents the unique orthogonal projection of <span class="math inline">\(y\)</span> onto <span class="math inline">\(\mathcal{C}(X)\)</span>.</p>
 </section>
-<section id="properties-of-generalized-inverses" class="level3" data-number="4.3.10">
-<h3 data-number="4.3.10" class="anchored" data-anchor-id="properties-of-generalized-inverses"><span class="header-section-number">4.3.10</span> Properties of Generalized Inverses</h3>
-<section id="transpose-property" class="level4" data-number="4.3.10.1">
-<h4 data-number="4.3.10.1" class="anchored" data-anchor-id="transpose-property"><span class="header-section-number">4.3.10.1</span> Transpose Property</h4>
-<p><span class="math inline">\((X')^-\)</span> is a version of <span class="math inline">\((X^-)'\)</span>. This implies that if <span class="math inline">\(G\)</span> is a generalized inverse of <span class="math inline">\(X\)</span>, then <span class="math inline">\(G'\)</span> is a generalized inverse of <span class="math inline">\(X'\)</span>.</p>
 </section>
-<section id="invariance-property" class="level4" data-number="4.3.10.2">
-<h4 data-number="4.3.10.2" class="anchored" data-anchor-id="invariance-property"><span class="header-section-number">4.3.10.2</span> Invariance Property</h4>
-<div id="thm-invariance" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 4.5</strong></span> For any version of the generalized inverse <span class="math inline">\((X'X)^-\)</span>, the matrix <span class="math inline">\(X'(X'X)^- X'\)</span> is invariant and equals <span class="math inline">\(X'\)</span>. <span class="math display">\[
+<section id="least-squares-with-generalized-inverse" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="least-squares-with-generalized-inverse"><span class="header-section-number">4.4</span> Least Squares with Generalized Inverse</h2>
+<p>For the normal equations <span class="math inline">\((X'X)\beta = X'y\)</span>, a solution is given by: <span class="math display">\[
+\hat{\beta} = (X'X)^- X'y
+\]</span> The fitted values are <span class="math display">\[\hat{y} = X\hat{\beta} = X(X'X)^- X'y.\]</span> This <span class="math inline">\(\hat{y}\)</span> represents the unique orthogonal projection of <span class="math inline">\(y\)</span> onto <span class="math inline">\(Col(X)\)</span>.</p>
+<div id="thm-transpose" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 4.5 (Transpose Property of Generalized Inverses)</strong></span> <span class="math inline">\((X^-)'\)</span> is a version of <span class="math inline">\((X')^-\)</span>. That is, <span class="math inline">\((X^-)'\)</span> is a generalized inverse of <span class="math inline">\(X'\)</span>.</p>
+</div>
+<div class="proof">
+<p><span class="proof-title"><em>Proof</em>. </span>By definition, a generalized inverse <span class="math inline">\(X^-\)</span> satisfies the property: <span class="math display">\[
+X X^- X = X
+\]</span></p>
+<p>To verify that <span class="math inline">\((X^-)'\)</span> is a generalized inverse of <span class="math inline">\(X'\)</span>, we need to show that it satisfies the condition <span class="math inline">\(A G A = A\)</span> where <span class="math inline">\(A = X'\)</span> and <span class="math inline">\(G = (X^-)'\)</span>.</p>
+<ol type="1">
+<li>Start with the fundamental definition: <span class="math display">\[
+X X^- X = X
+\]</span></li>
+<li>Take the transpose of both sides of the equation: <span class="math display">\[
+(X X^- X)' = X'
+\]</span></li>
+<li>Apply the reverse order law for transposes, <span class="math inline">\((ABC)' = C' B' A'\)</span>: <span class="math display">\[
+X' (X^-)' X' = X'
+\]</span></li>
+</ol>
+<p>Since substituting <span class="math inline">\((X^-)'\)</span> into the generalized inverse equation for <span class="math inline">\(X'\)</span> yields <span class="math inline">\(X'\)</span>, <span class="math inline">\((X^-)'\)</span> is a valid generalized inverse of <span class="math inline">\(X'\)</span>.</p>
+</div>
+<div id="lem-invariance" class="theorem lemma">
+<p><span class="theorem-title"><strong>Lemma 4.1 (Invariance of Generalized Least Squares)</strong></span> For any version of the generalized inverse <span class="math inline">\((X'X)^-\)</span>, the matrix <span class="math inline">\(X'(X'X)^- X'\)</span> is invariant and equals <span class="math inline">\(X'\)</span>. <span class="math display">\[
 X'X(X'X)^- X' = X'
 \]</span></p>
 </div>
-<p><strong>Proof (using Projection):</strong> Let <span class="math inline">\(P = X(X'X)^- X'\)</span>. This is the projection matrix onto <span class="math inline">\(\mathcal{C}(X)\)</span>. By definition of projection, <span class="math inline">\(Px = x\)</span> for any <span class="math inline">\(x \in \mathcal{C}(X)\)</span>. Since columns of <span class="math inline">\(X\)</span> are in <span class="math inline">\(\mathcal{C}(X)\)</span>, <span class="math inline">\(PX = X\)</span>. Taking the transpose: <span class="math inline">\((PX)' = X' \implies X'P' = X'\)</span>. Since projection matrices are symmetric (<span class="math inline">\(P=P'\)</span>), <span class="math inline">\(X'P = X'\)</span>. Substituting <span class="math inline">\(P\)</span>: <span class="math inline">\(X' X (X'X)^- X' = X'\)</span>.</p>
-<p><strong>Proof (Direct Matrix Manipulation):</strong> Decompose <span class="math inline">\(y = X\beta + e\)</span> where <span class="math inline">\(e \perp \mathcal{C}(X)\)</span> (i.e., <span class="math inline">\(X'e = 0\)</span>). <span class="math display">\[
+<p><strong>Proof (using Projection):</strong> Let <span class="math inline">\(P = X(X'X)^- X'\)</span>. This is the projection matrix onto <span class="math inline">\(\mathcal{C}(X)\)</span>. By definition of projection, <span class="math inline">\(Px = x\)</span> for any <span class="math inline">\(x \in Col(X)\)</span>. Since columns of <span class="math inline">\(X\)</span> are in <span class="math inline">\(Col(X)\)</span>, <span class="math inline">\(PX = X\)</span>. Taking the transpose: <span class="math inline">\((PX)' = X' \implies X'P' = X'\)</span>. Since projection matrices are symmetric (<span class="math inline">\(P=P'\)</span>), <span class="math inline">\(X'P = X'\)</span>. Substituting <span class="math inline">\(P\)</span>: <span class="math inline">\(X' X (X'X)^- X' = X'\)</span>.</p>
+<p><strong>Proof (Direct Matrix Manipulation):</strong> Decompose <span class="math inline">\(y = X\beta + e\)</span> where <span class="math inline">\(e \perp Col(X)\)</span> (i.e., <span class="math inline">\(X'e = 0\)</span>). <span class="math display">\[
 \begin{aligned}
 X'X(X'X)^- X' y &amp;= X'X(X'X)^- X' (X\beta + e) \\
 &amp;= X'X(X'X)^- X'X\beta + X'X(X'X)^- X'e
 \end{aligned}
 \]</span> Using the property <span class="math inline">\(A A^- A = A\)</span> (where <span class="math inline">\(A=X'X\)</span>), the first term becomes <span class="math inline">\(X'X\beta\)</span>. The second term is 0 because <span class="math inline">\(X'e = 0\)</span>. Thus, the expression simplifies to <span class="math inline">\(X'X\beta = X'(X\beta) = X'\hat{y}_{proj}\)</span>. This implies the operator acts as <span class="math inline">\(X'\)</span>.</p>
-</section>
-</section>
-<section id="properties-of-the-projection-matrix" class="level3" data-number="4.3.11">
-<h3 data-number="4.3.11" class="anchored" data-anchor-id="properties-of-the-projection-matrix"><span class="header-section-number">4.3.11</span> Properties of the Projection Matrix</h3>
-<p>Let <span class="math inline">\(P = X(X'X)^- X'\)</span>. This matrix has the following properties:</p>
+<section id="properties-of-the-projection-matrix" class="level3" data-number="4.4.1">
+<h3 data-number="4.4.1" class="anchored" data-anchor-id="properties-of-the-projection-matrix"><span class="header-section-number">4.4.1</span> Properties of the Projection Matrix</h3>
+<div id="thm-proj-properties" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 4.6 (Properties of Projection Matrix <span class="math inline">\(P\)</span>)</strong></span> Let <span class="math inline">\(P = X(X'X)^- X'\)</span>. This matrix has the following properties:</p>
 <ol type="1">
 <li><strong>Symmetry:</strong> <span class="math inline">\(P = P'\)</span>.</li>
 <li><strong>Idempotence:</strong> <span class="math inline">\(P^2 = P\)</span>. <span class="math display">\[
 P^2 = X(X'X)^- X' X(X'X)^- X' = X(X'X)^- (X'X (X'X)^- X')
-\]</span> Using the identity <span class="math inline">\(X'X(X'X)^- X' = X'\)</span>, this simplifies to <span class="math inline">\(X(X'X)^- X' = P\)</span>.</li>
-<li><strong>Uniqueness:</strong> <span class="math inline">\(P\)</span> is invariant to the choice of <span class="math inline">\((X'X)^-\)</span>. This is because <span class="math inline">\(P\)</span> represents the orthogonal projection onto <span class="math inline">\(\mathcal{C}(X)\)</span>, which is geometrically unique.</li>
+\]</span> Using the identity from <a href="#lem-invariance" class="quarto-xref">Lemma&nbsp;<span>4.1</span></a> (<span class="math inline">\(X'X(X'X)^- X' = X'\)</span>), this simplifies to: <span class="math display">\[
+X(X'X)^- X' = P
+\]</span></li>
+<li><strong>Uniqueness:</strong> <span class="math inline">\(P\)</span> is unique and invariant to the choice of the generalized inverse <span class="math inline">\((X'X)^-\)</span>.</li>
 </ol>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="lec20_images/page29_projection.png" class="img-fluid figure-img" style="width:70.0%"></p>
-<figcaption>Projection Matrix Properties</figcaption>
-</figure>
+</div>
+<div class="proof">
+<p><span class="proof-title"><em>Proof</em>. </span><strong>Proof of Uniqueness:</strong></p>
+<p>Let <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span> be two different generalized inverses of <span class="math inline">\(X'X\)</span>. Define <span class="math inline">\(P_A = X A X'\)</span> and <span class="math inline">\(P_B = X B X'\)</span>. From <a href="#lem-invariance" class="quarto-xref">Lemma&nbsp;<span>4.1</span></a>, we know that <span class="math inline">\(X' P_A = X'\)</span> and <span class="math inline">\(X' P_B = X'\)</span>.</p>
+<p>Subtracting these two equations: <span class="math display">\[
+X' (P_A - P_B) = 0
+\]</span> Taking the transpose, we get <span class="math inline">\((P_A - P_B) X = 0\)</span>. This implies that the columns of the difference matrix <span class="math inline">\(D = P_A - P_B\)</span> are orthogonal to the columns of <span class="math inline">\(X\)</span> (i.e., <span class="math inline">\(D \perp Col(X)\)</span>).</p>
+<p>However, by definition, the columns of <span class="math inline">\(P_A\)</span> and <span class="math inline">\(P_B\)</span> (and thus <span class="math inline">\(D\)</span>) are linear combinations of the columns of <span class="math inline">\(X\)</span> (i.e., <span class="math inline">\(D \in Col(X)\)</span>).</p>
+<p>The only matrix that lies <em>in</em> the column space of <span class="math inline">\(X\)</span> but is also <em>orthogonal</em> to the column space of <span class="math inline">\(X\)</span> is the zero matrix. Therefore: <span class="math display">\[
+P_A - P_B = 0 \implies P_A = P_B
+\]</span></p>
 </div>
 <hr>
 </section>
-</section>
-<section id="least-squares-with-rank-deficient-matrix" class="level2" data-number="4.4">
-<h2 data-number="4.4" class="anchored" data-anchor-id="least-squares-with-rank-deficient-matrix"><span class="header-section-number">4.4</span> Least Squares with Rank Deficient Matrix</h2>
+<section id="two-explicit-formulas" class="level3" data-number="4.4.2">
+<h3 data-number="4.4.2" class="anchored" data-anchor-id="two-explicit-formulas"><span class="header-section-number">4.4.2</span> Two Explicit Formulas</h3>
 <p>When <span class="math inline">\(X\)</span> has rank <span class="math inline">\(r &lt; p\)</span> (where <span class="math inline">\(X\)</span> is <span class="math inline">\(n \times p\)</span>), we can derive the least squares estimator using partitioned matrices.</p>
 <p>Assume the first <span class="math inline">\(r\)</span> columns of <span class="math inline">\(X\)</span> are linearly independent. We can partition <span class="math inline">\(X\)</span> as: <span class="math display">\[
 X = Q (R_1, R_2)
@@ -812,8 +1057,9 @@ X'X\beta = X'y \implies \begin{pmatrix} R_1' \\ R_2' \end{pmatrix} Q' Q (R_1, R_
 \]</span> Simplifying (<span class="math inline">\(Q'Q = I_r\)</span>): <span class="math display">\[
 \begin{pmatrix} R_1'R_1 &amp; R_1'R_2 \\ R_2'R_1 &amp; R_2'R_2 \end{pmatrix} \beta = \begin{pmatrix} R_1'Q'y \\ R_2'Q'y \end{pmatrix}
 \]</span></p>
-<section id="constructing-a-solution" class="level3" data-number="4.4.1">
-<h3 data-number="4.4.1" class="anchored" data-anchor-id="constructing-a-solution"><span class="header-section-number">4.4.1</span> Constructing a Solution</h3>
+</section>
+<section id="constructing-a-solution-by-solving-normal-equations" class="level3" data-number="4.4.3">
+<h3 data-number="4.4.3" class="anchored" data-anchor-id="constructing-a-solution-by-solving-normal-equations"><span class="header-section-number">4.4.3</span> Constructing a Solution by Solving Normal Equations</h3>
 <div class="proof">
 <p><span class="proof-title"><em>Proof</em>. </span>One specific generalized inverse of <span class="math inline">\(X'X\)</span> can be found by focusing on the non-singular block <span class="math inline">\(R_1'R_1\)</span>: <span class="math display">\[
 (X'X)^- = \begin{pmatrix} (R_1'R_1)^{-1} &amp; 0 \\ 0 &amp; 0 \end{pmatrix}
@@ -827,15 +1073,9 @@ X'X\beta = X'y \implies \begin{pmatrix} R_1' \\ R_2' \end{pmatrix} Q' Q (R_1, R_
 \hat{y} = X\hat{\beta} = Q(R_1, R_2) \begin{pmatrix} R_1^{-1} Q'y \\ 0 \end{pmatrix} = Q R_1 R_1^{-1} Q'y = QQ'y
 \]</span> This confirms that <span class="math inline">\(\hat{y}\)</span> is the projection of <span class="math inline">\(y\)</span> onto the column space of <span class="math inline">\(Q\)</span> (which is the same as the column space of <span class="math inline">\(X\)</span>).</p>
 </div>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="lec20_images/page31_ls_rank_deficient.png" class="img-fluid figure-img" style="width:70.0%"></p>
-<figcaption>Least Squares Derivation for Rank Deficient Matrix</figcaption>
-</figure>
-</div>
 </section>
-<section id="alternative-interpretation" class="level3" data-number="4.4.2">
-<h3 data-number="4.4.2" class="anchored" data-anchor-id="alternative-interpretation"><span class="header-section-number">4.4.2</span> Alternative Interpretation</h3>
+<section id="constructing-a-solution-by-solving-reparametrized-beta" class="level3" data-number="4.4.4">
+<h3 data-number="4.4.4" class="anchored" data-anchor-id="constructing-a-solution-by-solving-reparametrized-beta"><span class="header-section-number">4.4.4</span> Constructing a Solution by Solving Reparametrized <span class="math inline">\(\beta\)</span></h3>
 <p>We can view the model as: <span class="math display">\[
 y = Q(R_1, R_2)\beta + \epsilon = Qb + \epsilon
 \]</span> where <span class="math inline">\(b = R_1\beta_1 + R_2\beta_2\)</span>.</p>
@@ -1268,6 +1508,9 @@ R^- = \begin{pmatrix} R_1^{-1} \\ 0 \end{pmatrix}
       </a>          
   </div>
   <div class="nav-page nav-page-next">
+      <a href="./lec4-mvn.html" class="pagination-link" aria-label="Multivariate Normal">
+        <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Multivariate Normal</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
   </div>
 </nav>
 </div> <!-- /content -->

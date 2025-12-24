@@ -1,5 +1,5 @@
 ---
-title: "Review of Matrix Algebra"
+title: "Spectral Theory and Generalized Inverse"
 ---
 
 ```{r}
@@ -77,37 +77,56 @@ where:
 * $Q = (q_1, \dots, q_n)$ contains the corresponding orthonormal eigenvectors ($q_i'q_j = \delta_{ij}$).
 :::
 
-This allows us to view the transformation $Ax$ as a rotation ($Q'$), a scaling ($\Lambda$), and a rotation back ($Q$).
+**Explantion**: 
+This allows us to view the transformation $Ax$ as a rotation ($Q'$), a scaling ($\Lambda$), and a rotation back ($Q$). For a symmetric matrix $A$, we can write the spectral decomposition as a product of the eigenvector matrix $Q$ and eigenvalue matrix $\Lambda$:
 
-```{r}
-#| label: extract-p3
-#| include: false
-extract_page_image(3, "page03_spectral.png", "1200x800+0+200")
-```
+$$
+\begin{aligned}
+A &= Q \Lambda Q' \\
+  &= \begin{pmatrix} q_1 & q_2 & \cdots & q_n \end{pmatrix} 
+     \begin{pmatrix} \lambda_1 & 0 & \cdots & 0 \\ 0 & \lambda_2 & \cdots & 0 \\ \vdots & \vdots & \ddots & \vdots \\ 0 & 0 & \cdots & \lambda_n \end{pmatrix} 
+     \begin{pmatrix} q_1' \\ q_2' \\ \vdots \\ q_n' \end{pmatrix} \\
+  &= \begin{pmatrix} \lambda_1 q_1 & \lambda_2 q_2 & \cdots & \lambda_n q_n \end{pmatrix} 
+     \begin{pmatrix} q_1' \\ q_2' \\ \vdots \\ q_n' \end{pmatrix} \\
+  &= \lambda_1 q_1 q_1' + \lambda_2 q_2 q_2' + \cdots + \lambda_n q_n q_n' \\
+  &= \sum_{i=1}^n \lambda_i q_i q_i'
+\end{aligned}
+$$
 
-![Spectral Decomposition Geometry](lec20_images/page03_spectral.png){width=70%}
+where the eigenvectors $q_i$ satisfy the orthogonality conditions:
+$$
+q_i' q_j = \begin{cases} 1 & \text{if } i=j \\ 0 & \text{if } i \ne j \end{cases}
+$$
+And $Q$ is an orthogonal matrix: $Q'Q = Q Q' = I_n$.
+
+### Quadratic Form
+:::{#def-quadratic-form}
+
+A **quadratic form** in $n$ variables $x_1, x_2, \dots, x_n$ is a scalar function defined by a symmetric matrix $A$:
+$$
+Q(x) = x'Ax = \sum_{i=1}^n \sum_{j=1}^n a_{ij} x_i x_j
+$$
+:::
 
 ### Properties of Symmetric Matrices
-
-Several important properties follow from the spectral decomposition:
+:::{#thm-symmetric-properties}
+#### Properties of Symmetric Matrices
+Let $A$ be a symmetric matrix with spectral decomposition $A = Q \Lambda Q'$. The following properties hold:
 
 1.  **Trace:** $\text{tr}(A) = \sum \lambda_i$.
 2.  **Determinant:** $|A| = \prod \lambda_i$.
 3.  **Singularity:** $A$ is singular if and only if at least one $\lambda_i = 0$.
 4.  **Inverse:** If $A$ is non-singular ($\lambda_i \ne 0$), then $A^{-1} = Q \Lambda^{-1} Q'$.
 5.  **Powers:** $A^k = Q \Lambda^k Q'$.
-    * Square Root: $A^{1/2} = Q \Lambda^{1/2} Q'$ (if $\lambda_i \ge 0$).
+    * *Square Root:* $A^{1/2} = Q \Lambda^{1/2} Q'$ (if $\lambda_i \ge 0$).
+6.  **Spectral Representation of Quadratic Forms:** The quadratic form $x'Ax$ can be diagonalized using the eigenvectors of $A$:
+    $$
+    x'Ax = x' Q \Lambda Q' x = y' \Lambda y = \sum_{i=1}^n \lambda_i y_i^2
+    $$
+    where $y = Q'x$ represents a rotation of the coordinate system.
+:::
 
-### Quadratic Forms
-
-The quadratic form associated with a symmetric matrix $A$ is defined as $x'Ax$. Using spectral decomposition:
-
-$$
-x'Ax = x' Q \Lambda Q' x = y' \Lambda y = \sum_{i=1}^n \lambda_i y_i^2
-$$
-where $y = Q'x$.
-
-### Projection Matrices
+### Spectral Representation of Projection Matrices 
 
 We revisit projection matrices in the context of eigenvalues.
 
@@ -127,8 +146,9 @@ For a projection matrix $P$:
 * If $x \perp Col(P)$, $Px = 0$ (Eigenvalue 0).
 * $\text{rank}(P) = \text{tr}(P) = \sum \lambda_i$ (Count of 1s).
 
-**Example:**
+::: {#exm-trace-P}
 For $P = \frac{1}{n} J_n J_n'$, the rank is $\text{tr}(P) = 1$.
+:::
 
 ### Positive Definite Matrices
 
@@ -168,68 +188,216 @@ extract_page_image(8, "page08_pos_def.png", "1200x800+0+200")
 
 ### Singular Value Decomposition (SVD)
 
-For any $n \times p$ matrix $X$ with rank $r \le \min(n, p)$, $X$ can be decomposed as:
+:::{#thm-svd}
+## Singular Value Decomposition (SVD)
+
+Let $X$ be an $n \times p$ matrix with rank $r \le \min(n, p)$. $X$ can be decomposed into the product of three matrices:
 
 $$
-X = U \Lambda V' = (U_1, U_2) \begin{pmatrix} \Lambda_r & 0 \\ 0 & 0 \end{pmatrix} \begin{pmatrix} V_1' \\ V_2' \end{pmatrix}
+X = U \mathbf{D} V'
 $$
 
-where:
+**1. Partitioned Matrix Form**
 
-* $\Lambda_r = \text{diag}(\lambda_1, \dots, \lambda_r)$ contains the singular values (square roots of non-zero eigenvalues of $X'X$).
-* $U$ is $n \times n$ orthogonal ($U'U = I_n$).
-* $V$ is $p \times p$ orthogonal ($V'V = I_p$).
+$$
+X = \underset{n \times n}{(U_1, U_2)}
+\begin{pmatrix}
+\Lambda_r & O_{r \times (p-r)} \\
+O_{(n-r) \times r} & O_{(n-r) \times (p-r)}
+\end{pmatrix}
+\underset{p \times p}{
+\begin{pmatrix}
+V_1' \\
+V_2'
+\end{pmatrix}
+}
+$$
 
-```{r}
-#| label: extract-p12
-#| include: false
-extract_page_image(12, "page12_svd.png", "1200x800+0+200")
-```
+**2. Detailed Matrix Form**
 
-![Singular Value Decomposition Structure](lec20_images/page12_svd.png){width=70%}
+Expanding the diagonal matrix explicitly:
+
+$$
+X = \underset{n \times n}{(u_1, \dots, u_n)}
+\left(
+\begin{array}{cccc|c}
+\lambda_1 & 0 & \dots & 0 &  \\
+0 & \lambda_2 & \dots & 0 & O_{12} \\
+\vdots & \vdots & \ddots & \vdots &  \\
+0 & 0 & \dots & \lambda_r &  \\
+\hline
+ & O_{21} & & & O_{22}
+\end{array}
+\right)
+\underset{p \times p}{
+\begin{pmatrix}
+v_1' \\
+\vdots \\
+v_p'
+\end{pmatrix}
+}
+$$
+
+**3. Reduced Form**
+
+$$
+X = U_1 \Lambda_r V_1' = \sum_{i=1}^r \lambda_i u_i v_i'
+$$
+
+**Properties:**
+
+1.  **Singular Values ($\Lambda_r$):** $\Lambda_r = \text{diag}(\lambda_1, \dots, \lambda_r)$ contains the singular values ($\lambda_i > 0$), which are the square roots of the non-zero eigenvalues of $X'X$.
+2.  **Orthogonality:**
+    * $U$ is $n \times n$ orthogonal ($U'U = I_n$).
+    * $V$ is $p \times p$ orthogonal ($V'V = I_p$).
+:::
+
+#### Connection to Gram Matrices
+
+The matrices $U$ and $V$ provide the basis vectors (eigenvectors) for the Gram matrices of $X$.
+
+1.  **Right Singular Vectors ($V$):**
+    The columns of $V$ are the eigenvectors of the Gram matrix $X'X$.
+    $$
+    X'X = (U \Lambda V')' (U \Lambda V') = V \Lambda U' U \Lambda V' = V \Lambda^2 V'
+    $$
+    * The eigenvalues of $X'X$ are the squared singular values $\lambda_i^2$.
+
+2.  **Left Singular Vectors ($U$):**
+    The columns of $U$ are the eigenvectors of the Gram matrix $XX'$.
+    $$
+    XX' = (U \Lambda V') (U \Lambda V')' = U \Lambda V' V \Lambda U' = U \Lambda^2 U'
+    $$
+    * The eigenvalues of $XX'$ are also $\lambda_i^2$ (for non-zero values).
+
+#### Numerical Example
+
+Consider the matrix $X = \begin{pmatrix} 1 & 1 \\ 2 & 2 \end{pmatrix}$.
+
+1.  **Compute $X'X$ and find $V$:**
+    $$
+    X'X = \begin{pmatrix} 1 & 2 \\ 1 & 2 \end{pmatrix} \begin{pmatrix} 1 & 1 \\ 2 & 2 \end{pmatrix} = \begin{pmatrix} 5 & 5 \\ 5 & 5 \end{pmatrix}
+    $$
+    * Eigenvalues of $X'X$: Trace is 10, Determinant is 0. Thus, $\mu_1 = 10, \mu_2 = 0$.
+    * **Singular Values:** $\lambda_1 = \sqrt{10}, \lambda_2 = 0$.
+    * Eigenvector for $\mu_1=10$: Normalized $v_1 = \frac{1}{\sqrt{2}}\begin{pmatrix} 1 \\ 1 \end{pmatrix}$.
+    * Eigenvector for $\mu_2=0$: Normalized $v_2 = \frac{1}{\sqrt{2}}\begin{pmatrix} 1 \\ -1 \end{pmatrix}$.
+    * Therefore, $V = \frac{1}{\sqrt{2}}\begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix}$.
+
+2.  **Compute $XX'$ and find $U$:**
+    $$
+    XX' = \begin{pmatrix} 1 & 1 \\ 2 & 2 \end{pmatrix} \begin{pmatrix} 1 & 2 \\ 1 & 2 \end{pmatrix} = \begin{pmatrix} 2 & 4 \\ 4 & 8 \end{pmatrix}
+    $$
+    * Eigenvalues are again 10 and 0.
+    * Eigenvector for $\mu_1=10$: Normalized $u_1 = \frac{1}{\sqrt{5}}\begin{pmatrix} 1 \\ 2 \end{pmatrix}$.
+    * Eigenvector for $\mu_2=0$: Normalized $u_2 = \frac{1}{\sqrt{5}}\begin{pmatrix} 2 \\ -1 \end{pmatrix}$.
+    * Therefore, $U = \frac{1}{\sqrt{5}}\begin{pmatrix} 1 & 2 \\ 2 & -1 \end{pmatrix}$.
+
+3.  **Verification:**
+    $$
+    X = \sqrt{10} u_1 v_1' = \sqrt{10} \begin{pmatrix} \frac{1}{\sqrt{5}} \\ \frac{2}{\sqrt{5}} \end{pmatrix} \begin{pmatrix} \frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}} \end{pmatrix} = \begin{pmatrix} 1 & 1 \\ 2 & 2 \end{pmatrix}
+    $$
 
 ## Cholesky Decomposition
 
-If $A$ is a positive definite (p.d.) matrix, there exists an upper triangular matrix $B$ such that:
+A symmetric matrix $A$ has a Cholesky decomposition if and only if it is **non-negative definite** (i.e., $x'Ax \ge 0$ for all $x$).
 
 $$
 A = B'B
 $$
 
-The factorization is unique if we require the diagonal elements of $B$ to be positive.
+where $B$ is an **upper triangular** matrix with non-negative diagonal entries.
+
+### Matrix Representation of the Algorithm
+
+To derive the algorithm, we equate the elements of $A$ with the product of the lower triangular matrix $B'$ and the upper triangular matrix $B$.
+
+For a $3 \times 3$ matrix, this looks like:
 
 $$
-B = \begin{pmatrix}
-b_{11} & b_{12} & \cdots & b_{1n} \\
-0 & b_{22} & \cdots & b_{2n} \\
-\vdots & \vdots & \ddots & \vdots \\
-0 & 0 & \cdots & b_{nn}
+\underbrace{\begin{pmatrix}
+a_{11} & a_{12} & a_{13} \\
+a_{21} & a_{22} & a_{23} \\
+a_{31} & a_{32} & a_{33}
+\end{pmatrix}}_{A}
+=
+\underbrace{\begin{pmatrix}
+b_{11} & 0 & 0 \\
+b_{12} & b_{22} & 0 \\
+b_{13} & b_{23} & b_{33}
+\end{pmatrix}}_{B'}
+\underbrace{\begin{pmatrix}
+b_{11} & b_{12} & b_{13} \\
+0 & b_{22} & b_{23} \\
+0 & 0 & b_{33}
+\end{pmatrix}}_{B}
+$$
+
+Multiplying the matrices on the right yields the system of equations:
+
+$$
+A = \begin{pmatrix}
+\mathbf{b_{11}^2} & b_{11}b_{12} & b_{11}b_{13} \\
+b_{12}b_{11} & \mathbf{b_{12}^2 + b_{22}^2} & b_{12}b_{13} + b_{22}b_{23} \\
+b_{13}b_{11} & b_{13}b_{12} + b_{23}b_{22} & \mathbf{b_{13}^2 + b_{23}^2 + b_{33}^2}
 \end{pmatrix}
 $$
 
-The elements of $B$ can be solved recursively:
+By solving for the bolded diagonal terms and substituting known values from previous rows, we get the recursive algorithm.
+
+### The Algorithm
+
+1.  **Row 1:** Solve for $b_{11}$ using $a_{11}$, then solve the rest of the row ($b_{1j}$) by division.
+    * $b_{11} = \sqrt{a_{11}}$
+    * $b_{1j} = a_{1j}/b_{11}$
+
+2.  **Row 2:** Solve for $b_{22}$ using $a_{22}$ and the known $b_{12}$, then solve $b_{2j}$.
+    * $b_{22} = \sqrt{a_{22} - b_{12}^2}$
+    * $b_{2j} = (a_{2j} - b_{12}b_{1j}) / b_{22}$
+
+3.  **Row 3:** Solve for $b_{33}$ using $a_{33}$ and the known $b_{13}, b_{23}$.
+    * $b_{33} = \sqrt{a_{33} - b_{13}^2 - b_{23}^2}$
+
+### Numerical Example
+
+Consider the positive definite matrix $A$:
 $$
-\begin{aligned}
-b_{11}^2 &= a_{11} \implies b_{11} = \sqrt{a_{11}} \\
-b_{11}b_{1j} &= a_{1j} \implies b_{1j} = a_{1j}/b_{11} \\
-b_{12}^2 + b_{22}^2 &= a_{22} \implies b_{22} = \sqrt{a_{22} - b_{12}^2}
-\end{aligned}
+A = \begin{pmatrix}
+4 & 2 & -2 \\
+2 & 10 & 2 \\
+-2 & 2 & 6
+\end{pmatrix}
 $$
 
-**Why Cholesky?**
-Calculating the inverse of an upper triangular matrix $B$ is computationally easy, making $A^{-1} = (B'B)^{-1} = B^{-1}(B')^{-1}$ efficient to compute.
+We find $B$ such that $A = B'B$:
 
+1.  **First Row of B ($b_{11}, b_{12}, b_{13}$):**
+    * $b_{11} = \sqrt{4} = 2$
+    * $b_{12} = 2 / 2 = 1$
+    * $b_{13} = -2 / 2 = -1$
+
+2.  **Second Row of B ($b_{22}, b_{23}$):**
+    * $b_{22} = \sqrt{10 - (1)^2} = \sqrt{9} = 3$
+    * $b_{23} = (2 - (1)(-1)) / 3 = 3/3 = 1$
+
+3.  **Third Row of B ($b_{33}$):**
+    * $b_{33} = \sqrt{6 - (-1)^2 - (1)^2} = \sqrt{4} = 2$
+
+**Result:**
+$$
+B = \begin{pmatrix}
+2 & 1 & -1 \\
+0 & 3 & 1 \\
+0 & 0 & 2
+\end{pmatrix}
+$$
 
 ## Generalized Inverses
 
 ### Motivation
 
 Consider the linear system $X\beta = y$.
-In $\mathbb{R}^2$, if $X = [x_1, x_2]$ is invertible, the solution is unique: $\beta = X^{-1}y$. This satisfies $X(X^{-1}y) = y$.
-
-However, if $X$ is not square or not invertible (e.g., $X$ is $2 \times 3$), $X\beta = y$ does not have a unique solution. We seek a matrix $G$ such that $\beta = Gy$ provides a solution whenever $y \in C(X)$ (the column space of X).
-
-Substituting $\beta = Gy$ into the equation $X\beta = y$:
+In $\mathbb{R}^2$, if $X = [x_1, x_2]$ is invertible, the solution is unique: $\beta = X^{-1}y$. This satisfies $X(X^{-1}y) = y$.However, if $X$ is not square or not invertible (e.g., $X$ is $2 \times 3$), $X\beta = y$ does not have a unique solution. We seek a matrix $G$ such that $\beta = Gy$ provides a solution whenever $y \in C(X)$ (the column space of X). Substituting $\beta = Gy$ into the equation $X\beta = y$:
 $$
 X(Gy) = y \quad \forall y \in C(X)
 $$
@@ -242,13 +410,6 @@ $$
 XGX = X
 $$
 
-```{r}
-#| label: extract-p15
-#| include: false
-extract_page_image(15, "page15_motivation.png", "1200x800+0+200")
-```
-
-![Geometric Motivation for Generalized Inverses](lec20_images/page15_motivation.png){width=70%}
 
 ### Definition of Generalized Inverse
 
@@ -260,37 +421,69 @@ XX^-X = X
 $$
 :::
 
-### Examples
 
-**Example 1: Diagonal Matrix**
-If $X = \text{diag}(\lambda_1, \lambda_2, 0, 0)$, a generalized inverse is obtained by inverting the non-zero elements:
-$$
-X^- = \text{diag}(\lambda_1^{-1}, \lambda_2^{-1}, 0, 0)
-$$
 
-**Example 2: Row Vector**
-Let $X = (1, 2, 3)$.
-One possible generalized inverse is $X^- = (1, 0, 0)'$.
-Verification:
-$$
-XX^-X = (1, 2, 3) \begin{pmatrix} 1 \\ 0 \\ 0 \end{pmatrix} (1, 2, 3) = 1 \cdot (1, 2, 3) = X
-$$
-Other valid generalized inverses include $(0, 1/2, 0)'$ or $(0, 0, 1/3)'$.
+:::{#exm-ginverse}
+### Examples of Generalized Inverse
 
-```{r}
-#| label: extract-p18
-#| include: false
-extract_page_image(18, "page18_ex_diag.png", "1200x800+0+200")
-```
+* **Example 1: Diagonal Matrix**
+    If $X = \text{diag}(\lambda_1, \lambda_2, 0, 0)$, we can write it in matrix form as:
+    $$
+    X = \begin{pmatrix}
+    \lambda_1 & 0 & 0 & 0 \\
+    0 & \lambda_2 & 0 & 0 \\
+    0 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0
+    \end{pmatrix}
+    $$
+    A generalized inverse is obtained by inverting the non-zero elements:
+    $$
+    X^- = \begin{pmatrix}
+    \lambda_1^{-1} & 0 & 0 & 0 \\
+    0 & \lambda_2^{-1} & 0 & 0 \\
+    0 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0
+    \end{pmatrix}
+    $$
 
-![Example: Diagonal Matrix Generalized Inverse](lec20_images/page18_ex_diag.png){width=70%}
+* **Example 2: Row Vector**
+    Let $X = (1, 2, 3)$.
+    One possible generalized inverse is a column vector where the first element is the reciprocal of the first non-zero element of $X$ (which is $1$), and others are zero:
+    $$
+    X^- = \begin{pmatrix} 1 \\ 0 \\ 0 \end{pmatrix}
+    $$
+    **Verification:**
+    $$
+    XX^-X = (1, 2, 3) \begin{pmatrix} 1 \\ 0 \\ 0 \end{pmatrix} (1, 2, 3) = (1) \cdot (1, 2, 3) = (1, 2, 3) = X
+    $$
+    Other valid generalized inverses include $\begin{pmatrix} 0 \\ 1/2 \\ 0 \end{pmatrix}$ or $\begin{pmatrix} 0 \\ 0 \\ 1/3 \end{pmatrix}$.
 
-**Example 3: Rank Deficient Matrix**
-Let $A = \begin{pmatrix} 2 & 2 & 3 \\ 1 & 0 & 1 \\ 3 & 2 & 4 \end{pmatrix}$.
-Note that Row 3 = Row 1 + Row 2. Rank$(A) = 2$.
-A generalized inverse can be found by finding a non-singular submatrix.
+* **Example 3: Rank Deficient Matrix**
+    Let $A = \begin{pmatrix} 2 & 2 & 3 \\ 1 & 0 & 1 \\ 3 & 2 & 4 \end{pmatrix}$.
+    Note that Row 3 = Row 1 + Row 2, so Rank$(A) = 2$.
 
-### A Procedure to Find a Generalized Inverse
+    **Solution:**
+    A generalized inverse can be found by locating a non-singular $2 \times 2$ submatrix, inverting it, and padding the rest with zeros.
+    Let's take the top-left minor $M = \begin{pmatrix} 2 & 2 \\ 1 & 0 \end{pmatrix}$.
+    The inverse is $M^{-1} = \frac{1}{-2}\begin{pmatrix} 0 & -2 \\ -1 & 2 \end{pmatrix} = \begin{pmatrix} 0 & 1 \\ 0.5 & -1 \end{pmatrix}$.
+
+    Placing this in the corresponding position in $A^-$ and setting the rest to 0:
+    $$
+    A^- = \begin{pmatrix} 0 & 1 & 0 \\ 0.5 & -1 & 0 \\ 0 & 0 & 0 \end{pmatrix}
+    $$
+
+    **Verification ($AA^-A = A$):**
+    First, compute $AA^-$:
+    $$
+    AA^- = \begin{pmatrix} 2 & 2 & 3 \\ 1 & 0 & 1 \\ 3 & 2 & 4 \end{pmatrix} \begin{pmatrix} 0 & 1 & 0 \\ 0.5 & -1 & 0 \\ 0 & 0 & 0 \end{pmatrix} = \begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 1 & 1 & 0 \end{pmatrix}
+    $$
+    Then multiply by $A$:
+    $$
+    (AA^-)A = \begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 1 & 1 & 0 \end{pmatrix} \begin{pmatrix} 2 & 2 & 3 \\ 1 & 0 & 1 \\ 3 & 2 & 4 \end{pmatrix} = \begin{pmatrix} 2 & 2 & 3 \\ 1 & 0 & 1 \\ 3 & 2 & 4 \end{pmatrix} = A
+    $$
+:::
+
+### A General Procedure to Find a Generalized Inverse
 
 If we can partition $X$ (possibly after permuting rows/columns) such that $R_{11}$ is a non-singular rank $r$ submatrix:
 
@@ -305,6 +498,7 @@ X^- = \begin{pmatrix} R_{11}^{-1} & 0 \\ 0 & 0 \end{pmatrix}
 $$
 
 **Verification:**
+
 $$
 \begin{aligned}
 XX^-X &= \begin{pmatrix} R_{11} & R_{12} \\ R_{21} & R_{22} \end{pmatrix} \begin{pmatrix} R_{11}^{-1} & 0 \\ 0 & 0 \end{pmatrix} \begin{pmatrix} R_{11} & R_{12} \\ R_{21} & R_{22} \end{pmatrix} \\
@@ -314,7 +508,7 @@ XX^-X &= \begin{pmatrix} R_{11} & R_{12} \\ R_{21} & R_{22} \end{pmatrix} \begin
 $$
 Note that since rank$(X) = \text{rank}(R_{11})$, the rows of $[R_{21}, R_{22}]$ are linear combinations of $[R_{11}, R_{12}]$, implying $R_{22} = R_{21}R_{11}^{-1}R_{12}$. Thus, $XX^-X = X$.
 
-### Algorithm for Finding a Generalized Inverse
+**An Algorithm for Finding a Generalized Inverse**
 
 A systematic procedure to find a generalized inverse $A^-$ for any matrix $A$:
 
@@ -324,21 +518,33 @@ A systematic procedure to find a generalized inverse $A^-$ for any matrix $A$:
 4.  Replace all other elements in $A$ with zeros.
 5.  Transpose the resulting matrix.
 
+**Matrix Visual Representation**
 $$
-\begin{pmatrix}
+\underset{\text{Original } A}{\begin{pmatrix}
 \times & \otimes & \times & \otimes \\
 \times & \otimes & \times & \otimes \\
 \times & \times & \times & \times
-\end{pmatrix} \xrightarrow{C^{-1}} \dots \xrightarrow{T} A^-
+\end{pmatrix}}
+\xrightarrow[\text{with } (C^{-1})']{\text{Replace } C}
+\underset{\text{Intermediate}}{\begin{pmatrix}
+\times & \triangle & \times & \triangle \\
+\times & \triangle & \times & \triangle \\
+\times & \times & \times & \times
+\end{pmatrix}}
+\xrightarrow[\text{Result}]{\text{Transpose}}
+\underset{\text{Final } A^-}{\begin{pmatrix}
+\times & \times & \times \\
+\square & \square & \times \\
+\times & \times & \times \\
+\square & \square & \times
+\end{pmatrix}}
 $$
 
-```{r}
-#| label: extract-p21
-#| include: false
-extract_page_image(21, "page21_algorithm.png", "1200x800+0+200")
-```
-
-![Algorithm Visualization](lec20_images/page21_algorithm.png){width=70%}
+**Legend:**
+* $\otimes$: Elements of submatrix $C$
+* $\triangle$: Elements of $(C^{-1})'$
+* $\square$: Elements of $C^{-1}$ (after transposition)
+* $\times$: Other elements (replaced by 0 in the final calculation)
 
 ### Moore-Penrose Inverse
 
@@ -354,13 +560,37 @@ $$
 X^+ = V \begin{pmatrix} \Lambda_r^{-1} & 0 \\ 0 & 0 \end{pmatrix} U'
 $$
 
-Where $\Lambda_r = \text{diag}(\lambda_1, \dots, \lambda_r)$ contains the singular values. Unlike standard generalized inverses, $X^+$ is unique.
+where $\Lambda_r = \text{diag}(\lambda_1, \dots, \lambda_r)$ contains the singular values. Unlike standard generalized inverses, $X^+$ is unique.
 
-### Solving Linear Systems
+**Verification:**
+
+We verify that $X^+$ satisfies the condition $XX^+X = X$.
+
+1.  **Substitute definitions:**
+    $$
+    XX^+X = \left[ U \begin{pmatrix} \Lambda_r & 0 \\ 0 & 0 \end{pmatrix} V' \right] \left[ V \begin{pmatrix} \Lambda_r^{-1} & 0 \\ 0 & 0 \end{pmatrix} U' \right] \left[ U \begin{pmatrix} \Lambda_r & 0 \\ 0 & 0 \end{pmatrix} V' \right]
+    $$
+
+2.  **Apply orthogonality:**
+    Recall that $V'V = I$ and $U'U = I$.
+    $$
+    = U \begin{pmatrix} \Lambda_r & 0 \\ 0 & 0 \end{pmatrix} \underbrace{(V'V)}_{I} \begin{pmatrix} \Lambda_r^{-1} & 0 \\ 0 & 0 \end{pmatrix} \underbrace{(U'U)}_{I} \begin{pmatrix} \Lambda_r & 0 \\ 0 & 0 \end{pmatrix} V'
+    $$
+
+3.  **Multiply diagonal matrices:**
+    $$
+    = U \left[ \begin{pmatrix} \Lambda_r & 0 \\ 0 & 0 \end{pmatrix} \begin{pmatrix} \Lambda_r^{-1} & 0 \\ 0 & 0 \end{pmatrix} \begin{pmatrix} \Lambda_r & 0 \\ 0 & 0 \end{pmatrix} \right] V'
+    $$
+    Since $\Lambda_r \Lambda_r^{-1} \Lambda_r = I \cdot \Lambda_r = \Lambda_r$:
+    $$
+    = U \begin{pmatrix} \Lambda_r & 0 \\ 0 & 0 \end{pmatrix} V' = X
+    $$
+
+### Solving Linear Systems with Generalized Inverse
 
 We apply generalized inverses to solve systems of linear equations $X\beta = c$ where $X$ is $n \times p$.
 
-::: {#thm-consistency}
+::: {#def-consistency}
 ### Consistency and Solution
 The system $X\beta = c$ is consistent if and only if $c \in \mathcal{C}(X)$ (the column space of $X$). If consistent, $\beta = X^- c$ is a solution.
 :::
@@ -373,44 +603,94 @@ X(X^- c) = X(X^- X b) = (XX^-X)b = Xb = c
 $$
 Thus, $X^-c$ is a solution. Note that the solution is not unique if $X$ is not full rank.
 
-### Examples of Solutions
 
-**Example 1:**
-Let $X = (1, 2, 3)$. Solve $X\beta = 4$.
-One generalized inverse is $X^- = (1, 0, 0)'$.
-$$
-\beta = X^- \cdot 4 = \begin{pmatrix} 1 \\ 0 \\ 0 \end{pmatrix} 4 = \begin{pmatrix} 4 \\ 0 \\ 0 \end{pmatrix}
-$$
-Another $X^- = (0, 0, 1/3)'$ yields solution $\beta = (0, 0, 4/3)'$.
+:::{#exm-gi-sol-ls}
+### Examples of Solutions of Linear System with Generalized Inverse
 
-**Example 2:**
-Let $X = (1, 2, 3)'$. Solve $X\beta = \begin{pmatrix} 2 \\ 4 \\ 6 \end{pmatrix} = c$.
-Here $c = 2X$, so the system is consistent.
-Various generalized inverses (e.g., $(1, 0, 0)$, $(0, 1/2, 0)$) all yield $\beta = 2$.
+* **Example 1: Underdetermined System**
 
-### Least Squares Solutions
+  Let $X = \begin{pmatrix} 1 & 2 & 3 \end{pmatrix}$ and we want to solve $X\beta = 4$.
+  
+  **Solution 1:**
+  Using the generalized inverse $X^- = \begin{pmatrix} 1 \\ 0 \\ 0 \end{pmatrix}$:
+  $$
+  \beta = X^- \cdot 4 = \begin{pmatrix} 1 \\ 0 \\ 0 \end{pmatrix} 4 = \begin{pmatrix} 4 \\ 0 \\ 0 \end{pmatrix}
+  $$
+  **Verification:**
+  $$
+  X\beta = \begin{pmatrix} 1 & 2 & 3 \end{pmatrix} \begin{pmatrix} 4 \\ 0 \\ 0 \end{pmatrix} = 1(4) + 2(0) + 3(0) = 4 \quad \checkmark
+  $$
+  
+  **Solution 2:**
+  Using another generalized inverse $X^- = \begin{pmatrix} 0 \\ 0 \\ 1/3 \end{pmatrix}$:
+  $$
+  \beta = X^- \cdot 4 = \begin{pmatrix} 0 \\ 0 \\ 1/3 \end{pmatrix} 4 = \begin{pmatrix} 0 \\ 0 \\ 4/3 \end{pmatrix}
+  $$
+  **Verification:**
+  $$
+  X\beta = \begin{pmatrix} 1 & 2 & 3 \end{pmatrix} \begin{pmatrix} 0 \\ 0 \\ 4/3 \end{pmatrix} = 0 + 0 + 3(4/3) = 4 \quad \checkmark
+  $$
+  
+* **Example 2: Overdetermined System**
 
-::: {#thm-ols}
-### OLS Estimator
+  Let $X = \begin{pmatrix} 1 \\ 2 \\ 3 \end{pmatrix}$. Solve $X\beta = \begin{pmatrix} 2 \\ 4 \\ 6 \end{pmatrix} = c$.
+  Here $c = 2X$, so the system is consistent. Since $X$ is a column vector, $\beta$ is a scalar.
+  
+  **Solution:**
+  Using the generalized inverse $X^- = \begin{pmatrix} 1 & 0 & 0 \end{pmatrix}$:
+  $$
+  \beta = X^- c = \begin{pmatrix} 1 & 0 & 0 \end{pmatrix} \begin{pmatrix} 2 \\ 4 \\ 6 \end{pmatrix} = 1(2) + 0(4) + 0(6) = 2
+  $$
+  **Verification:**
+  $$
+  X\beta = \begin{pmatrix} 1 \\ 2 \\ 3 \end{pmatrix} (2) = \begin{pmatrix} 2 \\ 4 \\ 6 \end{pmatrix} = c \quad \checkmark
+  $$
+:::
+
+## Least Squares with Generalized Inverse
+
 For the normal equations $(X'X)\beta = X'y$, a solution is given by:
 $$
 \hat{\beta} = (X'X)^- X'y
 $$
+The fitted values are $$\hat{y} = X\hat{\beta} = X(X'X)^- X'y.$$
+This $\hat{y}$ represents the unique orthogonal projection of $y$ onto $Col(X)$.
+
+
+
+
+
+:::{#thm-transpose}
+## Transpose Property of Generalized Inverses
+$(X^-)'$ is a version of $(X')^-$. That is, $(X^-)'$ is a generalized inverse of $X'$.
 :::
 
-The fitted values are $\hat{y} = X\hat{\beta} = X(X'X)^- X'y$.
-This $\hat{y}$ represents the unique orthogonal projection of $y$ onto $\mathcal{C}(X)$.
+:::{.proof}
 
-### Properties of Generalized Inverses
+By definition, a generalized inverse $X^-$ satisfies the property:
+$$
+X X^- X = X
+$$
 
-#### Transpose Property
+To verify that $(X^-)'$ is a generalized inverse of $X'$, we need to show that it satisfies the condition $A G A = A$ where $A = X'$ and $G = (X^-)'$.
 
-$(X')^-$ is a version of $(X^-)'$.
-This implies that if $G$ is a generalized inverse of $X$, then $G'$ is a generalized inverse of $X'$.
+1.  Start with the fundamental definition:
+    $$
+    X X^- X = X
+    $$
+2.  Take the transpose of both sides of the equation:
+    $$
+    (X X^- X)' = X'
+    $$
+3.  Apply the reverse order law for transposes, $(ABC)' = C' B' A'$:
+    $$
+    X' (X^-)' X' = X'
+    $$
 
-#### Invariance Property
-
-::: {#thm-invariance}
+Since substituting $(X^-)'$ into the generalized inverse equation for $X'$ yields $X'$, $(X^-)'$ is a valid generalized inverse of $X'$.
+:::
+:::{#lem-invariance}
+### Invariance of Generalized Least Squares
 For any version of the generalized inverse $(X'X)^-$, the matrix $X'(X'X)^- X'$ is invariant and equals $X'$.
 $$
 X'X(X'X)^- X' = X'
@@ -419,14 +699,14 @@ $$
 
 **Proof (using Projection):**
 Let $P = X(X'X)^- X'$. This is the projection matrix onto $\mathcal{C}(X)$.
-By definition of projection, $Px = x$ for any $x \in \mathcal{C}(X)$.
-Since columns of $X$ are in $\mathcal{C}(X)$, $PX = X$.
+By definition of projection, $Px = x$ for any $x \in Col(X)$.
+Since columns of $X$ are in $Col(X)$, $PX = X$.
 Taking the transpose: $(PX)' = X' \implies X'P' = X'$.
 Since projection matrices are symmetric ($P=P'$), $X'P = X'$.
 Substituting $P$: $X' X (X'X)^- X' = X'$.
 
 **Proof (Direct Matrix Manipulation):**
-Decompose $y = X\beta + e$ where $e \perp \mathcal{C}(X)$ (i.e., $X'e = 0$).
+Decompose $y = X\beta + e$ where $e \perp Col(X)$ (i.e., $X'e = 0$).
 $$
 \begin{aligned}
 X'X(X'X)^- X' y &= X'X(X'X)^- X' (X\beta + e) \\
@@ -440,6 +720,8 @@ This implies the operator acts as $X'$.
 
 ### Properties of the Projection Matrix
 
+:::{#thm-proj-properties}
+## Properties of Projection Matrix $P$
 Let $P = X(X'X)^- X'$. This matrix has the following properties:
 
 1.  **Symmetry:** $P = P'$.
@@ -447,22 +729,36 @@ Let $P = X(X'X)^- X'$. This matrix has the following properties:
     $$
     P^2 = X(X'X)^- X' X(X'X)^- X' = X(X'X)^- (X'X (X'X)^- X')
     $$
-    Using the identity $X'X(X'X)^- X' = X'$, this simplifies to $X(X'X)^- X' = P$.
-3.  **Uniqueness:** $P$ is invariant to the choice of $(X'X)^-$.
-    This is because $P$ represents the orthogonal projection onto $\mathcal{C}(X)$, which is geometrically unique.
+    Using the identity from @lem-invariance ($X'X(X'X)^- X' = X'$), this simplifies to:
+    $$
+    X(X'X)^- X' = P
+    $$
+3.  **Uniqueness:** $P$ is unique and invariant to the choice of the generalized inverse $(X'X)^-$.
+:::
 
-```{r}
-#| label: extract-p29
-#| include: false
-extract_page_image(29, "page29_projection.png", "1200x800+0+200")
-```
+:::{.proof}
+**Proof of Uniqueness:**
 
-![Projection Matrix Properties](lec20_images/page29_projection.png){width=70%}
+Let $A$ and $B$ be two different generalized inverses of $X'X$. Define $P_A = X A X'$ and $P_B = X B X'$.
+From @lem-invariance, we know that $X' P_A = X'$ and $X' P_B = X'$.
 
+Subtracting these two equations:
+$$
+X' (P_A - P_B) = 0
+$$
+Taking the transpose, we get $(P_A - P_B) X = 0$. This implies that the columns of the difference matrix $D = P_A - P_B$ are orthogonal to the columns of $X$ (i.e., $D \perp Col(X)$).
 
+However, by definition, the columns of $P_A$ and $P_B$ (and thus $D$) are linear combinations of the columns of $X$ (i.e., $D \in Col(X)$).
+
+The only matrix that lies *in* the column space of $X$ but is also *orthogonal* to the column space of $X$ is the zero matrix.
+Therefore:
+$$
+P_A - P_B = 0 \implies P_A = P_B
+$$
+:::
 ----
 
-## Least Squares with Rank Deficient Matrix
+### Two Explicit Formulas
 
 When $X$ has rank $r < p$ (where $X$ is $n \times p$), we can derive the least squares estimator using partitioned matrices.
 
@@ -481,7 +777,7 @@ $$
 \begin{pmatrix} R_1'R_1 & R_1'R_2 \\ R_2'R_1 & R_2'R_2 \end{pmatrix} \beta = \begin{pmatrix} R_1'Q'y \\ R_2'Q'y \end{pmatrix}
 $$
 
-### Constructing a Solution
+### Constructing a Solution by Solving Normal Equations
 
 ::: {.proof}
 One specific generalized inverse of $X'X$ can be found by focusing on the non-singular block $R_1'R_1$:
@@ -504,15 +800,7 @@ $$
 This confirms that $\hat{y}$ is the projection of $y$ onto the column space of $Q$ (which is the same as the column space of $X$).
 :::
 
-```{r}
-#| label: extract-p31
-#| include: false
-extract_page_image(31, "page31_ls_rank_deficient.png", "1200x800+0+200")
-```
-
-![Least Squares Derivation for Rank Deficient Matrix](lec20_images/page31_ls_rank_deficient.png){width=70%}
-
-### Alternative Interpretation
+### Constructing a Solution by Solving Reparametrized $\beta$
 
 We can view the model as:
 $$
