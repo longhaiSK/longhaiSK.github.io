@@ -108,6 +108,40 @@ Q(x) = x'Ax = \sum_{i=1}^n \sum_{j=1}^n a_{ij} x_i x_j
 $$
 :::
 
+### Positive and Non-Negative Definite Matrices
+
+:::{#def-pos-def}
+#### Positive and Non-Negative Definite Matrices
+
+A symmetric matrix $A$ is **positive definite (p.d.)** if:
+$$
+x'Ax > 0 \quad \forall x \ne 0
+$$
+It is **non-negative definite (n.n.d.)** if:
+$$
+x'Ax \ge 0 \quad \forall x
+$$
+:::
+
+:::{#thm-nnd-properties}
+## Properties of Definite Matrices
+
+Let $A$ be a symmetric $n \times n$ matrix with eigenvalues $\lambda_1, \dots, \lambda_n$.
+
+1.  **Eigenvalue Characterization:**
+    * $A$ is p.d. $\iff$ all $\lambda_i > 0$.
+    * $A$ is n.n.d. $\iff$ all $\lambda_i \ge 0$.
+
+2.  **Determinant and Inverse:**
+    * If $A$ is p.d., then $|A| > 0$ and $A^{-1}$ exists.
+    * If $A$ is n.n.d. and singular, then $|A| = 0$ (at least one $\lambda_i = 0$).
+
+3.  **Gram Matrices ($B'B$):**
+    Let $B$ be an $n \times p$ matrix.
+    * If $\text{rank}(B) = p$, then $B'B$ is p.d.
+    * If $\text{rank}(B) < p$, then $B'B$ is n.n.d.
+:::
+
 ### Properties of Symmetric Matrices
 :::{#thm-symmetric-properties}
 #### Properties of Symmetric Matrices
@@ -150,37 +184,7 @@ For a projection matrix $P$:
 For $P = \frac{1}{n} J_n J_n'$, the rank is $\text{tr}(P) = 1$.
 :::
 
-### Positive Definite Matrices
 
-::: {#def-pos-def}
-### Positive Definite (p.d.) Matrix
-
-A symmetric matrix $A$ is **positive definite** if:
-$$
-x'Ax > 0 \quad \forall x \ne 0
-$$
-It is **positive semi-definite (p.s.d.)** if:
-$$
-x'Ax \ge 0 \quad \forall x
-$$
-:::
-
-**Characterization via Eigenvalues:**
-
-1.  $A$ is p.d. $\iff$ all $\lambda_i > 0$.
-2.  $A$ is p.s.d. $\iff$ all $\lambda_i \ge 0$.
-
-**Properties:**
-
-* If $A$ is p.d., then $|A| > 0$ and $A^{-1}$ exists.
-* If $B$ is $n \times p$ with rank $p$, then $B'B$ is p.d.
-* If $B$ has rank $< p$, then $B'B$ is p.s.d.
-
-```{r}
-#| label: extract-p8
-#| include: false
-extract_page_image(8, "page08_pos_def.png", "1200x800+0+200")
-```
 
 
 -----
@@ -649,6 +653,8 @@ Thus, $X^-c$ is a solution. Note that the solution is not unique if $X$ is not f
 
 ## Least Squares with Generalized Inverse
 
+### Projection Matrix with Generalized Inverse of $X'X$
+
 For the normal equations $(X'X)\beta = X'y$, a solution is given by:
 $$
 \hat{\beta} = (X'X)^- X'y
@@ -657,6 +663,8 @@ The fitted values are $$\hat{y} = X\hat{\beta} = X(X'X)^- X'y.$$
 This $\hat{y}$ represents the unique orthogonal projection of $y$ onto $Col(X)$.
 
 
+
+### Invariance and Uniqueness of "the" Projection Matrix
 
 
 
@@ -718,8 +726,6 @@ The second term is 0 because $X'e = 0$.
 Thus, the expression simplifies to $X'X\beta = X'(X\beta) = X'\hat{y}_{proj}$.
 This implies the operator acts as $X'$.
 
-### Properties of the Projection Matrix
-
 :::{#thm-proj-properties}
 ## Properties of Projection Matrix $P$
 Let $P = X(X'X)^- X'$. This matrix has the following properties:
@@ -756,9 +762,10 @@ $$
 P_A - P_B = 0 \implies P_A = P_B
 $$
 :::
+
 ----
 
-### Two Explicit Formulas
+### An Explicit Expression
 
 When $X$ has rank $r < p$ (where $X$ is $n \times p$), we can derive the least squares estimator using partitioned matrices.
 
@@ -777,7 +784,7 @@ $$
 \begin{pmatrix} R_1'R_1 & R_1'R_2 \\ R_2'R_1 & R_2'R_2 \end{pmatrix} \beta = \begin{pmatrix} R_1'Q'y \\ R_2'Q'y \end{pmatrix}
 $$
 
-### Constructing a Solution by Solving Normal Equations
+#### Constructing a Solution by Solving Normal Equations
 
 ::: {.proof}
 One specific generalized inverse of $X'X$ can be found by focusing on the non-singular block $R_1'R_1$:
@@ -800,7 +807,7 @@ $$
 This confirms that $\hat{y}$ is the projection of $y$ onto the column space of $Q$ (which is the same as the column space of $X$).
 :::
 
-### Constructing a Solution by Solving Reparametrized $\beta$
+#### Constructing a Solution by Solving Reparametrized $\beta$
 
 We can view the model as:
 $$
