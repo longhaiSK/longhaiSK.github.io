@@ -1,92 +1,27 @@
 ---
-title: "Introduction to Theory of Linear Models"
+title: "Introduction to Linear Models"
 ---
 
 ```{r}
-#| label: extract-images
+#| label: setup
 #| include: false
-#| warning: false
 
-# This chunk extracts and crops diagrams from the PDF.
-# We use 'pdftools' to render the page and 'magick' to crop it.
+library(reticulate)
 
-library(pdftools)
-library(magick)
+# 1. Define the list of required Python modules
+required_modules <- c("plotly", "numpy")
 
-# Path to the PDF
-pdf_path <- "../Lec00-linear models.pdf"
-
-if (file.exists(pdf_path)) {
-  
-  # --- Page 2: Geometric Interpretation ---
-  if (!file.exists("geometric_interpretation.png")) {
-    # 1. Render the full page to a bitmap
-    bitmap_p2 <- pdf_render_page(pdf_path, page = 2, dpi = 150)
-    
-    # 2. Read into magick
-    img_p2 <- image_read(bitmap_p2)
-    
-    # 3. Crop: "widthxheight+x_offset+y_offset"
-    # Adjust these numbers to fit the specific handwritten area
-    img_p2_cropped <- image_crop(img_p2, "1200x900+0+300")
-    
-    # 4. Save
-    image_write(img_p2_cropped, "geometric_interpretation.png")
+# 2. Iterate through the list: Check if available, otherwise install
+for (mod in required_modules) {
+  if (!reticulate::py_module_available(mod)) {
+    message(paste("Installing missing Python module:", mod))
+    reticulate::py_install(mod)
   }
-  
-  # --- Page 5: ANOVA Diagram ---
-  if (!file.exists("anova_diagram.png")) {
-    bitmap_p5 <- pdf_render_page(pdf_path, page = 5, dpi = 150)
-    img_p5 <- image_read(bitmap_p5)
-    
-    # Adjust crop geometry as needed
-    img_p5_cropped <- image_crop(img_p5, "1200x900+0+300")
-    
-    image_write(img_p5_cropped, "anova_diagram.png")
-  }
-  
-} else {
-  warning(paste("PDF not found at:", pdf_path))
 }
 ```
 
-## Overview
-
-This lecture covers the foundations of Linear Statistical Models, including Multiple Linear Regression and ANOVA.
-
-### Geometric Interpretation of Least Squares
-
-We compare models based on the reduction of errors. Consider a full model and a reduced model ($K_1$).
-
-Let:
-
--   $y$ be the observed vector.
--   $\hat{y}_1$ be the prediction from the reduced model.
--   $\hat{y}_2$ be the prediction from the full model.
-
-![Geometric Interpretation of Least Squares](geometric_interpretation.png){width=70%}
-
-The errors (residuals) are defined as:
-$$
-e_1 = y - \hat{y}_1
-$$
-$$
-e_2 = y - \hat{y}_2
-$$
-
-The Sum of Squared Errors (SSE) representing the distance is:
-$$
-SSE_1 = ||y - \hat{y}_1||^2
-$$
-$$
-SSE_2 = ||y - \hat{y}_2||^2
-$$
-
-The statistical test is often based on the comparison of $SSE_1$ and $SSE_2$ (or the reduction in sums of squares $||\hat{y}_2 - \hat{y}_1||^2$).
 
 ## Multiple Linear Regression
-
-### Matrix Formulation
 
 Suppose we have observations on $Y$ and $X_j$. The data can be represented in matrix form.
 
@@ -94,12 +29,12 @@ $$
 \underset{n \times 1}{y} = \underset{n \times p}{X} \beta + \underset{n \times 1}{\epsilon}
 $$
 
-Where the error terms are distributed as:
+where the error terms are distributed as:
 $$
-\epsilon \sim N_n(0, \sigma^2 I_n)
+\epsilon \sim N_n(0, \sigma^2 I_n),
 $$
 
-And $I_n$ is the identity matrix:
+in which $I_n$ is the identity matrix:
 $$
 I_n = \begin{pmatrix} 
 1 & 0 & \dots & 0 \\ 
@@ -108,13 +43,14 @@ I_n = \begin{pmatrix}
 0 & 0 & \dots & 1 
 \end{pmatrix}
 $$
-
 The scalar equation for a single observation is:
 $$
 Y_i = \beta_0 + \beta_1 X_{i1} + \dots + \beta_p X_{ip} + \epsilon_i
 $$
 
-## Polynomial Regression
+### Examples
+
+#### Polynomial Regression
 
 Polynomial regression fits a curved line to the data points but remains linear in the parameters ($\beta$).
 
@@ -123,7 +59,7 @@ $$
 y_i = \beta_0 + \beta_1 x_i + \beta_2 x_i^2 + \dots + \beta_{p-1} x_i^{p-1}
 $$
 
-### Design Matrix Construction
+#### Design Matrix Construction
 
 The design matrix $X$ is constructed by taking powers of the input variable.
 
@@ -139,7 +75,7 @@ y = \begin{pmatrix} y_1 \\ \vdots \\ y_n \end{pmatrix} =
 \begin{pmatrix} \epsilon_1 \\ \epsilon_2 \\ \vdots \\ \epsilon_n \end{pmatrix}
 $$
 
-## One-Way ANOVA
+#### One-Way ANOVA
 
 ANOVA can be expressed as a linear model using categorical predictors (dummy variables).
 
@@ -148,9 +84,26 @@ $$
 Y_{ij} = \mu_i + \epsilon_{ij}, \quad \epsilon_{ij} \sim N(0, \sigma^2)
 $$
 
-![One-Way ANOVA Diagram](anova_diagram.png){width=70%}
+$$
+\overset{G_1}{
+  \boxed{
+    \begin{matrix} Y_{11} \\ Y_{12} \end{matrix}
+  }
+}
+\quad
+\overset{G_2}{
+  \boxed{
+    \begin{matrix} Y_{21} \\ Y_{22} \end{matrix}
+  }
+}
+\quad
+\overset{G_3}{
+  \boxed{
+    \begin{matrix} Y_{31} \\ Y_{32} \end{matrix}
+  }
+}
+$$
 
-### Dummy Variable Matrix
 
 We construct the matrix $X$ to select the group mean ($\mu$) corresponding to the observation:
 
@@ -175,7 +128,7 @@ Y_{11} \\ Y_{12} \\ Y_{21} \\ Y_{22} \\ Y_{31} \\ Y_{32}
 \end{bmatrix} + \epsilon
 $$
 
-## Analysis of Covariance (ANCOVA)
+#### Analysis of Covariance (ANCOVA)
 
 ANCOVA combines continuous variables and categorical (dummy) variables in the same design matrix.
 
@@ -191,7 +144,7 @@ X_{n,cont} & 0 & 1
 \end{bmatrix} \beta + \epsilon
 $$
 
-### Least Squares Estimation
+## Least Squares Estimation
 
 For the general linear model $y = X\beta + \epsilon$, the Least Squares estimator is:
 
@@ -219,3 +172,166 @@ $$
 R^2 = \frac{SST - SSE}{SST}
 $$
 where $SST = \sum (y_i - \bar{y})^2$.
+
+## Geometric Interpretation: Simplified View
+
+We align the coordinate system to the models for clarity:
+
+1.  **Reduced Model ($M_0$)**: Represented by the **X-axis** (labeled $j_3$).
+    * $\hat{y}_0$ is the projection of $y$ onto this axis.
+2.  **Full Model ($M_1$)**: Represented by the **XY-plane** (the floor).
+    * $\hat{y}_1$ is the projection of $y$ onto this plane ($z=0$).
+3.  **Observed Data ($y$)**: A point in 3D space.
+
+The "improvement" due to adding predictors is the distance between $\hat{y}_0$ and $\hat{y}_1$.
+
+```{r}
+#| label: fig-geometry-simple
+#| fig-cap: "Geometric Interpretation: Projection onto Axis (M0) vs Plane (M1)"
+#| message: false
+#| warning: false
+#| echo: false
+if (knitr::is_html_output()) {
+  library(plotly)
+  
+  # --- 1. Define Data aligned to axes ---
+  origin <- c(0, 0, 0)
+  # We choose a point y = (x, y, z)
+  # x component = magnitude of projection onto j3 (intercept)
+  # y component = magnitude of projection onto x1 (predictor)
+  # z component = residual error e1
+  y <- c(4, 5, 3) 
+  
+  # --- 2. Define Projections based on alignment ---
+  
+  # Reduced Model (M0): Projection onto X-axis only
+  y_hat_0 <- c(y[1], 0, 0)
+  
+  # Full Model (M1): Projection onto XY-plane
+  y_hat_1 <- c(y[1], y[2], 0)
+  
+  # --- 3. Helper Function ---
+  make_seg <- function(start, end) {
+    rbind(start, end) |> as.data.frame() |> setNames(c("x", "y", "z"))
+  }
+  
+  fig <- plot_ly()
+  
+  # --- 4. Draw Subspaces ---
+  
+  # M0 Line (The X-axis / j3)
+  fig <- fig %>% add_trace(
+    data = make_seg(c(0,0,0), c(8,0,0)), 
+    x = ~x, y = ~y, z = ~z,
+    type = 'scatter3d', mode = 'lines',
+    line = list(color = 'gray', width = 5),
+    name = 'M₀ Subspace (j₃)', hoverinfo = "none"
+  )
+  
+  # M1 Plane (The Floor)
+  fig <- fig %>% add_surface(
+    x = c(0, 8), y = c(0, 8), z = matrix(c(0,0,0,0), nrow=2),
+    opacity = 0.1, showscale = FALSE, 
+    colorscale = list(c(0, 1), c("lightgrey", "lightgrey")),
+    name = 'M₁ Subspace'
+  )
+  
+  # --- 5. Draw Vectors ---
+  
+  # y (Observed)
+  fig <- fig %>% add_trace(
+    data = make_seg(origin, y), x = ~x, y = ~y, z = ~z,
+    type = 'scatter3d', mode = 'lines+markers',
+    line = list(color = 'blue', width = 10),
+    marker = list(size = 5, color = 'blue'),
+    name = 'y (Observed)'
+  )
+  
+  # y_hat_0 (Reduced)
+  fig <- fig %>% add_trace(
+    data = make_seg(origin, y_hat_0), x = ~x, y = ~y, z = ~z,
+    type = 'scatter3d', mode = 'lines+markers',
+    line = list(color = 'red', width = 10),
+    marker = list(size = 5, color = 'red'),
+    name = 'ŷ₀'
+  )
+  
+  # y_hat_1 (Full)
+  fig <- fig %>% add_trace(
+    data = make_seg(origin, y_hat_1), x = ~x, y = ~y, z = ~z,
+    type = 'scatter3d', mode = 'lines+markers',
+    line = list(color = 'darkgreen', width = 10),
+    marker = list(size = 5, color = 'darkgreen'),
+    name = 'ŷ₁'
+  )
+  
+  # --- 6. Draw Residuals & Difference ---
+  
+  # e0 (RSS0) - Vertical + Horizontal distance
+  fig <- fig %>% add_trace(
+    data = make_seg(y_hat_0, y), x = ~x, y = ~y, z = ~z,
+    type = 'scatter3d', mode = 'lines',
+    line = list(color = 'red', width = 5, dash = 'solid'),
+    name = 'e₀ (RSS₀)'
+  )
+  
+  # e1 (RSS1) - Vertical distance only
+  fig <- fig %>% add_trace(
+    data = make_seg(y_hat_1, y), x = ~x, y = ~y, z = ~z,
+    type = 'scatter3d', mode = 'lines',
+    line = list(color = 'darkgreen', width = 5, dash = 'solid'),
+    name = 'e₁ (RSS₁)'
+  )
+  
+  # Difference (Model Improvement)
+  fig <- fig %>% add_trace(
+    data = make_seg(y_hat_0, y_hat_1), x = ~x, y = ~y, z = ~z,
+    type = 'scatter3d', mode = 'lines',
+    line = list(color = 'orange', width = 6, dash = 'dot'),
+    name = 'Diff'
+  )
+  
+  # --- 7. Labels ---
+  
+  # Axis Labels
+  fig <- fig %>% layout(
+    scene = list(
+      xaxis = list(title = "j3 (Intercept)", titlefont = list(size=20)),
+      yaxis = list(title = "x1 (Predictor)", titlefont = list(size=15)),
+      zaxis = list(title = "Error", titlefont = list(size=15)),
+      aspectmode = "data",
+      camera = list(eye = list(x = 1.5, y = 1.5, z = 0.5))
+    ),
+    title = "Geometric Interpretation: Aligned View",
+    margin = list(t = 50)
+  )
+  
+  # Add text annotations for points
+  fig <- fig %>% add_trace(
+    type = 'scatter3d', mode = 'text',
+    x = c(y[1], y_hat_0[1], y_hat_1[1]),
+    y = c(y[2], y_hat_0[2], y_hat_1[2]),
+    z = c(y[3], y_hat_0[3], y_hat_1[3]),
+    text = c("y", "ŷ₀", "ŷ₁"),
+    textfont = list(size = 18, color = "black", family = "Arial Black"),
+    textposition = c("top center", "top center", "bottom center"),
+    showlegend = FALSE
+  )
+  
+  # Add text annotations for Error lines
+  fig <- fig %>% add_trace(
+    type = 'scatter3d', mode = 'text',
+    x = c( (y[1]+y_hat_0[1])/2, (y[1]+y_hat_1[1])/2 ),
+    y = c( (y[2]+y_hat_0[2])/2, (y[2]+y_hat_1[2])/2 ),
+    z = c( (y[3]+y_hat_0[3])/2, (y[3]+y_hat_1[3])/2 ),
+    text = c("e₀", "e₁"),
+    textfont = list(size = 14, color = "darkblue"),
+    textposition = "middle right",
+    showlegend = FALSE
+  )
+  
+  fig
+} else {
+  knitr::include_graphics("3d-lm.png")
+}
+```

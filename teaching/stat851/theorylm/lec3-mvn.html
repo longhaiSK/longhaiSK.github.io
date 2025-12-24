@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>1&nbsp; Introduction to Linear Models – Statistical Theory for Linear Models</title>
+<title>4&nbsp; Multivariate Normal – Statistical Theory for Linear Models</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -30,8 +30,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./lec1-vecspace.html" rel="next">
-<link href="./index.html" rel="prev">
+<link href="./lec2-matrix.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -69,15 +68,6 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<link href="site_libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
-<script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
-<script src="site_libs/plotly-binding-4.11.0/plotly.js"></script>
-<script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
-<script src="site_libs/jquery-3.5.1/jquery.min.js"></script>
-<link href="site_libs/crosstalk-1.2.2/css/crosstalk.min.css" rel="stylesheet">
-<script src="site_libs/crosstalk-1.2.2/js/crosstalk.min.js"></script>
-<link href="site_libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet">
-<script src="site_libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
 <link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
 <script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 
@@ -123,7 +113,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./introlm.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction to Linear Models</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./lec3-mvn.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Multivariate Normal</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -156,7 +146,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./introlm.html" class="sidebar-item-text sidebar-link active">
+  <a href="./introlm.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction to Linear Models</span></span></a>
   </div>
 </li>
@@ -174,7 +164,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./lec3-mvn.html" class="sidebar-item-text sidebar-link">
+  <a href="./lec3-mvn.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Multivariate Normal</span></span></a>
   </div>
 </li>
@@ -188,18 +178,35 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#multiple-linear-regression" id="toc-multiple-linear-regression" class="nav-link active" data-scroll-target="#multiple-linear-regression"><span class="header-section-number">1.1</span> Multiple Linear Regression</a>
+  <li><a href="#motivation" id="toc-motivation" class="nav-link active" data-scroll-target="#motivation"><span class="header-section-number">4.1</span> Motivation</a></li>
+  <li><a href="#random-vectors-and-matrices" id="toc-random-vectors-and-matrices" class="nav-link" data-scroll-target="#random-vectors-and-matrices"><span class="header-section-number">4.2</span> Random Vectors and Matrices</a>
   <ul>
-  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples"><span class="header-section-number">1.1.1</span> Examples</a>
-  <ul class="collapse">
-  <li><a href="#polynomial-regression" id="toc-polynomial-regression" class="nav-link" data-scroll-target="#polynomial-regression"><span class="header-section-number">1.1.1.1</span> Polynomial Regression</a></li>
-  <li><a href="#design-matrix-construction" id="toc-design-matrix-construction" class="nav-link" data-scroll-target="#design-matrix-construction"><span class="header-section-number">1.1.1.2</span> Design Matrix Construction</a></li>
-  <li><a href="#one-way-anova" id="toc-one-way-anova" class="nav-link" data-scroll-target="#one-way-anova"><span class="header-section-number">1.1.1.3</span> One-Way ANOVA</a></li>
-  <li><a href="#analysis-of-covariance-ancova" id="toc-analysis-of-covariance-ancova" class="nav-link" data-scroll-target="#analysis-of-covariance-ancova"><span class="header-section-number">1.1.1.4</span> Analysis of Covariance (ANCOVA)</a></li>
+  <li><a href="#derivation-of-covariance-matrix-structure" id="toc-derivation-of-covariance-matrix-structure" class="nav-link" data-scroll-target="#derivation-of-covariance-matrix-structure"><span class="header-section-number">4.2.1</span> Derivation of Covariance Matrix Structure</a></li>
   </ul></li>
+  <li><a href="#properties-of-mean-and-variance" id="toc-properties-of-mean-and-variance" class="nav-link" data-scroll-target="#properties-of-mean-and-variance"><span class="header-section-number">4.3</span> Properties of Mean and Variance</a>
+  <ul>
+  <li><a href="#proof-of-property-5-covariance-of-linear-transformation" id="toc-proof-of-property-5-covariance-of-linear-transformation" class="nav-link" data-scroll-target="#proof-of-property-5-covariance-of-linear-transformation"><span class="header-section-number">4.3.1</span> Proof of Property 5 (Covariance of Linear Transformation)</a></li>
+  <li><a href="#proof-of-property-2-expectation-of-linear-transformation" id="toc-proof-of-property-2-expectation-of-linear-transformation" class="nav-link" data-scroll-target="#proof-of-property-2-expectation-of-linear-transformation"><span class="header-section-number">4.3.2</span> Proof of Property 2 (Expectation of Linear Transformation)</a></li>
+  <li><a href="#proof-of-property-9-variance-of-sum" id="toc-proof-of-property-9-variance-of-sum" class="nav-link" data-scroll-target="#proof-of-property-9-variance-of-sum"><span class="header-section-number">4.3.3</span> Proof of Property 9 (Variance of Sum)</a></li>
   </ul></li>
-  <li><a href="#least-squares-estimation" id="toc-least-squares-estimation" class="nav-link" data-scroll-target="#least-squares-estimation"><span class="header-section-number">1.2</span> Least Squares Estimation</a></li>
-  <li><a href="#geometric-interpretation-simplified-view" id="toc-geometric-interpretation-simplified-view" class="nav-link" data-scroll-target="#geometric-interpretation-simplified-view"><span class="header-section-number">1.3</span> Geometric Interpretation: Simplified View</a></li>
+  <li><a href="#the-multivariate-normal-distribution" id="toc-the-multivariate-normal-distribution" class="nav-link" data-scroll-target="#the-multivariate-normal-distribution"><span class="header-section-number">4.4</span> The Multivariate Normal Distribution</a>
+  <ul>
+  <li><a href="#definition-and-density" id="toc-definition-and-density" class="nav-link" data-scroll-target="#definition-and-density"><span class="header-section-number">4.4.1</span> Definition and Density</a></li>
+  <li><a href="#geometric-interpretation" id="toc-geometric-interpretation" class="nav-link" data-scroll-target="#geometric-interpretation"><span class="header-section-number">4.4.2</span> Geometric Interpretation</a></li>
+  <li><a href="#probability-density-function" id="toc-probability-density-function" class="nav-link" data-scroll-target="#probability-density-function"><span class="header-section-number">4.4.3</span> Probability Density Function</a></li>
+  <li><a href="#moment-generating-function" id="toc-moment-generating-function" class="nav-link" data-scroll-target="#moment-generating-function"><span class="header-section-number">4.4.4</span> Moment Generating Function</a></li>
+  </ul></li>
+  <li><a href="#construction-and-linear-transformations" id="toc-construction-and-linear-transformations" class="nav-link" data-scroll-target="#construction-and-linear-transformations"><span class="header-section-number">4.5</span> Construction and Linear Transformations</a>
+  <ul>
+  <li><a href="#corollaries" id="toc-corollaries" class="nav-link" data-scroll-target="#corollaries"><span class="header-section-number">4.5.1</span> Corollaries</a></li>
+  </ul></li>
+  <li><a href="#independence" id="toc-independence" class="nav-link" data-scroll-target="#independence"><span class="header-section-number">4.6</span> Independence</a></li>
+  <li><a href="#conditional-distributions" id="toc-conditional-distributions" class="nav-link" data-scroll-target="#conditional-distributions"><span class="header-section-number">4.7</span> Conditional Distributions</a>
+  <ul>
+  <li><a href="#numerical-example" id="toc-numerical-example" class="nav-link" data-scroll-target="#numerical-example"><span class="header-section-number">4.7.1</span> Numerical Example</a></li>
+  <li><a href="#variance-decomposition" id="toc-variance-decomposition" class="nav-link" data-scroll-target="#variance-decomposition"><span class="header-section-number">4.7.2</span> Variance Decomposition</a></li>
+  </ul></li>
+  <li><a href="#partial-and-multiple-correlation" id="toc-partial-and-multiple-correlation" class="nav-link" data-scroll-target="#partial-and-multiple-correlation"><span class="header-section-number">4.8</span> Partial and Multiple Correlation</a></li>
   </ul>
 </nav>
     </div>
@@ -514,7 +521,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction to Linear Models</span></h1>
+<h1 class="title"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Multivariate Normal</span></h1>
 </div>
 
 
@@ -531,159 +538,312 @@ window.Quarto = {
 </header>
 
 
-<section id="multiple-linear-regression" class="level2" data-number="1.1">
-<h2 data-number="1.1" class="anchored" data-anchor-id="multiple-linear-regression"><span class="header-section-number">1.1</span> Multiple Linear Regression</h2>
-<p>Suppose we have observations on <span class="math inline">\(Y\)</span> and <span class="math inline">\(X_j\)</span>. The data can be represented in matrix form.</p>
+<section id="motivation" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="motivation"><span class="header-section-number">4.1</span> Motivation</h2>
+<p>Consider the linear model: <span class="math display">\[
+y = X\beta + \epsilon, \quad \epsilon_i \sim N(0, \sigma^2)
+\]</span></p>
+<p>We are often interested in the distributional properties of the response vector <span class="math inline">\(y\)</span> and the residuals. Specifically, if <span class="math inline">\(y = (y_1, \dots, y_n)'\)</span>, we need to understand its multivariate distribution. <span class="math display">\[
+\hat{y} = Py, \quad e = y - \hat{y} = (I_n - P)y
+\]</span></p>
+</section>
+<section id="random-vectors-and-matrices" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="random-vectors-and-matrices"><span class="header-section-number">4.2</span> Random Vectors and Matrices</h2>
+<div id="def-random-vector" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 4.1 (Random Vector and Matrix)</strong></span> A <strong>Random Vector</strong> is a vector whose elements are random variables. E.g., <span class="math display">\[
+x_{k \times 1} = (x_1, x_2, \dots, x_k)^T
+\]</span> where <span class="math inline">\(x_1, \dots, x_k\)</span> are each random variables.</p>
+<p>A <strong>Random Matrix</strong> is a matrix whose elements are random variables. E.g., <span class="math inline">\(X_{n \times k} = (x_{ij})\)</span>, where <span class="math inline">\(x_{11}, \dots, x_{nk}\)</span> are each random variables.</p>
+</div>
+<div id="def-expected-value" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 4.2 (Expected Value)</strong></span> The expected value (population mean) of a random matrix (or vector) is the matrix (or vector) of expected values of its elements.</p>
+<p>For <span class="math inline">\(X_{n \times k}\)</span>: <span class="math display">\[
+E(X) = \begin{pmatrix}
+E(x_{11}) &amp; \dots &amp; E(x_{1k}) \\
+\vdots &amp; \ddots &amp; \vdots \\
+E(x_{n1}) &amp; \dots &amp; E(x_{nk})
+\end{pmatrix}
+\]</span></p>
 <p><span class="math display">\[
-\underset{n \times 1}{y} = \underset{n \times p}{X} \beta + \underset{n \times 1}{\epsilon}
+E\left(\begin{pmatrix} x_1 \\ \vdots \\ x_k \end{pmatrix}\right) = \begin{pmatrix} E(x_1) \\ \vdots \\ E(x_k) \end{pmatrix}
 \]</span></p>
-<p>where the error terms are distributed as: <span class="math display">\[
-\epsilon \sim N_n(0, \sigma^2 I_n),
-\]</span></p>
-<p>in which <span class="math inline">\(I_n\)</span> is the identity matrix: <span class="math display">\[
-I_n = \begin{pmatrix}
-1 &amp; 0 &amp; \dots &amp; 0 \\
-0 &amp; 1 &amp; \dots &amp; 0 \\
+</div>
+<div id="def-variance-covariance" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 4.3 (Variance-Covariance Matrix)</strong></span> For a random vector <span class="math inline">\(x_{k \times 1} = (x_1, \dots, x_k)^T\)</span>, the matrix is:</p>
+<p><span class="math display">\[
+\text{var}(x) = \Sigma_x = \begin{pmatrix}
+\sigma_{11} &amp; \sigma_{12} &amp; \dots &amp; \sigma_{1k} \\
+\sigma_{21} &amp; \sigma_{22} &amp; \dots &amp; \sigma_{2k} \\
 \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
-0 &amp; 0 &amp; \dots &amp; 1
+\sigma_{k1} &amp; \sigma_{k2} &amp; \dots &amp; \sigma_{kk}
 \end{pmatrix}
-\]</span> The scalar equation for a single observation is: <span class="math display">\[
-Y_i = \beta_0 + \beta_1 X_{i1} + \dots + \beta_p X_{ip} + \epsilon_i
 \]</span></p>
-<section id="examples" class="level3" data-number="1.1.1">
-<h3 data-number="1.1.1" class="anchored" data-anchor-id="examples"><span class="header-section-number">1.1.1</span> Examples</h3>
-<section id="polynomial-regression" class="level4" data-number="1.1.1.1">
-<h4 data-number="1.1.1.1" class="anchored" data-anchor-id="polynomial-regression"><span class="header-section-number">1.1.1.1</span> Polynomial Regression</h4>
-<p>Polynomial regression fits a curved line to the data points but remains linear in the parameters (<span class="math inline">\(\beta\)</span>).</p>
-<p>The model equation is: <span class="math display">\[
-y_i = \beta_0 + \beta_1 x_i + \beta_2 x_i^2 + \dots + \beta_{p-1} x_i^{p-1}
-\]</span></p>
-</section>
-<section id="design-matrix-construction" class="level4" data-number="1.1.1.2">
-<h4 data-number="1.1.1.2" class="anchored" data-anchor-id="design-matrix-construction"><span class="header-section-number">1.1.1.2</span> Design Matrix Construction</h4>
-<p>The design matrix <span class="math inline">\(X\)</span> is constructed by taking powers of the input variable.</p>
-<p><span class="math display">\[
-y = \begin{pmatrix} y_1 \\ \vdots \\ y_n \end{pmatrix} =
-\begin{pmatrix}
-1 &amp; x_1 &amp; x_1^2 &amp; \dots &amp; x_1^{p-1} \\
-1 &amp; x_2 &amp; x_2^2 &amp; \dots &amp; x_2^{p-1} \\
-\vdots &amp; \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
-1 &amp; x_n &amp; x_n^2 &amp; \dots &amp; x_n^{p-1}
-\end{pmatrix}
-\begin{pmatrix} \beta_0 \\ \beta_1 \\ \vdots \\ \beta_{p-1} \end{pmatrix} +
-\begin{pmatrix} \epsilon_1 \\ \epsilon_2 \\ \vdots \\ \epsilon_n \end{pmatrix}
-\]</span></p>
-</section>
-<section id="one-way-anova" class="level4" data-number="1.1.1.3">
-<h4 data-number="1.1.1.3" class="anchored" data-anchor-id="one-way-anova"><span class="header-section-number">1.1.1.3</span> One-Way ANOVA</h4>
-<p>ANOVA can be expressed as a linear model using categorical predictors (dummy variables).</p>
-<p>Suppose we have 3 groups (<span class="math inline">\(G_1, G_2, G_3\)</span>) with observations: <span class="math display">\[
-Y_{ij} = \mu_i + \epsilon_{ij}, \quad \epsilon_{ij} \sim N(0, \sigma^2)
-\]</span></p>
-<p><span class="math display">\[
-\overset{G_1}{
-  \boxed{
-    \begin{matrix} Y_{11} \\ Y_{12} \end{matrix}
-  }
-}
-\quad
-\overset{G_2}{
-  \boxed{
-    \begin{matrix} Y_{21} \\ Y_{22} \end{matrix}
-  }
-}
-\quad
-\overset{G_3}{
-  \boxed{
-    \begin{matrix} Y_{31} \\ Y_{32} \end{matrix}
-  }
-}
-\]</span></p>
-<p>We construct the matrix <span class="math inline">\(X\)</span> to select the group mean (<span class="math inline">\(\mu\)</span>) corresponding to the observation:</p>
-<p><span class="math display">\[
-\underset{6 \times 1}{y} = \underset{6 \times 3}{X} \begin{pmatrix} \mu_1 \\ \mu_2 \\ \mu_3 \end{pmatrix} + \epsilon
-\]</span></p>
-<p><span class="math display">\[
-\begin{bmatrix}
-Y_{11} \\ Y_{12} \\ Y_{21} \\ Y_{22} \\ Y_{31} \\ Y_{32}
-\end{bmatrix} =
-\begin{bmatrix}
-1 &amp; 0 &amp; 0 \\
-1 &amp; 0 &amp; 0 \\
-0 &amp; 1 &amp; 0 \\
-0 &amp; 1 &amp; 0 \\
-0 &amp; 0 &amp; 1 \\
-0 &amp; 0 &amp; 1
-\end{bmatrix}
-\begin{bmatrix}
-\mu_1 \\ \mu_2 \\ \mu_3
-\end{bmatrix} + \epsilon
-\]</span></p>
-</section>
-<section id="analysis-of-covariance-ancova" class="level4" data-number="1.1.1.4">
-<h4 data-number="1.1.1.4" class="anchored" data-anchor-id="analysis-of-covariance-ancova"><span class="header-section-number">1.1.1.4</span> Analysis of Covariance (ANCOVA)</h4>
-<p>ANCOVA combines continuous variables and categorical (dummy) variables in the same design matrix.</p>
-<p><span class="math display">\[
-\begin{bmatrix}
-Y_1 \\ \vdots \\ Y_n
-\end{bmatrix} =
-\begin{bmatrix}
-X_{1,cont} &amp; 1 &amp; 0 \\
-X_{2,cont} &amp; 1 &amp; 0 \\
-\vdots &amp; 0 &amp; 1 \\
-X_{n,cont} &amp; 0 &amp; 1
-\end{bmatrix} \beta + \epsilon
-\]</span></p>
-</section>
-</section>
-</section>
-<section id="least-squares-estimation" class="level2" data-number="1.2">
-<h2 data-number="1.2" class="anchored" data-anchor-id="least-squares-estimation"><span class="header-section-number">1.2</span> Least Squares Estimation</h2>
-<p>For the general linear model <span class="math inline">\(y = X\beta + \epsilon\)</span>, the Least Squares estimator is:</p>
-<p><span class="math display">\[
-\hat{\beta} = (X'X)^{-1}X'y
-\]</span></p>
-<p>The predicted values (<span class="math inline">\(\hat{y}\)</span>) are obtained via the Projection Matrix (Hat Matrix) <span class="math inline">\(P_X\)</span>:</p>
-<p><span class="math display">\[
-\hat{y} = X\hat{\beta} = X(X'X)^{-1}X'y = P_X y
-\]</span></p>
-<p>The residuals and Sum of Squared Errors are:</p>
-<p><span class="math display">\[
-\hat{e} = y - \hat{y}
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(\sigma_{ij} = \text{cov}(x_i, x_j) = E[(x_i - \mu_i)(x_j - \mu_j)]\)</span></li>
+<li><span class="math inline">\(\sigma_{ii} = \text{var}(x_i) = E[(x_i - \mu_i)^2]\)</span></li>
+</ul>
+<p>In matrix notation: <span class="math display">\[
+\text{var}(x) = E[(x - \mu_x)(x - \mu_x)^T]
+\]</span> Note: <span class="math inline">\(\text{var}(x)\)</span> is symmetric.</p>
+</div>
+<section id="derivation-of-covariance-matrix-structure" class="level3" data-number="4.2.1">
+<h3 data-number="4.2.1" class="anchored" data-anchor-id="derivation-of-covariance-matrix-structure"><span class="header-section-number">4.2.1</span> Derivation of Covariance Matrix Structure</h3>
+<p>Expanding the vector multiplication for variance: <span class="math display">\[
+(x - \mu_x)(x - \mu_x)' \quad \text{where } \mu_x = (\mu_1, \dots, \mu_n)'
 \]</span> <span class="math display">\[
-SSE = ||\hat{e}||^2
+= \begin{pmatrix} x_1 - \mu_1 \\ \vdots \\ x_n - \mu_n \end{pmatrix} (x_1 - \mu_1, \dots, x_n - \mu_n)
+\]</span> This results in the matrix <span class="math inline">\(A = (a_{ij})\)</span> where <span class="math inline">\(a_{ij} = (x_i - \mu_i)(x_j - \mu_j)\)</span>. Taking expectations yields the covariance matrix elements <span class="math inline">\(\sigma_{ij}\)</span>.</p>
+<div id="def-covariance-matrix-two" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 4.4 (Covariance Matrix (Two Vectors))</strong></span> For random vectors <span class="math inline">\(x_{k \times 1}\)</span> and <span class="math inline">\(y_{n \times 1}\)</span>, the covariance matrix is: <span class="math display">\[
+\text{cov}(x, y) = E[(x - \mu_x)(y - \mu_y)^T] = \begin{pmatrix}
+\text{cov}(x_1, y_1) &amp; \dots &amp; \text{cov}(x_1, y_n) \\
+\vdots &amp; \ddots &amp; \vdots \\
+\text{cov}(x_k, y_1) &amp; \dots &amp; \text{cov}(x_k, y_n)
+\end{pmatrix}
+\]</span> Note that <span class="math inline">\(\text{cov}(x, x) = \text{var}(x)\)</span>.</p>
+</div>
+<div id="def-correlation-matrix" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 4.5 (Correlation Matrix)</strong></span> The correlation matrix of a random vector <span class="math inline">\(x\)</span> is: <span class="math display">\[
+\text{corr}(x) = \begin{pmatrix}
+1 &amp; \rho_{12} &amp; \dots &amp; \rho_{1k} \\
+\vdots &amp; \ddots &amp; \vdots \\
+\rho_{k1} &amp; \rho_{k2} &amp; \dots &amp; 1
+\end{pmatrix}
+\]</span> where <span class="math inline">\(\rho_{ij} = \text{corr}(x_i, x_j)\)</span>.</p>
+<p><strong>Relationships:</strong> Let <span class="math inline">\(V_x = \text{diag}(\text{var}(x_1), \dots, \text{var}(x_k))\)</span>. <span class="math display">\[
+\Sigma_x = V_x^{1/2} \rho_x V_x^{1/2} \quad \text{and} \quad \rho_x = (V_x^{1/2})^{-1} \Sigma_x (V_x^{1/2})^{-1}
+\]</span> Similarly for two vectors: <span class="math display">\[
+\Sigma_{xy} = V_x^{1/2} \rho_{xy} V_y^{1/2}
 \]</span></p>
-<p>The coefficient of determination is: <span class="math display">\[
-R^2 = \frac{SST - SSE}{SST}
-\]</span> where <span class="math inline">\(SST = \sum (y_i - \bar{y})^2\)</span>.</p>
+</div>
 </section>
-<section id="geometric-interpretation-simplified-view" class="level2" data-number="1.3">
-<h2 data-number="1.3" class="anchored" data-anchor-id="geometric-interpretation-simplified-view"><span class="header-section-number">1.3</span> Geometric Interpretation: Simplified View</h2>
-<p>We align the coordinate system to the models for clarity:</p>
+</section>
+<section id="properties-of-mean-and-variance" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="properties-of-mean-and-variance"><span class="header-section-number">4.3</span> Properties of Mean and Variance</h2>
+<p>We can derive several key algebraic properties for operations on random vectors.</p>
 <ol type="1">
-<li><strong>Reduced Model (<span class="math inline">\(M_0\)</span>)</strong>: Represented by the <strong>X-axis</strong> (labeled <span class="math inline">\(j_3\)</span>).
+<li><span class="math inline">\(E(X + Y) = E(X) + E(Y)\)</span></li>
+<li><span class="math inline">\(E(AXB) = A E(X) B\)</span> (In particular, <span class="math inline">\(E(AX) = A\mu_x\)</span>)</li>
+<li><span class="math inline">\(\text{cov}(x, y) = \text{cov}(y, x)^T\)</span></li>
+<li><span class="math inline">\(\text{cov}(x + c, y + d) = \text{cov}(x, y)\)</span></li>
+<li><span class="math inline">\(\text{cov}(Ax, By) = A \text{cov}(x, y) B^T\)</span>
 <ul>
-<li><span class="math inline">\(\hat{y}_0\)</span> is the projection of <span class="math inline">\(y\)</span> onto this axis.</li>
+<li>Special case for scalars: <span class="math inline">\(\text{cov}(ax, by) = ab \cdot \text{cov}(x, y)\)</span></li>
 </ul></li>
-<li><strong>Full Model (<span class="math inline">\(M_1\)</span>)</strong>: Represented by the <strong>XY-plane</strong> (the floor).
-<ul>
-<li><span class="math inline">\(\hat{y}_1\)</span> is the projection of <span class="math inline">\(y\)</span> onto this plane (<span class="math inline">\(z=0\)</span>).</li>
-</ul></li>
-<li><strong>Observed Data (<span class="math inline">\(y\)</span>)</strong>: A point in 3D space.</li>
+<li><span class="math inline">\(\text{cov}(x_1 + x_2, y_1) = \text{cov}(x_1, y_1) + \text{cov}(x_2, y_1)\)</span></li>
+<li><span class="math inline">\(\text{var}(x + c) = \text{var}(x)\)</span></li>
+<li><span class="math inline">\(\text{var}(Ax) = A \text{var}(x) A^T\)</span></li>
+<li><span class="math inline">\(\text{var}(x_1 + x_2) = \text{var}(x_1) + \text{cov}(x_1, x_2) + \text{cov}(x_2, x_1) + \text{var}(x_2)\)</span></li>
+<li><span class="math inline">\(\text{var}(\sum x_i) = \sum \text{var}(x_i)\)</span> if independent.</li>
 </ol>
-<p>The “improvement” due to adding predictors is the distance between <span class="math inline">\(\hat{y}_0\)</span> and <span class="math inline">\(\hat{y}_1\)</span>.</p>
-<div class="cell">
-<div id="fig-geometry-simple" class="cell-output-display quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-geometry-simple-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="plotly html-widget html-fill-item" id="htmlwidget-3657975db08df790593d" style="width:100%;height:650px;"></div>
-<script type="application/json" data-for="htmlwidget-3657975db08df790593d">{"x":{"visdat":{"d8317101d362":["function () ","plotlyVisDat"],"d8312edd00e4":["function () ","data"],"d8312f6590c5":["function () ","data"],"d83135038dd2":["function () ","data"],"d8317c53f12e":["function () ","data"],"d8316aff42c6":["function () ","data"],"d8311c790c0b":["function () ","data"],"d8314f05b4c7":["function () ","data"]},"cur_data":"d8314f05b4c7","attrs":{"d8312edd00e4":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":{},"y":{},"z":{},"type":"scatter3d","mode":"lines","line":{"color":"gray","width":5},"name":"M₀ Subspace (j₃)","hoverinfo":"none","inherit":true},"d8312edd00e4.1":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"z":[[0,0],[0,0]],"type":"surface","x":[0,8],"y":[0,8],"opacity":0.10000000000000001,"showscale":false,"colorscale":[[0,1],["lightgrey","lightgrey"]],"name":"M₁ Subspace","inherit":true},"d8312f6590c5":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":{},"y":{},"z":{},"type":"scatter3d","mode":"lines+markers","line":{"color":"blue","width":10},"marker":{"size":5,"color":"blue"},"name":"y (Observed)","inherit":true},"d83135038dd2":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":{},"y":{},"z":{},"type":"scatter3d","mode":"lines+markers","line":{"color":"red","width":10},"marker":{"size":5,"color":"red"},"name":"ŷ₀","inherit":true},"d8317c53f12e":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":{},"y":{},"z":{},"type":"scatter3d","mode":"lines+markers","line":{"color":"darkgreen","width":10},"marker":{"size":5,"color":"darkgreen"},"name":"ŷ₁","inherit":true},"d8316aff42c6":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":{},"y":{},"z":{},"type":"scatter3d","mode":"lines","line":{"color":"red","width":5,"dash":"solid"},"name":"e₀ (RSS₀)","inherit":true},"d8311c790c0b":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":{},"y":{},"z":{},"type":"scatter3d","mode":"lines","line":{"color":"darkgreen","width":5,"dash":"solid"},"name":"e₁ (RSS₁)","inherit":true},"d8314f05b4c7":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":{},"y":{},"z":{},"type":"scatter3d","mode":"lines","line":{"color":"orange","width":6,"dash":"dot"},"name":"Diff","inherit":true},"d8314f05b4c7.1":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"text","x":[4,4,4],"y":[5,0,5],"z":[3,0,0],"text":["y","ŷ₀","ŷ₁"],"textfont":{"size":18,"color":"black","family":"Arial Black"},"textposition":["top center","top center","bottom center"],"showlegend":false,"inherit":true},"d8314f05b4c7.2":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"text","x":[4,4],"y":[2.5,5],"z":[1.5,1.5],"text":["e₀","e₁"],"textfont":{"size":14,"color":"darkblue"},"textposition":"middle right","showlegend":false,"inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":50,"r":10},"scene":{"xaxis":{"title":"j3 (Intercept)","titlefont":{"size":20}},"yaxis":{"title":"x1 (Predictor)","titlefont":{"size":15}},"zaxis":{"title":"Error","titlefont":{"size":15}},"aspectmode":"data","camera":{"eye":{"x":1.5,"y":1.5,"z":0.5}}},"title":"Geometric Interpretation: Aligned View","hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":[0,8],"y":[0,0],"z":[0,0],"type":"scatter3d","mode":"lines","line":{"color":"gray","width":5},"name":"M₀ Subspace (j₃)","hoverinfo":["none","none"],"marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"frame":null},{"colorbar":{"title":"z<br />z<br />z<br />z<br />z<br />z<br />z","ticklen":2},"colorscale":[[0,"lightgrey"],[1,"lightgrey"]],"showscale":false,"z":[[0,0],[0,0]],"type":"surface","x":[0,8],"y":[0,8],"opacity":0.10000000000000001,"name":"M₁ Subspace","frame":null},{"x":[0,4],"y":[0,5],"z":[0,3],"type":"scatter3d","mode":"lines+markers","line":{"color":"blue","width":10},"marker":{"color":"blue","size":5,"line":{"color":"rgba(44,160,44,1)"}},"name":"y (Observed)","error_y":{"color":"rgba(44,160,44,1)"},"error_x":{"color":"rgba(44,160,44,1)"},"frame":null},{"x":[0,4],"y":[0,0],"z":[0,0],"type":"scatter3d","mode":"lines+markers","line":{"color":"red","width":10},"marker":{"color":"red","size":5,"line":{"color":"rgba(214,39,40,1)"}},"name":"ŷ₀","error_y":{"color":"rgba(214,39,40,1)"},"error_x":{"color":"rgba(214,39,40,1)"},"frame":null},{"x":[0,4],"y":[0,5],"z":[0,0],"type":"scatter3d","mode":"lines+markers","line":{"color":"darkgreen","width":10},"marker":{"color":"darkgreen","size":5,"line":{"color":"rgba(148,103,189,1)"}},"name":"ŷ₁","error_y":{"color":"rgba(148,103,189,1)"},"error_x":{"color":"rgba(148,103,189,1)"},"frame":null},{"x":[4,4],"y":[0,5],"z":[0,3],"type":"scatter3d","mode":"lines","line":{"color":"red","width":5,"dash":"solid"},"name":"e₀ (RSS₀)","marker":{"color":"rgba(140,86,75,1)","line":{"color":"rgba(140,86,75,1)"}},"error_y":{"color":"rgba(140,86,75,1)"},"error_x":{"color":"rgba(140,86,75,1)"},"frame":null},{"x":[4,4],"y":[5,5],"z":[0,3],"type":"scatter3d","mode":"lines","line":{"color":"darkgreen","width":5,"dash":"solid"},"name":"e₁ (RSS₁)","marker":{"color":"rgba(227,119,194,1)","line":{"color":"rgba(227,119,194,1)"}},"error_y":{"color":"rgba(227,119,194,1)"},"error_x":{"color":"rgba(227,119,194,1)"},"frame":null},{"x":[4,4],"y":[0,5],"z":[0,0],"type":"scatter3d","mode":"lines","line":{"color":"orange","width":6,"dash":"dot"},"name":"Diff","marker":{"color":"rgba(127,127,127,1)","line":{"color":"rgba(127,127,127,1)"}},"error_y":{"color":"rgba(127,127,127,1)"},"error_x":{"color":"rgba(127,127,127,1)"},"frame":null},{"type":"scatter3d","mode":"text","x":[4,4,4],"y":[5,0,5],"z":[3,0,0],"text":["y","ŷ₀","ŷ₁"],"textfont":{"size":18,"color":"black","family":"Arial Black"},"textposition":["top center","top center","bottom center"],"showlegend":false,"marker":{"color":"rgba(188,189,34,1)","line":{"color":"rgba(188,189,34,1)"}},"error_y":{"color":"rgba(188,189,34,1)"},"error_x":{"color":"rgba(188,189,34,1)"},"line":{"color":"rgba(188,189,34,1)"},"frame":null},{"type":"scatter3d","mode":"text","x":[4,4],"y":[2.5,5],"z":[1.5,1.5],"text":["e₀","e₁"],"textfont":{"size":14,"color":"darkblue"},"textposition":["middle right","middle right"],"showlegend":false,"marker":{"color":"rgba(23,190,207,1)","line":{"color":"rgba(23,190,207,1)"}},"error_y":{"color":"rgba(23,190,207,1)"},"error_x":{"color":"rgba(23,190,207,1)"},"line":{"color":"rgba(23,190,207,1)"},"frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<div id="proof-property-5">
+<section id="proof-of-property-5-covariance-of-linear-transformation" class="level3" data-number="4.3.1">
+<h3 data-number="4.3.1" class="anchored" data-anchor-id="proof-of-property-5-covariance-of-linear-transformation"><span class="header-section-number">4.3.1</span> Proof of Property 5 (Covariance of Linear Transformation)</h3>
+<p><span class="math display">\[
+\begin{aligned}
+\text{cov}(Ax, By) &amp;= E[(Ax - A\mu_x)(By - B\mu_y)^T] \\
+&amp;= A E[(x - \mu_x)(y - \mu_y)^T] B^T \\
+&amp;= A \text{cov}(x, y) B^T
+\end{aligned}
+\]</span></p>
+</section>
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-geometry-simple-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1.1: Geometric Interpretation: Projection onto Axis (M0) vs Plane (M1)
-</figcaption>
-</figure>
+<div id="proof-property-2">
+<section id="proof-of-property-2-expectation-of-linear-transformation" class="level3" data-number="4.3.2">
+<h3 data-number="4.3.2" class="anchored" data-anchor-id="proof-of-property-2-expectation-of-linear-transformation"><span class="header-section-number">4.3.2</span> Proof of Property 2 (Expectation of Linear Transformation)</h3>
+<p>To prove <span class="math inline">\(E(AXB) = A E(X) B\)</span>: First consider <span class="math inline">\(E(Ax_j)\)</span> where <span class="math inline">\(x_j\)</span> is a column of <span class="math inline">\(X\)</span>. <span class="math display">\[
+E(Ax_j) = E\begin{pmatrix} a_1' x_j \\ \vdots \\ a_n' x_j \end{pmatrix} = \begin{pmatrix} E(a_1' x_j) \\ \vdots \\ E(a_n' x_j) \end{pmatrix}
+\]</span> Since <span class="math inline">\(a_i\)</span> are constants: <span class="math display">\[
+E(a_i' x_j) = E\left(\sum_{k=1}^p a_{ik} x_{kj}\right) = \sum_{k=1}^p a_{ik} E(x_{kj}) = a_i' E(x_j)
+\]</span> Thus <span class="math inline">\(E(Ax_j) = A E(x_j)\)</span>. Applying this to all columns of <span class="math inline">\(X\)</span>: <span class="math display">\[
+E(AX) = [E(Ax_1), \dots, E(Ax_m)] = [AE(x_1), \dots, AE(x_m)] = A E(X)
+\]</span> Similarly, <span class="math inline">\(E(XB) = E(X)B\)</span>.</p>
+</section>
 </div>
+<div id="proof-property-9">
+<section id="proof-of-property-9-variance-of-sum" class="level3" data-number="4.3.3">
+<h3 data-number="4.3.3" class="anchored" data-anchor-id="proof-of-property-9-variance-of-sum"><span class="header-section-number">4.3.3</span> Proof of Property 9 (Variance of Sum)</h3>
+<p><span class="math display">\[
+\text{var}(x_1 + x_2) = E[(x_1 + x_2 - \mu_1 - \mu_2)(x_1 + x_2 - \mu_1 - \mu_2)^T]
+\]</span> Let centered variables be denoted by differences. <span class="math display">\[
+= E[((x_1 - \mu_1) + (x_2 - \mu_2))((x_1 - \mu_1) + (x_2 - \mu_2))^T]
+\]</span> Expanding terms: <span class="math display">\[
+= E[(x_1 - \mu_1)(x_1 - \mu_1)^T + (x_1 - \mu_1)(x_2 - \mu_2)^T + (x_2 - \mu_2)(x_1 - \mu_1)^T + (x_2 - \mu_2)(x_2 - \mu_2)^T]
+\]</span> <span class="math display">\[
+= \text{var}(x_1) + \text{cov}(x_1, x_2) + \text{cov}(x_2, x_1) + \text{var}(x_2)
+\]</span></p>
+</section>
+</div>
+</section>
+<section id="the-multivariate-normal-distribution" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="the-multivariate-normal-distribution"><span class="header-section-number">4.4</span> The Multivariate Normal Distribution</h2>
+<section id="definition-and-density" class="level3" data-number="4.4.1">
+<h3 data-number="4.4.1" class="anchored" data-anchor-id="definition-and-density"><span class="header-section-number">4.4.1</span> Definition and Density</h3>
+<div id="def-standard-normal" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 4.6 (Independent Standard Normal)</strong></span> Let <span class="math inline">\(z = (z_1, \dots, z_n)'\)</span> where <span class="math inline">\(z_i \sim N(0, 1)\)</span> are independent. We say <span class="math inline">\(z \sim N_n(0, I_n)\)</span>. The joint PDF is the product of marginals: <span class="math display">\[
+f(z) = \prod_{i=1}^n \frac{1}{\sqrt{2\pi}} e^{-\frac{z_i^2}{2}} = \frac{1}{(2\pi)^{n/2}} e^{-\frac{1}{2} z^T z}
+\]</span> Properties: <span class="math inline">\(E(z) = 0\)</span> and <span class="math inline">\(\text{var}(z) = I_n\)</span> (Covariance is 0 for <span class="math inline">\(i \ne j\)</span>, Variance is 1).</p>
+</div>
+<div id="def-mvn" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 4.7 (Multivariate Normal Distribution)</strong></span> A random vector <span class="math inline">\(x\)</span> (<span class="math inline">\(n \times 1\)</span>) has a <strong>multivariate normal distribution</strong> if it has the same distribution as: <span class="math display">\[
+x = A_{n \times p} z_{p \times 1} + \mu_{n \times 1}
+\]</span> where <span class="math inline">\(z \sim N_p(0, I_p)\)</span>, <span class="math inline">\(A\)</span> is a matrix of constants, and <span class="math inline">\(\mu\)</span> is a vector of constants. The moments are:</p>
+<ul>
+<li><span class="math inline">\(E(x) = \mu\)</span></li>
+<li><span class="math inline">\(\text{var}(x) = AA^T = \Sigma\)</span></li>
+</ul>
+</div>
+</section>
+<section id="geometric-interpretation" class="level3" data-number="4.4.2">
+<h3 data-number="4.4.2" class="anchored" data-anchor-id="geometric-interpretation"><span class="header-section-number">4.4.2</span> Geometric Interpretation</h3>
+<p>Using Spectral Decomposition, <span class="math inline">\(\Sigma = Q \Lambda Q'\)</span>. We can view the transformation <span class="math inline">\(x = Az + \mu\)</span> as:</p>
+<ol type="1">
+<li>Scaling by eigenvalues (<span class="math inline">\(\Lambda^{1/2}\)</span>).</li>
+<li>Rotation by eigenvectors (<span class="math inline">\(Q\)</span>).</li>
+<li>Shift by mean (<span class="math inline">\(\mu\)</span>).</li>
+</ol>
+<p><img src="lec30_images/page16_spectral_geom.png" class="img-fluid" style="width:70.0%"></p>
+</section>
+<section id="probability-density-function" class="level3" data-number="4.4.3">
+<h3 data-number="4.4.3" class="anchored" data-anchor-id="probability-density-function"><span class="header-section-number">4.4.3</span> Probability Density Function</h3>
+<p>If <span class="math inline">\(\Sigma\)</span> is positive definite, the PDF exists. We use the change of variable formula for <span class="math inline">\(x = Az + \mu\)</span>: <span class="math display">\[
+f_x(x) = f_z(g^{-1}(x)) \cdot |J|
+\]</span> where <span class="math inline">\(z = A^{-1}(x - \mu)\)</span> and <span class="math inline">\(J = \det(A^{-1}) = |A|^{-1}\)</span>.</p>
+<p><span class="math display">\[
+f_x(x) = (2\pi)^{-p/2} |A|^{-1} \exp \left\{ -\frac{1}{2} (A^{-1}(x-\mu))^T (A^{-1}(x-\mu)) \right\}
+\]</span></p>
+<p>Using <span class="math inline">\(|\Sigma| = |AA^T| = |A|^2\)</span> and <span class="math inline">\(\Sigma^{-1} = (AA^T)^{-1}\)</span>, we get: <span class="math display">\[
+f_x(x) = (2\pi)^{-p/2} |\Sigma|^{-1/2} \exp \left\{ -\frac{1}{2} (x-\mu)^T \Sigma^{-1} (x-\mu) \right\}
+\]</span></p>
+</section>
+<section id="moment-generating-function" class="level3" data-number="4.4.4">
+<h3 data-number="4.4.4" class="anchored" data-anchor-id="moment-generating-function"><span class="header-section-number">4.4.4</span> Moment Generating Function</h3>
+<div id="def-mgf" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 4.8 (Moment Generating Function (MGF))</strong></span> The MGF of a random vector <span class="math inline">\(x\)</span> is <span class="math inline">\(M_x(t) = E(e^{t^T x})\)</span>. For <span class="math inline">\(x = Az + \mu\)</span>: <span class="math display">\[
+M_x(t) = E[e^{t^T(Az + \mu)}] = e^{t^T\mu} E[e^{(A^T t)^T z}] = e^{t^T\mu} M_z(A^T t)
+\]</span> Since <span class="math inline">\(M_z(u) = e^{u^T u / 2}\)</span>: <span class="math display">\[
+M_x(t) = e^{t^T\mu} \exp\left( \frac{1}{2} t^T (AA^T) t \right) = \exp \left( t^T\mu + \frac{1}{2} t^T \Sigma t \right)
+\]</span></p>
+</div>
+<p>Key Properties:</p>
+<ol type="1">
+<li><p><strong>Uniqueness:</strong> Two random vectors with the same MGF have the same distribution.</p></li>
+<li><p><strong>Independence:</strong> <span class="math inline">\(y_1\)</span> and <span class="math inline">\(y_2\)</span> are independent iff <span class="math inline">\(M_y(t) = M_{y_1}(t_1) M_{y_2}(t_2)\)</span>.</p></li>
+</ol>
+</section>
+</section>
+<section id="construction-and-linear-transformations" class="level2" data-number="4.5">
+<h2 data-number="4.5" class="anchored" data-anchor-id="construction-and-linear-transformations"><span class="header-section-number">4.5</span> Construction and Linear Transformations</h2>
+<div id="thm-construction" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 4.1 (Constructing MVN Random Vector)</strong></span> Let <span class="math inline">\(\mu \in \mathbb{R}^n\)</span> and <span class="math inline">\(\Sigma\)</span> be an <span class="math inline">\(n \times n\)</span> symmetric positive semi-definite (p.s.d.) matrix. Then there exists a multivariate normal distribution with mean <span class="math inline">\(\mu\)</span> and covariance <span class="math inline">\(\Sigma\)</span>.</p>
+<p><em>Proof:</em> Since <span class="math inline">\(\Sigma\)</span> is p.s.d., there exists <span class="math inline">\(B\)</span> such that <span class="math inline">\(\Sigma = BB^T\)</span> (e.g., via Cholesky). Let <span class="math inline">\(z \sim N_n(0, I)\)</span> and define <span class="math inline">\(x = Bz + \mu\)</span>.</p>
+</div>
+<div id="thm-linear-transform" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 4.2 (Linear Transformation Theorem)</strong></span> Let <span class="math inline">\(x \sim N_n(\mu, \Sigma)\)</span>. Let <span class="math inline">\(y = Cx + d\)</span> where <span class="math inline">\(C\)</span> is <span class="math inline">\(r \times n\)</span> and <span class="math inline">\(d\)</span> is <span class="math inline">\(r \times 1\)</span>. Then: <span class="math display">\[
+y \sim N_r(C\mu + d, C \Sigma C^T)
+\]</span></p>
+<p><em>Proof:</em> <span class="math inline">\(x = Az + \mu\)</span> where <span class="math inline">\(AA^T = \Sigma\)</span>. <span class="math display">\[
+y = C(Az + \mu) + d = (CA)z + (C\mu + d)
+\]</span> This fits the definition of MVN with mean <span class="math inline">\(C\mu + d\)</span> and variance <span class="math inline">\(C \Sigma C^T\)</span>.</p>
+</div>
+<section id="corollaries" class="level3" data-number="4.5.1">
+<h3 data-number="4.5.1" class="anchored" data-anchor-id="corollaries"><span class="header-section-number">4.5.1</span> Corollaries</h3>
+<div id="cor-marginals" class="theorem corollary">
+<p><span class="theorem-title"><strong>Corollary 4.1 (Marginals)</strong></span> Any subvector of a multivariate normal vector is also multivariate normal. If we partition <span class="math inline">\(x = (x_1', x_2')'\)</span>, we can use <span class="math inline">\(C = (I_r, 0)\)</span> to show <span class="math inline">\(x_1 \sim N(\mu_1, \Sigma_{11})\)</span>.</p>
+</div>
+<div id="cor-univariate" class="theorem corollary">
+<p><span class="theorem-title"><strong>Corollary 4.2 (Univariate Combinations)</strong></span> Any linear combination <span class="math inline">\(a^T x\)</span> is univariate normal: <span class="math display">\[
+a^T x \sim N(a^T \mu, a^T \Sigma a)
+\]</span></p>
+</div>
+<div id="cor-orthogonal" class="theorem corollary">
+<p><span class="theorem-title"><strong>Corollary 4.3 (Orthogonal Transformations)</strong></span> If <span class="math inline">\(x \sim N(0, I_n)\)</span> and <span class="math inline">\(Q\)</span> is orthogonal (<span class="math inline">\(Q'Q = I\)</span>), then <span class="math inline">\(y = Q'x \sim N(0, I_n)\)</span>.</p>
+</div>
+<div id="cor-standardization" class="theorem corollary">
+<p><span class="theorem-title"><strong>Corollary 4.4 (Standardization)</strong></span> If <span class="math inline">\(y \sim N_n(\mu, \Sigma)\)</span> and <span class="math inline">\(\Sigma\)</span> is positive definite: <span class="math display">\[
+\Sigma^{-1/2}(y - \mu) \sim N_n(0, I_n)
+\]</span> <em>Proof:</em> Let <span class="math inline">\(z = \Sigma^{-1/2}(y - \mu)\)</span>. Then <span class="math inline">\(\text{var}(z) = \Sigma^{-1/2} \Sigma \Sigma^{-1/2} = I_n\)</span>.</p>
+</div>
+</section>
+</section>
+<section id="independence" class="level2" data-number="4.6">
+<h2 data-number="4.6" class="anchored" data-anchor-id="independence"><span class="header-section-number">4.6</span> Independence</h2>
+<div id="thm-independence" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 4.3 (Independence in MVN)</strong></span> Let <span class="math inline">\(y \sim N(\mu, \Sigma)\)</span> be partitioned into <span class="math inline">\(y_1\)</span> and <span class="math inline">\(y_2\)</span>. <span class="math display">\[
+\Sigma = \begin{pmatrix} \Sigma_{11} &amp; \Sigma_{12} \\ \Sigma_{21} &amp; \Sigma_{22} \end{pmatrix}
+\]</span> Then <span class="math inline">\(y_1\)</span> and <span class="math inline">\(y_2\)</span> are independent if and only if <span class="math inline">\(\Sigma_{12} = 0\)</span> (zero covariance).</p>
+</div>
+<div id="proof-independence">
+<p><strong>1. Independence <span class="math inline">\(\implies\)</span> Covariance is 0:</strong> This holds generally for any distribution. <span class="math display">\[
+\text{cov}(y_1, y_2) = E[(y_1 - \mu_1)(y_2 - \mu_2)'] = 0
+\]</span></p>
+<p><strong>2. Covariance is 0 <span class="math inline">\(\implies\)</span> Independence:</strong> This is specific to MVN. We use MGFs. If <span class="math inline">\(\Sigma_{12} = 0\)</span>, the quadratic form in the MGF splits: <span class="math display">\[
+t^T \Sigma t = t_1^T \Sigma_{11} t_1 + t_2^T \Sigma_{22} t_2
+\]</span> The MGF becomes: <span class="math display">\[
+M_y(t) = \exp(t_1^T \mu_1 + \frac{1}{2} t_1^T \Sigma_{11} t_1) \times \exp(t_2^T \mu_2 + \frac{1}{2} t_2^T \Sigma_{22} t_2)
+\]</span> <span class="math display">\[
+M_y(t) = M_{y_1}(t_1) M_{y_2}(t_2)
+\]</span> Thus, they are independent.</p>
+</div>
+</section>
+<section id="conditional-distributions" class="level2" data-number="4.7">
+<h2 data-number="4.7" class="anchored" data-anchor-id="conditional-distributions"><span class="header-section-number">4.7</span> Conditional Distributions</h2>
+<p>We often wish to find the distribution of a subvector <span class="math inline">\(y_2\)</span> given the value of another subvector <span class="math inline">\(y_1\)</span>.</p>
+<div id="lem-independence" class="theorem lemma">
+<p><span class="theorem-title"><strong>Lemma 4.1 (Constructing Independent Vectors)</strong></span> Let <span class="math inline">\(y \sim N_n(\mu, \Sigma)\)</span> partitioned into <span class="math inline">\(y_1\)</span> and <span class="math inline">\(y_2\)</span>. Define: <span class="math display">\[
+y_{2|1} = y_2 - \Sigma_{21}\Sigma_{11}^{-1}y_1
+\]</span> Then <span class="math inline">\(y_1\)</span> and <span class="math inline">\(y_{2|1}\)</span> are independent.</p>
+<p><em>Proof:</em> Consider the linear transformation: <span class="math display">\[
+\begin{pmatrix} y_1 \\ y_{2|1} \end{pmatrix} = C y = \begin{pmatrix} I &amp; 0 \\ -\Sigma_{21}\Sigma_{11}^{-1} &amp; I \end{pmatrix} \begin{pmatrix} y_1 \\ y_2 \end{pmatrix}
+\]</span> The covariance matrix is <span class="math inline">\(C \Sigma C'\)</span>. The off-diagonal block is: <span class="math display">\[
+\text{cov}(y_1, y_{2|1}) = \Sigma_{11}(-\Sigma_{11}^{-1}\Sigma_{12}) + \Sigma_{12} = -\Sigma_{12} + \Sigma_{12} = 0
+\]</span> Since covariance is zero, they are independent.</p>
+</div>
+<p><img src="lec30_images/page33_lemma_proof.png" class="img-fluid" style="width:70.0%"></p>
+<div id="thm-conditional" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 4.4 (Conditional Distribution Theorem)</strong></span> The conditional distribution of <span class="math inline">\(y_2\)</span> given <span class="math inline">\(y_1\)</span> is multivariate normal: <span class="math display">\[
+y_2 | y_1 \sim N(\mu_{2|1}, \Sigma_{22|1})
+\]</span> where:</p>
+<ul>
+<li><p><strong>Conditional Mean:</strong> <span class="math inline">\(E(y_2 | y_1) = \mu_2 + \Sigma_{21}\Sigma_{11}^{-1}(y_1 - \mu_1)\)</span></p></li>
+<li><p><strong>Conditional Variance:</strong> <span class="math inline">\(\text{var}(y_2 | y_1) = \Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12}\)</span></p></li>
+</ul>
+<p><em>Proof:</em> Write <span class="math inline">\(y_2 = y_{2|1} + \Sigma_{21}\Sigma_{11}^{-1}y_1\)</span>. Conditional on <span class="math inline">\(y_1\)</span>, the term <span class="math inline">\(\Sigma_{21}\Sigma_{11}^{-1}y_1\)</span> is constant. Since <span class="math inline">\(y_{2|1}\)</span> is independent of <span class="math inline">\(y_1\)</span>, its conditional distribution is simply its marginal distribution. Thus, the mean shifts by the constant term, and the variance remains that of <span class="math inline">\(y_{2|1}\)</span> (the Schur complement).</p>
+</div>
+<div id="ex-numerical">
+<section id="numerical-example" class="level3" data-number="4.7.1">
+<h3 data-number="4.7.1" class="anchored" data-anchor-id="numerical-example"><span class="header-section-number">4.7.1</span> Numerical Example</h3>
+<p>Let <span class="math inline">\(\begin{pmatrix} y_1 \\ y_2 \end{pmatrix} \sim N \left( \begin{pmatrix} 1 \\ 2 \end{pmatrix}, \begin{pmatrix} 2 &amp; 1 \\ 1 &amp; 4 \end{pmatrix} \right)\)</span>. Find the distribution of <span class="math inline">\(y_1 | y_2\)</span>.</p>
+<ul>
+<li><p><span class="math inline">\(\mu_{1|2} = \mu_1 + \sigma_{12}\sigma_{22}^{-1}(y_2 - \mu_2) = 1 + 1(4)^{-1}(y_2 - 2) = 0.5 + 0.25y_2\)</span></p></li>
+<li><p><span class="math inline">\(\sigma_{1|2}^2 = \sigma_{11} - \sigma_{12}\sigma_{22}^{-1}\sigma_{21} = 2 - 1(1/4)1 = 1.75\)</span></p></li>
+</ul>
+<p>So <span class="math inline">\(y_1 | y_2 \sim N(0.5 + 0.25y_2, 1.75)\)</span>.</p>
+</section>
+</div>
+<section id="variance-decomposition" class="level3" data-number="4.7.2">
+<h3 data-number="4.7.2" class="anchored" data-anchor-id="variance-decomposition"><span class="header-section-number">4.7.2</span> Variance Decomposition</h3>
+<p>The Law of Total Variance states: <span class="math display">\[
+\text{var}(y_2) = E[\text{var}(y_2 | y_1)] + \text{var}[E(y_2 | y_1)]
+\]</span> In the MVN case:</p>
+<ul>
+<li><p><span class="math inline">\(E[\text{var}(y_2 | y_1)] = \Sigma_{22|1}\)</span> (constant variance).</p></li>
+<li><p><span class="math inline">\(\text{var}[E(y_2 | y_1)] = \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12}\)</span> (explained variance). Summing these returns the total variance <span class="math inline">\(\Sigma_{22}\)</span>.</p></li>
+</ul>
+</section>
+</section>
+<section id="partial-and-multiple-correlation" class="level2" data-number="4.8">
+<h2 data-number="4.8" class="anchored" data-anchor-id="partial-and-multiple-correlation"><span class="header-section-number">4.8</span> Partial and Multiple Correlation</h2>
+<div id="def-partial-corr" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 4.9 (Partial Correlation)</strong></span> The partial correlation between elements <span class="math inline">\(y_i\)</span> and <span class="math inline">\(y_j\)</span> given a set of variables <span class="math inline">\(x\)</span> is derived from the conditional covariance matrix <span class="math inline">\(\Sigma_{y|x}\)</span>: <span class="math display">\[
+\rho_{ij|x} = \frac{\sigma_{ij|x}}{\sqrt{\sigma_{ii|x} \sigma_{jj|x}}}
+\]</span> where <span class="math inline">\(\sigma_{ij|x}\)</span> are elements of <span class="math inline">\(\Sigma_{y|x} = \Sigma_{yy} - \Sigma_{yx}\Sigma_{xx}^{-1}\Sigma_{xy}\)</span>.</p>
+</div>
+<div id="def-multiple-corr" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 4.10 (Multiple Correlation (<span class="math inline">\(R^2\)</span>))</strong></span> For a scalar <span class="math inline">\(y\)</span> and vector <span class="math inline">\(x\)</span>, the squared multiple correlation is the proportion of variance of <span class="math inline">\(y\)</span> explained by the conditional mean: <span class="math display">\[
+\rho_{y|x}^2 = \frac{\text{var}(E(y|x))}{\text{var}(y)} = \frac{\Sigma_{yx} \Sigma_{xx}^{-1} \Sigma_{xy}}{\sigma_{yy}}
+\]</span></p>
 </div>
 
 
@@ -1091,14 +1251,11 @@ Figure&nbsp;1.1: Geometric Interpretation: Projection onto Axis (M0) vs Plane (M
   </script>
 <nav class="page-navigation column-body">
   <div class="nav-page nav-page-previous">
-      <a href="./index.html" class="pagination-link" aria-label="Preface">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Preface</span>
+      <a href="./lec2-matrix.html" class="pagination-link" aria-label="Spectral Theory and Generalized Inverse">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Spectral Theory and Generalized Inverse</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./lec1-vecspace.html" class="pagination-link" aria-label="Vector Space and Projection">
-        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Vector Space and Projection</span></span> <i class="bi bi-arrow-right-short"></i>
-      </a>
   </div>
 </nav>
 </div> <!-- /content -->
