@@ -933,23 +933,62 @@ One of the most common applications of projection is in Analysis of Variance (AN
 
 ::: {#exm-anova-projection}
 #### Finding Projection for One-way ANOVA
-Consider a one-way ANOVA model:
+Consider a one-way ANOVA model with $k$ groups:
 $$
 y_{ij} = \mu_i + \epsilon_{ij}
 $$
-where $i$ represents the group and $j$ represents the observation within the group.
+where $i \in \{1, \dots, k\}$ represents the group and $j \in \{1, \dots, n_i\}$ represents the observation within the group. Let $N = \sum_{i=1}^k n_i$ be the total number of observations.
 
-We can define dummy variables (indicators) for each group. Let $x_1$ be the indicator for group 1, $x_2$ for group 2, etc. These vectors are mutually orthogonal because an observation cannot belong to two groups simultaneously.
+**1. Matrix Definitions**
+We define the data vector $y$ and the design matrix $X$ as follows:
 
-The projection of the data vector $y$ onto the space spanned by these indicators is the sum of the projections onto each group vector:
+* **Data Vector ($y$):** An $N \times 1$ vector containing all observations stacked by group:
+    $$
+    y = \begin{pmatrix} y_{11} \\ \vdots \\ y_{1n_1} \\ y_{21} \\ \vdots \\ y_{kn_k} \end{pmatrix}
+    $$
 
+* **Design Matrix ($X$):** An $N \times k$ matrix constructed from $k$ column vectors, $X = (x_1, x_2, \dots, x_k)$. Each vector $x_g$ is an **indicator variable** (dummy variable) for group $g$:
+    $$
+    x_g = \begin{pmatrix} 0 \\ \vdots \\ 1 \\ \vdots \\ 0 \end{pmatrix} \quad \leftarrow \text{Entries are 1 if observation belongs to group } g
+    $$
+
+**2. Orthogonality**
+These column vectors $x_1, \dots, x_k$ are mutually orthogonal because no observation can belong to two groups at once. The dot product of any two distinct columns is zero:
 $$
-\hat{y} = \text{proj}(y|x_1) + \text{proj}(y|x_2) + \dots
+\langle x_g, x_h \rangle = 0 \quad \text{for } g \neq h
+$$
+This allows us to find the projection onto the column space of $X$ by simply summing the projections onto each column individually.
+
+**3. Calculating Individual Projections**
+For a specific group vector $x_g$, the projection is:
+$$
+\text{proj}(y|x_g) = \frac{\langle y, x_g \rangle}{\langle x_g, x_g \rangle} x_g
 $$
 
-Since the indicators are orthogonal, this simplifies to calculating the mean for each group. The fitted value for any observation $y_{ij}$ is simply the group mean $\bar{y}_{i.}$.
+We calculate the two scalar terms:
+
+* **Denominator ($\langle x_g, x_g \rangle$):** The sum of squared elements of $x_g$. Since $x_g$ contains $n_g$ ones and zeros elsewhere:
+    $$
+    \langle x_g, x_g \rangle = \sum \mathbb{1}_{\{i=g\}}^2 = n_g
+    $$
+
+* **Numerator ($\langle y, x_g \rangle$):** The dot product sums only the $y$ values belonging to group $g$:
+    $$
+    \langle y, x_g \rangle = \sum_{i,j} y_{ij} \cdot \mathbb{1}_{\{i=g\}} = \sum_{j=1}^{n_g} y_{gj} = y_{g.} \quad (\text{Group Total})
+    $$
+
+**4. The Resulting Projection**
+Substituting these back into the formula gives the coefficient for the vector $x_g$:
+$$
+\text{proj}(y|x_g) = \frac{y_{g.}}{n_g} x_g = \bar{y}_{g.} x_g
+$$
+
+The total projection $\hat{y}$ is the sum over all groups:
+$$
+\hat{y} = \sum_{g=1}^k \bar{y}_{g.} x_g
+$$
+This confirms that the fitted value for any specific observation $y_{ij}$ is simply its group mean $\bar{y}_{i.}$.
 :::
-
 
 
 ### Gram-Schmidt Process
@@ -1094,35 +1133,49 @@ plt.show()
 This process leads to the **QR Decomposition** of a matrix: $X = QR$, where $Q$ is orthogonal and $R$ is upper triangular.
 
 
-## Projection Matrix via $X$ (Least Square Projection Matrix)
-
----
-
-```{r}
-#| label: setup-images-p66-75
-#| include: false
-#| warning: false
-
-# Extract images for this section
-extract_page_image(68, "page68_normal_eq.png", "1200x800+0+200")
-```
+## Hat Matrix (Projection Matrix via $X$)
 
 
-We now formally derive the projection matrix $P$ for the general case where we project $y$ onto the column space of a matrix $X$.
 
-**Normal Equations**
+### Norm Equations
 
-We want to find $\hat{y} = X\beta$ such that the residual $(y - \hat{y})$ is orthogonal to the column space $Col(X)$. This means the residual must be orthogonal to every column of $X$.
+Let $X = (x_1, \dots, x_p)$ be an $n \times p$ matrix, where each column $x_j$ is a predictor vector.
+
+We want to project the target vector $y$ onto the column space $C(X)$. This is equivalent to finding a coefficient vector $\beta \in \mathbb{R}^p$ such that the error vector (residual) is orthogonal to the entire subspace $C(X)$.
 
 $$
-X'(y - X\beta) = 0
+y - X\beta \perp C(X)
 $$
 
-Expanding this gives the famous **Normal Equations**:
+Since the columns of $X$ span the subspace, the residual must be orthogonal to **every** column vector $x_j$ individually:
 
 $$
-X'y - X'X\beta = 0 \implies X'X\beta = X'y
+y - X\beta \perp x_j \quad \text{for } j = 1, \dots, p
 $$
+
+Writing this geometric condition as an algebraic dot product (where $x_j'$ denotes the transpose):
+
+$$
+x_j'(y - X\beta) = 0 \quad \text{for each } j
+$$
+
+We can stack these $p$ separate linear equations into a single matrix equation. Since the rows of $X'$ are the columns of $X$, this becomes:
+
+$$
+\begin{pmatrix} x_1' \\ \vdots \\ x_p' \end{pmatrix} (y - X\beta) = \mathbf{0}
+\implies X'(y - X\beta) = 0
+$$
+
+Finally, we distribute the matrix transpose and rearrange terms to solve for $\beta$:
+
+$$
+\begin{aligned}
+X'y - X'X\beta &= 0 \\
+X'X\beta &= X'y
+\end{aligned}
+$$
+
+This system is known as the **Normal Equations**.
 
 ::: {#thm-least-squares-estimator}
 ### Least Squares Estimator
@@ -1133,58 +1186,46 @@ $$
 $$
 :::
 
-```{r}
-#| label: extract-p68
-#| include: false
-extract_page_image(68, "page68_normal_eq.png", "1200x800+0+200")
-```
-
-![Normal Equations Derivation](lec1_images/page68_normal_eq.png){width=70%}
-
-**The Matrix $P$**
+### Hat Matrix
 
 Substituting the estimator $\hat{\beta}$ back into the equation for $\hat{y}$ gives us the projection matrix.
 
 ::: {#def-projection-matrix-general}
-### General Projection Matrix
+### Hat Matrix
 The projection of $y$ onto $Col(X)$ is given by:
 
 $$
 \hat{y} = X\hat{\beta} = X(X'X)^{-1}X'y
 $$
 
-Thus, the projection matrix $P$ is defined as:
+Thus, the hat matrix $P$ is defined as:
 
 $$
 P = X(X'X)^{-1}X'
 $$
 :::
 
-**Relationship with QR Decomposition**
+### Equivalence of Hat Matrix and $QQ'$
 
 If we use the QR decomposition such that $X = QR$, where the columns of $Q$ form an orthonormal basis for $Col(X)$, the formula simplifies significantly.
 
 Recall that for orthonormal columns, $Q'Q = I$. Substituting $X=QR$ into the general formula:
 
 $$
-P = QR((QR)'(QR))^{-1}(QR)'
-$$
-$$
-= QR(R'Q'QR)^{-1}R'Q'
-$$
-$$
-= QR(R'R)^{-1}R'Q'
-$$
-$$
-= QR R^{-1} (R')^{-1} R' Q'
-$$
-$$
-= Q Q'
+\begin{aligned}
+P &= QR((QR)'(QR))^{-1}(QR)' \\
+  &= QR(R'Q'QR)^{-1}R'Q' \\
+  &= QR(R' \underbrace{Q'Q}_{I} R)^{-1}R'Q' \\
+  &= QR(R'R)^{-1}R'Q' \\
+  &= QR R^{-1} (R')^{-1} R' Q' \\
+  &= Q \underbrace{R R^{-1}}_{I} \underbrace{(R')^{-1} R'}_{I} Q' \\
+  &= Q Q'
+\end{aligned}
 $$
 
 This confirms that $P = QQ'$ is consistent with the general formula $P = X(X'X)^{-1}X'$.
 
-**Properties of $P$**
+### Properties of Hat Matrix
 
 We revisit the properties of projection matrices in this general context.
 
@@ -1213,27 +1254,15 @@ $$
 This matrix projects $y$ onto the null space of $X'$ (the orthogonal complement of the column space of $X$).
 :::
 
----
 
-```{r}
-#| label: setup-images-p76-85
-#| include: false
-#| warning: false
+## General Projection Matrices onto Nested Subspaces
 
-library(pdftools)
-library(magick)
-
-# Extract images for this section
-extract_page_image(80, "page80_nested_models.png", "1200x800+0+200")
-extract_page_image(86, "page86_nested_figure.png", "1200x800+0+200")
-```
-
-## Projections onto Nested Subspaces
+### Nested Models and Subspaces
 
 In hypothesis testing (like comparing a null model to an alternative model), we often deal with nested subspaces.
 
 ::: {#def-nested-models}
-### Nested Models
+#### Nested Models
 Consider two models:
 1.  **Reduced Model ($M_0$):** $y \in Col(X_0)$
 2.  **Full Model ($M_1$):** $y \in Col(X_1)$
@@ -1246,15 +1275,9 @@ $$
 
 Usually, $X_1$ is constructed by adding columns to $X_0$: $X_1 = [X_0, X_{new}]$.
 
-```{r}
-#| label: extract-p80
-#| include: false
-extract_page_image(80, "page80_nested_models.png", "1200x800+0+200")
-```
 
-![Nested Models Concept](lec1_images/page80_nested_models.png){width=70%}
 
-**Projection Composition**
+### Projections onto Nested Subspaces
 
 Let $P_0$ be the projection matrix onto $Col(X_0)$ and $P_1$ be the projection matrix onto $Col(X_1)$. Since $Col(X_0) \subseteq Col(X_1)$, we have important relationships between these matrices.
 
@@ -1281,73 +1304,217 @@ The matrix $P_{\Delta} = P_1 - P_0$ is an orthogonal projection matrix onto the 
   3.  **Orthogonality:** $(P_1 - P_0)P_0 = P_1 P_0 - P_0 = P_0 - P_0 = 0$.
 :::
 
-**Decomposition of Sum of Squares**
+### Decomposition of Projections and their Sum Squares
 
-This geometry allows us to decompose the total vector $y$ into three orthogonal components:
-  
-  1.  $\hat{y}_0$ (The fit of the reduced model)
-  2.  $\hat{y}_1 - \hat{y}_0$ (The improvement from the reduced to the full model)
-  3.  $y - \hat{y}_1$ (The residual of the full model)
-  
-  $$
-  y = \hat{y}_0 + (\hat{y}_1 - \hat{y}_0) + (y - \hat{y}_1)
-  $$
-  
-  Squaring the norms (applying Pythagoras):
-  
-  $$
-  ||y||^2 = ||\hat{y}_0||^2 + ||\hat{y}_1 - \hat{y}_0||^2 + ||y - \hat{y}_1||^2
-  $$
+::: {#thm-nested-decomposition}
+#### Orthogonal Decomposition of Nested Models
 
-This equation is the foundation for the F-test in ANOVA and regression.
+Let $M_0 \subset M_1$ be two nested linear models with corresponding design matrices $X_0$ and $X_1$ such that $C(X_0) \subset C(X_1)$. Let $P_0$ and $P_1$ be the orthogonal projection matrices onto $C(X_0)$ and $C(X_1)$ respectively.
 
-```{r}
-#| label: extract-p86
-#| include: false
-extract_page_image(86, "page86_nested_figure.png", "1200x800+0+200")
-```
+For any observation vector $y$, we have the decomposition:
+$$
+y = \underbrace{P_0 y}_{\hat{y}_0} + \underbrace{(P_1 - P_0) y}_{\hat{y}_1 - \hat{y}_0} + \underbrace{(I - P_1) y}_{y - \hat{y}_1}
+$$
 
-![Decomposition of Sum of Squares](lec1_images/page86_nested_figure.png){width=70%}
-
-
-
-
-
-**ANOVA Sum of Squares**
-
-We apply the decomposition of sum of squares to the specific case of Analysis of Variance.
-
-::: {#def-anova-ss}
-### ANOVA Decomposition
-The Total Sum of Squares (TSS), or the squared norm of $y$ (often centered), can be split into components:
-
-1.  **Residual Sum of Squares (Full Model):**
-    $$
-    RSS_1 = ||y - \hat{y}_1||^2 = \sum_{i}\sum_{j} (y_{ij} - \bar{y}_{i.})^2
-    $$
-    This represents the "Within Group" sum of squares.
-
-2.  **Difference Sum of Squares:**
-    $$
-    RSS_0 - RSS_1 = ||\hat{y}_1 - \hat{y}_0||^2 = \sum_{i} n_i (\bar{y}_{i.} - \bar{y}_{..})^2
-    $$
-    This represents the "Between Group" sum of squares ($SS_{between}$).
+The three component vectors are mutually orthogonal. Consequently, their squared norms sum to the total squared norm:
+$$
+\|y\|^2 = \|\hat{y}_0\|^2 + \|\hat{y}_1 - \hat{y}_0\|^2 + \|y - \hat{y}_1\|^2
+$$
 :::
 
-This relationship confirms that:
+::: {.proof}
+
+**1. Definitions**
+We define the three components as vectors $v_1, v_2, v_3$:
+
+* $v_1 = \hat{y}_0 = P_0 y$.
+* $v_2 = \hat{y}_1 - \hat{y}_0 = (P_1 - P_0)y$.
+* $v_3 = y - \hat{y}_1 = (I - P_1)y$.
+    * **Note:** Since $P_1$ projects onto $C(X_1)$, the matrix $(I - P_1)$ projects onto the **orthogonal complement** $C(X_1)^\perp$. Thus, $v_3 \in \text{Col}(I - P_1)$.
+
+Note that since $C(X_0) \subset C(X_1)$, we have the property $P_1 P_0 = P_0 P_1 = P_0$. (Projecting onto the smaller subspace $M_0$ is unchanged if we first project onto the enclosing subspace $M_1$).
+
+**2. Orthogonality of $v_1$ and $v_2$**
+We check the inner product $\langle v_1, v_2 \rangle = v_1' v_2$:
 $$
-TSS = SS_{within} + SS_{between}
+\begin{aligned}
+v_1' v_2 &= (P_0 y)' (P_1 - P_0) y \\
+&= y' P_0' (P_1 - P_0) y \\
+&= y' (P_0 P_1 - P_0^2) y \quad (\text{Since } P_0 \text{ is symmetric}) \\
+&= y' (P_0 - P_0) y \quad (\text{Since } P_0 P_1 = P_0 \text{ and } P_0^2 = P_0) \\
+&= 0
+\end{aligned}
 $$
 
-```{r}
-#| label: extract-p90
-#| include: false
-extract_page_image(90, "page90_anova_ss.png", "1200x800+0+200")
+**3. Orthogonality of $(v_1 + v_2)$ and $v_3$**
+Note that $v_1 + v_2 = P_1 y = \hat{y}_1$. We check if the total fit $\hat{y}_1$ is orthogonal to the residual $v_3$:
+$$
+\begin{aligned}
+\hat{y}_1' v_3 &= (P_1 y)' (I - P_1) y \\
+&= y' P_1 (I - P_1) y \\
+&= y' (P_1 - P_1^2) y \\
+&= y' (P_1 - P_1) y \\
+&= 0
+\end{aligned}
+$$
+Since $\hat{y}_1$ is orthogonal to $v_3$, and $\hat{y}_0$ is a component of $\hat{y}_1$, it follows that all three pieces are mutually orthogonal.
+
+**4. Sum of Squares**
+By the Pythagorean theorem applied twice to these orthogonal vectors, the equality of squared norms follows immediately.
+:::
+
+
+```{python}
+#| label: fig-anova-decomposition-v2
+#| fig-cap: "Illustration of Projections onto Nested Subspaces"
+#| echo: false
+#| results: hide
+
+import matplotlib.pyplot as plt
+import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
+
+# 1. Setup the 3D Plot
+fig = plt.figure(figsize=(10, 10))
+ax = fig.add_subplot(111, projection='3d')
+
+# 2. Define the key vectors
+o = np.array([0, 0, 0])
+y0 = np.array([4, 0, 0])   # y_hat_0
+y1 = np.array([4, 3, 0])   # y_hat_1
+# Increased Z height for better visibility (from 2 to 5)
+y = np.array([4, 3, 5])    # y
+
+# 3. Draw Subspaces (Visual Context)
+# Plane C(P1)
+xx, yy = np.meshgrid(np.linspace(-1, 6, 10), np.linspace(-1, 6, 10))
+z_plane = np.zeros_like(xx)
+ax.plot_surface(xx, yy, z_plane, alpha=0.1, color='blue')
+ax.text(6, 6, 0, r'$C(P_1)$', color='blue')
+
+# Line C(P0)
+ax.plot([-1, 6], [0, 0], [0, 0], 'k--', alpha=0.3)
+ax.text(6, 0, 0, r'$C(P_0)$', color='black')
+
+# 4. Helper to draw heavier arrows
+def draw_arrow(start, end, color, label, label_pos='mid', offset=(0,0,0), lw=6, style='solid'):
+    vec = end - start
+    
+    if style == 'dotted':
+        # Matplotlib 3D quiver doesn't support linestyle. 
+        # Workaround: Draw shaft with plot() and head with quiver()
+        ax.plot([start[0], end[0]], [start[1], end[1]], [start[2], end[2]], 
+                color=color, linestyle=':', linewidth=lw)
+        # Draw just the head using a 0-length quiver at the end? 
+        # Easier: Draw a short quiver segment at the end to simulate the head
+        # Normalize vector for head direction
+        length = np.linalg.norm(vec)
+        norm_vec = vec / length
+        # Draw a small head at the end
+        ax.quiver(end[0]-norm_vec[0]*0.1, end[1]-norm_vec[1]*0.1, end[2]-norm_vec[2]*0.1, 
+                  norm_vec[0], norm_vec[1], norm_vec[2], 
+                  color=color, arrow_length_ratio=0.5, length=0.5, linewidth=lw)
+    else:
+        ax.quiver(start[0], start[1], start[2], 
+                  vec[0], vec[1], vec[2], 
+                  color=color, arrow_length_ratio=0.08, linewidth=lw)
+    
+    # Label positioning logic
+    if label_pos == 'mid':
+        pos = (start + end) / 2
+    elif label_pos == 'end':
+        pos = end
+        
+    ax.text(pos[0]+offset[0], pos[1]+offset[1], pos[2]+offset[2], 
+            label, color=color, fontsize=14, fontweight='bold')
+
+# 5. Draw the Decomposition Chain
+# y_hat_0 (Green)
+draw_arrow(o, y0, 'green', r'$\hat{y}_0$', offset=(0,-0.8,0))
+
+# y_hat_1 - y_hat_0 (Orange)
+draw_arrow(y0, y1, 'orange', r'$\hat{y}_1 - \hat{y}_0$', offset=(0.2,0,0))
+
+# y - y_hat_1 (Red)
+draw_arrow(y1, y, 'red', r'$y - \hat{y}_1$', offset=(0.2,0,0))
+
+# 6. Draw the extra residual arrow: y - y_hat_0
+draw_arrow(y0, y, 'purple', r'$y - \hat{y}_0$', label_pos='mid', offset=(-1, 0.5, 0.5))
+
+# 7. Draw the total vector y (Heavy Black)
+draw_arrow(o, y, 'black', r'$y$', label_pos='end', offset=(0,0,0.3), lw=6)
+
+# 8. NEW: Draw y_hat_1 (Dotted Blue)
+# We draw this from origin to y1
+draw_arrow(o, y1, 'blue', r'$\hat{y}_1$', label_pos='mid', offset=(-0.5, -0.5, 0), style='dotted')
+
+# 9. Add projection drop-lines (dashed) for visual clarity
+ax.plot([y[0], y[0]], [y[1], y[1]], [0, y[2]], 'k:', alpha=0.4) # y down to y1
+ax.plot([y1[0], y1[0]], [0, y1[1]], [0, 0], 'k:', alpha=0.4)    # y1 over to y0
+
+# 10. Formatting
+ax.set_xlim(-1, 6)
+ax.set_ylim(-1, 6)
+ax.set_zlim(0, 6) # Increased limit to accommodate higher y
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('Z')
+ax.view_init(elev=20, azim=-25) # Adjusted view angle to see the height
+
+plt.show()
 ```
 
-![ANOVA Sum of Squares Derivation](lec1_images/page90_anova_ss.png){width=70%}
 
-**Projections in Orthogonal Spaces**
+::: {#exm-anova-ss}
+#### Geometric Interpretation of One-way ANOVA
+
+We apply the **Nested Model Theorem** ($M_0 \subset M_1$) to the One-way ANOVA setting with $k$ groups and $n_i$ observations per group.
+
+**1. The Data Vector**
+We stack all observations into a single $N \times 1$ vector ($N = \sum n_i$):
+$$
+y = \begin{pmatrix} y_{11} \\ \vdots \\ y_{1 n_1} \\ \hline \vdots \\ \hline y_{k1} \\ \vdots \\ y_{k n_k} \end{pmatrix}
+$$
+
+**2. The Projections (as Vectors)**
+
+* **$\hat{y}_0$ (Null Model Projection):**
+    Projecting onto the intercept vector $\mathbf{1}$ replaces every observation with the **Grand Mean** $\bar{y}_{..}$.
+    $$
+    \hat{y}_0 = P_0 y = \begin{pmatrix} \bar{y}_{..} \\ \vdots \\ \bar{y}_{..} \\ \hline \vdots \\ \hline \bar{y}_{..} \\ \vdots \\ \bar{y}_{..} \end{pmatrix}
+    $$
+
+* **$\hat{y}_1$ (Full Model Projection):**
+    Projecting onto the group indicators replaces observations in group $i$ with the **Group Mean** $\bar{y}_{i.}$.
+    $$
+    \hat{y}_1 = P_1 y = \begin{pmatrix} \bar{y}_{1.} \\ \vdots \\ \bar{y}_{1.} \\ \hline \vdots \\ \hline \bar{y}_{k.} \\ \vdots \\ \bar{y}_{k.} \end{pmatrix}
+    $$
+
+**3. The Decomposition**
+The total deviation vector $y - \hat{y}_0$ splits into two orthogonal vector components:
+
+* **Model Improvement Vector ($\hat{y}_1 - \hat{y}_0$):**
+    The difference between group means and the grand mean.
+    $$
+    \hat{y}_1 - \hat{y}_0 = \begin{pmatrix} \bar{y}_{1.} - \bar{y}_{..} \\ \vdots \\ \bar{y}_{1.} - \bar{y}_{..} \\ \hline \vdots \\ \hline \bar{y}_{k.} - \bar{y}_{..} \\ \vdots \\ \bar{y}_{k.} - \bar{y}_{..} \end{pmatrix}
+    $$
+    *Squared Norm:* $RSS_0 - RSS_1 = \sum_{i} n_i (\bar{y}_{i.} - \bar{y}_{..})^2$ ($SS_{between}$)
+
+* **Residual Vector ($y - \hat{y}_1$):**
+    The difference between individual observations and their specific group mean.
+    $$
+    y - \hat{y}_1 = \begin{pmatrix} y_{11} - \bar{y}_{1.} \\ \vdots \\ y_{1 n_1} - \bar{y}_{1.} \\ \hline \vdots \\ \hline y_{k1} - \bar{y}_{k.} \\ \vdots \\ y_{k n_k} - \bar{y}_{k.} \end{pmatrix}
+    $$
+    *Squared Norm:* $RSS_1 = \sum_{i}\sum_{j} (y_{ij} - \bar{y}_{i.})^2$ ($SS_{within}$)
+
+**Conclusion:**
+By orthogonality, the squared length of the total deviation equals the sum of the squared lengths of these components:
+$$
+\underbrace{||\hat{y}_1 - \hat{y}_0||^2}_{SS_{between}} + \underbrace{||y - \hat{y}_1||^2}_{SS_{within}} = \underbrace{||y - \hat{y}_0||^2}_{TSS}
+$$
+:::
+
+### Projections in Orthogonal subspaces
 
 Finally, we consider the case where the entire space $\mathbb{R}^n$ is decomposed into mutually orthogonal subspaces.
 
