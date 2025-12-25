@@ -71,7 +71,6 @@ $$
 The difference $d = y - x$ is the vector that "closes the triangle" formed by $x$ and $y$. It represents the displacement vector that connects the tip of $x$ to the tip of $y$, such that $x + d = y$.
 :::
 
-![Vector Addition and Subtraction](lec1_images/page03_vectors.png){width=70%}
 
 **Scalar Multiplication and Length**
 
@@ -486,13 +485,6 @@ L(x_1, \dots, x_p) = \{ r \mid r = c_1 x_1 + \dots + c_p x_p, \text{ for } c_i \
 $$
 :::
 
-```{r}
-#| label: extract-p23
-#| include: false
-extract_page_image(23, "page23_span.png", "1200x600+0+500", force = FALSE)
-```
-
-![Spanned Vector Space](lec1_images/page23_span.png){width=70%}
 
 **Column Space and Row Space**
 
@@ -701,16 +693,6 @@ $$
 Row(XZ) \subseteq Row(Z) \implies \text{Rank}(XZ) \le \text{Rank}(Z)
 $$
 
-Combining these gives the result.
-
-```{r}
-#| label: extract-p38
-#| include: false
-extract_page_image(38, "page38_rank_product.png", "1200x800+0+200")
-```
-
-![Rank of Matrix Product](lec1_images/page38_rank_product.png){width=70%}
-
 **Rank and Invertible Matrices**
 
 Multiplying by an invertible (non-singular) matrix preserves the rank. This is a very useful property when manipulating linear equations.
@@ -738,15 +720,6 @@ $$
 $$
 Thus, $\text{Rank}(AX) = \text{Rank}(X)$.
 
-```{r}
-#| label: extract-p40
-#| include: false
-extract_page_image(40, "page40_rank_invertible.png", "1200x800+0+200")
-```
-
-![Rank Preservation with Invertible Matrices](lec1_images/page40_rank_invertible.png){width=70%}
-
---
 
 
 **Rank of $X'X$ and $XX'$**
@@ -775,13 +748,6 @@ $$
 So $\text{Ker}(X) = \text{Ker}(X'X)$.
 By the Rank-Nullity Theorem, since they have the same number of columns and same nullity, they must have the same rank.
 
-```{r}
-#| label: extract-p44
-#| include: false
-extract_page_image(44, "page44_rank_gram.png", "1200x800+0+200")
-```
-
-![Rank of Gram Matrix](lec1_images/page44_rank_gram.png){width=70%}
 
 **Column Space of $XX'$**
 
@@ -854,13 +820,6 @@ $$
 Since the basis vectors are normalized, we do not need to divide by $||q_i||^2$.
 :::
 
-```{r}
-#| label: extract-p48
-#| include: false
-extract_page_image(48, "page48_proj_concept.png", "1200x800+0+200")
-```
-
-![Projection onto a Subspace](lec1_images/page48_proj_concept.png){width=70%}
 
 **The Projection Theorem**
 
@@ -880,6 +839,9 @@ $$
 $$
 :::
 
+
+## Projection Matrix via Orthonomal Basis ($Q$)
+
 **Matrix Form with Orthonormal Basis**
 
 We can express the summation formula for $\hat{y}$ compactly using matrix notation.
@@ -893,9 +855,8 @@ Properties of $Q$:
 * $Q'Q = I_k$ (Identity matrix of size $k \times k$).
 * $QQ'$ is **not** necessarily $I_n$ (unless $k=n$).
 
-## Projection Matrix
 
-### Projection Matrix via Orthonomal Basis
+
 
 ::: {#thm-proj-matrix-orthonormal}
 ### Projection Matrix (Orthonormal)
@@ -912,15 +873,6 @@ $$
 :::
 
 
-```{r}
-#| label: extract-images-p56-65
-#| include: false
-#| warning: false
-
-# Extract specific images for this section
-extract_page_image(58, "page58_anova_proj.png", "1200x800+0+200")
-extract_page_image(65, "page65_gram_schmidt.png", "1200x800+0+200")
-```
 
 **Properties of Projection Matrices**
 
@@ -964,30 +916,7 @@ $$
 Since the indicators are orthogonal, this simplifies to calculating the mean for each group. The fitted value for any observation $y_{ij}$ is simply the group mean $\bar{y}_{i.}$.
 :::
 
-```{r}
-#| label: extract-p58
-#| include: false
-extract_page_image(58, "page58_anova_proj.png", "1200x800+0+200")
-```
 
-![ANOVA Projection Geometry](lec1_images/page58_anova_proj.png){width=70%}
-
-**Projection onto Orthogonal Complement**
-
-If $P$ is the projection matrix onto a subspace $V$, we can easily define the projection onto the orthogonal complement $V^\perp$ (the "error" space).
-
-::: {#def-complement-projection}
-### Projection onto Complement
-The matrix $M = I - P$ is the projection matrix onto the orthogonal complement $Col(X)^\perp$.
-
-**Properties of $M$:**
-
-1.  **Idempotent:** $M^2 = (I-P)(I-P) = I - 2P + P^2 = I - 2P + P = I - P = M$.
-2.  **Symmetric:** $M' = (I-P)' = I - P' = I - P = M$.
-3.  **Orthogonal to $P$:** $PM = P(I-P) = P - P^2 = 0$.
-:::
-
-This matrix $M$ produces the residuals: $e = My = (I-P)y = y - \hat{y}$.
 
 **Gram-Schmidt Process**
 
@@ -1020,15 +949,118 @@ Given linearly independent vectors $x_1, \dots, x_p$:
     $$
 :::
 
-This process leads to the **QR Decomposition** of a matrix: $X = QR$, where $Q$ is orthogonal and $R$ is upper triangular.
-
 ```{r}
-#| label: extract-p65
+#| label: setup-python-env
 #| include: false
-extract_page_image(65, "page65_gram_schmidt.png", "1200x800+0+200")
+#| output: false
+
+library(reticulate)
+
+# 1. Ensure Python is initialized
+try(py_config(), silent = TRUE)
+
+# 2. Define requirements
+required_py_modules <- c("matplotlib", "numpy")
+
+# 3. Filter to only missing modules
+# We check if they are importable. If not, they are "missing".
+missing_modules <- required_py_modules[!sapply(required_py_modules, py_module_available)]
+
+# 4. Install only if there are missing modules
+if (length(missing_modules) > 0) {
+  message("Installing missing Python modules: ", paste(missing_modules, collapse = ", "))
+  # Pass the vector directly to py_install to avoid repetitive environment checks
+  py_install(missing_modules)
+}
 ```
 
-![Gram-Schmidt Process](lec1_images/page65_gram_schmidt.png){width=70%}
+```{python}
+#| label: fig-gram-schmidt-python
+#| echo: false
+#| results: hide
+#| fig-cap: "Gram-Schmidt Process: Projecting $x_2$ onto $x_1$"
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+# 1. Setup the plot
+fig, ax = plt.subplots(figsize=(6, 4))
+ax.set_aspect('equal')
+ax.set_xlim(-0.5, 3.5)
+ax.set_ylim(-0.5, 2.5)
+ax.axis('off')  # Turn off the box frame and axis numbers
+
+# Optional: Draw a light grid for reference
+ax.grid(True, linestyle=':', alpha=0.3)
+
+# 2. Define Coordinates
+o = np.array([0, 0])
+x1 = np.array([3, 0])
+x2 = np.array([2, 2])
+proj = np.array([2, 0]) # Projection of x2 on x1
+
+# 3. Helper function to draw vectors
+def draw_vector(start, end, color, label=None, label_pos='end'):
+    ax.annotate('', xy=end, xytext=start,
+                arrowprops=dict(facecolor=color, edgecolor=color, width=1.5, headwidth=8))
+    
+    if label:
+        if label_pos == 'end':
+            # Place label at the tip
+            ax.text(end[0], end[1], label, fontsize=12, color=color, 
+                    ha='left', va='bottom', weight='bold')
+        elif label_pos == 'mid':
+            # Place label in the middle (good for error vectors)
+            mid = (start + end) / 2
+            ax.text(mid[0] + 0.1, mid[1], label, fontsize=12, color=color, 
+                    weight='bold')
+        elif label_pos == 'below':
+            ax.text(end[0], end[1] - 0.3, label, fontsize=12, color=color, 
+                    ha='center', weight='bold')
+
+# 4. Draw the Main Vectors
+# x1 (Blue)
+draw_vector(o, x1, 'blue', r'$\mathbf{x}_1$', 'below')
+
+# x2 (Blue)
+draw_vector(o, x2, 'blue', r'$\mathbf{x}_2$', 'end')
+
+# Projection Line (Dashed)
+ax.plot([o[0], proj[0]], [o[1], proj[1]], linestyle='--', color='blue', alpha=0.5)
+ax.text(2, -0.3, r'$\hat{\mathbf{x}}_2$', color='blue', fontsize=12, ha='center')
+
+# Error Vector e2 (Red) - from Projection UP to x2
+draw_vector(proj, x2, 'red', r'$\mathbf{e}_2$', 'mid')
+
+# Dashed line completing the triangle (visual aid)
+ax.plot([0, 2], [0, 2], linestyle=':', color='gray', alpha=0.3)
+
+# 5. Draw Unit Vectors (q) - Thicker Orange
+# q1 (on x-axis)
+draw_vector(o, [1, 0], 'orange')
+ax.text(1, -0.3, r'$\mathbf{q}_1$', color='orange', fontsize=12, weight='bold', ha='center')
+
+# q2 (parallel to e2, starting from projection for clarity)
+draw_vector(proj, [2, 1], 'orange')
+ax.text(2.1, 1, r'$\mathbf{q}_2$', color='orange', fontsize=12, weight='bold')
+
+# 6. Add Right Angle Symbol
+# Draw a small square at the projection point
+size = 0.2
+ax.plot([proj[0]-size, proj[0]-size, proj[0]], 
+        [proj[1], proj[1]+size, proj[1]+size], 'k-', linewidth=0.8)
+
+# 7. Add Title Text
+ax.text(0, 2.2, 'Gram-Schmidt Process', fontsize=14, style='italic')
+ax.text(0, 2.0, r'$\mathbb{R}^2$ Projection', fontsize=10, color='gray')
+
+plt.show()
+```
+
+This process leads to the **QR Decomposition** of a matrix: $X = QR$, where $Q$ is orthogonal and $R$ is upper triangular.
+
+
+## Projection Matrix via $X$ (Least Square Projection Matrix)
 
 ---
 
@@ -1041,7 +1073,6 @@ extract_page_image(65, "page65_gram_schmidt.png", "1200x800+0+200")
 extract_page_image(68, "page68_normal_eq.png", "1200x800+0+200")
 ```
 
-### Projection Matrix via $X$ (Least Square Projection Matrix)
 
 We now formally derive the projection matrix $P$ for the general case where we project $y$ onto the column space of a matrix $X$.
 
