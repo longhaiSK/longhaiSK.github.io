@@ -1230,7 +1230,7 @@ This confirms that $P = QQ'$ is consistent with the general formula $P = X(X'X)^
 We revisit the properties of projection matrices in this general context.
 
 ::: {#thm-projection-properties-revisited}
-### Properties of P
+### Properties of Hat Matrix
 The matrix $P = X(X'X)^{-1}X'$ satisfies:
 
 1.  **Symmetric:** $P' = P$
@@ -1241,18 +1241,17 @@ The matrix $P = X(X'X)^{-1}X'$ satisfies:
     $$
 :::
 
-**Projection onto Complement**
-
-As before, the projection onto the orthogonal complement (the residual maker matrix) is $M = I - P$.
+### Projection onto Complement
 
 ::: {#def-m-matrix}
 ### Residual Maker Matrix M
 $$
-M = I - X(X'X)^{-1}X'
+M = I - X(X^\top X)^{-1}X^\top
 $$
 
-This matrix projects $y$ onto the null space of $X'$ (the orthogonal complement of the column space of $X$).
+This matrix projects $y$ onto the null space of $X^\top$ (i.e., $\text{Col}(X)^\perp$).
 :::
+
 
 
 ## General Projection Matrices onto Nested Subspaces
@@ -1307,7 +1306,7 @@ The matrix $P_{\Delta} = P_1 - P_0$ is an orthogonal projection matrix onto the 
 ### Decomposition of Projections and their Sum Squares
 
 ::: {#thm-nested-decomposition}
-#### Orthogonal Decomposition of Nested Models
+#### Orthogonal Decomposition
 
 Let $M_0 \subset M_1$ be two nested linear models with corresponding design matrices $X_0$ and $X_1$ such that $C(X_0) \subset C(X_1)$. Let $P_0$ and $P_1$ be the orthogonal projection matrices onto $C(X_0)$ and $C(X_1)$ respectively.
 
@@ -1316,11 +1315,19 @@ $$
 y = \underbrace{P_0 y}_{\hat{y}_0} + \underbrace{(P_1 - P_0) y}_{\hat{y}_1 - \hat{y}_0} + \underbrace{(I - P_1) y}_{y - \hat{y}_1}
 $$
 
+**Geometric Interpretation:**
+
+1.  $\hat{y}_0 \in C(X_0)$: The fit of the reduced model.
+2.  $(\hat{y}_1 - \hat{y}_0) \in C(X_0)^\perp \cap C(X_1)$: The additional fit provided by $M_1$ over $M_0$.
+3.  $(y - \hat{y}_1) \in C(X_1)^\perp$: The projection of $y$ onto the **orthogonal complement** of $C(X_1)$.
+
 The three component vectors are mutually orthogonal. Consequently, their squared norms sum to the total squared norm:
 $$
 \|y\|^2 = \|\hat{y}_0\|^2 + \|\hat{y}_1 - \hat{y}_0\|^2 + \|y - \hat{y}_1\|^2
 $$
 :::
+
+
 
 ::: {.proof}
 
@@ -1514,12 +1521,12 @@ $$
 $$
 :::
 
-### Projections in Orthogonal subspaces
+### Projections in General Orthogonal Subspaces
 
 Finally, we consider the case where the entire space $\mathbb{R}^n$ is decomposed into mutually orthogonal subspaces.
 
 ::: {#thm-orth-decomposition}
-### Orthogonal Decomposition
+#### General Orthogonal Projects
 If $\mathbb{R}^n$ is the direct sum of orthogonal subspaces $V_1, V_2, \dots, V_k$:
 
 $$
@@ -1544,20 +1551,218 @@ $$
 I_n = P_1 + P_2 + \dots + P_k
 $$
 
-```{r}
-#| label: extract-p91
-#| include: false
-extract_page_image(91, "page91_orth_spaces.png", "1200x800+0+200")
+
+```{python}
+#| label: fig-orthogonal-decomp-rotated
+#| fig-cap: "Orthogonal decomposition of vector y into subspaces"
+#| results: hide
+#| echo: false
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Set up the figure and 3D axis
+fig = plt.figure(figsize=(10, 8))
+ax = fig.add_subplot(111, projection='3d')
+
+# Define the vector y
+y = np.array([3, 4, 5])
+
+# Define the origin
+origin = np.array([0, 0, 0])
+
+# --- Plot the Subspaces (Axes) ---
+# We represent V1, V2, V3 as the x, y, z axes for clarity
+limit = 6
+ax.plot([0, limit], [0, 0], [0, 0], 'k--', alpha=0.3, lw=1)
+ax.plot([0, 0], [0, limit], [0, 0], 'k--', alpha=0.3, lw=1)
+ax.plot([0, 0], [0, 0], [0, limit], 'k--', alpha=0.3, lw=1)
+
+# Label the subspaces
+ax.text(limit, 0, 0, r'$V_1$', fontsize=12, weight='bold')
+ax.text(0, limit, 0, r'$V_2$', fontsize=12, weight='bold')
+ax.text(0, 0, limit, r'$V_3$', fontsize=12, weight='bold')
+
+# --- Calculate Projections ---
+# P1y is projection onto x (V1)
+p1_y = np.array([y[0], 0, 0])
+# P2y is projection onto y (V2)
+p2_y = np.array([0, y[1], 0])
+# P3y is projection onto z (V3)
+p3_y = np.array([0, 0, y[2]])
+
+# --- Plot Vectors ---
+# Helper to plot vectors
+def plot_vector(vec, color, label):
+    ax.quiver(0, 0, 0, vec[0], vec[1], vec[2], color=color, arrow_length_ratio=0.1, lw=2)
+    # Add label slightly offset
+    ax.text(vec[0]*1.1, vec[1]*1.1, vec[2]*1.1, label, color=color, fontsize=12, weight='bold')
+
+# Plot individual orthogonal components
+plot_vector(p1_y, 'red', r'$P_1 y$')
+plot_vector(p2_y, 'green', r'$P_2 y$')
+plot_vector(p3_y, 'blue', r'$P_3 y$')
+
+# Plot the main vector y
+plot_vector(y, 'black', r'$y$')
+
+# --- Draw "Box" lines to show summation ---
+# Visually show y = P1y + P2y + P3y
+sum_12 = p1_y + p2_y
+ax.plot([p1_y[0], sum_12[0]], [p1_y[1], sum_12[1]], [p1_y[2], sum_12[2]], 'k:', alpha=0.5)
+ax.plot([p2_y[0], sum_12[0]], [p2_y[1], sum_12[1]], [p2_y[2], sum_12[2]], 'k:', alpha=0.5)
+ax.plot([sum_12[0], y[0]], [sum_12[1], y[1]], [sum_12[2], y[2]], 'k:', alpha=0.5)
+ax.plot([p3_y[0], y[0]], [p3_y[1], y[1]], [p3_y[2], y[2]], 'k:', alpha=0.5)
+
+# --- Add Equations/Annotations from the notes ---
+title_text = (
+    r"$\mathbb{R}^n = V_1 \oplus V_2 \oplus V_3$" + "\n" +
+    r"$y = P_1 y + P_2 y + P_3 y$" + "\n" +
+    r"$\|y\|^2 = \|P_1 y\|^2 + \|P_2 y\|^2 + \|P_3 y\|^2$"
+)
+ax.set_title("Orthogonal Decomposition of Vector y", fontsize=14, pad=20)
+ax.text2D(0.05, 0.95, title_text, transform=ax.transAxes, fontsize=12, 
+          bbox=dict(boxstyle="round", facecolor="wheat", alpha=0.5))
+
+# Set limits and view
+ax.set_xlim(0, limit)
+ax.set_ylim(0, limit)
+ax.set_zlim(0, limit)
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('Z')
+
+# Rotate view
+# elev=30, azim=-60 is roughly default. 
+# Changing azim to -10 rotates the "camera" 50 degrees, effectively rotating graph.
+ax.view_init(elev=30, azim=-10)
+
+plt.tight_layout()
+plt.show()
 ```
 
-![Orthogonal Space Decomposition](lec1_images/page91_orth_spaces.png){width=70%}
-
-The following diagram summarizes the relationships between the vector spaces and projections discussed in this lecture.
-
 ```{r}
-#| label: extract-p92
-#| include: false
-extract_page_image(92, "page92_diagram.png", "1200x1000+0+300", force = TRUE)
+#| label: fig-orthogonal-decomp-r
+#| include: !expr knitr::is_html_output()
+#| eval: !expr knitr::is_html_output()
+#| fig-cap: "Orthogonal decomposition geometry (R Plotly)"
+#| fig-width: 10
+#| fig-height: 8
+#| warning: false
+#| message: false
+
+library(plotly)
+
+# --- Define Vectors ---
+y_vec <- c(3, 4, 5)
+origin <- c(0, 0, 0)
+
+# Projections (P_i y)
+p1 <- c(3, 0, 0)
+p2 <- c(0, 4, 0)
+p3 <- c(0, 0, 5)
+
+# Partial Sums (P_i y + P_j y)
+sum_12 <- p1 + p2
+sum_13 <- p1 + p3
+sum_23 <- p2 + p3
+
+# --- Helper Functions ---
+
+# Function to add a vector with an arrowhead (Cone)
+add_vec_arrow <- function(p, start, end, color, name) {
+  p %>%
+    add_trace(
+      type = "scatter3d",
+      mode = "lines",
+      x = c(start[1], end[1]),
+      y = c(start[2], end[2]),
+      z = c(start[3], end[3]),
+      line = list(color = color, width = 6),
+      name = name,
+      showlegend = TRUE
+    ) %>%
+    add_trace(
+      type = "cone",
+      x = end[1], y = end[2], z = end[3],
+      u = end[1]-start[1], v = end[2]-start[2], w = end[3]-start[3],
+      sizemode = "absolute",
+      sizeref = 0.5,
+      anchor = "tip",
+      colorscale = list(c(0, 1), c(color, color)),
+      showscale = FALSE,
+      name = name,
+      showlegend = FALSE
+    )
+}
+
+# Function to add dashed "error" lines
+add_dashed_line <- function(p, start, end, color, name) {
+  p %>%
+    add_trace(
+      type = "scatter3d",
+      mode = "lines",
+      x = c(start[1], end[1]),
+      y = c(start[2], end[2]),
+      z = c(start[3], end[3]),
+      line = list(color = color, width = 3, dash = "dash"),
+      name = name,
+      hoverinfo = "text",
+      text = name
+    )
+}
+
+# --- Build Plot ---
+fig <- plot_ly()
+
+# 1. Main Vectors (Solid + Cones)
+fig <- fig %>%
+  add_vec_arrow(origin, p1, "red", "P1 y") %>%
+  add_vec_arrow(origin, p2, "green", "P2 y") %>%
+  add_vec_arrow(origin, p3, "blue", "P3 y") %>%
+  add_vec_arrow(origin, y_vec, "black", "y")
+
+# 2. Dashed Lines from y to Single Projections
+fig <- fig %>%
+  add_dashed_line(y_vec, p1, "rgba(255, 0, 0, 0.5)", "y -> P1") %>%
+  add_dashed_line(y_vec, p2, "rgba(0, 255, 0, 0.5)", "y -> P2") %>%
+  add_dashed_line(y_vec, p3, "rgba(0, 0, 255, 0.5)", "y -> P3")
+
+# 3. Dashed Lines from y to Partial Sums
+fig <- fig %>%
+  add_dashed_line(y_vec, sum_12, "purple", "y -> (P1+P2)") %>%
+  add_dashed_line(y_vec, sum_13, "orange", "y -> (P1+P3)") %>%
+  add_dashed_line(y_vec, sum_23, "cyan",   "y -> (P2+P3)")
+
+# 4. Axes (Subspaces)
+limit <- 6
+axis_style <- list(color = "gray", dash = "dot", width = 2)
+
+fig <- fig %>%
+  add_trace(type="scatter3d", mode="lines", x=c(0, limit), y=c(0,0), z=c(0,0), 
+            line=axis_style, name="V1 (x)") %>%
+  add_trace(type="scatter3d", mode="lines", x=c(0,0), y=c(0, limit), z=c(0,0), 
+            line=axis_style, name="V2 (y)") %>%
+  add_trace(type="scatter3d", mode="lines", x=c(0,0), y=c(0,0), z=c(0, limit), 
+            line=axis_style, name="V3 (z)")
+
+# --- Layout ---
+fig <- fig %>% layout(
+  title = "Orthogonal Decomposition Geometry",
+  width = 900,
+  height = 700,
+  scene = list(
+    xaxis = list(title = "V1", range = c(0, limit)),
+    yaxis = list(title = "V2", range = c(0, limit)),
+    zaxis = list(title = "V3", range = c(0, limit)),
+    aspectmode = "cube",
+    camera = list(eye = list(x = 1.5, y = 1.5, z = 1.2))
+  ),
+  margin = list(l = 0, r = 0, b = 0, t = 50),
+  legend = list(x = 0.75, y = 0.9)
+)
+
+fig
 ```
 
-![Summary Diagram](lec1_images/page92_diagram.png){width=70%}
+

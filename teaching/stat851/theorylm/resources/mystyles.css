@@ -141,52 +141,57 @@ h2.anchored .anchorjs-link, h3.anchored .anchorjs-link {
 }
 
 
-/* Base style for all environments */
-div.definition, div.theorem, div.example {
+/* --- 1. Base Box Styling --- */
+div.definition, div.example, div.theorem, div.algorithm, div.proof {
   padding: 1em;
   margin-bottom: 1em;
-  border-left: 5px solid;
+  border-left-width: 5px;
+  border-left-style: solid;
   border-radius: 4px;
 }
 
-/* --- ORDER MATTERS HERE --- */
+/* --- 2. Color Schemes --- */
+div.definition { background-color: #e6ffed; border-left-color: #28a745; } /* Green */
+div.example    { background-color: #fff3cd; border-left-color: #ffc107; } /* Yellow */
+div.algorithm  { background-color: #f8f9fa; border-left-color: #6c757d; } /* Gray */
+div.theorem    { background-color: #eef4fc; border-left-color: #0d6efd; } /* Blue */
+div.proof      { background-color: transparent; border-left-color: #444; padding-left: 1em; }
 
-/* 1. Theorem - Green (Generic class, define this first) */
-div.theorem {
-  background-color: #e9f2ff;
-  border-left-color: #007bff;
+/* --- 3. Force Titles to Break Line --- */
 
+/* This part does the magic. 
+   1. It finds the "Quarto generated" titles (span.theorem-title).
+   2. It finds "Manual" bold titles at the start of the div (strong).
+   3. It sets 'display: block' which forces a line break after them.
+*/
+
+/* Case A: Quarto Native Titles (e.g. ::: {#thm-xyz} ) */
+span.theorem-title, 
+span.proof-title, 
+span.example-title, 
+span.definition-title {
+  display: block;
+  margin-bottom: 0.5em;
+  font-weight: bold;
+  font-style: normal;
+  color: #333;
 }
 
-/* 2. Definition - Blue (Specific class, define AFTER theorem to override it) */
-div.definition {
-  background-color: #e6ffed;
-  border-left-color: #28a745;
-}
-
-/* 3. Example - Yellow/Orange */
-div.example {
-  background-color: #fff3cd;
-  border-left-color: #ffc107;
-}
-
-/* Titles */
-div.definition > strong, div.theorem > strong, div.example > strong {
+/* Case B: Manual Bold Titles (e.g. **Definition.** ) inside the divs */
+div.definition strong:first-child,
+div.example strong:first-child,
+div.theorem strong:first-child,
+div.algorithm strong:first-child,
+div.proof strong:first-child,
+/* Handle case where bold is inside a <p> tag (standard markdown) */
+div.definition > p:first-child > strong:first-child,
+div.example > p:first-child > strong:first-child,
+div.theorem > p:first-child > strong:first-child,
+div.algorithm > p:first-child > strong:first-child,
+div.proof > p:first-child > strong:first-child {
   display: block;
   margin-bottom: 0.5em;
   font-size: 1.1em;
-}
-/* Algorithm - Gray/Neutral */
-div.algorithm {
-  padding: 1em;
-  margin-bottom: 1em;
-  border-left: 5px solid #6c757d;
-  background-color: #f8f9fa;
-  border-radius: 4px;
-}
-div.algorithm > strong {
-  display: block;
-  margin-bottom: 0.5em;
-  font-size: 1.1em;
+  color: #333;
 }
 
