@@ -187,8 +187,20 @@ window.Quarto = {
   <li><a href="#projection-matrix-via-orthonomal-basis-q" id="toc-projection-matrix-via-orthonomal-basis-q" class="nav-link" data-scroll-target="#projection-matrix-via-orthonomal-basis-q"><span class="header-section-number">2.4.2</span> Projection Matrix via Orthonomal Basis (<span class="math inline">\(Q\)</span>)</a></li>
   <li><a href="#gram-schmidt-process" id="toc-gram-schmidt-process" class="nav-link" data-scroll-target="#gram-schmidt-process"><span class="header-section-number">2.4.3</span> Gram-Schmidt Process</a></li>
   </ul></li>
-  <li><a href="#projection-matrix-via-x-least-square-projection-matrix" id="toc-projection-matrix-via-x-least-square-projection-matrix" class="nav-link" data-scroll-target="#projection-matrix-via-x-least-square-projection-matrix"><span class="header-section-number">2.5</span> Projection Matrix via <span class="math inline">\(X\)</span> (Least Square Projection Matrix)</a></li>
-  <li><a href="#projections-onto-nested-subspaces" id="toc-projections-onto-nested-subspaces" class="nav-link" data-scroll-target="#projections-onto-nested-subspaces"><span class="header-section-number">2.6</span> Projections onto Nested Subspaces</a></li>
+  <li><a href="#hat-matrix-projection-matrix-via-x" id="toc-hat-matrix-projection-matrix-via-x" class="nav-link" data-scroll-target="#hat-matrix-projection-matrix-via-x"><span class="header-section-number">2.5</span> Hat Matrix (Projection Matrix via <span class="math inline">\(X\)</span>)</a>
+  <ul>
+  <li><a href="#norm-equations" id="toc-norm-equations" class="nav-link" data-scroll-target="#norm-equations"><span class="header-section-number">2.5.1</span> Norm Equations</a></li>
+  <li><a href="#hat-matrix" id="toc-hat-matrix" class="nav-link" data-scroll-target="#hat-matrix"><span class="header-section-number">2.5.2</span> Hat Matrix</a></li>
+  <li><a href="#equivalence-of-hat-matrix-and-qq" id="toc-equivalence-of-hat-matrix-and-qq" class="nav-link" data-scroll-target="#equivalence-of-hat-matrix-and-qq"><span class="header-section-number">2.5.3</span> Equivalence of Hat Matrix and <span class="math inline">\(QQ'\)</span></a></li>
+  <li><a href="#properties-of-hat-matrix" id="toc-properties-of-hat-matrix" class="nav-link" data-scroll-target="#properties-of-hat-matrix"><span class="header-section-number">2.5.4</span> Properties of Hat Matrix</a></li>
+  </ul></li>
+  <li><a href="#general-projection-matrices-onto-nested-subspaces" id="toc-general-projection-matrices-onto-nested-subspaces" class="nav-link" data-scroll-target="#general-projection-matrices-onto-nested-subspaces"><span class="header-section-number">2.6</span> General Projection Matrices onto Nested Subspaces</a>
+  <ul>
+  <li><a href="#nested-models-and-subspaces" id="toc-nested-models-and-subspaces" class="nav-link" data-scroll-target="#nested-models-and-subspaces"><span class="header-section-number">2.6.1</span> Nested Models and Subspaces</a></li>
+  <li><a href="#projections-onto-nested-subspaces" id="toc-projections-onto-nested-subspaces" class="nav-link" data-scroll-target="#projections-onto-nested-subspaces"><span class="header-section-number">2.6.2</span> Projections onto Nested Subspaces</a></li>
+  <li><a href="#decomposition-of-projections-and-their-sum-squares" id="toc-decomposition-of-projections-and-their-sum-squares" class="nav-link" data-scroll-target="#decomposition-of-projections-and-their-sum-squares"><span class="header-section-number">2.6.3</span> Decomposition of Projections and their Sum Squares</a></li>
+  <li><a href="#projections-in-orthogonal-subspaces" id="toc-projections-in-orthogonal-subspaces" class="nav-link" data-scroll-target="#projections-in-orthogonal-subspaces"><span class="header-section-number">2.6.4</span> Projections in Orthogonal subspaces</a></li>
+  </ul></li>
   </ul>
 </nav>
 </nav>
@@ -763,15 +775,39 @@ P(Py) = Py \implies P^2 y = Py \quad \forall y
 <p><strong>Example: ANOVA (Analysis of Variance)</strong></p>
 <p>One of the most common applications of projection is in Analysis of Variance (ANOVA). We can view the calculation of group means as a projection onto a subspace defined by group indicator variables.</p>
 <div id="exm-anova-projection" class="theorem example">
-<p><span class="theorem-title"><strong>Example 2.4 (Finding Projection for One-way ANOVA)</strong></span> Consider a one-way ANOVA model: <span class="math display">\[
+<p><span class="theorem-title"><strong>Example 2.4 (Finding Projection for One-way ANOVA)</strong></span> Consider a one-way ANOVA model with <span class="math inline">\(k\)</span> groups: <span class="math display">\[
 y_{ij} = \mu_i + \epsilon_{ij}
-\]</span> where <span class="math inline">\(i\)</span> represents the group and <span class="math inline">\(j\)</span> represents the observation within the group.</p>
-<p>We can define dummy variables (indicators) for each group. Let <span class="math inline">\(x_1\)</span> be the indicator for group 1, <span class="math inline">\(x_2\)</span> for group 2, etc. These vectors are mutually orthogonal because an observation cannot belong to two groups simultaneously.</p>
-<p>The projection of the data vector <span class="math inline">\(y\)</span> onto the space spanned by these indicators is the sum of the projections onto each group vector:</p>
-<p><span class="math display">\[
-\hat{y} = \text{proj}(y|x_1) + \text{proj}(y|x_2) + \dots
+\]</span> where <span class="math inline">\(i \in \{1, \dots, k\}\)</span> represents the group and <span class="math inline">\(j \in \{1, \dots, n_i\}\)</span> represents the observation within the group. Let <span class="math inline">\(N = \sum_{i=1}^k n_i\)</span> be the total number of observations.</p>
+<p><strong>1. Matrix Definitions</strong> We define the data vector <span class="math inline">\(y\)</span> and the design matrix <span class="math inline">\(X\)</span> as follows:</p>
+<ul>
+<li><p><strong>Data Vector (<span class="math inline">\(y\)</span>):</strong> An <span class="math inline">\(N \times 1\)</span> vector containing all observations stacked by group: <span class="math display">\[
+  y = \begin{pmatrix} y_{11} \\ \vdots \\ y_{1n_1} \\ y_{21} \\ \vdots \\ y_{kn_k} \end{pmatrix}
+  \]</span></p></li>
+<li><p><strong>Design Matrix (<span class="math inline">\(X\)</span>):</strong> An <span class="math inline">\(N \times k\)</span> matrix constructed from <span class="math inline">\(k\)</span> column vectors, <span class="math inline">\(X = (x_1, x_2, \dots, x_k)\)</span>. Each vector <span class="math inline">\(x_g\)</span> is an <strong>indicator variable</strong> (dummy variable) for group <span class="math inline">\(g\)</span>: <span class="math display">\[
+  x_g = \begin{pmatrix} 0 \\ \vdots \\ 1 \\ \vdots \\ 0 \end{pmatrix} \quad \leftarrow \text{Entries are 1 if observation belongs to group } g
+  \]</span></p></li>
+</ul>
+<p><strong>2. Orthogonality</strong> These column vectors <span class="math inline">\(x_1, \dots, x_k\)</span> are mutually orthogonal because no observation can belong to two groups at once. The dot product of any two distinct columns is zero: <span class="math display">\[
+\langle x_g, x_h \rangle = 0 \quad \text{for } g \neq h
+\]</span> This allows us to find the projection onto the column space of <span class="math inline">\(X\)</span> by simply summing the projections onto each column individually.</p>
+<p><strong>3. Calculating Individual Projections</strong> For a specific group vector <span class="math inline">\(x_g\)</span>, the projection is: <span class="math display">\[
+\text{proj}(y|x_g) = \frac{\langle y, x_g \rangle}{\langle x_g, x_g \rangle} x_g
 \]</span></p>
-<p>Since the indicators are orthogonal, this simplifies to calculating the mean for each group. The fitted value for any observation <span class="math inline">\(y_{ij}\)</span> is simply the group mean <span class="math inline">\(\bar{y}_{i.}\)</span>.</p>
+<p>We calculate the two scalar terms:</p>
+<ul>
+<li><p><strong>Denominator (<span class="math inline">\(\langle x_g, x_g \rangle\)</span>):</strong> The sum of squared elements of <span class="math inline">\(x_g\)</span>. Since <span class="math inline">\(x_g\)</span> contains <span class="math inline">\(n_g\)</span> ones and zeros elsewhere: <span class="math display">\[
+  \langle x_g, x_g \rangle = \sum \mathbb{1}_{\{i=g\}}^2 = n_g
+  \]</span></p></li>
+<li><p><strong>Numerator (<span class="math inline">\(\langle y, x_g \rangle\)</span>):</strong> The dot product sums only the <span class="math inline">\(y\)</span> values belonging to group <span class="math inline">\(g\)</span>: <span class="math display">\[
+  \langle y, x_g \rangle = \sum_{i,j} y_{ij} \cdot \mathbb{1}_{\{i=g\}} = \sum_{j=1}^{n_g} y_{gj} = y_{g.} \quad (\text{Group Total})
+  \]</span></p></li>
+</ul>
+<p><strong>4. The Resulting Projection</strong> Substituting these back into the formula gives the coefficient for the vector <span class="math inline">\(x_g\)</span>: <span class="math display">\[
+\text{proj}(y|x_g) = \frac{y_{g.}}{n_g} x_g = \bar{y}_{g.} x_g
+\]</span></p>
+<p>The total projection <span class="math inline">\(\hat{y}\)</span> is the sum over all groups: <span class="math display">\[
+\hat{y} = \sum_{g=1}^k \bar{y}_{g.} x_g
+\]</span> This confirms that the fitted value for any specific observation <span class="math inline">\(y_{ij}\)</span> is simply its group mean <span class="math inline">\(\bar{y}_{i.}\)</span>.</p>
 </div>
 </section>
 <section id="gram-schmidt-process" class="level3" data-number="2.4.3">
@@ -812,59 +848,76 @@ Figure&nbsp;2.1: Gram-Schmidt Process: Projecting <span class="math inline">\(x_
 <p>This process leads to the <strong>QR Decomposition</strong> of a matrix: <span class="math inline">\(X = QR\)</span>, where <span class="math inline">\(Q\)</span> is orthogonal and <span class="math inline">\(R\)</span> is upper triangular.</p>
 </section>
 </section>
-<section id="projection-matrix-via-x-least-square-projection-matrix" class="level2" data-number="2.5">
-<h2 data-number="2.5" class="anchored" data-anchor-id="projection-matrix-via-x-least-square-projection-matrix"><span class="header-section-number">2.5</span> Projection Matrix via <span class="math inline">\(X\)</span> (Least Square Projection Matrix)</h2>
-<hr>
-<p>We now formally derive the projection matrix <span class="math inline">\(P\)</span> for the general case where we project <span class="math inline">\(y\)</span> onto the column space of a matrix <span class="math inline">\(X\)</span>.</p>
-<p><strong>Normal Equations</strong></p>
-<p>We want to find <span class="math inline">\(\hat{y} = X\beta\)</span> such that the residual <span class="math inline">\((y - \hat{y})\)</span> is orthogonal to the column space <span class="math inline">\(Col(X)\)</span>. This means the residual must be orthogonal to every column of <span class="math inline">\(X\)</span>.</p>
+<section id="hat-matrix-projection-matrix-via-x" class="level2" data-number="2.5">
+<h2 data-number="2.5" class="anchored" data-anchor-id="hat-matrix-projection-matrix-via-x"><span class="header-section-number">2.5</span> Hat Matrix (Projection Matrix via <span class="math inline">\(X\)</span>)</h2>
+<section id="norm-equations" class="level3" data-number="2.5.1">
+<h3 data-number="2.5.1" class="anchored" data-anchor-id="norm-equations"><span class="header-section-number">2.5.1</span> Norm Equations</h3>
+<p>Let <span class="math inline">\(X = (x_1, \dots, x_p)\)</span> be an <span class="math inline">\(n \times p\)</span> matrix, where each column <span class="math inline">\(x_j\)</span> is a predictor vector.</p>
+<p>We want to project the target vector <span class="math inline">\(y\)</span> onto the column space <span class="math inline">\(C(X)\)</span>. This is equivalent to finding a coefficient vector <span class="math inline">\(\beta \in \mathbb{R}^p\)</span> such that the error vector (residual) is orthogonal to the entire subspace <span class="math inline">\(C(X)\)</span>.</p>
 <p><span class="math display">\[
-X'(y - X\beta) = 0
+y - X\beta \perp C(X)
 \]</span></p>
-<p>Expanding this gives the famous <strong>Normal Equations</strong>:</p>
+<p>Since the columns of <span class="math inline">\(X\)</span> span the subspace, the residual must be orthogonal to <strong>every</strong> column vector <span class="math inline">\(x_j\)</span> individually:</p>
 <p><span class="math display">\[
-X'y - X'X\beta = 0 \implies X'X\beta = X'y
+y - X\beta \perp x_j \quad \text{for } j = 1, \dots, p
 \]</span></p>
+<p>Writing this geometric condition as an algebraic dot product (where <span class="math inline">\(x_j'\)</span> denotes the transpose):</p>
+<p><span class="math display">\[
+x_j'(y - X\beta) = 0 \quad \text{for each } j
+\]</span></p>
+<p>We can stack these <span class="math inline">\(p\)</span> separate linear equations into a single matrix equation. Since the rows of <span class="math inline">\(X'\)</span> are the columns of <span class="math inline">\(X\)</span>, this becomes:</p>
+<p><span class="math display">\[
+\begin{pmatrix} x_1' \\ \vdots \\ x_p' \end{pmatrix} (y - X\beta) = \mathbf{0}
+\implies X'(y - X\beta) = 0
+\]</span></p>
+<p>Finally, we distribute the matrix transpose and rearrange terms to solve for <span class="math inline">\(\beta\)</span>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+X'y - X'X\beta &amp;= 0 \\
+X'X\beta &amp;= X'y
+\end{aligned}
+\]</span></p>
+<p>This system is known as the <strong>Normal Equations</strong>.</p>
 <div id="thm-least-squares-estimator" class="theorem">
 <p><span class="theorem-title"><strong>Theorem 2.13 (Least Squares Estimator)</strong></span> If <span class="math inline">\(X'X\)</span> is invertible (i.e., <span class="math inline">\(X\)</span> has full column rank), the unique solution for <span class="math inline">\(\beta\)</span> is:</p>
 <p><span class="math display">\[
 \hat{\beta} = (X'X)^{-1}X'y
 \]</span></p>
 </div>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="lec1_images/page68_normal_eq.png" class="img-fluid figure-img" style="width:70.0%"></p>
-<figcaption>Normal Equations Derivation</figcaption>
-</figure>
-</div>
-<p><strong>The Matrix <span class="math inline">\(P\)</span></strong></p>
+</section>
+<section id="hat-matrix" class="level3" data-number="2.5.2">
+<h3 data-number="2.5.2" class="anchored" data-anchor-id="hat-matrix"><span class="header-section-number">2.5.2</span> Hat Matrix</h3>
 <p>Substituting the estimator <span class="math inline">\(\hat{\beta}\)</span> back into the equation for <span class="math inline">\(\hat{y}\)</span> gives us the projection matrix.</p>
 <div id="def-projection-matrix-general" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 2.27 (General Projection Matrix)</strong></span> The projection of <span class="math inline">\(y\)</span> onto <span class="math inline">\(Col(X)\)</span> is given by:</p>
+<p><span class="theorem-title"><strong>Definition 2.27 (Hat Matrix)</strong></span> The projection of <span class="math inline">\(y\)</span> onto <span class="math inline">\(Col(X)\)</span> is given by:</p>
 <p><span class="math display">\[
 \hat{y} = X\hat{\beta} = X(X'X)^{-1}X'y
 \]</span></p>
-<p>Thus, the projection matrix <span class="math inline">\(P\)</span> is defined as:</p>
+<p>Thus, the hat matrix <span class="math inline">\(P\)</span> is defined as:</p>
 <p><span class="math display">\[
 P = X(X'X)^{-1}X'
 \]</span></p>
 </div>
-<p><strong>Relationship with QR Decomposition</strong></p>
+</section>
+<section id="equivalence-of-hat-matrix-and-qq" class="level3" data-number="2.5.3">
+<h3 data-number="2.5.3" class="anchored" data-anchor-id="equivalence-of-hat-matrix-and-qq"><span class="header-section-number">2.5.3</span> Equivalence of Hat Matrix and <span class="math inline">\(QQ'\)</span></h3>
 <p>If we use the QR decomposition such that <span class="math inline">\(X = QR\)</span>, where the columns of <span class="math inline">\(Q\)</span> form an orthonormal basis for <span class="math inline">\(Col(X)\)</span>, the formula simplifies significantly.</p>
 <p>Recall that for orthonormal columns, <span class="math inline">\(Q'Q = I\)</span>. Substituting <span class="math inline">\(X=QR\)</span> into the general formula:</p>
 <p><span class="math display">\[
-P = QR((QR)'(QR))^{-1}(QR)'
-\]</span> <span class="math display">\[
-= QR(R'Q'QR)^{-1}R'Q'
-\]</span> <span class="math display">\[
-= QR(R'R)^{-1}R'Q'
-\]</span> <span class="math display">\[
-= QR R^{-1} (R')^{-1} R' Q'
-\]</span> <span class="math display">\[
-= Q Q'
+\begin{aligned}
+P &amp;= QR((QR)'(QR))^{-1}(QR)' \\
+  &amp;= QR(R'Q'QR)^{-1}R'Q' \\
+  &amp;= QR(R' \underbrace{Q'Q}_{I} R)^{-1}R'Q' \\
+  &amp;= QR(R'R)^{-1}R'Q' \\
+  &amp;= QR R^{-1} (R')^{-1} R' Q' \\
+  &amp;= Q \underbrace{R R^{-1}}_{I} \underbrace{(R')^{-1} R'}_{I} Q' \\
+  &amp;= Q Q'
+\end{aligned}
 \]</span></p>
 <p>This confirms that <span class="math inline">\(P = QQ'\)</span> is consistent with the general formula <span class="math inline">\(P = X(X'X)^{-1}X'\)</span>.</p>
-<p><strong>Properties of <span class="math inline">\(P\)</span></strong></p>
+</section>
+<section id="properties-of-hat-matrix" class="level3" data-number="2.5.4">
+<h3 data-number="2.5.4" class="anchored" data-anchor-id="properties-of-hat-matrix"><span class="header-section-number">2.5.4</span> Properties of Hat Matrix</h3>
 <p>We revisit the properties of projection matrices in this general context.</p>
 <div id="thm-projection-properties-revisited" class="theorem">
 <p><span class="theorem-title"><strong>Theorem 2.14 (Properties of P)</strong></span> The matrix <span class="math inline">\(P = X(X'X)^{-1}X'\)</span> satisfies:</p>
@@ -884,10 +937,12 @@ M = I - X(X'X)^{-1}X'
 \]</span></p>
 <p>This matrix projects <span class="math inline">\(y\)</span> onto the null space of <span class="math inline">\(X'\)</span> (the orthogonal complement of the column space of <span class="math inline">\(X\)</span>).</p>
 </div>
-<hr>
 </section>
-<section id="projections-onto-nested-subspaces" class="level2" data-number="2.6">
-<h2 data-number="2.6" class="anchored" data-anchor-id="projections-onto-nested-subspaces"><span class="header-section-number">2.6</span> Projections onto Nested Subspaces</h2>
+</section>
+<section id="general-projection-matrices-onto-nested-subspaces" class="level2" data-number="2.6">
+<h2 data-number="2.6" class="anchored" data-anchor-id="general-projection-matrices-onto-nested-subspaces"><span class="header-section-number">2.6</span> General Projection Matrices onto Nested Subspaces</h2>
+<section id="nested-models-and-subspaces" class="level3" data-number="2.6.1">
+<h3 data-number="2.6.1" class="anchored" data-anchor-id="nested-models-and-subspaces"><span class="header-section-number">2.6.1</span> Nested Models and Subspaces</h3>
 <p>In hypothesis testing (like comparing a null model to an alternative model), we often deal with nested subspaces.</p>
 <div id="def-nested-models" class="theorem definition">
 <p><span class="theorem-title"><strong>Definition 2.29 (Nested Models)</strong></span> Consider two models: 1. <strong>Reduced Model (<span class="math inline">\(M_0\)</span>):</strong> <span class="math inline">\(y \in Col(X_0)\)</span> 2. <strong>Full Model (<span class="math inline">\(M_1\)</span>):</strong> <span class="math inline">\(y \in Col(X_1)\)</span></p>
@@ -896,13 +951,9 @@ Col(X_0) \subseteq Col(X_1)
 \]</span></p>
 </div>
 <p>Usually, <span class="math inline">\(X_1\)</span> is constructed by adding columns to <span class="math inline">\(X_0\)</span>: <span class="math inline">\(X_1 = [X_0, X_{new}]\)</span>.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="lec1_images/page80_nested_models.png" class="img-fluid figure-img" style="width:70.0%"></p>
-<figcaption>Nested Models Concept</figcaption>
-</figure>
-</div>
-<p><strong>Projection Composition</strong></p>
+</section>
+<section id="projections-onto-nested-subspaces" class="level3" data-number="2.6.2">
+<h3 data-number="2.6.2" class="anchored" data-anchor-id="projections-onto-nested-subspaces"><span class="header-section-number">2.6.2</span> Projections onto Nested Subspaces</h3>
 <p>Let <span class="math inline">\(P_0\)</span> be the projection matrix onto <span class="math inline">\(Col(X_0)\)</span> and <span class="math inline">\(P_1\)</span> be the projection matrix onto <span class="math inline">\(Col(X_1)\)</span>. Since <span class="math inline">\(Col(X_0) \subseteq Col(X_1)\)</span>, we have important relationships between these matrices.</p>
 <div id="thm-nested-projections" class="theorem">
 <p><span class="theorem-title"><strong>Theorem 2.15 (Composition of Projections)</strong></span> If <span class="math inline">\(Col(P_0) \subseteq Col(P_1)\)</span>, then:</p>
@@ -922,53 +973,96 @@ Col(X_0) \subseteq Col(X_1)
 <li><strong>Orthogonality:</strong> <span class="math inline">\((P_1 - P_0)P_0 = P_1 P_0 - P_0 = P_0 - P_0 = 0\)</span>.</li>
 </ol>
 </div>
-<p><strong>Decomposition of Sum of Squares</strong></p>
-<p>This geometry allows us to decompose the total vector <span class="math inline">\(y\)</span> into three orthogonal components:</p>
-<ol type="1">
-<li><span class="math inline">\(\hat{y}_0\)</span> (The fit of the reduced model)</li>
-<li><span class="math inline">\(\hat{y}_1 - \hat{y}_0\)</span> (The improvement from the reduced to the full model)</li>
-<li><span class="math inline">\(y - \hat{y}_1\)</span> (The residual of the full model)</li>
-</ol>
-<p><span class="math display">\[
-  y = \hat{y}_0 + (\hat{y}_1 - \hat{y}_0) + (y - \hat{y}_1)
-  \]</span></p>
-<p>Squaring the norms (applying Pythagoras):</p>
-<p><span class="math display">\[
-  ||y||^2 = ||\hat{y}_0||^2 + ||\hat{y}_1 - \hat{y}_0||^2 + ||y - \hat{y}_1||^2
-  \]</span></p>
-<p>This equation is the foundation for the F-test in ANOVA and regression.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="lec1_images/page86_nested_figure.png" class="img-fluid figure-img" style="width:70.0%"></p>
-<figcaption>Decomposition of Sum of Squares</figcaption>
-</figure>
-</div>
-<p><strong>ANOVA Sum of Squares</strong></p>
-<p>We apply the decomposition of sum of squares to the specific case of Analysis of Variance.</p>
-<div id="def-anova-ss" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 2.30 (ANOVA Decomposition)</strong></span> The Total Sum of Squares (TSS), or the squared norm of <span class="math inline">\(y\)</span> (often centered), can be split into components:</p>
-<ol type="1">
-<li><p><strong>Residual Sum of Squares (Full Model):</strong> <span class="math display">\[
-RSS_1 = ||y - \hat{y}_1||^2 = \sum_{i}\sum_{j} (y_{ij} - \bar{y}_{i.})^2
-\]</span> This represents the “Within Group” sum of squares.</p></li>
-<li><p><strong>Difference Sum of Squares:</strong> <span class="math display">\[
-RSS_0 - RSS_1 = ||\hat{y}_1 - \hat{y}_0||^2 = \sum_{i} n_i (\bar{y}_{i.} - \bar{y}_{..})^2
-\]</span> This represents the “Between Group” sum of squares (<span class="math inline">\(SS_{between}\)</span>).</p></li>
-</ol>
-</div>
-<p>This relationship confirms that: <span class="math display">\[
-TSS = SS_{within} + SS_{between}
+</section>
+<section id="decomposition-of-projections-and-their-sum-squares" class="level3" data-number="2.6.3">
+<h3 data-number="2.6.3" class="anchored" data-anchor-id="decomposition-of-projections-and-their-sum-squares"><span class="header-section-number">2.6.3</span> Decomposition of Projections and their Sum Squares</h3>
+<div id="thm-nested-decomposition" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 2.17 (Orthogonal Decomposition of Nested Models)</strong></span> Let <span class="math inline">\(M_0 \subset M_1\)</span> be two nested linear models with corresponding design matrices <span class="math inline">\(X_0\)</span> and <span class="math inline">\(X_1\)</span> such that <span class="math inline">\(C(X_0) \subset C(X_1)\)</span>. Let <span class="math inline">\(P_0\)</span> and <span class="math inline">\(P_1\)</span> be the orthogonal projection matrices onto <span class="math inline">\(C(X_0)\)</span> and <span class="math inline">\(C(X_1)\)</span> respectively.</p>
+<p>For any observation vector <span class="math inline">\(y\)</span>, we have the decomposition: <span class="math display">\[
+y = \underbrace{P_0 y}_{\hat{y}_0} + \underbrace{(P_1 - P_0) y}_{\hat{y}_1 - \hat{y}_0} + \underbrace{(I - P_1) y}_{y - \hat{y}_1}
 \]</span></p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="lec1_images/page90_anova_ss.png" class="img-fluid figure-img" style="width:70.0%"></p>
-<figcaption>ANOVA Sum of Squares Derivation</figcaption>
+<p>The three component vectors are mutually orthogonal. Consequently, their squared norms sum to the total squared norm: <span class="math display">\[
+\|y\|^2 = \|\hat{y}_0\|^2 + \|\hat{y}_1 - \hat{y}_0\|^2 + \|y - \hat{y}_1\|^2
+\]</span></p>
+</div>
+<div class="proof">
+<p><span class="proof-title"><em>Proof</em>. </span><strong>1. Definitions</strong> We define the three components as vectors <span class="math inline">\(v_1, v_2, v_3\)</span>:</p>
+<ul>
+<li><span class="math inline">\(v_1 = \hat{y}_0 = P_0 y\)</span>.</li>
+<li><span class="math inline">\(v_2 = \hat{y}_1 - \hat{y}_0 = (P_1 - P_0)y\)</span>.</li>
+<li><span class="math inline">\(v_3 = y - \hat{y}_1 = (I - P_1)y\)</span>.
+<ul>
+<li><strong>Note:</strong> Since <span class="math inline">\(P_1\)</span> projects onto <span class="math inline">\(C(X_1)\)</span>, the matrix <span class="math inline">\((I - P_1)\)</span> projects onto the <strong>orthogonal complement</strong> <span class="math inline">\(C(X_1)^\perp\)</span>. Thus, <span class="math inline">\(v_3 \in \text{Col}(I - P_1)\)</span>.</li>
+</ul></li>
+</ul>
+<p>Note that since <span class="math inline">\(C(X_0) \subset C(X_1)\)</span>, we have the property <span class="math inline">\(P_1 P_0 = P_0 P_1 = P_0\)</span>. (Projecting onto the smaller subspace <span class="math inline">\(M_0\)</span> is unchanged if we first project onto the enclosing subspace <span class="math inline">\(M_1\)</span>).</p>
+<p><strong>2. Orthogonality of <span class="math inline">\(v_1\)</span> and <span class="math inline">\(v_2\)</span></strong> We check the inner product <span class="math inline">\(\langle v_1, v_2 \rangle = v_1' v_2\)</span>: <span class="math display">\[
+\begin{aligned}
+v_1' v_2 &amp;= (P_0 y)' (P_1 - P_0) y \\
+&amp;= y' P_0' (P_1 - P_0) y \\
+&amp;= y' (P_0 P_1 - P_0^2) y \quad (\text{Since } P_0 \text{ is symmetric}) \\
+&amp;= y' (P_0 - P_0) y \quad (\text{Since } P_0 P_1 = P_0 \text{ and } P_0^2 = P_0) \\
+&amp;= 0
+\end{aligned}
+\]</span></p>
+<p><strong>3. Orthogonality of <span class="math inline">\((v_1 + v_2)\)</span> and <span class="math inline">\(v_3\)</span></strong> Note that <span class="math inline">\(v_1 + v_2 = P_1 y = \hat{y}_1\)</span>. We check if the total fit <span class="math inline">\(\hat{y}_1\)</span> is orthogonal to the residual <span class="math inline">\(v_3\)</span>: <span class="math display">\[
+\begin{aligned}
+\hat{y}_1' v_3 &amp;= (P_1 y)' (I - P_1) y \\
+&amp;= y' P_1 (I - P_1) y \\
+&amp;= y' (P_1 - P_1^2) y \\
+&amp;= y' (P_1 - P_1) y \\
+&amp;= 0
+\end{aligned}
+\]</span> Since <span class="math inline">\(\hat{y}_1\)</span> is orthogonal to <span class="math inline">\(v_3\)</span>, and <span class="math inline">\(\hat{y}_0\)</span> is a component of <span class="math inline">\(\hat{y}_1\)</span>, it follows that all three pieces are mutually orthogonal.</p>
+<p><strong>4. Sum of Squares</strong> By the Pythagorean theorem applied twice to these orthogonal vectors, the equality of squared norms follows immediately.</p>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-anova-decomposition-v2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-anova-decomposition-v2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec1-vecspace_files/figure-html/fig-anova-decomposition-v2-3.png" class="img-fluid figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-anova-decomposition-v2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.2: Illustration of Projections onto Nested Subspaces
+</figcaption>
 </figure>
 </div>
-<p><strong>Projections in Orthogonal Spaces</strong></p>
+</div>
+</div>
+<div id="exm-anova-ss" class="theorem example">
+<p><span class="theorem-title"><strong>Example 2.5 (Geometric Interpretation of One-way ANOVA)</strong></span> We apply the <strong>Nested Model Theorem</strong> (<span class="math inline">\(M_0 \subset M_1\)</span>) to the One-way ANOVA setting with <span class="math inline">\(k\)</span> groups and <span class="math inline">\(n_i\)</span> observations per group.</p>
+<p><strong>1. The Data Vector</strong> We stack all observations into a single <span class="math inline">\(N \times 1\)</span> vector (<span class="math inline">\(N = \sum n_i\)</span>): <span class="math display">\[
+y = \begin{pmatrix} y_{11} \\ \vdots \\ y_{1 n_1} \\ \hline \vdots \\ \hline y_{k1} \\ \vdots \\ y_{k n_k} \end{pmatrix}
+\]</span></p>
+<p><strong>2. The Projections (as Vectors)</strong></p>
+<ul>
+<li><p><strong><span class="math inline">\(\hat{y}_0\)</span> (Null Model Projection):</strong> Projecting onto the intercept vector <span class="math inline">\(\mathbf{1}\)</span> replaces every observation with the <strong>Grand Mean</strong> <span class="math inline">\(\bar{y}_{..}\)</span>. <span class="math display">\[
+  \hat{y}_0 = P_0 y = \begin{pmatrix} \bar{y}_{..} \\ \vdots \\ \bar{y}_{..} \\ \hline \vdots \\ \hline \bar{y}_{..} \\ \vdots \\ \bar{y}_{..} \end{pmatrix}
+  \]</span></p></li>
+<li><p><strong><span class="math inline">\(\hat{y}_1\)</span> (Full Model Projection):</strong> Projecting onto the group indicators replaces observations in group <span class="math inline">\(i\)</span> with the <strong>Group Mean</strong> <span class="math inline">\(\bar{y}_{i.}\)</span>. <span class="math display">\[
+  \hat{y}_1 = P_1 y = \begin{pmatrix} \bar{y}_{1.} \\ \vdots \\ \bar{y}_{1.} \\ \hline \vdots \\ \hline \bar{y}_{k.} \\ \vdots \\ \bar{y}_{k.} \end{pmatrix}
+  \]</span></p></li>
+</ul>
+<p><strong>3. The Decomposition</strong> The total deviation vector <span class="math inline">\(y - \hat{y}_0\)</span> splits into two orthogonal vector components:</p>
+<ul>
+<li><p><strong>Model Improvement Vector (<span class="math inline">\(\hat{y}_1 - \hat{y}_0\)</span>):</strong> The difference between group means and the grand mean. <span class="math display">\[
+  \hat{y}_1 - \hat{y}_0 = \begin{pmatrix} \bar{y}_{1.} - \bar{y}_{..} \\ \vdots \\ \bar{y}_{1.} - \bar{y}_{..} \\ \hline \vdots \\ \hline \bar{y}_{k.} - \bar{y}_{..} \\ \vdots \\ \bar{y}_{k.} - \bar{y}_{..} \end{pmatrix}
+  \]</span> <em>Squared Norm:</em> <span class="math inline">\(RSS_0 - RSS_1 = \sum_{i} n_i (\bar{y}_{i.} - \bar{y}_{..})^2\)</span> (<span class="math inline">\(SS_{between}\)</span>)</p></li>
+<li><p><strong>Residual Vector (<span class="math inline">\(y - \hat{y}_1\)</span>):</strong> The difference between individual observations and their specific group mean. <span class="math display">\[
+  y - \hat{y}_1 = \begin{pmatrix} y_{11} - \bar{y}_{1.} \\ \vdots \\ y_{1 n_1} - \bar{y}_{1.} \\ \hline \vdots \\ \hline y_{k1} - \bar{y}_{k.} \\ \vdots \\ y_{k n_k} - \bar{y}_{k.} \end{pmatrix}
+  \]</span> <em>Squared Norm:</em> <span class="math inline">\(RSS_1 = \sum_{i}\sum_{j} (y_{ij} - \bar{y}_{i.})^2\)</span> (<span class="math inline">\(SS_{within}\)</span>)</p></li>
+</ul>
+<p><strong>Conclusion:</strong> By orthogonality, the squared length of the total deviation equals the sum of the squared lengths of these components: <span class="math display">\[
+\underbrace{||\hat{y}_1 - \hat{y}_0||^2}_{SS_{between}} + \underbrace{||y - \hat{y}_1||^2}_{SS_{within}} = \underbrace{||y - \hat{y}_0||^2}_{TSS}
+\]</span></p>
+</div>
+</section>
+<section id="projections-in-orthogonal-subspaces" class="level3" data-number="2.6.4">
+<h3 data-number="2.6.4" class="anchored" data-anchor-id="projections-in-orthogonal-subspaces"><span class="header-section-number">2.6.4</span> Projections in Orthogonal subspaces</h3>
 <p>Finally, we consider the case where the entire space <span class="math inline">\(\mathbb{R}^n\)</span> is decomposed into mutually orthogonal subspaces.</p>
 <div id="thm-orth-decomposition" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 2.17 (Orthogonal Decomposition)</strong></span> If <span class="math inline">\(\mathbb{R}^n\)</span> is the direct sum of orthogonal subspaces <span class="math inline">\(V_1, V_2, \dots, V_k\)</span>:</p>
+<p><span class="theorem-title"><strong>Theorem 2.18 (Orthogonal Decomposition)</strong></span> If <span class="math inline">\(\mathbb{R}^n\)</span> is the direct sum of orthogonal subspaces <span class="math inline">\(V_1, V_2, \dots, V_k\)</span>:</p>
 <p><span class="math display">\[
 \mathbb{R}^n = V_1 \oplus V_2 \oplus \dots \oplus V_k
 \]</span> where <span class="math inline">\(V_i \perp V_j\)</span> for all <span class="math inline">\(i \ne j\)</span>.</p>
@@ -997,6 +1091,7 @@ I_n = P_1 + P_2 + \dots + P_k
 </div>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
