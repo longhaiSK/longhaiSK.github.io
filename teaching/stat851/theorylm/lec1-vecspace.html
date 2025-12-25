@@ -20,6 +20,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -69,6 +104,15 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<link href="site_libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
+<script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="site_libs/plotly-binding-4.11.0/plotly.js"></script>
+<script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
+<script src="site_libs/jquery-3.5.1/jquery.min.js"></script>
+<link href="site_libs/crosstalk-1.2.2/css/crosstalk.min.css" rel="stylesheet">
+<script src="site_libs/crosstalk-1.2.2/js/crosstalk.min.js"></script>
+<link href="site_libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet">
+<script src="site_libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
 <link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
 <script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 
@@ -193,13 +237,14 @@ window.Quarto = {
   <li><a href="#hat-matrix" id="toc-hat-matrix" class="nav-link" data-scroll-target="#hat-matrix"><span class="header-section-number">2.5.2</span> Hat Matrix</a></li>
   <li><a href="#equivalence-of-hat-matrix-and-qq" id="toc-equivalence-of-hat-matrix-and-qq" class="nav-link" data-scroll-target="#equivalence-of-hat-matrix-and-qq"><span class="header-section-number">2.5.3</span> Equivalence of Hat Matrix and <span class="math inline">\(QQ'\)</span></a></li>
   <li><a href="#properties-of-hat-matrix" id="toc-properties-of-hat-matrix" class="nav-link" data-scroll-target="#properties-of-hat-matrix"><span class="header-section-number">2.5.4</span> Properties of Hat Matrix</a></li>
+  <li><a href="#projection-onto-complement" id="toc-projection-onto-complement" class="nav-link" data-scroll-target="#projection-onto-complement"><span class="header-section-number">2.5.5</span> Projection onto Complement</a></li>
   </ul></li>
   <li><a href="#general-projection-matrices-onto-nested-subspaces" id="toc-general-projection-matrices-onto-nested-subspaces" class="nav-link" data-scroll-target="#general-projection-matrices-onto-nested-subspaces"><span class="header-section-number">2.6</span> General Projection Matrices onto Nested Subspaces</a>
   <ul>
   <li><a href="#nested-models-and-subspaces" id="toc-nested-models-and-subspaces" class="nav-link" data-scroll-target="#nested-models-and-subspaces"><span class="header-section-number">2.6.1</span> Nested Models and Subspaces</a></li>
   <li><a href="#projections-onto-nested-subspaces" id="toc-projections-onto-nested-subspaces" class="nav-link" data-scroll-target="#projections-onto-nested-subspaces"><span class="header-section-number">2.6.2</span> Projections onto Nested Subspaces</a></li>
   <li><a href="#decomposition-of-projections-and-their-sum-squares" id="toc-decomposition-of-projections-and-their-sum-squares" class="nav-link" data-scroll-target="#decomposition-of-projections-and-their-sum-squares"><span class="header-section-number">2.6.3</span> Decomposition of Projections and their Sum Squares</a></li>
-  <li><a href="#projections-in-orthogonal-subspaces" id="toc-projections-in-orthogonal-subspaces" class="nav-link" data-scroll-target="#projections-in-orthogonal-subspaces"><span class="header-section-number">2.6.4</span> Projections in Orthogonal subspaces</a></li>
+  <li><a href="#projections-in-general-orthogonal-subspaces" id="toc-projections-in-general-orthogonal-subspaces" class="nav-link" data-scroll-target="#projections-in-general-orthogonal-subspaces"><span class="header-section-number">2.6.4</span> Projections in General Orthogonal Subspaces</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -920,7 +965,7 @@ P &amp;= QR((QR)'(QR))^{-1}(QR)' \\
 <h3 data-number="2.5.4" class="anchored" data-anchor-id="properties-of-hat-matrix"><span class="header-section-number">2.5.4</span> Properties of Hat Matrix</h3>
 <p>We revisit the properties of projection matrices in this general context.</p>
 <div id="thm-projection-properties-revisited" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 2.14 (Properties of P)</strong></span> The matrix <span class="math inline">\(P = X(X'X)^{-1}X'\)</span> satisfies:</p>
+<p><span class="theorem-title"><strong>Theorem 2.14 (Properties of Hat Matrix)</strong></span> The matrix <span class="math inline">\(P = X(X'X)^{-1}X'\)</span> satisfies:</p>
 <ol type="1">
 <li><strong>Symmetric:</strong> <span class="math inline">\(P' = P\)</span></li>
 <li><strong>Idempotent:</strong> <span class="math inline">\(P^2 = P\)</span></li>
@@ -929,13 +974,14 @@ P &amp;= QR((QR)'(QR))^{-1}(QR)' \\
 \]</span></li>
 </ol>
 </div>
-<p><strong>Projection onto Complement</strong></p>
-<p>As before, the projection onto the orthogonal complement (the residual maker matrix) is <span class="math inline">\(M = I - P\)</span>.</p>
+</section>
+<section id="projection-onto-complement" class="level3" data-number="2.5.5">
+<h3 data-number="2.5.5" class="anchored" data-anchor-id="projection-onto-complement"><span class="header-section-number">2.5.5</span> Projection onto Complement</h3>
 <div id="def-m-matrix" class="theorem definition">
 <p><span class="theorem-title"><strong>Definition 2.28 (Residual Maker Matrix M)</strong></span> <span class="math display">\[
-M = I - X(X'X)^{-1}X'
+M = I - X(X^\top X)^{-1}X^\top
 \]</span></p>
-<p>This matrix projects <span class="math inline">\(y\)</span> onto the null space of <span class="math inline">\(X'\)</span> (the orthogonal complement of the column space of <span class="math inline">\(X\)</span>).</p>
+<p>This matrix projects <span class="math inline">\(y\)</span> onto the null space of <span class="math inline">\(X^\top\)</span> (i.e., <span class="math inline">\(\text{Col}(X)^\perp\)</span>).</p>
 </div>
 </section>
 </section>
@@ -977,10 +1023,16 @@ Col(X_0) \subseteq Col(X_1)
 <section id="decomposition-of-projections-and-their-sum-squares" class="level3" data-number="2.6.3">
 <h3 data-number="2.6.3" class="anchored" data-anchor-id="decomposition-of-projections-and-their-sum-squares"><span class="header-section-number">2.6.3</span> Decomposition of Projections and their Sum Squares</h3>
 <div id="thm-nested-decomposition" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 2.17 (Orthogonal Decomposition of Nested Models)</strong></span> Let <span class="math inline">\(M_0 \subset M_1\)</span> be two nested linear models with corresponding design matrices <span class="math inline">\(X_0\)</span> and <span class="math inline">\(X_1\)</span> such that <span class="math inline">\(C(X_0) \subset C(X_1)\)</span>. Let <span class="math inline">\(P_0\)</span> and <span class="math inline">\(P_1\)</span> be the orthogonal projection matrices onto <span class="math inline">\(C(X_0)\)</span> and <span class="math inline">\(C(X_1)\)</span> respectively.</p>
+<p><span class="theorem-title"><strong>Theorem 2.17 (Orthogonal Decomposition)</strong></span> Let <span class="math inline">\(M_0 \subset M_1\)</span> be two nested linear models with corresponding design matrices <span class="math inline">\(X_0\)</span> and <span class="math inline">\(X_1\)</span> such that <span class="math inline">\(C(X_0) \subset C(X_1)\)</span>. Let <span class="math inline">\(P_0\)</span> and <span class="math inline">\(P_1\)</span> be the orthogonal projection matrices onto <span class="math inline">\(C(X_0)\)</span> and <span class="math inline">\(C(X_1)\)</span> respectively.</p>
 <p>For any observation vector <span class="math inline">\(y\)</span>, we have the decomposition: <span class="math display">\[
 y = \underbrace{P_0 y}_{\hat{y}_0} + \underbrace{(P_1 - P_0) y}_{\hat{y}_1 - \hat{y}_0} + \underbrace{(I - P_1) y}_{y - \hat{y}_1}
 \]</span></p>
+<p><strong>Geometric Interpretation:</strong></p>
+<ol type="1">
+<li><span class="math inline">\(\hat{y}_0 \in C(X_0)\)</span>: The fit of the reduced model.</li>
+<li><span class="math inline">\((\hat{y}_1 - \hat{y}_0) \in C(X_0)^\perp \cap C(X_1)\)</span>: The additional fit provided by <span class="math inline">\(M_1\)</span> over <span class="math inline">\(M_0\)</span>.</li>
+<li><span class="math inline">\((y - \hat{y}_1) \in C(X_1)^\perp\)</span>: The projection of <span class="math inline">\(y\)</span> onto the <strong>orthogonal complement</strong> of <span class="math inline">\(C(X_1)\)</span>.</li>
+</ol>
 <p>The three component vectors are mutually orthogonal. Consequently, their squared norms sum to the total squared norm: <span class="math display">\[
 \|y\|^2 = \|\hat{y}_0\|^2 + \|\hat{y}_1 - \hat{y}_0\|^2 + \|y - \hat{y}_1\|^2
 \]</span></p>
@@ -1058,11 +1110,11 @@ y = \begin{pmatrix} y_{11} \\ \vdots \\ y_{1 n_1} \\ \hline \vdots \\ \hline y_{
 \]</span></p>
 </div>
 </section>
-<section id="projections-in-orthogonal-subspaces" class="level3" data-number="2.6.4">
-<h3 data-number="2.6.4" class="anchored" data-anchor-id="projections-in-orthogonal-subspaces"><span class="header-section-number">2.6.4</span> Projections in Orthogonal subspaces</h3>
+<section id="projections-in-general-orthogonal-subspaces" class="level3" data-number="2.6.4">
+<h3 data-number="2.6.4" class="anchored" data-anchor-id="projections-in-general-orthogonal-subspaces"><span class="header-section-number">2.6.4</span> Projections in General Orthogonal Subspaces</h3>
 <p>Finally, we consider the case where the entire space <span class="math inline">\(\mathbb{R}^n\)</span> is decomposed into mutually orthogonal subspaces.</p>
 <div id="thm-orth-decomposition" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 2.18 (Orthogonal Decomposition)</strong></span> If <span class="math inline">\(\mathbb{R}^n\)</span> is the direct sum of orthogonal subspaces <span class="math inline">\(V_1, V_2, \dots, V_k\)</span>:</p>
+<p><span class="theorem-title"><strong>Theorem 2.18 (General Orthogonal Projects)</strong></span> If <span class="math inline">\(\mathbb{R}^n\)</span> is the direct sum of orthogonal subspaces <span class="math inline">\(V_1, V_2, \dots, V_k\)</span>:</p>
 <p><span class="math display">\[
 \mathbb{R}^n = V_1 \oplus V_2 \oplus \dots \oplus V_k
 \]</span> where <span class="math inline">\(V_i \perp V_j\)</span> for all <span class="math inline">\(i \ne j\)</span>.</p>
@@ -1076,18 +1128,147 @@ x_i = P_i y
 <p>This implies that the identity matrix can be decomposed into a sum of projection matrices: <span class="math display">\[
 I_n = P_1 + P_2 + \dots + P_k
 \]</span></p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="lec1_images/page91_orth_spaces.png" class="img-fluid figure-img" style="width:70.0%"></p>
-<figcaption>Orthogonal Space Decomposition</figcaption>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-orthogonal-decomp-rotated" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-orthogonal-decomp-rotated-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec1-vecspace_files/figure-html/fig-orthogonal-decomp-rotated-5.png" class="img-fluid figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-orthogonal-decomp-rotated-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.3: Orthogonal decomposition of vector y into subspaces
+</figcaption>
 </figure>
 </div>
-<p>The following diagram summarizes the relationships between the vector spaces and projections discussed in this lecture.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="lec1_images/page92_diagram.png" class="img-fluid figure-img" style="width:70.0%"></p>
-<figcaption>Summary Diagram</figcaption>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plotly)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Define Vectors ---</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>y_vec <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>origin <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Projections (P_i y)</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">0</span>, <span class="dv">0</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">4</span>, <span class="dv">0</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>p3 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">5</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Partial Sums (P_i y + P_j y)</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>sum_12 <span class="ot">&lt;-</span> p1 <span class="sc">+</span> p2</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>sum_13 <span class="ot">&lt;-</span> p1 <span class="sc">+</span> p3</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>sum_23 <span class="ot">&lt;-</span> p2 <span class="sc">+</span> p3</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Helper Functions ---</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to add a vector with an arrowhead (Cone)</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>add_vec_arrow <span class="ot">&lt;-</span> <span class="cf">function</span>(p, start, end, color, name) {</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  p <span class="sc">%&gt;%</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">add_trace</span>(</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">type =</span> <span class="st">"scatter3d"</span>,</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>      <span class="at">mode =</span> <span class="st">"lines"</span>,</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>      <span class="at">x =</span> <span class="fu">c</span>(start[<span class="dv">1</span>], end[<span class="dv">1</span>]),</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> <span class="fu">c</span>(start[<span class="dv">2</span>], end[<span class="dv">2</span>]),</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>      <span class="at">z =</span> <span class="fu">c</span>(start[<span class="dv">3</span>], end[<span class="dv">3</span>]),</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>      <span class="at">line =</span> <span class="fu">list</span>(<span class="at">color =</span> color, <span class="at">width =</span> <span class="dv">6</span>),</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>      <span class="at">name =</span> name,</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>      <span class="at">showlegend =</span> <span class="cn">TRUE</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">add_trace</span>(</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>      <span class="at">type =</span> <span class="st">"cone"</span>,</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>      <span class="at">x =</span> end[<span class="dv">1</span>], <span class="at">y =</span> end[<span class="dv">2</span>], <span class="at">z =</span> end[<span class="dv">3</span>],</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>      <span class="at">u =</span> end[<span class="dv">1</span>]<span class="sc">-</span>start[<span class="dv">1</span>], <span class="at">v =</span> end[<span class="dv">2</span>]<span class="sc">-</span>start[<span class="dv">2</span>], <span class="at">w =</span> end[<span class="dv">3</span>]<span class="sc">-</span>start[<span class="dv">3</span>],</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>      <span class="at">sizemode =</span> <span class="st">"absolute"</span>,</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>      <span class="at">sizeref =</span> <span class="fl">0.5</span>,</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>      <span class="at">anchor =</span> <span class="st">"tip"</span>,</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>      <span class="at">colorscale =</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="fu">c</span>(color, color)),</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>      <span class="at">showscale =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>      <span class="at">name =</span> name,</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>      <span class="at">showlegend =</span> <span class="cn">FALSE</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to add dashed "error" lines</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>add_dashed_line <span class="ot">&lt;-</span> <span class="cf">function</span>(p, start, end, color, name) {</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>  p <span class="sc">%&gt;%</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>    <span class="fu">add_trace</span>(</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>      <span class="at">type =</span> <span class="st">"scatter3d"</span>,</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>      <span class="at">mode =</span> <span class="st">"lines"</span>,</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>      <span class="at">x =</span> <span class="fu">c</span>(start[<span class="dv">1</span>], end[<span class="dv">1</span>]),</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> <span class="fu">c</span>(start[<span class="dv">2</span>], end[<span class="dv">2</span>]),</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>      <span class="at">z =</span> <span class="fu">c</span>(start[<span class="dv">3</span>], end[<span class="dv">3</span>]),</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>      <span class="at">line =</span> <span class="fu">list</span>(<span class="at">color =</span> color, <span class="at">width =</span> <span class="dv">3</span>, <span class="at">dash =</span> <span class="st">"dash"</span>),</span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>      <span class="at">name =</span> name,</span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>      <span class="at">hoverinfo =</span> <span class="st">"text"</span>,</span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>      <span class="at">text =</span> name</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Build Plot ---</span></span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>fig <span class="ot">&lt;-</span> <span class="fu">plot_ly</span>()</span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Main Vectors (Solid + Cones)</span></span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>fig <span class="ot">&lt;-</span> fig <span class="sc">%&gt;%</span></span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_vec_arrow</span>(origin, p1, <span class="st">"red"</span>, <span class="st">"P1 y"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_vec_arrow</span>(origin, p2, <span class="st">"green"</span>, <span class="st">"P2 y"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_vec_arrow</span>(origin, p3, <span class="st">"blue"</span>, <span class="st">"P3 y"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_vec_arrow</span>(origin, y_vec, <span class="st">"black"</span>, <span class="st">"y"</span>)</span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Dashed Lines from y to Single Projections</span></span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>fig <span class="ot">&lt;-</span> fig <span class="sc">%&gt;%</span></span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_dashed_line</span>(y_vec, p1, <span class="st">"rgba(255, 0, 0, 0.5)"</span>, <span class="st">"y -&gt; P1"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_dashed_line</span>(y_vec, p2, <span class="st">"rgba(0, 255, 0, 0.5)"</span>, <span class="st">"y -&gt; P2"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_dashed_line</span>(y_vec, p3, <span class="st">"rgba(0, 0, 255, 0.5)"</span>, <span class="st">"y -&gt; P3"</span>)</span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Dashed Lines from y to Partial Sums</span></span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a>fig <span class="ot">&lt;-</span> fig <span class="sc">%&gt;%</span></span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_dashed_line</span>(y_vec, sum_12, <span class="st">"purple"</span>, <span class="st">"y -&gt; (P1+P2)"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_dashed_line</span>(y_vec, sum_13, <span class="st">"orange"</span>, <span class="st">"y -&gt; (P1+P3)"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_dashed_line</span>(y_vec, sum_23, <span class="st">"cyan"</span>,   <span class="st">"y -&gt; (P2+P3)"</span>)</span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Axes (Subspaces)</span></span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a>limit <span class="ot">&lt;-</span> <span class="dv">6</span></span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a>axis_style <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">color =</span> <span class="st">"gray"</span>, <span class="at">dash =</span> <span class="st">"dot"</span>, <span class="at">width =</span> <span class="dv">2</span>)</span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a>fig <span class="ot">&lt;-</span> fig <span class="sc">%&gt;%</span></span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_trace</span>(<span class="at">type=</span><span class="st">"scatter3d"</span>, <span class="at">mode=</span><span class="st">"lines"</span>, <span class="at">x=</span><span class="fu">c</span>(<span class="dv">0</span>, limit), <span class="at">y=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>), <span class="at">z=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>), </span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a>            <span class="at">line=</span>axis_style, <span class="at">name=</span><span class="st">"V1 (x)"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_trace</span>(<span class="at">type=</span><span class="st">"scatter3d"</span>, <span class="at">mode=</span><span class="st">"lines"</span>, <span class="at">x=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>), <span class="at">y=</span><span class="fu">c</span>(<span class="dv">0</span>, limit), <span class="at">z=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>), </span>
+<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a>            <span class="at">line=</span>axis_style, <span class="at">name=</span><span class="st">"V2 (y)"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_trace</span>(<span class="at">type=</span><span class="st">"scatter3d"</span>, <span class="at">mode=</span><span class="st">"lines"</span>, <span class="at">x=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>), <span class="at">y=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>), <span class="at">z=</span><span class="fu">c</span>(<span class="dv">0</span>, limit), </span>
+<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a>            <span class="at">line=</span>axis_style, <span class="at">name=</span><span class="st">"V3 (z)"</span>)</span>
+<span id="cb1-95"><a href="#cb1-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-96"><a href="#cb1-96" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Layout ---</span></span>
+<span id="cb1-97"><a href="#cb1-97" aria-hidden="true" tabindex="-1"></a>fig <span class="ot">&lt;-</span> fig <span class="sc">%&gt;%</span> <span class="fu">layout</span>(</span>
+<span id="cb1-98"><a href="#cb1-98" aria-hidden="true" tabindex="-1"></a>  <span class="at">title =</span> <span class="st">"Orthogonal Decomposition Geometry"</span>,</span>
+<span id="cb1-99"><a href="#cb1-99" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">900</span>,</span>
+<span id="cb1-100"><a href="#cb1-100" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">700</span>,</span>
+<span id="cb1-101"><a href="#cb1-101" aria-hidden="true" tabindex="-1"></a>  <span class="at">scene =</span> <span class="fu">list</span>(</span>
+<span id="cb1-102"><a href="#cb1-102" aria-hidden="true" tabindex="-1"></a>    <span class="at">xaxis =</span> <span class="fu">list</span>(<span class="at">title =</span> <span class="st">"V1"</span>, <span class="at">range =</span> <span class="fu">c</span>(<span class="dv">0</span>, limit)),</span>
+<span id="cb1-103"><a href="#cb1-103" aria-hidden="true" tabindex="-1"></a>    <span class="at">yaxis =</span> <span class="fu">list</span>(<span class="at">title =</span> <span class="st">"V2"</span>, <span class="at">range =</span> <span class="fu">c</span>(<span class="dv">0</span>, limit)),</span>
+<span id="cb1-104"><a href="#cb1-104" aria-hidden="true" tabindex="-1"></a>    <span class="at">zaxis =</span> <span class="fu">list</span>(<span class="at">title =</span> <span class="st">"V3"</span>, <span class="at">range =</span> <span class="fu">c</span>(<span class="dv">0</span>, limit)),</span>
+<span id="cb1-105"><a href="#cb1-105" aria-hidden="true" tabindex="-1"></a>    <span class="at">aspectmode =</span> <span class="st">"cube"</span>,</span>
+<span id="cb1-106"><a href="#cb1-106" aria-hidden="true" tabindex="-1"></a>    <span class="at">camera =</span> <span class="fu">list</span>(<span class="at">eye =</span> <span class="fu">list</span>(<span class="at">x =</span> <span class="fl">1.5</span>, <span class="at">y =</span> <span class="fl">1.5</span>, <span class="at">z =</span> <span class="fl">1.2</span>))</span>
+<span id="cb1-107"><a href="#cb1-107" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb1-108"><a href="#cb1-108" aria-hidden="true" tabindex="-1"></a>  <span class="at">margin =</span> <span class="fu">list</span>(<span class="at">l =</span> <span class="dv">0</span>, <span class="at">r =</span> <span class="dv">0</span>, <span class="at">b =</span> <span class="dv">0</span>, <span class="at">t =</span> <span class="dv">50</span>),</span>
+<span id="cb1-109"><a href="#cb1-109" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend =</span> <span class="fu">list</span>(<span class="at">x =</span> <span class="fl">0.75</span>, <span class="at">y =</span> <span class="fl">0.9</span>)</span>
+<span id="cb1-110"><a href="#cb1-110" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-111"><a href="#cb1-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-112"><a href="#cb1-112" aria-hidden="true" tabindex="-1"></a>fig</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div id="fig-orthogonal-decomp-r" class="cell-output-display quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-orthogonal-decomp-r-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="plotly html-widget html-fill-item" id="htmlwidget-630473ff8fc0115af95f" style="width:100%;height:520px;"></div>
+<script type="application/json" data-for="htmlwidget-630473ff8fc0115af95f">{"x":{"visdat":{"12caf7762611c":["function () ","plotlyVisDat"]},"cur_data":"12caf7762611c","attrs":{"12caf7762611c":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,3],"y":[0,0],"z":[0,0],"line":{"color":"red","width":6},"name":"P1 y","showlegend":true,"inherit":true},"12caf7762611c.1":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"cone","x":3,"y":0,"z":0,"u":3,"v":0,"w":0,"sizemode":"absolute","sizeref":0.5,"anchor":"tip","colorscale":[[0,1],["red","red"]],"showscale":false,"name":"P1 y","showlegend":false,"inherit":true},"12caf7762611c.2":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,4],"z":[0,0],"line":{"color":"green","width":6},"name":"P2 y","showlegend":true,"inherit":true},"12caf7762611c.3":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"cone","x":0,"y":4,"z":0,"u":0,"v":4,"w":0,"sizemode":"absolute","sizeref":0.5,"anchor":"tip","colorscale":[[0,1],["green","green"]],"showscale":false,"name":"P2 y","showlegend":false,"inherit":true},"12caf7762611c.4":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,0],"z":[0,5],"line":{"color":"blue","width":6},"name":"P3 y","showlegend":true,"inherit":true},"12caf7762611c.5":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"cone","x":0,"y":0,"z":5,"u":0,"v":0,"w":5,"sizemode":"absolute","sizeref":0.5,"anchor":"tip","colorscale":[[0,1],["blue","blue"]],"showscale":false,"name":"P3 y","showlegend":false,"inherit":true},"12caf7762611c.6":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,3],"y":[0,4],"z":[0,5],"line":{"color":"black","width":6},"name":"y","showlegend":true,"inherit":true},"12caf7762611c.7":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"cone","x":3,"y":4,"z":5,"u":3,"v":4,"w":5,"sizemode":"absolute","sizeref":0.5,"anchor":"tip","colorscale":[[0,1],["black","black"]],"showscale":false,"name":"y","showlegend":false,"inherit":true},"12caf7762611c.8":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,0],"z":[5,0],"line":{"color":"rgba(255, 0, 0, 0.5)","width":3,"dash":"dash"},"name":"y -> P1","hoverinfo":"text","text":"y -> P1","inherit":true},"12caf7762611c.9":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,4],"z":[5,0],"line":{"color":"rgba(0, 255, 0, 0.5)","width":3,"dash":"dash"},"name":"y -> P2","hoverinfo":"text","text":"y -> P2","inherit":true},"12caf7762611c.10":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,0],"z":[5,5],"line":{"color":"rgba(0, 0, 255, 0.5)","width":3,"dash":"dash"},"name":"y -> P3","hoverinfo":"text","text":"y -> P3","inherit":true},"12caf7762611c.11":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,4],"z":[5,0],"line":{"color":"purple","width":3,"dash":"dash"},"name":"y -> (P1+P2)","hoverinfo":"text","text":"y -> (P1+P2)","inherit":true},"12caf7762611c.12":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,0],"z":[5,5],"line":{"color":"orange","width":3,"dash":"dash"},"name":"y -> (P1+P3)","hoverinfo":"text","text":"y -> (P1+P3)","inherit":true},"12caf7762611c.13":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,4],"z":[5,5],"line":{"color":"cyan","width":3,"dash":"dash"},"name":"y -> (P2+P3)","hoverinfo":"text","text":"y -> (P2+P3)","inherit":true},"12caf7762611c.14":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,6],"y":[0,0],"z":[0,0],"line":{"color":"gray","dash":"dot","width":2},"name":"V1 (x)","inherit":true},"12caf7762611c.15":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,6],"z":[0,0],"line":{"color":"gray","dash":"dot","width":2},"name":"V2 (y)","inherit":true},"12caf7762611c.16":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,0],"z":[0,6],"line":{"color":"gray","dash":"dot","width":2},"name":"V3 (z)","inherit":true}},"layout":{"width":900,"height":700,"margin":{"b":0,"l":0,"t":50,"r":0},"title":"Orthogonal Decomposition Geometry","scene":{"xaxis":{"title":"V1","range":[0,6]},"yaxis":{"title":"V2","range":[0,6]},"zaxis":{"title":"V3","range":[0,6]},"aspectmode":"cube","camera":{"eye":{"x":1.5,"y":1.5,"z":1.2}}},"legend":{"x":0.75,"y":0.90000000000000002},"xaxis":{"title":[]},"yaxis":{"title":[]},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"type":"scatter3d","mode":"lines","x":[0,3],"y":[0,0],"z":[0,0],"line":{"color":"red","width":6},"name":"P1 y","showlegend":true,"marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"frame":null},{"colorbar":{"title":"","ticklen":2},"colorscale":[[0,"red"],[1,"red"]],"showscale":false,"type":"cone","x":[3],"y":[0],"z":[0],"u":[3],"v":[0],"w":[0],"sizemode":"absolute","sizeref":0.5,"anchor":"tip","name":"P1 y","showlegend":false,"frame":null},{"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,4],"z":[0,0],"line":{"color":"green","width":6},"name":"P2 y","showlegend":true,"marker":{"color":"rgba(44,160,44,1)","line":{"color":"rgba(44,160,44,1)"}},"error_y":{"color":"rgba(44,160,44,1)"},"error_x":{"color":"rgba(44,160,44,1)"},"frame":null},{"colorbar":{"title":"","ticklen":2},"colorscale":[[0,"green"],[1,"green"]],"showscale":false,"type":"cone","x":[0],"y":[4],"z":[0],"u":[0],"v":[4],"w":[0],"sizemode":"absolute","sizeref":0.5,"anchor":"tip","name":"P2 y","showlegend":false,"frame":null},{"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,0],"z":[0,5],"line":{"color":"blue","width":6},"name":"P3 y","showlegend":true,"marker":{"color":"rgba(148,103,189,1)","line":{"color":"rgba(148,103,189,1)"}},"error_y":{"color":"rgba(148,103,189,1)"},"error_x":{"color":"rgba(148,103,189,1)"},"frame":null},{"colorbar":{"title":"","ticklen":2},"colorscale":[[0,"blue"],[1,"blue"]],"showscale":false,"type":"cone","x":[0],"y":[0],"z":[5],"u":[0],"v":[0],"w":[5],"sizemode":"absolute","sizeref":0.5,"anchor":"tip","name":"P3 y","showlegend":false,"frame":null},{"type":"scatter3d","mode":"lines","x":[0,3],"y":[0,4],"z":[0,5],"line":{"color":"black","width":6},"name":"y","showlegend":true,"marker":{"color":"rgba(227,119,194,1)","line":{"color":"rgba(227,119,194,1)"}},"error_y":{"color":"rgba(227,119,194,1)"},"error_x":{"color":"rgba(227,119,194,1)"},"frame":null},{"colorbar":{"title":"","ticklen":2},"colorscale":[[0,"black"],[1,"black"]],"showscale":false,"type":"cone","x":[3],"y":[4],"z":[5],"u":[3],"v":[4],"w":[5],"sizemode":"absolute","sizeref":0.5,"anchor":"tip","name":"y","showlegend":false,"frame":null},{"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,0],"z":[5,0],"line":{"color":"rgba(255, 0, 0, 0.5)","width":3,"dash":"dash"},"name":"y -> P1","hoverinfo":["text","text"],"text":["y -> P1","y -> P1"],"marker":{"color":"rgba(188,189,34,1)","line":{"color":"rgba(188,189,34,1)"}},"error_y":{"color":"rgba(188,189,34,1)"},"error_x":{"color":"rgba(188,189,34,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,4],"z":[5,0],"line":{"color":"rgba(0, 255, 0, 0.5)","width":3,"dash":"dash"},"name":"y -> P2","hoverinfo":["text","text"],"text":["y -> P2","y -> P2"],"marker":{"color":"rgba(23,190,207,1)","line":{"color":"rgba(23,190,207,1)"}},"error_y":{"color":"rgba(23,190,207,1)"},"error_x":{"color":"rgba(23,190,207,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,0],"z":[5,5],"line":{"color":"rgba(0, 0, 255, 0.5)","width":3,"dash":"dash"},"name":"y -> P3","hoverinfo":["text","text"],"text":["y -> P3","y -> P3"],"marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,4],"z":[5,0],"line":{"color":"purple","width":3,"dash":"dash"},"name":"y -> (P1+P2)","hoverinfo":["text","text"],"text":["y -> (P1+P2)","y -> (P1+P2)"],"marker":{"color":"rgba(255,127,14,1)","line":{"color":"rgba(255,127,14,1)"}},"error_y":{"color":"rgba(255,127,14,1)"},"error_x":{"color":"rgba(255,127,14,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,0],"z":[5,5],"line":{"color":"orange","width":3,"dash":"dash"},"name":"y -> (P1+P3)","hoverinfo":["text","text"],"text":["y -> (P1+P3)","y -> (P1+P3)"],"marker":{"color":"rgba(44,160,44,1)","line":{"color":"rgba(44,160,44,1)"}},"error_y":{"color":"rgba(44,160,44,1)"},"error_x":{"color":"rgba(44,160,44,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,4],"z":[5,5],"line":{"color":"cyan","width":3,"dash":"dash"},"name":"y -> (P2+P3)","hoverinfo":["text","text"],"text":["y -> (P2+P3)","y -> (P2+P3)"],"marker":{"color":"rgba(214,39,40,1)","line":{"color":"rgba(214,39,40,1)"}},"error_y":{"color":"rgba(214,39,40,1)"},"error_x":{"color":"rgba(214,39,40,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[0,6],"y":[0,0],"z":[0,0],"line":{"color":"gray","dash":"dot","width":2},"name":"V1 (x)","marker":{"color":"rgba(148,103,189,1)","line":{"color":"rgba(148,103,189,1)"}},"error_y":{"color":"rgba(148,103,189,1)"},"error_x":{"color":"rgba(148,103,189,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,6],"z":[0,0],"line":{"color":"gray","dash":"dot","width":2},"name":"V2 (y)","marker":{"color":"rgba(140,86,75,1)","line":{"color":"rgba(140,86,75,1)"}},"error_y":{"color":"rgba(140,86,75,1)"},"error_x":{"color":"rgba(140,86,75,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,0],"z":[0,6],"line":{"color":"gray","dash":"dot","width":2},"name":"V3 (z)","marker":{"color":"rgba(227,119,194,1)","line":{"color":"rgba(227,119,194,1)"}},"error_y":{"color":"rgba(227,119,194,1)"},"error_x":{"color":"rgba(227,119,194,1)"},"frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-orthogonal-decomp-r-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.4: Orthogonal decomposition geometry (R Plotly)
+</figcaption>
 </figure>
+</div>
 </div>
 
 
