@@ -738,7 +738,7 @@ $$
 $$
 :::
 
-**Proof Strategy:**
+**Proof:**
 We first show that the null space (kernel) of $X$ is the same as the null space of $X'X$.
 If $v \in \text{Ker}(X)$, then $Xv = 0 \implies X'Xv = 0 \implies v \in \text{Ker}(X'X)$.
 Conversely, if $v \in \text{Ker}(X'X)$, then $X'Xv = 0$. Multiply by $v'$:
@@ -767,15 +767,15 @@ This property ensures that for any $y$, the projection of $y$ onto $Col(X)$ lies
 
 
 
-## Projection via Orthonormal Basis
+## Projection via Orthonormal Basis ($Q$)
 
 
-**Basis and Dimension**
+### Orthonomal Basis
 
 Before discussing projections onto general subspaces, we must formally define the coordinate system of a subspace, known as a basis.
 
 ::: {#def-basis}
-### Basis
+#### Basis
 A set of vectors $\{x_1, \dots, x_k\}$ is a **Basis** for a vector space $V$ if:
 
 1.  The vectors span the space: $V = L(x_1, \dots, x_k)$.
@@ -788,7 +788,7 @@ The number of vectors in a basis is unique and is defined as the **Dimension** o
 Calculations become significantly simpler if we choose a basis with special geometric properties.
 
 ::: {#def-orthonormal-basis}
-### Orthonormal Basis
+#### Orthonormal Basis
 A basis $\{q_1, \dots, q_k\}$ is called an **Orthonormal Basis** if:
 
 1.  **Orthogonal:** Each pair of vectors is perpendicular.
@@ -810,7 +810,7 @@ We now generalize the projection problem. Instead of projecting $y$ onto a singl
 If we have an orthonormal basis $\{q_1, \dots, q_k\}$ for $V$, the projection $\hat{y}$ is simply the sum of the projections onto the individual basis vectors.
 
 ::: {#def-proj-orthonormal}
-### Projection Formula (Orthonormal Basis)
+#### Projection Defined with Orthonormal Basis
 The projection of $y$ onto the subspace $V = L(q_1, \dots, q_k)$ is:
 
 $$
@@ -821,12 +821,10 @@ Since the basis vectors are normalized, we do not need to divide by $||q_i||^2$.
 :::
 
 
-**The Projection Theorem**
 
-This theorem establishes the existence and uniqueness of the projection vector for any subspace, regardless of the basis used.
 
-::: {#thm-projection-theorem}
-### Projection Theorem
+::: {#def-projection-matrix}
+#### Definition of Projection onto a Subspace $V$
 Let $V$ be a subspace of $\mathbb{R}^n$. For any vector $y \in \mathbb{R}^n$, there exists a **unique** vector $\hat{y} \in V$ such that the residual is orthogonal to the subspace:
 
 $$
@@ -839,8 +837,43 @@ $$
 $$
 :::
 
+::: {#thm-orthonormal-basis-proj}
+#### Projection via Orthonormal Basis
+Let $\{q_1, \dots, q_k\}$ be an orthonormal basis for the subspace $V \subseteq \mathbb{R}^n$. The vector defined by the sum of individual projections:
+$$
+\hat{y} = \sum_{i=1}^k \langle y, q_i \rangle q_i
+$$
+is indeed the orthogonal projection of $y$ onto $V$. That is, it satisfies $(y - \hat{y}) \perp V$.
+:::
 
-## Projection Matrix via Orthonomal Basis ($Q$)
+::: {.proof}
+To prove this, we must check two conditions:
+
+1.  **$\hat{y} \in V$**: This is immediate because $\hat{y}$ is a linear combination of the basis vectors $\{q_1, \dots, q_k\}$.
+
+2.  **$(y - \hat{y}) \perp V$**: It suffices to show that the error vector $e = y - \hat{y}$ is orthogonal to every basis vector $q_j$ (for $j = 1, \dots, k$).
+
+    Let's calculate the inner product $\langle y - \hat{y}, q_j \rangle$:
+    $$
+    \begin{aligned}
+    \langle y - \hat{y}, q_j \rangle &= \langle y, q_j \rangle - \langle \hat{y}, q_j \rangle \\
+    &= \langle y, q_j \rangle - \left\langle \sum_{i=1}^k \langle y, q_i \rangle q_i, q_j \right\rangle \\
+    &= \langle y, q_j \rangle - \sum_{i=1}^k \langle y, q_i \rangle \underbrace{\langle q_i, q_j \rangle}_{\delta_{ij}}
+    \end{aligned}
+    $$
+    
+    Since the basis is orthonormal, $\langle q_i, q_j \rangle$ is 1 if $i=j$ and 0 otherwise. Thus, the summation collapses to a single term where $i=j$:
+    $$
+    \begin{aligned}
+    \langle y - \hat{y}, q_j \rangle &= \langle y, q_j \rangle - \langle y, q_j \rangle \cdot 1 \\
+    &= 0
+    \end{aligned}
+    $$
+    
+    Since $(y - \hat{y})$ is orthogonal to every basis vector $q_j$, it is orthogonal to the entire subspace $V$. Thus, $\hat{y}$ is the unique orthogonal projection.
+:::
+
+### Projection Matrix via Orthonomal Basis ($Q$)
 
 **Matrix Form with Orthonormal Basis**
 
@@ -858,8 +891,8 @@ Properties of $Q$:
 
 
 
-::: {#thm-proj-matrix-orthonormal}
-### Projection Matrix (Orthonormal)
+::: {#def-proj-matrix-orthonormal}
+#### Projection Matrix in Terms of $Q$
 The projection $\hat{y}$ can be written as:
 
 $$
@@ -879,26 +912,27 @@ $$
 We have defined the projection matrix as $P = X(X'X)^{-1}X'$ (or $P=QQ'$ for orthonormal bases). All orthogonal projection matrices share two fundamental algebraic properties.
 
 ::: {#thm-projection-properties}
-### Properties of Projection Matrices
+#### Symmeticity and Idempotence
 A square matrix $P$ represents an orthogonal projection onto some subspace if and only if it satisfies:
 
 1.  **Idempotence:** $P^2 = P$ (Applying the projection twice is the same as applying it once).
 2.  **Symmetry:** $P' = P$.
 :::
 
-**Proof of Idempotence:**
+:::{.proof}
 If $\hat{y} = Py$ is already in the subspace $Col(X)$, then projecting it again should not change it.
 $$
 P(Py) = Py \implies P^2 y = Py \quad \forall y
 $$
 Thus, $P^2 = P$.
+:::
 
 **Example: ANOVA (Analysis of Variance)**
 
 One of the most common applications of projection is in Analysis of Variance (ANOVA). We can view the calculation of group means as a projection onto a subspace defined by group indicator variables.
 
 ::: {#exm-anova-projection}
-### ANOVA as Projection
+#### Finding Projection for One-way ANOVA
 Consider a one-way ANOVA model:
 $$
 y_{ij} = \mu_i + \epsilon_{ij}
@@ -918,7 +952,7 @@ Since the indicators are orthogonal, this simplifies to calculating the mean for
 
 
 
-**Gram-Schmidt Process**
+### Gram-Schmidt Process
 
 To use the simplified formula $P = QQ'$, we need an orthonormal basis. The Gram-Schmidt process provides a method to construct such a basis from any set of linearly independent vectors.
 
