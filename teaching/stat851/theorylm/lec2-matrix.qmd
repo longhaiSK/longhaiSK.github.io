@@ -721,10 +721,74 @@ P_A - P_B = 0 \implies P_A = P_B
 $$
 :::
 
+## The Left Inverse View: Recovering $\hat{\beta}$ from $\hat{y}$
+
+While the geometric properties of the linear model are most naturally established via the unique orthogonal projection $\hat{y}$, we require a functional mapping—a statistical "bridge"—to translate the distribution of these fitted values back into the parameter space of $\hat{\beta}$. This bridge is provided by the generalized left inverse.
+
+### The Generalized Left Inverse
+
+To recover the parameter estimates directly from the fitted values, we define the generalized left inverse, denoted as $X_{\text{left}}^-$, such that:
+
+$$
+\hat{\beta} = X_{\text{left}}^- \hat{y}
+$$
+
+A standard choice for this operator, derived from the normal equations, is:
+
+$$
+X_{\text{left}}^- = (X' X)^- X'
+$$
+
+When $X$ is full-rank, the $X_{\text{left}}^-$ is unique, which is given by 
+
+$$
+X_{\text{left}}^- = (X' X)^{-1} X'
+$$
+
+### Verification of the Inverse Property
+
+To verify that $X_{\text{left}}^-$ acts as a valid generalized inverse of $X$, it must satisfy the condition $X X_{\text{left}}^- X = X$. Substituting our definition:
+
+$$
+X \underbrace{\left[ (X' X)^- X' \right]}_{X_{\text{left}}^-} X = X (X' X)^- (X' X)
+$$
+
+Using the property of generalized inverses for symmetric matrices where $(X' X)(X' X)^- X' = X'$, the transpose of this identity gives $X (X' X)^- (X' X) = X$. Thus, the condition holds:
+
+$$
+X X_{\text{left}}^- X = X
+$$
+
+### Recovering the Estimator
+
+We can now demonstrate that applying this left inverse to the fitted values $\hat{y}$ yields the standard solution to the normal equations.
+
+Substituting the projection formula $\hat{y} = X(X' X)^- X' y$:
+
+$$
+\begin{aligned}
+X_{\text{left}}^- \hat{y} &= \left[ (X' X)^- X' \right] \left[ X(X' X)^- X' y \right] \\
+&= (X' X)^- \underbrace{(X' X) (X' X)^- (X' X)}_{\text{Property } A A^- A = A} (X' X)^- X' y
+\end{aligned}
+$$
+
+Simplifying using the generalized inverse property $A^- A A^- = A^-$ (where $A = X' X$):
+
+$$
+\begin{aligned}
+X_{\text{left}}^- \hat{y} &= \underbrace{(X' X)^- (X' X) (X' X)^-}_{(X' X)^-} X' y \\
+&= (X' X)^- X' y
+\end{aligned}
+$$
+
+Thus, we recover the standard estimator used in the normal equations:
+
+$$
+\mathbf{\hat{\beta} = (X' X)^- X' y}
+$$
 
 
-
-### Non-full-rank Least Squares with QR Decomposition
+## Non-full-rank Least Squares with QR Decomposition
 
 When $X$ has rank $r < p$ (where $X$ is $n \times p$), we can derive the least squares estimator using partitioned matrices.
 
@@ -743,7 +807,7 @@ $$
 \begin{pmatrix} R_1'R_1 & R_1'R_2 \\ R_2'R_1 & R_2'R_2 \end{pmatrix} \beta = \begin{pmatrix} R_1'Q'y \\ R_2'Q'y \end{pmatrix}
 $$
 
-#### Constructing a Solution by Solving Normal Equations
+### Constructing a Solution by Solving Normal Equations
 
 
 One specific generalized inverse of $X'X$ can be found by focusing on the non-singular block $R_1'R_1$:
@@ -766,7 +830,7 @@ $$
 This confirms that $\hat{y}$ is the projection of $y$ onto the column space of $Q$ (which is the same as the column space of $X$).
 
 
-#### Constructing a Solution by Solving Reparametrized $\beta$
+### Constructing a Solution by Solving Reparametrized $\beta$
 
 We can view the model as:
 $$
