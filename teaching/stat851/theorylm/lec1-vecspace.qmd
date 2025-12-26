@@ -39,7 +39,7 @@ extract_page_image <- function(page_num, filename, geometry = "1200x800+0+200", 
 
 ## Vector and Projection onto a Line
 
-### **Vectors and Operations**
+### Vectors and Operations
 
 The concept of a vector is fundamental to linear algebra and linear models. We begin by formally defining what a vector is in the context of Euclidean space.
 
@@ -67,7 +67,7 @@ $$
 The difference $d = y - x$ is the vector that "closes the triangle" formed by $x$ and $y$. It represents the displacement vector that connects the tip of $x$ to the tip of $y$, such that $x + d = y$.
 :::
 
-### **Scalar Multiplication and Distance**
+### Scalar Multiplication and Distance
 
 In addition to combining vectors with each other, we can modify a single vector using a real number, known as a scalar.
 
@@ -93,7 +93,7 @@ $$
 $$
 :::
 
-### **Angle and Inner Product**
+### Angle and Inner Product
 
 To understand the relationship between two vectors $x$ and $y$ beyond just their lengths, we must look at the angle between them. Consider the triangle formed by the vectors $x$, $y$, and their difference $y-x$. By applying the classic **Law of Cosines** to this triangle, we can relate the geometric angle to the vector lengths.
 
@@ -145,7 +145,7 @@ $$
 x'y = ||x|| \cdot ||y|| \cos \theta
 $$
 
-### **Coordinate (Scalar) Projection**
+### Coordinate (Scalar) Projection
 
 The inner product allows us to calculate projections, which quantify how much of one vector "lies along" another. If we rearrange the cosine formula derived above, we can isolate the term that represents the length of the "shadow" cast by vector $y$ onto vector $x$.
 
@@ -161,7 +161,7 @@ $$
 \text{Scalar Projection} = \left\langle \frac{x}{||x||}, y \right\rangle
 $$
 
-### **Vector Projection Formula**
+### Vector Projection Formula
 
 The scalar projection only gives us a magnitude (a number). To define the projection as a vector in the same space, we need to multiply this scalar magnitude by the direction of the vector we are projecting onto.
 
@@ -183,7 +183,7 @@ $$
 $$
 :::
 
-### **Perpendicularity (Orthogonality)**
+### Perpendicularity (Orthogonality)
 
 A special case of the angle between vectors arises when $\theta = 90^\circ$. This geometric concept of perpendicularity is central to the theory of projections and least squares.
 
@@ -207,7 +207,7 @@ $$
 Since their inner product is zero, these vectors are orthogonal to each other.
 :::
 
-### **Projection onto a Line (Subspace)**
+### Projection onto a Line (Subspace)
 
 We can generalize the concept of projecting onto a single vector to projecting onto the entire line (a 1-dimensional subspace) defined by that vector.
 
@@ -265,7 +265,7 @@ This second form separates the components into: $$
 $$
 :::
 
-### **Projection Matrix (**$P_x$)
+### Projection Matrix ($P_x$)
 
 In linear models, it is often more convenient to view projection as a linear transformation applied to the vector $y$. This allows us to define a **Projection Matrix**.
 
@@ -291,7 +291,6 @@ $$
 If $x \in \mathbb{R}^p$, then $P_x$ is a $p \times p$ symmetric matrix.
 :::
 
-**Example: Projection in** $\mathbb{R}^2$
 
 Let's apply these concepts to a concrete example.
 
@@ -341,7 +340,7 @@ $$
 Thus, replacing a data vector with its mean vector is geometrically equivalent to projecting the data onto the line spanned by the vector of ones.
 :::
 
-### **Pythagorean Theorem**
+### Pythagorean Theorem
 
 The Pythagorean theorem generalizes from simple geometry to vector spaces using the concept of orthogonality defined by the inner product.
 
@@ -352,7 +351,6 @@ $$
 ||x + y||^2 = ||x||^2 + ||y||^2
 $$
 :::
-
 
 ::: {.callout-note collapse="true" icon="false" title="Proof"}
 We expand the squared norm using the inner product:
@@ -372,54 +370,39 @@ $$
 $$
 :::
 
-The proof after defining inner product to represent $\cos(\theta)$ is trivival. @fig-pythagoras-proof shows a geometric proof of the fundamental Pythagorean Theorem (aka **勾股定理**). 
+The proof after defining inner product to represent $\cos(\theta)$ is trivival. @fig-pythagoras-proof shows a geometric proof of the fundamental Pythagorean Theorem (aka **勾股定理**).
+
 ```{tikz}
 #| label: fig-pythagoras-proof
-#| fig-cap: "Geometric Proof of Pythagorean Theorem using Similar Triangles"
+#| fig-cap: "Proof of Pythagorean Theorem using Area Scaling"
 #| echo: false
 
 \begin{tikzpicture}[
-    scale=1.2,
+    scale=1,
     >=latex,
     font=\small
 ]
 
-% Define base dimensions (3-4-5 triangle)
-\def\a{3}
-\def\b{4}
-\def\c{5}
-\def\angleA{36.87} % asin(3/5)
-\def\angleB{53.13} % asin(4/5)
+% Define base angle
+\def\angleB{53.13} 
 
-% --- PART 1: The Decomposed Triangle (Top) ---
+% --- PART 1: The Decomposed Triangle (Left Side) ---
+\begin{scope}[shift={(0, 1.5)}] % Shifted up slightly to center vertically with right side
+    % Coordinates for 3-4-5 triangle on hypotenuse
+    \coordinate (A) at (0,0);       
+    \coordinate (B) at (5,0);       
+    \coordinate (C) at (1.8, 2.4);  
+    \coordinate (H) at (1.8, 0);    
 
-\begin{scope}[shift={(0, 3)}]
-    % Coordinates for a standard right triangle resting on hypotenuse
-    % We rotate it so hypotenuse is horizontal to match standard proof visualization
-    % Or we can stick to legs-axis aligned. Let's do legs-axis for clarity of coordinates
-    % but rotated slightly to look like the sketch.
-    
-    % Let's define the triangle ABC where C is the right angle.
-    % To calculate the altitude split easily, we place the hypotenuse on the x-axis.
-    % Coordinate calculation for a 3-4-5 triangle sitting on hypotenuse:
-    % Altitude h = 2.4. 
-    % Projection of leg 3 (a) is 1.8.
-    % Projection of leg 4 (b) is 3.2.
-    
-    \coordinate (A) at (0,0);       % Left vertex
-    \coordinate (B) at (5,0);       % Right vertex
-    \coordinate (C) at (1.8, 2.4);  % Top vertex (Right Angle)
-    \coordinate (H) at (1.8, 0);    % Foot of altitude
-
-    % Draw S1 (Left sub-triangle) - The "a" triangle
+    % Draw S1 (Left)
     \fill[yellow!20] (A) -- (H) -- (C) -- cycle;
     \draw[thick, orange] (A) -- (H) -- (C) -- cycle;
     
-    % Draw S2 (Right sub-triangle) - The "b" triangle
+    % Draw S2 (Right)
     \fill[green!20] (H) -- (B) -- (C) -- cycle;
     \draw[thick, green!60!black] (H) -- (B) -- (C) -- cycle;
 
-    % Outline the main triangle S
+    % Outline main S
     \draw[thick, red] (A) -- (B) -- (C) -- cycle;
 
     % Labels
@@ -427,27 +410,32 @@ The proof after defining inner product to represent $\cos(\theta)$ is trivival. 
     \node at (3.5, 1.3) [green!60!black] {$b$};
     \node at (2.5, -0.3) [red] {$c$};
     
-    % Area labels inside
     \node at (1.2, 0.8) {$S_1$};
     \node at (2.4, 0.8) {$S_2$};
 
-    % Right angle markers
-    \draw (1.8, 0) -- (1.8, 0.2) -- (1.6, 0.2); % At altitude
-    % Note: The top angle at C is 90, but split. 
-
-    % Equation to the right
-    \node[anchor=west] at (6, 1.5) {\Large $S = S_1 + S_2$};
+    % Right angle marker
+    \draw (1.8, 0) -- (1.8, 0.2) -- (1.6, 0.2); 
 \end{scope}
 
-% --- PART 2: The Exploded Similar Triangles (Bottom) ---
+% --- PART 2: The Equations (Under the Left Triangle) ---
+\begin{scope}[shift={(0, -1.0)}]
+    \node[right, align=left] at (0,0) {
+        $S = S_1 + S_2$ \\[0.8em]
+        $c^2 \cdot k = a^2 \cdot k + b^2 \cdot k$ \\[0.8em]
+        $\Rightarrow \mathbf{c^2 = a^2 + b^2}$ \\[1.0em]
+        \scriptsize where $k = \frac{1}{2}\sin\theta\cos\theta$
+    };
+\end{scope}
 
-\begin{scope}[shift={(0, -1)}]
-    % We draw three triangles oriented identically to show similarity
-    % Orientation: Hypotenuse at bottom, angle theta at left.
+% --- PART 3: The Exploded Triangles (Right Side - Center Aligned) ---
+% Center axis x=8.5 (relative to origin)
+\begin{scope}[shift={(8.5, 0)}]
     
-    % -- Triangle S1 (Scaled by a/c = 0.6) --
-    \begin{scope}[shift={(0,0)}]
-        \def\k{0.6} % Scale factor
+    % -- Triangle S1 (Top) --
+    % Width = 3 (5*0.6), Height = 1.44
+    % Shift x by -width/2 = -1.5 to center
+    \begin{scope}[shift={(-1.5, 4.5)}] 
+        \def\k{0.6}
         \coordinate (s1A) at (0,0);
         \coordinate (s1B) at (5*\k, 0);
         \coordinate (s1C) at (1.8*\k, 2.4*\k);
@@ -455,16 +443,17 @@ The proof after defining inner product to represent $\cos(\theta)$ is trivival. 
         \fill[yellow!20] (s1A) -- (s1B) -- (s1C) -- cycle;
         \draw[thick, orange] (s1A) -- (s1B) -- (s1C) -- cycle;
         
-        % Labels
-        \node[below] at (2.5*\k, 0) {$a$};
-        \node at (1.5, -0.8) {\large $S_1$};
-        \draw (0.3,0) arc (0:\angleB:0.3); % Theta angle
-        \node at (0.5, 0.2) {\tiny $\theta$};
+        \draw (0.3,0) arc (0:\angleB:0.3); \node at (0.5, 0.2) {\tiny $\theta$};
+        
+        % Label below centered
+        \node[below] at (2.5*\k, -0.2) {$S_1 = a^2 \cdot k$};
     \end{scope}
 
-    % -- Triangle S2 (Scaled by b/c = 0.8) --
-    \begin{scope}[shift={(3.5,0)}]
-        \def\k{0.8} % Scale factor
+    % -- Triangle S2 (Middle) --
+    % Width = 4 (5*0.8), Height = 1.92
+    % Shift x by -width/2 = -2.0 to center
+    \begin{scope}[shift={(-2.0, 1.0)}] 
+        \def\k{0.8}
         \coordinate (s2A) at (0,0);
         \coordinate (s2B) at (5*\k, 0);
         \coordinate (s2C) at (1.8*\k, 2.4*\k);
@@ -472,16 +461,17 @@ The proof after defining inner product to represent $\cos(\theta)$ is trivival. 
         \fill[green!20] (s2A) -- (s2B) -- (s2C) -- cycle;
         \draw[thick, green!60!black] (s2A) -- (s2B) -- (s2C) -- cycle;
         
-        % Labels
-        \node[below] at (2.5*\k, 0) {$b$};
-        \node at (2, -0.8) {\large $S_2$};
-        \draw (0.3,0) arc (0:\angleB:0.3);
-        \node at (0.5, 0.2) {\tiny $\theta$};
+        \draw (0.3,0) arc (0:\angleB:0.3); \node at (0.5, 0.2) {\tiny $\theta$};
+        
+        % Label below centered
+        \node[below] at (2.5*\k, -0.2) {$S_2 = b^2 \cdot k$};
     \end{scope}
 
-    % -- Triangle S (Original scale = 1.0) --
-    \begin{scope}[shift={(8,0)}]
-        \def\k{1.0} % Scale factor
+    % -- Triangle S (Bottom) --
+    % Width = 5 (5*1.0), Height = 2.4
+    % Shift x by -width/2 = -2.5 to center
+    \begin{scope}[shift={(-2.5, -3.0)}] 
+        \def\k{1.0} 
         \coordinate (sA) at (0,0);
         \coordinate (sB) at (5*\k, 0);
         \coordinate (sC) at (1.8*\k, 2.4*\k);
@@ -489,34 +479,18 @@ The proof after defining inner product to represent $\cos(\theta)$ is trivival. 
         \fill[red!5] (sA) -- (sB) -- (sC) -- cycle;
         \draw[thick, red] (sA) -- (sB) -- (sC) -- cycle;
         
-        % Labels
-        \node[below] at (2.5*\k, 0) {$c$};
-        \node at (2.5, -0.8) {\large $S$};
-        \draw (0.3,0) arc (0:\angleB:0.3);
-        \node at (0.5, 0.2) {\tiny $\theta$};
+        \draw (0.3,0) arc (0:\angleB:0.3); \node at (0.5, 0.2) {\tiny $\theta$};
+        
+        % Label below centered
+        \node[below] at (2.5*\k, -0.2) {$S = c^2 \cdot k$};
     \end{scope}
-\end{scope}
 
-% --- PART 3: The Proof Text (Bottom) ---
-\begin{scope}[shift={(0, -3.5)}]
-    \node[right, align=left] at (0, 0) {
-        Since the triangles are similar, their areas are proportional to the squares of their corresponding sides (the hypotenuses):\\
-        $S_1 = a^2 \cdot k$\\
-        $S_2 = b^2 \cdot k$\\
-        $S \phantom{_1} = c^2 \cdot k \quad \text{where } k = \frac{1}{2}\cos\theta\sin\theta$
-    };
-    
-    \node[right, align=left, color=blue!80!black] at (0, -2.0) {
-        Substituting into $S = S_1 + S_2$:\\
-        $c^2 \cdot k = a^2 \cdot k + b^2 \cdot k$\\
-        $\Rightarrow \mathbf{c^2 = a^2 + b^2}$
-    };
 \end{scope}
 
 \end{tikzpicture}
 ```
 
-### **Least Square Property**
+### Least Square Property
 
 One of the most important properties of the orthogonal projection is that it minimizes the distance between the vector $y$ and the subspace (or line) onto which it is projected.
 
@@ -548,7 +522,7 @@ Since $||\hat{y} - y^*||^2 \ge 0$, it follows that: $$
 $$
 :::
 
-## General Vector Space
+## Vector Space
 
 We now generalize our discussion from lines to broader spaces.
 
@@ -561,7 +535,7 @@ A set $V \subseteq \mathbb{R}^n$ is called a **Vector Space** if it is closed un
 
 It follows that the zero vector $0$ must belong to any subspace (by choosing $c=0$).
 
-**Spanned Vector Space**
+### Spanned Vector Space
 
 The most common way to construct a vector space in linear models is by spanning it with a set of vectors.
 
@@ -573,7 +547,7 @@ L(x_1, \dots, x_p) = \{ r \mid r = c_1 x_1 + \dots + c_p x_p, \text{ for } c_i \
 $$
 :::
 
-**Column Space and Row Space**
+### Column Space and Row Space
 
 When vectors are arranged into a matrix, we define specific spaces based on their columns and rows.
 
@@ -589,7 +563,7 @@ $$
 The **Row Space**, denoted $\text{Row}(X)$, is the vector space spanned by the rows of the matrix $X$.
 :::
 
-**Linear Independence and Rank**
+### Linear Independence and Rank
 
 Not all vectors in a spanning set contribute new dimensions to the space. This concept is captured by linear independence.
 
@@ -669,7 +643,7 @@ $$ This confirms that Row Rank (2) $\ge$ Column Rank. (By symmetry, they are equ
     $$
 :::
 
-**Orthogonality to a Subspace**
+### Orthogonality to a Subspace
 
 We can extend the concept of orthogonality from single vectors to entire subspaces.
 
@@ -689,7 +663,7 @@ V^\perp = \{ y \in \mathbb{R}^n \mid y \perp V \}
 $$
 :::
 
-**Kernel (Null Space) and Image**
+### Kernel (Null Space) and Image
 
 For a matrix transformation defined by $X$, we define two key spaces: the Image (Column Space) and the Kernel (Null Space).
 
@@ -717,7 +691,7 @@ Let $x \in \mathbb{R}^p$. $x \in \text{Ker}(X)$ if and only if $Xx = 0$. If we d
 $$ This means $x$ is orthogonal to every row of $X$. Since the rows span the row space $\text{Row}(X)$, being orthogonal to every generator $r_i$ implies $x$ is orthogonal to the entire space $\text{Row}(X)$. Thus, $\text{Ker}(X) = \{ x \mid x \perp \text{Row}(X) \} = [\text{Row}(X)]^\perp$.
 :::
 
-**Nullity Theorem**
+### Nullity Theorem
 
 There is a fundamental relationship between the dimensions of these spaces.
 
@@ -769,7 +743,7 @@ $$ $$
 $$
 :::
 
-**Rank Inequalities**
+### Rank Inequalities
 
 Understanding the bounds of the rank of matrix products is crucial for deriving properties of linear estimators.
 
@@ -813,7 +787,7 @@ From the previous theorem, we know $\text{Rank}(AX) \le \text{Rank}(X)$. Since $
 $$ Thus, $\text{Rank}(AX) = \text{Rank}(X)$.
 :::
 
-**Rank of** $X'X$ and $XX'$
+### Rank of $X'X$ and $XX'$
 
 The matrix $X'X$ (the Gram matrix) appears in the normal equations for least squares ($X'X\beta = X'y$). Its properties are closely tied to $X$.
 
