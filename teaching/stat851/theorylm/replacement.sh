@@ -15,3 +15,5 @@
 # regexrepl.py lec3-mvn.qmd \
 # '(:::\s*\{[^}]+)\}\s*\n\s*#{1,6}\s+(.+)' \
 # '\1 name="\2"}'
+
+regexrepl.py lec3*.qmd '\:\:\:\s*\{\.proof\}' '::: {.callout-note collapse="true" icon="false" title="Proof"}'
