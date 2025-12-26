@@ -444,7 +444,7 @@ $$
     $$
 :::
 
-### A General Procedure to Find a Generalized Inverse
+### A Procedure to Find a Generalized Inverse
 
 If we can partition $X$ (possibly after permuting rows/columns) such that $R_{11}$ is a non-singular rank $r$ submatrix:
 
@@ -607,7 +607,9 @@ Thus, $X^-c$ is a solution. Note that the solution is not unique if $X$ is not f
   $$
 :::
 
-## Least Squares with Generalized Inverse
+
+
+## Least Squares for Non-full-rank $X$ with Generalized Inverse
 
 ### Projection Matrix with Generalized Inverse of $X'X$
 
@@ -720,8 +722,39 @@ $$
 :::
 
 
+### "Left Inverse" to Recover $\hat \beta$ from $\hat y$
 
-### Fitting Linear Models with QR Decomposition
+To recover the parameter estimates  directly from the fitted values , we define a generalized left inverse, denoted as .
+
+#### 1. Expression for 
+
+Starting with the definition of the fitted values , we apply the left inverse to "undo" the mapping from parameter space to observation space:
+
+
+#### 2. Expression of  and Verification
+
+A standard choice for , derived from the normal equations, is:
+
+
+To verify that this is a valid generalized inverse of , it must satisfy the condition :
+
+
+
+By the properties of generalized inverses, specifically that , we can see that:
+
+
+
+Thus, the condition is satisfied, and  is a valid generalized left inverse.
+
+#### 3. Showing 
+
+We can now demonstrate that applying this left inverse to the unique orthogonal projection  returns the solution to the normal equations:
+
+Since  is a solution to , the term  simplifies to  (as  is in the row space of ). Therefore:
+
+
+
+### Non-full-rank Least Squares with QR Decomposition
 
 When $X$ has rank $r < p$ (where $X$ is $n \times p$), we can derive the least squares estimator using partitioned matrices.
 
@@ -742,7 +775,7 @@ $$
 
 #### Constructing a Solution by Solving Normal Equations
 
-::: {.callout-note collapse="true" icon="false" title="Proof"}
+
 One specific generalized inverse of $X'X$ can be found by focusing on the non-singular block $R_1'R_1$:
 $$
 (X'X)^- = \begin{pmatrix} (R_1'R_1)^{-1} & 0 \\ 0 & 0 \end{pmatrix}
@@ -761,7 +794,7 @@ $$
 \hat{y} = X\hat{\beta} = Q(R_1, R_2) \begin{pmatrix} R_1^{-1} Q'y \\ 0 \end{pmatrix} = Q R_1 R_1^{-1} Q'y = QQ'y
 $$
 This confirms that $\hat{y}$ is the projection of $y$ onto the column space of $Q$ (which is the same as the column space of $X$).
-:::
+
 
 #### Constructing a Solution by Solving Reparametrized $\beta$
 
@@ -781,7 +814,7 @@ $$
 R_1\beta_1 + R_2\beta_2 = \hat{b} = Q'y
 $$
 
-::: {.callout-note collapse="true" icon="false" title="Proof"}
+
 **Solution 1:**
 Set $\beta_2 = 0$. Then:
 $$
@@ -798,9 +831,10 @@ $$
 \hat{\beta} = R^- Q'y = \begin{pmatrix} R_1^{-1}Q'y \\ 0 \end{pmatrix}
 $$
 This demonstrates that finding a solution to the normal equations using $(X'X)^-$ is equivalent to solving the reparameterized system $b = R\beta$.
-:::
 
-----
+
+
+
 
 
 
