@@ -1,0 +1,1717 @@
+---
+title: "Projection in Vector Space"
+---
+
+
+
+## Vector and Projection onto a Line
+
+**Vectors and Operations**
+
+The concept of a vector is fundamental to linear algebra and linear models. We begin by formally defining what a vector is in the context of Euclidean space.
+
+::: {#def-vector name="Vector"}
+A **vector** $x$ is defined as a point in $n$-dimensional space ($\mathbb{R}^n$). It is typically represented as a column vector containing $n$ real-valued components:
+
+$$
+x = \begin{pmatrix} x_1 \\ x_2 \\ \vdots \\ x_n \end{pmatrix}
+$$
+:::
+
+Vectors are not just static points; they can be combined and manipulated. The two most basic geometric operations are addition and subtraction.
+
+**Vector Arithmetic:**
+Vectors can be manipulated geometrically:
+
+::: {#def-vector-addition name="Vector Addition"}
+The sum of two vectors $x$ and $y$ creates a new vector. The operation is performed component-wise, adding corresponding elements from each vector. Geometrically, this follows the "parallelogram rule" or the "head-to-tail" method, where you place the tail of $y$ at the head of $x$.
+
+$$
+x + y = \begin{pmatrix} x_1 + y_1 \\ \vdots \\ x_n + y_n \end{pmatrix}
+$$
+:::
+
+::: {#def-vector-subtraction name="Vector Subtraction"}
+The difference $d = y - x$ is the vector that "closes the triangle" formed by $x$ and $y$. It represents the displacement vector that connects the tip of $x$ to the tip of $y$, such that $x + d = y$.
+:::
+
+
+**Scalar Multiplication and Length**
+
+In addition to combining vectors with each other, we can modify a single vector using a real number, known as a scalar.
+
+::: {#def-scalar-mult name="Scalar Multiplication"}
+Multiplying a vector by a scalar $c$ scales its magnitude (length) without changing its line of direction. If $c$ is positive, the direction remains the same; if $c$ is negative, the direction is reversed.
+
+$$
+cx = \begin{pmatrix} cx_1 \\ \vdots \\ cx_n \end{pmatrix}
+$$
+:::
+
+We often need to quantify the "size" of a vector. This is done using the concept of length, or norm.
+
+::: {#def-euclidean-distance name="Euclidean Distance (Length)"}
+The length (or norm) of a vector $x = (x_1, \dots, x_n)^T$ corresponds to the straight-line distance from the origin to the point defined by $x$. It is defined as the square root of the sum of squared components:
+
+$$
+||x||^2 = \sum_{i=1}^n x_i^2
+$$
+
+$$
+||x|| = \sqrt{\sum_{i=1}^n x_i^2}
+$$
+:::
+
+**Angle and Inner Product**
+
+To understand the relationship between two vectors $x$ and $y$ beyond just their lengths, we must look at the angle between them. Consider the triangle formed by the vectors $x$, $y$, and their difference $y-x$. By applying the classic **Law of Cosines** to this triangle, we can relate the geometric angle to the vector lengths.
+
+::: {#thm-law-of-cosines name="Law of Cosines"}
+For a triangle with sides $a, b, c$ and angle $\theta$ opposite to side $c$:
+
+$$
+c^2 = a^2 + b^2 - 2ab \cos \theta
+$$
+:::
+
+Translating this geometric theorem into vector notation where the side lengths correspond to the norms of the vectors, we get:
+
+$$
+||y - x||^2 = ||x||^2 + ||y||^2 - 2||x|| \cdot ||y|| \cos \theta
+$$
+
+This equation provides a critical link between the geometric angle $\theta$ and the algebraic norms of the vectors.
+
+**Derivation of Inner Product**
+
+We can express the squared distance term $||y - x||^2$ purely algebraically by expanding the components:
+
+$$
+||y - x||^2 = \sum_{i=1}^n (x_i - y_i)^2
+$$
+
+$$
+= \sum_{i=1}^n (x_i^2 + y_i^2 - 2x_i y_i)
+$$
+
+$$
+= ||x||^2 + ||y||^2 - 2 \sum_{i=1}^n x_i y_i
+$$
+
+By comparing this expanded form with the result from the Law of Cosines derived previously, we can identify a corresponding interaction term. This term is so important that we give it a special name: the **Inner Product** (or dot product).
+
+::: {#def-inner-product name="Inner Product"}
+The inner product of two vectors $x$ and $y$ is defined as the sum of the products of their corresponding components:
+
+$$
+x'y = \sum_{i=1}^n x_i y_i = \langle x, y \rangle
+$$
+:::
+
+Thus, equating the geometric and algebraic forms yields the fundamental relationship:
+
+$$
+x'y = ||x|| \cdot ||y|| \cos \theta
+$$
+
+**Coordinate (Scalar) Projection**
+
+The inner product allows us to calculate projections, which quantify how much of one vector "lies along" another. If we rearrange the cosine formula derived above, we can isolate the term that represents the length of the "shadow" cast by vector $y$ onto vector $x$.
+
+The length of this projection is given by:
+
+$$
+||y|| \cos \theta = \frac{x'y}{||x||}
+$$
+
+This expression can be interpreted as the inner product of $y$ with the normalized (unit) vector in the direction of $x$:
+
+$$
+\text{Scalar Projection} = \left\langle \frac{x}{||x||}, y \right\rangle
+$$
+
+**Vector Projection Formula**
+
+The scalar projection only gives us a magnitude (a number). To define the projection as a vector in the same space, we need to multiply this scalar magnitude by the direction of the vector we are projecting onto.
+
+::: {#def-vector-projection name="Vector Projection"}
+The projection of vector $y$ onto vector $x$, denoted $\hat{y}$, is calculated as:
+
+$$
+\text{Projection Vector} = (\text{Length}) \cdot (\text{Direction})
+$$
+
+$$
+\hat{y} = \left( \frac{x'y}{||x||} \right) \cdot \frac{x}{||x||}
+$$
+
+This is often written compactly by combining the denominators:
+
+$$
+\hat{y} = \frac{x'y}{||x||^2} x
+$$
+:::
+
+**Perpendicularity (Orthogonality)**
+
+A special case of the angle between vectors arises when $\theta = 90^\circ$. This geometric concept of perpendicularity is central to the theory of projections and least squares.
+
+::: {#def-perpendicularity name="Perpendicularity"}
+Two vectors are defined as **perpendicular** (or orthogonal) if the angle between them is $90^\circ$ ($\pi/2$).
+
+Since $\cos(90^\circ) = 0$, the condition for orthogonality simplifies to the inner product being zero:
+
+$$
+x'y = 0 \iff x \perp y
+$$
+:::
+
+::: {#exm-orthogonal-vectors name="Orthogonal Vectors"}
+Consider two vectors in $\mathbb{R}^2$: $x = (1, 1)'$ and $y = (1, -1)'$.
+
+$$
+x'y = 1(1) + 1(-1) = 1 - 1 = 0
+$$
+
+Since their inner product is zero, these vectors are orthogonal to each other.
+:::
+
+**Projection onto a Line (Subspace)**
+
+We can generalize the concept of projecting onto a single vector to projecting onto the entire line (a 1-dimensional subspace) defined by that vector.
+
+::: {#def-line-space name="Line Spanned by a Vector"}
+The line space $L(x)$, or the space spanned by a vector $x$, is defined as the set of all scalar multiples of $x$:
+
+$$
+L(x) = \{ cx \mid c \in \mathbb{R} \}
+$$
+:::
+
+The projection of $y$ onto $L(x)$, denoted $\hat{y}$, is defined by the geometric property that it is the closest point on the line to $y$. This implies that the error vector (or residual) must be perpendicular to the line itself.
+
+::: {#def-projection-line name="Projection onto a Line"}
+A vector $\hat{y}$ is the projection of $y$ onto the line $L(x)$ if:
+
+1. $\hat{y}$ lies on the line $L(x)$ (i.e., $\hat{y} = cx$ for some scalar $c$).
+
+2. The residual vector $(y - \hat{y})$ is perpendicular to the direction vector $x$.
+:::
+
+**Derivation:**
+To find the value of the scalar $c$, we apply the orthogonality condition:
+
+$$
+(y - \hat{y}) \perp x \implies x'(y - cx) = 0
+$$
+
+Expanding this inner product gives:
+
+$$
+x'y - c(x'x) = 0
+$$
+
+Solving for $c$, we obtain:
+
+$$
+c = \frac{x'y}{||x||^2}
+$$
+
+This confirms the formula derived previously using the inner product geometry. It shows that the least squares principle (shortest distance) leads to the same result as the geometric projection.
+
+**Alternative Forms of the Projection Formula**
+
+We can express the projection vector $\hat{y}$ in several equivalent ways to highlight different geometric interpretations.
+
+::: {#def-projection-formulae name="Forms of Projection"}
+The projection of $y$ onto the vector $x$ is given by:
+
+$$
+\hat{y} = \frac{x'y}{||x||^2} x = \left\langle y, \frac{x}{||x||} \right\rangle \frac{x}{||x||}
+$$
+
+This second form separates the components into:
+$$
+\text{Projection} = (\text{Scalar Projection}) \times (\text{Unit Direction})
+$$
+:::
+
+**Projection Matrix ($P_x$)**
+
+In linear models, it is often more convenient to view projection as a linear transformation applied to the vector $y$. This allows us to define a **Projection Matrix**.
+
+We can rewrite the formula for $\hat{y}$ by factoring out $y$:
+
+$$
+\hat{y} = \text{proj}(y|x) = x \frac{x'y}{||x||^2} = \frac{xx'}{||x||^2} y
+$$
+
+This leads to the definition of the projection matrix $P_x$.
+
+::: {#def-projection-matrix name="Projection Matrix onto a Single Vector"}
+The matrix $P_x$ that projects any vector $y$ onto the line spanned by $x$ is defined as:
+
+$$
+P_x = \frac{xx'}{||x||^2}
+$$
+
+Using this matrix, the projection is simply:
+$$
+\hat{y} = P_x y
+$$
+
+If $x \in \mathbb{R}^p$, then $P_x$ is a $p \times p$ symmetric matrix.
+:::
+
+**Example: Projection in $\mathbb{R}^2$**
+
+Let's apply these concepts to a concrete example.
+
+::: {#exm-projection-r2 name="Numerical Projection"}
+Let $y = (1, 3)'$ and $x = (1, 1)'$. We want to find the projection of $y$ onto $x$.
+
+**Method 1: Using the Vector Formula**
+First, calculate the inner products:
+$$
+x'y = 1(1) + 1(3) = 4
+$$
+$$
+||x||^2 = 1^2 + 1^2 = 2
+$$
+
+Now, apply the formula:
+$$
+\hat{y} = \frac{4}{2} \begin{pmatrix} 1 \\ 1 \end{pmatrix} = 2 \begin{pmatrix} 1 \\ 1 \end{pmatrix} = \begin{pmatrix} 2 \\ 2 \end{pmatrix}
+$$
+
+**Method 2: Using the Projection Matrix**
+Construct the matrix $P_x$:
+$$
+P_x = \frac{1}{2} \begin{pmatrix} 1 \\ 1 \end{pmatrix} \begin{pmatrix} 1 & 1 \end{pmatrix} = \frac{1}{2} \begin{pmatrix} 1 & 1 \\ 1 & 1 \end{pmatrix} = \begin{pmatrix} 0.5 & 0.5 \\ 0.5 & 0.5 \end{pmatrix}
+$$
+
+Multiply by $y$:
+$$
+\hat{y} = P_x y = \begin{pmatrix} 0.5 & 0.5 \\ 0.5 & 0.5 \end{pmatrix} \begin{pmatrix} 1 \\ 3 \end{pmatrix} = \begin{pmatrix} 0.5(1) + 0.5(3) \\ 0.5(1) + 0.5(3) \end{pmatrix} = \begin{pmatrix} 2 \\ 2 \end{pmatrix}
+$$
+:::
+
+**Example: Projection onto the Mean Vector**
+
+A very common operation in statistics is calculating the sample mean. This can be viewed geometrically as a projection onto a specific vector.
+
+::: {#exm-mean-projection name="Projection onto the "One" Vector"}
+Let $y = (y_1, \dots, y_n)'$ be a data vector.
+Let $j_n = (1, 1, \dots, 1)'$ be a vector of all ones.
+
+The projection of $y$ onto $j_n$ is:
+$$
+\text{proj}(y|j_n) = \frac{j_n' y}{||j_n||^2} j_n
+$$
+
+Calculating the components:
+$$
+j_n' y = \sum_{i=1}^n y_i \quad \text{(Sum of observations)}
+$$
+$$
+||j_n||^2 = \sum_{i=1}^n 1^2 = n
+$$
+
+Substituting these back:
+$$
+\hat{y} = \frac{\sum y_i}{n} j_n = \bar{y} j_n = \begin{pmatrix} \bar{y} \\ \vdots \\ \bar{y} \end{pmatrix}
+$$
+
+Thus, replacing a data vector with its mean vector is geometrically equivalent to projecting the data onto the line spanned by the vector of ones.
+:::
+
+**Pythagorean Theorem**
+
+The Pythagorean theorem generalizes from simple geometry to vector spaces using the concept of orthogonality defined by the inner product.
+
+::: {#thm-pythagorean name="Pythagorean Theorem"}
+If two vectors $x$ and $y$ are orthogonal (i.e., $x \perp y$ or $x'y = 0$), then the squared length of their sum is equal to the sum of their squared lengths:
+
+$$
+||x + y||^2 = ||x||^2 + ||y||^2
+$$
+:::
+
+::: {.proof}
+We expand the squared norm using the inner product:
+
+$$
+\begin{aligned}
+||x + y||^2 &= (x + y)' (x + y) \\
+&= x'x + x'y + y'x + y'y \\
+&= ||x||^2 + 2x'y + ||y||^2
+\end{aligned}
+$$
+
+Since $x \perp y$, the inner product $x'y = 0$. Thus, the term $2x'y$ vanishes, leaving:
+
+$$
+||x + y||^2 = ||x||^2 + ||y||^2
+$$
+:::
+
+
+
+![Pythagorean Theorem in Vector Space](lec1_images/page16_pythagoras.png){width=70%}
+
+**Least Square Property**
+
+One of the most important properties of the orthogonal projection is that it minimizes the distance between the vector $y$ and the subspace (or line) onto which it is projected.
+
+::: {#thm-shortest-distance name="Least Square Property"}
+Let $\hat{y}$ be the projection of $y$ onto the line $L(x)$. For any other vector $y^*$ on the line $L(x)$, the distance from $y$ to $y^*$ is always greater than or equal to the distance from $y$ to $\hat{y}$.
+
+$$
+||y - y^*|| \ge ||y - \hat{y}||
+$$
+:::
+
+::: {.proof}
+Since both $\hat{y}$ and $y^*$ lie on the line $L(x)$, their difference $(\hat{y} - y^*)$ also lies on $L(x)$.
+From the definition of projection, the residual $(y - \hat{y})$ is orthogonal to the line $L(x)$. Therefore:
+
+$$
+(y - \hat{y}) \perp (\hat{y} - y^*)
+$$
+
+We can write the vector $(y - y^*)$ as:
+$$
+y - y^* = (y - \hat{y}) + (\hat{y} - y^*)
+$$
+
+Applying the Pythagorean Theorem:
+$$
+||y - y^*||^2 = ||y - \hat{y}||^2 + ||\hat{y} - y^*||^2
+$$
+
+Since $||\hat{y} - y^*||^2 \ge 0$, it follows that:
+$$
+||y - y^*||^2 \ge ||y - \hat{y}||^2
+$$
+:::
+
+## General Vector Space
+
+We now generalize our discussion from lines to broader spaces.
+
+::: {#def-vector-space name="Vector Space"}
+A set $V \subseteq \mathbb{R}^n$ is called a **Vector Space** if it is closed under vector addition and scalar multiplication:
+
+1.  **Closed under Addition:** If $x_1 \in V$ and $x_2 \in V$, then $x_1 + x_2 \in V$.
+2.  **Closed under Scalar Multiplication:** If $x \in V$, then $cx \in V$ for any scalar $c \in \mathbb{R}$.
+:::
+
+It follows that the zero vector $0$ must belong to any subspace (by choosing $c=0$).
+
+**Spanned Vector Space**
+
+The most common way to construct a vector space in linear models is by spanning it with a set of vectors.
+
+::: {#def-spanned-space name="Spanned Vector Space"}
+Let $x_1, \dots, x_p$ be a set of vectors in $\mathbb{R}^n$. The space spanned by these vectors, denoted $L(x_1, \dots, x_p)$, is the set of all possible linear combinations of them:
+
+$$
+L(x_1, \dots, x_p) = \{ r \mid r = c_1 x_1 + \dots + c_p x_p, \text{ for } c_i \in \mathbb{R} \}
+$$
+:::
+
+
+**Column Space and Row Space**
+
+When vectors are arranged into a matrix, we define specific spaces based on their columns and rows.
+
+::: {#def-column-space name="Column Space"}
+For a matrix $X = (x_1, \dots, x_p)$, the **Column Space**, denoted $\text{Col}(X)$, is the vector space spanned by its columns:
+
+$$
+\text{Col}(X) = L(x_1, \dots, x_p)
+$$
+:::
+
+::: {#def-row-space name="Row Space"}
+The **Row Space**, denoted $\text{Row}(X)$, is the vector space spanned by the rows of the matrix $X$.
+:::
+
+**Linear Independence and Rank**
+
+Not all vectors in a spanning set contribute new dimensions to the space. This concept is captured by linear independence.
+
+::: {#def-linear-independence name="Linear Independence"}
+A set of vectors $x_1, \dots, x_p$ is said to be **Linearly Independent** if the only solution to the linear combination equation equal to zero is the trivial solution:
+
+$$
+\sum_{i=1}^p c_i x_i = 0 \implies c_1 = c_2 = \dots = c_p = 0
+$$
+
+If there exist non-zero $c_i$'s such that sum is zero, the vectors are **Linearly Dependent**.
+:::
+
+## Rank of Matrices and Dim of Vector Space
+
+::: {#def-rank name="Rank"}
+The **Rank** of a matrix $X$, denoted $\text{Rank}(X)$, is the maximum number of linearly independent columns in $X$. This is equivalent to the dimension of the column space:
+
+$$
+\text{Rank}(X) = \text{Dim}(\text{Col}(X))
+$$
+:::
+
+
+There are several fundamental properties regarding the rank of a matrix.
+
+
+::: {#exm-row-rank-equal-col-rank name="Example of the Equality of Row and Col Rank"}
+
+Consider the following $3 \times 4$ matrix ($n=3, p=4$):
+$$
+X = \begin{pmatrix} 
+1 & 0 & 1 & 0 \\ 
+0 & 1 & 0 & 1 \\ 
+1 & 1 & 1 & 1 
+\end{pmatrix}
+$$
+Notice that the third row is the sum of the first two ($r_3 = r_1 + r_2$).
+
+**1. Row Rank and Basis $U$**
+The first two rows are linearly independent. We set the row rank $r=2$ and use these rows as our basis matrix $U$ ($2 \times 4$):
+$$
+U = \begin{pmatrix} 
+1 & 0 & 1 & 0 \\ 
+0 & 1 & 0 & 1 
+\end{pmatrix}
+$$
+
+**2. Coefficient Matrix $C$**
+We express every row of $X$ as a linear combination of the rows of $U$:
+
+* Row 1: $1 \cdot u_1 + 0 \cdot u_2$
+* Row 2: $0 \cdot u_1 + 1 \cdot u_2$
+* Row 3: $1 \cdot u_1 + 1 \cdot u_2$
+
+These coefficients form the matrix $C$ ($3 \times 2$):
+$$
+C = \begin{pmatrix} 
+1 & 0 \\ 
+0 & 1 \\ 
+1 & 1 
+\end{pmatrix}
+$$
+
+**3. The Decomposition ($X = CU$)**
+We verify that $X$ is the product of $C$ and $U$:
+$$
+\underbrace{\begin{pmatrix} 1 & 0 & 1 & 0 \\ 0 & 1 & 0 & 1 \\ 1 & 1 & 1 & 1 \end{pmatrix}}_{X \ (3 \times 4)} 
+= 
+\underbrace{\begin{pmatrix} 1 & 0 \\ 0 & 1 \\ 1 & 1 \end{pmatrix}}_{C \ (3 \times 2)} 
+\underbrace{\begin{pmatrix} 1 & 0 & 1 & 0 \\ 0 & 1 & 0 & 1 \end{pmatrix}}_{U \ (2 \times 4)}
+$$
+
+**4. Conclusion on Column Rank**
+The columns of $X$ are linear combinations of the columns of $C$.
+$$
+\text{Col}(X) \subseteq \text{Col}(C)
+$$
+Since $C$ has only 2 columns, the dimension of its column space (and thus $X$'s column space) cannot exceed 2.
+$$
+\text{Dim}(\text{Col}(X)) \le 2
+$$
+This confirms that Row Rank (2) $\ge$ Column Rank. (By symmetry, they are equal).
+:::
+
+
+::: {#thm-rank-properties name="Row Rank equals Column Rank"}
+
+1.  **Row Rank equals Column Rank:** The dimension of the column space is equal to the dimension of the row space.
+    $$
+    \text{Dim}(\text{Col}(X)) = \text{Dim}(\text{Row}(X)) \implies \text{Rank}(X) = \text{Rank}(X')
+    $$
+
+2.  **Bounds:** For an $n \times p$ matrix $X$:
+    $$
+    \text{Rank}(X) \le \min(n, p)
+    $$
+:::
+
+
+**Orthogonality to a Subspace**
+
+We can extend the concept of orthogonality from single vectors to entire subspaces.
+
+::: {#def-orth-subspace name="Orthogonality to a Subspace"}
+A vector $y$ is orthogonal to a subspace $V$ (denoted $y \perp V$) if $y$ is orthogonal to **every** vector $x$ in $V$.
+
+$$
+y \perp V \iff y'x = 0 \quad \forall x \in V
+$$
+:::
+
+::: {#def-orthogonal-complement name="Orthogonal Complement"}
+The set of all vectors that are orthogonal to a subspace $V$ is called the **Orthogonal Complement** of $V$, denoted $V^\perp$.
+
+$$
+V^\perp = \{ y \in \mathbb{R}^n \mid y \perp V \}
+$$
+:::
+
+**Kernel (Null Space) and Image**
+
+For a matrix transformation defined by $X$, we define two key spaces: the Image (Column Space) and the Kernel (Null Space).
+
+::: {#def-image-kernel name="Image and Kernel"}
+
+1.  **Image (Column Space):** The set of all possible outputs.
+    $$
+    \text{Im}(X) = \text{Col}(X) = \{ X\beta \mid \beta \in \mathbb{R}^p \}
+    $$
+
+2.  **Kernel (Null Space):** The set of all inputs mapped to the zero vector.
+    $$
+    \text{Ker}(X) = \{ \beta \in \mathbb{R}^p \mid X\beta = 0 \}
+    $$
+:::
+
+::: {#thm-kernel-rowspace name="Relationship between Kernel and Row Space"}
+The kernel of $X$ is the orthogonal complement of the row space of $X$:
+
+$$
+\text{Ker}(X) = [\text{Row}(X)]^\perp
+$$
+:::
+
+::: {.proof}
+Let $x \in \mathbb{R}^p$.
+$x \in \text{Ker}(X)$ if and only if $Xx = 0$.
+If we denote the rows of $X$ as $r_1', \dots, r_n'$, then the equation $Xx = 0$ is equivalent to the system of equations:
+$$
+\begin{pmatrix} r_1' \\ \vdots \\ r_n' \end{pmatrix} x = \begin{pmatrix} 0 \\ \vdots \\ 0 \end{pmatrix} \iff r_i' x = 0 \text{ for all } i = 1, \dots, n
+$$
+This means $x$ is orthogonal to every row of $X$. Since the rows span the row space $\text{Row}(X)$, being orthogonal to every generator $r_i$ implies $x$ is orthogonal to the entire space $\text{Row}(X)$.
+Thus, $\text{Ker}(X) = \{ x \mid x \perp \text{Row}(X) \} = [\text{Row}(X)]^\perp$.
+:::
+
+**Nullity Theorem**
+
+There is a fundamental relationship between the dimensions of these spaces.
+
+::: {#thm-nullity name="Rank-Nullity Theorem"}
+For an $n \times p$ matrix $X$:
+
+$$
+\text{Rank}(X) + \text{Nullity}(X) = p
+$$
+where $\text{Nullity}(X) = \text{Dim}(\text{Ker}(X))$.
+:::
+
+::: {.proof}
+From the previous theorem, we established that the kernel is the orthogonal complement of the row space:
+$$
+\text{Ker}(X) = [\text{Row}(X)]^\perp
+$$
+
+Since the row space is a subspace of $\mathbb{R}^p$, the entire space can be decomposed into the direct sum of the row space and its orthogonal complement:
+$$
+\mathbb{R}^p = \text{Row}(X) \oplus [\text{Row}(X)]^\perp = \text{Row}(X) \oplus \text{Ker}(X)
+$$
+
+Taking the dimensions of these spaces:
+$$
+\text{Dim}(\mathbb{R}^p) = \text{Dim}(\text{Row}(X)) + \text{Dim}(\text{Ker}(X))
+$$
+
+Substituting the definitions of Rank (dimension of row/column space) and Nullity:
+$$
+p = \text{Rank}(X) + \text{Nullity}(X)
+$$
+:::
+
+**Comparing Ranks via Kernel Containment**
+
+The Rank-Nullity Theorem provides a powerful and convenient tool for comparing the ranks of two matrices $A$ and $B$ (with the same number of columns) by inspecting their null spaces.
+
+::: {#thm-rank-kernel name="Kernel Containment and Rank Inequality"}
+Let $A$ and $B$ be two matrices with $p$ columns. If the kernel of $A$ is contained within the kernel of $B$, then the rank of $A$ is greater than or equal to the rank of $B$.
+
+$$
+\text{Ker}(A) \subseteq \text{Ker}(B) \implies \text{Rank}(A) \ge \text{Rank}(B)
+$$
+:::
+
+::: {.proof}
+From the subspace inclusion $\text{Ker}(A) \subseteq \text{Ker}(B)$, it follows that the dimension of the smaller space cannot exceed the dimension of the larger space:
+$$
+\text{Nullity}(A) \le \text{Nullity}(B)
+$$
+Using the Rank-Nullity Theorem ($\text{Rank} = p - \text{Nullity}$), we reverse the inequality:
+$$
+p - \text{Nullity}(A) \ge p - \text{Nullity}(B)
+$$
+$$
+\text{Rank}(A) \ge \text{Rank}(B)
+$$
+:::
+
+**Rank Inequalities**
+
+Understanding the bounds of the rank of matrix products is crucial for deriving properties of linear estimators.
+
+::: {#thm-rank-product name="Rank of a Matrix Product"}
+Let $X$ be an $n \times p$ matrix and $Z$ be a $p \times k$ matrix. The rank of their product $XZ$ is bounded by the rank of the individual matrices:
+
+$$
+\text{Rank}(XZ) \le \min(\text{Rank}(X), \text{Rank}(Z))
+$$
+:::
+
+::: {.proof}
+The columns of $XZ$ are linear combinations of the columns of $X$. Thus, the column space of $XZ$ is a subspace of the column space of $X$:
+$$
+\text{Col}(XZ) \subseteq \text{Col}(X) \implies \text{Rank}(XZ) \le \text{Rank}(X)
+$$
+Similarly, the rows of $XZ$ are linear combinations of the rows of $Z$. Thus, the row space of $XZ$ is a subspace of the row space of $Z$:
+$$
+\text{Row}(XZ) \subseteq \text{Row}(Z) \implies \text{Rank}(XZ) \le \text{Rank}(Z)
+$$
+:::
+
+**Rank and Invertible Matrices**
+
+Multiplying by an invertible (non-singular) matrix preserves the rank. This is a very useful property when manipulating linear equations.
+
+::: {#thm-rank-invertible name="Rank with Non-Singular Multiplication"}
+Let $A$ be an $n \times n$ invertible matrix (i.e., $\text{Rank}(A) = n$) and $X$ be an $n \times p$ matrix. Then:
+
+$$
+\text{Rank}(AX) = \text{Rank}(X)
+$$
+
+Similarly, if $B$ is a $p \times p$ invertible matrix, then:
+
+$$
+\text{Rank}(XB) = \text{Rank}(X)
+$$
+:::
+
+::: {.proof}
+From the previous theorem, we know $\text{Rank}(AX) \le \text{Rank}(X)$.
+Since $A$ is invertible, we can write $X = A^{-1}(AX)$. Applying the theorem again:
+$$
+\text{Rank}(X) = \text{Rank}(A^{-1}(AX)) \le \text{Rank}(AX)
+$$
+Thus, $\text{Rank}(AX) = \text{Rank}(X)$.
+:::
+
+**Rank of $X'X$ and $XX'$**
+
+The matrix $X'X$ (the Gram matrix) appears in the normal equations for least squares ($X'X\beta = X'y$). Its properties are closely tied to $X$.
+
+::: {#thm-rank-gram name="Rank of Gram Matrix"}
+For any real matrix $X$, the rank of $X'X$ and $XX'$ is the same as the rank of $X$ itself:
+
+$$
+\text{Rank}(X'X) = \text{Rank}(X)
+$$
+$$
+\text{Rank}(XX') = \text{Rank}(X)
+$$
+:::
+
+::: {.proof}
+We first show that the null space (kernel) of $X$ is the same as the null space of $X'X$.
+If $v \in \text{Ker}(X)$, then $Xv = 0 \implies X'Xv = 0 \implies v \in \text{Ker}(X'X)$.
+Conversely, if $v \in \text{Ker}(X'X)$, then $X'Xv = 0$. Multiply by $v'$:
+$$
+v'X'Xv = 0 \implies (Xv)'(Xv) = 0 \implies ||Xv||^2 = 0 \implies Xv = 0
+$$
+So $\text{Ker}(X) = \text{Ker}(X'X)$.
+By the Rank-Nullity Theorem, since they have the same number of columns and same nullity, they must have the same rank.
+:::
+
+
+**Column Space of $XX'$**
+
+Beyond just the rank, the column spaces themselves are related.
+
+::: {#thm-colspace-gram name="Column Space Equivalence"}
+The column space of $XX'$ is identical to the column space of $X$:
+
+$$
+\text{Col}(XX') = \text{Col}(X)
+$$
+:::
+
+::: {.proof}
+
+1.  **Forward ($\subseteq$):** Let $z \in \text{Col}(XX')$. Then $z = XX'w$ for some vector $w$.
+    We can rewrite this as $z = X(X'w)$. Since $z$ is a linear combination of columns of $X$ (with coefficients $X'w$), $z \in \text{Col}(X)$.
+    Thus, $\text{Col}(XX') \subseteq \text{Col}(X)$.
+
+2.  **Equality via Rank:**
+    From the previous theorem, we know that $\text{Rank}(XX') = \text{Rank}(X)$.
+    Since $\text{Col}(XX')$ is a subspace of $\text{Col}(X)$ and they have the same finite dimension (Rank), the subspaces must be identical.
+:::
+
+**Implication:**
+This property ensures that for any $y$, the projection of $y$ onto $\text{Col}(X)$ lies in the same space as the projection onto $\text{Col}(XX')$. This is vital for the existence of solutions in generalized least squares.
+
+
+
+## Orthogonal Projection onto a Subspace
+
+::: {#def-projection-matrix name="Definition of Projection onto a Subspace $V$"}
+Let $V$ be a subspace of $\mathbb{R}^n$. For any vector $y \in \mathbb{R}^n$, there exists a **unique** vector $\hat{y} \in V$ such that the residual is orthogonal to the subspace:
+
+$$
+(y - \hat{y}) \perp V
+$$
+
+Equivalently:
+$$
+\langle y - \hat{y}, v \rangle = 0 \quad \forall v \in V
+$$
+:::
+
+
+### Equivalence to Least Squares
+
+The geometric definition of projection (orthogonality) is mathematically equivalent to the optimization problem of minimizing distance (least squares).
+
+::: {#thm-best-approximation name="Best Approximation Theorem (Least Squares Property)"}
+Let $V$ be a subspace of $\mathbb{R}^n$ and $y \in \mathbb{R}^n$. Let $\hat{y}$ be the orthogonal projection of $y$ onto $V$.
+Then $\hat{y}$ is the closest point in $V$ to $y$. That is, for any vector $v \in V$ such that $v \ne \hat{y}$:
+
+$$
+\|y - \hat{y}\|^2 < \|y - v\|^2
+$$
+:::
+
+::: {.proof}
+Let $v$ be any vector in $V$. We can rewrite the difference vector $y - v$ by adding and subtracting the projection $\hat{y}$:
+$$
+y - v = (y - \hat{y}) + (\hat{y} - v)
+$$
+
+Observe the properties of the two terms on the right-hand side:
+
+1.  **Residual:** $(y - \hat{y})$ is orthogonal to $V$ by definition.
+2.  **Difference in Subspace:** Since both $\hat{y} \in V$ and $v \in V$, their difference $(\hat{y} - v)$ is also in $V$.
+
+Therefore, the two terms are orthogonal to each other:
+$$
+(y - \hat{y}) \perp (\hat{y} - v)
+$$
+
+Applying the Pythagorean Theorem:
+$$
+\|y - v\|^2 = \|y - \hat{y}\|^2 + \|\hat{y} - v\|^2
+$$
+
+Since squared norms are non-negative, and $\|\hat{y} - v\|^2 > 0$ (because $v \ne \hat{y}$):
+$$
+\|y - v\|^2 > \|y - \hat{y}\|^2
+$$
+The projection $\hat{y}$ minimizes the squared error distance (and error distance itself).
+:::
+
+### Uniqueness of Projection
+
+While the existence of a least-squares solution is guaranteed, we must also prove that there is only one such vector.
+
+::: {#thm-projection-uniqueness name="Uniqueness of Orthogonal Projection"}
+For a given vector $y$ and subspace $V$, the projection vector $\hat{y}$ satisfying $(y - \hat{y}) \perp V$ is unique.
+:::
+
+::: {.proof}
+Assume there are two vectors $\hat{y}_1 \in V$ and $\hat{y}_2 \in V$ that both satisfy the orthogonality condition.
+$$
+(y - \hat{y}_1) \perp V \quad \text{and} \quad (y - \hat{y}_2) \perp V
+$$
+This means that for any $v \in V$, both inner products are zero:
+$$
+\langle y - \hat{y}_1, v \rangle = 0
+$$
+$$
+\langle y - \hat{y}_2, v \rangle = 0
+$$
+
+Subtracting the second equation from the first:
+$$
+\langle y - \hat{y}_1, v \rangle - \langle y - \hat{y}_2, v \rangle = 0
+$$
+Using the linearity of the inner product:
+$$
+\langle (y - \hat{y}_1) - (y - \hat{y}_2), v \rangle = 0
+$$
+$$
+\langle \hat{y}_2 - \hat{y}_1, v \rangle = 0
+$$
+
+This equation holds for **all** $v \in V$. Since $\hat{y}_1$ and $\hat{y}_2$ are both in $V$, their difference $d = \hat{y}_2 - \hat{y}_1$ must also be in $V$.
+We can therefore choose $v = d = \hat{y}_2 - \hat{y}_1$.
+$$
+\langle \hat{y}_2 - \hat{y}_1, \hat{y}_2 - \hat{y}_1 \rangle = 0 \implies \|\hat{y}_2 - \hat{y}_1\|^2 = 0
+$$
+The only vector with a norm of zero is the zero vector itself.
+$$
+\hat{y}_2 - \hat{y}_1 = 0 \implies \hat{y}_1 = \hat{y}_2
+$$
+Thus, the projection is unique.
+:::
+
+## Projection via Orthonormal Basis ($Q$)
+
+### Orthonomal Basis
+
+Before discussing projections onto general subspaces, we must formally define the coordinate system of a subspace, known as a basis.
+
+::: {#def-basis name="Basis"}
+A set of vectors $\{x_1, \dots, x_k\}$ is a **Basis** for a vector space $V$ if:
+
+1.  The vectors span the space: $V = L(x_1, \dots, x_k)$.
+2.  The vectors are linearly independent.
+:::
+
+The number of vectors in a basis is unique and is defined as the **Dimension** of $V$.
+
+
+Calculations become significantly simpler if we choose a basis with special geometric properties.
+
+::: {#def-orthonormal-basis name="Orthonormal Basis"}
+A basis $\{q_1, \dots, q_k\}$ is called an **Orthonormal Basis** if:
+
+1.  **Orthogonal:** Each pair of vectors is perpendicular.
+    $$
+    q_i'q_j = 0 \quad \text{for } i \ne j
+    $$
+
+2.  **Normalized:** Each vector has unit length.
+    $$
+    ||q_i||^2 = q_i'q_i = 1
+    $$
+
+Combining these, we write $q_i'q_j = \delta_{ij}$ (Kronecker delta).
+:::
+
+
+
+We now generalize the projection problem. Instead of projecting $y$ onto a single line, we project it onto a subspace $V$ of dimension $k$.
+
+If we have an orthonormal basis $\{q_1, \dots, q_k\}$ for $V$, the projection $\hat{y}$ is simply the sum of the projections onto the individual basis vectors.
+
+::: {#def-proj-orthonormal name="Projection Defined with Orthonormal Basis"}
+The projection of $y$ onto the subspace $V = L(q_1, \dots, q_k)$ is:
+
+$$
+\hat{y} = \sum_{i=1}^k \text{proj}(y|q_i) = \sum_{i=1}^k (q_i'y) q_i
+$$
+
+Since the basis vectors are normalized, we do not need to divide by $||q_i||^2$.
+:::
+
+
+
+
+
+
+::: {#thm-orthonormal-basis-proj name="Projection via Orthonormal Basis"}
+Let $\{q_1, \dots, q_k\}$ be an orthonormal basis for the subspace $V \subseteq \mathbb{R}^n$. The vector defined by the sum of individual projections:
+$$
+\hat{y} = \sum_{i=1}^k \langle y, q_i \rangle q_i
+$$
+is indeed the orthogonal projection of $y$ onto $V$. That is, it satisfies $(y - \hat{y}) \perp V$.
+:::
+
+::: {.proof}
+To prove this, we must check two conditions:
+
+1.  **$\hat{y} \in V$**: This is immediate because $\hat{y}$ is a linear combination of the basis vectors $\{q_1, \dots, q_k\}$.
+
+2.  **$(y - \hat{y}) \perp V$**: It suffices to show that the error vector $e = y - \hat{y}$ is orthogonal to every basis vector $q_j$ (for $j = 1, \dots, k$).
+
+    Let's calculate the inner product $\langle y - \hat{y}, q_j \rangle$:
+    $$
+    \begin{aligned}
+    \langle y - \hat{y}, q_j \rangle &= \langle y, q_j \rangle - \langle \hat{y}, q_j \rangle \\
+    &= \langle y, q_j \rangle - \left\langle \sum_{i=1}^k \langle y, q_i \rangle q_i, q_j \right\rangle \\
+    &= \langle y, q_j \rangle - \sum_{i=1}^k \langle y, q_i \rangle \underbrace{\langle q_i, q_j \rangle}_{\delta_{ij}}
+    \end{aligned}
+    $$
+    
+    Since the basis is orthonormal, $\langle q_i, q_j \rangle$ is 1 if $i=j$ and 0 otherwise. Thus, the summation collapses to a single term where $i=j$:
+    $$
+    \begin{aligned}
+    \langle y - \hat{y}, q_j \rangle &= \langle y, q_j \rangle - \langle y, q_j \rangle \cdot 1 \\
+    &= 0
+    \end{aligned}
+    $$
+    
+    Since $(y - \hat{y})$ is orthogonal to every basis vector $q_j$, it is orthogonal to the entire subspace $V$. Thus, $\hat{y}$ is the unique orthogonal projection.
+:::
+
+### Projection Matrix via Orthonomal Basis ($Q$)
+
+**Matrix Form with Orthonormal Basis**
+
+We can express the summation formula for $\hat{y}$ compactly using matrix notation.
+
+Let $Q$ be an $n \times k$ matrix whose columns are the orthonormal basis vectors $q_1, \dots, q_k$.
+$$
+Q = \begin{pmatrix} q_1 & q_2 & \dots & q_k \end{pmatrix}
+$$
+
+Properties of $Q$:
+
+* $Q'Q = I_k$ (Identity matrix of size $k \times k$).
+* $QQ'$ is **not** necessarily $I_n$ (unless $k=n$).
+
+
+
+
+::: {#def-proj-matrix-orthonormal name="Projection Matrix in Terms of $Q$"}
+The projection $\hat{y}$ can be written as:
+
+$$
+\hat{y} = \begin{pmatrix} q_1 & \dots & q_k \end{pmatrix} \begin{pmatrix} q_1'y \\ \vdots \\ q_k'y \end{pmatrix} = Q (Q'y) = (QQ') y
+$$
+
+Thus, the projection matrix $P$ onto the subspace $V$ is:
+$$
+P = QQ'
+$$
+:::
+
+
+
+**Properties of Projection Matrices**
+
+We have defined the projection matrix as $P = X(X'X)^{-1}X'$ (or $P=QQ'$ for orthonormal bases). All orthogonal projection matrices share two fundamental algebraic properties.
+
+::: {#thm-projection-properties name="Symmeticity and Idempotence"}
+A square matrix $P$ represents an orthogonal projection onto some subspace if and only if it satisfies:
+
+1.  **Idempotence:** $P^2 = P$ (Applying the projection twice is the same as applying it once).
+2.  **Symmetry:** $P' = P$.
+:::
+
+::: {.proof}
+If $\hat{y} = Py$ is already in the subspace $\text{Col}(X)$, then projecting it again should not change it.
+$$
+P(Py) = Py \implies P^2 y = Py \quad \forall y
+$$
+Thus, $P^2 = P$.
+:::
+
+**Example: ANOVA (Analysis of Variance)**
+
+One of the most common applications of projection is in Analysis of Variance (ANOVA). We can view the calculation of group means as a projection onto a subspace defined by group indicator variables.
+
+::: {#exm-anova-projection name="Finding Projection for One-way ANOVA"}
+Consider a one-way ANOVA model with $k$ groups:
+$$
+y_{ij} = \mu_i + \epsilon_{ij}
+$$
+where $i \in \{1, \dots, k\}$ represents the group and $j \in \{1, \dots, n_i\}$ represents the observation within the group. Let $N = \sum_{i=1}^k n_i$ be the total number of observations.
+
+**1. Matrix Definitions**
+We define the data vector $y$ and the design matrix $X$ as follows:
+
+* **Data Vector ($y$):** An $N \times 1$ vector containing all observations stacked by group:
+    $$
+    y = \begin{pmatrix} y_{11} \\ \vdots \\ y_{1n_1} \\ y_{21} \\ \vdots \\ y_{kn_k} \end{pmatrix}
+    $$
+
+* **Design Matrix ($X$):** An $N \times k$ matrix constructed from $k$ column vectors, $X = (x_1, x_2, \dots, x_k)$. Each vector $x_g$ is an **indicator variable** (dummy variable) for group $g$:
+    $$
+    x_g = \begin{pmatrix} 0 \\ \vdots \\ 1 \\ \vdots \\ 0 \end{pmatrix} \quad \leftarrow \text{Entries are 1 if observation belongs to group } g
+    $$
+
+**2. Orthogonality**
+These column vectors $x_1, \dots, x_k$ are mutually orthogonal because no observation can belong to two groups at once. The dot product of any two distinct columns is zero:
+$$
+\langle x_g, x_h \rangle = 0 \quad \text{for } g \neq h
+$$
+This allows us to find the projection onto the column space of $X$ by simply summing the projections onto each column individually.
+
+**3. Calculating Individual Projections**
+For a specific group vector $x_g$, the projection is:
+$$
+\text{proj}(y|x_g) = \frac{\langle y, x_g \rangle}{\langle x_g, x_g \rangle} x_g
+$$
+
+We calculate the two scalar terms:
+
+* **Denominator ($\langle x_g, x_g \rangle$):** The sum of squared elements of $x_g$. Since $x_g$ contains $n_g$ ones and zeros elsewhere:
+    $$
+    \langle x_g, x_g \rangle = \sum \mathbb{1}_{\{i=g\}}^2 = n_g
+    $$
+
+* **Numerator ($\langle y, x_g \rangle$):** The dot product sums only the $y$ values belonging to group $g$:
+    $$
+    \langle y, x_g \rangle = \sum_{i,j} y_{ij} \cdot \mathbb{1}_{\{i=g\}} = \sum_{j=1}^{n_g} y_{gj} = y_{g.} \quad (\text{Group Total})
+    $$
+
+**4. The Resulting Projection**
+Substituting these back into the formula gives the coefficient for the vector $x_g$:
+$$
+\text{proj}(y|x_g) = \frac{y_{g.}}{n_g} x_g = \bar{y}_{g.} x_g
+$$
+
+The total projection $\hat{y}$ is the sum over all groups:
+$$
+\hat{y} = \sum_{g=1}^k \bar{y}_{g.} x_g
+$$
+This confirms that the fitted value for any specific observation $y_{ij}$ is simply its group mean $\bar{y}_{i.}$.
+:::
+
+
+### Gram-Schmidt Process
+
+To use the simplified formula $P = QQ'$, we need an orthonormal basis. The Gram-Schmidt process provides a method to construct such a basis from any set of linearly independent vectors.
+
+::: {.algorithm}
+**Gram-Schmidt Process**
+Given linearly independent vectors $x_1, \dots, x_p$:
+
+1.  **Step 1:** Normalize the first vector.
+    $$
+    q_1 = \frac{x_1}{||x_1||}
+    $$
+
+2.  **Step 2:** Project $x_2$ onto $q_1$ and subtract it to find the orthogonal component.
+    $$
+    v_2 = x_2 - (x_2'q_1)q_1
+    $$
+    Then normalize:
+    $$
+    q_2 = \frac{v_2}{||v_2||}
+    $$
+
+3.  **Step k:** Subtract the projections onto all previous $q$ vectors.
+    $$
+    v_k = x_k - \sum_{j=1}^{k-1} (x_k'q_j)q_j
+    $$
+    $$
+    q_k = \frac{v_k}{||v_k||}
+    $$
+:::
+
+
+
+
+::: {.cell}
+::: {.cell-output-display}
+![Gram-Schmidt Process: Projecting $x_2$ onto $x_1$](lec1-vecspace_files/figure-html/fig-gram-schmidt-python-1.png){#fig-gram-schmidt-python width=576}
+:::
+:::
+
+
+This process leads to the **QR Decomposition** of a matrix: $X = QR$, where $Q$ is orthogonal and $R$ is upper triangular.
+
+
+## Hat Matrix (Projection Matrix via $X$)
+
+### Norm Equations
+
+Let $X = (x_1, \dots, x_p)$ be an $n \times p$ matrix, where each column $x_j$ is a predictor vector.
+
+We want to project the target vector $y$ onto the column space $\text{Col}(X)$. This is equivalent to finding a coefficient vector $\beta \in \mathbb{R}^p$ such that the error vector (residual) is orthogonal to the entire subspace $\text{Col}(X)$.
+
+$$
+y - X\beta \perp \text{Col}(X)
+$$
+
+Since the columns of $X$ span the subspace, the residual must be orthogonal to **every** column vector $x_j$ individually:
+
+$$
+y - X\beta \perp x_j \quad \text{for } j = 1, \dots, p
+$$
+
+Writing this geometric condition as an algebraic dot product (where $x_j'$ denotes the transpose):
+
+$$
+x_j'(y - X\beta) = 0 \quad \text{for each } j
+$$
+
+We can stack these $p$ separate linear equations into a single matrix equation. Since the rows of $X'$ are the columns of $X$, this becomes:
+
+$$
+\begin{pmatrix} x_1' \\ \vdots \\ x_p' \end{pmatrix} (y - X\beta) = \mathbf{0}
+\implies X'(y - X\beta) = 0
+$$
+
+Finally, we distribute the matrix transpose and rearrange terms to solve for $\beta$:
+
+$$
+\begin{aligned}
+X'y - X'X\beta &= 0 \\
+X'X\beta &= X'y
+\end{aligned}
+$$
+
+This system is known as the **Normal Equations**.
+
+::: {#thm-least-squares-estimator name="Least Squares Estimator"}
+If $X'X$ is invertible (i.e., $X$ has full column rank), the unique solution for $\beta$ is:
+
+$$
+\hat{\beta} = (X'X)^{-1}X'y
+$$
+:::
+
+### Hat Matrix
+
+Substituting the estimator $\hat{\beta}$ back into the equation for $\hat{y}$ gives us the projection matrix.
+
+::: {#def-projection-matrix-general name="Hat Matrix"}
+The projection of $y$ onto $\text{Col}(X)$ is given by:
+
+$$
+\hat{y} = X\hat{\beta} = X(X'X)^{-1}X'y
+$$
+
+Thus, the hat matrix $H$ is defined as:
+
+$$
+H = X(X'X)^{-1}X'
+$$
+:::
+
+### Equivalence of Hat Matrix and $QQ'$
+
+If we use the QR decomposition such that $X = QR$, where the columns of $Q$ form an orthonormal basis for $\text{Col}(X)$, the formula simplifies significantly.
+
+Recall that for orthonormal columns, $Q'Q = I$. Substituting $X=QR$ into the general formula:
+
+$$
+\begin{aligned}
+H &= QR((QR)'(QR))^{-1}(QR)' \\
+  &= QR(R'Q'QR)^{-1}R'Q' \\
+  &= QR(R' \underbrace{Q'Q}_{I} R)^{-1}R'Q' \\
+  &= QR(R'R)^{-1}R'Q' \\
+  &= QR R^{-1} (R')^{-1} R' Q' \\
+  &= Q \underbrace{R R^{-1}}_{I} \underbrace{(R')^{-1} R'}_{I} Q' \\
+  &= Q Q'
+\end{aligned}
+$$
+
+This confirms that $H = QQ'$ is consistent with the general formula $H = X(X'X)^{-1}X'$.
+
+### Properties of Hat Matrix
+
+We revisit the properties of projection matrices in this general context.
+
+::: {#thm-projection-properties-revisited name="Properties of Hat Matrix"}
+The matrix $H = X(X'X)^{-1}X'$ satisfies:
+
+1.  **Symmetric:** $H' = H$
+2.  **Idempotent:** $H^2 = H$
+3.  **Trace:** The trace of a projection matrix equals the dimension of the subspace it projects onto.
+    $$
+    \text{tr}(H) = \text{tr}(X(X'X)^{-1}X') = \text{tr}((X'X)^{-1}X'X) = \text{tr}(I_p) = p
+    $$
+:::
+
+### Projection onto Complement
+
+::: {#thm-m-matrix name="Residual Maker Matrix M"}
+$$
+M = I - X(X^\top X)^{-1}X^\top
+$$
+
+$M$ is a projection matrix onto  $\text{Col}(X)^\perp$.
+:::
+
+::: {.proof}
+Let $H = X(X^\top X)^{-1}X^\top$. This is the "Hat Matrix" which projects onto $\text{Col}(X)$. Then we can write $M = I - H$.
+
+To prove $M$ is the orthogonal projector onto $\text{Col}(X)^\perp$, we must satisfy two conditions:
+
+1.  $M$ is an orthogonal projection matrix (Symmetric and Idempotent).
+2.  The image (column space) of $M$ is exactly $\text{Col}(X)^\perp$.
+
+**1. Symmetry and Idempotency**
+
+* **Symmetry:** Since $H$ is symmetric, $M$ is symmetric.
+    $$
+    M^\top = (I - H)^\top = I^\top - H^\top = I - H = M
+    $$
+
+* **Idempotency:** Since $H$ is idempotent ($H^2=H$), $M$ is idempotent.
+    $$
+    M^2 = (I - H)(I - H) = I - 2H + H^2 = I - 2H + H = I - H = M
+    $$
+
+**2. The Image of M**
+
+We claim $\text{Col}(M) = \text{Col}(X)^\perp$.
+
+* **Forward ($\subseteq$):** Take any vector $v = My$ in the column space of $M$. We check if it is orthogonal to the columns of $X$:
+    $$
+    X^\top v = X^\top (I - H)y = (X^\top - X^\top H)y
+    $$
+    Substituting $H = X(X^\top X)^{-1}X^\top$:
+    $$
+    X^\top H = X^\top [X(X^\top X)^{-1}X^\top] = (X^\top X)(X^\top X)^{-1}X^\top = I \cdot X^\top = X^\top
+    $$
+    Therefore:
+    $$
+    X^\top v = (X^\top - X^\top)y = 0
+    $$
+    Since $v$ is orthogonal to the columns of $X$, $v \in \text{Col}(X)^\perp$.
+
+* **Reverse ($\supseteq$):** Take any vector $z \in \text{Col}(X)^\perp$. By definition, $X^\top z = 0$.
+    $$
+    Mz = (I - H)z = z - X(X^\top X)^{-1}\underbrace{X^\top z}_{0} = z - 0 = z
+    $$
+    Since $Mz = z$, the vector $z$ is in the column space of $M$ (it is an eigenvector with eigenvalue 1).
+
+Thus, $M$ projects orthogonally onto $\text{Col}(X)^\perp$.
+:::
+
+## General Projection Matrices onto Nested Subspaces
+
+### Nested Models and Subspaces
+
+In hypothesis testing (like comparing a null model to an alternative model), we often deal with nested subspaces.
+
+::: {#def-nested-models name="Nested Models"}
+Consider two models:
+
+1.  **Reduced Model ($M_0$):** $y \in \text{Col}(X_0)$
+2.  **Full Model ($M_1$):** $y \in \text{Col}(X_1)$
+
+We say the models are nested if the column space of the reduced model is contained entirely within the column space of the full model:
+$$
+\text{Col}(X_0) \subseteq \text{Col}(X_1)
+$$
+:::
+
+Usually, $X_1$ is constructed by adding columns to $X_0$: $X_1 = [X_0, X_{new}]$.
+
+
+
+### Projections onto Nested Subspaces
+
+Let $P_0$ be the projection matrix onto $\text{Col}(X_0)$ and $P_1$ be the projection matrix onto $\text{Col}(X_1)$. Since $\text{Col}(X_0) \subseteq \text{Col}(X_1)$, we have important relationships between these matrices.
+
+::: {#thm-nested-projections name="Composition of Projections"}
+If $\text{Col}(P_0) \subseteq \text{Col}(P_1)$, then:
+
+1.  $P_1 P_0 = P_0$ (Projecting onto the small space, then the large space, keeps you in the small space).
+2.  $P_0 P_1 = P_0$ (Projecting onto the large space, then the small space, is the same as just projecting onto the small space).
+:::
+
+::: {.proof}
+**1. Proof of $P_1 P_0 = P_0$:**
+For any vector $y \in \mathbb{R}^n$, the vector $v = P_0 y$ lies in $\text{Col}(X_0)$.
+Since $\text{Col}(X_0) \subseteq \text{Col}(X_1)$, the vector $v$ also lies in $\text{Col}(X_1)$.
+A projection matrix $P_1$ acts as the identity operator for any vector already in its column space.
+Therefore, $P_1 v = v$.
+Substituting $v = P_0 y$, we get $P_1 P_0 y = P_0 y$ for all $y$.
+Thus, $P_1 P_0 = P_0$.
+
+**2. Proof of $P_0 P_1 = P_0$:**
+Take the transpose of the previous result ($P_1 P_0 = P_0$).
+$$
+(P_1 P_0)' = P_0'
+$$
+Using the property that projection matrices are symmetric ($P' = P$):
+$$
+P_0' P_1' = P_0' \implies P_0 P_1 = P_0
+$$
+:::
+
+**Difference of Projections**
+
+The difference between the two projection matrices, $P_1 - P_0$, is itself a projection matrix.
+
+::: {#thm-diff-projection name="Difference Projection"}
+The matrix $P_{\Delta} = P_1 - P_0$ is an orthogonal projection matrix onto the subspace $\text{Col}(X_1) \cap \text{Col}(X_0)^\perp$. This subspace represents the "extra" information in the full model that is orthogonal to the reduced model.
+
+**Properties:**
+
+  1.  **Symmetric:** $(P_1 - P_0)' = P_1 - P_0$.
+  2.  **Idempotent:** $(P_1 - P_0)(P_1 - P_0) = P_1 - P_0 P_1 - P_1 P_0 + P_0 = P_1 - P_0 - P_0 + P_0 = P_1 - P_0$.
+  3.  **Orthogonality:** $(P_1 - P_0)P_0 = P_1 P_0 - P_0 = P_0 - P_0 = 0$.
+:::
+
+::: {.proof}
+**1. Symmetry:**
+Since $P_1$ and $P_0$ are symmetric:
+$(P_1 - P_0)' = P_1' - P_0' = P_1 - P_0$.
+
+**2. Idempotency:**
+$$
+\begin{aligned}
+(P_1 - P_0)^2 &= (P_1 - P_0)(P_1 - P_0) \\
+&= P_1^2 - P_1 P_0 - P_0 P_1 + P_0^2
+\end{aligned}
+$$
+Using the projection properties ($P^2=P$) and the nested property ($P_1 P_0 = P_0$ and $P_0 P_1 = P_0$):
+$$
+= P_1 - P_0 - P_0 + P_0 = P_1 - P_0
+$$
+
+**3. Orthogonality to $P_0$:**
+$$
+(P_1 - P_0)P_0 = P_1 P_0 - P_0^2 = P_0 - P_0 = 0
+$$
+Since $(P_1 - P_0)$ is symmetric and idempotent, it is an orthogonal projection matrix. Since it is orthogonal to $P_0$ (the space of $M_0$) but is derived from $P_1$, it projects onto the subspace of $M_1$ that is orthogonal to $M_0$.
+:::
+
+### Decomposition of Projections and their Sum Squares
+
+::: {#thm-nested-decomposition name="Orthogonal Decomposition"}
+
+Let $M_0 \subset M_1$ be two nested linear models with corresponding design matrices $X_0$ and $X_1$ such that $\text{Col}(X_0) \subset \text{Col}(X_1)$. Let $P_0$ and $P_1$ be the orthogonal projection matrices onto $\text{Col}(X_0)$ and $\text{Col}(X_1)$ respectively.
+
+For any observation vector $y$, we have the decomposition:
+$$
+y = \underbrace{P_0 y}_{\hat{y}_0} + \underbrace{(P_1 - P_0) y}_{\hat{y}_1 - \hat{y}_0} + \underbrace{(I - P_1) y}_{y - \hat{y}_1}
+$$
+
+**Geometric Interpretation:**
+
+1.  $\hat{y}_0 \in \text{Col}(X_0)$: The fit of the reduced model.
+2.  $(\hat{y}_1 - \hat{y}_0) \in \text{Col}(X_0)^\perp \cap \text{Col}(X_1)$: The additional fit provided by $M_1$ over $M_0$.
+3.  $(y - \hat{y}_1) \in \text{Col}(X_1)^\perp$: The projection of $y$ onto the **orthogonal complement** of $\text{Col}(X_1)$.
+
+The three component vectors are mutually orthogonal. Consequently, their squared norms sum to the total squared norm:
+$$
+\|y\|^2 = \|\hat{y}_0\|^2 + \|\hat{y}_1 - \hat{y}_0\|^2 + \|y - \hat{y}_1\|^2
+$$
+:::
+
+
+
+::: {.proof}
+
+**1. Definitions**
+We define the three components as vectors $v_1, v_2, v_3$:
+
+* $v_1 = \hat{y}_0 = P_0 y$.
+* $v_2 = \hat{y}_1 - \hat{y}_0 = (P_1 - P_0)y$.
+* $v_3 = y - \hat{y}_1 = (I - P_1)y$.
+    * **Note:** Since $P_1$ projects onto $\text{Col}(X_1)$, the matrix $(I - P_1)$ projects onto the **orthogonal complement** $\text{Col}(X_1)^\perp$. Thus, $v_3 \in \text{Col}(I - P_1)$.
+
+Note that since $\text{Col}(X_0) \subset \text{Col}(X_1)$, we have the property $P_1 P_0 = P_0 P_1 = P_0$. (Projecting onto the smaller subspace $M_0$ is unchanged if we first project onto the enclosing subspace $M_1$).
+
+**2. Orthogonality of $v_1$ and $v_2$**
+We check the inner product $\langle v_1, v_2 \rangle = v_1' v_2$:
+$$
+\begin{aligned}
+v_1' v_2 &= (P_0 y)' (P_1 - P_0) y \\
+&= y' P_0' (P_1 - P_0) y \\
+&= y' (P_0 P_1 - P_0^2) y \quad (\text{Since } P_0 \text{ is symmetric}) \\
+&= y' (P_0 - P_0) y \quad (\text{Since } P_0 P_1 = P_0 \text{ and } P_0^2 = P_0) \\
+&= 0
+\end{aligned}
+$$
+
+**3. Orthogonality of $(v_1 + v_2)$ and $v_3$**
+Note that $v_1 + v_2 = P_1 y = \hat{y}_1$. We check if the total fit $\hat{y}_1$ is orthogonal to the residual $v_3$:
+$$
+\begin{aligned}
+\hat{y}_1' v_3 &= (P_1 y)' (I - P_1) y \\
+&= y' P_1 (I - P_1) y \\
+&= y' (P_1 - P_1^2) y \\
+&= y' (P_1 - P_1) y \\
+&= 0
+\end{aligned}
+$$
+Since $\hat{y}_1$ is orthogonal to $v_3$, and $\hat{y}_0$ is a component of $\hat{y}_1$, it follows that all three pieces are mutually orthogonal.
+
+**4. Sum of Squares**
+By the Pythagorean theorem applied twice to these orthogonal vectors, the equality of squared norms follows immediately.
+:::
+
+
+
+::: {.cell}
+::: {.cell-output-display}
+![Illustration of Projections onto Nested Subspaces](lec1-vecspace_files/figure-html/fig-anova-decomposition-v2-3.png){#fig-anova-decomposition-v2 width=960}
+:::
+:::
+
+
+::: {#exm-anova-ss name="ANOVA Sum Squares"}
+
+We apply the **Nested Model Theorem** ($M_0 \subset M_1$) to the One-way ANOVA setting.
+
+**1. Notation and Definitions**
+
+Consider a dataset with $k$ groups. Let $i = 1, \dots, k$ index the groups, and $j = 1, \dots, n_i$ index the observations within group $i$.
+
+- $N$: Total number of observations, $N = \sum_{i=1}^k n_i$.
+- $y_{ij}$: The $j$-th observation in the $i$-th group.
+- $\bar{y}_{i.}$: The sample mean of group $i$.
+    $$
+    \bar{y}_{i.} = \frac{1}{n_i} \sum_{j=1}^{n_i} y_{ij}
+    $$
+
+- $\bar{y}_{..}$: The grand mean of all observations.
+    $$
+    \bar{y}_{..} = \frac{1}{N} \sum_{i=1}^k \sum_{j=1}^{n_i} y_{ij}
+    $$
+
+**2. The Data and Projection Vectors**
+
+We stack all observations into a single $N \times 1$ vector. The projections onto the Null Model ($M_0$, intercept only) and Full Model ($M_1$, group means) correspond to replacing observations with the Grand Mean and Group Means, respectively.
+
+| Observation ($y$) | Null Projection ($\hat{y}_0$) | Full Projection ($\hat{y}_1$) |
+| :---: | :---: | :---: |
+| $\begin{pmatrix} y_{11} \\ \vdots \\ y_{1 n_1} \\ \hline \vdots \\ \hline y_{k1} \\ \vdots \\ y_{k n_k} \end{pmatrix}$ | $\begin{pmatrix} \bar{y}_{..} \\ \vdots \\ \bar{y}_{..} \\ \hline \vdots \\ \hline \bar{y}_{..} \\ \vdots \\ \bar{y}_{..} \end{pmatrix}$ | $\begin{pmatrix} \bar{y}_{1.} \\ \vdots \\ \bar{y}_{1.} \\ \hline \vdots \\ \hline \bar{y}_{k.} \\ \vdots \\ \bar{y}_{k.} \end{pmatrix}$ |
+
+: ANOVA Vectors: Data, Null Model, and Full Model {#tbl-anova-vectors}
+
+**3. Decomposition and Sum of Squares**
+
+The total deviation vector $y - \hat{y}_0$ splits into two orthogonal components: the Model Improvement ($\hat{y}_1 - \hat{y}_0$) and the Residual ($y - \hat{y}_1$).
+
+| Component | Notation | Definition | Vector Elements | Squared Norm (Sum of Squares) |
+| :--- | :---: | :---: | :--- | :--- |
+| **Null Proj.** | $\hat{y}_0$ | $P_0 y$ | Grand Mean ($\bar{y}_{..}$) | $\|\hat{y}_0\|^2 = N \bar{y}_{..}^2 = \frac{(\sum_{i=1}^k \sum_{j=1}^{n_i} y_{ij})^2}{N}$ |
+| **Full Proj.** | $\hat{y}_1$ | $P_1 y$ | Group Means ($\bar{y}_{i.}$) | $\|\hat{y}_1\|^2 = \sum_{i=1}^k n_i \bar{y}_{i.}^2 = \sum_{i=1}^k \frac{y_{i.}^2}{n_i}$ |
+| **Between** | $\hat{y}_1 - \hat{y}_0$ | $(P_1 - P_0)y$ | Group Effect ($\bar{y}_{i.} - \bar{y}_{..}$) | $\sum_{i=1}^k n_i (\bar{y}_{i.} - \bar{y}_{..})^2$ |
+| **Within** | $y - \hat{y}_1$ | $(I - P_1)y$ | Residual ($y_{ij} - \bar{y}_{i.}$) | $\sum_{i=1}^k \sum_{j=1}^{n_i} (y_{ij} - \bar{y}_{i.})^2$ |
+| **Total** | $y - \hat{y}_0$ | $(I - P_0)y$ | Total Deviation ($y_{ij} - \bar{y}_{..}$) | $\sum_{i=1}^k \sum_{j=1}^{n_i} (y_{ij} - \bar{y}_{..})^2$ |
+
+: ANOVA Projections and Sum of Squares {#tbl-anova-projections}
+
+**4. Geometric Justification of Shortcut Formulas**
+
+In manual calculations, we use "shortcut formulas" involving raw sums of squares. These are direct consequences of the **Pythagorean Theorem** applied to orthogonal projections.
+
+**A. Total Sum of Squares (SST)**
+Since $\hat{y}_0 \perp (y - \hat{y}_0)$:
+$$
+\|y\|^2 = \|\hat{y}_0\|^2 + \|y - \hat{y}_0\|^2
+$$
+$$
+\text{TSS} = \|y - \hat{y}_0\|^2 = \sum_{i=1}^k \sum_{j=1}^{n_i} y_{ij}^2 - \frac{(\sum_{i=1}^k \sum_{j=1}^{n_i} y_{ij})^2}{N}
+$$
+
+**B. Between Group Sum of Squares (SSB)**
+Since $\hat{y}_0$ is the projection of $\hat{y}_1$ onto $M_0$, we have $\hat{y}_0 \perp (\hat{y}_1 - \hat{y}_0)$:
+$$
+\|\hat{y}_1\|^2 = \|\hat{y}_0\|^2 + \|\hat{y}_1 - \hat{y}_0\|^2
+$$
+$$
+\text{SSB} = \|\hat{y}_1 - \hat{y}_0\|^2 = \sum_{i=1}^k \frac{y_{i.}^2}{n_i} - \frac{(\sum_{i=1}^k \sum_{j=1}^{n_i} y_{ij})^2}{N}
+$$
+
+**C. Within Group Sum of Squares (SSW)**
+Since $\hat{y}_1$ is the projection of $y$ onto $M_1$, we have $\hat{y}_1 \perp (y - \hat{y}_1)$:
+$$
+\|y\|^2 = \|\hat{y}_1\|^2 + \|y - \hat{y}_1\|^2
+$$
+$$
+\text{SSW} = \|y - \hat{y}_1\|^2 = \sum_{i=1}^k \sum_{j=1}^{n_i} y_{ij}^2 - \sum_{i=1}^k \frac{y_{i.}^2}{n_i}
+$$
+
+**Conclusion:**
+The decomposition holds:
+$$
+\underbrace{\|y\|^2 - \|\hat{y}_0\|^2}_{\text{SST}} = \underbrace{(\|\hat{y}_1\|^2 - \|\hat{y}_0\|^2)}_{\text{SSB}} + \underbrace{(\|y\|^2 - \|\hat{y}_1\|^2)}_{\text{SSW}}
+$$
+:::
+
+
+
+### Projections in General Orthogonal Subspaces
+
+Finally, we consider the case where the entire space $\mathbb{R}^n$ is decomposed into mutually orthogonal subspaces.
+
+::: {#thm-orth-decomposition name="General Orthogonal Projections"}
+If $\mathbb{R}^n$ is the direct sum of orthogonal subspaces $V_1, V_2, \dots, V_k$:
+
+$$
+\mathbb{R}^n = V_1 \oplus V_2 \oplus \dots \oplus V_k
+$$
+where $V_i \perp V_j$ for all $i \ne j$.
+
+Then any vector $y$ can be uniquely written as:
+$$
+y = \hat{y}_1 + \hat{y}_2 + \dots + \hat{y}_k
+$$
+where $\hat{y}_i \in V_i$.
+
+Furthermore, each component $\hat{y}_i$ is simply the projection of $y$ onto the subspace $V_i$:
+$$
+\hat{y}_i = P_i y
+$$
+:::
+
+::: {.proof}
+**1. Existence:**
+Since $\mathbb{R}^n$ is the direct sum of $V_1, \dots, V_k$, by definition, any vector $y \in \mathbb{R}^n$ can be written as a sum $y = v_1 + \dots + v_k$ where $v_i \in V_i$.
+
+**2. Uniqueness:**
+Suppose there are two such representations:
+$y = \sum v_i = \sum w_i$, with $v_i, w_i \in V_i$.
+Then $\sum (v_i - w_i) = 0$.
+Since subspaces in a direct sum are independent, the only way for the sum of elements to be zero is if each individual element is zero.
+Thus, $v_i - w_i = 0 \implies v_i = w_i$. The representation is unique. Let $\hat{y}_i = v_i$.
+
+**3. Projection Property:**
+We claim that the $i$-th component $\hat{y}_i$ is the orthogonal projection of $y$ onto $V_i$.
+We must show that the residual $(y - \hat{y}_i)$ is orthogonal to $V_i$.
+$$
+y - \hat{y}_i = \sum_{j \ne i} \hat{y}_j
+$$
+Let $z$ be any vector in $V_i$. We calculate the inner product:
+$$
+\langle y - \hat{y}_i, z \rangle = \left\langle \sum_{j \ne i} \hat{y}_j, z \right\rangle = \sum_{j \ne i} \langle \hat{y}_j, z \rangle
+$$
+Since $\hat{y}_j \in V_j$ and $z \in V_i$, and the subspaces are mutually orthogonal ($V_j \perp V_i$ for $j \ne i$), every term in the sum is zero.
+Therefore, $(y - \hat{y}_i) \perp V_i$.
+By the definition of orthogonal projection, $\hat{y}_i = P_i y$.
+:::
+
+This implies that the identity matrix can be decomposed into a sum of projection matrices:
+$$
+I_n = P_1 + P_2 + \dots + P_k
+$$
+
+
+::: {.cell}
+::: {.cell-output-display}
+![Orthogonal decomposition of vector y into subspaces](lec1-vecspace_files/figure-html/fig-orthogonal-decomp-rotated-5.png){#fig-orthogonal-decomp-rotated width=960}
+:::
+:::
+
+
+
+::: {.cell}
+
+```{.r .cell-code}
+library(plotly)
+
+# --- Define Vectors ---
+y_vec <- c(3, 4, 5)
+origin <- c(0, 0, 0)
+
+# Projections (P_i y)
+p1 <- c(3, 0, 0)
+p2 <- c(0, 4, 0)
+p3 <- c(0, 0, 5)
+
+# Partial Sums (P_i y + P_j y)
+sum_12 <- p1 + p2
+sum_13 <- p1 + p3
+sum_23 <- p2 + p3
+
+# --- Helper Functions ---
+
+# Function to add a vector with an arrowhead (Cone)
+add_vec_arrow <- function(p, start, end, color, name) {
+  p %>%
+    add_trace(
+      type = "scatter3d",
+      mode = "lines",
+      x = c(start[1], end[1]),
+      y = c(start[2], end[2]),
+      z = c(start[3], end[3]),
+      line = list(color = color, width = 6),
+      name = name,
+      showlegend = TRUE
+    ) %>%
+    add_trace(
+      type = "cone",
+      x = end[1], y = end[2], z = end[3],
+      u = end[1]-start[1], v = end[2]-start[2], w = end[3]-start[3],
+      sizemode = "absolute",
+      sizeref = 0.5,
+      anchor = "tip",
+      colorscale = list(c(0, 1), c(color, color)),
+      showscale = FALSE,
+      name = name,
+      showlegend = FALSE
+    )
+}
+
+# Function to add dashed "error" lines
+add_dashed_line <- function(p, start, end, color, name) {
+  p %>%
+    add_trace(
+      type = "scatter3d",
+      mode = "lines",
+      x = c(start[1], end[1]),
+      y = c(start[2], end[2]),
+      z = c(start[3], end[3]),
+      line = list(color = color, width = 3, dash = "dash"),
+      name = name,
+      hoverinfo = "text",
+      text = name
+    )
+}
+
+# --- Build Plot ---
+fig <- plot_ly()
+
+# 1. Main Vectors (Solid + Cones)
+fig <- fig %>%
+  add_vec_arrow(origin, p1, "red", "P1 y") %>%
+  add_vec_arrow(origin, p2, "green", "P2 y") %>%
+  add_vec_arrow(origin, p3, "blue", "P3 y") %>%
+  add_vec_arrow(origin, y_vec, "black", "y")
+
+# 2. Dashed Lines from y to Single Projections
+fig <- fig %>%
+  add_dashed_line(y_vec, p1, "rgba(255, 0, 0, 0.5)", "y -> P1") %>%
+  add_dashed_line(y_vec, p2, "rgba(0, 255, 0, 0.5)", "y -> P2") %>%
+  add_dashed_line(y_vec, p3, "rgba(0, 0, 255, 0.5)", "y -> P3")
+
+# 3. Dashed Lines from y to Partial Sums
+fig <- fig %>%
+  add_dashed_line(y_vec, sum_12, "purple", "y -> (P1+P2)") %>%
+  add_dashed_line(y_vec, sum_13, "orange", "y -> (P1+P3)") %>%
+  add_dashed_line(y_vec, sum_23, "cyan",   "y -> (P2+P3)")
+
+# 4. Axes (Subspaces)
+limit <- 6
+axis_style <- list(color = "gray", dash = "dot", width = 2)
+
+fig <- fig %>%
+  add_trace(type="scatter3d", mode="lines", x=c(0, limit), y=c(0,0), z=c(0,0), 
+            line=axis_style, name="V1 (x)") %>%
+  add_trace(type="scatter3d", mode="lines", x=c(0,0), y=c(0, limit), z=c(0,0), 
+            line=axis_style, name="V2 (y)") %>%
+  add_trace(type="scatter3d", mode="lines", x=c(0,0), y=c(0,0), z=c(0, limit), 
+            line=axis_style, name="V3 (z)")
+
+# --- Layout ---
+fig <- fig %>% layout(
+  title = "Orthogonal Decomposition Geometry",
+  width = 900,
+  height = 700,
+  scene = list(
+    xaxis = list(title = "V1", range = c(0, limit)),
+    yaxis = list(title = "V2", range = c(0, limit)),
+    zaxis = list(title = "V3", range = c(0, limit)),
+    aspectmode = "cube",
+    camera = list(eye = list(x = 1.5, y = 1.5, z = 1.2))
+  ),
+  margin = list(l = 0, r = 0, b = 0, t = 50),
+  legend = list(x = 0.75, y = 0.9)
+)
+
+fig
+```
+
+::: {#fig-orthogonal-decomp-r .cell-output-display}
+
+```{=html}
+<div class="plotly html-widget html-fill-item" id="htmlwidget-f778b5c8f22e1f36f093" style="width:100%;height:520px;"></div>
+<script type="application/json" data-for="htmlwidget-f778b5c8f22e1f36f093">{"x":{"visdat":{"8b4e19f0f2f0":["function () ","plotlyVisDat"]},"cur_data":"8b4e19f0f2f0","attrs":{"8b4e19f0f2f0":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,3],"y":[0,0],"z":[0,0],"line":{"color":"red","width":6},"name":"P1 y","showlegend":true,"inherit":true},"8b4e19f0f2f0.1":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"cone","x":3,"y":0,"z":0,"u":3,"v":0,"w":0,"sizemode":"absolute","sizeref":0.5,"anchor":"tip","colorscale":[[0,1],["red","red"]],"showscale":false,"name":"P1 y","showlegend":false,"inherit":true},"8b4e19f0f2f0.2":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,4],"z":[0,0],"line":{"color":"green","width":6},"name":"P2 y","showlegend":true,"inherit":true},"8b4e19f0f2f0.3":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"cone","x":0,"y":4,"z":0,"u":0,"v":4,"w":0,"sizemode":"absolute","sizeref":0.5,"anchor":"tip","colorscale":[[0,1],["green","green"]],"showscale":false,"name":"P2 y","showlegend":false,"inherit":true},"8b4e19f0f2f0.4":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,0],"z":[0,5],"line":{"color":"blue","width":6},"name":"P3 y","showlegend":true,"inherit":true},"8b4e19f0f2f0.5":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"cone","x":0,"y":0,"z":5,"u":0,"v":0,"w":5,"sizemode":"absolute","sizeref":0.5,"anchor":"tip","colorscale":[[0,1],["blue","blue"]],"showscale":false,"name":"P3 y","showlegend":false,"inherit":true},"8b4e19f0f2f0.6":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,3],"y":[0,4],"z":[0,5],"line":{"color":"black","width":6},"name":"y","showlegend":true,"inherit":true},"8b4e19f0f2f0.7":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"cone","x":3,"y":4,"z":5,"u":3,"v":4,"w":5,"sizemode":"absolute","sizeref":0.5,"anchor":"tip","colorscale":[[0,1],["black","black"]],"showscale":false,"name":"y","showlegend":false,"inherit":true},"8b4e19f0f2f0.8":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,0],"z":[5,0],"line":{"color":"rgba(255, 0, 0, 0.5)","width":3,"dash":"dash"},"name":"y -> P1","hoverinfo":"text","text":"y -> P1","inherit":true},"8b4e19f0f2f0.9":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,4],"z":[5,0],"line":{"color":"rgba(0, 255, 0, 0.5)","width":3,"dash":"dash"},"name":"y -> P2","hoverinfo":"text","text":"y -> P2","inherit":true},"8b4e19f0f2f0.10":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,0],"z":[5,5],"line":{"color":"rgba(0, 0, 255, 0.5)","width":3,"dash":"dash"},"name":"y -> P3","hoverinfo":"text","text":"y -> P3","inherit":true},"8b4e19f0f2f0.11":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,4],"z":[5,0],"line":{"color":"purple","width":3,"dash":"dash"},"name":"y -> (P1+P2)","hoverinfo":"text","text":"y -> (P1+P2)","inherit":true},"8b4e19f0f2f0.12":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,0],"z":[5,5],"line":{"color":"orange","width":3,"dash":"dash"},"name":"y -> (P1+P3)","hoverinfo":"text","text":"y -> (P1+P3)","inherit":true},"8b4e19f0f2f0.13":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,4],"z":[5,5],"line":{"color":"cyan","width":3,"dash":"dash"},"name":"y -> (P2+P3)","hoverinfo":"text","text":"y -> (P2+P3)","inherit":true},"8b4e19f0f2f0.14":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,6],"y":[0,0],"z":[0,0],"line":{"color":"gray","dash":"dot","width":2},"name":"V1 (x)","inherit":true},"8b4e19f0f2f0.15":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,6],"z":[0,0],"line":{"color":"gray","dash":"dot","width":2},"name":"V2 (y)","inherit":true},"8b4e19f0f2f0.16":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,0],"z":[0,6],"line":{"color":"gray","dash":"dot","width":2},"name":"V3 (z)","inherit":true}},"layout":{"width":900,"height":700,"margin":{"b":0,"l":0,"t":50,"r":0},"title":"Orthogonal Decomposition Geometry","scene":{"xaxis":{"title":"V1","range":[0,6]},"yaxis":{"title":"V2","range":[0,6]},"zaxis":{"title":"V3","range":[0,6]},"aspectmode":"cube","camera":{"eye":{"x":1.5,"y":1.5,"z":1.2}}},"legend":{"x":0.75,"y":0.90000000000000002},"xaxis":{"title":[]},"yaxis":{"title":[]},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"type":"scatter3d","mode":"lines","x":[0,3],"y":[0,0],"z":[0,0],"line":{"color":"red","width":6},"name":"P1 y","showlegend":true,"marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"frame":null},{"colorbar":{"title":"","ticklen":2},"colorscale":[[0,"red"],[1,"red"]],"showscale":false,"type":"cone","x":[3],"y":[0],"z":[0],"u":[3],"v":[0],"w":[0],"sizemode":"absolute","sizeref":0.5,"anchor":"tip","name":"P1 y","showlegend":false,"frame":null},{"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,4],"z":[0,0],"line":{"color":"green","width":6},"name":"P2 y","showlegend":true,"marker":{"color":"rgba(44,160,44,1)","line":{"color":"rgba(44,160,44,1)"}},"error_y":{"color":"rgba(44,160,44,1)"},"error_x":{"color":"rgba(44,160,44,1)"},"frame":null},{"colorbar":{"title":"","ticklen":2},"colorscale":[[0,"green"],[1,"green"]],"showscale":false,"type":"cone","x":[0],"y":[4],"z":[0],"u":[0],"v":[4],"w":[0],"sizemode":"absolute","sizeref":0.5,"anchor":"tip","name":"P2 y","showlegend":false,"frame":null},{"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,0],"z":[0,5],"line":{"color":"blue","width":6},"name":"P3 y","showlegend":true,"marker":{"color":"rgba(148,103,189,1)","line":{"color":"rgba(148,103,189,1)"}},"error_y":{"color":"rgba(148,103,189,1)"},"error_x":{"color":"rgba(148,103,189,1)"},"frame":null},{"colorbar":{"title":"","ticklen":2},"colorscale":[[0,"blue"],[1,"blue"]],"showscale":false,"type":"cone","x":[0],"y":[0],"z":[5],"u":[0],"v":[0],"w":[5],"sizemode":"absolute","sizeref":0.5,"anchor":"tip","name":"P3 y","showlegend":false,"frame":null},{"type":"scatter3d","mode":"lines","x":[0,3],"y":[0,4],"z":[0,5],"line":{"color":"black","width":6},"name":"y","showlegend":true,"marker":{"color":"rgba(227,119,194,1)","line":{"color":"rgba(227,119,194,1)"}},"error_y":{"color":"rgba(227,119,194,1)"},"error_x":{"color":"rgba(227,119,194,1)"},"frame":null},{"colorbar":{"title":"","ticklen":2},"colorscale":[[0,"black"],[1,"black"]],"showscale":false,"type":"cone","x":[3],"y":[4],"z":[5],"u":[3],"v":[4],"w":[5],"sizemode":"absolute","sizeref":0.5,"anchor":"tip","name":"y","showlegend":false,"frame":null},{"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,0],"z":[5,0],"line":{"color":"rgba(255, 0, 0, 0.5)","width":3,"dash":"dash"},"name":"y -> P1","hoverinfo":["text","text"],"text":["y -> P1","y -> P1"],"marker":{"color":"rgba(188,189,34,1)","line":{"color":"rgba(188,189,34,1)"}},"error_y":{"color":"rgba(188,189,34,1)"},"error_x":{"color":"rgba(188,189,34,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,4],"z":[5,0],"line":{"color":"rgba(0, 255, 0, 0.5)","width":3,"dash":"dash"},"name":"y -> P2","hoverinfo":["text","text"],"text":["y -> P2","y -> P2"],"marker":{"color":"rgba(23,190,207,1)","line":{"color":"rgba(23,190,207,1)"}},"error_y":{"color":"rgba(23,190,207,1)"},"error_x":{"color":"rgba(23,190,207,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,0],"z":[5,5],"line":{"color":"rgba(0, 0, 255, 0.5)","width":3,"dash":"dash"},"name":"y -> P3","hoverinfo":["text","text"],"text":["y -> P3","y -> P3"],"marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,4],"z":[5,0],"line":{"color":"purple","width":3,"dash":"dash"},"name":"y -> (P1+P2)","hoverinfo":["text","text"],"text":["y -> (P1+P2)","y -> (P1+P2)"],"marker":{"color":"rgba(255,127,14,1)","line":{"color":"rgba(255,127,14,1)"}},"error_y":{"color":"rgba(255,127,14,1)"},"error_x":{"color":"rgba(255,127,14,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,0],"z":[5,5],"line":{"color":"orange","width":3,"dash":"dash"},"name":"y -> (P1+P3)","hoverinfo":["text","text"],"text":["y -> (P1+P3)","y -> (P1+P3)"],"marker":{"color":"rgba(44,160,44,1)","line":{"color":"rgba(44,160,44,1)"}},"error_y":{"color":"rgba(44,160,44,1)"},"error_x":{"color":"rgba(44,160,44,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,4],"z":[5,5],"line":{"color":"cyan","width":3,"dash":"dash"},"name":"y -> (P2+P3)","hoverinfo":["text","text"],"text":["y -> (P2+P3)","y -> (P2+P3)"],"marker":{"color":"rgba(214,39,40,1)","line":{"color":"rgba(214,39,40,1)"}},"error_y":{"color":"rgba(214,39,40,1)"},"error_x":{"color":"rgba(214,39,40,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[0,6],"y":[0,0],"z":[0,0],"line":{"color":"gray","dash":"dot","width":2},"name":"V1 (x)","marker":{"color":"rgba(148,103,189,1)","line":{"color":"rgba(148,103,189,1)"}},"error_y":{"color":"rgba(148,103,189,1)"},"error_x":{"color":"rgba(148,103,189,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,6],"z":[0,0],"line":{"color":"gray","dash":"dot","width":2},"name":"V2 (y)","marker":{"color":"rgba(140,86,75,1)","line":{"color":"rgba(140,86,75,1)"}},"error_y":{"color":"rgba(140,86,75,1)"},"error_x":{"color":"rgba(140,86,75,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,0],"z":[0,6],"line":{"color":"gray","dash":"dot","width":2},"name":"V3 (z)","marker":{"color":"rgba(227,119,194,1)","line":{"color":"rgba(227,119,194,1)"}},"error_y":{"color":"rgba(227,119,194,1)"},"error_x":{"color":"rgba(227,119,194,1)"},"frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+```
+
+
+Orthogonal decomposition geometry (R Plotly)
+:::
+:::
+
