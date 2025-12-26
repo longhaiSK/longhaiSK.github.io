@@ -513,7 +513,7 @@ If there exist non-zero $c_i$'s such that sum is zero, the vectors are **Linearl
 
 ## Rank of Matrices and Dim of Vector Space
 ::: {#def-rank}
-#### Rank
+### Rank
 The **Rank** of a matrix $X$, denoted $\text{Rank}(X)$, is the maximum number of linearly independent columns in $X$. This is equivalent to the dimension of the column space:
 
 $$
@@ -521,12 +521,11 @@ $$
 $$
 :::
 
-#### Properties of Rank
 
 There are several fundamental properties regarding the rank of a matrix.
 
 ::: {#thm-rank-properties}
-#### Properties of Rank
+### Row Rank equals Column Rank
 1.  **Row Rank equals Column Rank:** The dimension of the column space is equal to the dimension of the row space.
     $$
     \text{Dim}(\text{Col}(X)) = \text{Dim}(\text{Row}(X)) \implies \text{Rank}(X) = \text{Rank}(X')
@@ -538,58 +537,63 @@ There are several fundamental properties regarding the rank of a matrix.
     $$
 :::
 
-::: {.proof}
-  Let $X$ be an $n \times p$ matrix. Let $r$ be the row rank of $X$.
-  This means the dimension of the row space is $r$. Let $u_1, \dots, u_r$ be a basis for the row space of $X$ (these are row vectors).
-  Since every row of $X$ is in the row space, each row $x_{i.}$ can be written as a linear combination of the basis vectors:
-  $$
-  x_{i.} = c_{i1}u_1 + c_{i2}u_2 + \dots + c_{ir}u_r \quad \text{for } i=1,\dots,n
-  $$
-  
-  We can write this in matrix notation as:
-  $$
-  X = C U
-  $$
-  where $C$ is an $n \times r$ matrix of coefficients $c_{ij}$, and $U$ is an $r \times p$ matrix with rows $u_1, \dots, u_r$.
-  
-  Now consider the columns of $X$. Since $X = CU$, the columns of $X$ are linear combinations of the columns of $C$.
-  Let $c^{(j)}$ be the $j$-th column of $C$. The columns of $X$ lie in the space spanned by $\{c^{(1)}, \dots, c^{(r)}\}$.
-  Thus, the column space of $X$, $\text{Col}(X)$, is a subspace of the column space of $C$.
-  $$
-  \text{Dim}(\text{Col}(X)) \le \text{Dim}(\text{Col}(C)) \le r
-  $$
-  The dimension of the column space of $C$ is at most $r$ (since $C$ has only $r$ columns).
-  Therefore, Column Rank $\le$ Row Rank.
-  
-  Applying the same logic to $X'$, we get Row Rank $\le$ Column Rank.
-  Combining these inequalities gives: **Row Rank = Column Rank**.
+::: {#exm-row-rank-equal-col-rank}
+### Example of the Equality of Row and Col Rank
+
+Consider the following $3 \times 4$ matrix ($n=3, p=4$):
+$$
+X = \begin{pmatrix} 
+1 & 0 & 1 & 0 \\ 
+0 & 1 & 0 & 1 \\ 
+1 & 1 & 1 & 1 
+\end{pmatrix}
+$$
+Notice that the third row is the sum of the first two ($r_3 = r_1 + r_2$).
+
+**1. Row Rank and Basis $U$**
+The first two rows are linearly independent. We set the row rank $r=2$ and use these rows as our basis matrix $U$ ($2 \times 4$):
+$$
+U = \begin{pmatrix} 
+1 & 0 & 1 & 0 \\ 
+0 & 1 & 0 & 1 
+\end{pmatrix}
+$$
+
+**2. Coefficient Matrix $C$**
+We express every row of $X$ as a linear combination of the rows of $U$:
+* Row 1: $1 \cdot u_1 + 0 \cdot u_2$
+* Row 2: $0 \cdot u_1 + 1 \cdot u_2$
+* Row 3: $1 \cdot u_1 + 1 \cdot u_2$
+
+These coefficients form the matrix $C$ ($3 \times 2$):
+$$
+C = \begin{pmatrix} 
+1 & 0 \\ 
+0 & 1 \\ 
+1 & 1 
+\end{pmatrix}
+$$
+
+**3. The Decomposition ($X = CU$)**
+We verify that $X$ is the product of $C$ and $U$:
+$$
+\underbrace{\begin{pmatrix} 1 & 0 & 1 & 0 \\ 0 & 1 & 0 & 1 \\ 1 & 1 & 1 & 1 \end{pmatrix}}_{X \ (3 \times 4)} 
+= 
+\underbrace{\begin{pmatrix} 1 & 0 \\ 0 & 1 \\ 1 & 1 \end{pmatrix}}_{C \ (3 \times 2)} 
+\underbrace{\begin{pmatrix} 1 & 0 & 1 & 0 \\ 0 & 1 & 0 & 1 \end{pmatrix}}_{U \ (2 \times 4)}
+$$
+
+**4. Conclusion on Column Rank**
+The columns of $X$ are linear combinations of the columns of $C$.
+$$
+\text{Col}(X) \subseteq \text{Col}(C)
+$$
+Since $C$ has only 2 columns, the dimension of its column space (and thus $X$'s column space) cannot exceed 2.
+$$
+\text{Dim}(\text{Col}(X)) \le 2
+$$
+This confirms that Row Rank (2) $\ge$ Column Rank. (By symmetry, they are equal).
 :::
-
-::: {.example}
-**Example: 2x3 Matrix**
-
-Consider the following $2 \times 3$ matrix:
-$$
-X = \begin{pmatrix} 1 & 0 & 1 \\ 0 & 1 & 1 \end{pmatrix}
-$$
-
-**Row Rank:**
-The rows are $r_1 = (1, 0, 1)$ and $r_2 = (0, 1, 1)$. Neither is a multiple of the other, so they are linearly independent.
-$$
-\text{Row Rank} = 2
-$$
-
-**Column Rank:**
-The columns are $c_1 = \binom{1}{0}$, $c_2 = \binom{0}{1}$, and $c_3 = \binom{1}{1}$.
-Notice that $c_3 = c_1 + c_2$. The third column is dependent on the first two.
-However, $c_1$ and $c_2$ are independent (standard basis vectors).
-$$
-\text{Column Rank} = 2
-$$
-
-Thus, Rank(Row) = Rank(Col) = 2.
-:::
-
 
 **Orthogonality to a Subspace**
 
@@ -661,31 +665,56 @@ For an $n \times p$ matrix $X$:
 $$
 \text{Rank}(X) + \text{Nullity}(X) = p
 $$
-
-Where $\text{Nullity}(X) = \text{Dim}(\text{Ker}(X))$.
+where $\text{Nullity}(X) = \text{Dim}(\text{Ker}(X))$.
 :::
 
 ::: {.proof}
-Let $k = \text{Nullity}(X)$. Let $\{u_1, \dots, u_k\}$ be a basis for $\text{Ker}(X)$.
-Since these $k$ vectors are linearly independent in $\mathbb{R}^p$, we can extend this basis to form a basis for the entire space $\mathbb{R}^p$: $\{u_1, \dots, u_k, w_1, \dots, w_r\}$, where $k + r = p$.
+From the previous theorem, we established that the kernel is the orthogonal complement of the row space:
+$$
+\text{Ker}(X) = [\text{Row}(X)]^\perp
+$$
 
-We claim that $\{Xw_1, \dots, Xw_r\}$ forms a basis for $\text{Col}(X)$ (the image of $X$).
+Since the row space is a subspace of $\mathbb{R}^p$, the entire space can be decomposed into the direct sum of the row space and its orthogonal complement:
+$$
+\mathbb{R}^p = \text{Row}(X) \oplus [\text{Row}(X)]^\perp = \text{Row}(X) \oplus \text{Ker}(X)
+$$
 
-1.  **Spanning:** For any $y \in \text{Col}(X)$, there exists $v \in \mathbb{R}^p$ such that $y = Xv$. We can write $v$ as a linear combination of the basis vectors:
-    $$v = \sum a_i u_i + \sum b_j w_j$$
-    Then:
-    $$y = Xv = \sum a_i \underbrace{X u_i}_{0} + \sum b_j X w_j = \sum b_j (X w_j)$$
-    Thus, the vectors $Xw_j$ span the column space.
+Taking the dimensions of these spaces:
+$$
+\text{Dim}(\mathbb{R}^p) = \text{Dim}(\text{Row}(X)) + \text{Dim}(\text{Ker}(X))
+$$
 
-2.  **Independence:** Suppose $\sum c_j Xw_j = 0$. Then $X(\sum c_j w_j) = 0$.
-    This implies that the vector $z = \sum c_j w_j$ lies in $\text{Ker}(X)$.
-    Therefore, $z$ must be expressible as a linear combination of the kernel basis $\{u_i\}$:
-    $$\sum c_j w_j = \sum d_i u_i \implies \sum c_j w_j - \sum d_i u_i = 0$$
-    Since $\{u_1, \dots, u_k, w_1, \dots, w_r\}$ is a basis for $\mathbb{R}^p$, all coefficients must be zero. Thus, $c_j = 0$ for all $j$.
-    This proves $\{Xw_1, \dots, Xw_r\}$ are linearly independent.
+Substituting the definitions of Rank (dimension of row/column space) and Nullity:
+$$
+p = \text{Rank}(X) + \text{Nullity}(X)
+$$
+:::
 
-Since the dimension of $\text{Col}(X)$ is $r$, we have:
-$\text{Rank}(X) = r = p - k = p - \text{Nullity}(X)$.
+**Comparing Ranks via Kernel Containment**
+
+The Rank-Nullity Theorem provides a powerful and convenient tool for comparing the ranks of two matrices $A$ and $B$ (with the same number of columns) by inspecting their null spaces.
+
+::: {#thm-rank-kernel}
+### Kernel Containment and Rank Inequality
+Let $A$ and $B$ be two matrices with $p$ columns. If the kernel of $A$ is contained within the kernel of $B$, then the rank of $A$ is greater than or equal to the rank of $B$.
+
+$$
+\text{Ker}(A) \subseteq \text{Ker}(B) \implies \text{Rank}(A) \ge \text{Rank}(B)
+$$
+:::
+
+::: {.proof}
+From the subspace inclusion $\text{Ker}(A) \subseteq \text{Ker}(B)$, it follows that the dimension of the smaller space cannot exceed the dimension of the larger space:
+$$
+\text{Nullity}(A) \le \text{Nullity}(B)
+$$
+Using the Rank-Nullity Theorem ($\text{Rank} = p - \text{Nullity}$), we reverse the inequality:
+$$
+p - \text{Nullity}(A) \ge p - \text{Nullity}(B)
+$$
+$$
+\text{Rank}(A) \ge \text{Rank}(B)
+$$
 :::
 
 **Rank Inequalities**
@@ -1486,8 +1515,7 @@ By the Pythagorean theorem applied twice to these orthogonal vectors, the equali
 :::
 
 
-```{python}
-#| label: fig-anova-decomposition-v2
+```{python fig-anova-decomposition-v2}
 #| fig-cap: "Illustration of Projections onto Nested Subspaces"
 #| echo: false
 #| results: hide
@@ -1586,55 +1614,89 @@ ax.view_init(elev=20, azim=-25) # Adjusted view angle to see the height
 plt.show()
 ```
 
-
 ::: {#exm-anova-ss}
-#### Geometric Interpretation of One-way ANOVA
+#### ANOVA Sum Squares
 
-We apply the **Nested Model Theorem** ($M_0 \subset M_1$) to the One-way ANOVA setting with $k$ groups and $n_i$ observations per group.
+We apply the **Nested Model Theorem** ($M_0 \subset M_1$) to the One-way ANOVA setting.
 
-**1. The Data Vector**
-We stack all observations into a single $N \times 1$ vector ($N = \sum n_i$):
+**1. Notation and Definitions**
+
+Consider a dataset with $k$ groups. Let $i = 1, \dots, k$ index the groups, and $j = 1, \dots, n_i$ index the observations within group $i$.
+
+- $N$: Total number of observations, $N = \sum_{i=1}^k n_i$.
+- $y_{ij}$: The $j$-th observation in the $i$-th group.
+- $\bar{y}_{i.}$: The sample mean of group $i$.
+    $$
+    \bar{y}_{i.} = \frac{1}{n_i} \sum_{j=1}^{n_i} y_{ij}
+    $$
+- $\bar{y}_{..}$: The grand mean of all observations.
+    $$
+    \bar{y}_{..} = \frac{1}{N} \sum_{i=1}^k \sum_{j=1}^{n_i} y_{ij}
+    $$
+
+**2. The Data and Projection Vectors**
+
+We stack all observations into a single $N \times 1$ vector. The projections onto the Null Model ($M_0$, intercept only) and Full Model ($M_1$, group means) correspond to replacing observations with the Grand Mean and Group Means, respectively.
+
+| Observation ($y$) | Null Projection ($\hat{y}_0$) | Full Projection ($\hat{y}_1$) |
+| :---: | :---: | :---: |
+| $\begin{pmatrix} y_{11} \\ \vdots \\ y_{1 n_1} \\ \hline \vdots \\ \hline y_{k1} \\ \vdots \\ y_{k n_k} \end{pmatrix}$ | $\begin{pmatrix} \bar{y}_{..} \\ \vdots \\ \bar{y}_{..} \\ \hline \vdots \\ \hline \bar{y}_{..} \\ \vdots \\ \bar{y}_{..} \end{pmatrix}$ | $\begin{pmatrix} \bar{y}_{1.} \\ \vdots \\ \bar{y}_{1.} \\ \hline \vdots \\ \hline \bar{y}_{k.} \\ \vdots \\ \bar{y}_{k.} \end{pmatrix}$ |
+
+: ANOVA Vectors: Data, Null Model, and Full Model {#tbl-anova-vectors}
+
+**3. Decomposition and Sum of Squares**
+
+The total deviation vector $y - \hat{y}_0$ splits into two orthogonal components: the Model Improvement ($\hat{y}_1 - \hat{y}_0$) and the Residual ($y - \hat{y}_1$).
+
+| Component | Notation | Definition | Vector Elements | Squared Norm (Sum of Squares) |
+| :--- | :---: | :---: | :--- | :--- |
+| **Null Proj.** | $\hat{y}_0$ | $P_0 y$ | Grand Mean ($\bar{y}_{..}$) | $\|\hat{y}_0\|^2 = N \bar{y}_{..}^2 = \frac{(\sum_{i=1}^k \sum_{j=1}^{n_i} y_{ij})^2}{N}$ |
+| **Full Proj.** | $\hat{y}_1$ | $P_1 y$ | Group Means ($\bar{y}_{i.}$) | $\|\hat{y}_1\|^2 = \sum_{i=1}^k n_i \bar{y}_{i.}^2 = \sum_{i=1}^k \frac{y_{i.}^2}{n_i}$ |
+| **Between** | $\hat{y}_1 - \hat{y}_0$ | $(P_1 - P_0)y$ | Group Effect ($\bar{y}_{i.} - \bar{y}_{..}$) | $\sum_{i=1}^k n_i (\bar{y}_{i.} - \bar{y}_{..})^2$ |
+| **Within** | $y - \hat{y}_1$ | $(I - P_1)y$ | Residual ($y_{ij} - \bar{y}_{i.}$) | $\sum_{i=1}^k \sum_{j=1}^{n_i} (y_{ij} - \bar{y}_{i.})^2$ |
+| **Total** | $y - \hat{y}_0$ | $(I - P_0)y$ | Total Deviation ($y_{ij} - \bar{y}_{..}$) | $\sum_{i=1}^k \sum_{j=1}^{n_i} (y_{ij} - \bar{y}_{..})^2$ |
+
+: ANOVA Projections and Sum of Squares {#tbl-anova-projections}
+
+**4. Geometric Justification of Shortcut Formulas**
+
+In manual calculations, we use "shortcut formulas" involving raw sums of squares. These are direct consequences of the **Pythagorean Theorem** applied to orthogonal projections.
+
+**A. Total Sum of Squares (SST)**
+Since $\hat{y}_0 \perp (y - \hat{y}_0)$:
 $$
-y = \begin{pmatrix} y_{11} \\ \vdots \\ y_{1 n_1} \\ \hline \vdots \\ \hline y_{k1} \\ \vdots \\ y_{k n_k} \end{pmatrix}
+\|y\|^2 = \|\hat{y}_0\|^2 + \|y - \hat{y}_0\|^2
+$$
+$$
+\text{TSS} = \|y - \hat{y}_0\|^2 = \sum_{i=1}^k \sum_{j=1}^{n_i} y_{ij}^2 - \frac{(\sum_{i=1}^k \sum_{j=1}^{n_i} y_{ij})^2}{N}
 $$
 
-**2. The Projections (as Vectors)**
+**B. Between Group Sum of Squares (SSB)**
+Since $\hat{y}_0$ is the projection of $\hat{y}_1$ onto $M_0$, we have $\hat{y}_0 \perp (\hat{y}_1 - \hat{y}_0)$:
+$$
+\|\hat{y}_1\|^2 = \|\hat{y}_0\|^2 + \|\hat{y}_1 - \hat{y}_0\|^2
+$$
+$$
+\text{SSB} = \|\hat{y}_1 - \hat{y}_0\|^2 = \sum_{i=1}^k \frac{y_{i.}^2}{n_i} - \frac{(\sum_{i=1}^k \sum_{j=1}^{n_i} y_{ij})^2}{N}
+$$
 
-* **$\hat{y}_0$ (Null Model Projection):**
-    Projecting onto the intercept vector $\mathbf{1}$ replaces every observation with the **Grand Mean** $\bar{y}_{..}$.
-    $$
-    \hat{y}_0 = P_0 y = \begin{pmatrix} \bar{y}_{..} \\ \vdots \\ \bar{y}_{..} \\ \hline \vdots \\ \hline \bar{y}_{..} \\ \vdots \\ \bar{y}_{..} \end{pmatrix}
-    $$
-
-* **$\hat{y}_1$ (Full Model Projection):**
-    Projecting onto the group indicators replaces observations in group $i$ with the **Group Mean** $\bar{y}_{i.}$.
-    $$
-    \hat{y}_1 = P_1 y = \begin{pmatrix} \bar{y}_{1.} \\ \vdots \\ \bar{y}_{1.} \\ \hline \vdots \\ \hline \bar{y}_{k.} \\ \vdots \\ \bar{y}_{k.} \end{pmatrix}
-    $$
-
-**3. The Decomposition**
-The total deviation vector $y - \hat{y}_0$ splits into two orthogonal vector components:
-
-* **Model Improvement Vector ($\hat{y}_1 - \hat{y}_0$):**
-    The difference between group means and the grand mean.
-    $$
-    \hat{y}_1 - \hat{y}_0 = \begin{pmatrix} \bar{y}_{1.} - \bar{y}_{..} \\ \vdots \\ \bar{y}_{1.} - \bar{y}_{..} \\ \hline \vdots \\ \hline \bar{y}_{k.} - \bar{y}_{..} \\ \vdots \\ \bar{y}_{k.} - \bar{y}_{..} \end{pmatrix}
-    $$
-    *Squared Norm:* $RSS_0 - RSS_1 = \sum_{i} n_i (\bar{y}_{i.} - \bar{y}_{..})^2$ ($SS_{between}$)
-
-* **Residual Vector ($y - \hat{y}_1$):**
-    The difference between individual observations and their specific group mean.
-    $$
-    y - \hat{y}_1 = \begin{pmatrix} y_{11} - \bar{y}_{1.} \\ \vdots \\ y_{1 n_1} - \bar{y}_{1.} \\ \hline \vdots \\ \hline y_{k1} - \bar{y}_{k.} \\ \vdots \\ y_{k n_k} - \bar{y}_{k.} \end{pmatrix}
-    $$
-    *Squared Norm:* $RSS_1 = \sum_{i}\sum_{j} (y_{ij} - \bar{y}_{i.})^2$ ($SS_{within}$)
+**C. Within Group Sum of Squares (SSW)**
+Since $\hat{y}_1$ is the projection of $y$ onto $M_1$, we have $\hat{y}_1 \perp (y - \hat{y}_1)$:
+$$
+\|y\|^2 = \|\hat{y}_1\|^2 + \|y - \hat{y}_1\|^2
+$$
+$$
+\text{SSW} = \|y - \hat{y}_1\|^2 = \sum_{i=1}^k \sum_{j=1}^{n_i} y_{ij}^2 - \sum_{i=1}^k \frac{y_{i.}^2}{n_i}
+$$
 
 **Conclusion:**
-By orthogonality, the squared length of the total deviation equals the sum of the squared lengths of these components:
+The decomposition holds:
 $$
-\underbrace{||\hat{y}_1 - \hat{y}_0||^2}_{SS_{between}} + \underbrace{||y - \hat{y}_1||^2}_{SS_{within}} = \underbrace{||y - \hat{y}_0||^2}_{TSS}
+\underbrace{\|y\|^2 - \|\hat{y}_0\|^2}_{\text{SST}} = \underbrace{(\|\hat{y}_1\|^2 - \|\hat{y}_0\|^2)}_{\text{SSB}} + \underbrace{(\|y\|^2 - \|\hat{y}_1\|^2)}_{\text{SSW}}
 $$
 :::
+
+
 
 ### Projections in General Orthogonal Subspaces
 
