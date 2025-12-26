@@ -769,6 +769,19 @@ This property ensures that for any $y$, the projection of $y$ onto $Col(X)$ lies
 
 ## Projection via Orthonormal Basis ($Q$)
 
+::: {#def-projection-matrix}
+#### Definition of Projection onto a Subspace $V$
+Let $V$ be a subspace of $\mathbb{R}^n$. For any vector $y \in \mathbb{R}^n$, there exists a **unique** vector $\hat{y} \in V$ such that the residual is orthogonal to the subspace:
+
+$$
+(y - \hat{y}) \perp V
+$$
+
+Equivalently:
+$$
+\langle y - \hat{y}, v \rangle = 0 \quad \forall v \in V
+$$
+:::
 
 ### Orthonomal Basis
 
@@ -823,19 +836,7 @@ Since the basis vectors are normalized, we do not need to divide by $||q_i||^2$.
 
 
 
-::: {#def-projection-matrix}
-#### Definition of Projection onto a Subspace $V$
-Let $V$ be a subspace of $\mathbb{R}^n$. For any vector $y \in \mathbb{R}^n$, there exists a **unique** vector $\hat{y} \in V$ such that the residual is orthogonal to the subspace:
 
-$$
-(y - \hat{y}) \perp V
-$$
-
-Equivalently:
-$$
-\langle y - \hat{y}, v \rangle = 0 \quad \forall v \in V
-$$
-:::
 
 ::: {#thm-orthonormal-basis-proj}
 #### Projection via Orthonormal Basis
@@ -1135,16 +1136,14 @@ This process leads to the **QR Decomposition** of a matrix: $X = QR$, where $Q$ 
 
 ## Hat Matrix (Projection Matrix via $X$)
 
-
-
 ### Norm Equations
 
 Let $X = (x_1, \dots, x_p)$ be an $n \times p$ matrix, where each column $x_j$ is a predictor vector.
 
-We want to project the target vector $y$ onto the column space $C(X)$. This is equivalent to finding a coefficient vector $\beta \in \mathbb{R}^p$ such that the error vector (residual) is orthogonal to the entire subspace $C(X)$.
+We want to project the target vector $y$ onto the column space $Col(X)$. This is equivalent to finding a coefficient vector $\beta \in \mathbb{R}^p$ such that the error vector (residual) is orthogonal to the entire subspace $Col(X)$.
 
 $$
-y - X\beta \perp C(X)
+y - X\beta \perp Col(X)
 $$
 
 Since the columns of $X$ span the subspace, the residual must be orthogonal to **every** column vector $x_j$ individually:
@@ -1198,10 +1197,10 @@ $$
 \hat{y} = X\hat{\beta} = X(X'X)^{-1}X'y
 $$
 
-Thus, the hat matrix $P$ is defined as:
+Thus, the hat matrix $H$ is defined as:
 
 $$
-P = X(X'X)^{-1}X'
+H = X(X'X)^{-1}X'
 $$
 :::
 
@@ -1213,7 +1212,7 @@ Recall that for orthonormal columns, $Q'Q = I$. Substituting $X=QR$ into the gen
 
 $$
 \begin{aligned}
-P &= QR((QR)'(QR))^{-1}(QR)' \\
+H &= QR((QR)'(QR))^{-1}(QR)' \\
   &= QR(R'Q'QR)^{-1}R'Q' \\
   &= QR(R' \underbrace{Q'Q}_{I} R)^{-1}R'Q' \\
   &= QR(R'R)^{-1}R'Q' \\
@@ -1223,7 +1222,7 @@ P &= QR((QR)'(QR))^{-1}(QR)' \\
 \end{aligned}
 $$
 
-This confirms that $P = QQ'$ is consistent with the general formula $P = X(X'X)^{-1}X'$.
+This confirms that $H = QQ'$ is consistent with the general formula $H = X(X'X)^{-1}X'$.
 
 ### Properties of Hat Matrix
 
@@ -1231,28 +1230,73 @@ We revisit the properties of projection matrices in this general context.
 
 ::: {#thm-projection-properties-revisited}
 ### Properties of Hat Matrix
-The matrix $P = X(X'X)^{-1}X'$ satisfies:
+The matrix $H = X(X'X)^{-1}X'$ satisfies:
 
-1.  **Symmetric:** $P' = P$
-2.  **Idempotent:** $P^2 = P$
+1.  **Symmetric:** $H' = H$
+2.  **Idempotent:** $H^2 = H$
 3.  **Trace:** The trace of a projection matrix equals the dimension of the subspace it projects onto.
     $$
-    \text{tr}(P) = \text{tr}(X(X'X)^{-1}X') = \text{tr}((X'X)^{-1}X'X) = \text{tr}(I_p) = p
+    \text{tr}(H) = \text{tr}(X(X'X)^{-1}X') = \text{tr}((X'X)^{-1}X'X) = \text{tr}(I_p) = p
     $$
 :::
 
 ### Projection onto Complement
 
-::: {#def-m-matrix}
+::: {#thm-m-matrix}
 ### Residual Maker Matrix M
 $$
 M = I - X(X^\top X)^{-1}X^\top
 $$
 
-This matrix projects $y$ onto the null space of $X^\top$ (i.e., $\text{Col}(X)^\perp$).
+$M$ is a projection matrix onto  $\text{Col}(X)^\perp$.
 :::
 
+::: {.proof}
 
+
+Let $H = X(X^\top X)^{-1}X^\top$. This is the "Hat Matrix" which projects onto $\text{Col}(X)$. Then we can write $M = I - H$.
+
+To prove $M$ is the orthogonal projector onto $\text{Col}(X)^\perp$, we must satisfy two conditions:
+1.  $M$ is an orthogonal projection matrix (Symmetric and Idempotent).
+2.  The image (column space) of $M$ is exactly $\text{Col}(X)^\perp$.
+
+**1. Symmetry and Idempotency**
+
+* **Symmetry:** Since $H$ is symmetric, $M$ is symmetric.
+    $$
+    M^\top = (I - H)^\top = I^\top - H^\top = I - H = M
+    $$
+* **Idempotency:** Since $H$ is idempotent ($H^2=H$), $M$ is idempotent.
+    $$
+    M^2 = (I - H)(I - H) = I - 2H + H^2 = I - 2H + H = I - H = M
+    $$
+
+**2. The Image of M**
+
+We claim $\text{Col}(M) = \text{Col}(X)^\perp$.
+
+* **Forward ($\subseteq$):** Take any vector $v = My$ in the column space of $M$. We check if it is orthogonal to the columns of $X$:
+    $$
+    X^\top v = X^\top (I - H)y = (X^\top - X^\top H)y
+    $$
+    Substituting $H = X(X^\top X)^{-1}X^\top$:
+    $$
+    X^\top H = X^\top [X(X^\top X)^{-1}X^\top] = (X^\top X)(X^\top X)^{-1}X^\top = I \cdot X^\top = X^\top
+    $$
+    Therefore:
+    $$
+    X^\top v = (X^\top - X^\top)y = 0
+    $$
+    Since $v$ is orthogonal to the columns of $X$, $v \in \text{Col}(X)^\perp$.
+
+* **Reverse ($\supseteq$):** Take any vector $z \in \text{Col}(X)^\perp$. By definition, $X^\top z = 0$.
+    $$
+    Mz = (I - H)z = z - X(X^\top X)^{-1}\underbrace{X^\top z}_{0} = z - 0 = z
+    $$
+    Since $Mz = z$, the vector $z$ is in the column space of $M$ (it is an eigenvector with eigenvalue 1).
+
+Thus, $M$ projects orthogonally onto $\text{Col}(X)^\perp$. $\square$
+:::
 
 ## General Projection Matrices onto Nested Subspaces
 
@@ -1308,7 +1352,7 @@ The matrix $P_{\Delta} = P_1 - P_0$ is an orthogonal projection matrix onto the 
 ::: {#thm-nested-decomposition}
 #### Orthogonal Decomposition
 
-Let $M_0 \subset M_1$ be two nested linear models with corresponding design matrices $X_0$ and $X_1$ such that $C(X_0) \subset C(X_1)$. Let $P_0$ and $P_1$ be the orthogonal projection matrices onto $C(X_0)$ and $C(X_1)$ respectively.
+Let $M_0 \subset M_1$ be two nested linear models with corresponding design matrices $X_0$ and $X_1$ such that $Col(X_0) \subset Col(X_1)$. Let $P_0$ and $P_1$ be the orthogonal projection matrices onto $Col(X_0)$ and $Col(X_1)$ respectively.
 
 For any observation vector $y$, we have the decomposition:
 $$
@@ -1317,9 +1361,9 @@ $$
 
 **Geometric Interpretation:**
 
-1.  $\hat{y}_0 \in C(X_0)$: The fit of the reduced model.
-2.  $(\hat{y}_1 - \hat{y}_0) \in C(X_0)^\perp \cap C(X_1)$: The additional fit provided by $M_1$ over $M_0$.
-3.  $(y - \hat{y}_1) \in C(X_1)^\perp$: The projection of $y$ onto the **orthogonal complement** of $C(X_1)$.
+1.  $\hat{y}_0 \in Col(X_0)$: The fit of the reduced model.
+2.  $(\hat{y}_1 - \hat{y}_0) \in Col(X_0)^\perp \cap Col(X_1)$: The additional fit provided by $M_1$ over $M_0$.
+3.  $(y - \hat{y}_1) \in Col(X_1)^\perp$: The projection of $y$ onto the **orthogonal complement** of $Col(X_1)$.
 
 The three component vectors are mutually orthogonal. Consequently, their squared norms sum to the total squared norm:
 $$
@@ -1337,9 +1381,9 @@ We define the three components as vectors $v_1, v_2, v_3$:
 * $v_1 = \hat{y}_0 = P_0 y$.
 * $v_2 = \hat{y}_1 - \hat{y}_0 = (P_1 - P_0)y$.
 * $v_3 = y - \hat{y}_1 = (I - P_1)y$.
-    * **Note:** Since $P_1$ projects onto $C(X_1)$, the matrix $(I - P_1)$ projects onto the **orthogonal complement** $C(X_1)^\perp$. Thus, $v_3 \in \text{Col}(I - P_1)$.
+    * **Note:** Since $P_1$ projects onto $Col(X_1)$, the matrix $(I - P_1)$ projects onto the **orthogonal complement** $Col(X_1)^\perp$. Thus, $v_3 \in \text{Col}(I - P_1)$.
 
-Note that since $C(X_0) \subset C(X_1)$, we have the property $P_1 P_0 = P_0 P_1 = P_0$. (Projecting onto the smaller subspace $M_0$ is unchanged if we first project onto the enclosing subspace $M_1$).
+Note that since $Col(X_0) \subset Col(X_1)$, we have the property $P_1 P_0 = P_0 P_1 = P_0$. (Projecting onto the smaller subspace $M_0$ is unchanged if we first project onto the enclosing subspace $M_1$).
 
 **2. Orthogonality of $v_1$ and $v_2$**
 We check the inner product $\langle v_1, v_2 \rangle = v_1' v_2$:
@@ -1393,15 +1437,15 @@ y1 = np.array([4, 3, 0])   # y_hat_1
 y = np.array([4, 3, 5])    # y
 
 # 3. Draw Subspaces (Visual Context)
-# Plane C(P1)
+# Plane Col(P1)
 xx, yy = np.meshgrid(np.linspace(-1, 6, 10), np.linspace(-1, 6, 10))
 z_plane = np.zeros_like(xx)
 ax.plot_surface(xx, yy, z_plane, alpha=0.1, color='blue')
-ax.text(6, 6, 0, r'$C(P_1)$', color='blue')
+ax.text(6, 6, 0, r'$Col(P_1)$', color='blue')
 
-# Line C(P0)
+# Line Col(P0)
 ax.plot([-1, 6], [0, 0], [0, 0], 'k--', alpha=0.3)
-ax.text(6, 0, 0, r'$C(P_0)$', color='black')
+ax.text(6, 0, 0, r'$Col(P_0)$', color='black')
 
 # 4. Helper to draw heavier arrows
 def draw_arrow(start, end, color, label, label_pos='mid', offset=(0,0,0), lw=6, style='solid'):
@@ -1526,7 +1570,7 @@ $$
 Finally, we consider the case where the entire space $\mathbb{R}^n$ is decomposed into mutually orthogonal subspaces.
 
 ::: {#thm-orth-decomposition}
-#### General Orthogonal Projects
+#### General Orthogonal Projections
 If $\mathbb{R}^n$ is the direct sum of orthogonal subspaces $V_1, V_2, \dots, V_k$:
 
 $$
@@ -1536,13 +1580,13 @@ where $V_i \perp V_j$ for all $i \ne j$.
 
 Then any vector $y$ can be uniquely written as:
 $$
-y = x_1 + x_2 + \dots + x_k
+y = \hat{y}_1 + \hat{y}_2 + \dots + \hat{y}_k
 $$
-where $x_i \in V_i$.
+where $\hat{y}_i \in V_i$.
 
-Furthermore, each component $x_i$ is simply the projection of $y$ onto the subspace $V_i$:
+Furthermore, each component $\hat{y}_i$ is simply the projection of $y$ onto the subspace $V_i$:
 $$
-x_i = P_i y
+\hat{y}_i = P_i y
 $$
 :::
 
@@ -1550,7 +1594,6 @@ This implies that the identity matrix can be decomposed into a sum of projection
 $$
 I_n = P_1 + P_2 + \dots + P_k
 $$
-
 
 ```{python}
 #| label: fig-orthogonal-decomp-rotated
