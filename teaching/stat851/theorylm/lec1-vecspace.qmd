@@ -77,7 +77,7 @@ In addition to combining vectors with each other, we can modify a single vector 
 Multiplying a vector by a scalar $c$ scales its magnitude (length) without changing its line of direction. If $c$ is positive, the direction remains the same; if $c$ is negative, the direction is reversed.
 
 $$
-cx = \begin{pmatrix} cx_1 \\ \vdots \\ cx_n \end{pmatrix}
+c x = \begin{pmatrix} c x_1 \\ \vdots \\ c x_n \end{pmatrix}
 $$
 :::
 
@@ -1350,64 +1350,89 @@ The matrix $H = X(X'X)^{-1}X'$ satisfies:
     $$
 :::
 
-### Projection onto Complement
+## Orthogonal Projection Matrices
 
-::: {#thm-m-matrix name="Residual Maker Matrix M"}
-$$
-M = I - X(X^\top X)^{-1}X^\top
-$$
+### General Theory
 
-$M$ is a projection matrix onto  $\text{Col}(X)^\perp$.
+::: {#def-proj-matrix name="Orthogonal Projection Matrix"}
+A square matrix $P$ is called an **orthogonal projection matrix** if it satisfies two conditions:
+
+1.  **Symmetry:** $P^\top = P$
+2.  **Idempotency:** $P^2 = P$
+:::
+
+::: {#thm-proj-col name="Projection onto Column Space"}
+If a matrix $P$ is symmetric and idempotent, then $P$ represents the orthogonal projection onto its column space, $\text{Col}(P)$.
+
+Specifically, for any vector $y$, the vector $\hat{y} = Py$ is the unique vector in $\text{Col}(P)$ such that the residual $e = y - \hat{y}$ is orthogonal to $\text{Col}(P)$.
 :::
 
 ::: {.proof}
-Let $H = X(X^\top X)^{-1}X^\top$. This is the "Hat Matrix" which projects onto $\text{Col}(X)$. Then we can write $M = I - H$.
+Let $y \in \mathbb{R}^n$. We decompose $y$ as $y = Py + (I - P)y$. We must show that the residual term $(I-P)y$ is orthogonal to any vector $z \in \text{Col}(P)$.
 
-To prove $M$ is the orthogonal projector onto $\text{Col}(X)^\perp$, we must satisfy two conditions:
+Since $z \in \text{Col}(P)$, there exists a vector $x$ such that $z = Px$. The inner product between $z$ and the residual is:
+$$
+\langle z, (I - P)y \rangle = z^\top (I - P)y = (Px)^\top (I - P)y
+$$ {#eq-inner-prod}
 
-1.  $M$ is an orthogonal projection matrix (Symmetric and Idempotent).
-2.  The image (column space) of $M$ is exactly $\text{Col}(X)^\perp$.
+Using the matrix transpose property $(AB)^\top = B^\top A^\top$, we rewrite @eq-inner-prod as:
+$$
+\langle z, (I - P)y \rangle = x^\top P^\top (I - P)y
+$$ {#eq-transpose-step}
 
-**1. Symmetry and Idempotency**
+Since $P$ is symmetric ($P^\top = P$), we can substitute $P$ for $P^\top$ in @eq-transpose-step:
+$$
+\langle z, (I - P)y \rangle = x^\top P (I - P)y = x^\top (P - P^2)y
+$$ {#eq-sym-step}
 
-* **Symmetry:** Since $H$ is symmetric, $M$ is symmetric.
-    $$
-    M^\top = (I - H)^\top = I^\top - H^\top = I - H = M
-    $$
+Finally, utilizing the idempotency of $P$ (where $P^2 = P$), the expression in @eq-sym-step simplifies to 0:
+$$
+x^\top (P - P)y = x^\top (0)y = 0
+$$ {#eq-final-step}
 
-* **Idempotency:** Since $H$ is idempotent ($H^2=H$), $M$ is idempotent.
-    $$
-    M^2 = (I - H)(I - H) = I - 2H + H^2 = I - 2H + H = I - H = M
-    $$
-
-**2. The Image of M**
-
-We claim $\text{Col}(M) = \text{Col}(X)^\perp$.
-
-* **Forward ($\subseteq$):** Take any vector $v = My$ in the column space of $M$. We check if it is orthogonal to the columns of $X$:
-    $$
-    X^\top v = X^\top (I - H)y = (X^\top - X^\top H)y
-    $$
-    Substituting $H = X(X^\top X)^{-1}X^\top$:
-    $$
-    X^\top H = X^\top [X(X^\top X)^{-1}X^\top] = (X^\top X)(X^\top X)^{-1}X^\top = I \cdot X^\top = X^\top
-    $$
-    Therefore:
-    $$
-    X^\top v = (X^\top - X^\top)y = 0
-    $$
-    Since $v$ is orthogonal to the columns of $X$, $v \in \text{Col}(X)^\perp$.
-
-* **Reverse ($\supseteq$):** Take any vector $z \in \text{Col}(X)^\perp$. By definition, $X^\top z = 0$.
-    $$
-    Mz = (I - H)z = z - X(X^\top X)^{-1}\underbrace{X^\top z}_{0} = z - 0 = z
-    $$
-    Since $Mz = z$, the vector $z$ is in the column space of $M$ (it is an eigenvector with eigenvalue 1).
-
-Thus, $M$ projects orthogonally onto $\text{Col}(X)^\perp$.
+Since the inner product is 0, the residual is orthogonal to every vector in $\text{Col}(P)$. Thus, $P$ is the orthogonal projector.
 :::
 
-## General Projection Matrices onto Nested Subspaces
+### Projection onto Complement Space
+
+::: {#thm-complement-proj name="Projection onto Orthogonal Complement"}
+Let $P$ be the orthogonal projection matrix onto a subspace $\mathcal{V}$. The matrix $M$ defined as:
+$$
+M = I - P
+$$
+is the orthogonal projection matrix onto the orthogonal complement, $\mathcal{V}^\perp$.
+:::
+
+::: {.proof}
+**1. Symmetry and Idempotency**
+Since $P$ is a projection matrix, we know $P^\top = P$ and $P^2 = P$. We verify these properties for $M$:
+$$
+M^\top = (I - P)^\top = I - P^\top = I - P = M
+$$ {#eq-m-sym}
+$$
+M^2 = (I - P)(I - P) = I - 2P + P^2 = I - 2P + P = I - P = M
+$$ {#eq-m-idemp}
+By @eq-m-sym and @eq-m-idemp, $M$ is symmetric and idempotent, so it is an orthogonal projection matrix.
+
+**2. Identifying the Subspace**
+By @thm-proj-col, $M$ projects onto its own column space, $\text{Col}(M)$. A vector $v$ is in $\text{Col}(M)$ if and only if it is fixed by the projection ($Mv = v$).
+$$
+Mv = v
+$$ {#eq-fixed-point}
+
+Substituting $M = I - P$ into @eq-fixed-point gives:
+$$
+(I - P)v = v
+$$ {#eq-sub-m}
+
+Rearranging @eq-sub-m, we find the condition for $v$:
+$$
+v - Pv = v \implies Pv = 0
+$$ {#eq-nullspace}
+
+The condition $Pv = 0$ in @eq-nullspace implies that $v$ belongs to the null space of $P$. Since $P$ is the orthogonal projection onto $\mathcal{V}$, its null space is exactly the orthogonal complement $\mathcal{V}^\perp$. Thus, $\text{Col}(M) = \mathcal{V}^\perp$.
+:::
+## Projection onto Nested Subspaces
 
 ### Nested Models and Subspaces
 
@@ -1425,7 +1450,7 @@ $$
 $$
 :::
 
-Usually, $X_1$ is constructed by adding columns to $X_0$: $X_1 = [X_0, X_{new}]$.
+Usually, $X_1$ is constructed by adding columns to $X_0$: $X_1 = [X_0, X_{\text{new}}]$.
 
 
 
