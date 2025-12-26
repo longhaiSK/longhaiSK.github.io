@@ -825,7 +825,7 @@ This property ensures that for any $y$, the projection of $y$ onto $\text{Col}(X
 
 
 
-## Projection via Orthonormal Basis ($Q$)
+## Orthogonal Projection onto a Subspace
 
 ::: {#def-projection-matrix}
 #### Definition of Projection onto a Subspace $V$
@@ -840,6 +840,96 @@ $$
 \langle y - \hat{y}, v \rangle = 0 \quad \forall v \in V
 $$
 :::
+
+
+### Equivalence to Least Squares
+
+The geometric definition of projection (orthogonality) is mathematically equivalent to the optimization problem of minimizing distance (least squares).
+
+::: {#thm-best-approximation}
+#### Best Approximation Theorem (Least Squares Property)
+Let $V$ be a subspace of $\mathbb{R}^n$ and $y \in \mathbb{R}^n$. Let $\hat{y}$ be the orthogonal projection of $y$ onto $V$.
+Then $\hat{y}$ is the closest point in $V$ to $y$. That is, for any vector $v \in V$ such that $v \ne \hat{y}$:
+
+$$
+\|y - \hat{y}\|^2 < \|y - v\|^2
+$$
+:::
+
+::: {.proof}
+Let $v$ be any vector in $V$. We can rewrite the difference vector $y - v$ by adding and subtracting the projection $\hat{y}$:
+$$
+y - v = (y - \hat{y}) + (\hat{y} - v)
+$$
+
+Observe the properties of the two terms on the right-hand side:
+1.  **Residual:** $(y - \hat{y})$ is orthogonal to $V$ by definition.
+2.  **Difference in Subspace:** Since both $\hat{y} \in V$ and $v \in V$, their difference $(\hat{y} - v)$ is also in $V$.
+
+Therefore, the two terms are orthogonal to each other:
+$$
+(y - \hat{y}) \perp (\hat{y} - v)
+$$
+
+Applying the Pythagorean Theorem:
+$$
+\|y - v\|^2 = \|y - \hat{y}\|^2 + \|\hat{y} - v\|^2
+$$
+
+Since squared norms are non-negative, and $\|\hat{y} - v\|^2 > 0$ (because $v \ne \hat{y}$):
+$$
+\|y - v\|^2 > \|y - \hat{y}\|^2
+$$
+The projection $\hat{y}$ minimizes the squared error distance (and error distance itself).
+:::
+
+### Uniqueness of Projection
+
+While the existence of a least-squares solution is guaranteed, we must also prove that there is only one such vector.
+
+::: {#thm-projection-uniqueness}
+#### Uniqueness of Orthogonal Projection
+For a given vector $y$ and subspace $V$, the projection vector $\hat{y}$ satisfying $(y - \hat{y}) \perp V$ is unique.
+:::
+
+::: {.proof}
+Assume there are two vectors $\hat{y}_1 \in V$ and $\hat{y}_2 \in V$ that both satisfy the orthogonality condition.
+$$
+(y - \hat{y}_1) \perp V \quad \text{and} \quad (y - \hat{y}_2) \perp V
+$$
+This means that for any $v \in V$, both inner products are zero:
+$$
+\langle y - \hat{y}_1, v \rangle = 0
+$$
+$$
+\langle y - \hat{y}_2, v \rangle = 0
+$$
+
+Subtracting the second equation from the first:
+$$
+\langle y - \hat{y}_1, v \rangle - \langle y - \hat{y}_2, v \rangle = 0
+$$
+Using the linearity of the inner product:
+$$
+\langle (y - \hat{y}_1) - (y - \hat{y}_2), v \rangle = 0
+$$
+$$
+\langle \hat{y}_2 - \hat{y}_1, v \rangle = 0
+$$
+
+This equation holds for **all** $v \in V$. Since $\hat{y}_1$ and $\hat{y}_2$ are both in $V$, their difference $d = \hat{y}_2 - \hat{y}_1$ must also be in $V$.
+We can therefore choose $v = d = \hat{y}_2 - \hat{y}_1$.
+$$
+\langle \hat{y}_2 - \hat{y}_1, \hat{y}_2 - \hat{y}_1 \rangle = 0 \implies \|\hat{y}_2 - \hat{y}_1\|^2 = 0
+$$
+The only vector with a norm of zero is the zero vector itself.
+$$
+\hat{y}_2 - \hat{y}_1 = 0 \implies \hat{y}_1 = \hat{y}_2
+$$
+Thus, the projection is unique.
+:::
+
+## Projection via Orthonormal Basis ($Q$)
 
 ### Orthonomal Basis
 
