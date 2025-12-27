@@ -730,62 +730,43 @@ Let the random vector $\begin{pmatrix} y \\ x \end{pmatrix}$ follow a bivariate 
 $$
 \begin{pmatrix} y \\ x \end{pmatrix} \sim N \left( \begin{pmatrix} 1 \\ 2 \end{pmatrix}, \begin{pmatrix} 2 & 2 \\ 2 & 4 \end{pmatrix} \right)
 $$
-Here, $\mu_y = 1, \mu_x = 2, \sigma_y^2 = 2, \sigma_x^2 = 4$.
-We increased the covariance $\sigma_{xy}$ to $2$. The correlation is now:
+Here, $\mu_y = 1, \mu_x = 2, \Sigma_{yy} = 2, \Sigma_{xx} = 4$, and $\Sigma_{yx} = 2$.
+
+**1. Finding the Regression Coefficient Matrix $B$**
+Using the population formula:
 $$
-\rho = \frac{\sigma_{xy}}{\sqrt{\sigma_y^2 \sigma_x^2}} = \frac{2}{\sqrt{2 \times 4}} = \frac{2}{2.828} \approx 0.71
+B = \Sigma_{yx}\Sigma_{xx}^{-1} = 2(4)^{-1} = 0.5
 $$
 
-**1. The Marginal Distribution of $y$**
-The marginal distribution remains unchanged (total variance):
-$$
-y \sim N(1, 2)
-$$
-
-**2. The Conditional Distribution $y | x$**
+**2. Finding the Conditional Mean $m(x)$ (The Signal)**
+The systematic component represents the projection of $y$ onto $x$:
 $$
 \begin{aligned}
-E(y|x) &= \mu_y + \sigma_{xy}\sigma_x^{-2}(x - \mu_x) \\
-&= 1 + 2(4)^{-1}(x - 2) \\
-&= 1 + 0.5(x - 2) \\
-&= 0.5x
+m(x) &= \mu_y + B(x - \mu_x) \\
+&= 1 + 0.5(x - 2) = 0.5x
 \end{aligned}
 $$
+
+**3. Variance of the Signal $\text{Var}(m(x))$**
+Using the quadratic form established in the theorem:
+$$
+\text{Var}(m(x)) = B \Sigma_{xx} B^T = 0.5(4)(0.5) = 1
+$$
+
+**4. Variance of the Noise $\text{Var}(y|x)$ (The Residual)**
+By the Signal-Noise Decomposition:
 $$
 \begin{aligned}
-\text{Var}(y|x) &= \sigma_y^2 - \sigma_{xy}\sigma_x^{-2}\sigma_{yx} \\
-&= 2 - 2(0.5) \\
-&= 1
+\text{Var}(y|x) &= \Sigma_{yy} - \text{Var}(m(x)) \\
+&= 2 - 1 = 1
 \end{aligned}
 $$
-Thus, $y | x \sim N(0.5x, 1)$. Note that the conditional variance (1) is half of the total variance (2).
-
-**3. Distribution of the Conditional Mean (Explained Part)**
-Let $\hat{y} = E(y|x) = 0.5x$. Since $x \sim N(2, 4)$:
-$$
-\begin{aligned}
-E[\hat{y}] &= 0.5 E[x] = 0.5(2) = 1 \\
-\text{Var}[\hat{y}] &= \text{Var}(0.5x) = 0.5^2 \text{Var}(x) = 0.25 \times 4 = 1
-\end{aligned}
-$$
-So, $\hat{y} \sim N(1, 1)$.
-
-**4. Distribution of the Error (Unexplained Part)**
-$$
-\text{Var}(\epsilon) = \text{Var}(y) - \text{Var}(\hat{y}) = 2 - 1 = 1
-$$
-So, $\epsilon \sim N(0, 1)$.
+Thus, $y | x \sim N(m(x), 1)$. The total variance (2) is split equally between signal (1) and noise (1).
 
 **5. Multiple Correlation Coefficient ($R^2$)**
-The squared multiple correlation coefficient represents the proportion of total variance explained by the conditional mean.
 $$
-R^2 = \rho_{y|x}^2 = \frac{\text{Var}(\hat{y})}{\text{Var}(y)} = \frac{1}{2} = 0.5
+R^2 = \frac{\text{Var}(m(x))}{\Sigma_{yy}} = \frac{1}{2} = 0.5
 $$
-Alternatively, using the covariance definition:
-$$
-R^2 = \frac{\sigma_{xy} \Sigma_{xx}^{-1} \Sigma_{xy}}{\sigma_{yy}} = \frac{2 \cdot (1/4) \cdot 2}{2} = \frac{1}{2} = 0.5
-$$
-This means $50\%$ of the variation in $y$ is explained by $x$.
 
 ```{r}
 #| label: fig-variance-decomp-scaled
@@ -796,9 +777,9 @@ This means $50\%$ of the variation in $y$ is explained by $x$.
 library(ggplot2)
 library(mvtnorm)
 
-# 1. PARAMETERS (Updated Sigma)
+# 1. PARAMETERS
 mu <- c(1, 2) 
-sigma <- matrix(c(2, 2, 2, 4), nrow=2) # Covariance = 2
+sigma <- matrix(c(2, 2, 2, 4), nrow=2) 
 
 # 2. GENERATE DATA FOR CONTOURS
 y_seq <- seq(mu[1] - 3.5*sqrt(sigma[1,1]), mu[1] + 3.5*sqrt(sigma[1,1]), length.out=100)
@@ -807,309 +788,154 @@ x_seq <- seq(mu[2] - 3.5*sqrt(sigma[2,2]), mu[2] + 4.5*sqrt(sigma[2,2]), length.
 grid <- expand.grid(y=y_seq, x=x_seq)
 grid$z <- dmvnorm(as.matrix(grid), mean=mu, sigma=sigma)
 
-# Regression Line Data
-line_data <- data.frame(
-  x = x_seq,
-  y = 0.5 * x_seq
-)
+line_data <- data.frame(x = x_seq, y = 0.5 * x_seq)
 
-# Generate 100 Random Samples
 set.seed(42)
 samples <- rmvnorm(100, mean = mu, sigma = sigma)
 samples_df <- data.frame(y = samples[,1], x = samples[,2])
 
 # 3. DENSITY PLACEMENTS
 dens_y <- seq(min(y_seq), max(y_seq), length.out=200)
-
-# Rescale factor (3x larger than previous 1.5)
 scale_factor <- 4.5
 
-# A. Conditional Distribution at x=3
-# y|x=3 ~ N(0.5*3, 1) = N(1.5, 1)
-mu_cond <- 0.5 * 3
-sd_cond <- sqrt(1)
-dens_cond <- dnorm(dens_y, mean=mu_cond, sd=sd_cond)
-df_cond <- data.frame(y=dens_y, x = 3 + dens_cond * scale_factor)
+# A. Conditional Distribution (Residual)
+df_cond <- data.frame(y=dens_y, x = 3 + dnorm(dens_y, 1.5, 1) * scale_factor)
 
-# B. Distribution of Conditional Mean (Explained) at x=6
-# E[y|x] ~ N(1, 1)
-dens_expl <- dnorm(dens_y, mean=1, sd=sqrt(1))
-df_expl <- data.frame(y=dens_y, x = 6 + dens_expl * scale_factor)
+# B. Signal Distribution (Projection)
+df_expl <- data.frame(y=dens_y, x = 6 + dnorm(dens_y, 1, 1) * scale_factor)
 
-# C. Marginal Distribution of y (Total) at x=9
-# y ~ N(1, 2)
-dens_marg <- dnorm(dens_y, mean=1, sd=sqrt(2))
-df_marg <- data.frame(y=dens_y, x = 9 + dens_marg * scale_factor)
+# C. Marginal Distribution (Total)
+df_marg <- data.frame(y=dens_y, x = 9 + dnorm(dens_y, 1, sqrt(2)) * scale_factor)
 
 # 4. PLOTTING
 ggplot() +
-  # Contours
   geom_contour(data=grid, aes(x=x, y=y, z=z), colour="navy", bins=6, alpha=0.2) +
-  
-  # Sample Points
   geom_point(data=samples_df, aes(x=x, y=y), alpha=0.5, size=1.2, colour="#444444") +
-  
-  # Regression Line
   geom_line(data=line_data, aes(x=x, y=y), colour="red", linewidth=1, alpha=0.3) +
-  
-  # A. Conditional Slice at x=3
-  geom_vline(xintercept=3, linetype="dotted", alpha=0.5) +
   geom_path(data=df_cond, aes(x=x, y=y), colour="blue", linewidth=1) +
   geom_polygon(data=df_cond, aes(x=x, y=y), fill="blue", alpha=0.2) +
-  annotate("text", x=3.1, y=6, label="y | x=3\n(Var=1)", colour="blue", hjust=0, size=2.5, fontface="bold") +
-  
-  # B. Explained Variance at x=6
-  geom_vline(xintercept=6, linetype="dotted", alpha=0.5) +
+  annotate("text", x=3.1, y=6, label="y | x=3\n(Noise Var=1)", colour="blue", size=2.5, fontface="bold") +
   geom_path(data=df_expl, aes(x=x, y=y), colour="red", linewidth=1) +
   geom_polygon(data=df_expl, aes(x=x, y=y), fill="red", alpha=0.2) +
-  annotate("text", x=6.1, y=6, label="Dist. of\nE(y|x)\n(Var=1)", colour="red", hjust=0, size=2.5, fontface="bold") +
-
-  # C. Marginal Variance at x=9
-  geom_vline(xintercept=9, linetype="dotted", alpha=0.5) +
+  annotate("text", x=6.1, y=6, label="Dist. of\nm(x)\n(Signal Var=1)", colour="red", size=2.5, fontface="bold") +
   geom_path(data=df_marg, aes(x=x, y=y), colour="gray40", linewidth=1) +
   geom_polygon(data=df_marg, aes(x=x, y=y), fill="gray40", alpha=0.2) +
-  annotate("text", x=9.1, y=6, label="Marginal y\n(Total Var=2)", colour="gray40", hjust=0, size=2.5, fontface="bold") +
-  
+  annotate("text", x=9.1, y=6, label="Marginal y\n(Total Var=2)", colour="gray40", size=2.5, fontface="bold") +
   theme_minimal(base_size = 8) +
   coord_fixed(ratio=1, xlim=c(-4, 11))
 ```
 :::
 
-
 ::: {#exm-trivariate name="Trivariate Example with 2 Predictors"}
 
-Let $V = (y, x_1, x_2)'$ be a random vector distributed as $N_3(\mu, \Sigma)$.
+Let $V = (y, x_1, x_2)' \sim N_3(\mu, \Sigma)$ with:
+$$
+\mu = \begin{pmatrix} 1 \\ 2 \\ 3 \end{pmatrix}, \quad \Sigma = \begin{pmatrix} 10 & 3 & 4 \\ 3 & 2 & 1 \\ 4 & 1 & 4 \end{pmatrix}
+$$
+We partition these into $\Sigma_{yy} = 10$, $\Sigma_{yx} = \begin{pmatrix} 3 & 4 \end{pmatrix}$, and $\Sigma_{xx} = \begin{pmatrix} 2 & 1 \\ 1 & 4 \end{pmatrix}$.
 
-**1. Define Parameters**
-Let:
+**1. Finding the Regression Coefficient Matrix $B$**
 $$
-\mu = \begin{pmatrix} 1 \\ 2 \\ 3 \end{pmatrix} \quad \text{(where } \mu_y=1, \mu_{x_1}=2, \mu_{x_2}=3)
-$$
-$$
-\Sigma = \begin{pmatrix} 
-10 & 3 & 4 \\ 
-3 & 2 & 1 \\ 
-4 & 1 & 4 
-\end{pmatrix}
-$$
-Here, $\Sigma_{yy} = 10$. The covariance between $y$ and predictors is strong.
-
-**2. Partitioning the Matrices**
-We split the vector into $y$ (scalar) and $\mathbf{x} = (x_1, x_2)'$.
-$$
-\Sigma_{yy} = 10, \quad \Sigma_{yx} = \begin{pmatrix} 3 & 4 \end{pmatrix}
-$$
-$$
-\Sigma_{xx} = \begin{pmatrix} 2 & 1 \\ 1 & 4 \end{pmatrix}, \quad \mu_x = \begin{pmatrix} 2 \\ 3 \end{pmatrix}
+\Sigma_{xx}^{-1} = \frac{1}{7} \begin{pmatrix} 4 & -1 \\ -1 & 2 \end{pmatrix} \implies B = \Sigma_{yx} \Sigma_{xx}^{-1} = \begin{pmatrix} \frac{8}{7} & \frac{5}{7} \end{pmatrix}
 $$
 
-**3. Marginal Distribution of $y$**
-This is simply the first element of the joint parameters:
+**2. Finding the Conditional Mean $m(x)$ (The Signal)**
 $$
-y \sim N(1, 10)
-$$
-
-**4. Conditional Distribution $y | x_1, x_2$**
-First, calculate the regression coefficients (the "slope" vector):
-$$
-\mathbf{\beta} = \Sigma_{yx} \Sigma_{xx}^{-1}
-$$
-Finding $\Sigma_{xx}^{-1}$:
-$$
-\det(\Sigma_{xx}) = (2)(4) - (1)(1) = 7
-$$
-$$
-\Sigma_{xx}^{-1} = \frac{1}{7} \begin{pmatrix} 4 & -1 \\ -1 & 2 \end{pmatrix}
-$$
-Now compute $\mathbf{\beta}$:
-$$
-\mathbf{\beta} = \begin{pmatrix} 3 & 4 \end{pmatrix} \frac{1}{7} \begin{pmatrix} 4 & -1 \\ -1 & 2 \end{pmatrix} = \frac{1}{7} \begin{pmatrix} 8 & 5 \end{pmatrix} \approx \begin{pmatrix} 1.14 & 0.71 \end{pmatrix}
+m(x) = 1 + \frac{8}{7}(x_1 - 2) + \frac{5}{7}(x_2 - 3)
 $$
 
-**Conditional Mean:**
+**3. Variance of the Signal $\text{Var}(m(x))$**
 $$
-\begin{aligned}
-E(y|\mathbf{x}) &= \mu_y + \mathbf{\beta}(\mathbf{x} - \mu_x) \\
-&= 1 + \frac{8}{7}(x_1 - 2) + \frac{5}{7}(x_2 - 3)
-\end{aligned}
+\text{Var}(m(x)) = B \Sigma_{xx} B^T = \begin{pmatrix} \frac{8}{7} & \frac{5}{7} \end{pmatrix} \begin{pmatrix} 3 \\ 4 \end{pmatrix} = \frac{44}{7} \approx 6.29
 $$
 
-**Conditional Variance (Unexplained Variance):**
+**4. Variance of the Noise $\text{Var}(y|x)$ (The Residual)**
+Using the Signal-Noise Decomposition:
 $$
-\begin{aligned}
-\text{Var}(y|\mathbf{x}) &= \Sigma_{yy} - \Sigma_{yx}\Sigma_{xx}^{-1}\Sigma_{xy} \\
-&= 10 - \mathbf{\beta} \Sigma_{xy} \\
-&= 10 - \frac{1}{7} \begin{pmatrix} 8 & 5 \end{pmatrix} \begin{pmatrix} 3 \\ 4 \end{pmatrix} \\
-&= 10 - \frac{1}{7}(24 + 20) \\
-&= 10 - \frac{44}{7} = \frac{26}{7} \approx 3.71
-\end{aligned}
+\Sigma_{y|x} = \Sigma_{yy} - \text{Var}(m(x)) = 10 - 6.29 = 3.71
 $$
-So, $$y | x_1, x_2 \sim N\left(1 + \frac{8}{7}(x_1 - 2) + \frac{5}{7}(x_2 - 3), \; 3.71\right).$$
 
-**5. Distribution of the Conditional Mean (Signal)**
-Let $\hat{y} = E(y|\mathbf{x})$.
+**5. Multiple Correlation Coefficient ($R^2$)**
 $$
-E[\hat{y}] = \mu_y = 1\quad (\text{This verifies the iterative expectation formula.})
+R^2 = \frac{6.29}{10} = 0.629
 $$
-$$
-\text{Var}(\hat{y}) = \text{Var}(y) - \text{Var}(y|\mathbf{x}) = 10 - 3.71 = 6.29
-$$
-Alternatively calculated as $\Sigma_{yx}\Sigma_{xx}^{-1}\Sigma_{xy} = 44/7$.
-So, $\hat{y} \sim N(1, 6.29)$.
-
-**6. Multiple Correlation Coefficient ($R^2$)**
-$$
-R^2 = \frac{\text{Var}(\hat{y})}{\text{Var}(y)} = \frac{44/7}{10} = \frac{44}{70} \approx 0.628
-$$
-Thus, $x_1$ and $x_2$ jointly explain about $62.8\%$ of the variance in $y$.
 
 ```{r}
 #| label: fig-trivariate-refined
-#| fig-cap: "Variance Decomposition in Multivariate Normal"
+#| fig-cap: "Signal-Noise Variance Decomposition in Multivariate Normal"
 #| echo: true
 #| warning: false
 #| message: false
-#| fig-width: 7
-#| fig-height: 7
 
 library(ggplot2)
 library(mvtnorm)
 
-# --- A. Setup Data ---
 mu <- c(1, 2, 3)
-sigma <- matrix(c(10, 3, 4,
-                  3, 2, 1,
-                  4, 1, 4), nrow=3, byrow=TRUE)
+sigma <- matrix(c(10, 3, 4, 3, 2, 1, 4, 1, 4), nrow=3, byrow=TRUE)
 
-# Theoretical Variances
-var_total <- sigma[1,1] # 10
+var_total <- sigma[1,1]
 S_yx <- matrix(sigma[1, 2:3], nrow=1)
 S_xx <- sigma[2:3, 2:3]
-beta <- S_yx %*% solve(S_xx)
-var_explained <- as.numeric(beta %*% S_xx %*% t(beta)) # ~6.29
-var_error <- var_total - var_explained # ~3.71
+B_mat <- S_yx %*% solve(S_xx)
+var_signal <- as.numeric(B_mat %*% S_xx %*% t(B_mat))
+var_noise <- var_total - var_signal
 
-# Generate Sample Data
 set.seed(2024)
 dat <- rmvnorm(1000, mean=mu, sigma=sigma)
 df <- data.frame(y=dat[,1], x1=dat[,2], x2=dat[,3])
-mod <- lm(y ~ x1 + x2, data=df)
-df$y_hat <- fitted(mod)
+df$m_x <- 1 + (8/7)*(df$x1 - 2) + (5/7)*(df$x2 - 3)
 
-# --- B. Define Plot Limits and Positions ---
-# Expanded limits slightly to fit the lower density
 limit_min <- -12
 limit_max <- 12
-limits <- c(limit_min, limit_max)
-
-# UPDATED POSITIONS
-pos_right  <- 9    # Total Variance (Right)
-pos_bottom <- -8   # Explained Variance (Moved down)
-pos_center <- 5    # Conditional Variance (Moved to x=5)
-
-# UPDATED SCALE (1.5x larger than 10)
+seq_vals <- seq(limit_min, limit_max, length.out=300)
 scale_factor <- 20 
 
-# --- C. Generate Density Curves ---
-seq_vals <- seq(limit_min, limit_max, length.out=300)
+df_total <- data.frame(y = seq_vals, x = 9 + dnorm(seq_vals, 1, sqrt(var_total)) * scale_factor)
+df_signal <- data.frame(x = seq_vals, y = -8 - dnorm(seq_vals, 1, sqrt(var_signal)) * scale_factor)
+df_noise <- data.frame(y = seq_vals, x = 5 + dnorm(seq_vals, 5, sqrt(var_noise)) * scale_factor)
 
-# 1. Total Variance (Marginal y) -> Right
-# Mean = 1 (Global Mean)
-dens_total <- dnorm(seq_vals, mean=1, sd=sqrt(var_total))
-df_total <- data.frame(
-  y = seq_vals, 
-  x = pos_right + dens_total * scale_factor 
-)
-
-# 2. Explained Variance (Marginal y_hat) -> Bottom
-# Mean = 1 (Global Mean)
-dens_expl <- dnorm(seq_vals, mean=1, sd=sqrt(var_explained))
-df_expl <- data.frame(
-  x = seq_vals,
-  y = pos_bottom - dens_expl * scale_factor 
-)
-
-# 3. Error Variance (Conditional y|x=5) -> Center
-# IMPORTANT: At x (y_hat) = 5, the expected value of y is 5.
-# So this density must be centered at 5.
-dens_error <- dnorm(seq_vals, mean=5, sd=sqrt(var_error))
-df_error <- data.frame(
-  y = seq_vals,
-  x = pos_center + dens_error * scale_factor
-)
-
-# --- D. Plotting ---
-ggplot(df, aes(x=y_hat, y=y)) +
-  # 1. Reference Lines
+ggplot(df, aes(x=m_x, y=y)) +
   geom_abline(intercept=0, slope=1, color="red", linewidth=0.5, alpha=0.3) +
-  
-  # 2. Scatter Points
   geom_point(alpha=0.15, size=1.5, color="black") +
-  
-  # 3. Density: Explained Variance (Red, Bottom, Flipped Down)
-  geom_hline(yintercept = pos_bottom, color="red", linetype="dotted", alpha=0.5) +
-  geom_polygon(data=df_expl, aes(x=x, y=y), fill="red", alpha=0.3) +
-  geom_path(data=df_expl, aes(x=x, y=y), color="red", linewidth=1) +
-  annotate("text", x=1, y=pos_bottom - 3, label="Explained Var\n(Fitted)", color="red", size=3, fontface="bold") +
-  
-  # 4. Density: Total Variance (Gray, Right, Flipped Right)
-  geom_vline(xintercept = pos_right, color="gray40", linetype="dotted", alpha=0.5) +
+  geom_polygon(data=df_signal, aes(x=x, y=y), fill="red", alpha=0.3) +
+  geom_path(data=df_signal, aes(x=x, y=y), color="red", linewidth=1) +
+  annotate("text", x=1, y=-11, label="Signal Var\n(m(x))", color="red", size=3, fontface="bold") +
   geom_polygon(data=df_total, aes(x=x, y=y), fill="gray40", alpha=0.3) +
   geom_path(data=df_total, aes(x=x, y=y), color="gray40", linewidth=1) +
-  annotate("text", x=pos_right + 2, y=6, label="Total Var\n(Observed)", color="gray40", size=3, fontface="bold") +
-
-  # 5. Density: Error Variance (Blue, Center at x=5)
-  geom_vline(xintercept = pos_center, color="blue", linetype="dotted", alpha=0.3) +
-  geom_polygon(data=df_error, aes(x=x, y=y), fill="blue", alpha=0.3) +
-  geom_path(data=df_error, aes(x=x, y=y), color="blue", linewidth=1) +
-  annotate("text", x=pos_center + 1, y=9, label="Error Var\n(Conditional)", color="blue", size=3, fontface="bold") +
-
-  # 6. Formatting
-  scale_x_continuous(limits=limits, breaks=seq(-10, 10, 5)) +
-  scale_y_continuous(limits=limits, breaks=seq(-10, 10, 5)) +
-  coord_fixed(ratio=1) + 
-  labs(
-    title = "Variance Decomposition in Multivariate Normal",
-    x = "Predicted E(y|x)",
-    y = "Observed y"
-  ) +
-  theme_minimal()
+  annotate("text", x=11, y=6, label="Total Var\n(y)", color="gray40", size=3, fontface="bold") +
+  geom_polygon(data=df_noise, aes(x=x, y=y), fill="blue", alpha=0.3) +
+  geom_path(data=df_noise, aes(x=x, y=y), color="blue", linewidth=1) +
+  annotate("text", x=6, y=9, label="Noise Var\n(y|x)", color="blue", size=3, fontface="bold") +
+  scale_x_continuous(limits=c(-12, 14)) + scale_y_continuous(limits=c(-14, 12)) +
+  coord_fixed(ratio=1) + labs(x = "Signal m(x)", y = "Observed y") + theme_minimal()
 ```
-:::
 
 ::: {.content-visible when-format="html"}
 
 ```{r}
 #| label: fig-plotly-plane
-#| fig-cap: "Interactive 3D Plot: Observed Data vs Fitted Plane"
+#| fig-cap: "Interactive 3D Plot: Signal Plane vs Noise"
 #| echo: true
 #| warning: false
 
 library(plotly)
 
-# --- Setup Grid for Surface ---
 x1_seq <- seq(min(df$x1), max(df$x1), length.out=20)
 x2_seq <- seq(min(df$x2), max(df$x2), length.out=20)
 grid <- expand.grid(x1=x1_seq, x2=x2_seq)
-grid$y_pred <- predict(mod, newdata=grid)
+grid$y_pred <- 1 + (8/7)*(grid$x1 - 2) + (5/7)*(grid$x2 - 3)
 z_matrix <- matrix(grid$y_pred, nrow=20, ncol=20)
 
-# --- Plot ---
 plot_ly() %>%
   add_markers(data = df, x = ~x1, y = ~x2, z = ~y,
               marker = list(size = 3, color = '#444', opacity = 0.5),
-              name = "Observed Data") %>%
+              name = "Observed (Total)") %>%
   add_surface(x = x1_seq, y = x2_seq, z = z_matrix,
-              opacity = 0.6,
-              colorscale = list(c(0, 1), c("red", "red")),
-              showscale = FALSE,
-              name = "Regression Plane") %>%
-  layout(title = "Trivariate Normal: y regressed on x1, x2",
-         scene = list(xaxis = list(title = "x1"),
-                      yaxis = list(title = "x2"),
-                      zaxis = list(title = "y")))
-
+              opacity = 0.6, colorscale = list(c(0, 1), c("red", "red")),
+              showscale = FALSE, name = "Signal (m(x))") %>%
+  layout(scene = list(xaxis = list(title = "x1"), yaxis = list(title = "x2"), zaxis = list(title = "y")))
 ```
 
+:::
 :::
 
