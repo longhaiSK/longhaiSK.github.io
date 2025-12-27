@@ -1,5 +1,10 @@
 ---
 title: "Multivariate Normal Distribution"
+editor_options: 
+  chunk_output_type: inline
+format: 
+  html: 
+    keep-md: true
 ---
 
 ```{r}
@@ -9,6 +14,8 @@ title: "Multivariate Normal Distribution"
 
 library(pdftools)
 library(magick)
+library(ggplot2)
+library(mvtnorm)
 
 # Define path to PDF
 pdf_path <- "Lec30-multivariate normal.pdf"
@@ -91,7 +98,7 @@ $$
 For a random vector $x_{k \times 1} = (x_1, \dots, x_k)^T$, the matrix is:
 
 $$
-\text{var}(x) = \Sigma_x = \begin{pmatrix}
+\text{Var}(x) = \Sigma_x = \begin{pmatrix}
 \sigma_{11} & \sigma_{12} & \dots & \sigma_{1k} \\
 \sigma_{21} & \sigma_{22} & \dots & \sigma_{2k} \\
 \vdots & \vdots & \ddots & \vdots \\
@@ -101,14 +108,14 @@ $$
 
 Where:
 
-* $\sigma_{ij} = \text{cov}(x_i, x_j) = E[(x_i - \mu_i)(x_j - \mu_j)]$
-* $\sigma_{ii} = \text{var}(x_i) = E[(x_i - \mu_i)^2]$
+* $\sigma_{ij} = \text{Cov}(x_i, x_j) = E[(x_i - \mu_i)(x_j - \mu_j)]$
+* $\sigma_{ii} = \text{Var}(x_i) = E[(x_i - \mu_i)^2]$
 
 In matrix notation:
 $$
-\text{var}(x) = E[(x - \mu_x)(x - \mu_x)^T]
+\text{Var}(x) = E[(x - \mu_x)(x - \mu_x)^T]
 $$
-Note: $\text{var}(x)$ is symmetric.
+Note: $\text{Var}(x)$ is symmetric.
 :::
 
 ### Derivation of Covariance Matrix Structure
@@ -126,13 +133,13 @@ This results in the matrix $A = (a_{ij})$ where $a_{ij} = (x_i - \mu_i)(x_j - \m
 
 For random vectors $x_{k \times 1}$ and $y_{n \times 1}$, the covariance matrix is:
 $$
-\text{cov}(x, y) = E[(x - \mu_x)(y - \mu_y)^T] = \begin{pmatrix}
-\text{cov}(x_1, y_1) & \dots & \text{cov}(x_1, y_n) \\
+\text{Cov}(x, y) = E[(x - \mu_x)(y - \mu_y)^T] = \begin{pmatrix}
+\text{Cov}(x_1, y_1) & \dots & \text{Cov}(x_1, y_n) \\
 \vdots & \ddots & \vdots \\
-\text{cov}(x_k, y_1) & \dots & \text{cov}(x_k, y_n)
+\text{Cov}(x_k, y_1) & \dots & \text{Cov}(x_k, y_n)
 \end{pmatrix}
 $$
-Note that $\text{cov}(x, x) = \text{var}(x)$.
+Note that $\text{Cov}(x, x) = \text{Var}(x)$.
 :::
 
 ::: {#def-correlation-matrix name="Correlation Matrix"}
@@ -148,7 +155,7 @@ $$
 where $\rho_{ij} = \text{corr}(x_i, x_j)$.
 
 **Relationships:**
-Let $V_x = \text{diag}(\text{var}(x_1), \dots, \text{var}(x_k))$.
+Let $V_x = \text{diag}(\text{Var}(x_1), \dots, \text{Var}(x_k))$.
 $$
 \Sigma_x = V_x^{1/2} \rho_x V_x^{1/2} \quad \text{and} \quad \rho_x = (V_x^{1/2})^{-1} \Sigma_x (V_x^{1/2})^{-1}
 $$
@@ -164,27 +171,27 @@ We can derive several key algebraic properties for operations on random vectors.
 
 1.  $E(X + Y) = E(X) + E(Y)$
 2.  $E(AXB) = A E(X) B$ (In particular, $E(AX) = A\mu_x$)
-3.  $\text{cov}(x, y) = \text{cov}(y, x)^T$
-4.  $\text{cov}(x + c, y + d) = \text{cov}(x, y)$
-5.  $\text{cov}(Ax, By) = A \text{cov}(x, y) B^T$
-    * Special case for scalars: $\text{cov}(ax, by) = ab \cdot \text{cov}(x, y)$
-6.  $\text{cov}(x_1 + x_2, y_1) = \text{cov}(x_1, y_1) + \text{cov}(x_2, y_1)$
-7.  $\text{var}(x + c) = \text{var}(x)$
-8.  $\text{var}(Ax) = A \text{var}(x) A^T$
-9.  $\text{var}(x_1 + x_2) = \text{var}(x_1) + \text{cov}(x_1, x_2) + \text{cov}(x_2, x_1) + \text{var}(x_2)$
-10. $\text{var}(\sum x_i) = \sum \text{var}(x_i)$ if independent.
+3.  $\text{Cov}(x, y) = \text{Cov}(y, x)^T$
+4.  $\text{Cov}(x + c, y + d) = \text{Cov}(x, y)$
+5.  $\text{Cov}(Ax, By) = A \text{Cov}(x, y) B^T$
+    * Special case for scalars: $\text{Cov}(ax, by) = ab \cdot \text{Cov}(x, y)$
+6.  $\text{Cov}(x_1 + x_2, y_1) = \text{Cov}(x_1, y_1) + \text{Cov}(x_2, y_1)$
+7.  $\text{Var}(x + c) = \text{Var}(x)$
+8.  $\text{Var}(Ax) = A \text{Var}(x) A^T$
+9.  $\text{Var}(x_1 + x_2) = \text{Var}(x_1) + \text{Cov}(x_1, x_2) + \text{Cov}(x_2, x_1) + \text{Var}(x_2)$
+10. $\text{Var}(\sum x_i) = \sum \text{Var}(x_i)$ if independent.
 
-::: {#proof-property-5 name="Proof of Property 5 (Covariance of Linear Transformation)"}
+::: {.callout-note collapse="true" icon="false" title="Proof of Property 5 (Covariance of Linear Transformation)"}
 $$
 \begin{aligned}
-\text{cov}(Ax, By) &= E[(Ax - A\mu_x)(By - B\mu_y)^T] \\
+\text{Cov}(Ax, By) &= E[(Ax - A\mu_x)(By - B\mu_y)^T] \\
 &= A E[(x - \mu_x)(y - \mu_y)^T] B^T \\
-&= A \text{cov}(x, y) B^T
+&= A \text{Cov}(x, y) B^T
 \end{aligned}
 $$
 :::
 
-::: {#proof-property-2 name="Proof of Property 2 (Expectation of Linear Transformation)"}
+::: {.callout-note collapse="true" icon="false" title="Proof of Property 2 (Expectation of Linear Transformation)"}
 To prove $E(AXB) = A E(X) B$:
 First consider $E(Ax_j)$ where $x_j$ is a column of $X$.
 $$
@@ -201,9 +208,9 @@ $$
 Similarly, $E(XB) = E(X)B$.
 :::
 
-::: {#proof-property-9 name="Proof of Property 9 (Variance of Sum)"}
+::: {.callout-note collapse="true" icon="false" title="Proof of Property 9 (Variance of Sum)"}
 $$
-\text{var}(x_1 + x_2) = E[(x_1 + x_2 - \mu_1 - \mu_2)(x_1 + x_2 - \mu_1 - \mu_2)^T]
+\text{Var}(x_1 + x_2) = E[(x_1 + x_2 - \mu_1 - \mu_2)(x_1 + x_2 - \mu_1 - \mu_2)^T]
 $$
 Let centered variables be denoted by differences.
 $$
@@ -214,12 +221,11 @@ $$
 = E[(x_1 - \mu_1)(x_1 - \mu_1)^T + (x_1 - \mu_1)(x_2 - \mu_2)^T + (x_2 - \mu_2)(x_1 - \mu_1)^T + (x_2 - \mu_2)(x_2 - \mu_2)^T]
 $$
 $$
-= \text{var}(x_1) + \text{cov}(x_1, x_2) + \text{cov}(x_2, x_1) + \text{var}(x_2)
+= \text{Var}(x_1) + \text{Cov}(x_1, x_2) + \text{Cov}(x_2, x_1) + \text{Var}(x_2)
 $$
 :::
 
 ## The Multivariate Normal Distribution
-
 
 ### Definition and Density
 
@@ -230,7 +236,7 @@ The joint PDF is the product of marginals:
 $$
 f(z) = \prod_{i=1}^n \frac{1}{\sqrt{2\pi}} e^{-\frac{z_i^2}{2}} = \frac{1}{(2\pi)^{n/2}} e^{-\frac{1}{2} z^T z}
 $$
-Properties: $E(z) = 0$ and $\text{var}(z) = I_n$ (Covariance is 0 for $i \ne j$, Variance is 1).
+Properties: $E(z) = 0$ and $\text{Var}(z) = I_n$ (Covariance is 0 for $i \ne j$, Variance is 1).
 :::
 
 ::: {#def-mvn name="Multivariate Normal Distribution"}
@@ -243,7 +249,7 @@ where $z \sim N_p(0, I_p)$, $A$ is a matrix of constants, and $\mu$ is a vector 
 The moments are:
 
 * $E(x) = \mu$
-* $\text{var}(x) = AA^T = \Sigma$
+* $\text{Var}(x) = AA^T = \Sigma$
 :::
 
 ### Geometric Interpretation
@@ -253,6 +259,7 @@ Using Spectral Decomposition, $\Sigma = Q \Lambda Q'$. We can view the transform
 2.  Rotation by eigenvectors ($Q$).
 3.  Shift by mean ($\mu$).
 
+::: {.content-visible when-format="html"}
 
 **An Shinely App for Visualizing Bivariate Normal**
 
@@ -427,6 +434,7 @@ $$
 f_x(x) = (2\pi)^{-p/2} |\Sigma|^{-1/2} \exp \left\{ -\frac{1}{2} (x-\mu)^T \Sigma^{-1} (x-\mu) \right\}
 $$
 
+:::
 
 ### Moment Generating Function
 
@@ -453,8 +461,10 @@ Key Properties:
 
 ::: {#thm-construction name="Constructing MVN Random Vector"}
 Let $\mu \in \mathbb{R}^n$ and $\Sigma$ be an $n \times n$ symmetric positive semi-definite (p.s.d.) matrix. Then there exists a multivariate normal distribution with mean $\mu$ and covariance $\Sigma$.
+:::
 
-*Proof:* Since $\Sigma$ is p.s.d., there exists $B$ such that $\Sigma = BB^T$ (e.g., via Cholesky). Let $z \sim N_n(0, I)$ and define $x = Bz + \mu$.
+::: {.callout-note collapse="true" icon="false" title="Proof"}
+Since $\Sigma$ is p.s.d., there exists $B$ such that $\Sigma = BB^T$ (e.g., via Cholesky). Let $z \sim N_n(0, I)$ and define $x = Bz + \mu$.
 :::
 
 ::: {#thm-linear-transform name="Linear Transformation Theorem"}
@@ -463,8 +473,9 @@ Then:
 $$
 y \sim N_r(C\mu + d, C \Sigma C^T)
 $$
+:::
 
-*Proof:*
+::: {.callout-note collapse="true" icon="false" title="Proof"}
 $x = Az + \mu$ where $AA^T = \Sigma$.
 $$
 y = C(Az + \mu) + d = (CA)z + (C\mu + d)
@@ -475,7 +486,11 @@ This fits the definition of MVN with mean $C\mu + d$ and variance $C \Sigma C^T$
 ### Corollaries
 
 ::: {#cor-marginals name="Marginals"}
-Any subvector of a multivariate normal vector is also multivariate normal. If we partition $x = (x_1', x_2')'$, we can use $C = (I_r, 0)$ to show $x_1 \sim N(\mu_1, \Sigma_{11})$.
+Any subvector of a multivariate normal vector is also multivariate normal. 
+:::
+
+::: {.callout-note collapse="true" icon="false" title="Proof"}
+If we partition $x = (x_1', x_2')'$, we can use $C = (I_r, 0)$ to show $x_1 \sim N(\mu_1, \Sigma_{11})$.
 :::
 
 ::: {#cor-univariate name="Univariate Combinations"}
@@ -494,7 +509,10 @@ If $y \sim N_n(\mu, \Sigma)$ and $\Sigma$ is positive definite:
 $$
 \Sigma^{-1/2}(y - \mu) \sim N_n(0, I_n)
 $$
-*Proof:* Let $z = \Sigma^{-1/2}(y - \mu)$. Then $\text{var}(z) = \Sigma^{-1/2} \Sigma \Sigma^{-1/2} = I_n$.
+:::
+
+::: {.callout-note collapse="true" icon="false" title="Proof"}
+Let $z = \Sigma^{-1/2}(y - \mu)$. Then $\text{Var}(z) = \Sigma^{-1/2} \Sigma \Sigma^{-1/2} = I_n$.
 :::
 
 ## Independence
@@ -508,11 +526,11 @@ $$
 Then $y_1$ and $y_2$ are independent if and only if $\Sigma_{12} = 0$ (zero covariance).
 :::
 
-::: {#proof-independence}
+::: {.callout-note collapse="true" icon="false" title="Proof"}
 **1. Independence $\implies$ Covariance is 0:**
 This holds generally for any distribution.
 $$
-\text{cov}(y_1, y_2) = E[(y_1 - \mu_1)(y_2 - \mu_2)'] = 0
+\text{Cov}(y_1, y_2) = E[(y_1 - \mu_1)(y_2 - \mu_2)'] = 0
 $$
 
 **2. Covariance is 0 $\implies$ Independence:**
@@ -531,77 +549,161 @@ $$
 Thus, they are independent.
 :::
 
-## Conditional Distributions
+## Signal-Noise Decomposition for Multivariate Normal Distribution
 
-We often wish to find the distribution of a subvector $y_2$ given the value of another subvector $y_1$.
+We can formalize the relationship between two random vectors $y$ and $x$ through a decomposition theorem that separates the systematic signal from the stochastic noise.
 
-::: {#lem-independence name="Constructing Independent Vectors"}
-Let $y \sim N_n(\mu, \Sigma)$ partitioned into $y_1$ and $y_2$. Define:
-$$
-y_{2|1} = y_2 - \Sigma_{21}\Sigma_{11}^{-1}y_1
-$$
-Then $y_1$ and $y_{2|1}$ are independent.
+::: {#thm-reg-decomp name="Regression Decomposition Theorem"}
+Let the random vector $V$ of dimension $p \times 1$ be partitioned into two subvectors $y$ ($p_1 \times 1$) and $x$ ($p_2 \times 1$). Assume $V$ follows a multivariate normal distribution:
 
-*Proof:* Consider the linear transformation:
 $$
-\begin{pmatrix} y_1 \\ y_{2|1} \end{pmatrix} = C y = \begin{pmatrix} I & 0 \\ -\Sigma_{21}\Sigma_{11}^{-1} & I \end{pmatrix} \begin{pmatrix} y_1 \\ y_2 \end{pmatrix}
+\begin{pmatrix} y \\ x \end{pmatrix} \sim N_p\left( \begin{pmatrix} \mu_y \\ \mu_x \end{pmatrix}, \begin{pmatrix} \Sigma_{yy} & \Sigma_{yx} \\ \Sigma_{xy} & \Sigma_{xx} \end{pmatrix} \right)
 $$
-The covariance matrix is $C \Sigma C'$. The off-diagonal block is:
+
+The response vector $y$ can be uniquely decomposed into a systematic component and a stochastic error:
 $$
-\text{cov}(y_1, y_{2|1}) = \Sigma_{11}(-\Sigma_{11}^{-1}\Sigma_{12}) + \Sigma_{12} = -\Sigma_{12} + \Sigma_{12} = 0
+y = m(x) + e
 $$
-Since covariance is zero, they are independent.
+where we define the **Regression Coefficient Matrix** $B$ and the components as:
+
+$$
+B = \Sigma_{yx}\Sigma_{xx}^{-1}
+$$
+
+$$
+m(x) = \mu_y + B(x - \mu_x)
+$$
+
+$$
+e = y - m(x)
+$$
+
+**Properties:**
+
+1.  **Independence:** The noise vector $e$ is statistically independent of the predictor $x$ (and consequently independent of $m(x)$).
+
+2.  **Marginal Distributions:**
+    * $m(x) \sim N_{p_1}(\mu_y, \; B \Sigma_{xx} B^T)$
+    * $e \sim N_{p_1}(0, \; \Sigma_{yy} - B \Sigma_{xx} B^T)$
+
+3.  **Conditional Distribution:**
+    Since $y = m(x) + e$, and $e$ is independent of $x$, the conditional distribution is:
+    $$
+    y | x \sim N_{p_1}(m(x), \Sigma_{y|x})
+    $$
+    where:
+    $$
+    m(x) = \mu_y + B(x - \mu_x) = \mu_y + \Sigma_{yx}\Sigma_{xx}^{-1}(x - \mu_x)
+    $$
+    $$
+    \Sigma_{y|x} = \Sigma_{yy} - B \Sigma_{xx} B^T = \Sigma_{yy} - \Sigma_{yx}\Sigma_{xx}^{-1}\Sigma_{xy}
+    $$
 :::
 
-```{r}
-#| label: extract-p33
-#| include: false
-extract_page_image(33, "page33_lemma_proof.png")
-```
-![](lec30_images/page33_lemma_proof.png){width=70%}
+::: {.callout-note collapse="false" icon="false" title="Proof (Linear Transformation Approach)"}
+We define a transformation from the input vector $V = \begin{pmatrix} y \\ x \end{pmatrix}$ to the target vector $W = \begin{pmatrix} m(x) \\ e \end{pmatrix}$.
 
-::: {#thm-conditional name="Conditional Distribution Theorem"}
-The conditional distribution of $y_2$ given $y_1$ is multivariate normal:
+Using the linear transformation $W = CV + d$:
+
 $$
-y_2 | y_1 \sim N(\mu_{2|1}, \Sigma_{22|1})
+\underbrace{\begin{pmatrix} m(x) \\ e \end{pmatrix}}_{W} = \underbrace{\begin{pmatrix} 0 & B \\ I & -B \end{pmatrix}}_{C} \underbrace{\begin{pmatrix} y \\ x \end{pmatrix}}_{V} + \underbrace{\begin{pmatrix} \mu_y - B \mu_x \\ -(\mu_y - B \mu_x) \end{pmatrix}}_{d}
 $$
-where:
 
-* **Conditional Mean:** $E(y_2 | y_1) = \mu_2 + \Sigma_{21}\Sigma_{11}^{-1}(y_1 - \mu_1)$
+**1. Mean Vector**
 
-* **Conditional Variance:** $\text{var}(y_2 | y_1) = \Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12}$
+$$
+E[W] = C E[V] + d = \begin{pmatrix} 0 & B \\ I & -B \end{pmatrix} \begin{pmatrix} \mu_y \\ \mu_x \end{pmatrix} + \begin{pmatrix} \mu_y - B \mu_x \\ -\mu_y + B \mu_x \end{pmatrix} 
+= \begin{pmatrix} B \mu_x \\ \mu_y - B \mu_x \end{pmatrix} + \begin{pmatrix} \mu_y - B \mu_x \\ -\mu_y + B \mu_x \end{pmatrix} 
+= \begin{pmatrix} \mu_y \\ 0 \end{pmatrix}
+$$
 
-*Proof:*
-Write $y_2 = y_{2|1} + \Sigma_{21}\Sigma_{11}^{-1}y_1$.
-Conditional on $y_1$, the term $\Sigma_{21}\Sigma_{11}^{-1}y_1$ is constant.
-Since $y_{2|1}$ is independent of $y_1$, its conditional distribution is simply its marginal distribution.
-Thus, the mean shifts by the constant term, and the variance remains that of $y_{2|1}$ (the Schur complement).
+**2. Covariance Matrix**
+
+We compute $\text{Var}(W) = C \Sigma C^T$ directly:
+
+$$
+\begin{aligned}
+C \Sigma C^T &= \begin{pmatrix} 0 & B \\ I & -B \end{pmatrix} \begin{pmatrix} \Sigma_{yy} & \Sigma_{yx} \\ \Sigma_{xy} & \Sigma_{xx} \end{pmatrix} \begin{pmatrix} 0 & I \\ B^T & -B^T \end{pmatrix} \\
+&= \begin{pmatrix} B \Sigma_{xy} & B \Sigma_{xx} \\ \Sigma_{yy} - B \Sigma_{xy} & \Sigma_{yx} - B \Sigma_{xx} \end{pmatrix} \begin{pmatrix} 0 & I \\ B^T & -B^T \end{pmatrix} \\
+&= \begin{pmatrix} B \Sigma_{xx} B^T & B \Sigma_{xy} - B \Sigma_{xx} B^T \\ \Sigma_{yx}B^T - B \Sigma_{xx} B^T & (\Sigma_{yy} - B \Sigma_{xy}) - (\Sigma_{yx} - B \Sigma_{xx})B^T \end{pmatrix} \\
+&= \begin{pmatrix} B \Sigma_{xx} B^T & 0 \\ 0 & \Sigma_{yy} - B \Sigma_{xx} B^T \end{pmatrix}
+\end{aligned}
+$$
+
+**3. Conditional Distribution**
+
+We have established that $y = m(x) + e$ where $e$ is independent of $x$. 
+To find the distribution of $y$ conditional on $x$, we observe that $m(x)$ becomes a constant vector when $x$ is fixed, and the randomness comes solely from $e$:
+
+$$
+E[y|x] = m(x) + E[e|x] = m(x) + 0 = m(x)
+$$
+$$
+\text{Var}(y|x) = \text{Var}(m(x)|x) + \text{Var}(e|x) = 0 + \text{Var}(e) = \Sigma_{y|x}
+$$
+
+Thus, $y | x \sim N(m(x), \Sigma_{y|x})$.
 :::
 
-::: {#ex-numerical name="Numerical Example"}
-Let $\begin{pmatrix} y_1 \\ y_2 \end{pmatrix} \sim N \left( \begin{pmatrix} 1 \\ 2 \end{pmatrix}, \begin{pmatrix} 2 & 1 \\ 1 & 4 \end{pmatrix} \right)$.
-Find the distribution of $y_1 | y_2$.
 
+## Rao-Blackwell Decomposition of Variance
 
-* $\mu_{1|2} = \mu_1 + \sigma_{12}\sigma_{22}^{-1}(y_2 - \mu_2) = 1 + 1(4)^{-1}(y_2 - 2) = 0.5 + 0.25y_2$
+The Law of Total Variance (Rao-Blackwell theorem) allows us to decompose the total variance of $y$ into two orthogonal components based on the predictor $x$:
 
-* $\sigma_{1|2}^2 = \sigma_{11} - \sigma_{12}\sigma_{22}^{-1}\sigma_{21} = 2 - 1(1/4)1 = 1.75$
+$$
+\text{Var}(y) = \underbrace{E[\text{Var}(y | x)]}_{\text{Unexplained (Noise)}} + \underbrace{\text{Var}[E(y | x)]}_{\text{Explained (Signal)}}
+$$
 
-So $y_1 | y_2 \sim N(0.5 + 0.25y_2, 1.75)$.
+In the Multivariate Normal case, this decomposition perfectly aligns with our regression model $y = m(x) + e$.
+
+### Variance of Noise {.unnumbered}
+This term represents the average variance remaining in $y$ after accounting for $x$. It corresponds to the variance of the error term $e$:
+
+$$
+E[\text{Var}(y | x)] = \text{Var}(e) = \Sigma_{yy} - B \Sigma_{xx} B^T
+$$
+
+### Variance of Signal{.unnumbered}
+This term represents the variability of the conditional mean $m(x)$ itself. Using the matrix $B$, this takes the quadratic form:
+
+$$
+\text{Var}[E(y | x)] = \text{Var}[m(x)] = B \Sigma_{xx} B^T
+$$
+
+### Total Variance {.unnumbered}
+Summing the Signal and Noise components recovers the total marginal variance of $y$:
+
+$$
+\Sigma_{yy} = \underbrace{\Sigma_{yy} - B \Sigma_{xx} B^T}_{\text{Unexplained (Noise)}} + \underbrace{B \Sigma_{xx} B^T}_{\text{Explained (Signal)}}
+$$
+
+::: {.callout-note appearance="simple" icon="false"}
+**Connection to OLS Regression Estimators:**
+In OLS regression, centering the data allows us to separate the intercept from the slopes. Let $\mathbf{y}_c$ and $\mathbf{X}_c$ be the centered response and design matrices (where $\mathbf{X}_c$ **excludes the column of 1s**). Using this centered form, the total sum of squares decomposes exactly like the population variance:
+
+$$
+\text{SST} = \text{SSR} + \text{SSE}
+$$
+
+Comparing the sample quantities to their population counterparts:
+
+1. **Regression Coefficients:**
+  $$
+  \hat{\beta}^T = (\mathbf{X}_c^T \mathbf{X}_c)^{-1} \mathbf{X}_c^T \mathbf{y}_c \approx B
+  $$
+  *Note: $\hat{\beta}$ here represents only the slope coefficients, matching the dimensions of the covariance matrix $\Sigma_{xx}$.*
+
+1.  **Explained Variation (Signal):**
+    $$
+    \text{SSR} = \hat{\beta}^T (\mathbf{X}_c^T \mathbf{X}_c) \hat{\beta} \quad \approx \quad (n-1) B \Sigma_{xx} B^T
+    $$
+
+1.  **Unexplained Variation (Noise):**
+    $$
+    \text{SSE} = \mathbf{y}_c^T \mathbf{y}_c - \hat{\beta}^T (\mathbf{X}_c^T \mathbf{X}_c) \hat{\beta} \quad \approx \quad (n-1)(\Sigma_{yy} - B \Sigma_{xx} B^T)
+    $$
 :::
 
-
-### Variance Decomposition
-The Law of Total Variance states:
-$$
-\text{var}(y_2) = E[\text{var}(y_2 | y_1)] + \text{var}[E(y_2 | y_1)]
-$$
-In the MVN case:
-
-* $E[\text{var}(y_2 | y_1)] = \Sigma_{22|1}$ (constant variance).
-
-* $\text{var}[E(y_2 | y_1)] = \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12}$ (explained variance).
-Summing these returns the total variance $\Sigma_{22}$.
 
 ## Partial and Multiple Correlation
 
@@ -616,6 +718,398 @@ where $\sigma_{ij|x}$ are elements of $\Sigma_{y|x} = \Sigma_{yy} - \Sigma_{yx}\
 ::: {#def-multiple-corr name="Multiple Correlation ($R^2$)"}
 For a scalar $y$ and vector $x$, the squared multiple correlation is the proportion of variance of $y$ explained by the conditional mean:
 $$
-\rho_{y|x}^2 = \frac{\text{var}(E(y|x))}{\text{var}(y)} = \frac{\Sigma_{yx} \Sigma_{xx}^{-1} \Sigma_{xy}}{\sigma_{yy}}
+R^2_{y|x} = \frac{\text{Var}(E(y|x))}{\text{Var}(y)} = \frac{\Sigma_{yx} \Sigma_{xx}^{-1} \Sigma_{xy}}{\sigma^2_{y}}
 $$
 :::
+Note: this definition is the population or theretical $R^2$, which is estimated by adjusted $R^2$ using sample in linear regression. 
+
+## Examples
+
+::: {#exm-numerical name="Bivariate Normal"}
+Let the random vector $\begin{pmatrix} y \\ x \end{pmatrix}$ follow a bivariate normal distribution:
+$$
+\begin{pmatrix} y \\ x \end{pmatrix} \sim N \left( \begin{pmatrix} 1 \\ 2 \end{pmatrix}, \begin{pmatrix} 2 & 2 \\ 2 & 4 \end{pmatrix} \right)
+$$
+Here, $\mu_y = 1, \mu_x = 2, \sigma_y^2 = 2, \sigma_x^2 = 4$.
+We increased the covariance $\sigma_{xy}$ to $2$. The correlation is now:
+$$
+\rho = \frac{\sigma_{xy}}{\sqrt{\sigma_y^2 \sigma_x^2}} = \frac{2}{\sqrt{2 \times 4}} = \frac{2}{2.828} \approx 0.71
+$$
+
+**1. The Marginal Distribution of $y$**
+The marginal distribution remains unchanged (total variance):
+$$
+y \sim N(1, 2)
+$$
+
+**2. The Conditional Distribution $y | x$**
+$$
+\begin{aligned}
+E(y|x) &= \mu_y + \sigma_{xy}\sigma_x^{-2}(x - \mu_x) \\
+&= 1 + 2(4)^{-1}(x - 2) \\
+&= 1 + 0.5(x - 2) \\
+&= 0.5x
+\end{aligned}
+$$
+$$
+\begin{aligned}
+\text{Var}(y|x) &= \sigma_y^2 - \sigma_{xy}\sigma_x^{-2}\sigma_{yx} \\
+&= 2 - 2(0.5) \\
+&= 1
+\end{aligned}
+$$
+Thus, $y | x \sim N(0.5x, 1)$. Note that the conditional variance (1) is half of the total variance (2).
+
+**3. Distribution of the Conditional Mean (Explained Part)**
+Let $\hat{y} = E(y|x) = 0.5x$. Since $x \sim N(2, 4)$:
+$$
+\begin{aligned}
+E[\hat{y}] &= 0.5 E[x] = 0.5(2) = 1 \\
+\text{Var}[\hat{y}] &= \text{Var}(0.5x) = 0.5^2 \text{Var}(x) = 0.25 \times 4 = 1
+\end{aligned}
+$$
+So, $\hat{y} \sim N(1, 1)$.
+
+**4. Distribution of the Error (Unexplained Part)**
+$$
+\text{Var}(\epsilon) = \text{Var}(y) - \text{Var}(\hat{y}) = 2 - 1 = 1
+$$
+So, $\epsilon \sim N(0, 1)$.
+
+**5. Multiple Correlation Coefficient ($R^2$)**
+The squared multiple correlation coefficient represents the proportion of total variance explained by the conditional mean.
+$$
+R^2 = \rho_{y|x}^2 = \frac{\text{Var}(\hat{y})}{\text{Var}(y)} = \frac{1}{2} = 0.5
+$$
+Alternatively, using the covariance definition:
+$$
+R^2 = \frac{\sigma_{xy} \Sigma_{xx}^{-1} \Sigma_{xy}}{\sigma_{yy}} = \frac{2 \cdot (1/4) \cdot 2}{2} = \frac{1}{2} = 0.5
+$$
+This means $50\%$ of the variation in $y$ is explained by $x$.
+
+```{r}
+#| label: fig-variance-decomp-scaled
+#| fig-cap: "Illustration of Rao-Blackwell Variance Decomposition in Bivariate Normal"
+#| echo: false
+#| fig-align: "center"
+
+library(ggplot2)
+library(mvtnorm)
+
+# 1. PARAMETERS (Updated Sigma)
+mu <- c(1, 2) 
+sigma <- matrix(c(2, 2, 2, 4), nrow=2) # Covariance = 2
+
+# 2. GENERATE DATA FOR CONTOURS
+y_seq <- seq(mu[1] - 3.5*sqrt(sigma[1,1]), mu[1] + 3.5*sqrt(sigma[1,1]), length.out=100)
+x_seq <- seq(mu[2] - 3.5*sqrt(sigma[2,2]), mu[2] + 4.5*sqrt(sigma[2,2]), length.out=100) 
+
+grid <- expand.grid(y=y_seq, x=x_seq)
+grid$z <- dmvnorm(as.matrix(grid), mean=mu, sigma=sigma)
+
+# Regression Line Data
+line_data <- data.frame(
+  x = x_seq,
+  y = 0.5 * x_seq
+)
+
+# Generate 100 Random Samples
+set.seed(42)
+samples <- rmvnorm(100, mean = mu, sigma = sigma)
+samples_df <- data.frame(y = samples[,1], x = samples[,2])
+
+# 3. DENSITY PLACEMENTS
+dens_y <- seq(min(y_seq), max(y_seq), length.out=200)
+
+# Rescale factor (3x larger than previous 1.5)
+scale_factor <- 4.5
+
+# A. Conditional Distribution at x=3
+# y|x=3 ~ N(0.5*3, 1) = N(1.5, 1)
+mu_cond <- 0.5 * 3
+sd_cond <- sqrt(1)
+dens_cond <- dnorm(dens_y, mean=mu_cond, sd=sd_cond)
+df_cond <- data.frame(y=dens_y, x = 3 + dens_cond * scale_factor)
+
+# B. Distribution of Conditional Mean (Explained) at x=6
+# E[y|x] ~ N(1, 1)
+dens_expl <- dnorm(dens_y, mean=1, sd=sqrt(1))
+df_expl <- data.frame(y=dens_y, x = 6 + dens_expl * scale_factor)
+
+# C. Marginal Distribution of y (Total) at x=9
+# y ~ N(1, 2)
+dens_marg <- dnorm(dens_y, mean=1, sd=sqrt(2))
+df_marg <- data.frame(y=dens_y, x = 9 + dens_marg * scale_factor)
+
+# 4. PLOTTING
+ggplot() +
+  # Contours
+  geom_contour(data=grid, aes(x=x, y=y, z=z), colour="navy", bins=6, alpha=0.2) +
+  
+  # Sample Points
+  geom_point(data=samples_df, aes(x=x, y=y), alpha=0.5, size=1.2, colour="#444444") +
+  
+  # Regression Line
+  geom_line(data=line_data, aes(x=x, y=y), colour="red", linewidth=1, alpha=0.3) +
+  
+  # A. Conditional Slice at x=3
+  geom_vline(xintercept=3, linetype="dotted", alpha=0.5) +
+  geom_path(data=df_cond, aes(x=x, y=y), colour="blue", linewidth=1) +
+  geom_polygon(data=df_cond, aes(x=x, y=y), fill="blue", alpha=0.2) +
+  annotate("text", x=3.1, y=6, label="y | x=3\n(Var=1)", colour="blue", hjust=0, size=2.5, fontface="bold") +
+  
+  # B. Explained Variance at x=6
+  geom_vline(xintercept=6, linetype="dotted", alpha=0.5) +
+  geom_path(data=df_expl, aes(x=x, y=y), colour="red", linewidth=1) +
+  geom_polygon(data=df_expl, aes(x=x, y=y), fill="red", alpha=0.2) +
+  annotate("text", x=6.1, y=6, label="Dist. of\nE(y|x)\n(Var=1)", colour="red", hjust=0, size=2.5, fontface="bold") +
+
+  # C. Marginal Variance at x=9
+  geom_vline(xintercept=9, linetype="dotted", alpha=0.5) +
+  geom_path(data=df_marg, aes(x=x, y=y), colour="gray40", linewidth=1) +
+  geom_polygon(data=df_marg, aes(x=x, y=y), fill="gray40", alpha=0.2) +
+  annotate("text", x=9.1, y=6, label="Marginal y\n(Total Var=2)", colour="gray40", hjust=0, size=2.5, fontface="bold") +
+  
+  theme_minimal(base_size = 8) +
+  coord_fixed(ratio=1, xlim=c(-4, 11))
+```
+:::
+
+
+::: {#exm-trivariate name="Trivariate Example with 2 Predictors"}
+
+Let $V = (y, x_1, x_2)'$ be a random vector distributed as $N_3(\mu, \Sigma)$.
+
+**1. Define Parameters**
+Let:
+$$
+\mu = \begin{pmatrix} 1 \\ 2 \\ 3 \end{pmatrix} \quad \text{(where } \mu_y=1, \mu_{x_1}=2, \mu_{x_2}=3)
+$$
+$$
+\Sigma = \begin{pmatrix} 
+10 & 3 & 4 \\ 
+3 & 2 & 1 \\ 
+4 & 1 & 4 
+\end{pmatrix}
+$$
+Here, $\Sigma_{yy} = 10$. The covariance between $y$ and predictors is strong.
+
+**2. Partitioning the Matrices**
+We split the vector into $y$ (scalar) and $\mathbf{x} = (x_1, x_2)'$.
+$$
+\Sigma_{yy} = 10, \quad \Sigma_{yx} = \begin{pmatrix} 3 & 4 \end{pmatrix}
+$$
+$$
+\Sigma_{xx} = \begin{pmatrix} 2 & 1 \\ 1 & 4 \end{pmatrix}, \quad \mu_x = \begin{pmatrix} 2 \\ 3 \end{pmatrix}
+$$
+
+**3. Marginal Distribution of $y$**
+This is simply the first element of the joint parameters:
+$$
+y \sim N(1, 10)
+$$
+
+**4. Conditional Distribution $y | x_1, x_2$**
+First, calculate the regression coefficients (the "slope" vector):
+$$
+\mathbf{\beta} = \Sigma_{yx} \Sigma_{xx}^{-1}
+$$
+Finding $\Sigma_{xx}^{-1}$:
+$$
+\det(\Sigma_{xx}) = (2)(4) - (1)(1) = 7
+$$
+$$
+\Sigma_{xx}^{-1} = \frac{1}{7} \begin{pmatrix} 4 & -1 \\ -1 & 2 \end{pmatrix}
+$$
+Now compute $\mathbf{\beta}$:
+$$
+\mathbf{\beta} = \begin{pmatrix} 3 & 4 \end{pmatrix} \frac{1}{7} \begin{pmatrix} 4 & -1 \\ -1 & 2 \end{pmatrix} = \frac{1}{7} \begin{pmatrix} 8 & 5 \end{pmatrix} \approx \begin{pmatrix} 1.14 & 0.71 \end{pmatrix}
+$$
+
+**Conditional Mean:**
+$$
+\begin{aligned}
+E(y|\mathbf{x}) &= \mu_y + \mathbf{\beta}(\mathbf{x} - \mu_x) \\
+&= 1 + \frac{8}{7}(x_1 - 2) + \frac{5}{7}(x_2 - 3)
+\end{aligned}
+$$
+
+**Conditional Variance (Unexplained Variance):**
+$$
+\begin{aligned}
+\text{Var}(y|\mathbf{x}) &= \Sigma_{yy} - \Sigma_{yx}\Sigma_{xx}^{-1}\Sigma_{xy} \\
+&= 10 - \mathbf{\beta} \Sigma_{xy} \\
+&= 10 - \frac{1}{7} \begin{pmatrix} 8 & 5 \end{pmatrix} \begin{pmatrix} 3 \\ 4 \end{pmatrix} \\
+&= 10 - \frac{1}{7}(24 + 20) \\
+&= 10 - \frac{44}{7} = \frac{26}{7} \approx 3.71
+\end{aligned}
+$$
+So, $$y | x_1, x_2 \sim N\left(1 + \frac{8}{7}(x_1 - 2) + \frac{5}{7}(x_2 - 3), \; 3.71\right).$$
+
+**5. Distribution of the Conditional Mean (Signal)**
+Let $\hat{y} = E(y|\mathbf{x})$.
+$$
+E[\hat{y}] = \mu_y = 1\quad (\text{This verifies the iterative expectation formula.})
+$$
+$$
+\text{Var}(\hat{y}) = \text{Var}(y) - \text{Var}(y|\mathbf{x}) = 10 - 3.71 = 6.29
+$$
+Alternatively calculated as $\Sigma_{yx}\Sigma_{xx}^{-1}\Sigma_{xy} = 44/7$.
+So, $\hat{y} \sim N(1, 6.29)$.
+
+**6. Multiple Correlation Coefficient ($R^2$)**
+$$
+R^2 = \frac{\text{Var}(\hat{y})}{\text{Var}(y)} = \frac{44/7}{10} = \frac{44}{70} \approx 0.628
+$$
+Thus, $x_1$ and $x_2$ jointly explain about $62.8\%$ of the variance in $y$.
+
+```{r}
+#| label: fig-trivariate-refined
+#| fig-cap: "Variance Decomposition in Multivariate Normal"
+#| echo: true
+#| warning: false
+#| message: false
+#| fig-width: 7
+#| fig-height: 7
+
+library(ggplot2)
+library(mvtnorm)
+
+# --- A. Setup Data ---
+mu <- c(1, 2, 3)
+sigma <- matrix(c(10, 3, 4,
+                  3, 2, 1,
+                  4, 1, 4), nrow=3, byrow=TRUE)
+
+# Theoretical Variances
+var_total <- sigma[1,1] # 10
+S_yx <- matrix(sigma[1, 2:3], nrow=1)
+S_xx <- sigma[2:3, 2:3]
+beta <- S_yx %*% solve(S_xx)
+var_explained <- as.numeric(beta %*% S_xx %*% t(beta)) # ~6.29
+var_error <- var_total - var_explained # ~3.71
+
+# Generate Sample Data
+set.seed(2024)
+dat <- rmvnorm(1000, mean=mu, sigma=sigma)
+df <- data.frame(y=dat[,1], x1=dat[,2], x2=dat[,3])
+mod <- lm(y ~ x1 + x2, data=df)
+df$y_hat <- fitted(mod)
+
+# --- B. Define Plot Limits and Positions ---
+# Expanded limits slightly to fit the lower density
+limit_min <- -12
+limit_max <- 12
+limits <- c(limit_min, limit_max)
+
+# UPDATED POSITIONS
+pos_right  <- 9    # Total Variance (Right)
+pos_bottom <- -8   # Explained Variance (Moved down)
+pos_center <- 5    # Conditional Variance (Moved to x=5)
+
+# UPDATED SCALE (1.5x larger than 10)
+scale_factor <- 20 
+
+# --- C. Generate Density Curves ---
+seq_vals <- seq(limit_min, limit_max, length.out=300)
+
+# 1. Total Variance (Marginal y) -> Right
+# Mean = 1 (Global Mean)
+dens_total <- dnorm(seq_vals, mean=1, sd=sqrt(var_total))
+df_total <- data.frame(
+  y = seq_vals, 
+  x = pos_right + dens_total * scale_factor 
+)
+
+# 2. Explained Variance (Marginal y_hat) -> Bottom
+# Mean = 1 (Global Mean)
+dens_expl <- dnorm(seq_vals, mean=1, sd=sqrt(var_explained))
+df_expl <- data.frame(
+  x = seq_vals,
+  y = pos_bottom - dens_expl * scale_factor 
+)
+
+# 3. Error Variance (Conditional y|x=5) -> Center
+# IMPORTANT: At x (y_hat) = 5, the expected value of y is 5.
+# So this density must be centered at 5.
+dens_error <- dnorm(seq_vals, mean=5, sd=sqrt(var_error))
+df_error <- data.frame(
+  y = seq_vals,
+  x = pos_center + dens_error * scale_factor
+)
+
+# --- D. Plotting ---
+ggplot(df, aes(x=y_hat, y=y)) +
+  # 1. Reference Lines
+  geom_abline(intercept=0, slope=1, color="red", linewidth=0.5, alpha=0.3) +
+  
+  # 2. Scatter Points
+  geom_point(alpha=0.15, size=1.5, color="black") +
+  
+  # 3. Density: Explained Variance (Red, Bottom, Flipped Down)
+  geom_hline(yintercept = pos_bottom, color="red", linetype="dotted", alpha=0.5) +
+  geom_polygon(data=df_expl, aes(x=x, y=y), fill="red", alpha=0.3) +
+  geom_path(data=df_expl, aes(x=x, y=y), color="red", linewidth=1) +
+  annotate("text", x=1, y=pos_bottom - 3, label="Explained Var\n(Fitted)", color="red", size=3, fontface="bold") +
+  
+  # 4. Density: Total Variance (Gray, Right, Flipped Right)
+  geom_vline(xintercept = pos_right, color="gray40", linetype="dotted", alpha=0.5) +
+  geom_polygon(data=df_total, aes(x=x, y=y), fill="gray40", alpha=0.3) +
+  geom_path(data=df_total, aes(x=x, y=y), color="gray40", linewidth=1) +
+  annotate("text", x=pos_right + 2, y=6, label="Total Var\n(Observed)", color="gray40", size=3, fontface="bold") +
+
+  # 5. Density: Error Variance (Blue, Center at x=5)
+  geom_vline(xintercept = pos_center, color="blue", linetype="dotted", alpha=0.3) +
+  geom_polygon(data=df_error, aes(x=x, y=y), fill="blue", alpha=0.3) +
+  geom_path(data=df_error, aes(x=x, y=y), color="blue", linewidth=1) +
+  annotate("text", x=pos_center + 1, y=9, label="Error Var\n(Conditional)", color="blue", size=3, fontface="bold") +
+
+  # 6. Formatting
+  scale_x_continuous(limits=limits, breaks=seq(-10, 10, 5)) +
+  scale_y_continuous(limits=limits, breaks=seq(-10, 10, 5)) +
+  coord_fixed(ratio=1) + 
+  labs(
+    title = "Variance Decomposition in Multivariate Normal",
+    x = "Predicted E(y|x)",
+    y = "Observed y"
+  ) +
+  theme_minimal()
+```
+:::
+
+::: {.content-visible when-format="html"}
+
+```{r}
+#| label: fig-plotly-plane
+#| fig-cap: "Interactive 3D Plot: Observed Data vs Fitted Plane"
+#| echo: true
+#| warning: false
+
+library(plotly)
+
+# --- Setup Grid for Surface ---
+x1_seq <- seq(min(df$x1), max(df$x1), length.out=20)
+x2_seq <- seq(min(df$x2), max(df$x2), length.out=20)
+grid <- expand.grid(x1=x1_seq, x2=x2_seq)
+grid$y_pred <- predict(mod, newdata=grid)
+z_matrix <- matrix(grid$y_pred, nrow=20, ncol=20)
+
+# --- Plot ---
+plot_ly() %>%
+  add_markers(data = df, x = ~x1, y = ~x2, z = ~y,
+              marker = list(size = 3, color = '#444', opacity = 0.5),
+              name = "Observed Data") %>%
+  add_surface(x = x1_seq, y = x2_seq, z = z_matrix,
+              opacity = 0.6,
+              colorscale = list(c(0, 1), c("red", "red")),
+              showscale = FALSE,
+              name = "Regression Plane") %>%
+  layout(title = "Trivariate Normal: y regressed on x1, x2",
+         scene = list(xaxis = list(title = "x1"),
+                      yaxis = list(title = "x2"),
+                      zaxis = list(title = "y")))
+
+```
+
+:::
+
