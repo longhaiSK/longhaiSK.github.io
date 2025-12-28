@@ -57,6 +57,46 @@ $$
 $$
 :::
 
+### Spectral Decomposition
+
+For symmetric matrices, we have a powerful decomposition theorem.
+
+::: {#thm-spectral}
+### Spectral Decomposition
+
+If $A$ is a symmetric $n \times n$ matrix, all its eigenvalues $\lambda_1, \dots, \lambda_n$ are real. Furthermore, there exists an orthogonal matrix $Q$ such that:
+
+$$
+A = Q \Lambda Q' = \sum_{i=1}^n \lambda_i q_i q_i'
+$$
+
+where:
+
+* $\Lambda = \text{diag}(\lambda_1, \dots, \lambda_n)$ contains the eigenvalues.
+* $Q = (q_1, \dots, q_n)$ contains the corresponding orthonormal eigenvectors ($q_i'q_j = \delta_{ij}$).
+:::
+
+**Explantion**: 
+This allows us to view the transformation $Ax$ as a rotation ($Q'$), a scaling ($\Lambda$), and a rotation back ($Q$). For a symmetric matrix $A$, we can write the spectral decomposition as a product of the eigenvector matrix $Q$ and eigenvalue matrix $\Lambda$:
+
+$$
+\begin{aligned}
+A &= Q \Lambda Q' \\
+  &= \begin{pmatrix} q_1 & q_2 & \cdots & q_n \end{pmatrix} 
+     \begin{pmatrix} \lambda_1 & 0 & \cdots & 0 \\ 0 & \lambda_2 & \cdots & 0 \\ \vdots & \vdots & \ddots & \vdots \\ 0 & 0 & \cdots & \lambda_n \end{pmatrix} 
+     \begin{pmatrix} q_1' \\ q_2' \\ \vdots \\ q_n' \end{pmatrix} \\
+  &= \begin{pmatrix} \lambda_1 q_1 & \lambda_2 q_2 & \cdots & \lambda_n q_n \end{pmatrix} 
+     \begin{pmatrix} q_1' \\ q_2' \\ \vdots \\ q_n' \end{pmatrix} \\
+  &= \lambda_1 q_1 q_1' + \lambda_2 q_2 q_2' + \cdots + \lambda_n q_n q_n' \\
+  &= \sum_{i=1}^n \lambda_i q_i q_i'
+\end{aligned}
+$$
+
+where the eigenvectors $q_i$ satisfy the orthogonality conditions:
+$$
+q_i' q_j = \begin{cases} 1 & \text{if } i=j \\ 0 & \text{if } i \ne j \end{cases}
+$$
+And $Q$ is an orthogonal matrix: $Q'Q = Q Q' = I_n$.
 
 ### Quadratic Form
 :::{#def-quadratic-form}
@@ -139,11 +179,6 @@ For a projection matrix $P$:
 ::: {#exm-trace-P}
 For $P = \frac{1}{n} J_n J_n'$, the rank is $\text{tr}(P) = 1$.
 :::
-
-
-
-
------
 
 
 ### Singular Value Decomposition (SVD)
@@ -444,7 +479,7 @@ $$
     $$
 :::
 
-### A General Procedure to Find a Generalized Inverse
+### A Procedure to Find a Generalized Inverse
 
 If we can partition $X$ (possibly after permuting rows/columns) such that $R_{11}$ is a non-singular rank $r$ submatrix:
 
@@ -607,7 +642,9 @@ Thus, $X^-c$ is a solution. Note that the solution is not unique if $X$ is not f
   $$
 :::
 
-## Least Squares with Generalized Inverse
+
+
+## Least Squares for Non-full-rank $X$ with Generalized Inverse
 
 ### Projection Matrix with Generalized Inverse of $X'X$
 
@@ -628,7 +665,7 @@ This $\hat{y}$ represents the unique orthogonal projection of $y$ onto $\text{Co
 $(X^-)'$ is a version of $(X')^-$. That is, $(X^-)'$ is a generalized inverse of $X'$.
 :::
 
-:::{.proof}
+::: {.callout-note collapse="true" icon="false" title="Proof"}
 
 By definition, a generalized inverse $X^-$ satisfies the property:
 $$
@@ -698,7 +735,7 @@ Let $P = X(X'X)^- X'$. This matrix has the following properties:
 3.  **Uniqueness:** $P$ is unique and invariant to the choice of the generalized inverse $(X'X)^-$.
 :::
 
-:::{.proof}
+::: {.callout-note collapse="true" icon="false" title="Proof"}
 **Proof of Uniqueness:**
 
 Let $A$ and $B$ be two different generalized inverses of $X'X$. Define $P_A = X A X'$ and $P_B = X B X'$.
@@ -719,9 +756,74 @@ P_A - P_B = 0 \implies P_A = P_B
 $$
 :::
 
+## The Left Inverse View: Recovering $\hat{\beta}$ from $\hat{y}$
+
+While the geometric properties of the linear model are most naturally established via the unique orthogonal projection $\hat{y}$, we require a functional mapping—a statistical "bridge"—to translate the distribution of these fitted values back into the parameter space of $\hat{\beta}$. This bridge is provided by the generalized left inverse.
+
+### The Generalized Left Inverse
+
+To recover the parameter estimates directly from the fitted values, we define the generalized left inverse, denoted as $X_{\text{left}}^-$, such that:
+
+$$
+\hat{\beta} = X_{\text{left}}^- \hat{y}
+$$
+
+A standard choice for this operator, derived from the normal equations, is:
+
+$$
+X_{\text{left}}^- = (X' X)^- X'
+$$
+
+When $X$ is full-rank, the $X_{\text{left}}^-$ is unique, which is given by 
+
+$$
+X_{\text{left}}^- = (X' X)^{-1} X'
+$$
+
+### Verification of the Inverse Property
+
+To verify that $X_{\text{left}}^-$ acts as a valid generalized inverse of $X$, it must satisfy the condition $X X_{\text{left}}^- X = X$. Substituting our definition:
+
+$$
+X \underbrace{\left[ (X' X)^- X' \right]}_{X_{\text{left}}^-} X = X (X' X)^- (X' X)
+$$
+
+Using the property of generalized inverses for symmetric matrices where $(X' X)(X' X)^- X' = X'$, the transpose of this identity gives $X (X' X)^- (X' X) = X$. Thus, the condition holds:
+
+$$
+X X_{\text{left}}^- X = X
+$$
+
+### Recovering the Estimator
+
+We can now demonstrate that applying this left inverse to the fitted values $\hat{y}$ yields the standard solution to the normal equations.
+
+Substituting the projection formula $\hat{y} = X(X' X)^- X' y$:
+
+$$
+\begin{aligned}
+X_{\text{left}}^- \hat{y} &= \left[ (X' X)^- X' \right] \left[ X(X' X)^- X' y \right] \\
+&= (X' X)^- \underbrace{(X' X) (X' X)^- (X' X)}_{\text{Property } A A^- A = A} (X' X)^- X' y
+\end{aligned}
+$$
+
+Simplifying using the generalized inverse property $A^- A A^- = A^-$ (where $A = X' X$):
+
+$$
+\begin{aligned}
+X_{\text{left}}^- \hat{y} &= \underbrace{(X' X)^- (X' X) (X' X)^-}_{(X' X)^-} X' y \\
+&= (X' X)^- X' y
+\end{aligned}
+$$
+
+Thus, we recover the standard estimator used in the normal equations:
+
+$$
+\mathbf{\hat{\beta} = (X' X)^- X' y}
+$$
 
 
-### Fitting Linear Models with QR Decomposition
+## Non-full-rank Least Squares with QR Decomposition
 
 When $X$ has rank $r < p$ (where $X$ is $n \times p$), we can derive the least squares estimator using partitioned matrices.
 
@@ -740,9 +842,9 @@ $$
 \begin{pmatrix} R_1'R_1 & R_1'R_2 \\ R_2'R_1 & R_2'R_2 \end{pmatrix} \beta = \begin{pmatrix} R_1'Q'y \\ R_2'Q'y \end{pmatrix}
 $$
 
-#### Constructing a Solution by Solving Normal Equations
+### Constructing a Solution by Solving Normal Equations
 
-::: {.callout-note collapse="true" icon="false" title="Proof"}
+
 One specific generalized inverse of $X'X$ can be found by focusing on the non-singular block $R_1'R_1$:
 $$
 (X'X)^- = \begin{pmatrix} (R_1'R_1)^{-1} & 0 \\ 0 & 0 \end{pmatrix}
@@ -761,9 +863,9 @@ $$
 \hat{y} = X\hat{\beta} = Q(R_1, R_2) \begin{pmatrix} R_1^{-1} Q'y \\ 0 \end{pmatrix} = Q R_1 R_1^{-1} Q'y = QQ'y
 $$
 This confirms that $\hat{y}$ is the projection of $y$ onto the column space of $Q$ (which is the same as the column space of $X$).
-:::
 
-#### Constructing a Solution by Solving Reparametrized $\beta$
+
+### Constructing a Solution by Solving Reparametrized $\beta$
 
 We can view the model as:
 $$
@@ -781,7 +883,7 @@ $$
 R_1\beta_1 + R_2\beta_2 = \hat{b} = Q'y
 $$
 
-::: {.callout-note collapse="true" icon="false" title="Proof"}
+
 **Solution 1:**
 Set $\beta_2 = 0$. Then:
 $$
@@ -798,9 +900,10 @@ $$
 \hat{\beta} = R^- Q'y = \begin{pmatrix} R_1^{-1}Q'y \\ 0 \end{pmatrix}
 $$
 This demonstrates that finding a solution to the normal equations using $(X'X)^-$ is equivalent to solving the reparameterized system $b = R\beta$.
-:::
 
-----
+
+
+
 
 
 
