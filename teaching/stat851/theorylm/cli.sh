@@ -21,7 +21,7 @@
 #regexrepl.py lec3*.qmd '::: \{\.callout-note(?=[^}]*title="Proof")[^}]*\}' ':::{.proof}'
 
 
-# render withou nocache
+# render with no cache
 
 # quarto render lec1*.qmd --execute-daemon 0 --no-cache --to html
  
