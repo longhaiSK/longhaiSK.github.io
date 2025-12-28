@@ -17,7 +17,9 @@
 # '\1 name="\2"}'
 
 # change proof format
+
 #regexrepl.py lec3*.qmd '\:\:\:\s*\{\.proof\}' '::: {.callout-note collapse="true" icon="false" title="Proof"}'
+
 #regexrepl.py lec3*.qmd '::: \{\.callout-note(?=[^}]*title="Proof")[^}]*\}' ':::{.proof}'
 
 # render with no cache
