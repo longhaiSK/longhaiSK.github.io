@@ -21,3 +21,7 @@
 
 # render withou nocache
 quarto render lec3-mvn.qmd --execute-daemon 0 --no-cache --to html
+
+quarto render lec3-mvn.qmd --execute-daemon 0 --no-cache --to pdf
+
+chrome stat_lin_theory.pdf 
