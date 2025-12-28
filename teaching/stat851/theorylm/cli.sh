@@ -1,5 +1,5 @@
 # sanitize list
-# regexrepl.py lec3*.qmd \
+# regexrepl.py introlm.qmd \
 # '(?m)^(?!\s*(?:[-*]|\d+\.)\s)(.+)\n(?!\s*\n)(\s*(?:[-*]|\d+\.)\s)' \
 # '\1\n\n\2'
 
@@ -18,10 +18,12 @@
 
 # change proof format
 #regexrepl.py lec3*.qmd '\:\:\:\s*\{\.proof\}' '::: {.callout-note collapse="true" icon="false" title="Proof"}'
-
+#regexrepl.py lec3*.qmd '::: \{\.callout-note(?=[^}]*title="Proof")[^}]*\}' ':::{.proof}'
 # render withou nocache
-quarto render lec3-mvn.qmd --execute-daemon 0 --no-cache --to html
-
-quarto render lec3-mvn.qmd --execute-daemon 0 --no-cache --to pdf
-
-chrome stat_lin_theory.pdf 
+# quarto render lec3-mvn.qmd --execute-daemon 0 --no-cache --to html
+# 
+# quarto render lec3-mvn.qmd --execute-daemon 0 --no-cache --to pdf
+# 
+#quarto render --execute-daemon 0 --no-cache --to pdf
+quarto preview --to pdf
+# chrome stat_lin_theory.pdf 
