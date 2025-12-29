@@ -1,0 +1,392 @@
+---
+title: "Distribution of Quadratic Forms"
+---
+
+```{r}
+#| label: setup-images-lec40-p1-10
+#| include: false
+#| warning: false
+
+library(pdftools)
+library(magick)
+
+# Define path to PDF
+pdf_path <- "../Lec40-quadratic-form.pdf"
+img_dir <- "lec40_images"
+
+# Create image directory
+if (!dir.exists(img_dir)) {
+  dir.create(img_dir)
+}
+
+# Helper function to extract and crop a specific page
+extract_page_image <- function(page_num, filename, geometry = "1200x800+0+200", force = FALSE) {
+  target_file <- file.path(img_dir, filename)
+  
+  if (file.exists(pdf_path) && (force || !file.exists(target_file))) {
+    tryCatch({
+      bitmap <- pdf_render_page(pdf_path, page = page_num, dpi = 150)
+      img <- image_read(bitmap)
+      img_cropped <- image_crop(img, geometry)
+      image_write(img_cropped, target_file)
+    }, error = function(e) {
+      warning(paste("Failed to extract page", page_num, ":", e$message))
+    })
+  }
+}
+```
+
+This chapter covers the distribution of quadratic forms (sums of squares), which is crucial for hypothesis testing in linear models.
+
+## Introduction to Quadratic Forms
+
+A quadratic form is a polynomial with terms all of degree two.
+
+::: {#def-quadratic-form name="Quadratic Form"}
+Let $y = (y_1, \dots, y_n)'$ be a random vector and $A$ be a symmetric $n \times n$ matrix. The scalar quantity $y'Ay$ is called a **quadratic form** in $y$.
+
+$$
+y'Ay = \sum_{i=1}^n \sum_{j=1}^n a_{ij} y_i y_j
+$$
+:::
+
+**Examples:**
+
+* **Squared Norm:** If $A = I_n$, then $y'I_n y = y'y = \sum y_i^2 = ||y||^2$.
+* **Weighted Sum of Squares:** If $A$ is diagonal with elements $\lambda_i$, then $y'Ay = \sum \lambda_i y_i^2$.
+* **Projection Sum of Squares:** If $P$ is a projection matrix, $||Py||^2 = (Py)'(Py) = y'P'Py = y'Py$ (since $P$ is symmetric and idempotent).
+
+## Mean of Quadratic Form
+
+We can find the expected value of a quadratic form without assuming normality.
+
+::: {#thm-mean-qf name="Mean of Quadratic Form"}
+If $y$ is a random vector with mean $E(y) = \mu$ and covariance matrix $\text{Var}(y) = \Sigma$, and $A$ is a symmetric matrix of constants, then:
+
+$$
+E(y'Ay) = \text{tr}(A\Sigma) + \mu'A\mu
+$$
+:::
+
+::: {.proof}
+Using the trace trick (scalar equals its trace) and linearity of expectation:
+$$
+\begin{aligned}
+E(y'Ay) &= E[\text{tr}(y'Ay)] = E[\text{tr}(Ayy')] = \text{tr}(A E[yy']) \\
+\text{Since } \Sigma &= E(yy') - \mu\mu', \text{ we have } E(yy') = \Sigma + \mu\mu' \\
+E(y'Ay) &= \text{tr}(A(\Sigma + \mu\mu')) = \text{tr}(A\Sigma) + \text{tr}(A\mu\mu') \\
+&= \text{tr}(A\Sigma) + \text{tr}(\mu'A\mu) = \text{tr}(A\Sigma) + \mu'A\mu
+\end{aligned}
+$$
+
+Alternatively, using scalar summation:
+$$
+E(\sum_{i,j} a_{ij} y_i y_j) = \sum_{i,j} a_{ij} E(y_i y_j) = \sum_{i,j} a_{ij} (\sigma_{ij} + \mu_i \mu_j) = \text{tr}(A\Sigma) + \mu'A\mu
+$$
+:::
+
+## Example: Sample Variance
+
+Consider a random sample $x_1, \dots, x_n$ with $E(x_i) = \mu$ and $\text{Var}(x_i) = \sigma^2$.
+Let $x = (x_1, \dots, x_n)'$. Then $E(x) = \mu J_n$ (where $J_n$ is a vector of ones) and $\text{Var}(x) = \sigma^2 I_n$.
+
+We want to find the expectation of the sample variance (related to Sum of Squared Errors).
+The sample variance involves the sum of squared deviations from the mean: $\sum (x_i - \bar{x})^2$.
+
+This can be written using the projection matrix $H = \frac{1}{n} J_n J_n'$ (often called the "hat matrix" for the mean model).
+$\bar{x} J_n = H x$.
+$x - \bar{x} J_n = (I_n - H)x$.
+
+$$
+\sum (x_i - \bar{x})^2 = ||(I_n - H)x||^2 = x'(I_n - H)'(I_n - H)x = x'(I_n - H)x
+$$
+(Since $I_n - H$ is a symmetric idempotent projection matrix).
+
+Using @thm-mean-qf with $A = I_n - H$:
+$$
+\begin{aligned}
+E(x'(I_n - H)x) &= \text{tr}((I_n - H)\sigma^2 I_n) + (\mu J_n)'(I_n - H)(\mu J_n) \\
+&= \sigma^2 \text{tr}(I_n - H) + \mu^2 J_n' (I_n - H) J_n
+\end{aligned}
+$$
+
+* $\text{tr}(I_n - H) = \text{tr}(I_n) - \text{tr}(H) = n - 1$.
+* $(I_n - H)J_n = J_n - H J_n = J_n - \frac{1}{n} J_n (J_n' J_n) = J_n - J_n = 0$ (The residuals of the mean are orthogonal to the mean).
+
+Thus:
+$$
+E(\sum (x_i - \bar{x})^2) = \sigma^2 (n - 1) + 0 = (n-1)\sigma^2
+$$
+
+This confirms that $S^2 = \frac{1}{n-1} \sum (x_i - \bar{x})^2$ is an unbiased estimator of $\sigma^2$.
+
+## Non-central Chi-square Distribution
+
+To understand the distribution of quadratic forms under normality, we introduce the non-central chi-square distribution.
+
+::: {#def-nc-chisq name="Non-central Chi-square Distribution"}
+Let $x \sim N_n(\mu, I_n)$. The random variable $Y = x'x = \sum x_i^2$ follows a **non-central chi-square distribution** with $n$ degrees of freedom and non-centrality parameter $\lambda$.
+
+$$
+Y \sim \chi^2(n, \lambda) \quad \text{where } \lambda = \frac{1}{2} \mu'\mu = \frac{1}{2} ||\mu||^2
+$$
+:::
+
+**Note:** Some definitions use $\lambda = \mu'\mu$. In this course, we use $\lambda = \frac{1}{2}\mu'\mu$.
+
+Here is a plot visualizing the difference between central and non-central Chi-square distributions.
+
+```{r}
+#| label: plot-chisq
+#| echo: false
+#| fig-cap: "Central vs Non-central Chi-square Distribution"
+
+library(ggplot2)
+
+x <- seq(0, 20, length.out = 500)
+df <- 5
+ncp <- 3 # Non-centrality parameter
+
+y_central <- dchisq(x, df = df)
+y_noncentral <- dchisq(x, df = df, ncp = ncp)
+
+data <- data.frame(
+  x = rep(x, 2),
+  density = c(y_central, y_noncentral),
+  type = rep(c("Central (n=5)", "Non-central (n=5, lambda=3)"), each = length(x))
+)
+
+ggplot(data, aes(x = x, y = density, color = type)) +
+  geom_line(size = 1) +
+  theme_minimal() +
+  labs(title = "Chi-square Distributions",
+       y = "Density",
+       x = "x") +
+  theme(legend.position = "top")
+```
+
+## Properties of Non-central Chi-square
+
+::: {#thm-nc-chisq-props name="Mean and Variance"}
+If $Y \sim \chi^2(n, \lambda)$, then:
+
+1.  $E(Y) = n + 2\lambda = n + ||\mu||^2$
+2.  $\text{Var}(Y) = 2n + 8\lambda$
+:::
+
+::: {.proof name="Mean"}
+Let $x = z + \mu$, where $z \sim N(0, I_n)$.
+$$
+\begin{aligned}
+Y = ||x||^2 &= ||z + \mu||^2 = ||z||^2 + ||\mu||^2 + 2\mu'z \\
+E(Y) &= E(||z||^2) + ||\mu||^2 + 2\mu'E(z) \\
+&= n + ||\mu||^2 + 0 \\
+&= n + 2\lambda
+\end{aligned}
+$$
+(Since $||z||^2 \sim \chi^2_n$ central, its mean is $n$).
+:::
+
+**Additivity:**
+If $V_1, \dots, V_k$ are independent with $V_i \sim \chi^2(n_i, \lambda_i)$, then:
+$$
+\sum V_i \sim \chi^2(\sum n_i, \sum \lambda_i)
+$$
+
+
+----
+
+
+```{r}
+#| label: setup-images-lec40-p11-20
+#| include: false
+#| warning: false
+
+library(pdftools)
+library(magick)
+
+# Define path to PDF
+pdf_path <- "../Lec40-quadratic-form.pdf"
+img_dir <- "lec40_images"
+
+# Create image directory
+if (!dir.exists(img_dir)) {
+  dir.create(img_dir)
+}
+
+# Helper function to extract and crop a specific page
+extract_page_image <- function(page_num, filename, geometry = "1200x800+0+200", force = FALSE) {
+  target_file <- file.path(img_dir, filename)
+  
+  if (file.exists(pdf_path) && (force || !file.exists(target_file))) {
+    tryCatch({
+      bitmap <- pdf_render_page(pdf_path, page = page_num, dpi = 150)
+      img <- image_read(bitmap)
+      img_cropped <- image_crop(img, geometry)
+      image_write(img_cropped, target_file)
+    }, error = function(e) {
+      warning(paste("Failed to extract page", page_num, ":", e$message))
+    })
+  }
+}
+```
+
+## Visualizing Chi-square Distributions
+
+The density of the non-central chi-square distribution shifts to the right and becomes flatter as the non-centrality parameter $\lambda$ increases.
+
+## Mean, Variance, and MGF
+
+We summarize the key properties of the non-central chi-square distribution.
+
+::: {#thm-chisq-properties name="Properties of Non-central Chi-square"}
+Let $Y \sim \chi^2(n, \lambda)$. Then:
+
+1.  **Mean:** $E(Y) = n + 2\lambda$
+2.  **Variance:** $\text{Var}(Y) = 2n + 8\lambda$
+3.  **Moment Generating Function (MGF):**
+    $$
+    m_Y(t) = \frac{\exp[-\lambda \{1 - 1/(1-2t)\}]}{(1-2t)^{n/2}}
+    $$
+:::
+
+::: {.proof name="Mean"}
+We derived $E(Y) = n + 2\lambda$ in the previous section using the decomposition $Y = ||z + \mu||^2$.
+:::
+
+## Additivity
+
+::: {#thm-chisq-additivity name="Additivity of Chi-square"}
+If $v_1, \dots, v_k$ are independent random variables distributed as $\chi^2(n_i, \lambda_i)$, then their sum follows a chi-square distribution:
+
+$$
+\sum_{i=1}^k v_i \sim \chi^2\left(\sum_{i=1}^k n_i, \sum_{i=1}^k \lambda_i\right)
+$$
+:::
+
+::: {.proof}
+**Method 1: Using MGFs**
+
+The moment generating function of $v_i \sim \chi^2(n_i, \lambda_i)$ is:
+$$
+M_{v_i}(t) = \frac{\exp\left[-\lambda_i \left(1 - \frac{1}{1-2t}\right)\right]}{(1-2t)^{n_i/2}}
+$$
+
+Since $v_1, \dots, v_k$ are independent, the MGF of their sum $V = \sum v_i$ is the product of their individual MGFs:
+
+$$
+\begin{aligned}
+M_V(t) &= \prod_{i=1}^k M_{v_i}(t) \\
+&= \prod_{i=1}^k \frac{\exp\left[-\lambda_i \left(1 - \frac{1}{1-2t}\right)\right]}{(1-2t)^{n_i/2}} \\
+&= \frac{\exp\left[-\sum \lambda_i \left(1 - \frac{1}{1-2t}\right)\right]}{(1-2t)^{\sum n_i/2}}
+\end{aligned}
+$$
+
+This is the MGF of a non-central chi-square distribution with degrees of freedom $\sum n_i$ and non-centrality parameter $\sum \lambda_i$.
+
+**Method 2: Geometric Interpretation**
+
+Let $v_i = ||y_i||^2$ where $y_i \sim N_{n_i}(\mu_i, I_{n_i})$. Since the vectors $y_i$ are independent, we can stack them into a larger vector $y = (y_1', \dots, y_k')'$.
+
+$$
+y \sim N_{\sum n_i}(\mu, I_{\sum n_i}) \quad \text{where } \mu = (\mu_1', \dots, \mu_k')'
+$$
+
+The sum of squares is:
+$$
+\sum v_i = \sum ||y_i||^2 = ||y||^2
+$$
+
+By definition, $||y||^2$ follows a non-central chi-square distribution with degrees of freedom equal to the dimension of $y$ ($\sum n_i$) and non-centrality parameter $\lambda = \frac{1}{2} ||\mu||^2$.
+
+$$
+\lambda = \frac{1}{2} \sum_{i=1}^k ||\mu_i||^2 = \sum_{i=1}^k \lambda_i
+$$
+:::
+
+## MGF of Quadratic Forms
+
+To determine the distribution of general quadratic forms $y'Ay$, we look at their MGF.
+
+::: {#thm-mgf-quad name="MGF of Quadratic Form"}
+If $y \sim N_p(\mu, \Sigma)$, then the MGF of $Q = y'Ay$ is:
+
+$$
+M_Q(t) = |I - 2tA\Sigma|^{-1/2} \exp\left(-\frac{1}{2} \mu' [I - (I - 2tA\Sigma)^{-1}] \Sigma^{-1} \mu\right)
+$$
+:::
+
+## Distribution of Quadratic Forms
+
+This is one of the most important theorems in the course, establishing when a quadratic form follows a chi-square distribution.
+
+::: {#thm-dist-quad name="Distribution of y'Ay"}
+Let $y \sim N_p(\mu, \Sigma)$. Let $A$ be a symmetric matrix of rank $r$.
+Then $y'Ay \sim \chi^2(r, \lambda)$ with $\lambda = \frac{1}{2} \mu' A \mu$ **if and only if** $A\Sigma$ is idempotent ($A\Sigma A\Sigma = A\Sigma$).
+
+**Special Case ($\Sigma = I$):**
+If $\Sigma = I$, the condition simplifies to $A$ being idempotent ($A^2 = A$).
+:::
+
+::: {#cor-proj-matrix name="Projection Matrices"}
+If $y \sim N_n(\mu, \sigma^2 I_n)$ and $P_V$ is a projection matrix onto a subspace $V$ of dimension $r$, then:
+
+$$
+\frac{1}{\sigma^2} y'P_V y = \frac{||P_V y||^2}{\sigma^2} \sim \chi^2\left(r, \frac{||P_V \mu||^2}{2\sigma^2}\right)
+$$
+
+This holds because $\frac{1}{\sigma^2} P_V (\sigma^2 I) = P_V$, which is idempotent.
+:::
+
+
+## Proof of the Corollary
+
+We proving the corollary for the case where $y \sim N(\mu, I_n)$ and we are projecting onto a subspace $V$ with dimension $r$.
+
+Let $P_V$ be the projection matrix. We know $P_V = QQ'$ where $Q$ is $n \times r$ with orthonormal columns ($Q'Q = I_r$).
+
+$$
+y' P_V y = y' Q Q' y = (Q'y)' (Q'y) = ||Q'y||^2
+$$
+
+Since $y \sim N(\mu, I_n)$, the linear transformation $z = Q'y$ follows:
+$$
+z \sim N(Q'\mu, Q' I_n Q) = N(Q'\mu, I_r)
+$$
+
+Thus, $z$ is a vector of $r$ independent normal variables with variance 1. The sum of squares $||z||^2$ is by definition non-central chi-square:
+
+$$
+||z||^2 \sim \chi^2(r, \lambda)
+$$
+
+Where the non-centrality parameter is:
+$$
+\lambda = \frac{1}{2} ||E(z)||^2 = \frac{1}{2} ||Q'\mu||^2
+$$
+
+Note that $||Q'\mu||^2 = \mu' Q Q' \mu = \mu' P_V \mu = ||P_V \mu||^2$.
+
+Thus, $y' P_V y \sim \chi^2(r, \frac{1}{2} ||P_V \mu||^2)$.
+
+
+## General Case with $\sigma^2$
+
+If $y \sim N(\mu, \sigma^2 I_n)$, we standardize by dividing by $\sigma$.
+
+Let $z = y/\sigma$. Then $z \sim N(\mu/\sigma, I_n)$.
+Applying the previous result to $z$:
+
+$$
+z' P_V z = \frac{y' P_V y}{\sigma^2} \sim \chi^2\left(r, \frac{1}{2} \left|\left| P_V \frac{\mu}{\sigma} \right|\right|^2\right)
+$$
+
+Which simplifies to:
+$$
+\frac{||P_V y||^2}{\sigma^2} \sim \chi^2\left(r, \frac{||P_V \mu||^2}{2\sigma^2}\right)
+$$
+
+**Important Note:** The term $||P_V y||^2$ itself is **not** chi-square; it is a scaled chi-square variable. Its mean is:
+$$
+E(||P_V y||^2) = \sigma^2 \left(r + \frac{||P_V \mu||^2}{\sigma^2}\right) = r\sigma^2 + ||P_V \mu||^2
+$$
