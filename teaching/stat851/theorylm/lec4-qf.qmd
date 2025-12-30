@@ -243,7 +243,10 @@ $$
 $$
 :::
 
-## MGF of Quadratic Forms
+
+## Distribution of Quadratic Forms
+
+### MGF of Quadratic Forms
 
 To determine the distribution of general quadratic forms $y'Ay$, we look at their MGF.
 
@@ -255,9 +258,7 @@ M_Q(t) = |I - 2tA\Sigma|^{-1/2} \exp\left(-\frac{1}{2} \mu' [I - (I - 2tA\Sigma)
 $$
 :::
 
-## Distribution of Quadratic Forms
-
-This is one of the most important theorems in the course, establishing when a quadratic form follows a chi-square distribution.
+*This is one of the most important theorems in the course, establishing that a quadratic form follows a chi-square distribution.*
 
 ::: {#thm-dist-quad name="Distribution of y'Ay"}
 Let $y \sim N_p(\mu, \Sigma)$. Let $A$ be a symmetric matrix of rank $r$.
@@ -267,7 +268,10 @@ Then $y'Ay \sim \chi^2(r, \lambda)$ with $\lambda = \frac{1}{2} \mu' A \mu$ **if
 If $\Sigma = I$, the condition simplifies to $A$ being idempotent ($A^2 = A$).
 :::
 
-::: {#cor-proj-matrix name="Projection Matrices"}
+
+We will prove a simplified version of @thm-dist-quad first.
+
+::: {#thm-proj-matrix name="Distribution of Projected Spherical Normal"}
 If $y \sim N_n(\mu, \sigma^2 I_n)$ and $P_V$ is a projection matrix onto a subspace $V$ of dimension $r$, then:
 
 $$
@@ -277,14 +281,18 @@ $$
 This holds because $\frac{1}{\sigma^2} P_V (\sigma^2 I) = P_V$, which is idempotent.
 :::
 
-
-### Proof of the Corollary
-
+::: {.proof}
 **When $\sigma^2=1$**
-We proving the corollary for the case where $y \sim N(\mu, I_n)$ and we are projecting onto a subspace $V$ with dimension $r$.
 
-Let $P_V$ be the projection matrix. We know $P_V = QQ'$ where $Q$ is $n \times r$ with orthonormal columns ($Q'Q = I_r$).
 
+Let $P_V$ be the projection matrix. We know $P_V = QQ'$ where $Q = (q_1, \dots, q_r)$ is an $n \times r$ matrix with orthonormal columns ($Q'Q = I_r$).
+
+The projection of vector $y$ onto the subspace $V$ can be expressed using the orthonormal basis vectors:
+$$
+P_V y = Q Q' y = (q_1, \dots, q_r) \begin{pmatrix} q_1' y \\ \vdots \\ q_r' y \end{pmatrix} = \sum_{i=1}^r (q_i' y) q_i
+$$
+
+The squared norm of the projection is:
 $$
 y' P_V y = y' Q Q' y = (Q'y)' (Q'y) = ||Q'y||^2
 $$
@@ -308,89 +316,7 @@ Note that $||Q'\mu||^2 = \mu' Q Q' \mu = \mu' P_V \mu = ||P_V \mu||^2$.
 
 Thus, $y' P_V y \sim \chi^2(r, \frac{1}{2} ||P_V \mu||^2)$.
 
-```{r}
-#| label: plot-projection-3d
-#| warning: false
-#| message: false
-
-library(plotly)
-library(MASS)
-
-# 1. Generate Data from N_3(mu, I_3)
-set.seed(123)
-n <- 200
-mu <- c(2, 3, 4)
-sigma <- diag(3) # Identity matrix
-data <- mvrnorm(n, mu, sigma)
-df <- as.data.frame(data)
-colnames(df) <- c("x", "y", "z")
-
-# 2. Define the Projection Subspace (Plane)
-# Let's use the standard axes for q1 and q2 for clarity in "labeling axes"
-# This makes the "floor" the z=0 plane.
-q1 <- c(1, 0, 0)
-q2 <- c(0, 1, 0)
-
-# 3. Project Points
-# The projection of y onto the plane spanned by q1, q2 is:
-# y_hat = (y . q1)q1 + (y . q2)q2
-# Since q1, q2 are orthonormal and align with axes, this is just (x, y, 0)
-proj_points <- t(apply(data, 1, function(p) {
-  sum(p * q1) * q1 + sum(p * q2) * q2
-}))
-df_proj <- as.data.frame(proj_points)
-colnames(df_proj) <- c("px", "py", "pz")
-
-# 4. Create the Plot
-plot_ly() %>%
-  # Original Cloud
-  add_trace(
-    data = df, x = ~x, y = ~y, z = ~z,
-    type = 'scatter3d', mode = 'markers',
-    marker = list(size = 3, color = 'blue', opacity = 0.5),
-    name = 'Original Data'
-  ) %>%
-  # Projected Shadow
-  add_trace(
-    data = df_proj, x = ~px, y = ~py, z = ~pz,
-    type = 'scatter3d', mode = 'markers',
-    marker = list(size = 3, color = 'red', opacity = 0.8),
-    name = 'Projection (Floor)'
-  ) %>%
-  # Draw lines connecting point to projection (Residuals)
-  add_segments(
-    x = df$x, xend = df_proj$px,
-    y = df$y, yend = df_proj$py,
-    z = df$z, zend = df_proj$pz,
-    line = list(color = 'gray', width = 1),
-    showlegend = FALSE, hoverinfo = "none"
-  ) %>%
-  # Label the axes of the subspace (q1 and q2)
-  add_segments(
-    x = c(0, 0), xend = c(5, 0),
-    y = c(0, 0), yend = c(0, 5),
-    z = c(0, 0), zend = c(0, 0),
-    line = list(color = 'black', width = 5),
-    name = 'Basis Vectors'
-  ) %>%
-  add_text(
-    x = c(5.5, 0), y = c(0, 5.5), z = c(0, 0),
-    text = c("q1", "q2"),
-    textfont = list(size = 15, color = "black"),
-    showlegend = FALSE
-  ) %>%
-  layout(
-    scene = list(
-      xaxis = list(title = "X"),
-      yaxis = list(title = "Y"),
-      zaxis = list(title = "Z"),
-      aspectmode = "cube"
-    ),
-    title = "Projection of Trivariate Normal onto 2D Subspace"
-  )
-```
-
-**General Case with $\sigma^2$**
+**When $\sigma^2\not=1$**
 
 If $y \sim N(\mu, \sigma^2 I_n)$, we standardize by dividing by $\sigma$.
 
@@ -400,11 +326,104 @@ Applying the previous result to $z$:
 $$
 z' P_V z = \frac{y' P_V y}{\sigma^2} \sim \chi^2\left(r, \frac{1}{2} \left|\left| P_V \frac{\mu}{\sigma} \right|\right|^2\right)
 $$
-
-Which simplifies to:
+which simplifies to:
 $$
 \frac{||P_V y||^2}{\sigma^2} \sim \chi^2\left(r, \frac{||P_V \mu||^2}{2\sigma^2}\right)
 $$
+
+:::
+
+```{r}
+#| label: plot-projection-3d-refined
+#| warning: false
+#| message: false
+#| eval: !expr knitr::is_html_output()
+
+library(plotly)
+library(MASS)
+
+# 1. Generate Data
+set.seed(123)
+n <- 200
+mu <- c(2, 3, 5) 
+sigma <- diag(3)
+data <- mvrnorm(n, mu, sigma)
+df <- as.data.frame(data)
+colnames(df) <- c("x", "y", "z")
+
+# 2. Project Points
+proj_points <- t(apply(data, 1, function(p) {
+  sum(p * c(1,0,0)) * c(1,0,0) + sum(p * c(0,1,0)) * c(0,1,0)
+}))
+df_proj <- as.data.frame(proj_points)
+colnames(df_proj) <- c("px", "py", "pz")
+
+# 3. Setup Axis Styles
+ax_style <- list(
+  title = "",
+  showgrid = TRUE,        # Keep the coordinate plane grids
+  gridcolor = "gray",
+  gridwidth = 0.5,
+  zeroline = FALSE,       # REMOVED: The static "crosshair" lines at 0
+  showline = FALSE,       # REMOVED: The front bounding box
+  showticklabels = FALSE,
+  showbackground = FALSE,
+  showspikes = FALSE
+)
+
+# 4. Create the Plot
+plot_ly() %>%
+  # --- Optional: Floor Plane ---
+  add_trace(
+    x = c(-2, 8, 8, -2), y = c(-2, -2, 8, 8), z = c(0, 0, 0, 0),
+    type = "mesh3d", opacity = 0.05, color = 'gray', 
+    hoverinfo = "none", showlegend = FALSE
+  ) %>%
+  # --- Original Data (y) ---
+  add_trace(
+    data = df, x = ~x, y = ~y, z = ~z,
+    type = 'scatter3d', mode = 'markers',
+    marker = list(size = 3, color = 'blue', opacity = 0.6),
+    # Legend with Math (Italic y)
+    name = '<i>y</i>' 
+  ) %>%
+  # --- Projected Shadow (P_V y) ---
+  add_trace(
+    data = df_proj, x = ~px, y = ~py, z = ~pz,
+    type = 'scatter3d', mode = 'markers',
+    marker = list(size = 3, color = 'red', opacity = 0.8),
+    # Legend with Math (P_sub_V y)
+    name = "<i>P</i><sub>V</sub><i>y</i>"
+  ) %>%
+  # --- Residual Lines ---
+  add_segments(
+    x = df$x, xend = df_proj$px,
+    y = df$y, yend = df_proj$py,
+    z = df$z, zend = df_proj$pz,
+    line = list(color = 'gray', width = 1),
+    showlegend = FALSE, hoverinfo = "none"
+  ) %>%
+  # --- Manual Labels ---
+  add_text(
+    x = c(8.5, 0, 0), y = c(0, 8.5, 0), z = c(0, 0, 8.5),
+    # Used Unicode \u22A5 for perpendicular symbol
+    text = c("<i>q</i><sub>1</sub>", "<i>q</i><sub>2</sub>", "<i>V</i><sup>\u22A5</sup>"),
+    textfont = list(size = 15, color = "black"),
+    showlegend = FALSE
+  ) %>%
+  layout(
+    scene = list(
+      xaxis = ax_style,
+      yaxis = ax_style,
+      zaxis = ax_style,
+      aspectmode = "cube",
+      camera = list(eye = list(x = 1.6, y = 1.6, z = 1.3))
+    ),
+    title = "Projection of Trivariate Normal onto 2D Subspace",
+    margin = list(l=0, r=0, b=0, t=30)
+  )
+```
+
 
 **Important Note:** The term $||P_V y||^2$ itself is **not** chi-square; it is a scaled chi-square variable. Its mean is:
 $$
