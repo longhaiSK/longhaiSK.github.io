@@ -56,9 +56,146 @@ $$
 * **Weighted Sum of Squares:** If $A$ is diagonal with elements $\lambda_i$, then $y'Ay = \sum \lambda_i y_i^2$.
 * **Projection Sum of Squares:** If $P$ is a projection matrix, $||Py||^2 = (Py)'(Py) = y'P'Py = y'Py$ (since $P$ is symmetric and idempotent).
 
-## Mean of Quadratic Form
+## Mean of Quadratic Forms
 
 We can find the expected value of a quadratic form without assuming normality.
+
+::: {#lem-simple-qf name="Mean of Simplified Quadratic Form"}
+If $y$ is a random vector with mean $E(y) = \mu$ and covariance matrix $\text{Var}(y) = I_n$, then:
+$$
+E(y'y) = \text{tr}(I_n) + \mu'\mu = n + \mu'\mu
+$$
+:::
+
+::: {.proof}
+Let us decompose $y$ into its mean and a stochastic component: $y = \mu + z$, where $E(z) = 0$ and $\text{Var}(z) = E(zz') = I_n$.
+Substituting this into the quadratic form:
+$$
+\begin{aligned}
+y'y &= (\mu + z)'(\mu + z) \\
+&= \mu'\mu + \mu'z + z'\mu + z'z \\
+&= \mu'\mu + 2\mu'z + z'z
+\end{aligned}
+$$
+Taking the expectation:
+$$
+\begin{aligned}
+E(y'y) &= \mu'\mu + 2\mu'E(z) + E(z'z) \\
+&= \mu'\mu + 0 + E\left(\sum_{i=1}^n z_i^2\right)
+\end{aligned}
+$$
+Since $\text{Var}(z_i) = E(z_i^2) - (E(z_i))^2 = 1 - 0 = 1$, we have $E(\sum z_i^2) = \sum 1 = n$.
+Thus, $E(y'y) = n + \mu'\mu$.
+:::
+
+
+
+```{r fig-qf-norm}
+#| fig-cap: Illustration of the Mean and Distribution of Quadratic Forms
+library(ggplot2)
+library(MASS)
+library(dplyr)
+
+# --- 1. Setup Data & Parameters ---
+set.seed(42)
+n <- 100
+sigma_val <- 1          
+Sigma <- diag(2) * sigma_val^2
+
+mu_orig <- c(5, 6)      # Original Mean
+y_orig  <- c(7, 5)      # Updated Point y
+
+# Generate 100 points from N(mu, I)
+data_orig <- mvrnorm(n, mu_orig, Sigma)
+
+# Define rotation angles
+angles <- c(0, 70, 180)
+
+# --- 2. Process Data for Each Angle ---
+points_list <- list()
+vectors_list <- list()
+
+for (deg in angles) {
+  theta <- deg * pi / 180
+  rot_mat <- matrix(c(cos(theta), -sin(theta), 
+                      sin(theta),  cos(theta)), nrow = 2, byrow = TRUE)
+  
+  # A. Rotate Points
+  data_rot <- data_orig %*% t(rot_mat)
+  df_pts <- data.frame(x = data_rot[,1], y = data_rot[,2])
+  df_pts$Angle <- factor(paste0(deg, "°"), levels = paste0(angles, "°"))
+  points_list[[length(points_list) + 1]] <- df_pts
+  
+  # B. Rotate Vectors (mu and y)
+  mu_rot <- as.vector(rot_mat %*% mu_orig)
+  y_rot  <- as.vector(rot_mat %*% y_orig)
+  
+  df_vec <- data.frame(
+    Angle = factor(paste0(deg, "°"), levels = paste0(angles, "°")),
+    mu_x = mu_rot[1], mu_y = mu_rot[2],
+    y_x  = y_rot[1],  y_y  = y_rot[2]
+  )
+  vectors_list[[length(vectors_list) + 1]] <- df_vec
+}
+
+all_points  <- do.call(rbind, points_list)
+all_vectors <- do.call(rbind, vectors_list)
+
+# --- 3. Create Circle Data ---
+# Radius is the length of mu
+radius_mu <- sqrt(sum(mu_orig^2))
+circle_data <- data.frame(
+  x0 = 0, y0 = 0, r = radius_mu
+)
+
+# --- 4. Generate the Plot ---
+ggplot() +
+  # 1. Circle through the mu's (Centered at 0,0)
+  ggforce::geom_circle(aes(x0 = 0, y0 = 0, r = radius_mu), 
+                       color = "gray50", linetype = "dotted", size = 0.5) +
+  
+  # 2. Points (Data Cloud)
+  geom_point(data = all_points, aes(x = x, y = y, color = Angle), 
+             size = 0.5, alpha = 0.5) +
+  
+  # 3. Vector mu (Origin -> mu)
+  geom_segment(data = all_vectors, 
+               aes(x = 0, y = 0, xend = mu_x, yend = mu_y, color = Angle),
+               arrow = arrow(length = unit(0.2, "cm")), size = 0.8) +
+  
+  # 4. Vector y (Origin -> y)
+  geom_segment(data = all_vectors, 
+               aes(x = 0, y = 0, xend = y_x, yend = y_y, color = Angle),
+               arrow = arrow(length = unit(0.2, "cm")), size = 0.8) +
+  
+  # 5. Vector y - mu (mu -> y)
+  geom_segment(data = all_vectors, 
+               aes(x = mu_x, y = mu_y, xend = y_x, yend = y_y, color = Angle),
+               arrow = arrow(length = unit(0.15, "cm")), 
+               linetype = "dashed", size = 0.6) +
+  
+  # 6. Labels for mu, y, and y-mu
+  geom_text(data = all_vectors, aes(x = mu_x, y = mu_y, label = expression(mu), color = Angle),
+            parse = TRUE, vjust = -0.5, size = 4, show.legend = FALSE) +
+  
+  geom_text(data = all_vectors, aes(x = y_x, y = y_y, label = "y", color = Angle),
+            vjust = -0.5, hjust = -0.2, size = 4, fontface = "italic", show.legend = FALSE) +
+  
+  # Label for y - mu (placed at midpoint)
+  geom_text(data = all_vectors, aes(x = (mu_x + y_x)/2, y = (mu_y + y_y)/2, 
+                                    label = expression(y - mu), color = Angle),
+            parse = TRUE, size = 3, vjust = 1.5, show.legend = FALSE) +
+
+  # 7. Origin Marker
+  geom_point(aes(x=0, y=0), color="black", size=2) +
+  
+  # Formatting
+  coord_fixed() +
+  theme_minimal() +
+  labs(title = "Rotations of Normal Cloud",
+       x = "x", y = "y") +
+  theme(legend.position = "bottom")
+```
 
 ::: {#thm-mean-qf name="Mean of Quadratic Form"}
 If $y$ is a random vector with mean $E(y) = \mu$ and covariance matrix $\text{Var}(y) = \Sigma$, and $A$ is a symmetric matrix of constants, then:
@@ -69,110 +206,114 @@ $$
 :::
 
 ::: {.proof}
-Using the trace trick (scalar equals its trace) and linearity of expectation:
+We present three methods to derive the expectation of the quadratic form.
+
+**Method 1: Using the Trace Trick**
+
+Using the fact that a scalar is equal to its own trace ($\text{tr}(c) = c$) and the linearity of expectation:
 $$
 \begin{aligned}
-E(y'Ay) &= E[\text{tr}(y'Ay)] = E[\text{tr}(Ayy')] = \text{tr}(A E[yy']) \\
-\text{Since } \Sigma &= E(yy') - \mu\mu', \text{ we have } E(yy') = \Sigma + \mu\mu' \\
-E(y'Ay) &= \text{tr}(A(\Sigma + \mu\mu')) = \text{tr}(A\Sigma) + \text{tr}(A\mu\mu') \\
-&= \text{tr}(A\Sigma) + \text{tr}(\mu'A\mu) = \text{tr}(A\Sigma) + \mu'A\mu
+E(y'Ay) &= E[\text{tr}(y'Ay)] \\
+&= E[\text{tr}(Ayy')] \quad \text{(cyclic property of trace)} \\
+&= \text{tr}(A E[yy']) \quad \text{(linearity of expectation)}
+\end{aligned}
+$$
+Recall that the covariance matrix is defined as $\Sigma = E[(y-\mu)(y-\mu)'] = E(yy') - \mu\mu'$. Rearranging this gives the second moment: $E(yy') = \Sigma + \mu\mu'$. Substituting this back:
+$$
+\begin{aligned}
+E(y'Ay) &= \text{tr}(A(\Sigma + \mu\mu')) \\
+&= \text{tr}(A\Sigma) + \text{tr}(A\mu\mu') \\
+&= \text{tr}(A\Sigma) + \text{tr}(\mu'A\mu) \quad \text{(cyclic property on second term)} \\
+&= \text{tr}(A\Sigma) + \mu'A\mu
 \end{aligned}
 $$
 
-Alternatively, using scalar summation:
+**Method 2: Using Scalar Summation**
+
+We can express the quadratic form in scalar notation using the entries of $A=(a_{ij})$, $\Sigma=(\sigma_{ij})$, and $\mu=(\mu_i)$:
 $$
-E(\sum_{i,j} a_{ij} y_i y_j) = \sum_{i,j} a_{ij} E(y_i y_j) = \sum_{i,j} a_{ij} (\sigma_{ij} + \mu_i \mu_j) = \text{tr}(A\Sigma) + \mu'A\mu
+\begin{aligned}
+E(y'Ay) &= E\left(\sum_{i=1}^n \sum_{j=1}^n a_{ij} y_i y_j\right) \\
+&= \sum_{i=1}^n \sum_{j=1}^n a_{ij} E(y_i y_j) \\
+&= \sum_{i=1}^n \sum_{j=1}^n a_{ij} (\sigma_{ij} + \mu_i \mu_j) \\
+&= \sum_{i=1}^n \sum_{j=1}^n a_{ij} \sigma_{ji} + \sum_{i=1}^n \sum_{j=1}^n \mu_i a_{ij} \mu_j \quad (\text{since } \Sigma \text{ is symmetric, } \sigma_{ij}=\sigma_{ji}) \\
+&= \text{tr}(A\Sigma) + \mu'A\mu
+\end{aligned}
+$$
+
+**Method 3: Using Spectral Decomposition**
+
+Since $A$ is symmetric, we can apply the **spectral decomposition** $A = \sum_{i=1}^n \lambda_i q_i q_i'$, where $\lambda_i$ are eigenvalues and $q_i$ are orthogonal eigenvectors. We rewrite the quadratic form as:
+$$
+y'Ay = y' \left( \sum_{i=1}^n \lambda_i q_i q_i' \right) y = \sum_{i=1}^n \lambda_i (q_i'y)^2
+$$
+To find $E[(q_i'y)^2]$, we **standardize** $y$. Let $y = \mu + \Sigma^{1/2}z$, where $E(z)=0$ and $\text{Var}(z)=I_n$. Then the scalar term $q_i'y$ becomes:
+$$
+q_i'y = q_i'(\mu + \Sigma^{1/2}z) = q_i'\mu + q_i'\Sigma^{1/2}z
+$$
+Squaring this scalar and taking the expectation:
+$$
+\begin{aligned}
+E[(q_i'y)^2] &= (q_i'\mu)^2 + 2(q_i'\mu)E[q_i'\Sigma^{1/2}z] + E[(q_i'\Sigma^{1/2}z)^2] \\
+&= (q_i'\mu)^2 + 0 + \text{Var}(q_i'\Sigma^{1/2}z)
+\end{aligned}
+$$
+The variance term simplifies to $\text{Var}(q_i'\Sigma^{1/2}z) = q_i'\Sigma^{1/2} I_n \Sigma^{1/2} q_i = q_i' \Sigma q_i$. Substituting this back into the sum:
+$$
+\begin{aligned}
+E(y'Ay) &= \sum_{i=1}^n \lambda_i \left[ q_i' \Sigma q_i + (q_i'\mu)^2 \right] \\
+&= \sum_{i=1}^n \text{tr}( \lambda_i q_i' \Sigma q_i ) + \mu' \left( \sum_{i=1}^n \lambda_i q_i q_i' \right) \mu \\
+&= \text{tr}\left( \Sigma \sum_{i=1}^n \lambda_i q_i q_i' \right) + \mu' A \mu \\
+&= \text{tr}(\Sigma A) + \mu' A \mu
+\end{aligned}
 $$
 :::
 
-```{r}
-library(ggplot2)
-library(MASS) 
+:::{#exm-mean-of-s2 name="Mean of Sample Variance"}
 
-# 1. Setup Data
-set.seed(42)
-n <- 100
-mu <- c(3, 4)
-sigma <- diag(2) 
-data <- mvrnorm(n, mu, sigma)
-df <- as.data.frame(data)
-colnames(df) <- c("x", "y")
+Consider a random sample $x = (x_1, \dots, x_n)'$. We want to find the expectation of the sum of squared errors $SSE = \sum (x_i - \bar{x})^2$, which can be written in matrix notation as the quadratic form $x'(I_n - H)x$.
 
-# 2. Pick a random point y
-random_index <- sample(1:n, 1)
-y_point <- df[random_index, ]
+To apply @thm-mean-qf, we identify the following components:
 
-# 3. Create the Plot using annotate() for single elements
-ggplot(df, aes(x = x, y = y)) +
-  # --- 100 Data Points ---
-  geom_point(alpha = 0.4, color = "gray20") +
-  
-  # --- Axes (x=0, y=0) ---
-  geom_vline(xintercept = 0, linewidth = 0.3) +
-  geom_hline(yintercept = 0, linewidth = 0.3) +
-  
-  # --- Vector Mu (Origin -> Mu) [RED] ---
-  annotate("segment", x = 0, y = 0, xend = mu[1], yend = mu[2],
-           arrow = arrow(length = unit(0.2, "cm")), color = "red", linewidth = 0.8) +
-  annotate("text", x = mu[1]/2 + 0.5, y = mu[2]/2 - 0.2, 
-           label = expression(mu), color = "red", size = 6) +
-  
-  # --- Vector y (Origin -> y) [BLUE] ---
-  annotate("segment", x = 0, y = 0, xend = y_point$x, yend = y_point$y,
-           arrow = arrow(length = unit(0.2, "cm")), color = "blue", linewidth = 0.8) +
-  annotate("text", x = y_point$x/2, y = y_point$y/2 + 0.5, 
-           label = "y", color = "blue", size = 6) +
+1.  **The Random Vector Parameters**:
+    * Mean: $E(x) = \mu j_n$ (where $j_n$ is a vector of ones).
+    * Covariance: $\Sigma = \sigma^2 I_n$.
 
-  # --- Vector y - mu (Mu -> y) [GREEN DASHED] ---
-  annotate("segment", x = mu[1], y = mu[2], xend = y_point$x, yend = y_point$y,
-           arrow = arrow(length = unit(0.2, "cm")), color = "darkgreen", linewidth = 0.8, linetype = "dashed") +
-  annotate("text", x = (mu[1] + y_point$x)/2 + 0.5, y = (mu[2] + y_point$y)/2, 
-           label = expression(y - mu), color = "darkgreen", size = 5) +
-  
-  # --- Dots for Mu and y ---
-  annotate("point", x = mu[1], y = mu[2], color = "red", size = 3) +
-  annotate("point", x = y_point$x, y = y_point$y, color = "blue", size = 3) +
-  
-  # --- Formatting ---
-  coord_fixed() + 
-  theme_minimal() +
-  labs(title = expression(paste("Vectors ", mu, ", ", y, ", and ", y - mu)))
-```
+2.  **The Quadratic Form Matrix**:
+    * $A = I_n - H$, where $H = \frac{1}{n}j_nj_n'$.
 
-### Example: Sample Variance
+**Calculation:**
 
-Consider a random sample $x_1, \dots, x_n$ with $E(x_i) = \mu$ and $\text{Var}(x_i) = \sigma^2$.
-Let $x = (x_1, \dots, x_n)'$. Then $E(x) = \mu J_n$ (where $J_n$ is a vector of ones) and $\text{Var}(x) = \sigma^2 I_n$.
+Using the formula $E(x'Ax) = \text{tr}(A\Sigma) + E(x)' A E(x)$:
 
-We want to find the expectation of the sample variance (related to Sum of Squared Errors).
-The sample variance involves the sum of squared deviations from the mean: $\sum (x_i - \bar{x})^2$.
-
-This can be written using the projection matrix $H = \frac{1}{n} J_n J_n'$ (often called the "hat matrix" for the mean model).
-$\bar{x} J_n = H x$.
-$x - \bar{x} J_n = (I_n - H)x$.
-
-$$
-\sum (x_i - \bar{x})^2 = ||(I_n - H)x||^2 = x'(I_n - H)'(I_n - H)x = x'(I_n - H)x
-$$
-(Since $I_n - H$ is a symmetric idempotent projection matrix).
-
-Using @thm-mean-qf with $A = I_n - H$:
+**Term 1: The Trace**
 $$
 \begin{aligned}
-E(x'(I_n - H)x) &= \text{tr}((I_n - H)\sigma^2 I_n) + (\mu J_n)'(I_n - H)(\mu J_n) \\
-&= \sigma^2 \text{tr}(I_n - H) + \mu^2 J_n' (I_n - H) J_n
+\text{tr}(A\Sigma) &= \text{tr}((I_n - H) \sigma^2 I_n) \\
+&= \sigma^2 \text{tr}(I_n - H) \\
+&= \sigma^2 (\text{tr}(I_n) - \text{tr}(H)) \\
+&= \sigma^2 (n - 1)
 \end{aligned}
 $$
+*(Note: $\text{tr}(H) = \text{tr}(\frac{1}{n}j_n j_n') = 1$)*.
 
-* $\text{tr}(I_n - H) = \text{tr}(I_n) - \text{tr}(H) = n - 1$.
-* $(I_n - H)J_n = J_n - H J_n = J_n - \frac{1}{n} J_n (J_n' J_n) = J_n - J_n = 0$ (The residuals of the mean are orthogonal to the mean).
-
-Thus:
+**Term 2: The Mean Component**
 $$
-E(\sum (x_i - \bar{x})^2) = \sigma^2 (n - 1) + 0 = (n-1)\sigma^2
+\begin{aligned}
+E(x)' A E(x) &= (\mu j_n)' (I_n - H) (\mu j_n) \\
+&= \mu^2 j_n' \underbrace{(I_n - H) j_n}_{0} \\
+&= 0
+\end{aligned}
+$$
+*(Note: $(I_n - H)j_n = j_n - H j_n = j_n - j_n = 0$, because projecting the mean vector onto the mean space leaves it unchanged, so the residual is zero).*
+
+**Conclusion:**
+$$
+E\left(\sum (x_i - \bar{x})^2\right) = \sigma^2(n-1) + 0 = (n-1)\sigma^2
 $$
 
-This confirms that $S^2 = \frac{1}{n-1} \sum (x_i - \bar{x})^2$ is an unbiased estimator of $\sigma^2$.
+This implies that $S^2 = \frac{SSE}{n-1}$ is an unbiased estimator for $\sigma^2$.
+:::
 
 ## Non-central Chi-square Distribution
 
