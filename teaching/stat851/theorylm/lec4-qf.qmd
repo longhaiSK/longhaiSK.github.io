@@ -197,6 +197,7 @@ ggplot() +
   theme(legend.position = "bottom")
 ```
 
+
 ::: {#thm-mean-qf name="Mean of Quadratic Form"}
 If $y$ is a random vector with mean $E(y) = \mu$ and covariance matrix $\text{Var}(y) = \Sigma$, and $A$ is a symmetric matrix of constants, then:
 
@@ -241,90 +242,116 @@ E(y'Ay) &= E\left(\sum_{i=1}^n \sum_{j=1}^n a_{ij} y_i y_j\right) \\
 \end{aligned}
 $$
 
-**Method 3: Using Double Spectral Decomposition**
+**Method 3: Using Spectral Decomposition of A**
 
-Since both $A$ and $\Sigma$ are symmetric, we can apply spectral decomposition to both:
+Since $A$ is symmetric, we use its spectral decomposition $A = \sum_{i=1}^n \lambda_i q_i q_i'$. Substituting this into the quadratic form:
 $$
-A = Q_A \Lambda_A Q_A' = \sum_{i=1}^n \lambda_{A,i} q_{A,i} q_{A,i}'
+y'Ay = y' \left( \sum_{i=1}^n \lambda_i q_i q_i' \right) y = \sum_{i=1}^n \lambda_i (q_i' y)^2
 $$
-$$
-\Sigma = Q_\Sigma \Lambda_\Sigma Q_\Sigma' = \sum_{j=1}^n \lambda_{\Sigma,j} q_{\Sigma,j} q_{\Sigma,j}'
-$$
-First, expand the quadratic form using the decomposition of $A$:
-$$
-y'Ay = y' \left( \sum_{i=1}^n \lambda_{A,i} q_{A,i} q_{A,i}' \right) y = \sum_{i=1}^n \lambda_{A,i} (q_{A,i}' y)^2
-$$
-Let $z_i = q_{A,i}' y$ be the projection of $y$ onto the $i$-th eigenvector of $A$. By @lem-simple-qf (applied to a scalar), $E(z_i^2) = \text{Var}(z_i) + [E(z_i)]^2$. We calculate these terms:
+Let $w_i = q_i' y$. This is a scalar random variable which is a linear transformation of $y$. Its properties are:
+1.  **Mean:** $E(w_i) = q_i' E(y) = q_i' \mu$.
+2.  **Variance:** $\text{Var}(w_i) = \text{Var}(q_i' y) = q_i' \text{Var}(y) q_i = q_i' \Sigma q_i$.
 
-1.  **Mean:** $E(z_i) = q_{A,i}' E(y) = q_{A,i}' \mu$.
-2.  **Variance:** Using the spectral form of $\Sigma$:
-    $$
-    \begin{aligned}
-    \text{Var}(z_i) &= q_{A,i}' \text{Var}(y) q_{A,i} = q_{A,i}' \Sigma q_{A,i} \\
-    &= q_{A,i}' \left( \sum_{j=1}^n \lambda_{\Sigma,j} q_{\Sigma,j} q_{\Sigma,j}' \right) q_{A,i} \\
-    &= \sum_{j=1}^n \lambda_{\Sigma,j} (q_{A,i}' q_{\Sigma,j})^2
-    \end{aligned}
-    $$
-
-Substituting these back into the expectation sum:
+Using the relation $E(w_i^2) = \text{Var}(w_i) + [E(w_i)]^2$, we have:
+$$
+E[(q_i' y)^2] = q_i' \Sigma q_i + (q_i' \mu)^2
+$$
+Summing over all $i$ weighted by $\lambda_i$:
 $$
 \begin{aligned}
-E(y'Ay) &= \sum_{i=1}^n \lambda_{A,i} \left[ \underbrace{\sum_{j=1}^n \lambda_{\Sigma,j} (q_{A,i}' q_{\Sigma,j})^2}_{\text{Var}(z_i)} + \underbrace{(q_{A,i}' \mu)^2}_{[E(z_i)]^2} \right] \\
-&= \sum_{i=1}^n \sum_{j=1}^n \lambda_{A,i} \lambda_{\Sigma,j} (q_{A,i}' q_{\Sigma,j})^2 + \mu' \left( \sum_{i=1}^n \lambda_{A,i} q_{A,i} q_{A,i}' \right) \mu
+E(y'Ay) &= \sum_{i=1}^n \lambda_i \left[ q_i' \Sigma q_i + (q_i' \mu)^2 \right] \\
+&= \sum_{i=1}^n \text{tr}(\lambda_i q_i' \Sigma q_i) + \mu' \left( \sum_{i=1}^n \lambda_i q_i q_i' \right) \mu \\
+&= \text{tr}\left( \Sigma \sum_{i=1}^n \lambda_i q_i q_i' \right) + \mu' A \mu \\
+&= \text{tr}(\Sigma A) + \mu' A \mu
 \end{aligned}
 $$
-
-**Geometric Interpretation:**
-The term $(q_{A,i}' q_{\Sigma,j})$ represents the cosine of the angle between the eigenvectors of $A$ and $\Sigma$. The total expectation is the sum of:
-1.  **Trace Term:** $\text{tr}(A\Sigma) = \sum_{i,j} \lambda_{A,i} \lambda_{\Sigma,j} \cos^2(\theta_{ij})$, which measures how the principal directions of the quadratic form align with the principal directions of the noise.
-2.  **Mean Term:** $\mu'A\mu$, which is the value of the quadratic form at the mean.
-:::
-:::{#exm-mean-of-s2 name="Mean of Sample Variance"}
-
-Consider a random sample $x = (x_1, \dots, x_n)'$. We want to find the expectation of the sum of squared errors $SSE = \sum (x_i - \bar{x})^2$, which can be written in matrix notation as the quadratic form $x'(I_n - H)x$.
-
-To apply @thm-mean-qf, we identify the following components:
-
-1.  **The Random Vector Parameters**:
-    * Mean: $E(x) = \mu j_n$ (where $j_n$ is a vector of ones).
-    * Covariance: $\Sigma = \sigma^2 I_n$.
-
-2.  **The Quadratic Form Matrix**:
-    * $A = I_n - H$, where $H = \frac{1}{n}j_nj_n'$.
-
-**Calculation:**
-
-Using the formula $E(x'Ax) = \text{tr}(A\Sigma) + E(x)' A E(x)$:
-
-**Term 1: The Trace**
-$$
-\begin{aligned}
-\text{tr}(A\Sigma) &= \text{tr}((I_n - H) \sigma^2 I_n) \\
-&= \sigma^2 \text{tr}(I_n - H) \\
-&= \sigma^2 (\text{tr}(I_n) - \text{tr}(H)) \\
-&= \sigma^2 (n - 1)
-\end{aligned}
-$$
-*(Note: $\text{tr}(H) = \text{tr}(\frac{1}{n}j_n j_n') = 1$)*.
-
-**Term 2: The Mean Component**
-$$
-\begin{aligned}
-E(x)' A E(x) &= (\mu j_n)' (I_n - H) (\mu j_n) \\
-&= \mu^2 j_n' \underbrace{(I_n - H) j_n}_{0} \\
-&= 0
-\end{aligned}
-$$
-*(Note: $(I_n - H)j_n = j_n - H j_n = j_n - j_n = 0$, because projecting the mean vector onto the mean space leaves it unchanged, so the residual is zero).*
-
-**Conclusion:**
-$$
-E\left(\sum (x_i - \bar{x})^2\right) = \sigma^2(n-1) + 0 = (n-1)\sigma^2
-$$
-
-This implies that $S^2 = \frac{SSE}{n-1}$ is an unbiased estimator for $\sigma^2$.
 :::
 
+::: {.remark name="Geometric Interpretation via Sigma"}
+If we further decompose $\Sigma = \sum_{j=1}^n \gamma_j v_j v_j'$ (where $\gamma_j, v_j$ are eigenvalues/vectors of $\Sigma$), the trace term becomes:
+$$
+\text{tr}(A\Sigma) = \sum_{i=1}^n \sum_{j=1}^n \lambda_i \gamma_j (q_i' v_j)^2
+$$
+Here, $(q_i' v_j)^2 = \cos^2(\theta_{ij})$ represents the alignment between the axes of the quadratic form ($A$) and the axes of the data covariance ($\Sigma$). The expectation is maximized when the eigenspaces of $A$ and $\Sigma$ align.
+:::
+
+::: {#cor-projection-mean name="Expectation with Projection Matrix"}
+Consider the special case where:
+1.  $P$ is a **projection matrix** (symmetric and idempotent, $P^2=P$).
+2.  The covariance is **spherical**: $\Sigma = \sigma^2 I_n$.
+
+Then the expectation simplifies to:
+$$
+E(y'Py) = \sigma^2 r + ||P\mu||^2
+$$
+where $r = \text{rank}(P) = \text{tr}(P)$.
+
+**Proof:**
+Using @thm-mean-qf with $A=P$ and $\Sigma=\sigma^2 I_n$:
+
+1.  **Trace Term:** $\text{tr}(P\Sigma) = \text{tr}(P(\sigma^2 I_n)) = \sigma^2 \text{tr}(P)$. Since $P$ is idempotent, its eigenvalues are either 0 or 1, so $\text{tr}(P) = \text{rank}(P) = r$.
+2.  **Mean Term:** Since $P$ is symmetric and idempotent ($P'P = P^2 = P$), we can rewrite the quadratic form:
+    $$
+    \mu' P \mu = \mu' P' P \mu = (P\mu)' (P\mu) = ||P\mu||^2
+    $$
+:::
+
+:::{#exm-mean-ss-decomposition name="Expectation of Sum of Squares Decomposition"}
+
+Consider a random sample $x = (x_1, \dots, x_n)'$ with mean vector $\mu_x = \mu j_n$ and covariance $\Sigma = \sigma^2 I_n$. We analyze the two components of the total sum of squares by projecting $x$ onto the mean space ($H$) and the residual space ($I-H$).
+
+**1. The Projection Vectors**
+
+First, we write the explicit forms of the projected vectors:
+
+* **Mean Vector ($Hx$):** Projecting $x$ onto the column space of $j_n$ replaces every element with the sample mean $\bar{x}$.
+    $$
+    Hx = \begin{pmatrix} \bar{x} \\ \vdots \\ \bar{x} \end{pmatrix} = \bar{x} j_n
+    $$
+
+* **Residual Vector ($(I-H)x$):** Subtracting the mean projection from $x$ yields the deviations.
+    $$
+    (I-H)x = \begin{pmatrix} x_1 - \bar{x} \\ \vdots \\ x_n - \bar{x} \end{pmatrix}
+    $$
+
+**2. Expectations of Squared Norms**
+
+We now find the expectation of the squared length of these vectors using @cor-projection-mean.
+
+**Part A: Sum of Squares for Mean**
+The quadratic form is the squared norm of the projected mean vector:
+$$
+x'Hx = ||Hx||^2 = \sum_{i=1}^n \bar{x}^2 = n\bar{x}^2
+$$
+Applying the corollary with $P=H$:
+
+* **Rank:** $\text{tr}(H) = 1$.
+* **Mean:** $H\mu_x = H(\mu j_n) = \mu j_n$. The squared norm is $n\mu^2$.
+
+$$
+E[||Hx||^2] = \sigma^2(1) + n\mu^2
+$$
+
+**Part B: Sum of Squared Errors (SSE)**
+The quadratic form is the squared norm of the residual vector:
+$$
+x'(I-H)x = ||(I-H)x||^2 = \sum_{i=1}^n (x_i - \bar{x})^2
+$$
+Applying the corollary with $P=I-H$:
+
+* **Rank:** $\text{tr}(I-H) = n - 1$.
+* **Mean:** $(I-H)\mu_x = \mu_x - H\mu_x = \mu j_n - \mu j_n = 0$. The squared norm is $0$.
+
+$$
+E[||(I-H)x||^2] = \sigma^2(n-1) + 0
+$$
+
+**Conclusion**
+These results confirm the standard properties of the sample mean and variance:
+$$
+E(\bar{x}^2) = \frac{\sigma^2}{n} + \mu^2 \quad \text{and} \quad E(S^2) = E\left[ \frac{SSE}{n-1} \right] = \sigma^2
+$$
+:::
 ## Non-central Chi-square Distribution
 
 To understand the distribution of quadratic forms under normality, we introduce the non-central chi-square distribution.
