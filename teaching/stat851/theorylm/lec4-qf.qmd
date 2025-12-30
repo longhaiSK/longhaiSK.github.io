@@ -241,34 +241,44 @@ E(y'Ay) &= E\left(\sum_{i=1}^n \sum_{j=1}^n a_{ij} y_i y_j\right) \\
 \end{aligned}
 $$
 
-**Method 3: Using Spectral Decomposition**
+**Method 3: Using Double Spectral Decomposition**
 
-Since $A$ is symmetric, we can apply the **spectral decomposition** $A = \sum_{i=1}^n \lambda_i q_i q_i'$, where $\lambda_i$ are eigenvalues and $q_i$ are orthogonal eigenvectors. We rewrite the quadratic form as:
+Since both $A$ and $\Sigma$ are symmetric, we can apply spectral decomposition to both:
 $$
-y'Ay = y' \left( \sum_{i=1}^n \lambda_i q_i q_i' \right) y = \sum_{i=1}^n \lambda_i (q_i'y)^2
+A = Q_A \Lambda_A Q_A' = \sum_{i=1}^n \lambda_{A,i} q_{A,i} q_{A,i}'
 $$
-To find $E[(q_i'y)^2]$, we **standardize** $y$. Let $y = \mu + \Sigma^{1/2}z$, where $E(z)=0$ and $\text{Var}(z)=I_n$. Then the scalar term $q_i'y$ becomes:
 $$
-q_i'y = q_i'(\mu + \Sigma^{1/2}z) = q_i'\mu + q_i'\Sigma^{1/2}z
+\Sigma = Q_\Sigma \Lambda_\Sigma Q_\Sigma' = \sum_{j=1}^n \lambda_{\Sigma,j} q_{\Sigma,j} q_{\Sigma,j}'
 $$
-Squaring this scalar and taking the expectation:
+First, expand the quadratic form using the decomposition of $A$:
+$$
+y'Ay = y' \left( \sum_{i=1}^n \lambda_{A,i} q_{A,i} q_{A,i}' \right) y = \sum_{i=1}^n \lambda_{A,i} (q_{A,i}' y)^2
+$$
+Let $z_i = q_{A,i}' y$ be the projection of $y$ onto the $i$-th eigenvector of $A$. By @lem-simple-qf (applied to a scalar), $E(z_i^2) = \text{Var}(z_i) + [E(z_i)]^2$. We calculate these terms:
+
+1.  **Mean:** $E(z_i) = q_{A,i}' E(y) = q_{A,i}' \mu$.
+2.  **Variance:** Using the spectral form of $\Sigma$:
+    $$
+    \begin{aligned}
+    \text{Var}(z_i) &= q_{A,i}' \text{Var}(y) q_{A,i} = q_{A,i}' \Sigma q_{A,i} \\
+    &= q_{A,i}' \left( \sum_{j=1}^n \lambda_{\Sigma,j} q_{\Sigma,j} q_{\Sigma,j}' \right) q_{A,i} \\
+    &= \sum_{j=1}^n \lambda_{\Sigma,j} (q_{A,i}' q_{\Sigma,j})^2
+    \end{aligned}
+    $$
+
+Substituting these back into the expectation sum:
 $$
 \begin{aligned}
-E[(q_i'y)^2] &= (q_i'\mu)^2 + 2(q_i'\mu)E[q_i'\Sigma^{1/2}z] + E[(q_i'\Sigma^{1/2}z)^2] \\
-&= (q_i'\mu)^2 + 0 + \text{Var}(q_i'\Sigma^{1/2}z)
+E(y'Ay) &= \sum_{i=1}^n \lambda_{A,i} \left[ \underbrace{\sum_{j=1}^n \lambda_{\Sigma,j} (q_{A,i}' q_{\Sigma,j})^2}_{\text{Var}(z_i)} + \underbrace{(q_{A,i}' \mu)^2}_{[E(z_i)]^2} \right] \\
+&= \sum_{i=1}^n \sum_{j=1}^n \lambda_{A,i} \lambda_{\Sigma,j} (q_{A,i}' q_{\Sigma,j})^2 + \mu' \left( \sum_{i=1}^n \lambda_{A,i} q_{A,i} q_{A,i}' \right) \mu
 \end{aligned}
 $$
-The variance term simplifies to $\text{Var}(q_i'\Sigma^{1/2}z) = q_i'\Sigma^{1/2} I_n \Sigma^{1/2} q_i = q_i' \Sigma q_i$. Substituting this back into the sum:
-$$
-\begin{aligned}
-E(y'Ay) &= \sum_{i=1}^n \lambda_i \left[ q_i' \Sigma q_i + (q_i'\mu)^2 \right] \\
-&= \sum_{i=1}^n \text{tr}( \lambda_i q_i' \Sigma q_i ) + \mu' \left( \sum_{i=1}^n \lambda_i q_i q_i' \right) \mu \\
-&= \text{tr}\left( \Sigma \sum_{i=1}^n \lambda_i q_i q_i' \right) + \mu' A \mu \\
-&= \text{tr}(\Sigma A) + \mu' A \mu
-\end{aligned}
-$$
+
+**Geometric Interpretation:**
+The term $(q_{A,i}' q_{\Sigma,j})$ represents the cosine of the angle between the eigenvectors of $A$ and $\Sigma$. The total expectation is the sum of:
+1.  **Trace Term:** $\text{tr}(A\Sigma) = \sum_{i,j} \lambda_{A,i} \lambda_{\Sigma,j} \cos^2(\theta_{ij})$, which measures how the principal directions of the quadratic form align with the principal directions of the noise.
+2.  **Mean Term:** $\mu'A\mu$, which is the value of the quadratic form at the mean.
 :::
-
 :::{#exm-mean-of-s2 name="Mean of Sample Variance"}
 
 Consider a random sample $x = (x_1, \dots, x_n)'$. We want to find the expectation of the sum of squared errors $SSE = \sum (x_i - \bar{x})^2$, which can be written in matrix notation as the quadratic form $x'(I_n - H)x$.
@@ -374,18 +384,85 @@ The density of the non-central chi-square distribution shifts to the right and b
 We summarize the key properties of the non-central chi-square distribution.
 
 ::: {#thm-chisq-properties name="Properties of Non-central Chi-square"}
-Let $Y \sim \chi^2(n, \lambda)$. Then:
+Let $V \sim \chi^2(n, \lambda)$. Then:
 
-1.  **Mean:** $E(Y) = n + 2\lambda$
-2.  **Variance:** $\text{Var}(Y) = 2n + 8\lambda$
+1.  **Mean:** $E(V) = n + 2\lambda$
+2.  **Variance:** $\text{Var}(V) = 2n + 8\lambda$
 3.  **Moment Generating Function (MGF):**
     $$
-    m_Y(t) = \frac{\exp[-\lambda \{1 - 1/(1-2t)\}]}{(1-2t)^{n/2}}
+    m_V(t) = \frac{\exp[-\lambda \{1 - 1/(1-2t)\}]}{(1-2t)^{n/2}} \quad \text{for } t < 1/2
     $$
 :::
 
 ::: {.proof name="Mean"}
-We derived $E(Y) = n + 2\lambda$ in the previous section using the decomposition $Y = ||z + \mu||^2$.
+By definition, $V \sim \chi^2(n, \lambda)$ is the distribution of $y'y$ where $y \sim N_n(\mu, I_n)$ and the non-centrality parameter is $\lambda = \frac{1}{2}\mu'\mu$.
+Applying @lem-simple-qf to the random vector $y$:
+$$
+E(V) = E(y'y) = n + \mu'\mu = n + 2\lambda
+$$
+:::
+
+::: {.proof name="MGF"}
+Since the components $y_i$ of the vector $y$ are independent $N(\mu_i, 1)$, and $V = \sum_{i=1}^n y_i^2$, the MGF of $V$ is the product of the MGFs of each $y_i^2$:
+$$
+m_V(t) = E[e^{t \sum y_i^2}] = \prod_{i=1}^n E[e^{t y_i^2}]
+$$
+Consider a single component $y_i \sim N(\mu_i, 1)$. Its squared expectation is:
+$$
+\begin{aligned}
+E[e^{t y_i^2}] &= \int_{-\infty}^{\infty} \frac{1}{\sqrt{2\pi}} e^{ty^2} e^{-\frac{1}{2}(y-\mu_i)^2} dy \\
+&= \frac{1}{\sqrt{2\pi}} \int_{-\infty}^{\infty} \exp\left\{ -\frac{1}{2} \left[ (1-2t)y^2 - 2\mu_i y + \mu_i^2 \right] \right\} dy
+\end{aligned}
+$$
+Completing the square in the exponent for $y$ (assuming $t < 1/2$):
+$$
+(1-2t)y^2 - 2\mu_i y + \mu_i^2 = (1-2t)\left(y - \frac{\mu_i}{1-2t}\right)^2 + \mu_i^2 - \frac{\mu_i^2}{1-2t}
+$$
+The integral of the Gaussian kernel $\exp\{ -\frac{1}{2}(1-2t)(y - \dots)^2 \}$ yields $\sqrt{\frac{2\pi}{1-2t}}$. The remaining constant term is:
+$$
+\exp\left\{ -\frac{1}{2} \left( \mu_i^2 - \frac{\mu_i^2}{1-2t} \right) \right\} = \exp\left\{ \frac{\mu_i^2}{2} \left( \frac{1}{1-2t} - 1 \right) \right\} = \exp\left\{ \frac{\mu_i^2 t}{1-2t} \right\}
+$$
+Thus, for a single component:
+$$
+m_{y_i^2}(t) = (1-2t)^{-1/2} \exp\left( \frac{\mu_i^2 t}{1-2t} \right)
+$$
+Multiplying the MGFs for all $n$ components:
+$$
+\begin{aligned}
+m_V(t) &= \prod_{i=1}^n (1-2t)^{-1/2} \exp\left( \frac{\mu_i^2 t}{1-2t} \right) \\
+&= (1-2t)^{-n/2} \exp\left( \frac{t \sum \mu_i^2}{1-2t} \right)
+\end{aligned}
+$$
+Substituting $\lambda = \frac{1}{2} \sum \mu_i^2$ (so $\sum \mu_i^2 = 2\lambda$):
+$$
+m_V(t) = (1-2t)^{-n/2} \exp\left( \frac{2\lambda t}{1-2t} \right)
+$$
+This form matches the theorem statement, noting that $\frac{2\lambda t}{1-2t} = -\lambda (1 - \frac{1}{1-2t})$.
+:::
+
+::: {.proof name="Variance"}
+We use the **Cumulant Generating Function**, $K_V(t) = \ln m_V(t)$, as its derivatives yield the mean and variance directly:
+$$
+K_V(t) = -\frac{n}{2} \ln(1-2t) + \frac{2\lambda t}{1-2t}
+$$
+First derivative (Mean):
+$$
+\begin{aligned}
+K'_V(t) &= -\frac{n}{2} \left(\frac{-2}{1-2t}\right) + 2\lambda \left[ \frac{1(1-2t) - t(-2)}{(1-2t)^2} \right] \\
+&= \frac{n}{1-2t} + 2\lambda \frac{1}{(1-2t)^2}
+\end{aligned}
+$$
+Second derivative (Variance):
+$$
+\begin{aligned}
+K''_V(t) &= n(-1)(1-2t)^{-2}(-2) + 2\lambda(-2)(1-2t)^{-3}(-2) \\
+&= \frac{2n}{(1-2t)^2} + \frac{8\lambda}{(1-2t)^3}
+\end{aligned}
+$$
+Evaluating at $t=0$:
+$$
+\text{Var}(V) = K''_V(0) = 2n + 8\lambda
+$$
 :::
 
 ### Additivity
@@ -453,9 +530,10 @@ M_Q(t) = |I - 2tA\Sigma|^{-1/2} \exp\left(-\frac{1}{2} \mu' [I - (I - 2tA\Sigma)
 $$
 :::
 
-*This is one of the most important theorems in the course, establishing that a quadratic form follows a chi-square distribution.*
 
 ### Non-central $\chi^2$ of Quadratic Forms
+
+
 
 ::: {#thm-dist-quad name="Distribution of y'Ay"}
 Let $y \sim N_p(\mu, \Sigma)$. Let $A$ be a symmetric matrix of rank $r$.
@@ -478,7 +556,10 @@ $$
 This holds because $\frac{1}{\sigma^2} P_V (\sigma^2 I) = P_V$, which is idempotent.
 :::
 
+*Note: This is one of the most important theorems in the course, establishing that a quadratic form follows a chi-square distribution.*
+
 ::: {.proof}
+
 **When $\sigma^2=1$**
 
 
