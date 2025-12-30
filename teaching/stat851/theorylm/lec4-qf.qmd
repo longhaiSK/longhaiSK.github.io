@@ -85,6 +85,60 @@ E(\sum_{i,j} a_{ij} y_i y_j) = \sum_{i,j} a_{ij} E(y_i y_j) = \sum_{i,j} a_{ij} 
 $$
 :::
 
+```{r}
+library(ggplot2)
+library(MASS) 
+
+# 1. Setup Data
+set.seed(42)
+n <- 100
+mu <- c(3, 4)
+sigma <- diag(2) 
+data <- mvrnorm(n, mu, sigma)
+df <- as.data.frame(data)
+colnames(df) <- c("x", "y")
+
+# 2. Pick a random point y
+random_index <- sample(1:n, 1)
+y_point <- df[random_index, ]
+
+# 3. Create the Plot using annotate() for single elements
+ggplot(df, aes(x = x, y = y)) +
+  # --- 100 Data Points ---
+  geom_point(alpha = 0.4, color = "gray20") +
+  
+  # --- Axes (x=0, y=0) ---
+  geom_vline(xintercept = 0, linewidth = 0.3) +
+  geom_hline(yintercept = 0, linewidth = 0.3) +
+  
+  # --- Vector Mu (Origin -> Mu) [RED] ---
+  annotate("segment", x = 0, y = 0, xend = mu[1], yend = mu[2],
+           arrow = arrow(length = unit(0.2, "cm")), color = "red", linewidth = 0.8) +
+  annotate("text", x = mu[1]/2 + 0.5, y = mu[2]/2 - 0.2, 
+           label = expression(mu), color = "red", size = 6) +
+  
+  # --- Vector y (Origin -> y) [BLUE] ---
+  annotate("segment", x = 0, y = 0, xend = y_point$x, yend = y_point$y,
+           arrow = arrow(length = unit(0.2, "cm")), color = "blue", linewidth = 0.8) +
+  annotate("text", x = y_point$x/2, y = y_point$y/2 + 0.5, 
+           label = "y", color = "blue", size = 6) +
+
+  # --- Vector y - mu (Mu -> y) [GREEN DASHED] ---
+  annotate("segment", x = mu[1], y = mu[2], xend = y_point$x, yend = y_point$y,
+           arrow = arrow(length = unit(0.2, "cm")), color = "darkgreen", linewidth = 0.8, linetype = "dashed") +
+  annotate("text", x = (mu[1] + y_point$x)/2 + 0.5, y = (mu[2] + y_point$y)/2, 
+           label = expression(y - mu), color = "darkgreen", size = 5) +
+  
+  # --- Dots for Mu and y ---
+  annotate("point", x = mu[1], y = mu[2], color = "red", size = 3) +
+  annotate("point", x = y_point$x, y = y_point$y, color = "blue", size = 3) +
+  
+  # --- Formatting ---
+  coord_fixed() + 
+  theme_minimal() +
+  labs(title = expression(paste("Vectors ", mu, ", ", y, ", and ", y - mu)))
+```
+
 ### Example: Sample Variance
 
 Consider a random sample $x_1, \dots, x_n$ with $E(x_i) = \mu$ and $\text{Var}(x_i) = \sigma^2$.
@@ -259,6 +313,8 @@ $$
 :::
 
 *This is one of the most important theorems in the course, establishing that a quadratic form follows a chi-square distribution.*
+
+### Non-central $\chi^2$ of Quadratic Forms
 
 ::: {#thm-dist-quad name="Distribution of y'Ay"}
 Let $y \sim N_p(\mu, \Sigma)$. Let $A$ be a symmetric matrix of rank $r$.
