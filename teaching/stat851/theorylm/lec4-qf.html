@@ -224,13 +224,20 @@ window.Quarto = {
   <li><a href="#mean-variance-and-mgf" id="toc-mean-variance-and-mgf" class="nav-link" data-scroll-target="#mean-variance-and-mgf"><span class="header-section-number">4.3.2</span> Mean, Variance, and MGF</a></li>
   <li><a href="#additivity" id="toc-additivity" class="nav-link" data-scroll-target="#additivity"><span class="header-section-number">4.3.3</span> Additivity</a></li>
   <li><a href="#poisson-mixture-representation" id="toc-poisson-mixture-representation" class="nav-link" data-scroll-target="#poisson-mixture-representation"><span class="header-section-number">4.3.4</span> Poisson Mixture Representation</a></li>
-  <li><a href="#poisson-mixture-representation-1" id="toc-poisson-mixture-representation-1" class="nav-link" data-scroll-target="#poisson-mixture-representation-1"><span class="header-section-number">4.3.5</span> Poisson Mixture Representation</a></li>
   </ul></li>
   <li><a href="#distribution-of-quadratic-forms" id="toc-distribution-of-quadratic-forms" class="nav-link" data-scroll-target="#distribution-of-quadratic-forms"><span class="header-section-number">4.4</span> Distribution of Quadratic Forms</a>
   <ul>
   <li><a href="#mgf-of-quadratic-forms" id="toc-mgf-of-quadratic-forms" class="nav-link" data-scroll-target="#mgf-of-quadratic-forms"><span class="header-section-number">4.4.1</span> MGF of Quadratic Forms</a></li>
   <li><a href="#non-central-chi2-of-quadratic-forms" id="toc-non-central-chi2-of-quadratic-forms" class="nav-link" data-scroll-target="#non-central-chi2-of-quadratic-forms"><span class="header-section-number">4.4.2</span> Non-central <span class="math inline">\(\chi^2\)</span> of Quadratic Forms</a></li>
+  <li><a href="#idempotency-and-general-transformations" id="toc-idempotency-and-general-transformations" class="nav-link" data-scroll-target="#idempotency-and-general-transformations"><span class="header-section-number">4.4.3</span> Idempotency and General Transformations</a></li>
   </ul></li>
+  <li><a href="#distributions-of-projected-multivariate-normal" id="toc-distributions-of-projected-multivariate-normal" class="nav-link" data-scroll-target="#distributions-of-projected-multivariate-normal"><span class="header-section-number">4.5</span> Distributions of Projected Multivariate Normal</a>
+  <ul>
+  <li><a href="#independence-of-forms" id="toc-independence-of-forms" class="nav-link" data-scroll-target="#independence-of-forms"><span class="header-section-number">4.5.1</span> Independence of Forms</a></li>
+  <li><a href="#partitioning-variance" id="toc-partitioning-variance" class="nav-link" data-scroll-target="#partitioning-variance"><span class="header-section-number">4.5.2</span> Partitioning Variance</a></li>
+  </ul></li>
+  <li><a href="#non-central-f-and-t-distributions" id="toc-non-central-f-and-t-distributions" class="nav-link" data-scroll-target="#non-central-f-and-t-distributions"><span class="header-section-number">4.6</span> Non-central F and t distributions</a></li>
+  <li><a href="#example-i.i.d.-normal-samples-students-theorem" id="toc-example-i.i.d.-normal-samples-students-theorem" class="nav-link" data-scroll-target="#example-i.i.d.-normal-samples-students-theorem"><span class="header-section-number">4.7</span> Example: i.i.d. Normal Samples (Student’s Theorem)</a></li>
   </ul>
 </nav>
 </nav>
@@ -539,6 +546,91 @@ SST = \sum_{i=1}^n (y_i - \bar{y})^2 = y'(I - P_{j_n})y
 E(SST) = (n-1)\sigma^2 + \sum_{i=1}^n (\mu_i - \bar{\mu})^2
 \]</span> This shows that in regression, the SST estimates <span class="math inline">\((n-1)\sigma^2\)</span> <em>plus</em> the variability introduced by the regression signal (the spread of the true means <span class="math inline">\(\mu_i\)</span>).</p>
 </div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">20</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>sigma <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Data Generation ---</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Case 1: i.i.d. Case (Common Mean)</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>mu_iid <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">3</span>, n)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>y_iid <span class="ot">&lt;-</span> mu_iid <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, sigma)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Case 2: Regression Case (Sorted Mean)</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co"># mu_i is sampled from N(3, sd=3) and sorted</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>mu_reg <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">rnorm</span>(n, <span class="dv">3</span>, <span class="dv">3</span>)) </span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>y_reg <span class="ot">&lt;-</span> mu_reg <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, sigma)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>df_iid <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span>n,</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y_iid,</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">mu =</span> mu_iid,</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">y_bar =</span> <span class="fu">mean</span>(y_iid),</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">"i.i.d. Case (Common Mean)"</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>df_reg <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span>n,</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y_reg,</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">mu =</span> mu_reg,</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">y_bar =</span> <span class="fu">mean</span>(y_reg),</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">"Regression Case (Sorted Mean)"</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Determine common Y limits for comparison across both plots</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>y_min <span class="ot">&lt;-</span> <span class="fu">min</span>(<span class="fu">c</span>(df_iid<span class="sc">$</span>y, df_reg<span class="sc">$</span>y, df_iid<span class="sc">$</span>mu, df_reg<span class="sc">$</span>mu)) <span class="sc">-</span> <span class="dv">1</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>y_max <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">c</span>(df_iid<span class="sc">$</span>y, df_reg<span class="sc">$</span>y, df_iid<span class="sc">$</span>mu, df_reg<span class="sc">$</span>mu)) <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>y_lims <span class="ot">&lt;-</span> <span class="fu">c</span>(y_min, y_max)</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Plotting Function ---</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>plot_func <span class="ot">&lt;-</span> <span class="cf">function</span>(df, title, ylims) {</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> id)) <span class="sc">+</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Vertical lines for the deviations (y_i - y_bar)</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">xend =</span> id, <span class="at">y =</span> y_bar, <span class="at">yend =</span> y), </span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>                 <span class="at">color =</span> <span class="st">"gray50"</span>, <span class="at">linetype =</span> <span class="st">"solid"</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>    <span class="co"># True means mu_i (red X)</span></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> mu, <span class="at">shape =</span> <span class="st">"True Mean (μ_i)"</span>), <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Observations y_i (black dots)</span></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> y, <span class="at">shape =</span> <span class="st">"Observed (y_i)"</span>), <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Global Sample Mean line (y_bar)</span></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_hline</span>(<span class="fu">aes</span>(<span class="at">yintercept =</span> y_bar, <span class="at">linetype =</span> <span class="st">"Sample Mean (ȳ)"</span>), </span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>               <span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_shape_manual</span>(<span class="at">name =</span> <span class="st">""</span>, <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"True Mean (μ_i)"</span> <span class="ot">=</span> <span class="dv">4</span>, <span class="st">"Observed (y_i)"</span> <span class="ot">=</span> <span class="dv">16</span>)) <span class="sc">+</span></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_linetype_manual</span>(<span class="at">name =</span> <span class="st">""</span>, <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Sample Mean (ȳ)"</span> <span class="ot">=</span> <span class="st">"dashed"</span>)) <span class="sc">+</span></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> ylims) <span class="sc">+</span></span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> title, <span class="at">x =</span> <span class="st">"Observation Index (Sorted by μ_i)"</span>, <span class="at">y =</span> <span class="st">"Value"</span>) <span class="sc">+</span></span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Combine Plots ---</span></span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">plot_func</span>(df_iid, <span class="st">"i.i.d. Case: E(SST) = (n-1)σ²"</span>, y_lims)</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">plot_func</span>(df_reg, <span class="st">"Regression Case: E(SST) = (n-1)σ² + Σ(μ_i - μ̄)²"</span>, y_lims)</span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>p1 <span class="sc">+</span> p2 <span class="sc">+</span> <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">"collect"</span>) <span class="sc">&amp;</span> <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-sst-comparison-sorted-v2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-sst-comparison-sorted-v2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec4-qf_files/figure-html/fig-sst-comparison-sorted-v2-1.png" class="img-fluid figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-sst-comparison-sorted-v2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.2: Comparison of SST components with increased variation in the true means. The vertical lines represent the deviations <span class="math inline">\((y_i - \bar{y})\)</span>. With <span class="math inline">\(\text{sd}(\mu_i) = 3\)</span>, the regression case (right) shows significantly larger deviations, illustrating how the systematic spread of the means dominates the Total Sum of Squares.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="non-central-chi2-distribution" class="level2" data-number="4.3">
 <h2 data-number="4.3" class="anchored" data-anchor-id="non-central-chi2-distribution"><span class="header-section-number">4.3</span> Non-central <span class="math inline">\(\chi^2\)</span> Distribution</h2>
@@ -561,7 +653,7 @@ V \sim \chi^2(n, \lambda) \quad \text{where } \lambda = \frac{1}{2} \mu'\mu = \f
 <img src="lec4-qf_files/figure-html/fig-plot-chisq-1.png" class="img-fluid figure-img" width="576">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-plot-chisq-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4.2: Central vs Non-central Chi-square Distribution
+Figure&nbsp;4.3: Central vs Non-central Chi-square Distribution
 </figcaption>
 </figure>
 </div>
@@ -699,28 +791,70 @@ M_v(t) &amp;= (1-2t)^{-n/2} e^{-\lambda} \exp\left( \frac{\lambda}{1-2t} \right)
 </ol>
 <p>This is particularly useful for numerical computation, as it allows the non-central CDF to be approximated by a finite sum of central chi-square CDFs.</p>
 </div>
-</section>
-<section id="poisson-mixture-representation-1" class="level3" data-number="4.3.5">
-<h3 data-number="4.3.5" class="anchored" data-anchor-id="poisson-mixture-representation-1"><span class="header-section-number">4.3.5</span> Poisson Mixture Representation</h3>
-<div id="thm-chisq-poisson-mixture" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 4.5 (Poisson Mixture Representation)</strong></span> Let <span class="math inline">\(v \sim \chi^2(n, \lambda)\)</span> where <span class="math inline">\(\lambda = \frac{1}{2}\|\mu\|^2\)</span>. Its probability density function is a Poisson mixture of central chi-square densities:</p>
-<p><span class="math display">\[
-f(v; n, \lambda) = \sum_{j=0}^{\infty} \text{Poisson}(j; \lambda) \cdot f(v; n+2j, 0)
-\]</span></p>
-<p>where <span class="math inline">\(\text{Poisson}(j; \lambda) = \frac{e^{-\lambda} \lambda^j}{j!}\)</span> and <span class="math inline">\(f(v; \nu, 0)\)</span> is the central chi-square density with <span class="math inline">\(\nu\)</span> degrees of freedom.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Parameters</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">4</span>          <span class="co"># Base degrees of freedom</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>lambda <span class="ot">&lt;-</span> <span class="dv">4</span>     <span class="co"># Non-centrality parameter (lambda = 1/2 * ||mu||^2)</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>x_limit <span class="ot">&lt;-</span> <span class="dv">25</span>   <span class="co"># X-axis range</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>j_values <span class="ot">&lt;-</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">15</span> <span class="co"># Sequence of J = 0, 1, 2...</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate data for the mixture components</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, x_limit, <span class="at">length.out =</span> <span class="dv">400</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>mixture_df <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, <span class="fu">lapply</span>(j_values, <span class="cf">function</span>(j) {</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  weight <span class="ot">&lt;-</span> <span class="fu">dpois</span>(j, lambda)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> x,</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">dchisq</span>(x, <span class="at">df =</span> n <span class="sc">+</span> <span class="dv">2</span><span class="sc">*</span>j),</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">j =</span> j,</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">weight =</span> weight</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>}))</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate data for the true non-central chi-square</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co"># R uses ncp = ||mu||^2, which equals 2 * lambda</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>true_nc <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> x,</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> <span class="fu">dchisq</span>(x, <span class="at">df =</span> n, <span class="at">ncp =</span> <span class="dv">2</span> <span class="sc">*</span> lambda)</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Draw weighted central chi-square curves (the "cloud")</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> mixture_df, </span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y, <span class="at">group =</span> j, <span class="at">alpha =</span> weight), </span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>            <span class="at">color =</span> <span class="st">"black"</span>, </span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>            <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Draw the true non-central chi-square density</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> true_nc, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y), </span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>            <span class="at">color =</span> <span class="st">"blue"</span>, </span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>            <span class="at">linewidth =</span> <span class="fl">1.3</span>) <span class="sc">+</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Aesthetics</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_alpha_continuous</span>(<span class="at">range =</span> <span class="fu">c</span>(<span class="fl">0.01</span>, <span class="fl">0.8</span>), <span class="at">guide =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Poisson Mixture Representation of Non-central Chi-square"</span>,</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="fu">paste0</span>(<span class="st">"n = "</span>, n, <span class="st">", λ = "</span>, lambda, <span class="st">" (Blue line = True Non-central)"</span>),</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Value (v)"</span>,</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Density"</span></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-chisq-poisson-mixture-fixed" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-chisq-poisson-mixture-fixed-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec4-qf_files/figure-html/fig-chisq-poisson-mixture-fixed-1.png" class="img-fluid figure-img" width="576">
 </div>
-<div class="proof">
-<p><span class="proof-title"><em>Proof</em>. </span>The non-central chi-square distribution arises from <span class="math inline">\(v = \sum_{i=1}^n y_i^2\)</span> where <span class="math inline">\(y_i \sim N(\mu_i, 1)\)</span>. We can decompose <span class="math inline">\(v\)</span> into two independent parts: 1. One component in the direction of the mean vector <span class="math inline">\(\mu\)</span>. 2. <span class="math inline">\(n-1\)</span> components orthogonal to <span class="math inline">\(\mu\)</span>.</p>
-<p>Let <span class="math inline">\(z_1 \sim N(\|\mu\|, 1)\)</span> and <span class="math inline">\(z_2, \dots, z_n \sim N(0, 1)\)</span>. Then <span class="math inline">\(v = z_1^2 + \sum_{i=2}^n z_i^2\)</span>. The second term is simply <span class="math inline">\(\chi^2(n-1, 0)\)</span>. The first term <span class="math inline">\(z_1^2\)</span> is the interesting part.</p>
-<p>Using the power series expansion of the MGF (as shown in the previous derivation): <span class="math display">\[
-M_v(t) = \sum_{j=0}^{\infty} \left( \frac{e^{-\lambda} \lambda^j}{j!} \right) (1-2t)^{-(n+2j)/2}
-\]</span> By using <span class="math inline">\(\lambda = \frac{1}{2}\|\mu\|^2\)</span>, we ensure that the weights <span class="math inline">\(\frac{e^{-\lambda} \lambda^j}{j!}\)</span> sum to 1, perfectly matching the Poisson distribution probabilities.</p>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-chisq-poisson-mixture-fixed-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.4: The non-central chi-square distribution as a Poisson mixture. The black curves represent central chi-square densities with <span class="math inline">\(df = n + 2j\)</span>, with transparency (alpha) proportional to the Poisson weight <span class="math inline">\(P(J=j)\)</span>. The solid blue line is the true non-central chi-square density.
+</figcaption>
+</figure>
 </div>
-<div class="proof remark">
-<p><span class="proof-title"><em>Remark</em> (Geometric Insight). </span>This representation reveals that a non-central chi-square variable behaves like a central chi-square variable whose <strong>degrees of freedom are themselves random</strong>.</p>
-<p>Specifically: <span class="math display">\[
-V \mid J \sim \chi^2(n + 2J, 0) \quad \text{where} \quad J \sim \text{Poisson}\left(\frac{1}{2}\|\mu\|^2\right)
-\]</span> As the distance <span class="math inline">\(\|\mu\|\)</span> increases, the Poisson distribution shifts to the right, increasing the expected degrees of freedom and thus shifting the mass of the chi-square distribution to the right.</p>
+</div>
 </div>
 </section>
 </section>
@@ -730,7 +864,7 @@ V \mid J \sim \chi^2(n + 2J, 0) \quad \text{where} \quad J \sim \text{Poisson}\l
 <h3 data-number="4.4.1" class="anchored" data-anchor-id="mgf-of-quadratic-forms"><span class="header-section-number">4.4.1</span> MGF of Quadratic Forms</h3>
 <p>To determine the distribution of general quadratic forms <span class="math inline">\(y'Ay\)</span>, we look at their MGF.</p>
 <div id="thm-mgf-quad" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 4.6 (MGF of Quadratic Form)</strong></span> If <span class="math inline">\(y \sim N_p(\mu, \Sigma)\)</span>, then the MGF of <span class="math inline">\(Q = y'Ay\)</span> is:</p>
+<p><span class="theorem-title"><strong>Theorem 4.5 (MGF of Quadratic Form)</strong></span> If <span class="math inline">\(y \sim N_p(\mu, \Sigma)\)</span>, then the MGF of <span class="math inline">\(Q = y'Ay\)</span> is:</p>
 <p><span class="math display">\[
 M_Q(t) = |I - 2tA\Sigma|^{-1/2} \exp\left(-\frac{1}{2} \mu' [I - (I - 2tA\Sigma)^{-1}] \Sigma^{-1} \mu\right)
 \]</span></p>
@@ -739,18 +873,30 @@ M_Q(t) = |I - 2tA\Sigma|^{-1/2} \exp\left(-\frac{1}{2} \mu' [I - (I - 2tA\Sigma)
 <section id="non-central-chi2-of-quadratic-forms" class="level3" data-number="4.4.2">
 <h3 data-number="4.4.2" class="anchored" data-anchor-id="non-central-chi2-of-quadratic-forms"><span class="header-section-number">4.4.2</span> Non-central <span class="math inline">\(\chi^2\)</span> of Quadratic Forms</h3>
 <div id="thm-dist-quad" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 4.7 (Distribution of y’Ay)</strong></span> Let <span class="math inline">\(y \sim N_p(\mu, \Sigma)\)</span>. Let <span class="math inline">\(A\)</span> be a symmetric matrix of rank <span class="math inline">\(r\)</span>. Then <span class="math inline">\(y'Ay \sim \chi^2(r, \lambda)\)</span> with <span class="math inline">\(\lambda = \frac{1}{2} \mu' A \mu\)</span> <strong>if and only if</strong> <span class="math inline">\(A\Sigma\)</span> is idempotent (<span class="math inline">\(A\Sigma A\Sigma = A\Sigma\)</span>).</p>
+<p><span class="theorem-title"><strong>Theorem 4.6 (Distribution of y’Ay)</strong></span> Let <span class="math inline">\(y \sim N_p(\mu, \Sigma)\)</span>. Let <span class="math inline">\(A\)</span> be a symmetric matrix of rank <span class="math inline">\(r\)</span>. Then <span class="math inline">\(y'Ay \sim \chi^2(r, \lambda)\)</span> with <span class="math inline">\(\lambda = \frac{1}{2} \mu' A \mu\)</span> <strong>if and only if</strong> <span class="math inline">\(A\Sigma\)</span> is idempotent (<span class="math inline">\(A\Sigma A\Sigma = A\Sigma\)</span>).</p>
 <p><strong>Special Case (<span class="math inline">\(\Sigma = I\)</span>):</strong> If <span class="math inline">\(\Sigma = I\)</span>, the condition simplifies to <span class="math inline">\(A\)</span> being idempotent (<span class="math inline">\(A^2 = A\)</span>).</p>
 </div>
-<p>We will prove a simplified version of <a href="#thm-dist-quad" class="quarto-xref">Theorem&nbsp;<span>4.7</span></a> first.</p>
+<p>We will prove a simplified version of <a href="#thm-dist-quad" class="quarto-xref">Theorem&nbsp;<span>4.6</span></a> first.</p>
 <div id="thm-proj-matrix" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 4.8 (Distribution of Projected Spherical Normal)</strong></span> If <span class="math inline">\(y \sim N_n(\mu, \sigma^2 I_n)\)</span> and <span class="math inline">\(P_V\)</span> is a projection matrix onto a subspace <span class="math inline">\(V\)</span> of dimension <span class="math inline">\(r\)</span>, then:</p>
+<p><span class="theorem-title"><strong>Theorem 4.7 (Distribution of Projected Spherical Normal)</strong></span> If <span class="math inline">\(y \sim N_n(\mu, \sigma^2 I_n)\)</span> and <span class="math inline">\(P_V\)</span> is a projection matrix onto a subspace <span class="math inline">\(V\)</span> of dimension <span class="math inline">\(r\)</span>, then:</p>
 <p><span class="math display">\[
 \frac{1}{\sigma^2} y'P_V y = \frac{||P_V y||^2}{\sigma^2} \sim \chi^2\left(r, \frac{||P_V \mu||^2}{2\sigma^2}\right)
 \]</span></p>
 <p>This holds because <span class="math inline">\(\frac{1}{\sigma^2} P_V (\sigma^2 I) = P_V\)</span>, which is idempotent.</p>
 </div>
-<p><em>Note: This is one of the most important theorems in the course, establishing that a quadratic form follows a chi-square distribution.</em></p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Crucial Theorem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This is one of the most important theorems in the course, establishing the fundamental conditions under which a quadratic form follows a chi-square distribution.</p>
+</div>
+</div>
 <div class="proof">
 <p><span class="proof-title"><em>Proof</em>. </span><strong>When <span class="math inline">\(\sigma^2=1\)</span></strong></p>
 <p>Let <span class="math inline">\(P_V\)</span> be the projection matrix. We know <span class="math inline">\(P_V = QQ'\)</span> where <span class="math inline">\(Q = (q_1, \dots, q_r)\)</span> is an <span class="math inline">\(n \times r\)</span> matrix with orthonormal columns (<span class="math inline">\(Q'Q = I_r\)</span>).</p>
@@ -780,13 +926,13 @@ z' P_V z = \frac{y' P_V y}{\sigma^2} \sim \chi^2\left(r, \frac{1}{2} \left|\left
 \frac{||P_V y||^2}{\sigma^2} \sim \chi^2\left(r, \frac{||P_V \mu||^2}{2\sigma^2}\right)
 \]</span></p>
 </div>
-<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout callout-style-default callout-important callout-titled" name="Scale of the Quadratic Form">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Scale of the Quadratic Form
+Important
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -799,89 +945,89 @@ E(\|P_V y\|^2) = \sigma^2 \left(r + \frac{\|P_V \mu\|^2}{\sigma^2}\right) = r\si
 <div class="cell" data-screenshot.force="true" data-webshot2="{&quot;vwidth&quot;:900,&quot;vheight&quot;:600,&quot;zoom&quot;:2}">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plotly)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MASS)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Generate Data</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">200</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>mu <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">5</span>) </span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>sigma <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="dv">3</span>)</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">mvrnorm</span>(n, mu, sigma)</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(data)</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(df) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"x"</span>, <span class="st">"y"</span>, <span class="st">"z"</span>)</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Project Points</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>proj_points <span class="ot">&lt;-</span> <span class="fu">t</span>(<span class="fu">apply</span>(data, <span class="dv">1</span>, <span class="cf">function</span>(p) {</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sum</span>(p <span class="sc">*</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>)) <span class="sc">*</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>) <span class="sc">+</span> <span class="fu">sum</span>(p <span class="sc">*</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>)) <span class="sc">*</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>)</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>}))</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>df_proj <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(proj_points)</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(df_proj) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"px"</span>, <span class="st">"py"</span>, <span class="st">"pz"</span>)</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Setup Axis Styles</span></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>ax_style <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">title =</span> <span class="st">""</span>,</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">showgrid =</span> <span class="cn">TRUE</span>,        <span class="co"># Keep the coordinate plane grids</span></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">gridcolor =</span> <span class="st">"gray"</span>,</span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">gridwidth =</span> <span class="fl">0.5</span>,</span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">zeroline =</span> <span class="cn">FALSE</span>,       <span class="co"># REMOVED: The static "crosshair" lines at 0</span></span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">showline =</span> <span class="cn">FALSE</span>,       <span class="co"># REMOVED: The front bounding box</span></span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">showticklabels =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">showbackground =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">showspikes =</span> <span class="cn">FALSE</span></span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Create the Plot</span></span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_ly</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Optional: Floor Plane ---</span></span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_trace</span>(</span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">8</span>, <span class="dv">8</span>, <span class="sc">-</span><span class="dv">2</span>), <span class="at">y =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="sc">-</span><span class="dv">2</span>, <span class="dv">8</span>, <span class="dv">8</span>), <span class="at">z =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>),</span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">type =</span> <span class="st">"mesh3d"</span>, <span class="at">opacity =</span> <span class="fl">0.05</span>, <span class="at">color =</span> <span class="st">'gray'</span>, </span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">hoverinfo =</span> <span class="st">"none"</span>, <span class="at">showlegend =</span> <span class="cn">FALSE</span></span>
-<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Original Data (y) ---</span></span>
-<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_trace</span>(</span>
-<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> df, <span class="at">x =</span> <span class="sc">~</span>x, <span class="at">y =</span> <span class="sc">~</span>y, <span class="at">z =</span> <span class="sc">~</span>z,</span>
-<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">type =</span> <span class="st">'scatter3d'</span>, <span class="at">mode =</span> <span class="st">'markers'</span>,</span>
-<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">marker =</span> <span class="fu">list</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">'blue'</span>, <span class="at">opacity =</span> <span class="fl">0.6</span>),</span>
-<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Legend with Math (Italic y)</span></span>
-<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">'&lt;i&gt;y&lt;/i&gt;'</span> </span>
-<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Projected Shadow (P_V y) ---</span></span>
-<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_trace</span>(</span>
-<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> df_proj, <span class="at">x =</span> <span class="sc">~</span>px, <span class="at">y =</span> <span class="sc">~</span>py, <span class="at">z =</span> <span class="sc">~</span>pz,</span>
-<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">type =</span> <span class="st">'scatter3d'</span>, <span class="at">mode =</span> <span class="st">'markers'</span>,</span>
-<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">marker =</span> <span class="fu">list</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">'red'</span>, <span class="at">opacity =</span> <span class="fl">0.8</span>),</span>
-<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Legend with Math (P_sub_V y)</span></span>
-<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"&lt;i&gt;P&lt;/i&gt;&lt;sub&gt;V&lt;/sub&gt;&lt;i&gt;y&lt;/i&gt;"</span></span>
-<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Residual Lines ---</span></span>
-<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_segments</span>(</span>
-<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> df<span class="sc">$</span>x, <span class="at">xend =</span> df_proj<span class="sc">$</span>px,</span>
-<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> df<span class="sc">$</span>y, <span class="at">yend =</span> df_proj<span class="sc">$</span>py,</span>
-<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>    <span class="at">z =</span> df<span class="sc">$</span>z, <span class="at">zend =</span> df_proj<span class="sc">$</span>pz,</span>
-<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>    <span class="at">line =</span> <span class="fu">list</span>(<span class="at">color =</span> <span class="st">'gray'</span>, <span class="at">width =</span> <span class="dv">1</span>),</span>
-<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>    <span class="at">showlegend =</span> <span class="cn">FALSE</span>, <span class="at">hoverinfo =</span> <span class="st">"none"</span></span>
-<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Manual Labels ---</span></span>
-<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_text</span>(</span>
-<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">c</span>(<span class="fl">8.5</span>, <span class="dv">0</span>, <span class="dv">0</span>), <span class="at">y =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">8.5</span>, <span class="dv">0</span>), <span class="at">z =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">8.5</span>),</span>
-<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Used Unicode \u22A5 for perpendicular symbol</span></span>
-<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>    <span class="at">text =</span> <span class="fu">c</span>(<span class="st">"&lt;i&gt;q&lt;/i&gt;&lt;sub&gt;1&lt;/sub&gt;"</span>, <span class="st">"&lt;i&gt;q&lt;/i&gt;&lt;sub&gt;2&lt;/sub&gt;"</span>, <span class="st">"&lt;i&gt;V&lt;/i&gt;&lt;sup&gt;\u22A5&lt;/sup&gt;"</span>),</span>
-<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>    <span class="at">textfont =</span> <span class="fu">list</span>(<span class="at">size =</span> <span class="dv">15</span>, <span class="at">color =</span> <span class="st">"black"</span>),</span>
-<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>    <span class="at">showlegend =</span> <span class="cn">FALSE</span></span>
-<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layout</span>(</span>
-<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>    <span class="at">scene =</span> <span class="fu">list</span>(</span>
-<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>      <span class="at">xaxis =</span> ax_style,</span>
-<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>      <span class="at">yaxis =</span> ax_style,</span>
-<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>      <span class="at">zaxis =</span> ax_style,</span>
-<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>      <span class="at">aspectmode =</span> <span class="st">"cube"</span>,</span>
-<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a>      <span class="at">camera =</span> <span class="fu">list</span>(<span class="at">eye =</span> <span class="fu">list</span>(<span class="at">x =</span> <span class="fl">1.6</span>, <span class="at">y =</span> <span class="fl">1.6</span>, <span class="at">z =</span> <span class="fl">1.3</span>))</span>
-<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Projection of Trivariate Normal onto 2D Subspace"</span>,</span>
-<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a>    <span class="at">margin =</span> <span class="fu">list</span>(<span class="at">l=</span><span class="dv">0</span>, <span class="at">r=</span><span class="dv">0</span>, <span class="at">b=</span><span class="dv">0</span>, <span class="at">t=</span><span class="dv">30</span>)</span>
-<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plotly)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MASS)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Generate Data</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">200</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>mu <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">5</span>) </span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>sigma <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="dv">3</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">mvrnorm</span>(n, mu, sigma)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(data)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(df) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"x"</span>, <span class="st">"y"</span>, <span class="st">"z"</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Project Points</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>proj_points <span class="ot">&lt;-</span> <span class="fu">t</span>(<span class="fu">apply</span>(data, <span class="dv">1</span>, <span class="cf">function</span>(p) {</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sum</span>(p <span class="sc">*</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>)) <span class="sc">*</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>) <span class="sc">+</span> <span class="fu">sum</span>(p <span class="sc">*</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>)) <span class="sc">*</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>}))</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>df_proj <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(proj_points)</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(df_proj) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"px"</span>, <span class="st">"py"</span>, <span class="st">"pz"</span>)</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Setup Axis Styles</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>ax_style <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">title =</span> <span class="st">""</span>,</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">showgrid =</span> <span class="cn">TRUE</span>,        <span class="co"># Keep the coordinate plane grids</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">gridcolor =</span> <span class="st">"gray"</span>,</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">gridwidth =</span> <span class="fl">0.5</span>,</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">zeroline =</span> <span class="cn">FALSE</span>,       <span class="co"># REMOVED: The static "crosshair" lines at 0</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">showline =</span> <span class="cn">FALSE</span>,       <span class="co"># REMOVED: The front bounding box</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">showticklabels =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">showbackground =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">showspikes =</span> <span class="cn">FALSE</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Create the Plot</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_ly</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Optional: Floor Plane ---</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_trace</span>(</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">8</span>, <span class="dv">8</span>, <span class="sc">-</span><span class="dv">2</span>), <span class="at">y =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="sc">-</span><span class="dv">2</span>, <span class="dv">8</span>, <span class="dv">8</span>), <span class="at">z =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>),</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">type =</span> <span class="st">"mesh3d"</span>, <span class="at">opacity =</span> <span class="fl">0.05</span>, <span class="at">color =</span> <span class="st">'gray'</span>, </span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">hoverinfo =</span> <span class="st">"none"</span>, <span class="at">showlegend =</span> <span class="cn">FALSE</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Original Data (y) ---</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_trace</span>(</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> df, <span class="at">x =</span> <span class="sc">~</span>x, <span class="at">y =</span> <span class="sc">~</span>y, <span class="at">z =</span> <span class="sc">~</span>z,</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">type =</span> <span class="st">'scatter3d'</span>, <span class="at">mode =</span> <span class="st">'markers'</span>,</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">marker =</span> <span class="fu">list</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">'blue'</span>, <span class="at">opacity =</span> <span class="fl">0.6</span>),</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Legend with Math (Italic y)</span></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">'&lt;i&gt;y&lt;/i&gt;'</span> </span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Projected Shadow (P_V y) ---</span></span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_trace</span>(</span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> df_proj, <span class="at">x =</span> <span class="sc">~</span>px, <span class="at">y =</span> <span class="sc">~</span>py, <span class="at">z =</span> <span class="sc">~</span>pz,</span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">type =</span> <span class="st">'scatter3d'</span>, <span class="at">mode =</span> <span class="st">'markers'</span>,</span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">marker =</span> <span class="fu">list</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">'red'</span>, <span class="at">opacity =</span> <span class="fl">0.8</span>),</span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Legend with Math (P_sub_V y)</span></span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"&lt;i&gt;P&lt;/i&gt;&lt;sub&gt;V&lt;/sub&gt;&lt;i&gt;y&lt;/i&gt;"</span></span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Residual Lines ---</span></span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_segments</span>(</span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> df<span class="sc">$</span>x, <span class="at">xend =</span> df_proj<span class="sc">$</span>px,</span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> df<span class="sc">$</span>y, <span class="at">yend =</span> df_proj<span class="sc">$</span>py,</span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>    <span class="at">z =</span> df<span class="sc">$</span>z, <span class="at">zend =</span> df_proj<span class="sc">$</span>pz,</span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>    <span class="at">line =</span> <span class="fu">list</span>(<span class="at">color =</span> <span class="st">'gray'</span>, <span class="at">width =</span> <span class="dv">1</span>),</span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>    <span class="at">showlegend =</span> <span class="cn">FALSE</span>, <span class="at">hoverinfo =</span> <span class="st">"none"</span></span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Manual Labels ---</span></span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_text</span>(</span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">c</span>(<span class="fl">8.5</span>, <span class="dv">0</span>, <span class="dv">0</span>), <span class="at">y =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">8.5</span>, <span class="dv">0</span>), <span class="at">z =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">8.5</span>),</span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Used Unicode \u22A5 for perpendicular symbol</span></span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>    <span class="at">text =</span> <span class="fu">c</span>(<span class="st">"&lt;i&gt;q&lt;/i&gt;&lt;sub&gt;1&lt;/sub&gt;"</span>, <span class="st">"&lt;i&gt;q&lt;/i&gt;&lt;sub&gt;2&lt;/sub&gt;"</span>, <span class="st">"&lt;i&gt;V&lt;/i&gt;&lt;sup&gt;\u22A5&lt;/sup&gt;"</span>),</span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a>    <span class="at">textfont =</span> <span class="fu">list</span>(<span class="at">size =</span> <span class="dv">15</span>, <span class="at">color =</span> <span class="st">"black"</span>),</span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a>    <span class="at">showlegend =</span> <span class="cn">FALSE</span></span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layout</span>(</span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a>    <span class="at">scene =</span> <span class="fu">list</span>(</span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a>      <span class="at">xaxis =</span> ax_style,</span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a>      <span class="at">yaxis =</span> ax_style,</span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a>      <span class="at">zaxis =</span> ax_style,</span>
+<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a>      <span class="at">aspectmode =</span> <span class="st">"cube"</span>,</span>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a>      <span class="at">camera =</span> <span class="fu">list</span>(<span class="at">eye =</span> <span class="fu">list</span>(<span class="at">x =</span> <span class="fl">1.6</span>, <span class="at">y =</span> <span class="fl">1.6</span>, <span class="at">z =</span> <span class="fl">1.3</span>))</span>
+<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Projection of Trivariate Normal onto 2D Subspace"</span>,</span>
+<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a>    <span class="at">margin =</span> <span class="fu">list</span>(<span class="at">l=</span><span class="dv">0</span>, <span class="at">r=</span><span class="dv">0</span>, <span class="at">b=</span><span class="dv">0</span>, <span class="at">t=</span><span class="dv">30</span>)</span>
+<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
@@ -892,9 +1038,120 @@ E(\|P_V y\|^2) = \sigma^2 \left(r + \frac{\|P_V \mu\|^2}{\sigma^2}\right) = r\si
 </div>
 </div>
 </div>
-
-
 </section>
+<section id="idempotency-and-general-transformations" class="level3" data-number="4.4.3">
+<h3 data-number="4.4.3" class="anchored" data-anchor-id="idempotency-and-general-transformations"><span class="header-section-number">4.4.3</span> Idempotency and General Transformations</h3>
+<div id="lem-idempotent-sigma" class="theorem lemma">
+<p><span class="theorem-title"><strong>Lemma 4.2 (Idempotent Matrix Property)</strong></span> Let <span class="math inline">\(\Sigma\)</span> be a positive definite matrix such that <span class="math inline">\(\Sigma = \Sigma^{1/2}\Sigma^{1/2}\)</span>. The matrix <span class="math inline">\(A\Sigma\)</span> is idempotent if and only if <span class="math inline">\(\Sigma^{1/2}A\Sigma^{1/2}\)</span> is idempotent.</p>
+</div>
+<div class="proof">
+<p><span class="proof-title"><em>Proof</em>. </span><span class="math inline">\((\Rightarrow)\)</span> Assume <span class="math inline">\(A\Sigma A\Sigma = A\Sigma\)</span>. Then: <span class="math display">\[
+\begin{aligned}
+(\Sigma^{1/2}A\Sigma^{1/2})(\Sigma^{1/2}A\Sigma^{1/2}) &amp;= \Sigma^{1/2}A(\Sigma^{1/2}\Sigma^{1/2})A\Sigma^{1/2} \\
+&amp;= \Sigma^{1/2}(A\Sigma A)\Sigma^{1/2} \\
+&amp;= \Sigma^{1/2}A\Sigma^{1/2}
+\end{aligned}
+\]</span> The reverse follows by multiplying by <span class="math inline">\(\Sigma^{-1/2}\)</span> on both sides.</p>
+</div>
+<div id="thm-quad-dist" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 4.8 (Distribution of y’Ay)</strong></span> Let <span class="math inline">\(y \sim N_p(\mu, \Sigma)\)</span>, let <span class="math inline">\(A\)</span> be a symmetric matrix of constants of rank <span class="math inline">\(r\)</span>, and let <span class="math inline">\(\lambda = \frac{1}{2}\mu'A\mu\)</span>. Then <span class="math inline">\(y'Ay\)</span> is <span class="math inline">\(\chi^2(r, \lambda)\)</span> if and only if <span class="math inline">\(A\Sigma\)</span> is idempotent.</p>
+</div>
+<div class="proof">
+<p><span class="proof-title"><em>Proof</em>. </span>Let <span class="math inline">\(y^* = \Sigma^{-1/2}y\)</span>, so <span class="math inline">\(y^* \sim N_n(\Sigma^{-1/2}\mu, I_n)\)</span>. We rewrite the quadratic form: <span class="math display">\[y'Ay = y' \Sigma^{-1/2} (\Sigma^{1/2} A \Sigma^{1/2}) \Sigma^{-1/2} y = (y^*)' P_V y^* = \|P_V y^*\|^2\]</span> Since <span class="math inline">\(A\Sigma\)</span> is idempotent, <span class="math inline">\(P_V = \Sigma^{1/2} A \Sigma^{1/2}\)</span> is a projection matrix with rank <span class="math inline">\(r\)</span>. By the definition of the non-central chi-square, <span class="math inline">\(y'Ay \sim \chi^2(r, \frac{1}{2}\|P_V \Sigma^{-1/2}\mu\|^2)\)</span>. The non-centrality parameter simplifies to <span class="math inline">\(\lambda = \frac{1}{2}\mu'A\mu\)</span>.</p>
+</div>
+</section>
+</section>
+<section id="distributions-of-projected-multivariate-normal" class="level2" data-number="4.5">
+<h2 data-number="4.5" class="anchored" data-anchor-id="distributions-of-projected-multivariate-normal"><span class="header-section-number">4.5</span> Distributions of Projected Multivariate Normal</h2>
+<div id="thm-proj-dist" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 4.9 (Distribution of Projections)</strong></span> Let <span class="math inline">\(V\)</span> be a <span class="math inline">\(k\)</span>-dimensional subspace of <span class="math inline">\(\mathcal{R}^n\)</span> and let <span class="math inline">\(y\)</span> be a random vector in <span class="math inline">\(\mathcal{R}^n\)</span> with mean <span class="math inline">\(E(y)=\mu\)</span>. Then:</p>
+<ol type="1">
+<li><span class="math inline">\(E\{p(y|V)\} = p(\mu|V)\)</span>.</li>
+<li>If <span class="math inline">\(\text{var}(y)=\sigma^2 I_n\)</span>, then <span class="math inline">\(\text{var}\{p(y|V)\} = \sigma^2 P_V\)</span> and <span class="math inline">\(E\{\|p(y|V)\|^2\} = \sigma^2 k + \|p(\mu|V)\|^2\)</span>.</li>
+<li>If <span class="math inline">\(y \sim N_n(\mu, \sigma^2 I_n)\)</span>, then <span class="math inline">\(\frac{1}{\sigma^2}\|p(y|V)\|^2 = \frac{1}{\sigma^2}y'P_Vy \sim \chi^2(k, \frac{1}{2\sigma^2}\|p(\mu|V)\|^2)\)</span>.</li>
+</ol>
+</div>
+<div class="proof">
+<p><span class="proof-title"><em>Proof</em>. </span></p>
+<ol type="1">
+<li>Since the projection operation is linear, <span class="math inline">\(E\{p(y|V)\} = p(E(y)|V) = p(\mu|V)\)</span>.</li>
+<li><span class="math inline">\(p(y|V) = P_V y\)</span>, so <span class="math inline">\(\text{var}\{p(y|V)\} = \text{var}(P_V y) = P_V \sigma^2 I_n P_V^T = \sigma^2 P_V\)</span>. The expectation of the squared norm follows from the mean of a quadratic form: <span class="math inline">\(E(\|p(y|V)\|^2) = \text{tr}(\sigma^2 P_V) + \mu^T P_V \mu = \sigma^2 k + \|p(\mu|V)\|^2\)</span>.</li>
+<li>This follows from the general distribution of quadratic forms where <span class="math inline">\(A = \frac{1}{\sigma^2} P_V\)</span>.</li>
+</ol>
+</div>
+<div id="thm-ortho-indep" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 4.10 (Orthogonal Projections)</strong></span> Let <span class="math inline">\(V_1, \dots, V_k\)</span> be mutually orthogonal subspaces with dimensions <span class="math inline">\(d_i\)</span> and projection matrices <span class="math inline">\(P_i\)</span>. If <span class="math inline">\(y \sim N_n(\mu, \sigma^2 I_n)\)</span>, then:</p>
+<ol type="1">
+<li>The projections <span class="math inline">\(\hat{y}_i = P_i y\)</span> are independent with <span class="math inline">\(\hat{y}_i \sim N(P_i \mu, \sigma^2 P_i)\)</span>.</li>
+<li>The squared norms <span class="math inline">\(\|\hat{y}_i\|^2\)</span> are mutually independent.</li>
+<li><span class="math inline">\(\frac{1}{\sigma^2}\|\hat{y}_i\|^2 \sim \chi^2(d_i, \frac{1}{2\sigma^2}\|P_i \mu\|^2)\)</span>.</li>
+</ol>
+</div>
+<div class="proof">
+<p><span class="proof-title"><em>Proof</em>. </span></p>
+<ol type="1">
+<li>For <span class="math inline">\(i \ne j\)</span>, <span class="math inline">\(\text{cov}(\hat{y}_i, \hat{y}_j) = \sigma^2 P_i P_j = 0\)</span> because the subspaces are orthogonal. Under normality, zero covariance implies independence.</li>
+<li>Since <span class="math inline">\(\hat{y}_i\)</span> are independent, any functions of them, such as their norms, are also independent.</li>
+<li>This is a direct application of the Projection Distribution theorem to each subspace.</li>
+</ol>
+</div>
+<section id="independence-of-forms" class="level3" data-number="4.5.1">
+<h3 data-number="4.5.1" class="anchored" data-anchor-id="independence-of-forms"><span class="header-section-number">4.5.1</span> Independence of Forms</h3>
+<div id="thm-indep-mvn" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 4.11 (Independence Conditions)</strong></span> Suppose <span class="math inline">\(y \sim N_n(\mu, \Sigma)\)</span>.</p>
+<ul>
+<li><strong>Linear and Quadratic:</strong> <span class="math inline">\(By\)</span> and <span class="math inline">\(y'Ay\)</span> (where <span class="math inline">\(A\)</span> is symmetric) are independent if and only if <span class="math inline">\(B\Sigma A = 0\)</span>.</li>
+<li><strong>Quadratic and Quadratic:</strong> <span class="math inline">\(y'Ay\)</span> and <span class="math inline">\(y'By\)</span> (where <span class="math inline">\(A, B\)</span> are symmetric) are independent if and only if <span class="math inline">\(A\Sigma B = 0\)</span>.</li>
+</ul>
+</div>
+<div class="proof">
+<p><span class="proof-title"><em>Proof</em>. </span>If <span class="math inline">\(B\Sigma A = 0\)</span>, the normal vectors <span class="math inline">\(By\)</span> and <span class="math inline">\(Ay\)</span> have zero covariance and are thus independent. Consequently, <span class="math inline">\(By\)</span> is independent of any measurable function of <span class="math inline">\(Ay\)</span>, such as the quadratic form <span class="math inline">\(y'Ay = \|Ay\|^2\)</span> (assuming <span class="math inline">\(A\)</span> is idempotent). The quadratic-quadratic case follows a similar logic.</p>
+</div>
+</section>
+<section id="partitioning-variance" class="level3" data-number="4.5.2">
+<h3 data-number="4.5.2" class="anchored" data-anchor-id="partitioning-variance"><span class="header-section-number">4.5.2</span> Partitioning Variance</h3>
+<div id="thm-cochran-result" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 4.12 (Cochran’s Result)</strong></span> Let <span class="math inline">\(y \sim N_n(\mu, \sigma^2 I)\)</span> and <span class="math inline">\(y'y = \sum_{i=1}^k y'A_iy\)</span>. The quadratic forms <span class="math inline">\(y^T A_i y / \sigma^2\)</span> are mutually independent <span class="math inline">\(\chi^2(r_i, \lambda_i)\)</span> if and only if any one of the following holds:</p>
+<ul>
+<li>Each <span class="math inline">\(A_i\)</span> is idempotent.</li>
+<li><span class="math inline">\(A_i A_j = 0\)</span> for all <span class="math inline">\(i \ne j\)</span>.</li>
+<li><span class="math inline">\(n = \sum r_i\)</span>.</li>
+</ul>
+</div>
+</section>
+</section>
+<section id="non-central-f-and-t-distributions" class="level2" data-number="4.6">
+<h2 data-number="4.6" class="anchored" data-anchor-id="non-central-f-and-t-distributions"><span class="header-section-number">4.6</span> Non-central F and t distributions</h2>
+<div id="def-f-t-dist" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 4.3 (F and t Distributions)</strong></span> &nbsp;</p>
+<ol type="1">
+<li><strong>F-Distribution:</strong> If <span class="math inline">\(U_1 \sim \chi^2(n_1, \lambda)\)</span> and <span class="math inline">\(U_2 \sim \chi^2(n_2)\)</span> are independent, then <span class="math inline">\(V = \frac{U_1/n_1}{U_2/n_2}\)</span> follows a non-central F distribution.</li>
+<li><strong>t-Distribution:</strong> If <span class="math inline">\(W \sim N(\delta, 1)\)</span> and <span class="math inline">\(Y \sim \chi^2(m)\)</span> are independent, then <span class="math inline">\(T = \frac{W}{\sqrt{Y/m}}\)</span> follows a non-central t distribution <span class="math inline">\(t(m, \delta)\)</span>.</li>
+</ol>
+</div>
+</section>
+<section id="example-i.i.d.-normal-samples-students-theorem" class="level2" data-number="4.7">
+<h2 data-number="4.7" class="anchored" data-anchor-id="example-i.i.d.-normal-samples-students-theorem"><span class="header-section-number">4.7</span> Example: i.i.d. Normal Samples (Student’s Theorem)</h2>
+<div id="exm-iid-normal" class="theorem example">
+<p><span class="theorem-title"><strong>Example 4.3 (Student’s Theorem)</strong></span> Let <span class="math inline">\(Y_1, \dots, Y_n \sim i.i.d. N(\mu, \sigma^2)\)</span>.</p>
+<ul>
+<li><strong>Sample Mean:</strong> <span class="math inline">\(\bar{Y} \sim N(\mu, \sigma^2/n)\)</span>.</li>
+<li><strong>Sample Variance:</strong> <span class="math inline">\(\frac{(n-1)S^2}{\sigma^2} \sim \chi^2(n-1, 0)\)</span>.</li>
+<li><strong>Independence:</strong> <span class="math inline">\(\bar{Y}\)</span> and <span class="math inline">\(S^2\)</span> are independent.</li>
+<li><strong>t-statistic:</strong> <span class="math inline">\(T = \frac{\bar{Y}-\mu_0}{S/\sqrt{n}} \sim t(n-1, \lambda)\)</span> where <span class="math inline">\(\lambda = \frac{\mu-\mu_0}{\sigma/\sqrt{n}}\)</span>.</li>
+</ul>
+</div>
+<div class="proof">
+<p><span class="proof-title"><em>Proof</em>. </span>Let <span class="math inline">\(y \sim N_n(\mu j_n, \sigma^2 I_n)\)</span>.</p>
+<ol type="1">
+<li><span class="math inline">\(\bar{Y}\)</span> is a linear transformation <span class="math inline">\(\frac{1}{n} j_n' y\)</span>.</li>
+<li><span class="math inline">\((n-1)S^2\)</span> is the quadratic form <span class="math inline">\(y'(I_n - P_{j_n})y\)</span>. Since <span class="math inline">\((I_n - P_{j_n})\)</span> is idempotent with rank <span class="math inline">\(n-1\)</span> and projects the mean vector to zero, the result is a central chi-square.</li>
+<li>Independence holds because the product of the linear form’s matrix and the quadratic form’s matrix is zero: <span class="math inline">\(\frac{1}{n} j_n' (I_n - P_{j_n}) = 0\)</span>.</li>
+<li>The t-statistic is the ratio of these independent components.</li>
+</ol>
+</div>
+
+
 </section>
 
 </main> <!-- /main -->
