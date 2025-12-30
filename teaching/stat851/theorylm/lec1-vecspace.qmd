@@ -377,14 +377,14 @@ $$
 The proof after defining inner product to represent $\cos(\theta)$ is trivival. @fig-pythagoras-proof shows a geometric proof of the fundamental Pythagorean Theorem (aka **勾股定理**).
 
 ```{tikz}
-#| label: fig-pythagoras-proof
-#| fig-cap: "Proof of Pythagorean Theorem using Area Scaling"
-#| echo: false
-#| fig-align: "center"
-#| out-extra: 'style="width: 80% !important;"'
+%| label: fig-pythagoras-proof
+%| fig-cap: "Proof of Pythagorean Theorem using Area Scaling"
+%| echo: false
+%| fig-align: "center"
+%| out-extra: 'style="width: 80% !important;"'
 
 \begin{tikzpicture}[
-    scale=1,          % <--- Adjust this (0.6 = 60%)
+    scale=1,
     transform shape,
     >=latex,
     font=\small
@@ -394,7 +394,7 @@ The proof after defining inner product to represent $\cos(\theta)$ is trivival. 
 \def\angleB{53.13} 
 
 % --- PART 1: The Decomposed Triangle (Left Side) ---
-\begin{scope}[shift={(0, 1.5)}] % Shifted up slightly to center vertically with right side
+\begin{scope}[shift={(0, 1.5)}]
     % Coordinates for 3-4-5 triangle on hypotenuse
     \coordinate (A) at (0,0);       
     \coordinate (B) at (5,0);       
@@ -434,13 +434,10 @@ The proof after defining inner product to represent $\cos(\theta)$ is trivival. 
     };
 \end{scope}
 
-% --- PART 3: The Exploded Triangles (Right Side - Center Aligned) ---
-% Center axis x=8.5 (relative to origin)
+% --- PART 3: The Exploded Triangles (Right Side) ---
 \begin{scope}[shift={(8.5, 0)}]
     
     % -- Triangle S1 (Top) --
-    % Width = 3 (5*0.6), Height = 1.44
-    % Shift x by -width/2 = -1.5 to center
     \begin{scope}[shift={(-1.5, 4.5)}] 
         \def\k{0.6}
         \coordinate (s1A) at (0,0);
@@ -449,16 +446,11 @@ The proof after defining inner product to represent $\cos(\theta)$ is trivival. 
         
         \fill[yellow!20] (s1A) -- (s1B) -- (s1C) -- cycle;
         \draw[thick, orange] (s1A) -- (s1B) -- (s1C) -- cycle;
-        
         \draw (0.3,0) arc (0:\angleB:0.3); \node at (0.5, 0.2) {\tiny $\theta$};
-        
-        % Label below centered
         \node[below] at (2.5*\k, -0.2) {$S_1 = a^2 \cdot k$};
     \end{scope}
 
     % -- Triangle S2 (Middle) --
-    % Width = 4 (5*0.8), Height = 1.92
-    % Shift x by -width/2 = -2.0 to center
     \begin{scope}[shift={(-2.0, 1.0)}] 
         \def\k{0.8}
         \coordinate (s2A) at (0,0);
@@ -467,16 +459,11 @@ The proof after defining inner product to represent $\cos(\theta)$ is trivival. 
         
         \fill[green!20] (s2A) -- (s2B) -- (s2C) -- cycle;
         \draw[thick, green!60!black] (s2A) -- (s2B) -- (s2C) -- cycle;
-        
         \draw (0.3,0) arc (0:\angleB:0.3); \node at (0.5, 0.2) {\tiny $\theta$};
-        
-        % Label below centered
         \node[below] at (2.5*\k, -0.2) {$S_2 = b^2 \cdot k$};
     \end{scope}
 
     % -- Triangle S (Bottom) --
-    % Width = 5 (5*1.0), Height = 2.4
-    % Shift x by -width/2 = -2.5 to center
     \begin{scope}[shift={(-2.5, -3.0)}] 
         \def\k{1.0} 
         \coordinate (sA) at (0,0);
@@ -485,10 +472,7 @@ The proof after defining inner product to represent $\cos(\theta)$ is trivival. 
         
         \fill[red!5] (sA) -- (sB) -- (sC) -- cycle;
         \draw[thick, red] (sA) -- (sB) -- (sC) -- cycle;
-        
         \draw (0.3,0) arc (0:\angleB:0.3); \node at (0.5, 0.2) {\tiny $\theta$};
-        
-        % Label below centered
         \node[below] at (2.5*\k, -0.2) {$S = c^2 \cdot k$};
     \end{scope}
 
@@ -496,7 +480,6 @@ The proof after defining inner product to represent $\cos(\theta)$ is trivival. 
 
 \end{tikzpicture}
 ```
-
 ### Least Square Property
 
 One of the most important properties of the orthogonal projection is that it minimizes the distance between the vector $y$ and the subspace (or line) onto which it is projected.
@@ -891,6 +874,7 @@ $$ The projection $\hat{y}$ minimizes the squared error distance (and error dist
 #| echo: false
 #| results: hide
 #| fig-cap: "Visualization of the Best Approximation Theorem"
+
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.lines import Line2D
@@ -1173,30 +1157,7 @@ To use the simplified formula $P = QQ'$, we need an orthonormal basis. The Gram-
     $$
 :::
 
-```{r}
-#| label: setup-python-env
-#| include: false
-#| output: false
 
-library(reticulate)
-
-# 1. Ensure Python is initialized
-try(py_config(), silent = TRUE)
-
-# 2. Define requirements
-required_py_modules <- c("matplotlib", "numpy")
-
-# 3. Filter to only missing modules
-# We check if they are importable. If not, they are "missing".
-missing_modules <- required_py_modules[!sapply(required_py_modules, py_module_available)]
-
-# 4. Install only if there are missing modules
-if (length(missing_modules) > 0) {
-  message("Installing missing Python modules: ", paste(missing_modules, collapse = ", "))
-  # Pass the vector directly to py_install to avoid repetitive environment checks
-  py_install(missing_modules)
-}
-```
 
 ```{python}
 #| label: fig-gram-schmidt-python
@@ -2153,13 +2114,14 @@ Since the identity operator $I$ (which maps $\mathbb{R}^n$ to itself) is the sum
 
 
 
-```{tikz fig-venn-nested-projection}
-#| echo: false
-#| fig-cap: "Venn Diagram of Nested Projections with Colored Increments"
-#| fig-align: "center"
-#| out-extra: 'style="width: 80% !important;"'
-#| engine.opts:
-#|   extra.preamble: "\\usepackage{amssymb}"
+```{tikz}
+%| label: fig-venn-nested-projection
+%| echo: false
+%| fig-cap: "Venn Diagram of Nested Projections with Colored Increments"
+%| fig-align: "center"
+%| out-extra: 'style="width: 80% !important;"'
+%| engine.opts:
+%|   extra.preamble: "\\usepackage{amssymb}"
 
 \begin{tikzpicture}[font=\sffamily, thick]
 
