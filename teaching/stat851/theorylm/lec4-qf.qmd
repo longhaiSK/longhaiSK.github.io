@@ -38,7 +38,7 @@ extract_page_image <- function(page_num, filename, geometry = "1200x800+0+200", 
 
 This chapter covers the distribution of quadratic forms (sums of squares), which is crucial for hypothesis testing in linear models.
 
-## Introduction to Quadratic Forms
+## Quadratic Forms
 
 A quadratic form is a polynomial with terms all of degree two.
 
@@ -85,7 +85,7 @@ E(\sum_{i,j} a_{ij} y_i y_j) = \sum_{i,j} a_{ij} E(y_i y_j) = \sum_{i,j} a_{ij} 
 $$
 :::
 
-## Example: Sample Variance
+### Example: Sample Variance
 
 Consider a random sample $x_1, \dots, x_n$ with $E(x_i) = \mu$ and $\text{Var}(x_i) = \sigma^2$.
 Let $x = (x_1, \dots, x_n)'$. Then $E(x) = \mu J_n$ (where $J_n$ is a vector of ones) and $\text{Var}(x) = \sigma^2 I_n$.
@@ -134,10 +134,13 @@ $$
 
 **Note:** Some definitions use $\lambda = \mu'\mu$. In this course, we use $\lambda = \frac{1}{2}\mu'\mu$.
 
+### Visualizing Chi-square Distributions
+
 Here is a plot visualizing the difference between central and non-central Chi-square distributions.
 
+
 ```{r}
-#| label: plot-chisq
+#| label: fig-plot-chisq
 #| echo: false
 #| fig-cap: "Central vs Non-central Chi-square Distribution"
 
@@ -165,77 +168,13 @@ ggplot(data, aes(x = x, y = density, color = type)) +
   theme(legend.position = "top")
 ```
 
-## Properties of Non-central Chi-square
-
-::: {#thm-nc-chisq-props name="Mean and Variance"}
-If $Y \sim \chi^2(n, \lambda)$, then:
-
-1.  $E(Y) = n + 2\lambda = n + ||\mu||^2$
-2.  $\text{Var}(Y) = 2n + 8\lambda$
-:::
-
-::: {.proof name="Mean"}
-Let $x = z + \mu$, where $z \sim N(0, I_n)$.
-$$
-\begin{aligned}
-Y = ||x||^2 &= ||z + \mu||^2 = ||z||^2 + ||\mu||^2 + 2\mu'z \\
-E(Y) &= E(||z||^2) + ||\mu||^2 + 2\mu'E(z) \\
-&= n + ||\mu||^2 + 0 \\
-&= n + 2\lambda
-\end{aligned}
-$$
-(Since $||z||^2 \sim \chi^2_n$ central, its mean is $n$).
-:::
-
-**Additivity:**
-If $V_1, \dots, V_k$ are independent with $V_i \sim \chi^2(n_i, \lambda_i)$, then:
-$$
-\sum V_i \sim \chi^2(\sum n_i, \sum \lambda_i)
-$$
 
 
-----
 
-
-```{r}
-#| label: setup-images-lec40-p11-20
-#| include: false
-#| warning: false
-
-library(pdftools)
-library(magick)
-
-# Define path to PDF
-pdf_path <- "../Lec40-quadratic-form.pdf"
-img_dir <- "lec40_images"
-
-# Create image directory
-if (!dir.exists(img_dir)) {
-  dir.create(img_dir)
-}
-
-# Helper function to extract and crop a specific page
-extract_page_image <- function(page_num, filename, geometry = "1200x800+0+200", force = FALSE) {
-  target_file <- file.path(img_dir, filename)
-  
-  if (file.exists(pdf_path) && (force || !file.exists(target_file))) {
-    tryCatch({
-      bitmap <- pdf_render_page(pdf_path, page = page_num, dpi = 150)
-      img <- image_read(bitmap)
-      img_cropped <- image_crop(img, geometry)
-      image_write(img_cropped, target_file)
-    }, error = function(e) {
-      warning(paste("Failed to extract page", page_num, ":", e$message))
-    })
-  }
-}
-```
-
-## Visualizing Chi-square Distributions
 
 The density of the non-central chi-square distribution shifts to the right and becomes flatter as the non-centrality parameter $\lambda$ increases.
 
-## Mean, Variance, and MGF
+### Mean, Variance, and MGF
 
 We summarize the key properties of the non-central chi-square distribution.
 
@@ -254,7 +193,7 @@ Let $Y \sim \chi^2(n, \lambda)$. Then:
 We derived $E(Y) = n + 2\lambda$ in the previous section using the decomposition $Y = ||z + \mu||^2$.
 :::
 
-## Additivity
+### Additivity
 
 ::: {#thm-chisq-additivity name="Additivity of Chi-square"}
 If $v_1, \dots, v_k$ are independent random variables distributed as $\chi^2(n_i, \lambda_i)$, then their sum follows a chi-square distribution:
@@ -339,8 +278,9 @@ This holds because $\frac{1}{\sigma^2} P_V (\sigma^2 I) = P_V$, which is idempot
 :::
 
 
-## Proof of the Corollary
+### Proof of the Corollary
 
+**When $\sigma^2=1$**
 We proving the corollary for the case where $y \sim N(\mu, I_n)$ and we are projecting onto a subspace $V$ with dimension $r$.
 
 Let $P_V$ be the projection matrix. We know $P_V = QQ'$ where $Q$ is $n \times r$ with orthonormal columns ($Q'Q = I_r$).
@@ -368,8 +308,89 @@ Note that $||Q'\mu||^2 = \mu' Q Q' \mu = \mu' P_V \mu = ||P_V \mu||^2$.
 
 Thus, $y' P_V y \sim \chi^2(r, \frac{1}{2} ||P_V \mu||^2)$.
 
+```{r}
+#| label: plot-projection-3d
+#| warning: false
+#| message: false
 
-## General Case with $\sigma^2$
+library(plotly)
+library(MASS)
+
+# 1. Generate Data from N_3(mu, I_3)
+set.seed(123)
+n <- 200
+mu <- c(2, 3, 4)
+sigma <- diag(3) # Identity matrix
+data <- mvrnorm(n, mu, sigma)
+df <- as.data.frame(data)
+colnames(df) <- c("x", "y", "z")
+
+# 2. Define the Projection Subspace (Plane)
+# Let's use the standard axes for q1 and q2 for clarity in "labeling axes"
+# This makes the "floor" the z=0 plane.
+q1 <- c(1, 0, 0)
+q2 <- c(0, 1, 0)
+
+# 3. Project Points
+# The projection of y onto the plane spanned by q1, q2 is:
+# y_hat = (y . q1)q1 + (y . q2)q2
+# Since q1, q2 are orthonormal and align with axes, this is just (x, y, 0)
+proj_points <- t(apply(data, 1, function(p) {
+  sum(p * q1) * q1 + sum(p * q2) * q2
+}))
+df_proj <- as.data.frame(proj_points)
+colnames(df_proj) <- c("px", "py", "pz")
+
+# 4. Create the Plot
+plot_ly() %>%
+  # Original Cloud
+  add_trace(
+    data = df, x = ~x, y = ~y, z = ~z,
+    type = 'scatter3d', mode = 'markers',
+    marker = list(size = 3, color = 'blue', opacity = 0.5),
+    name = 'Original Data'
+  ) %>%
+  # Projected Shadow
+  add_trace(
+    data = df_proj, x = ~px, y = ~py, z = ~pz,
+    type = 'scatter3d', mode = 'markers',
+    marker = list(size = 3, color = 'red', opacity = 0.8),
+    name = 'Projection (Floor)'
+  ) %>%
+  # Draw lines connecting point to projection (Residuals)
+  add_segments(
+    x = df$x, xend = df_proj$px,
+    y = df$y, yend = df_proj$py,
+    z = df$z, zend = df_proj$pz,
+    line = list(color = 'gray', width = 1),
+    showlegend = FALSE, hoverinfo = "none"
+  ) %>%
+  # Label the axes of the subspace (q1 and q2)
+  add_segments(
+    x = c(0, 0), xend = c(5, 0),
+    y = c(0, 0), yend = c(0, 5),
+    z = c(0, 0), zend = c(0, 0),
+    line = list(color = 'black', width = 5),
+    name = 'Basis Vectors'
+  ) %>%
+  add_text(
+    x = c(5.5, 0), y = c(0, 5.5), z = c(0, 0),
+    text = c("q1", "q2"),
+    textfont = list(size = 15, color = "black"),
+    showlegend = FALSE
+  ) %>%
+  layout(
+    scene = list(
+      xaxis = list(title = "X"),
+      yaxis = list(title = "Y"),
+      zaxis = list(title = "Z"),
+      aspectmode = "cube"
+    ),
+    title = "Projection of Trivariate Normal onto 2D Subspace"
+  )
+```
+
+**General Case with $\sigma^2$**
 
 If $y \sim N(\mu, \sigma^2 I_n)$, we standardize by dividing by $\sigma$.
 

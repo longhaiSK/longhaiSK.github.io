@@ -340,110 +340,13 @@ $$
 
 The proof after defining inner product to represent $\cos(\theta)$ is trivival. @fig-pythagoras-proof shows a geometric proof of the fundamental Pythagorean Theorem (aka **勾股定理**).
 
-```{tikz}
-%| label: fig-pythagoras-proof
-%| fig-cap: "Proof of Pythagorean Theorem using Area Scaling"
-%| echo: false
-%| fig-align: "center"
-%| out-extra: 'style="width: 80% !important;"'
 
-\begin{tikzpicture}[
-    scale=1,
-    transform shape,
-    >=latex,
-    font=\small
-]
+::: {.cell layout-align="center"}
+::: {.cell-output-display}
+![Proof of Pythagorean Theorem using Area Scaling](lec1-vecspace_files/figure-html/fig-pythagoras-proof-1.png){#fig-pythagoras-proof fig-align='center' width=576 style="width: 80% !important;"}
+:::
+:::
 
-% Define base angle
-\def\angleB{53.13} 
-
-% --- PART 1: The Decomposed Triangle (Left Side) ---
-\begin{scope}[shift={(0, 1.5)}]
-    % Coordinates for 3-4-5 triangle on hypotenuse
-    \coordinate (A) at (0,0);       
-    \coordinate (B) at (5,0);       
-    \coordinate (C) at (1.8, 2.4);  
-    \coordinate (H) at (1.8, 0);    
-
-    % Draw S1 (Left)
-    \fill[yellow!20] (A) -- (H) -- (C) -- cycle;
-    \draw[thick, orange] (A) -- (H) -- (C) -- cycle;
-    
-    % Draw S2 (Right)
-    \fill[green!20] (H) -- (B) -- (C) -- cycle;
-    \draw[thick, green!60!black] (H) -- (B) -- (C) -- cycle;
-
-    % Outline main S
-    \draw[thick, red] (A) -- (B) -- (C) -- cycle;
-
-    % Labels
-    \node at (0.8, 1.3) [orange] {$a$};
-    \node at (3.5, 1.3) [green!60!black] {$b$};
-    \node at (2.5, -0.3) [red] {$c$};
-    
-    \node at (1.2, 0.8) {$S_1$};
-    \node at (2.4, 0.8) {$S_2$};
-
-    % Right angle marker
-    \draw (1.8, 0) -- (1.8, 0.2) -- (1.6, 0.2); 
-\end{scope}
-
-% --- PART 2: The Equations (Under the Left Triangle) ---
-\begin{scope}[shift={(0, -1.0)}]
-    \node[right, align=left] at (0,0) {
-        $S = S_1 + S_2$ \\[0.8em]
-        $c^2 \cdot k = a^2 \cdot k + b^2 \cdot k$ \\[0.8em]
-        $\Rightarrow \mathbf{c^2 = a^2 + b^2}$ \\[1.0em]
-        \scriptsize where $k = \frac{1}{2}\sin\theta\cos\theta$
-    };
-\end{scope}
-
-% --- PART 3: The Exploded Triangles (Right Side) ---
-\begin{scope}[shift={(8.5, 0)}]
-    
-    % -- Triangle S1 (Top) --
-    \begin{scope}[shift={(-1.5, 4.5)}] 
-        \def\k{0.6}
-        \coordinate (s1A) at (0,0);
-        \coordinate (s1B) at (5*\k, 0);
-        \coordinate (s1C) at (1.8*\k, 2.4*\k);
-        
-        \fill[yellow!20] (s1A) -- (s1B) -- (s1C) -- cycle;
-        \draw[thick, orange] (s1A) -- (s1B) -- (s1C) -- cycle;
-        \draw (0.3,0) arc (0:\angleB:0.3); \node at (0.5, 0.2) {\tiny $\theta$};
-        \node[below] at (2.5*\k, -0.2) {$S_1 = a^2 \cdot k$};
-    \end{scope}
-
-    % -- Triangle S2 (Middle) --
-    \begin{scope}[shift={(-2.0, 1.0)}] 
-        \def\k{0.8}
-        \coordinate (s2A) at (0,0);
-        \coordinate (s2B) at (5*\k, 0);
-        \coordinate (s2C) at (1.8*\k, 2.4*\k);
-        
-        \fill[green!20] (s2A) -- (s2B) -- (s2C) -- cycle;
-        \draw[thick, green!60!black] (s2A) -- (s2B) -- (s2C) -- cycle;
-        \draw (0.3,0) arc (0:\angleB:0.3); \node at (0.5, 0.2) {\tiny $\theta$};
-        \node[below] at (2.5*\k, -0.2) {$S_2 = b^2 \cdot k$};
-    \end{scope}
-
-    % -- Triangle S (Bottom) --
-    \begin{scope}[shift={(-2.5, -3.0)}] 
-        \def\k{1.0} 
-        \coordinate (sA) at (0,0);
-        \coordinate (sB) at (5*\k, 0);
-        \coordinate (sC) at (1.8*\k, 2.4*\k);
-        
-        \fill[red!5] (sA) -- (sB) -- (sC) -- cycle;
-        \draw[thick, red] (sA) -- (sB) -- (sC) -- cycle;
-        \draw (0.3,0) arc (0:\angleB:0.3); \node at (0.5, 0.2) {\tiny $\theta$};
-        \node[below] at (2.5*\k, -0.2) {$S = c^2 \cdot k$};
-    \end{scope}
-
-\end{scope}
-
-\end{tikzpicture}
-```
 ### Least Square Property
 
 One of the most important properties of the orthogonal projection is that it minimizes the distance between the vector $y$ and the subspace (or line) onto which it is projected.
@@ -833,71 +736,13 @@ Since squared norms are non-negative, and $\|\hat{y} - v\|^2 > 0$ (because $v \n
 $$ The projection $\hat{y}$ minimizes the squared error distance (and error distance itself).
 :::
 
-```{python}
-#| label: fig-3d-proof
-#| echo: false
-#| results: hide
-#| fig-cap: "Visualization of the Best Approximation Theorem"
 
-import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib.lines import Line2D
+::: {.cell}
+::: {.cell-output-display}
+![Visualization of the Best Approximation Theorem](lec1-vecspace_files/figure-html/fig-3d-proof-1.png){#fig-3d-proof width=960}
+:::
+:::
 
-fig = plt.figure(figsize=(10, 8))
-ax = fig.add_subplot(111, projection='3d')
-
-# 1. Define the floor (Subspace V)
-x_plane = np.linspace(-1, 6, 10)
-y_plane = np.linspace(-1, 6, 10)
-X, Y = np.meshgrid(x_plane, y_plane)
-Z = np.zeros_like(X)
-ax.plot_surface(X, Y, Z, alpha=0.2, color='gray')
-
-# 2. Define Points
-O = np.array([0, 0, 0])
-y_pt = np.array([1, 3, 5])
-y_hat_pt = np.array([1, 3, 0])
-v_pt = np.array([5, 2, 0])
-
-# 3. Draw Vectors from Origin
-
-
-# 4. Connecting Lines for Proof Components
-# Residual: y - y_hat (Vertical)
-ax.plot([y_hat_pt[0], y_pt[0]], [y_hat_pt[1], y_pt[1]], [y_hat_pt[2], y_pt[2]], 
-        'r--', linewidth=2)
-# Difference in V: y_hat - v
-ax.plot([v_pt[0], y_hat_pt[0]], [v_pt[1], y_hat_pt[1]], [v_pt[2], y_hat_pt[2]], 
-        'purple', linestyle='--', linewidth=2)
-# Hypotenuse: y - v
-ax.plot([v_pt[0], y_pt[0]], [v_pt[1], y_pt[1]], [v_pt[2], y_pt[2]], 
-        'black', linestyle=':', linewidth=2)
-
-# Labels
-ax.text(y_pt[0], y_pt[1], y_pt[2], '  $y$', color='blue', fontsize=12)
-ax.text(y_hat_pt[0], y_hat_pt[1], y_hat_pt[2], '  $\hat{y}$', color='green', fontsize=12)
-ax.text(v_pt[0], v_pt[1], v_pt[2], '  $v$', color='orange', fontsize=12)
-
-ax.set_xlim([-1, 6])
-ax.set_ylim([-1, 6])
-ax.set_zlim([0, 5])
-ax.set_title('Visualization of the Best Approximation Theorem Proof')
-
-# Custom Legend
-legend_elements = [
-    Line2D([0], [0], color='blue', lw=2, label='Vector $y$'),
-    Line2D([0], [0], color='green', lw=2, label='Projection $\hat{y}$'),
-    Line2D([0], [0], color='orange', lw=2, label='Vector $v$'),
-    Line2D([0], [0], color='red', lw=2, linestyle='--', label='$(y - \hat{y})$'),
-    Line2D([0], [0], color='purple', lw=2, linestyle='--', label='$(\hat{y} - v)$'),
-    Line2D([0], [0], color='black', lw=2, linestyle=':', label='$(y - v)$')
-]
-ax.legend(handles=legend_elements, loc='upper left')
-
-# Changed view angle for better perspective
-ax.view_init(elev=30, azim=60)
-plt.show()
-```
 
 ### Uniqueness of Projection
 
@@ -1123,88 +968,13 @@ To use the simplified formula $P = QQ'$, we need an orthonormal basis. The Gram-
 
 
 
-```{python}
-#| label: fig-gram-schmidt-python
-#| echo: false
-#| results: hide
-#| fig-cap: "Gram-Schmidt Process: Projecting $x_2$ onto $x_1$"
 
-import matplotlib.pyplot as plt
-import numpy as np
+::: {.cell}
+::: {.cell-output-display}
+![Gram-Schmidt Process: Projecting $x_2$ onto $x_1$](lec1-vecspace_files/figure-html/fig-gram-schmidt-python-3.png){#fig-gram-schmidt-python width=576}
+:::
+:::
 
-# 1. Setup the plot
-fig, ax = plt.subplots(figsize=(6, 4))
-ax.set_aspect('equal')
-ax.set_xlim(-0.5, 3.5)
-ax.set_ylim(-0.5, 2.5)
-ax.axis('off')  # Turn off the box frame and axis numbers
-
-# Optional: Draw a light grid for reference
-ax.grid(True, linestyle=':', alpha=0.3)
-
-# 2. Define Coordinates
-o = np.array([0, 0])
-x1 = np.array([3, 0])
-x2 = np.array([2, 2])
-proj = np.array([2, 0]) # Projection of x2 on x1
-
-# 3. Helper function to draw vectors
-def draw_vector(start, end, color, label=None, label_pos='end'):
-    ax.annotate('', xy=end, xytext=start,
-                arrowprops=dict(facecolor=color, edgecolor=color, width=1.5, headwidth=8))
-    
-    if label:
-        if label_pos == 'end':
-            # Place label at the tip
-            ax.text(end[0], end[1], label, fontsize=12, color=color, 
-                    ha='left', va='bottom', weight='bold')
-        elif label_pos == 'mid':
-            # Place label in the middle (good for error vectors)
-            mid = (start + end) / 2
-            ax.text(mid[0] + 0.1, mid[1], label, fontsize=12, color=color, 
-                    weight='bold')
-        elif label_pos == 'below':
-            ax.text(end[0], end[1] - 0.3, label, fontsize=12, color=color, 
-                    ha='center', weight='bold')
-
-# 4. Draw the Main Vectors
-# x1 (Blue)
-draw_vector(o, x1, 'blue', r'$\mathbf{x}_1$', 'below')
-
-# x2 (Blue)
-draw_vector(o, x2, 'blue', r'$\mathbf{x}_2$', 'end')
-
-# Projection Line (Dashed)
-ax.plot([o[0], proj[0]], [o[1], proj[1]], linestyle='--', color='blue', alpha=0.5)
-ax.text(2, -0.3, r'$\hat{\mathbf{x}}_2$', color='blue', fontsize=12, ha='center')
-
-# Error Vector e2 (Red) - from Projection UP to x2
-draw_vector(proj, x2, 'red', r'$\mathbf{e}_2$', 'mid')
-
-# Dashed line completing the triangle (visual aid)
-ax.plot([0, 2], [0, 2], linestyle=':', color='gray', alpha=0.3)
-
-# 5. Draw Unit Vectors (q) - Thicker Orange
-# q1 (on x-axis)
-draw_vector(o, [1, 0], 'orange')
-ax.text(1, -0.3, r'$\mathbf{q}_1$', color='orange', fontsize=12, weight='bold', ha='center')
-
-# q2 (parallel to e2, starting from projection for clarity)
-draw_vector(proj, [2, 1], 'orange')
-ax.text(2.1, 1, r'$\mathbf{q}_2$', color='orange', fontsize=12, weight='bold')
-
-# 6. Add Right Angle Symbol
-# Draw a small square at the projection point
-size = 0.2
-ax.plot([proj[0]-size, proj[0]-size, proj[0]], 
-        [proj[1], proj[1]+size, proj[1]+size], 'k-', linewidth=0.8)
-
-# 7. Add Title Text
-ax.text(0, 2.2, 'Gram-Schmidt Process', fontsize=14, style='italic')
-ax.text(0, 2.0, r'$\mathbb{R}^2$ Projection', fontsize=10, color='gray')
-
-plt.show()
-```
 
 This process leads to the **QR Decomposition** of a matrix: $X = QR$, where $Q$ is orthogonal and $R$ is upper triangular.
 
@@ -1534,104 +1304,13 @@ $$ Since $\hat{y}_1$ is orthogonal to $v_3$, and $\hat{y}_0$ is a component of $
 **4. Sum of Squares** By the Pythagorean theorem applied twice to these orthogonal vectors, the equality of squared norms follows immediately.
 :::
 
-```{python fig-anova-decomposition-v2}
-#| fig-cap: "Illustration of Projections onto Nested Subspaces"
-#| echo: false
-#| results: hide
 
-import matplotlib.pyplot as plt
-import numpy as np
-from mpl_toolkits.mplot3d import Axes3D
+::: {.cell}
+::: {.cell-output-display}
+![Illustration of Projections onto Nested Subspaces](lec1-vecspace_files/figure-html/fig-anova-decomposition-v2-5.png){#fig-anova-decomposition-v2 width=960}
+:::
+:::
 
-# 1. Setup the 3D Plot
-fig = plt.figure(figsize=(10, 10))
-ax = fig.add_subplot(111, projection='3d')
-
-# 2. Define the key vectors
-o = np.array([0, 0, 0])
-y0 = np.array([4, 0, 0])   # y_hat_0
-y1 = np.array([4, 3, 0])   # y_hat_1
-# Increased Z height for better visibility (from 2 to 5)
-y = np.array([4, 3, 5])    # y
-
-# 3. Draw Subspaces (Visual Context)
-# Plane Col(P1)
-xx, yy = np.meshgrid(np.linspace(-1, 6, 10), np.linspace(-1, 6, 10))
-z_plane = np.zeros_like(xx)
-ax.plot_surface(xx, yy, z_plane, alpha=0.1, color='blue')
-ax.text(6, 6, 0, r'$\text{Col}(P_1)$', color='blue')
-
-# Line Col(P0)
-ax.plot([-1, 6], [0, 0], [0, 0], 'k--', alpha=0.3)
-ax.text(6, 0, 0, r'$\text{Col}(P_0)$', color='black')
-
-# 4. Helper to draw heavier arrows
-def draw_arrow(start, end, color, label, label_pos='mid', offset=(0,0,0), lw=6, style='solid'):
-    vec = end - start
-    
-    if style == 'dotted':
-        # Matplotlib 3D quiver doesn't support linestyle. 
-        # Workaround: Draw shaft with plot() and head with quiver()
-        ax.plot([start[0], end[0]], [start[1], end[1]], [start[2], end[2]], 
-                color=color, linestyle=':', linewidth=lw)
-        # Draw just the head using a 0-length quiver at the end? 
-        # Easier: Draw a short quiver segment at the end to simulate the head
-        # Normalize vector for head direction
-        length = np.linalg.norm(vec)
-        norm_vec = vec / length
-        # Draw a small head at the end
-        ax.quiver(end[0]-norm_vec[0]*0.1, end[1]-norm_vec[1]*0.1, end[2]-norm_vec[2]*0.1, 
-                  norm_vec[0], norm_vec[1], norm_vec[2], 
-                  color=color, arrow_length_ratio=0.5, length=0.5, linewidth=lw)
-    else:
-        ax.quiver(start[0], start[1], start[2], 
-                  vec[0], vec[1], vec[2], 
-                  color=color, arrow_length_ratio=0.08, linewidth=lw)
-    
-    # Label positioning logic
-    if label_pos == 'mid':
-        pos = (start + end) / 2
-    elif label_pos == 'end':
-        pos = end
-        
-    ax.text(pos[0]+offset[0], pos[1]+offset[1], pos[2]+offset[2], 
-            label, color=color, fontsize=14, fontweight='bold')
-
-# 5. Draw the Decomposition Chain
-# y_hat_0 (Green)
-draw_arrow(o, y0, 'green', r'$\hat{y}_0$', offset=(0,-0.8,0))
-
-# y_hat_1 - y_hat_0 (Orange)
-draw_arrow(y0, y1, 'orange', r'$\hat{y}_1 - \hat{y}_0$', offset=(0.2,0,0))
-
-# y - y_hat_1 (Red)
-draw_arrow(y1, y, 'red', r'$y - \hat{y}_1$', offset=(0.2,0,0))
-
-# 6. Draw the extra residual arrow: y - y_hat_0
-draw_arrow(y0, y, 'purple', r'$y - \hat{y}_0$', label_pos='mid', offset=(-1, 0.5, 0.5))
-
-# 7. Draw the total vector y (Heavy Black)
-draw_arrow(o, y, 'black', r'$y$', label_pos='end', offset=(0,0,0.3), lw=6)
-
-# 8. NEW: Draw y_hat_1 (Dotted Blue)
-# We draw this from origin to y1
-draw_arrow(o, y1, 'blue', r'$\hat{y}_1$', label_pos='mid', offset=(-0.5, -0.5, 0), style='dotted')
-
-# 9. Add projection drop-lines (dashed) for visual clarity
-ax.plot([y[0], y[0]], [y[1], y[1]], [0, y[2]], 'k:', alpha=0.4) # y down to y1
-ax.plot([y1[0], y1[0]], [0, y1[1]], [0, 0], 'k:', alpha=0.4)    # y1 over to y0
-
-# 10. Formatting
-ax.set_xlim(-1, 6)
-ax.set_ylim(-1, 6)
-ax.set_zlim(0, 6) # Increased limit to accommodate higher y
-ax.set_xlabel('X')
-ax.set_ylabel('Y')
-ax.set_zlabel('Z')
-ax.view_init(elev=20, azim=-25) # Adjusted view angle to see the height
-
-plt.show()
-```
 
 ::: {#exm-anova-ss name="ANOVA Sum Squares"}
 We apply the **Nested Model Theorem** ($M_0 \subset M_1$) to the One-way ANOVA setting.
@@ -1684,10 +1363,10 @@ $$ \text{SSW} = \sum_{i=1}^k \sum_{j=1}^{n_i} y_{ij}^2 - \sum_{i=1}^k n_i\bar{y}
 $$ \underbrace{\|y\|^2 - N\bar{y}_{..}^2}_{\text{SST}} = \underbrace{(\sum n_i\bar{y}_{i.}^2 - N\bar{y}_{..}^2)}_{\text{SSB}} + \underbrace{(\sum \sum y_{ij}^2 - \sum n_i\bar{y}_{i.}^2)}_{\text{SSW}} $$
 **5. Visualizing ANOVA Components in Data Space**
 
-```{python}
-#| label: fig-anova-data-space-colored
-#| results: hide
-#| fig-cap: "Visualization of Group Means vs. Grand Mean"
+
+::: {.cell}
+
+```{.python .cell-code}
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -1755,6 +1434,9 @@ plt.ylabel("Value ($y_{ij}$)", fontsize=12)
 # Set x-ticks at the center of each group
 plt.xticks(np.array(group_boundaries[:-1]) + np.array(n_i)/2 - 0.5, 
            [f"Group {g}\n($n_{{{g.lower()}}}={n}$)" for g, n in zip(group_names, n_i)])
+```
+
+```{.python .cell-code}
 plt.grid(axis='y', alpha=0.3)
 
 # Adjust legend to show group markers and the grand mean line
@@ -1767,6 +1449,12 @@ plt.legend([handles[idx] for idx in order], [labels[idx] for idx in order],
 plt.tight_layout()
 plt.show()
 ```
+
+::: {.cell-output-display}
+![Visualization of Group Means vs. Grand Mean](lec1-vecspace_files/figure-html/fig-anova-data-space-colored-7.png){#fig-anova-data-space-colored width=1152}
+:::
+:::
+
 :::
 
 
@@ -1808,105 +1496,18 @@ $$
 I_n = P_1 + P_2 + \dots + P_k
 $$
 
-```{python}
-#| label: fig-orthogonal-decomp-rotated
-#| fig-cap: "Orthogonal decomposition of vector y into subspaces"
-#| results: hide
-#| echo: false
 
-import matplotlib.pyplot as plt
-import numpy as np
+::: {.cell}
+::: {.cell-output-display}
+![Orthogonal decomposition of vector y into subspaces](lec1-vecspace_files/figure-html/fig-orthogonal-decomp-rotated-9.png){#fig-orthogonal-decomp-rotated width=960}
+:::
+:::
 
-# Set up the figure and 3D axis
-fig = plt.figure(figsize=(10, 8))
-ax = fig.add_subplot(111, projection='3d')
 
-# Define the vector y
-y = np.array([3, 4, 5])
 
-# Define the origin
-origin = np.array([0, 0, 0])
+::: {.cell}
 
-# --- Plot the Subspaces (Axes) ---
-# We represent V1, V2, V3 as the x, y, z axes for clarity
-limit = 6
-ax.plot([0, limit], [0, 0], [0, 0], 'k--', alpha=0.3, lw=1)
-ax.plot([0, 0], [0, limit], [0, 0], 'k--', alpha=0.3, lw=1)
-ax.plot([0, 0], [0, 0], [0, limit], 'k--', alpha=0.3, lw=1)
-
-# Label the subspaces
-ax.text(limit, 0, 0, r'$V_1$', fontsize=12, weight='bold')
-ax.text(0, limit, 0, r'$V_2$', fontsize=12, weight='bold')
-ax.text(0, 0, limit, r'$V_3$', fontsize=12, weight='bold')
-
-# --- Calculate Projections ---
-# P1y is projection onto x (V1)
-p1_y = np.array([y[0], 0, 0])
-# P2y is projection onto y (V2)
-p2_y = np.array([0, y[1], 0])
-# P3y is projection onto z (V3)
-p3_y = np.array([0, 0, y[2]])
-
-# --- Plot Vectors ---
-# Helper to plot vectors
-def plot_vector(vec, color, label):
-    ax.quiver(0, 0, 0, vec[0], vec[1], vec[2], color=color, arrow_length_ratio=0.1, lw=2)
-    # Add label slightly offset
-    ax.text(vec[0]*1.1, vec[1]*1.1, vec[2]*1.1, label, color=color, fontsize=12, weight='bold')
-
-# Plot individual orthogonal components
-plot_vector(p1_y, 'red', r'$P_1 y$')
-plot_vector(p2_y, 'green', r'$P_2 y$')
-plot_vector(p3_y, 'blue', r'$P_3 y$')
-
-# Plot the main vector y
-plot_vector(y, 'black', r'$y$')
-
-# --- Draw "Box" lines to show summation ---
-# Visually show y = P1y + P2y + P3y
-sum_12 = p1_y + p2_y
-ax.plot([p1_y[0], sum_12[0]], [p1_y[1], sum_12[1]], [p1_y[2], sum_12[2]], 'k:', alpha=0.5)
-ax.plot([p2_y[0], sum_12[0]], [p2_y[1], sum_12[1]], [p2_y[2], sum_12[2]], 'k:', alpha=0.5)
-ax.plot([sum_12[0], y[0]], [sum_12[1], y[1]], [sum_12[2], y[2]], 'k:', alpha=0.5)
-ax.plot([p3_y[0], y[0]], [p3_y[1], y[1]], [p3_y[2], y[2]], 'k:', alpha=0.5)
-
-# --- Add Equations/Annotations from the notes ---
-title_text = (
-    r"$\mathbb{R}^n = V_1 \oplus V_2 \oplus V_3$" + "\n" +
-    r"$y = P_1 y + P_2 y + P_3 y$" + "\n" +
-    r"$\|y\|^2 = \|P_1 y\|^2 + \|P_2 y\|^2 + \|P_3 y\|^2$"
-)
-ax.set_title("Orthogonal Decomposition of Vector y", fontsize=14, pad=20)
-ax.text2D(0.05, 0.95, title_text, transform=ax.transAxes, fontsize=12, 
-          bbox=dict(boxstyle="round", facecolor="wheat", alpha=0.5))
-
-# Set limits and view
-ax.set_xlim(0, limit)
-ax.set_ylim(0, limit)
-ax.set_zlim(0, limit)
-ax.set_xlabel('X')
-ax.set_ylabel('Y')
-ax.set_zlabel('Z')
-
-# Rotate view
-# elev=30, azim=-60 is roughly default. 
-# Changing azim to -10 rotates the "camera" 50 degrees, effectively rotating graph.
-ax.view_init(elev=30, azim=-10)
-
-plt.tight_layout()
-plt.show()
-```
-
-```{r}
-#| label: fig-orthogonal-decomp-r
-#| include: !expr knitr::is_html_output()
-#| eval: !expr knitr::is_html_output()
-#| fig-cap: "Orthogonal decomposition geometry (R Plotly)"
-#| fig-width: 10
-#| fig-height: 8
-#| warning: false
-#| message: false
-
+```{.r .cell-code}
 library(plotly)
 
 # --- Define Vectors ---
@@ -2021,6 +1622,19 @@ fig <- fig %>% layout(
 fig
 ```
 
+::: {#fig-orthogonal-decomp-r .cell-output-display}
+
+```{=html}
+<div class="plotly html-widget html-fill-item" id="htmlwidget-f191a15a04d3a4d6d75b" style="width:100%;height:520px;"></div>
+<script type="application/json" data-for="htmlwidget-f191a15a04d3a4d6d75b">{"x":{"visdat":{"2dd9d285cc4":["function () ","plotlyVisDat"]},"cur_data":"2dd9d285cc4","attrs":{"2dd9d285cc4":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,3],"y":[0,0],"z":[0,0],"line":{"color":"red","width":6},"name":"P1 y","showlegend":true,"inherit":true},"2dd9d285cc4.1":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"cone","x":3,"y":0,"z":0,"u":3,"v":0,"w":0,"sizemode":"absolute","sizeref":0.5,"anchor":"tip","colorscale":[[0,1],["red","red"]],"showscale":false,"name":"P1 y","showlegend":false,"inherit":true},"2dd9d285cc4.2":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,4],"z":[0,0],"line":{"color":"green","width":6},"name":"P2 y","showlegend":true,"inherit":true},"2dd9d285cc4.3":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"cone","x":0,"y":4,"z":0,"u":0,"v":4,"w":0,"sizemode":"absolute","sizeref":0.5,"anchor":"tip","colorscale":[[0,1],["green","green"]],"showscale":false,"name":"P2 y","showlegend":false,"inherit":true},"2dd9d285cc4.4":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,0],"z":[0,5],"line":{"color":"blue","width":6},"name":"P3 y","showlegend":true,"inherit":true},"2dd9d285cc4.5":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"cone","x":0,"y":0,"z":5,"u":0,"v":0,"w":5,"sizemode":"absolute","sizeref":0.5,"anchor":"tip","colorscale":[[0,1],["blue","blue"]],"showscale":false,"name":"P3 y","showlegend":false,"inherit":true},"2dd9d285cc4.6":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,3],"y":[0,4],"z":[0,5],"line":{"color":"black","width":6},"name":"y","showlegend":true,"inherit":true},"2dd9d285cc4.7":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"cone","x":3,"y":4,"z":5,"u":3,"v":4,"w":5,"sizemode":"absolute","sizeref":0.5,"anchor":"tip","colorscale":[[0,1],["black","black"]],"showscale":false,"name":"y","showlegend":false,"inherit":true},"2dd9d285cc4.8":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,0],"z":[5,0],"line":{"color":"rgba(255, 0, 0, 0.5)","width":3,"dash":"dash"},"name":"y -> P1","hoverinfo":"text","text":"y -> P1","inherit":true},"2dd9d285cc4.9":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,4],"z":[5,0],"line":{"color":"rgba(0, 255, 0, 0.5)","width":3,"dash":"dash"},"name":"y -> P2","hoverinfo":"text","text":"y -> P2","inherit":true},"2dd9d285cc4.10":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,0],"z":[5,5],"line":{"color":"rgba(0, 0, 255, 0.5)","width":3,"dash":"dash"},"name":"y -> P3","hoverinfo":"text","text":"y -> P3","inherit":true},"2dd9d285cc4.11":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,4],"z":[5,0],"line":{"color":"purple","width":3,"dash":"dash"},"name":"y -> (P1+P2)","hoverinfo":"text","text":"y -> (P1+P2)","inherit":true},"2dd9d285cc4.12":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,0],"z":[5,5],"line":{"color":"orange","width":3,"dash":"dash"},"name":"y -> (P1+P3)","hoverinfo":"text","text":"y -> (P1+P3)","inherit":true},"2dd9d285cc4.13":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,4],"z":[5,5],"line":{"color":"cyan","width":3,"dash":"dash"},"name":"y -> (P2+P3)","hoverinfo":"text","text":"y -> (P2+P3)","inherit":true},"2dd9d285cc4.14":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,6],"y":[0,0],"z":[0,0],"line":{"color":"gray","dash":"dot","width":2},"name":"V1 (x)","inherit":true},"2dd9d285cc4.15":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,6],"z":[0,0],"line":{"color":"gray","dash":"dot","width":2},"name":"V2 (y)","inherit":true},"2dd9d285cc4.16":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,0],"z":[0,6],"line":{"color":"gray","dash":"dot","width":2},"name":"V3 (z)","inherit":true}},"layout":{"width":900,"height":700,"margin":{"b":0,"l":0,"t":50,"r":0},"title":"Orthogonal Decomposition Geometry","scene":{"xaxis":{"title":"V1","range":[0,6]},"yaxis":{"title":"V2","range":[0,6]},"zaxis":{"title":"V3","range":[0,6]},"aspectmode":"cube","camera":{"eye":{"x":1.5,"y":1.5,"z":1.2}}},"legend":{"x":0.75,"y":0.90000000000000002},"xaxis":{"title":[]},"yaxis":{"title":[]},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"type":"scatter3d","mode":"lines","x":[0,3],"y":[0,0],"z":[0,0],"line":{"color":"red","width":6},"name":"P1 y","showlegend":true,"marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"frame":null},{"colorbar":{"title":"","ticklen":2},"colorscale":[[0,"red"],[1,"red"]],"showscale":false,"type":"cone","x":[3],"y":[0],"z":[0],"u":[3],"v":[0],"w":[0],"sizemode":"absolute","sizeref":0.5,"anchor":"tip","name":"P1 y","showlegend":false,"frame":null},{"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,4],"z":[0,0],"line":{"color":"green","width":6},"name":"P2 y","showlegend":true,"marker":{"color":"rgba(44,160,44,1)","line":{"color":"rgba(44,160,44,1)"}},"error_y":{"color":"rgba(44,160,44,1)"},"error_x":{"color":"rgba(44,160,44,1)"},"frame":null},{"colorbar":{"title":"","ticklen":2},"colorscale":[[0,"green"],[1,"green"]],"showscale":false,"type":"cone","x":[0],"y":[4],"z":[0],"u":[0],"v":[4],"w":[0],"sizemode":"absolute","sizeref":0.5,"anchor":"tip","name":"P2 y","showlegend":false,"frame":null},{"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,0],"z":[0,5],"line":{"color":"blue","width":6},"name":"P3 y","showlegend":true,"marker":{"color":"rgba(148,103,189,1)","line":{"color":"rgba(148,103,189,1)"}},"error_y":{"color":"rgba(148,103,189,1)"},"error_x":{"color":"rgba(148,103,189,1)"},"frame":null},{"colorbar":{"title":"","ticklen":2},"colorscale":[[0,"blue"],[1,"blue"]],"showscale":false,"type":"cone","x":[0],"y":[0],"z":[5],"u":[0],"v":[0],"w":[5],"sizemode":"absolute","sizeref":0.5,"anchor":"tip","name":"P3 y","showlegend":false,"frame":null},{"type":"scatter3d","mode":"lines","x":[0,3],"y":[0,4],"z":[0,5],"line":{"color":"black","width":6},"name":"y","showlegend":true,"marker":{"color":"rgba(227,119,194,1)","line":{"color":"rgba(227,119,194,1)"}},"error_y":{"color":"rgba(227,119,194,1)"},"error_x":{"color":"rgba(227,119,194,1)"},"frame":null},{"colorbar":{"title":"","ticklen":2},"colorscale":[[0,"black"],[1,"black"]],"showscale":false,"type":"cone","x":[3],"y":[4],"z":[5],"u":[3],"v":[4],"w":[5],"sizemode":"absolute","sizeref":0.5,"anchor":"tip","name":"y","showlegend":false,"frame":null},{"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,0],"z":[5,0],"line":{"color":"rgba(255, 0, 0, 0.5)","width":3,"dash":"dash"},"name":"y -> P1","hoverinfo":["text","text"],"text":["y -> P1","y -> P1"],"marker":{"color":"rgba(188,189,34,1)","line":{"color":"rgba(188,189,34,1)"}},"error_y":{"color":"rgba(188,189,34,1)"},"error_x":{"color":"rgba(188,189,34,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,4],"z":[5,0],"line":{"color":"rgba(0, 255, 0, 0.5)","width":3,"dash":"dash"},"name":"y -> P2","hoverinfo":["text","text"],"text":["y -> P2","y -> P2"],"marker":{"color":"rgba(23,190,207,1)","line":{"color":"rgba(23,190,207,1)"}},"error_y":{"color":"rgba(23,190,207,1)"},"error_x":{"color":"rgba(23,190,207,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,0],"z":[5,5],"line":{"color":"rgba(0, 0, 255, 0.5)","width":3,"dash":"dash"},"name":"y -> P3","hoverinfo":["text","text"],"text":["y -> P3","y -> P3"],"marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,4],"z":[5,0],"line":{"color":"purple","width":3,"dash":"dash"},"name":"y -> (P1+P2)","hoverinfo":["text","text"],"text":["y -> (P1+P2)","y -> (P1+P2)"],"marker":{"color":"rgba(255,127,14,1)","line":{"color":"rgba(255,127,14,1)"}},"error_y":{"color":"rgba(255,127,14,1)"},"error_x":{"color":"rgba(255,127,14,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,0],"z":[5,5],"line":{"color":"orange","width":3,"dash":"dash"},"name":"y -> (P1+P3)","hoverinfo":["text","text"],"text":["y -> (P1+P3)","y -> (P1+P3)"],"marker":{"color":"rgba(44,160,44,1)","line":{"color":"rgba(44,160,44,1)"}},"error_y":{"color":"rgba(44,160,44,1)"},"error_x":{"color":"rgba(44,160,44,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,4],"z":[5,5],"line":{"color":"cyan","width":3,"dash":"dash"},"name":"y -> (P2+P3)","hoverinfo":["text","text"],"text":["y -> (P2+P3)","y -> (P2+P3)"],"marker":{"color":"rgba(214,39,40,1)","line":{"color":"rgba(214,39,40,1)"}},"error_y":{"color":"rgba(214,39,40,1)"},"error_x":{"color":"rgba(214,39,40,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[0,6],"y":[0,0],"z":[0,0],"line":{"color":"gray","dash":"dot","width":2},"name":"V1 (x)","marker":{"color":"rgba(148,103,189,1)","line":{"color":"rgba(148,103,189,1)"}},"error_y":{"color":"rgba(148,103,189,1)"},"error_x":{"color":"rgba(148,103,189,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,6],"z":[0,0],"line":{"color":"gray","dash":"dot","width":2},"name":"V2 (y)","marker":{"color":"rgba(140,86,75,1)","line":{"color":"rgba(140,86,75,1)"}},"error_y":{"color":"rgba(140,86,75,1)"},"error_x":{"color":"rgba(140,86,75,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,0],"z":[0,6],"line":{"color":"gray","dash":"dot","width":2},"name":"V3 (z)","marker":{"color":"rgba(227,119,194,1)","line":{"color":"rgba(227,119,194,1)"}},"error_y":{"color":"rgba(227,119,194,1)"},"error_x":{"color":"rgba(227,119,194,1)"},"frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+```
+
+
+Orthogonal decomposition geometry (R Plotly)
+:::
+:::
+
+
 ::: {#thm-complete-decomposition name="Complete Orthogonal Decomposition of $\mathbb{R}^n$"}
 Let $P_0, P_1, \dots, P_k$ be a sequence of orthogonal projection matrices with nested column spaces:
 $$
@@ -2078,58 +1692,9 @@ Since the identity operator $I$ (which maps $\mathbb{R}^n$ to itself) is the sum
 
 
 
-```{tikz}
-%| label: fig-venn-nested-projection
-%| echo: false
-%| fig-cap: "Venn Diagram of Nested Projections with Colored Increments"
-%| fig-align: "center"
-%| out-extra: 'style="width: 80% !important;"'
-%| engine.opts:
-%|   extra.preamble: "\\usepackage{amssymb}"
 
-\begin{tikzpicture}[font=\sffamily, thick]
-
-  % Define distinct colors for the incremental areas
-  \definecolor{c_resid}{HTML}{E0E0E0} % Light Gray
-  \definecolor{c_pk}{HTML}{FFB6C1}    % Light Pink
-  \definecolor{c_p1}{HTML}{90EE90}    % Light Green
-  \definecolor{c_p0}{HTML}{87CEFA}    % Light Sky Blue
-
-  % Define Radii
-  \def\Runi{6}   % I_n (Largest)
-  \def\Rk{4.5}   % P_k
-  \def\Rgap{3.5} % Inner boundary of P_k ring
-  \def\Rtwo{2.5} % P_1
-  \def\Rone{1.2} % P_0
-
-  % 1. Residual Area (V_{k+1})
-  \begin{scope}[even odd rule]
-    \filldraw[fill=c_resid, draw=black!80] (0,0) circle (\Runi) (0,0) circle (\Rk);
-  \end{scope}
-  \node[anchor=south west] at (45:\Runi) {$I_n$};
-  \node at (0, 5.25) {Residual $V_{k+1}$};
-
-  % 2. Delta P_k Area (V_k)
-  \begin{scope}[even odd rule]
-    \filldraw[fill=c_pk, draw=black!80] (0,0) circle (\Rk) (0,0) circle (\Rgap);
-  \end{scope}
-  \node[anchor=south west] at (45:\Rk) {$P_k$};
-  \node at (0, 4.0) {$\Delta P_k$};
-
-  % 3. The Gap
-  \draw[dotted, line width=1.5pt] (0,0) circle (\Rgap);
-
-  % 4. Delta P_1 Area (V_1)
-  \begin{scope}[even odd rule]
-    \filldraw[fill=c_p1, draw=black!80] (0,0) circle (\Rtwo) (0,0) circle (\Rone);
-  \end{scope}
-  \node[anchor=south west] at (45:\Rtwo) {$P_1$};
-  \node at (0, 1.85) {$\Delta P_1$};
-
-  % 5. Delta P_0 Area (V_0)
-  \filldraw[fill=c_p0, draw=black!80] (0,0) circle (\Rone);
-  \node[anchor=south west] at (45:\Rone) {$P_0$};
-  \node at (0, 0) {$\Delta P_0$};
-
-\end{tikzpicture}
-```
+::: {.cell layout-align="center"}
+::: {.cell-output-display}
+![Venn Diagram of Nested Projections with Colored Increments](lec1-vecspace_files/figure-html/fig-venn-nested-projection-1.png){#fig-venn-nested-projection fig-align='center' width=576 style="width: 80% !important;"}
+:::
+:::
