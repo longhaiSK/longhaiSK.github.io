@@ -296,22 +296,22 @@ Using @thm-mean-qf with $A=P$ and $\Sigma=\sigma^2 I_n$:
     $$
 :::
 
-:::{#exm-mean-ss-decomposition name="Expectation of Sum of Squares Decomposition"}
+:::{#exm-mean-ss-decomposition name="Expectation of Sum of Squares Decomposition (i.i.d. Case)"}
 
-Consider a random sample $x = (x_1, \dots, x_n)'$ with mean vector $\mu_x = \mu j_n$ and covariance $\Sigma = \sigma^2 I_n$. We analyze the two components of the total sum of squares by projecting $x$ onto the mean space ($H$) and the residual space ($I-H$).
+Consider a random vector $y = (y_1, \dots, y_n)'$ with mean vector $\mu_y = \mu j_n$ and covariance $\Sigma = \sigma^2 I_n$. We analyze the two components of the total sum of squares by projecting $y$ onto the mean space ($P_{j_n}$) and the residual space ($I-P_{j_n}$).
 
 **1. The Projection Vectors**
 
-First, we write the explicit forms of the projected vectors:
+First, we write the explicit forms of the projected vectors using $P_{j_n} = \frac{1}{n}j_n j_n'$:
 
-* **Mean Vector ($Hx$):** Projecting $x$ onto the column space of $j_n$ replaces every element with the sample mean $\bar{x}$.
+* **Mean Vector ($P_{j_n}y$):** Projecting $y$ onto the column space of $j_n$ replaces every element with the sample mean $\bar{y}$.
     $$
-    Hx = \begin{pmatrix} \bar{x} \\ \vdots \\ \bar{x} \end{pmatrix} = \bar{x} j_n
+    P_{j_n}y = \bar{y} j_n = \begin{pmatrix} \bar{y} \\ \bar{y} \\ \vdots \\ \bar{y} \end{pmatrix}
     $$
 
-* **Residual Vector ($(I-H)x$):** Subtracting the mean projection from $x$ yields the deviations.
+* **Residual Vector ($(I-P_{j_n})y$):** Subtracting the mean projection from $y$ yields the deviations.
     $$
-    (I-H)x = \begin{pmatrix} x_1 - \bar{x} \\ \vdots \\ x_n - \bar{x} \end{pmatrix}
+    (I-P_{j_n})y = y - \bar{y}j_n = \begin{pmatrix} y_1 - \bar{y} \\ y_2 - \bar{y} \\ \vdots \\ y_n - \bar{y} \end{pmatrix}
     $$
 
 **2. Expectations of Squared Norms**
@@ -321,52 +321,81 @@ We now find the expectation of the squared length of these vectors using @cor-pr
 **Part A: Sum of Squares for Mean**
 The quadratic form is the squared norm of the projected mean vector:
 $$
-x'Hx = ||Hx||^2 = \sum_{i=1}^n \bar{x}^2 = n\bar{x}^2
+y'P_{j_n}y = ||P_{j_n}y||^2 = \sum_{i=1}^n \bar{y}^2 = n\bar{y}^2
 $$
-Applying the corollary with $P=H$:
+Applying the corollary with $P=P_{j_n}$:
 
-* **Rank:** $\text{tr}(H) = 1$.
-* **Mean:** $H\mu_x = H(\mu j_n) = \mu j_n$. The squared norm is $n\mu^2$.
+* **Rank:** $\text{tr}(P_{j_n}) = 1$.
+* **Mean:** $P_{j_n}\mu_y = P_{j_n}(\mu j_n) = \mu j_n$. The squared norm is $n\mu^2$.
 
 $$
-E[||Hx||^2] = \sigma^2(1) + n\mu^2
+E[||P_{j_n}y||^2] = \sigma^2(1) + n\mu^2
 $$
 
 **Part B: Sum of Squared Errors (SSE)**
 The quadratic form is the squared norm of the residual vector:
 $$
-x'(I-H)x = ||(I-H)x||^2 = \sum_{i=1}^n (x_i - \bar{x})^2
+y'(I-P_{j_n})y = ||(I-P_{j_n})y||^2 = \sum_{i=1}^n (y_i - \bar{y})^2
 $$
-Applying the corollary with $P=I-H$:
+Applying the corollary with $P=I-P_{j_n}$:
 
-* **Rank:** $\text{tr}(I-H) = n - 1$.
-* **Mean:** $(I-H)\mu_x = \mu_x - H\mu_x = \mu j_n - \mu j_n = 0$. The squared norm is $0$.
+* **Rank:** $\text{tr}(I-P_{j_n}) = n - 1$.
+* **Mean:** $(I-P_{j_n})\mu_y = \mu_y - P_{j_n}\mu_y = \mu j_n - \mu j_n = 0$. The squared norm is $0$.
 
 $$
-E[||(I-H)x||^2] = \sigma^2(n-1) + 0
+E[||(I-P_{j_n})y||^2] = \sigma^2(n-1) + 0
 $$
 
 **Conclusion**
-These results confirm the standard properties of the sample mean and variance:
-$$
-E(\bar{x}^2) = \frac{\sigma^2}{n} + \mu^2 \quad \text{and} \quad E(S^2) = E\left[ \frac{SSE}{n-1} \right] = \sigma^2
-$$
+These results confirm the standard properties: $E(\bar{y}^2) = \frac{\sigma^2}{n} + \mu^2$ and $E(S^2) = \sigma^2$.
 :::
-## Non-central Chi-square Distribution
+
+:::{#exm-mean-sst-regression name="Expectation of Total Sum of Squares (Regression Case)"}
+
+Consider now a regression setting where the mean of $y$ depends on covariates (e.g., $\mu_i = \beta_0 + \beta_1 x_i$). The mean vector $\mu_y$ is **not** proportional to $j_n$. We are interested in the expectation of the **Total Sum of Squares (SST)**.
+
+**1. Identification**
+The SST measures the variation of $y$ around the *global sample mean* $\bar{y}$, ignoring the covariates:
+$$
+SST = \sum_{i=1}^n (y_i - \bar{y})^2 = y'(I - P_{j_n})y
+$$
+This is the same quadratic form as Part B in the previous example, but the underlying mean $\mu_y$ has changed.
+
+**2. Calculation**
+We apply @cor-projection-mean with $P = I - P_{j_n}$ and general $\mu_y$:
+
+* **Rank Term:** Same as before, $\text{tr}(I - P_{j_n}) = n - 1$.
+* **Mean Term:** The projection of the mean vector is no longer zero.
+    $$
+    (I - P_{j_n})\mu_y = \mu_y - \bar{\mu}j_n = \begin{pmatrix} \mu_1 - \bar{\mu} \\ \vdots \\ \mu_n - \bar{\mu} \end{pmatrix}
+    $$
+    where $\bar{\mu} = \frac{1}{n}\sum \mu_i$ is the average of the true means.
+    The squared norm is the sum of squared deviations of the true means:
+    $$
+    ||(I - P_{j_n})\mu_y||^2 = \sum_{i=1}^n (\mu_i - \bar{\mu})^2
+    $$
+
+**Conclusion**
+$$
+E(SST) = (n-1)\sigma^2 + \sum_{i=1}^n (\mu_i - \bar{\mu})^2
+$$
+This shows that in regression, the SST estimates $(n-1)\sigma^2$ *plus* the variability introduced by the regression signal (the spread of the true means $\mu_i$).
+:::
+## Non-central $\chi^2$ Distribution
 
 To understand the distribution of quadratic forms under normality, we introduce the non-central chi-square distribution.
 
-::: {#def-nc-chisq name="Non-central Chi-square Distribution"}
-Let $x \sim N_n(\mu, I_n)$. The random variable $Y = x'x = \sum x_i^2$ follows a **non-central chi-square distribution** with $n$ degrees of freedom and non-centrality parameter $\lambda$.
+::: {#def-nc-chisq name="Non-central $\chi^2$ Distribution"}
+Let $y \sim N_n(\mu, I_n)$. The random variable $V = y'y = \sum y_i^2$ follows a **non-central chi-square distribution** with $n$ degrees of freedom and non-centrality parameter $\lambda$.
 
 $$
-Y \sim \chi^2(n, \lambda) \quad \text{where } \lambda = \frac{1}{2} \mu'\mu = \frac{1}{2} ||\mu||^2
+V \sim \chi^2(n, \lambda) \quad \text{where } \lambda = \frac{1}{2} \mu'\mu = \frac{1}{2} ||\mu||^2
 $$
 :::
 
-**Note:** Some definitions use $\lambda = \mu'\mu$. In this course, we use $\lambda = \frac{1}{2}\mu'\mu$.
+**Note:** Some definitions of non-central $\chi^2$ use $\lambda = \mu'\mu$. In this course, we use $\lambda = \frac{1}{2}\mu'\mu$.
 
-### Visualizing Chi-square Distributions
+### Visualizing $\chi^2$ Distributions
 
 Here is a plot visualizing the difference between central and non-central Chi-square distributions.
 
@@ -542,7 +571,87 @@ $$
 $$
 :::
 
+### Poisson Mixture Representation
 
+::: {#thm-chisq-poisson-mixture name="Poisson Mixture Representation"}
+Let $v \sim \chi^2(n, \lambda)$ be a non-central chi-square random variable. Its probability density function can be represented as a Poisson-weighted sum of central chi-square density functions:
+
+$$
+f(v; n, \lambda) = \sum_{j=0}^{\infty} \left( \frac{e^{-\lambda} \lambda^j}{j!} \right) f(v; n+2j, 0)
+$$
+
+where $f(v; \nu, 0)$ is the density of a central chi-square distribution with $\nu$ degrees of freedom.
+:::
+
+::: {.proof}
+We use the Moment Generating Function (MGF) approach. The MGF of a non-central chi-square distribution $v \sim \chi^2(n, \lambda)$ is:
+$$
+M_v(t) = (1-2t)^{-n/2} \exp\left( \lambda \left[ \frac{1}{1-2t} - 1 \right] \right)
+$$
+
+We can expand the exponential term using the power series $e^x = \sum_{j=0}^\infty \frac{x^j}{j!}$:
+$$
+\begin{aligned}
+M_v(t) &= (1-2t)^{-n/2} e^{-\lambda} \exp\left( \frac{\lambda}{1-2t} \right) \\
+&= e^{-\lambda} (1-2t)^{-n/2} \sum_{j=0}^{\infty} \frac{1}{j!} \left( \frac{\lambda}{1-2t} \right)^j \\
+&= \sum_{j=0}^{\infty} \left( \frac{e^{-\lambda} \lambda^j}{j!} \right) (1-2t)^{-(n+2j)/2}
+\end{aligned}
+$$
+
+Recognizing the terms:
+
+1.  The term in parentheses, $P(J=j) = \frac{e^{-\lambda} \lambda^j}{j!}$, is the probability mass function of a **Poisson** random variable $J \sim \text{Poisson}(\lambda)$.
+2.  The term $(1-2t)^{-(n+2j)/2}$ is the MGF of a **central chi-square** distribution with $n+2j$ degrees of freedom.
+
+Since the MGF of the mixture is the sum of the MGFs of the components weighted by the mixture probabilities, the density must follow the same mixture structure.
+:::
+
+::: {.remark}
+This theorem implies a hierarchical model for generating a non-central chi-square variable:
+
+1.  Sample $J \sim \text{Poisson}(\lambda)$.
+2.  Given $J=j$, sample $V \sim \chi^2(n+2j, 0)$.
+
+This is particularly useful for numerical computation, as it allows the non-central CDF to be approximated by a finite sum of central chi-square CDFs.
+:::
+
+### Poisson Mixture Representation
+
+::: {#thm-chisq-poisson-mixture name="Poisson Mixture Representation"}
+Let $v \sim \chi^2(n, \lambda)$ where $\lambda = \frac{1}{2}\|\mu\|^2$. Its probability density function is a Poisson mixture of central chi-square densities:
+
+$$
+f(v; n, \lambda) = \sum_{j=0}^{\infty} \text{Poisson}(j; \lambda) \cdot f(v; n+2j, 0)
+$$
+
+where $\text{Poisson}(j; \lambda) = \frac{e^{-\lambda} \lambda^j}{j!}$ and $f(v; \nu, 0)$ is the central chi-square density with $\nu$ degrees of freedom.
+:::
+
+::: {.proof}
+The non-central chi-square distribution arises from $v = \sum_{i=1}^n y_i^2$ where $y_i \sim N(\mu_i, 1)$. 
+We can decompose $v$ into two independent parts:
+1. One component in the direction of the mean vector $\mu$.
+2. $n-1$ components orthogonal to $\mu$.
+
+Let $z_1 \sim N(\|\mu\|, 1)$ and $z_2, \dots, z_n \sim N(0, 1)$. Then $v = z_1^2 + \sum_{i=2}^n z_i^2$.
+The second term is simply $\chi^2(n-1, 0)$. The first term $z_1^2$ is the interesting part. 
+
+Using the power series expansion of the MGF (as shown in the previous derivation):
+$$
+M_v(t) = \sum_{j=0}^{\infty} \left( \frac{e^{-\lambda} \lambda^j}{j!} \right) (1-2t)^{-(n+2j)/2}
+$$
+By using $\lambda = \frac{1}{2}\|\mu\|^2$, we ensure that the weights $\frac{e^{-\lambda} \lambda^j}{j!}$ sum to 1, perfectly matching the Poisson distribution probabilities.
+:::
+
+::: {.remark name="Geometric Insight"}
+This representation reveals that a non-central chi-square variable behaves like a central chi-square variable whose **degrees of freedom are themselves random**. 
+
+Specifically:
+$$
+V \mid J \sim \chi^2(n + 2J, 0) \quad \text{where} \quad J \sim \text{Poisson}\left(\frac{1}{2}\|\mu\|^2\right)
+$$
+As the distance $\|\mu\|$ increases, the Poisson distribution shifts to the right, increasing the expected degrees of freedom and thus shifting the mass of the chi-square distribution to the right.
+:::
 ## Distribution of Quadratic Forms
 
 ### MGF of Quadratic Forms
@@ -638,11 +747,24 @@ $$
 
 :::
 
+::: {.callout-important}
+## Scale of the Quadratic Form
+
+The term $\|P_V y\|^2$ itself is **not** a standard chi-square variable; it is a scaled chi-square variable. Its mean is:
+
+$$
+E(\|P_V y\|^2) = \sigma^2 \left(r + \frac{\|P_V \mu\|^2}{\sigma^2}\right) = r\sigma^2 + \|P_V \mu\|^2
+$$
+:::
+
 ```{r}
 #| label: plot-projection-3d-refined
 #| warning: false
 #| message: false
-#| eval: !expr knitr::is_html_output()
+#| fig-cap: "Visualization of Projected Trivariate Normal Cloud"
+#| screenshot.force: true
+#| webshot2: !expr list(vwidth = 900, vheight = 600, zoom = 2)
+#| out-width: "100%"
 
 library(plotly)
 library(MASS)
@@ -729,8 +851,3 @@ plot_ly() %>%
   )
 ```
 
-
-**Important Note:** The term $||P_V y||^2$ itself is **not** chi-square; it is a scaled chi-square variable. Its mean is:
-$$
-E(||P_V y||^2) = \sigma^2 \left(r + \frac{||P_V \mu||^2}{\sigma^2}\right) = r\sigma^2 + ||P_V \mu||^2
-$$
