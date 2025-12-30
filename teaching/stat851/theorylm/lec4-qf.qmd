@@ -381,6 +381,88 @@ E(SST) = (n-1)\sigma^2 + \sum_{i=1}^n (\mu_i - \bar{\mu})^2
 $$
 This shows that in regression, the SST estimates $(n-1)\sigma^2$ *plus* the variability introduced by the regression signal (the spread of the true means $\mu_i$).
 :::
+
+
+
+```{r}
+#| label: fig-sst-comparison-sorted-v2
+#| fig-cap: "Comparison of SST components with increased variation in the true means. The vertical lines represent the deviations $(y_i - \\bar{y})$. With $\\text{sd}(\\mu_i) = 3$, the regression case (right) shows significantly larger deviations, illustrating how the systematic spread of the means dominates the Total Sum of Squares."
+#| warning: false
+#| message: false
+#| fig-width: 10
+#| fig-height: 5
+
+library(ggplot2)
+library(dplyr)
+library(patchwork)
+
+set.seed(123)
+n <- 20
+sigma <- 1
+
+# --- Data Generation ---
+
+# Case 1: i.i.d. Case (Common Mean)
+mu_iid <- rep(3, n)
+y_iid <- mu_iid + rnorm(n, 0, sigma)
+
+# Case 2: Regression Case (Sorted Mean)
+# mu_i is sampled from N(3, sd=3) and sorted
+mu_reg <- sort(rnorm(n, 3, 3)) 
+y_reg <- mu_reg + rnorm(n, 0, sigma)
+
+df_iid <- data.frame(
+  id = 1:n,
+  y = y_iid,
+  mu = mu_iid,
+  y_bar = mean(y_iid),
+  type = "i.i.d. Case (Common Mean)"
+)
+
+df_reg <- data.frame(
+  id = 1:n,
+  y = y_reg,
+  mu = mu_reg,
+  y_bar = mean(y_reg),
+  type = "Regression Case (Sorted Mean)"
+)
+
+# Determine common Y limits for comparison across both plots
+y_min <- min(c(df_iid$y, df_reg$y, df_iid$mu, df_reg$mu)) - 1
+y_max <- max(c(df_iid$y, df_reg$y, df_iid$mu, df_reg$mu)) + 1
+y_lims <- c(y_min, y_max)
+
+# --- Plotting Function ---
+
+plot_func <- function(df, title, ylims) {
+  ggplot(df, aes(x = id)) +
+    # Vertical lines for the deviations (y_i - y_bar)
+    geom_segment(aes(xend = id, y = y_bar, yend = y), 
+                 color = "gray50", linetype = "solid", alpha = 0.6) +
+    # True means mu_i (red X)
+    geom_point(aes(y = mu, shape = "True Mean (μ_i)"), color = "red", size = 3) +
+    # Observations y_i (black dots)
+    geom_point(aes(y = y, shape = "Observed (y_i)"), color = "black", size = 2) +
+    # Global Sample Mean line (y_bar)
+    geom_hline(aes(yintercept = y_bar, linetype = "Sample Mean (ȳ)"), 
+               color = "blue", linewidth = 0.8) +
+    scale_shape_manual(name = "", values = c("True Mean (μ_i)" = 4, "Observed (y_i)" = 16)) +
+    scale_linetype_manual(name = "", values = c("Sample Mean (ȳ)" = "dashed")) +
+    scale_y_continuous(limits = ylims) +
+    labs(title = title, x = "Observation Index (Sorted by μ_i)", y = "Value") +
+    theme_minimal() +
+    theme(legend.position = "bottom")
+}
+
+# --- Combine Plots ---
+
+p1 <- plot_func(df_iid, "i.i.d. Case: E(SST) = (n-1)σ²", y_lims)
+p2 <- plot_func(df_reg, "Regression Case: E(SST) = (n-1)σ² + Σ(μ_i - μ̄)²", y_lims)
+
+p1 + p2 + plot_layout(guides = "collect") & theme(legend.position = "bottom")
+```
+
+
 ## Non-central $\chi^2$ Distribution
 
 To understand the distribution of quadratic forms under normality, we introduce the non-central chi-square distribution.
@@ -615,43 +697,63 @@ This theorem implies a hierarchical model for generating a non-central chi-squar
 This is particularly useful for numerical computation, as it allows the non-central CDF to be approximated by a finite sum of central chi-square CDFs.
 :::
 
-### Poisson Mixture Representation
+```{r}
+#| label: fig-chisq-poisson-mixture-fixed
+#| fig-cap: "The non-central chi-square distribution as a Poisson mixture. The black curves represent central chi-square densities with $df = n + 2j$, with transparency (alpha) proportional to the Poisson weight $P(J=j)$. The solid blue line is the true non-central chi-square density."
+#| warning: false
+#| message: false
 
-::: {#thm-chisq-poisson-mixture name="Poisson Mixture Representation"}
-Let $v \sim \chi^2(n, \lambda)$ where $\lambda = \frac{1}{2}\|\mu\|^2$. Its probability density function is a Poisson mixture of central chi-square densities:
+library(ggplot2)
+library(dplyr)
 
-$$
-f(v; n, \lambda) = \sum_{j=0}^{\infty} \text{Poisson}(j; \lambda) \cdot f(v; n+2j, 0)
-$$
+# Parameters
+n <- 4          # Base degrees of freedom
+lambda <- 4     # Non-centrality parameter (lambda = 1/2 * ||mu||^2)
+x_limit <- 25   # X-axis range
+j_values <- 0:15 # Sequence of J = 0, 1, 2...
 
-where $\text{Poisson}(j; \lambda) = \frac{e^{-\lambda} \lambda^j}{j!}$ and $f(v; \nu, 0)$ is the central chi-square density with $\nu$ degrees of freedom.
-:::
+# Generate data for the mixture components
+x <- seq(0, x_limit, length.out = 400)
+mixture_df <- do.call(rbind, lapply(j_values, function(j) {
+  weight <- dpois(j, lambda)
+  data.frame(
+    x = x,
+    y = dchisq(x, df = n + 2*j),
+    j = j,
+    weight = weight
+  )
+}))
 
-::: {.proof}
-The non-central chi-square distribution arises from $v = \sum_{i=1}^n y_i^2$ where $y_i \sim N(\mu_i, 1)$. 
-We can decompose $v$ into two independent parts:
-1. One component in the direction of the mean vector $\mu$.
-2. $n-1$ components orthogonal to $\mu$.
+# Generate data for the true non-central chi-square
+# R uses ncp = ||mu||^2, which equals 2 * lambda
+true_nc <- data.frame(
+  x = x,
+  y = dchisq(x, df = n, ncp = 2 * lambda)
+)
 
-Let $z_1 \sim N(\|\mu\|, 1)$ and $z_2, \dots, z_n \sim N(0, 1)$. Then $v = z_1^2 + \sum_{i=2}^n z_i^2$.
-The second term is simply $\chi^2(n-1, 0)$. The first term $z_1^2$ is the interesting part. 
+# Plotting
+ggplot() +
+  # Draw weighted central chi-square curves (the "cloud")
+  geom_line(data = mixture_df, 
+            aes(x = x, y = y, group = j, alpha = weight), 
+            color = "black", 
+            linewidth = 0.8) +
+  # Draw the true non-central chi-square density
+  geom_line(data = true_nc, aes(x = x, y = y), 
+            color = "blue", 
+            linewidth = 1.3) +
+  # Aesthetics
+  scale_alpha_continuous(range = c(0.01, 0.8), guide = "none") +
+  labs(
+    title = "Poisson Mixture Representation of Non-central Chi-square",
+    subtitle = paste0("n = ", n, ", λ = ", lambda, " (Blue line = True Non-central)"),
+    x = "Value (v)",
+    y = "Density"
+  ) +
+  theme_minimal()
+```
 
-Using the power series expansion of the MGF (as shown in the previous derivation):
-$$
-M_v(t) = \sum_{j=0}^{\infty} \left( \frac{e^{-\lambda} \lambda^j}{j!} \right) (1-2t)^{-(n+2j)/2}
-$$
-By using $\lambda = \frac{1}{2}\|\mu\|^2$, we ensure that the weights $\frac{e^{-\lambda} \lambda^j}{j!}$ sum to 1, perfectly matching the Poisson distribution probabilities.
-:::
 
-::: {.remark name="Geometric Insight"}
-This representation reveals that a non-central chi-square variable behaves like a central chi-square variable whose **degrees of freedom are themselves random**. 
-
-Specifically:
-$$
-V \mid J \sim \chi^2(n + 2J, 0) \quad \text{where} \quad J \sim \text{Poisson}\left(\frac{1}{2}\|\mu\|^2\right)
-$$
-As the distance $\|\mu\|$ increases, the Poisson distribution shifts to the right, increasing the expected degrees of freedom and thus shifting the mass of the chi-square distribution to the right.
-:::
 ## Distribution of Quadratic Forms
 
 ### MGF of Quadratic Forms
@@ -692,7 +794,11 @@ $$
 This holds because $\frac{1}{\sigma^2} P_V (\sigma^2 I) = P_V$, which is idempotent.
 :::
 
-*Note: This is one of the most important theorems in the course, establishing that a quadratic form follows a chi-square distribution.*
+::: {.callout-important}
+### Crucial Theorem
+
+This is one of the most important theorems in the course, establishing the fundamental conditions under which a quadratic form follows a chi-square distribution.
+:::
 
 ::: {.proof}
 
@@ -747,8 +853,8 @@ $$
 
 :::
 
-::: {.callout-important}
-## Scale of the Quadratic Form
+::: {.callout-important name="Scale of the Quadratic Form"}
+
 
 The term $\|P_V y\|^2$ itself is **not** a standard chi-square variable; it is a scaled chi-square variable. Its mean is:
 
@@ -851,3 +957,111 @@ plot_ly() %>%
   )
 ```
 
+### Idempotency and General Transformations
+
+::: {#lem-idempotent-sigma name="Idempotent Matrix Property"}
+Let $\Sigma$ be a positive definite matrix such that $\Sigma = \Sigma^{1/2}\Sigma^{1/2}$. The matrix $A\Sigma$ is idempotent if and only if $\Sigma^{1/2}A\Sigma^{1/2}$ is idempotent.
+:::
+
+::: {.proof}
+$(\Rightarrow)$ Assume $A\Sigma A\Sigma = A\Sigma$. Then:
+$$
+\begin{aligned}
+(\Sigma^{1/2}A\Sigma^{1/2})(\Sigma^{1/2}A\Sigma^{1/2}) &= \Sigma^{1/2}A(\Sigma^{1/2}\Sigma^{1/2})A\Sigma^{1/2} \\
+&= \Sigma^{1/2}(A\Sigma A)\Sigma^{1/2} \\
+&= \Sigma^{1/2}A\Sigma^{1/2}
+\end{aligned}
+$$
+The reverse follows by multiplying by $\Sigma^{-1/2}$ on both sides.
+:::
+
+::: {#thm-quad-dist name="Distribution of y'Ay"}
+Let $y \sim N_p(\mu, \Sigma)$, let $A$ be a symmetric matrix of constants of rank $r$, and let $\lambda = \frac{1}{2}\mu'A\mu$. Then $y'Ay$ is $\chi^2(r, \lambda)$ if and only if $A\Sigma$ is idempotent.
+:::
+
+::: {.proof}
+Let $y^* = \Sigma^{-1/2}y$, so $y^* \sim N_n(\Sigma^{-1/2}\mu, I_n)$. We rewrite the quadratic form:
+$$y'Ay = y' \Sigma^{-1/2} (\Sigma^{1/2} A \Sigma^{1/2}) \Sigma^{-1/2} y = (y^*)' P_V y^* = \|P_V y^*\|^2$$
+Since $A\Sigma$ is idempotent, $P_V = \Sigma^{1/2} A \Sigma^{1/2}$ is a projection matrix with rank $r$. By the definition of the non-central chi-square, $y'Ay \sim \chi^2(r, \frac{1}{2}\|P_V \Sigma^{-1/2}\mu\|^2)$. The non-centrality parameter simplifies to $\lambda = \frac{1}{2}\mu'A\mu$.
+:::
+
+## Distributions of Projected Multivariate Normal
+
+::: {#thm-proj-dist name="Distribution of Projections"}
+Let $V$ be a $k$-dimensional subspace of $\mathcal{R}^n$ and let $y$ be a random vector in $\mathcal{R}^n$ with mean $E(y)=\mu$. Then:
+
+1. $E\{p(y|V)\} = p(\mu|V)$.
+2. If $\text{var}(y)=\sigma^2 I_n$, then $\text{var}\{p(y|V)\} = \sigma^2 P_V$ and $E\{\|p(y|V)\|^2\} = \sigma^2 k + \|p(\mu|V)\|^2$.
+3. If $y \sim N_n(\mu, \sigma^2 I_n)$, then $\frac{1}{\sigma^2}\|p(y|V)\|^2 = \frac{1}{\sigma^2}y'P_Vy \sim \chi^2(k, \frac{1}{2\sigma^2}\|p(\mu|V)\|^2)$.
+:::
+
+::: {.proof}
+1. Since the projection operation is linear, $E\{p(y|V)\} = p(E(y)|V) = p(\mu|V)$.
+2. $p(y|V) = P_V y$, so $\text{var}\{p(y|V)\} = \text{var}(P_V y) = P_V \sigma^2 I_n P_V^T = \sigma^2 P_V$. The expectation of the squared norm follows from the mean of a quadratic form: $E(\|p(y|V)\|^2) = \text{tr}(\sigma^2 P_V) + \mu^T P_V \mu = \sigma^2 k + \|p(\mu|V)\|^2$.
+3. This follows from the general distribution of quadratic forms where $A = \frac{1}{\sigma^2} P_V$.
+:::
+
+::: {#thm-ortho-indep name="Orthogonal Projections"}
+Let $V_1, \dots, V_k$ be mutually orthogonal subspaces with dimensions $d_i$ and projection matrices $P_i$. If $y \sim N_n(\mu, \sigma^2 I_n)$, then:
+
+1. The projections $\hat{y}_i = P_i y$ are independent with $\hat{y}_i \sim N(P_i \mu, \sigma^2 P_i)$.
+2. The squared norms $\|\hat{y}_i\|^2$ are mutually independent.
+3. $\frac{1}{\sigma^2}\|\hat{y}_i\|^2 \sim \chi^2(d_i, \frac{1}{2\sigma^2}\|P_i \mu\|^2)$.
+:::
+
+::: {.proof}
+1. For $i \ne j$, $\text{cov}(\hat{y}_i, \hat{y}_j) = \sigma^2 P_i P_j = 0$ because the subspaces are orthogonal. Under normality, zero covariance implies independence.
+2. Since $\hat{y}_i$ are independent, any functions of them, such as their norms, are also independent.
+3. This is a direct application of the Projection Distribution theorem to each subspace.
+:::
+
+### Independence of Forms
+
+::: {#thm-indep-mvn name="Independence Conditions"}
+Suppose $y \sim N_n(\mu, \Sigma)$.
+
+* **Linear and Quadratic:** $By$ and $y'Ay$ (where $A$ is symmetric) are independent if and only if $B\Sigma A = 0$.
+* **Quadratic and Quadratic:** $y'Ay$ and $y'By$ (where $A, B$ are symmetric) are independent if and only if $A\Sigma B = 0$.
+:::
+
+::: {.proof}
+If $B\Sigma A = 0$, the normal vectors $By$ and $Ay$ have zero covariance and are thus independent. Consequently, $By$ is independent of any measurable function of $Ay$, such as the quadratic form $y'Ay = \|Ay\|^2$ (assuming $A$ is idempotent). The quadratic-quadratic case follows a similar logic.
+:::
+
+### Cochran's Theorem
+
+::: {#thm-cochran-result name="Cochran's Result"}
+Let $y \sim N_n(\mu, \sigma^2 I)$ and $y'y = \sum_{i=1}^k y'A_iy$. The quadratic forms $y^T A_i y / \sigma^2$ are mutually independent $\chi^2(r_i, \lambda_i)$ if and only if any one of the following holds:
+
+* Each $A_i$ is idempotent.
+* $A_i A_j = 0$ for all $i \ne j$.
+* $n = \sum r_i$.
+:::
+
+## Non-central F, t, and Beta distributions
+
+::: {#def-f-t-dist name="F and t Distributions"}
+
+1. **F-Distribution:** If $U_1 \sim \chi^2(n_1, \lambda)$ and $U_2 \sim \chi^2(n_2)$ are independent, then $V = \frac{U_1/n_1}{U_2/n_2}$ follows a non-central F distribution.
+2. **t-Distribution:** If $W \sim N(\delta, 1)$ and $Y \sim \chi^2(m)$ are independent, then $T = \frac{W}{\sqrt{Y/m}}$ follows a non-central t distribution $t(m, \delta)$.
+:::
+
+## Example: i.i.d. Normal Samples (Student's Theorem)
+
+::: {#exm-iid-normal name="Student's Theorem"}
+Let $Y_1, \dots, Y_n \sim i.i.d. N(\mu, \sigma^2)$.
+
+* **Sample Mean:** $\bar{Y} \sim N(\mu, \sigma^2/n)$.
+* **Sample Variance:** $\frac{(n-1)S^2}{\sigma^2} \sim \chi^2(n-1, 0)$.
+* **Independence:** $\bar{Y}$ and $S^2$ are independent.
+* **t-statistic:** $T = \frac{\bar{Y}-\mu_0}{S/\sqrt{n}} \sim t(n-1, \lambda)$ where $\lambda = \frac{\mu-\mu_0}{\sigma/\sqrt{n}}$.
+:::
+
+::: {.proof}
+Let $y \sim N_n(\mu j_n, \sigma^2 I_n)$.
+
+1. $\bar{Y}$ is a linear transformation $\frac{1}{n} j_n' y$.
+2. $(n-1)S^2$ is the quadratic form $y'(I_n - P_{j_n})y$. Since $(I_n - P_{j_n})$ is idempotent with rank $n-1$ and projects the mean vector to zero, the result is a central chi-square.
+3. Independence holds because the product of the linear form's matrix and the quadratic form's matrix is zero: $\frac{1}{n} j_n' (I_n - P_{j_n}) = 0$.
+4. The t-statistic is the ratio of these independent components.
+:::
