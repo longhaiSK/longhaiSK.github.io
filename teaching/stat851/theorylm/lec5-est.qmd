@@ -1,0 +1,177 @@
+---
+title: "Point Estimation in Multiple Linear Regression"
+format: html
+---
+
+## Linear Models and Least Square Estimator
+
+### Assumptions in Linear Models
+
+Suppose that on a random sample of $n$ units (patients, animals, trees, etc.) we observe a response variable $Y$ and explanatory variables $X_{1},...,X_{k}$. Our data are then $(y_{i},x_{i1},...,x_{ik})$, $i=1,...,n$, or in vector/matrix form $y, x_{1},...,x_{k}$ where $y=(y_{1},...,y_{n})$ and $x_{j}=(x_{1j},...,x_{nj})^{T}$ or $y, X$ where $X=(x_{1},...,x_{k})$.
+
+Either by design or by conditioning on their observed values, $x_{1},...,x_{k}$ are regarded as vectors of known constants. The linear model in its classical form makes the following assumptions:
+
+::: {#def-assumptions name="Assumptions A1-A5"}
+**A1. (Additive Error)**
+$y=\mu+e$ where $e=(e_{1},...,e_{n})^{T}$ is an unobserved random vector with $E(e)=0$. This implies that $\mu=E(y)$ is the unknown mean of $y$.
+
+**A2. (Linearity)**
+$\mu=\beta_{1}x_{1}+\cdot\cdot\cdot+\beta_{k}x_{k}=X\beta$ where $\beta_{1},...,\beta_{k}$ are unknown parameters. This assumption says that $E(y)=\mu\in\text{Col}(X)$ (lies in the column space of $X$); i.e., it is a linear combination of explanatory vectors $x_{1},...,x_{k}$ with coefficients the unknown parameters in $\beta=(\beta_{1},...,\beta_{k})^{T}$. Note that it is linear in $\beta_{1},...,\beta_{k}$, not necessarily in the $x$'s.
+
+**A3. (Independence)**
+$e_{1},...,e_{n}$ are independent random variables (and therefore so are $y_{1},...,y_{n})$.
+
+**A4. (Homoscedasticity)**
+$e_{1},...,e_{n}$ all have the same variance $\sigma^{2}$; that is, $\text{Var}(e_{1})=\cdot\cdot\cdot=\text{Var}(e_{n})=\sigma^{2}$ which implies $\text{Var}(y_{1})=\cdot\cdot\cdot=\text{Var}(y_{n})=\sigma^{2}$.
+
+**A5. (Normality)**
+$e\sim N_{n}(0,\sigma^{2}I_{n})$.
+:::
+
+### Matrix Formulation
+
+The model can be written algebraically as:
+$$y_{i}=\beta_{0}+\beta_{1}x_{i1}+\beta_{2}x_{i2}+\cdot\cdot\cdot+\beta_{k}x_{ik}, \quad i=1,...,n$$
+
+Or in matrix notation:
+$$
+\begin{pmatrix}
+y_{1}\\
+y_{2}\\
+\vdots\\
+y_{n}
+\end{pmatrix}
+=
+\begin{pmatrix}
+1 & x_{11} & x_{12} & \cdot\cdot\cdot & x_{1k}\\
+1 & x_{21} & x_{22} & \cdot\cdot\cdot & x_{2k}\\
+\vdots & \vdots & \vdots & \vdots & \vdots\\
+1 & x_{n1} & x_{n2} & \cdot\cdot\cdot & x_{nk}
+\end{pmatrix}
+\begin{pmatrix}
+\beta_{0}\\
+\beta_{1}\\
+\vdots\\
+\beta_{k}
+\end{pmatrix}
++
+\begin{pmatrix}
+e_{1}\\
+e_{2}\\
+\vdots\\
+e_{n}
+\end{pmatrix}
+$$
+
+This is expressed compactly as:
+$$y=X\beta+e$$
+where $X$ is the design matrix, and $e \sim N_n(0, \sigma^2 I)$. Alternatively:
+$$y=\beta_{0}j_{n}+\beta_{1}x_{1}+\cdot\cdot\cdot+\beta_{k}x_{k}+e$$
+
+Taken together, all five assumptions can be stated more succinctly as:
+$$y\sim N_{n}(X\beta,\sigma^{2}I)$$
+with the mean vector $\mu_{y}=X\beta\in \text{Col}(X)$.
+
+:::{.callout }
+### A Note on Coefficients
+The effect of a parameter depends upon what other explanatory variables are present in the model. For example, $\beta_{0}$ and $\beta_{1}$ in the model:
+$$y=\beta_{0}j_{n}+\beta_{1}x_{1}+\beta_{2}x_{2}+e$$
+will typically be different than $\beta_{0}^{*}$ and $\beta_{1}^{*}$ in the model:
+$$y=\beta_{0}^{*}j_{n}+\beta_{1}^{*}x_{1}+e^{*}$$
+In this context, $\beta_0^*$ and $\beta_1^*$ are the population-projected coefficients of the full model, that is,  $\beta_0^*$ and $\beta_1^*$ are the parameters that can best approximate the full model. 
+:::
+
+::: {.callout-important}
+We will first consider the case that $\text{rank}(X)=k+1$.
+:::
+
+### Least Squares Estimator
+
+::: {#def-least-squares name="Least Squares Estimator"}
+The **Least Squares Estimator (LSE)** of $\beta$, denoted as $\hat{\beta}$, is the vector that minimizes the Sum of Squared Errors (SSE), which measures the discrepancy between the observed responses $y$ and the fitted values $X\hat{\beta}$.
+$$
+Q(\beta) = \sum_{i=1}^n (y_i - x_i^T \beta)^2 = (y - X\beta)'(y - X\beta)
+$$
+Solving the normal equations $(X'X)\hat{\beta} = X'y$ yields the closed-form solution (assuming $X$ has full rank):
+$$
+\hat{\beta} = (X'X)^{-1}X'y
+$$
+
+:::
+
+### Estimation Example
+
+::: {#exm-7-3-1a name="Computation of $\hat \beta$"}
+We use the data in @tbl-7-1 to illustrate the computation of $\hat{\beta}$ using the normal equations.
+
+Given the data matrices, we compute the cross-product matrices:
+
+$$
+X^{\prime}X = \begin{pmatrix}
+12 & 52 & 102\\
+52 & 395 & 536\\
+102 & 536 & 1004
+\end{pmatrix}
+$$
+
+$$
+X^{\prime}y = \begin{pmatrix}
+90\\
+482\\
+872
+\end{pmatrix}
+$$
+
+The inverse of the cross-product matrix is:
+$$
+(X^{\prime}X)^{-1} = \begin{pmatrix}
+.97476 & .24290 & -.22871\\
+.24290 & .16207 & -.11120\\
+-.22871 & -.11120 & .08360
+\end{pmatrix}
+$$
+
+Solving for the estimator:
+$$
+\hat{\beta} = (X^{\prime}X)^{-1}X^{\prime}y = \begin{pmatrix}
+5.3754\\
+3.0118\\
+-1.2855
+\end{pmatrix}
+$$
+:::
+
+### Properties of the Estimator
+
+::: {#thm-unbiased name="Unbiasedness of $\hat \beta$"}
+If $E(y)=X\beta$, then $\hat{\beta}$ is an unbiased estimator for $\beta$.
+:::
+
+::: {.proof}
+$$
+\begin{aligned}
+E(\hat{\beta}) &= E[(X^{\prime}X)^{-1}X^{\prime}y] \\
+&= (X^{\prime}X)^{-1}X^{\prime}E(y) \quad \text{[using linearity of expectation]} \\
+&= (X^{\prime}X)^{-1}X^{\prime}X\beta \\
+&= \beta
+\end{aligned}
+$$
+:::
+
+::: {#thm-covariance name="Variance of $\hat \beta$"}
+If $\text{Var}(y)=\sigma^{2}I$, the covariance matrix for $\hat{\beta}$ is given by $\sigma^{2}(X^{\prime}X)^{-1}$.
+:::
+
+::: {.proof}
+$$
+\begin{aligned}
+\text{Var}(\hat{\beta}) &= \text{Var}[(X^{\prime}X)^{-1}X^{\prime}y] \\
+&= (X^{\prime}X)^{-1}X^{\prime}\text{Var}(y)[(X^{\prime}X)^{-1}X^{\prime}]^{\prime} \quad \text{[using } \text{Var}(Ay) = A \text{Var}(y) A'] \\
+&= (X^{\prime}X)^{-1}X^{\prime}(\sigma^{2}I)X(X^{\prime}X)^{-1} \\
+&= \sigma^{2}(X^{\prime}X)^{-1}X^{\prime}X(X^{\prime}X)^{-1} \\
+&= \sigma^{2}(X^{\prime}X)^{-1}
+\end{aligned}
+$$
+:::
+
+**Note:** These theorems require no assumption of normality.
