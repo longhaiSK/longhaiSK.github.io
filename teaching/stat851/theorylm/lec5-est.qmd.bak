@@ -337,7 +337,7 @@ Under assumptions A1-A5:
 
 ## Maximum Likelihood Estimator (MLE)
 
-::: {#thm-mle name="MLE for Linear Regression"}
+::: {#thm-mle name="MLE of Beta and Sigma Squared"}
 If $y \sim N_n(X\beta, \sigma^2 I)$, the Maximum Likelihood Estimators are:
 $$
 \hat{\beta}_{\text{MLE}} = (X'X)^{-1}X'y
@@ -355,105 +355,6 @@ Differentiating with respect to $\sigma^2$ and setting to zero yields $\hat{\sig
 :::
 
 **Note:** The MLE for $\sigma^2$ is biased (denominator $n$), whereas $s^2$ is unbiased (denominator $n-k-1$).
-
-## Linear Models in Centered Form
-
-The regression model can be written in a centered form by subtracting the means of the explanatory variables:
-$$y_{i}=\alpha+\beta_{1}(x_{i1}-\overline{x}_{1})+\beta_{2}(x_{i2}-\overline{x}_{2})+\cdot\cdot\cdot+\beta_{k}(x_{ik}-\overline{x}_{k})+e_{i}$$
-for $i=1,...,n$, where the intercept term is adjusted:
-$$\alpha=\beta_{0}+\beta_{1}\overline{x}_{1}+\beta_{2}\overline{x}_{2}+\cdot\cdot\cdot+\beta_{k}\overline{x}_{k}$$
-and $\overline{x}_{j}=\frac{1}{n}\sum_{i=1}^{n}x_{ij}$.
-
-### Matrix Formulation
-
-In matrix form, the equivalence between the original model and the centered model is:
-$$y = X\beta + e = (j_n, X_c)\begin{pmatrix} \alpha \\ \beta_{1} \end{pmatrix} + e$$
-where $\beta_{1}=(\beta_{1},...,\beta_{k})^{T}$ represents the slope coefficients, and $X_c$ is the centered design matrix:
-$$X_c = (I - P_{j_n})X_1$$
-Here, $X_1$ consists of the original columns of $X$ excluding the intercept column.
-
-### Estimation in Centered Form
-
-Because the column space of the intercept $j_n$ is orthogonal to the columns of $X_c$ (since columns of $X_c$ sum to zero), the cross-product matrix becomes block diagonal:
-$$
-\begin{pmatrix} j_n' \\ X_c' \end{pmatrix} (j_n, X_c) = \begin{pmatrix} j_n'j_n & j_n'X_c \\ X_c'j_n & X_c'X_c \end{pmatrix} = \begin{pmatrix} n & 0 \\ 0 & X_c'X_c \end{pmatrix}
-$$
-
-::: {#thm-centered-estimators name="Centered Estimators"}
-The least squares estimators for the centered parameters are:
-$$
-\begin{pmatrix} \hat{\alpha} \\ \hat{\beta}_{1} \end{pmatrix} = \begin{pmatrix} n & 0 \\ 0 & X_c'X_c \end{pmatrix}^{-1} \begin{pmatrix} j_n'y \\ X_c'y \end{pmatrix} = \begin{pmatrix} \bar{y} \\ (X_c'X_c)^{-1}X_c'y \end{pmatrix}
-$$
-Thus:
-1.  $\hat{\alpha} = \bar{y}$ (The sample mean of $y$).
-2.  $\hat{\beta}_{1} = S_{xx}^{-1}S_{xy}$, using the sample covariance notations.
-:::
-
-Recovering the original intercept:
-$$ \hat{\beta}_0 = \hat{\alpha} - \hat{\beta}_1 \bar{x}_1 - \dots - \hat{\beta}_k \bar{x}_k = \bar{y} - \hat{\beta}_{1}'\bar{x} $$
-
-## Sum of Squares Decomposition
-
-We partition the total variation based on the orthogonal subspaces.
-
-::: {#def-ss-components name="Sum of Squares Components"}
-The total variation is decomposed as $SST = SSR + SSE$.
-
-1.  **Total Sum of Squares (SST):** The squared length of the centered response vector.
-    $$SST = \|y - \bar{y}j_n\|^2 = \|(I - P_{j_n})y\|^2$$
-
-2.  **Regression Sum of Squares (SSR):** The variation explained by the regressors $X_c$.
-    $$SSR = \|\hat{y} - \bar{y}j_n\|^2 = \|P_{X_c}y\|^2 = \hat{\beta}_1' X_c' X_c \hat{\beta}_1$$
-
-3.  **Sum of Squared Errors (SSE):** The residual variation.
-    $$SSE = \|y - \hat{y}\|^2 = \|(I - P_{X})y\|^2$$
-:::
-
-### Geometry of the Decomposition
-
-The decomposition relies on the orthogonality of the subspaces:
-$$ \text{Col}(X) = \text{Col}(j_n) \oplus \text{Col}(X_c) $$
-The projection of $y$ onto $\text{Col}(X)$ is the sum of the projection onto the intercept (giving $\bar{y}j_n$) and the projection onto the centered variables (giving $X_c\hat{\beta}_1$).
-
-$$ \|y - \bar{y}j_n\|^2 = \|\hat{y} - \bar{y}j_n\|^2 + \|y - \hat{y}\|^2 $$
-
-## Coefficient of Determination ($R^2$)
-
-The $R^2$ statistic measures the proportion of total variation explained by the regression model.
-
-::: {#def-r2 name="R-Squared"}
-$$R^2 = \frac{SSR}{SST} = 1 - \frac{SSE}{SST}$$
-Since $0 \le SSE \le SST$, it follows that $0 \le R^2 \le 1$.
-:::
-
-In terms of the centered coefficients:
-$$R^2 = \frac{\hat{\beta}_1' X_c' X_c \hat{\beta}_1}{\sum (y_i - \bar{y})^2}$$
-
-### Adjusted $R^2$ ($R^2_a$)
-
-Standard $R^2$ always increases (or stays the same) as predictors are added, regardless of their value. The Adjusted $R^2$ penalizes for model complexity.
-
-::: {#def-adj-r2 name="Adjusted R-Squared"}
-$$R^2_a = 1 - \frac{SSE / (n - k - 1)}{SST / (n - 1)} = 1 - \frac{\text{MSE}}{s_y^2}$$
-Relationship to $R^2$:
-$$R^2_a = 1 - (1 - R^2) \frac{n-1}{n-k-1}$$
-:::
-
-### Expected Value of $R^2$
-
-If the true slope coefficients are zero ($\beta_1 = \dots = \beta_k = 0$), the expected value of $R^2$ is not zero due to mathematical constraints.
-
-1.  $E[SSE] = (n - k - 1)\sigma^2$.
-2.  $E[SST] \approx (n-1)\sigma^2$ (under the null hypothesis).
-
-Thus, under the null hypothesis:
-$$E[R^2] \approx \frac{k}{n-1}$$
-
-However, for the Adjusted $R^2$, under the null hypothesis:
-$$E[R^2_a] \approx 1 - \frac{\sigma^2}{\sigma^2} = 0$$
-
-This property makes $R^2_a$ a more appropriate metric for comparing models with different numbers of predictors, as it accounts for "overfitting" by penalizing the degrees of freedom consumed by the model.
-
 
 ## Underfitting and Overfitting
 
