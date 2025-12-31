@@ -364,6 +364,14 @@ for $i=1,...,n$, where the intercept term is adjusted:
 $$\alpha=\beta_{0}+\beta_{1}\overline{x}_{1}+\beta_{2}\overline{x}_{2}+\cdot\cdot\cdot+\beta_{k}\overline{x}_{k}$$
 and $\overline{x}_{j}=\frac{1}{n}\sum_{i=1}^{n}x_{ij}$.
 
+## Linear Models in Centered Form
+
+The regression model can be written in a centered form by subtracting the means of the explanatory variables:
+$$y_{i}=\alpha+\beta_{1}(x_{i1}-\overline{x}_{1})+\beta_{2}(x_{i2}-\overline{x}_{2})+\cdot\cdot\cdot+\beta_{k}(x_{ik}-\overline{x}_{k})+e_{i}$$
+for $i=1,...,n$, where the intercept term is adjusted:
+$$\alpha=\beta_{0}+\beta_{1}\overline{x}_{1}+\beta_{2}\overline{x}_{2}+\cdot\cdot\cdot+\beta_{k}\overline{x}_{k}$$
+and $\overline{x}_{j}=\frac{1}{n}\sum_{i=1}^{n}x_{ij}$.
+
 ### Matrix Formulation
 
 In matrix form, the equivalence between the original model and the centered model is:
@@ -371,6 +379,26 @@ $$y = X\beta + e = (j_n, X_c)\begin{pmatrix} \alpha \\ \beta_{1} \end{pmatrix} +
 where $\beta_{1}=(\beta_{1},...,\beta_{k})^{T}$ represents the slope coefficients, and $X_c$ is the centered design matrix:
 $$X_c = (I - P_{j_n})X_1$$
 Here, $X_1$ consists of the original columns of $X$ excluding the intercept column.
+
+
+
+To see the structure of $X_c$, we first calculate the projection of the data onto the intercept space, $P_{j_n}X_1$:
+$$
+\begin{aligned}
+P_{j_n}X_1 &= \frac{1}{n}j_n j_n' X_1 \\
+&= \begin{pmatrix} 1/n & 1/n & \cdots & 1/n \\ 1/n & 1/n & \cdots & 1/n \\ \vdots & \vdots & \ddots & \vdots \\ 1/n & 1/n & \cdots & 1/n \end{pmatrix} \begin{pmatrix} x_{11} & x_{12} & \cdots & x_{1k} \\ x_{21} & x_{22} & \cdots & x_{2k} \\ \vdots & \vdots & \ddots & \vdots \\ x_{n1} & x_{n2} & \cdots & x_{nk} \end{pmatrix} \\
+&= \begin{pmatrix} \bar{x}_1 & \bar{x}_2 & \cdots & \bar{x}_k \\ \bar{x}_1 & \bar{x}_2 & \cdots & \bar{x}_k \\ \vdots & \vdots & \ddots & \vdots \\ \bar{x}_1 & \bar{x}_2 & \cdots & \bar{x}_k \end{pmatrix}
+\end{aligned}
+$$
+This results in a matrix where every row is the vector of column means. Subtracting this from $X_1$ gives $X_c$:
+$$
+\begin{aligned}
+X_c &= X_1 - P_{j_n}X_1 \\
+&= \begin{pmatrix} x_{11} & x_{12} & \cdots & x_{1k} \\ x_{21} & x_{22} & \cdots & x_{2k} \\ \vdots & \vdots & \ddots & \vdots \\ x_{n1} & x_{n2} & \cdots & x_{nk} \end{pmatrix} - \begin{pmatrix} \bar{x}_1 & \bar{x}_2 & \cdots & \bar{x}_k \\ \bar{x}_1 & \bar{x}_2 & \cdots & \bar{x}_k \\ \vdots & \vdots & \ddots & \vdots \\ \bar{x}_1 & \bar{x}_2 & \cdots & \bar{x}_k \end{pmatrix} \\
+&= \begin{pmatrix} x_{11} - \bar{x}_1 & x_{12} - \bar{x}_2 & \cdots & x_{1k} - \bar{x}_k \\ x_{21} - \bar{x}_1 & x_{22} - \bar{x}_2 & \cdots & x_{2k} - \bar{x}_k \\ \vdots & \vdots & \ddots & \vdots \\ x_{n1} - \bar{x}_1 & x_{n2} - \bar{x}_2 & \cdots & x_{nk} - \bar{x}_k \end{pmatrix}
+\end{aligned}
+$$
+
 
 ### Estimation in Centered Form
 
@@ -385,6 +413,7 @@ $$
 \begin{pmatrix} \hat{\alpha} \\ \hat{\beta}_{1} \end{pmatrix} = \begin{pmatrix} n & 0 \\ 0 & X_c'X_c \end{pmatrix}^{-1} \begin{pmatrix} j_n'y \\ X_c'y \end{pmatrix} = \begin{pmatrix} \bar{y} \\ (X_c'X_c)^{-1}X_c'y \end{pmatrix}
 $$
 Thus:
+
 1.  $\hat{\alpha} = \bar{y}$ (The sample mean of $y$).
 2.  $\hat{\beta}_{1} = S_{xx}^{-1}S_{xy}$, using the sample covariance notations.
 :::
@@ -397,33 +426,153 @@ $$ \hat{\beta}_0 = \hat{\alpha} - \hat{\beta}_1 \bar{x}_1 - \dots - \hat{\beta}_
 We partition the total variation based on the orthogonal subspaces.
 
 ::: {#def-ss-components name="Sum of Squares Components"}
-The total variation is decomposed as $SST = SSR + SSE$.
+The total variation is decomposed as $\text{SST} = \text{SSR} + \text{SSE}$.
 
 1.  **Total Sum of Squares (SST):** The squared length of the centered response vector.
-    $$SST = \|y - \bar{y}j_n\|^2 = \|(I - P_{j_n})y\|^2$$
+    $$\text{SST} = \|y - \bar{y}j_n\|^2 = \|(I - P_{j_n})y\|^2$$
 
 2.  **Regression Sum of Squares (SSR):** The variation explained by the regressors $X_c$.
-    $$SSR = \|\hat{y} - \bar{y}j_n\|^2 = \|P_{X_c}y\|^2 = \hat{\beta}_1' X_c' X_c \hat{\beta}_1$$
+    $$\text{SSR} = \|\hat{y} - \bar{y}j_n\|^2 = \|P_{X_c}y\|^2 = \hat{\beta}_1' X_c' X_c \hat{\beta}_1$$
 
 3.  **Sum of Squared Errors (SSE):** The residual variation.
-    $$SSE = \|y - \hat{y}\|^2 = \|(I - P_{X})y\|^2$$
+    $$\text{SSE} = \|y - \hat{y}\|^2 = \|(I - P_{X})y\|^2$$
 :::
 
-### Geometry of the Decomposition
+### Geometric Decomposition of $y$
 
-The decomposition relies on the orthogonality of the subspaces:
-$$ \text{Col}(X) = \text{Col}(j_n) \oplus \text{Col}(X_c) $$
-The projection of $y$ onto $\text{Col}(X)$ is the sum of the projection onto the intercept (giving $\bar{y}j_n$) and the projection onto the centered variables (giving $X_c\hat{\beta}_1$).
+We partition the total variation in $y$ based on the orthogonal subspaces.
 
-$$ \|y - \bar{y}j_n\|^2 = \|\hat{y} - \bar{y}j_n\|^2 + \|y - \hat{y}\|^2 $$
+1.  **Space of the Mean:** $L(j_n)$, spanned by the intercept vector $j_n$.
+2.  **Space of the Regressors:** $L(X_c)$, spanned by the centered predictors $X_c$.
+3.  **Error Space:** $\text{Col}(X)^\perp$, orthogonal to the model space.
+
+The vector $y$ can be decomposed into three orthogonal components:
+$$y = \bar{y}j_n + P_{X_c}y + (y - \hat{y})$$
+Visually, this corresponds to projecting the vector $y$ onto three orthogonal axes.
+
+**Interactive Visualization:**
+
+We generate a cloud of 100 observations of $y$ from $N(\mu, \sigma=1)$ where $\mu = (3,3,3)$, and project them onto the three axes representing these subspaces.
+```{r}
+#| label: fig-geometry-3d-projections
+#| fig-cap: "Geometric Decomposition: Data Cloud (Black) & Projections (Colored)"
+#| warning: false
+#| message: false
+
+library(plotly)
+library(MASS)
+
+# 1. Generate Data
+set.seed(123)
+n <- 100
+mu <- c(3, 3, 3) 
+sigma <- 1
+Sigma <- diag(3) * sigma^2
+
+# Generate 100 points from trivariate normal
+data <- mvrnorm(n, mu = mu, Sigma = Sigma)
+df <- as.data.frame(data)
+colnames(df) <- c("x", "y", "z")
+
+# 2. Setup the Plot
+# Initialize with the original data to set the scene
+fig <- plot_ly(data = df, x = ~x, y = ~y, z = ~z)
+
+# 3. Draw the Original Data Points (The Cloud)
+# Using add_trace(type='scatter3d') explicitly to ensure visibility
+fig <- fig %>% add_trace(
+  type = 'scatter3d',
+  mode = 'markers',
+  marker = list(size = 4, color = 'black', opacity = 0.8), # High opacity to be visible
+  name = 'y (Data Cloud)'
+)
+
+# 4. Draw Projections onto the 3 Axes
+# Projection onto L(jn) -> (x, 0, 0)
+fig <- fig %>% add_trace(
+  type = 'scatter3d',
+  mode = 'markers',
+  x = ~x, y = rep(0, n), z = rep(0, n),
+  marker = list(size = 3, color = 'blue', symbol = 'circle', opacity = 0.5),
+  name = 'Proj onto L(jn)'
+)
+
+# Projection onto L(Xc) -> (0, y, 0)
+fig <- fig %>% add_trace(
+  type = 'scatter3d',
+  mode = 'markers',
+  x = rep(0, n), y = ~y, z = rep(0, n),
+  marker = list(size = 3, color = 'green', symbol = 'circle', opacity = 0.5),
+  name = 'Proj onto L(Xc)'
+)
+
+# Projection onto Col(X)^perp -> (0, 0, z)
+fig <- fig %>% add_trace(
+  type = 'scatter3d',
+  mode = 'markers',
+  x = rep(0, n), y = rep(0, n), z = ~z,
+  marker = list(size = 3, color = 'red', symbol = 'circle', opacity = 0.5),
+  name = 'Proj onto Col(X)^perp'
+)
+
+# 5. Draw the Mean Vector (mu) and its Projections
+# Mean Vector: Origin to (3,3,3)
+fig <- fig %>% add_trace(
+  type = 'scatter3d',
+  mode = 'lines',
+  x = c(0, mu[1]), y = c(0, mu[2]), z = c(0, mu[3]),
+  line = list(color = 'black', width = 6),
+  name = 'Mean Vector (mu)'
+)
+
+# Mu on L(jn): Origin to (3,0,0)
+fig <- fig %>% add_trace(
+  type = 'scatter3d',
+  mode = 'lines',
+  x = c(0, mu[1]), y = c(0, 0), z = c(0, 0),
+  line = list(color = 'blue', width = 4),
+  name = 'Mu on L(jn)'
+)
+
+# Mu on L(Xc): Origin to (0,3,0)
+fig <- fig %>% add_trace(
+  type = 'scatter3d',
+  mode = 'lines',
+  x = c(0, 0), y = c(0, mu[2]), z = c(0, 0),
+  line = list(color = 'green', width = 4),
+  name = 'Mu on L(Xc)'
+)
+
+# Mu on Col(X)^perp: Origin to (0,0,3)
+fig <- fig %>% add_trace(
+  type = 'scatter3d',
+  mode = 'lines',
+  x = c(0, 0), y = c(0, 0), z = c(0, mu[3]),
+  line = list(color = 'red', width = 4),
+  name = 'Mu on Col(X)^perp'
+)
+
+# 6. Layout
+fig <- fig %>% layout(
+  scene = list(
+    xaxis = list(title = "L(j_n)"),
+    yaxis = list(title = "L(X_c)"),
+    zaxis = list(title = "Col(X)^perp"),
+    camera = list(eye = list(x = 1.6, y = 1.6, z = 1.6))
+  ),
+  title = "Geometric Decomposition: Data Cloud & Projections"
+)
+
+fig
+```
 
 ## Coefficient of Determination ($R^2$)
 
 The $R^2$ statistic measures the proportion of total variation explained by the regression model.
 
 ::: {#def-r2 name="R-Squared"}
-$$R^2 = \frac{SSR}{SST} = 1 - \frac{SSE}{SST}$$
-Since $0 \le SSE \le SST$, it follows that $0 \le R^2 \le 1$.
+$$R^2 = \frac{\text{SSR}}{\text{SST}} = 1 - \frac{\text{SSE}}{\text{SST}}$$
+Since $0 \le \text{SSE} \le \text{SST}$, it follows that $0 \le R^2 \le 1$.
 :::
 
 In terms of the centered coefficients:
@@ -434,7 +583,7 @@ $$R^2 = \frac{\hat{\beta}_1' X_c' X_c \hat{\beta}_1}{\sum (y_i - \bar{y})^2}$$
 Standard $R^2$ always increases (or stays the same) as predictors are added, regardless of their value. The Adjusted $R^2$ penalizes for model complexity.
 
 ::: {#def-adj-r2 name="Adjusted R-Squared"}
-$$R^2_a = 1 - \frac{SSE / (n - k - 1)}{SST / (n - 1)} = 1 - \frac{\text{MSE}}{s_y^2}$$
+$$R^2_a = 1 - \frac{\text{SSE} / (n - k - 1)}{\text{SST} / (n - 1)} = 1 - \frac{\text{MSE}}{s_y^2}$$
 Relationship to $R^2$:
 $$R^2_a = 1 - (1 - R^2) \frac{n-1}{n-k-1}$$
 :::
@@ -443,17 +592,36 @@ $$R^2_a = 1 - (1 - R^2) \frac{n-1}{n-k-1}$$
 
 If the true slope coefficients are zero ($\beta_1 = \dots = \beta_k = 0$), the expected value of $R^2$ is not zero due to mathematical constraints.
 
-1.  $E[SSE] = (n - k - 1)\sigma^2$.
-2.  $E[SST] \approx (n-1)\sigma^2$ (under the null hypothesis).
+::: {#thm-r2-beta name="Exact Distribution of R-Squared"}
+Under the null hypothesis where all slope coefficients are zero, $R^2$ follows a Beta distribution:
+$$R^2 \sim \text{Beta}\left(\frac{k}{2}, \frac{n-k-1}{2}\right)$$
+:::
 
-Thus, under the null hypothesis:
-$$E[R^2] \approx \frac{k}{n-1}$$
+::: {.proof}
+Recall that $R^2 = \frac{\text{SSR}}{\text{SSR} + \text{SSE}}$. Under the null hypothesis:
+
+1.  $\text{SSR}/\sigma^2 \sim \chi^2(k)$.
+2.  $\text{SSE}/\sigma^2 \sim \chi^2(n-k-1)$.
+3.  $\text{SSR}$ and $\text{SSE}$ are independent.
+
+By the definition of the Beta distribution, if $X \sim \chi^2(u)$ and $Y \sim \chi^2(v)$ are independent, then the ratio $\frac{X}{X+Y}$ follows a $\text{Beta}(\frac{u}{2}, \frac{v}{2})$ distribution.
+:::
+
+**Derivation of the Expected Value:**
+
+Using the properties of the Beta distribution, the mean is given by $E[R^2] = \frac{\alpha}{\alpha + \beta}$.
+Substituting the degrees of freedom $\alpha = k/2$ and $\beta = (n-k-1)/2$:
+
+$$
+E[R^2] = \frac{k/2}{k/2 + (n-k-1)/2} = \frac{k}{n-1}
+$$
+
+Thus, even when there is no relationship between $y$ and $X$, the expected $R^2$ is approximately $k/(n-1)$ rather than 0.
 
 However, for the Adjusted $R^2$, under the null hypothesis:
 $$E[R^2_a] \approx 1 - \frac{\sigma^2}{\sigma^2} = 0$$
 
 This property makes $R^2_a$ a more appropriate metric for comparing models with different numbers of predictors, as it accounts for "overfitting" by penalizing the degrees of freedom consumed by the model.
-
 
 ## Underfitting and Overfitting
 
