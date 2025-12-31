@@ -452,115 +452,176 @@ Visually, this corresponds to projecting the vector $y$ onto three orthogonal ax
 
 **Interactive Visualization:**
 
-We generate a cloud of 100 observations of $y$ from $N(\mu, \sigma=1)$ where $\mu = (3,3,3)$, and project them onto the three axes representing these subspaces.
+We generate a cloud of 100 observations of $y$ from $N(\mu, \sigma=1)$ where $\mu = (5,5,0)$. The projections onto the Model Plane ($z=0$) are highlighted in **red**, and the projections onto the error axis ($z$) are in **yellow**.
+
 ```{r}
 #| label: fig-geometry-3d-projections
-#| fig-cap: "Geometric Decomposition: Data Cloud (Black) & Projections (Colored)"
+#| fig-cap: "Geometric Decomposition: Hollow Circles for Axis Projections"
 #| warning: false
 #| message: false
 
 library(plotly)
 library(MASS)
 
-# 1. Generate Data
+# --- 1. Generate Data for Both Scenarios ---
 set.seed(123)
-n <- 100
-mu <- c(3, 3, 3) 
-sigma <- 1
+n <- 50
+sigma <- 0.5
 Sigma <- diag(3) * sigma^2
 
-# Generate 100 points from trivariate normal
-data <- mvrnorm(n, mu = mu, Sigma = Sigma)
-df <- as.data.frame(data)
-colnames(df) <- c("x", "y", "z")
+# Scenario A: Regression Effect (beta1 != 0)
+mu_A <- c(3, 4, 0)
+data_A <- mvrnorm(n, mu = mu_A, Sigma = Sigma)
+df_A <- as.data.frame(data_A)
+colnames(df_A) <- c("x", "y", "z")
 
-# 2. Setup the Plot
-# Initialize with the original data to set the scene
-fig <- plot_ly(data = df, x = ~x, y = ~y, z = ~z)
+# Scenario B: No Regression Effect (beta1 = 0)
+mu_B <- c(3, 0, 0)
+data_B <- mvrnorm(n, mu = mu_B, Sigma = Sigma)
+df_B <- as.data.frame(data_B)
+colnames(df_B) <- c("x", "y", "z")
 
-# 3. Draw the Original Data Points (The Cloud)
-# Using add_trace(type='scatter3d') explicitly to ensure visibility
-fig <- fig %>% add_trace(
-  type = 'scatter3d',
-  mode = 'markers',
-  marker = list(size = 4, color = 'black', opacity = 0.8), # High opacity to be visible
-  name = 'y (Data Cloud)'
+# --- 2. Helper to Add Traces for a Scenario ---
+# We use a 'group' argument to keep track of which scenario the traces belong to
+# visible_status: TRUE for the first scenario, FALSE for the others (hidden initially)
+add_scenario_traces <- function(fig, df, mu, visible_status) {
+  
+  # 1. Floor Projections (Red)
+  fig <- fig %>% add_trace(
+    data = df, type = 'scatter3d', mode = 'markers',
+    x = ~x, y = ~y, z = rep(0, n),
+    marker = list(size = 4, color = 'red', symbol = 'diamond', opacity = 0.8),
+    visible = visible_status,
+    name = 'Proj on Floor'
+  )
+  
+  # 2. Data Cloud (Black)
+  fig <- fig %>% add_trace(
+    data = df, type = 'scatter3d', mode = 'markers',
+    x = ~x, y = ~y, z = ~z,
+    marker = list(size = 4, color = 'black', symbol = 'circle', opacity = 0.6),
+    visible = visible_status,
+    name = 'Data Cloud'
+  )
+  
+  # 3. Axis Projections (Hollow)
+  fig <- fig %>% add_trace(
+    data = df, type = 'scatter3d', mode = 'markers',
+    x = ~x, y = rep(0, n), z = rep(0, n),
+    marker = list(size = 4, color = 'blue', symbol = 'circle-open', opacity = 0.6),
+    visible = visible_status,
+    name = 'Proj L(jn)'
+  )
+  
+  fig <- fig %>% add_trace(
+    data = df, type = 'scatter3d', mode = 'markers',
+    x = rep(0, n), y = ~y, z = rep(0, n),
+    marker = list(size = 4, color = 'green', symbol = 'circle-open', opacity = 0.6),
+    visible = visible_status,
+    name = 'Proj L(Xc)'
+  )
+  
+  fig <- fig %>% add_trace(
+    data = df, type = 'scatter3d', mode = 'markers',
+    x = rep(0, n), y = rep(0, n), z = ~z,
+    marker = list(size = 4, color = 'gold', symbol = 'circle-open', opacity = 0.8),
+    visible = visible_status,
+    name = 'Error'
+  )
+  
+  # 4. Mean Vector
+  fig <- fig %>% add_trace(
+    type = 'scatter3d', mode = 'lines',
+    x = c(0, mu[1]), y = c(0, mu[2]), z = c(0, 0),
+    line = list(color = 'black', width = 6),
+    visible = visible_status,
+    name = 'Mean Vector'
+  )
+  
+  # 5. Guide Lines
+  fig <- fig %>% add_trace(
+    type = 'scatter3d', mode = 'lines',
+    x = c(mu[1], mu[1]), y = c(mu[2], 0), z = c(0, 0),
+    line = list(color = 'blue', width = 4, dash = 'dash'),
+    visible = visible_status,
+    name = 'Link to X'
+  )
+  
+  fig <- fig %>% add_trace(
+    type = 'scatter3d', mode = 'lines',
+    x = c(mu[1], 0), y = c(mu[2], mu[2]), z = c(0, 0),
+    line = list(color = 'green', width = 4, dash = 'dash'),
+    visible = visible_status,
+    name = 'Link to Y'
+  )
+  
+  return(fig)
+}
+
+# --- 3. Build the Combined Figure ---
+fig <- plot_ly()
+
+# Add Static Floor (Always Visible)
+x_grid_range <- seq(0, 7, length.out = 20)
+y_grid_range <- seq(-4, 8, length.out = 20)
+
+z_plane <- matrix(0, nrow = 20, ncol = 20)
+fig <- fig %>% add_surface(
+  x = x_grid_range, y = y_grid_range, z = z_plane,
+  opacity = 0.3, colorscale = list(c(0, 1), c("steelblue", "steelblue")),
+  showscale = FALSE, name = 'Model Space'
 )
 
-# 4. Draw Projections onto the 3 Axes
-# Projection onto L(jn) -> (x, 0, 0)
-fig <- fig %>% add_trace(
-  type = 'scatter3d',
-  mode = 'markers',
-  x = ~x, y = rep(0, n), z = rep(0, n),
-  marker = list(size = 3, color = 'blue', symbol = 'circle', opacity = 0.5),
-  name = 'Proj onto L(jn)'
-)
+# Add Scenario A Traces (Indices 2-9) -> Visible initially
+fig <- add_scenario_traces(fig, df_A, mu_A, visible_status = TRUE)
 
-# Projection onto L(Xc) -> (0, y, 0)
-fig <- fig %>% add_trace(
-  type = 'scatter3d',
-  mode = 'markers',
-  x = rep(0, n), y = ~y, z = rep(0, n),
-  marker = list(size = 3, color = 'green', symbol = 'circle', opacity = 0.5),
-  name = 'Proj onto L(Xc)'
-)
+# Add Scenario B Traces (Indices 10-17) -> Hidden initially
+fig <- add_scenario_traces(fig, df_B, mu_B, visible_status = FALSE)
 
-# Projection onto Col(X)^perp -> (0, 0, z)
-fig <- fig %>% add_trace(
-  type = 'scatter3d',
-  mode = 'markers',
-  x = rep(0, n), y = rep(0, n), z = ~z,
-  marker = list(size = 3, color = 'red', symbol = 'circle', opacity = 0.5),
-  name = 'Proj onto Col(X)^perp'
-)
 
-# 5. Draw the Mean Vector (mu) and its Projections
-# Mean Vector: Origin to (3,3,3)
-fig <- fig %>% add_trace(
-  type = 'scatter3d',
-  mode = 'lines',
-  x = c(0, mu[1]), y = c(0, mu[2]), z = c(0, mu[3]),
-  line = list(color = 'black', width = 6),
-  name = 'Mean Vector (mu)'
-)
+# --- 4. Define Buttons (Update Menus) ---
+# Each trace added creates an index in the plot object.
+# Index 1: Surface (Always visible)
+# Indices 2-9: Scenario A (8 traces)
+# Indices 10-17: Scenario B (8 traces)
 
-# Mu on L(jn): Origin to (3,0,0)
-fig <- fig %>% add_trace(
-  type = 'scatter3d',
-  mode = 'lines',
-  x = c(0, mu[1]), y = c(0, 0), z = c(0, 0),
-  line = list(color = 'blue', width = 4),
-  name = 'Mu on L(jn)'
-)
+# Vector for Scenario A: [TRUE (Surface), TRUE, TRUE..., FALSE, FALSE...]
+vis_A <- c(TRUE, rep(TRUE, 8), rep(FALSE, 8))
 
-# Mu on L(Xc): Origin to (0,3,0)
-fig <- fig %>% add_trace(
-  type = 'scatter3d',
-  mode = 'lines',
-  x = c(0, 0), y = c(0, mu[2]), z = c(0, 0),
-  line = list(color = 'green', width = 4),
-  name = 'Mu on L(Xc)'
-)
+# Vector for Scenario B: [TRUE (Surface), FALSE, FALSE..., TRUE, TRUE...]
+vis_B <- c(TRUE, rep(FALSE, 8), rep(TRUE, 8))
 
-# Mu on Col(X)^perp: Origin to (0,0,3)
-fig <- fig %>% add_trace(
-  type = 'scatter3d',
-  mode = 'lines',
-  x = c(0, 0), y = c(0, 0), z = c(0, mu[3]),
-  line = list(color = 'red', width = 4),
-  name = 'Mu on Col(X)^perp'
-)
-
-# 6. Layout
 fig <- fig %>% layout(
+  title = "Comparing Regression Effects",
   scene = list(
-    xaxis = list(title = "L(j_n)"),
-    yaxis = list(title = "L(X_c)"),
-    zaxis = list(title = "Col(X)^perp"),
-    camera = list(eye = list(x = 1.6, y = 1.6, z = 1.6))
+    xaxis = list(title = "L(j<sub>n</sub>)", range = c(0, 8)),
+    yaxis = list(title = "L(X<sub>c</sub>)", range = c(-4, 8)),
+    zaxis = list(title = "Col(X)<sup>&perp;</sup>", range = c(-4, 4)),
+    aspectmode = "cube",
+    camera = list(eye = list(x = 1.6, y = 1.6, z = 0.6))
   ),
-  title = "Geometric Decomposition: Data Cloud & Projections"
+  updatemenus = list(
+    list(
+      type = "buttons",
+      direction = "left",
+      x = 0.05, y = 1,
+      buttons = list(
+        list(
+          method = "update",
+          args = list(list(visible = vis_A), 
+                      list(title = "Scenario 1: Regression Effect (beta1 != 0)")),
+          label = "Effect Exists"
+        ),
+        list(
+          method = "update",
+          args = list(list(visible = vis_B), 
+                      list(title = "Scenario 2: No Effect (beta1 = 0)")),
+          label = "No Effect"
+        )
+      )
+    )
+  ),
+  showlegend = FALSE
 )
 
 fig
