@@ -438,7 +438,8 @@ The total variation is decomposed as $\text{SST} = \text{SSR} + \text{SSE}$.
     $$\text{SSE} = \|y - \hat{y}\|^2 = \|(I - P_{X})y\|^2$$
 :::
 
-### Geometric Decomposition of $y$
+
+### 3D Visualization of Decomposition of $y$
 
 We partition the total variation in $y$ based on the orthogonal subspaces.
 
@@ -627,6 +628,137 @@ fig <- fig %>% layout(
 fig
 ```
 
+
+### A Diagram to Show Decomposition of Sum of Squares
+
+The decomposition of the total variation is visualized below. The total deviation (Orange) is the vector sum of the regression deviation (Green) and the residual error (Red).
+
+```{tikz}
+%| label: fig-ss-decomposition-legend-v2
+%| fig-cap: "Geometric Decomposition: SST = SSR + SSE"
+%| fig-align: "center"
+%| echo: false
+
+\begin{tikzpicture}[scale=1.5, >=latex, font=\small]
+
+  % --- Coordinates ---
+  % Shifted Mean from x=2 to x=3 (Longer by 1/2)
+  % Shifted Fitted/Observed by same amount (+1) to preserve triangle shape
+  \coordinate (Origin) at (0,0);
+  \coordinate (Mean) at (3,0);      % \bar{y}j_n (Length 3)
+  \coordinate (Fitted) at (7,1.5);    % \hat{y}
+  \coordinate (Observed) at (7,4.5);  % y
+
+  % --- 1. Subspaces ---
+  
+  % L(j_n) Axis (Horizontal)
+  \draw[->, thick, gray] (-0.5,0) -- (8.5,0) node[right, black] {$L(j_n)$};
+  
+  % L(X_c) Axis (Regressors)
+  % Slope = 1.5 / (7-3) = 0.375. Extend to x=8 => y=1.875
+  \draw[->, thick, gray] (Mean) -- (8, 1.875) node[right, black] {$L(X_c)$};
+
+  % --- 2. Vectors ---
+  
+  % Mean Vector (Blue)
+  \draw[thick, blue, ->] (Origin) -- (Mean) node[midway, below] {$\bar{y}j_n$};
+  
+  % Fitted Vector (Blue Dashed)
+  \draw[dashed, blue] (Origin) -- (Fitted);
+  \node[below right, blue] at (Fitted) {$\hat{y}$};
+
+  % Observed Vector (Black)
+  \draw[thick, black, ->] (Origin) -- (Observed) node[above left] {$y$};
+
+  % --- 3. Decomposition Components ---
+  
+  % SSR (Green)
+  \draw[ultra thick, green!60!black, ->] (Mean) -- (Fitted);
+    
+  % SSE (Red)
+  \draw[ultra thick, red, ->] (Fitted) -- (Observed);
+
+  % SST (Orange)
+  \draw[dashed, ultra thick, orange] (Mean) -- (Observed);
+
+  % --- 4. Perpendicular Signs ---
+  
+  % A. At Fitted (Orthogonality of Residuals)
+  % Rotated to align with the sloped line L(Xc)
+  % The angle of L(Xc) is arctan(1.5/4) approx 20.5 degrees.
+  \begin{scope}[shift={(Fitted)}, rotate=20.5]
+     \draw[black] (-0.25,0) -- (-0.25, 0.25) -- (0, 0.25);
+  \end{scope}
+
+  % B. At Mean (Orthogonality of Centered Regression vs Mean)
+  % Angle between horizontal and L(Xc)
+  \draw[black] (Mean) ++(-0.25,0) -- ++(0, 0.25) -- ++(0.2, 0); 
+  % (Note: Visual approximation for the concept)
+
+  % --- 5. Legend ---
+  \node[draw, fill=white, align=left, anchor=north west] at (0.2, 4.8) {
+    \textbf{Decomposition:}\\
+    % Using tikz inline to draw heavy lines
+    \tikz\draw[orange, line width=2.5pt] (0,0) -- (0.6,0); \textbf{ SST}: Total \\ 
+    \quad $\small \|y - \bar{y}j_n\|^2$ \\[0.5em]
+    
+    \tikz\draw[green!60!black, line width=2.5pt] (0,0) -- (0.6,0); \textbf{ SSR}: Regression \\ 
+    \quad $\small \|\hat{y} - \bar{y}j_n\|^2$ \\[0.5em]
+    
+    \tikz\draw[red, line width=2.5pt] (0,0) -- (0.6,0); \textbf{ SSE}: Error \\ 
+    \quad $\small \|y - \hat{y}\|^2$
+  };
+
+\end{tikzpicture}
+```
+
+### Distribution of Sum of Squares
+
+We apply the general theory of projections to the specific components defined in @def-ss-components.
+
+::: {#thm-distribution-ss-v2 name="Distribution of Sum of Squares"}
+Let $y \sim N(\mu, \sigma^2 I_n)$, where $\mu \in \text{Col}(X)$.
+Consider the decomposition defined by the projection matrices $P_{X_c}$ and $M = I - P_X$.
+
+1.  **Independence:** The quadratic forms $\text{SSR}$ and $\text{SSE}$ are statistically independent because the subspaces $L(X_c)$ and $\text{Col}(X)^\perp$ are orthogonal.
+
+2.  **Distribution of SSE:** The scaled sum of squared errors follows a central Chi-squared distribution:
+    $$ \frac{\text{SSE}}{\sigma^2} = \frac{\|(I - P_X)y\|^2}{\sigma^2} \sim \chi^2(n-p) $$
+    **Mean:**
+    $$ E[\text{SSE}] = \sigma^2(n-p) $$
+
+3.  **Distribution of SSR:** The scaled regression sum of squares follows a **non-central** Chi-squared distribution:
+    $$ \frac{\text{SSR}}{\sigma^2} = \frac{\|P_{X_c}y\|^2}{\sigma^2} \sim \chi^2(p-1, \lambda) $$
+    **Mean:**
+    $$ E[\text{SSR}] = \sigma^2(p-1) + \|P_{X_c}\mu\|^2 $$
+
+**Non-centrality Parameter ($\lambda$):**
+$$ \lambda = \frac{1}{2\sigma^2} \|P_{X_c} \mu\|^2 $$
+where $$\|P_{X_c} \mu\|^2 = \|X_c \beta_1\|^2 = (X_c \beta_1)' (X_c \beta_1) = \beta_1' X_c' X_c \beta_1$$
+:::
+
+::: proof
+We apply @thm-proj-dist to the specific projection matrices identified in the definitions.
+
+1.  **For SSE (Error Space):**
+    $\text{SSE}$ is defined by the projection matrix $P_V = I - P_X$.
+    
+    * **Dimension:** The rank of $(I - P_X)$ is $n - \text{rank}(X) = n - p$.
+    * **Non-centrality:** Since $\mu \in \text{Col}(X)$, the projection onto the orthogonal complement is zero: $\|(I - P_X)\mu\|^2 = 0$. Thus, $\lambda = 0$.
+    * **Expectation:** Using Part 2 of @thm-proj-dist ($E(\|P_V y\|^2) = \sigma^2 k + \|P_V \mu\|^2$):
+        $$ E[\text{SSE}] = \sigma^2(n-p) + 0 = \sigma^2(n-p) $$
+
+2.  **For SSR (Regression Space):**
+    $\text{SSR}$ is defined by the projection matrix $P_V = P_{X_c}$.
+    
+    * **Dimension:** The rank of $P_{X_c}$ is $p - 1$.
+    * **Non-centrality:** The projection of $\mu$ onto $L(X_c)$ is $P_{X_c}\mu$.
+        $$ \lambda = \frac{1}{2\sigma^2} \|P_{X_c} \mu\|^2 $$
+    * **Expectation:** Using Part 2 of @thm-proj-dist:
+        $$ E[\text{SSR}] = \sigma^2(p-1) + \|P_{X_c}\mu\|^2 $$
+        
+    This shows that while $E[\text{SSE}]$ depends only on the noise variance and sample size, $E[\text{SSR}]$ is inflated by the magnitude of the true regression signal $\|P_{X_c}\mu\|^2$.
+:::
 ## Coefficient of Determination ($R^2$)
 
 The $R^2$ statistic measures the proportion of total variation explained by the regression model.
@@ -644,12 +776,12 @@ $$R^2 = \frac{\hat{\beta}_1' X_c' X_c \hat{\beta}_1}{\sum (y_i - \bar{y})^2}$$
 Standard $R^2$ always increases (or stays the same) as predictors are added, regardless of their value. The Adjusted $R^2$ penalizes for model complexity.
 
 ::: {#def-adj-r2 name="Adjusted R-Squared"}
-$$R^2_a = 1 - \frac{\text{SSE} / (n - k - 1)}{\text{SST} / (n - 1)} = 1 - \frac{\text{MSE}}{s_y^2}$$
+$$R^2_a = 1 - \frac{\text{SSE} / (n - k - 1)}{\text{SST} / (n - 1)} = 1 - \frac{\text{MSE}}{\text{MST}}$$
 Relationship to $R^2$:
 $$R^2_a = 1 - (1 - R^2) \frac{n-1}{n-k-1}$$
 :::
 
-### Expected Value of $R^2$
+### Distribution  of $R^2$
 
 If the true slope coefficients are zero ($\beta_1 = \dots = \beta_k = 0$), the expected value of $R^2$ is not zero due to mathematical constraints.
 
