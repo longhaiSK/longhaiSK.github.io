@@ -356,13 +356,7 @@ Differentiating with respect to $\sigma^2$ and setting to zero yields $\hat{\sig
 
 **Note:** The MLE for $\sigma^2$ is biased (denominator $n$), whereas $s^2$ is unbiased (denominator $n-k-1$).
 
-## Linear Models in Centered Form
 
-The regression model can be written in a centered form by subtracting the means of the explanatory variables:
-$$y_{i}=\alpha+\beta_{1}(x_{i1}-\overline{x}_{1})+\beta_{2}(x_{i2}-\overline{x}_{2})+\cdot\cdot\cdot+\beta_{k}(x_{ik}-\overline{x}_{k})+e_{i}$$
-for $i=1,...,n$, where the intercept term is adjusted:
-$$\alpha=\beta_{0}+\beta_{1}\overline{x}_{1}+\beta_{2}\overline{x}_{2}+\cdot\cdot\cdot+\beta_{k}\overline{x}_{k}$$
-and $\overline{x}_{j}=\frac{1}{n}\sum_{i=1}^{n}x_{ij}$.
 
 ## Linear Models in Centered Form
 
@@ -781,40 +775,53 @@ Relationship to $R^2$:
 $$R^2_a = 1 - (1 - R^2) \frac{n-1}{n-k-1}$$
 :::
 
-### Distribution  of $R^2$
+### Distribution of $R^2$
 
-If the true slope coefficients are zero ($\beta_1 = \dots = \beta_k = 0$), the expected value of $R^2$ is not zero due to mathematical constraints.
+The distribution of the coefficient of determination $R^2 = \text{SSR} / (\text{SSR} + \text{SSE})$ follows directly from the ratio of the independent Chi-squared variables defined in @thm-distribution-ss-v2.
 
-::: {#thm-r2-beta name="Exact Distribution of R-Squared"}
-Under the null hypothesis where all slope coefficients are zero, $R^2$ follows a Beta distribution:
-$$R^2 \sim \text{Beta}\left(\frac{k}{2}, \frac{n-k-1}{2}\right)$$
+::: {#thm-r2-noncentral name="Non-Central Distribution of R-Squared"}
+If $\beta_1 \neq 0$, the $R^2$ statistic follows a non-central Beta distribution:
+$$ R^2 \sim \text{Beta}\left( \frac{p-1}{2}, \frac{n-p}{2}; \lambda \right) $$
+where the non-centrality parameter is $\lambda = \frac{1}{2\sigma^2} \beta_1' X_c' X_c \beta_1$.
 :::
 
-::: {.proof}
-Recall that $R^2 = \frac{\text{SSR}}{\text{SSR} + \text{SSE}}$. Under the null hypothesis:
+::: proof
+Let $U = \text{SSR}/\sigma^2$ and $V = \text{SSE}/\sigma^2$. From @thm-distribution-ss-v2, we have established:
 
-1.  $\text{SSR}/\sigma^2 \sim \chi^2(k)$.
-2.  $\text{SSE}/\sigma^2 \sim \chi^2(n-k-1)$.
-3.  $\text{SSR}$ and $\text{SSE}$ are independent.
+1.  $U \sim \chi^2(p-1, \lambda)$ (Non-central Chi-squared).
+2.  $V \sim \chi^2(n-p)$ (Central Chi-squared).
+3.  $U$ and $V$ are independent.
 
-By the definition of the Beta distribution, if $X \sim \chi^2(u)$ and $Y \sim \chi^2(v)$ are independent, then the ratio $\frac{X}{X+Y}$ follows a $\text{Beta}(\frac{u}{2}, \frac{v}{2})$ distribution.
+We express $R^2$ in terms of these scaled variables:
+$$ R^2 = \frac{\text{SSR}}{\text{SSR} + \text{SSE}} = \frac{U\sigma^2}{U\sigma^2 + V\sigma^2} = \frac{U}{U + V} $$
+
+**Definition:** A random variable $X$ follows a non-central Beta distribution $\text{Beta}(\alpha, \beta; \lambda)$ if it can be written as $X = \frac{A}{A+B}$, where $A \sim \chi^2(2\alpha, \lambda)$ and $B \sim \chi^2(2\beta)$ are independent.
+
+Matching our terms to this definition:
+* $2\alpha = p-1 \implies \alpha = \frac{p-1}{2}$
+* $2\beta = n-p \implies \beta = \frac{n-p}{2}$
+
+Therefore:
+$$ R^2 \sim \text{Beta}\left( \frac{p-1}{2}, \frac{n-p}{2}; \lambda \right) $$
 :::
 
-**Derivation of the Expected Value:**
 
-Using the properties of the Beta distribution, the mean is given by $E[R^2] = \frac{\alpha}{\alpha + \beta}$.
-Substituting the degrees of freedom $\alpha = k/2$ and $\beta = (n-k-1)/2$:
+::: {#cor-r2-null-behavior name="Null Behavior of R-Squared and Adjusted R-Squared"}
+Under the null hypothesis of no regression effect ($H_0: \beta_1 = 0$), the non-centrality parameter vanishes ($\lambda = 0$), leading to the following properties:
 
-$$
-E[R^2] = \frac{k/2}{k/2 + (n-k-1)/2} = \frac{k}{n-1}
-$$
+1.  **Distribution of $R^2$:** It follows a central Beta distribution:
+    $$ R^2 \sim \text{Beta}\left( \frac{p-1}{2}, \frac{n-p}{2} \right) $$
 
-Thus, even when there is no relationship between $y$ and $X$, the expected $R^2$ is approximately $k/(n-1)$ rather than 0.
+2.  **Expected Value of $R^2$ (Bias):**
+    Even when no relationship exists, the expected $R^2$ is positive due to chance correlation:
+    $$ E[R^2 | H_0] = \frac{p-1}{n-1} $$
 
-However, for the Adjusted $R^2$, under the null hypothesis:
-$$E[R^2_a] \approx 1 - \frac{\sigma^2}{\sigma^2} = 0$$
-
-This property makes $R^2_a$ a more appropriate metric for comparing models with different numbers of predictors, as it accounts for "overfitting" by penalizing the degrees of freedom consumed by the model.
+3.  **Expected Value of $R^2_{adj}$ (Unbiasedness):**
+    The Adjusted $R^2$ corrects for this bias. Using the linear relation $R^2_{adj} = 1 - (1 - R^2) \frac{n-1}{n-p}$:
+    $$
+    E[R^2_{adj} | H_0] = 1 - \left( 1 - \frac{p-1}{n-1} \right) \frac{n-1}{n-p} = 0
+    $$
+:::
 
 ## Underfitting and Overfitting
 
@@ -893,4 +900,3 @@ $$ \text{Var}(\hat{\beta}_1) - \text{Var}(\hat{\beta}_1^*) = \sigma^2 A B^{-1} A
 1.  **Underfitting:** Reduces variance but introduces bias (unless variables are orthogonal).
 2.  **Overfitting:** Keeps estimators unbiased but increases variance.
 
-The goal of model selection is to balance these two errors, adhering to the principle of **Occam's Razor**: "entities should not be multiplied beyond necessity".
