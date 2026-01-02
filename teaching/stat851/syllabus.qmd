@@ -7,12 +7,9 @@ format:
     page-layout: full
     echo: true
     code-fold: true
-    df-print: paged
     highlight-style: tango
     css: syllabusstyles.css
-  pdf: 
-    variables:
-      booktabs: false
+  pdf: default
 
 
 ---
@@ -52,13 +49,31 @@ By the completion of this course, students will be expected to:
 
 ## Tentative Schedule
 
+
+```{r find-mondays}
+#| echo: false
+#| eval: false
+
+# 1. Set the first Monday
+start_date <- as.Date("2026-09-05")
+
+# 2. Generate the next 14 weeks
+dates <- seq(from = start_date, by = "week", length.out = 14)
+
+# 3. Print the vector in a copy-paste friendly format
+dput(format(dates, "%b %d"))
+```
+
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
+#| out-width: "100%"
+#| out-extra: "style='width: 100% !important;'" 
 
 library(gt)
 library(dplyr)
+library(knitr)
 
 # 1. SETUP: Dates
 mondays <- c("Jan 05", "Jan 12", "Jan 19", "Jan 26", "Feb 02", "Feb 09", "Feb 16", 
@@ -99,12 +114,11 @@ schedule_data <- data.frame(
   Date = mondays
 )
 
-# Use unname() to keep clean text
 schedule_data$Topic   <- unname(topics_list[schedule_data$Date])
 schedule_data$Remarks <- ifelse(is.na(remarks_list[schedule_data$Date]), "", unname(remarks_list[schedule_data$Date]))
 
-# 4. RENDER WITH GT
-schedule_data %>%
+# 4. CREATE THE TABLE
+gt_tbl <- schedule_data %>%
   gt() %>%
   cols_label(
     Acad_Week = "Academic Week",
@@ -123,29 +137,32 @@ schedule_data %>%
   ) %>%
   opt_row_striping() %>%
   
-  # --- STYLING OPTIONS ---
+  # --- CRITICAL STYLING ---
   tab_options(
-    # 1. Full Grid Lines (Body)
+    # Body Grid
     table_body.hlines.style = "solid",
     table_body.vlines.style = "solid",
     
-    # 2. Header Grid Lines (Extend vlines to header)
-    column_labels.vlines.style = "solid",       # Vertical lines between headers
-    column_labels.border.bottom.style = "solid", # Line between header and body
-    column_labels.border.top.style = "solid",    # Line above header
+    # Header Grid (This adds the vlines to the header)
+    column_labels.vlines.style = "solid",
+    column_labels.border.top.style = "solid",
+    column_labels.border.bottom.style = "solid",
     
-    # 3. Outer Borders
+    # Outer Border
     table.border.top.style = "solid",
-    table.border.bottom.style = "solid"
+    table.border.bottom.style = "solid",
+    
+    # Adjust font for image readability
+    table.font.size = px(16)
   ) %>%
   
-  # --- BOLD HEADERS ---
+  # Bold Headers
   tab_style(
     style = cell_text(weight = "bold"),
     locations = cells_column_labels()
   ) %>%
-
-  # --- READING WEEK HIGHLIGHT ---
+  
+  # Highlight Reading Week
   tab_style(
     style = list(
       cell_fill(color = "#d1e7dd"),
@@ -153,6 +170,12 @@ schedule_data %>%
     ),
     locations = cells_body(rows = 7)
   )
+
+# 5. SAVE & INSERT IMAGE
+# Ensure you have run: webshot2::install_chromote() once
+gtsave(gt_tbl, "schedule_snapshot.png", vwidth = 1200)
+
+include_graphics("schedule_snapshot.png")
 ```
 
 :::{.callout-important}
@@ -208,4 +231,4 @@ Recording of the lectures will only be allowed in certain circumstances. Please 
   * **No Electronic Devices:** You are **NOT allowed** to use laptops, tablets, smartwatches, or any other electronic devices during the exam.
     
   * **Phone Exception:** You are permitted to bring a smartphone, but it must remain stowed away during the writing period. It may **only** be used at the very end of the exam for the specific purpose of taking photos of your answer sheets for submission (if required). Using the phone for any other reason during the exam will be treated as academic misconduct.
-`
+
