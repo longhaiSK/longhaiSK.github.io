@@ -99,7 +99,7 @@ schedule_data <- data.frame(
   Date = mondays
 )
 
-# FIX: Use unname() to prevent names from interfering with the table
+# Use unname() to keep clean text
 schedule_data$Topic   <- unname(topics_list[schedule_data$Date])
 schedule_data$Remarks <- ifelse(is.na(remarks_list[schedule_data$Date]), "", unname(remarks_list[schedule_data$Date]))
 
@@ -113,7 +113,6 @@ schedule_data %>%
     Topic = "Topic",
     Remarks = "Remarks"
   ) %>%
-  # FIX: Only apply markdown formatting to Remarks (Topic is plain text now)
   fmt_markdown(columns = c(Remarks)) %>%
   cols_align(align = "center", columns = c(Acad_Week, Cal_Week)) %>%
   cols_align(align = "left", columns = c(Date, Topic, Remarks)) %>%
@@ -123,13 +122,30 @@ schedule_data %>%
     everything() ~ px(80)
   ) %>%
   opt_row_striping() %>%
+  
+  # --- STYLING OPTIONS ---
   tab_options(
-    table.border.top.style = "solid",
-    table.border.bottom.style = "solid",
-    column_labels.border.bottom.style = "solid",
+    # 1. Full Grid Lines (Body)
     table_body.hlines.style = "solid",
-    table_body.vlines.style = "solid"
+    table_body.vlines.style = "solid",
+    
+    # 2. Header Grid Lines (Extend vlines to header)
+    column_labels.vlines.style = "solid",       # Vertical lines between headers
+    column_labels.border.bottom.style = "solid", # Line between header and body
+    column_labels.border.top.style = "solid",    # Line above header
+    
+    # 3. Outer Borders
+    table.border.top.style = "solid",
+    table.border.bottom.style = "solid"
   ) %>%
+  
+  # --- BOLD HEADERS ---
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_column_labels()
+  ) %>%
+
+  # --- READING WEEK HIGHLIGHT ---
   tab_style(
     style = list(
       cell_fill(color = "#d1e7dd"),
