@@ -1,11 +1,12 @@
 
 #remove cite_start or cite numbers
+: <<'END'
 regexrepl.py lec5*.qmd "\[cite(?:_start|:[^\]]+)\]" ""
 regexrepl.py lec5*.qmd \
  '(?m)^(?!\s*(?:[-*]|\d+\.)\s)(.+)\n(?!\s*\n)(\s*(?:[-*]|\d+\.)\s)' \
  '\1\n\n\2'
 wrap_math_text.py lec5*.qmd
-: <<'END'
+
 
 #wrap functions in math with \text
 wrap_math_text.py lec5*.qmd
