@@ -10,7 +10,9 @@ format:
     df-print: paged
     highlight-style: tango
     css: syllabusstyles.css
-  typst: default
+  pdf: 
+    variables:
+      booktabs: false
 
 
 ---
@@ -32,7 +34,7 @@ Lecture Classroom: MCLN 242.1, MWF 9:30-10:20; Office hour: TBA; Lab: no lab.
 
 ## Course Materials
 
-* [My Lecture Notes](.) is the primary source for learning.
+* [My Lecture Notes](.) are the primary source for learning.
 * [This one-drive folder](https://usaskca1-my.sharepoint.com/:f:/g/personal/lol553_usask_ca/IgBmn-cp6aVuSIH_zsG-r2pcAXPJ4jdZPgUtcl8c20GipDo?e=o9xSaS) releases the assignments, tests, and their solutions if available.
 * Recommended reading: LINEAR MODELS IN STATISTICS, Second Edition, by Alvin C. Rencher and G. Bruce Schaalje, ISBN 978-0-471-75498-5 (cloth). *The book is not required but it is good to have it.*
 
@@ -46,30 +48,96 @@ By the completion of this course, students will be expected to:
 4.  **Construct Statistical Inference:** Apply the theory of multiple regression to construct confidence regions and execute hypothesis tests (F-tests) for the general linear hypothesis.
 6.  **Analyze Non-Full-Rank Models:** Distinguish between estimable and non-estimable functions in non-full-rank models (e.g., ANOVA frameworks) and formulate appropriate tests for these scenarios.
 
+
+
 ## Tentative Schedule
-| Academic Week | Calendar Week | Date of Monday | Topic | Remarks |
-|:---:|:---:|:---|:---|:---|
-| 1 | 2 | Jan 05 | **1. Vector Space and Projection** | Jan 07: First day of class |
-| 2 | 3 | Jan 12 | **1. Vector Space and Projection** (Cont'd) | |
-| 3 | 4 | Jan 19 | **2. Matrix Algebra** | **Jan 25: Assignment 1 due** |
-| 4 | 5 | Jan 26 | **2. Matrix Algebra** (Cont'd) | |
-| 5 | 6 | Feb 02 | **3. Distribution of Multivariate Normal** | |
-| 6 | 7 | Feb 09 | **4. Distribution of Quadratic Forms** | |
-| N/A | 8 | Feb 16 | — | **Reading Week – No classes**|
-| 7 | 9 | Feb 23 | **4. Distribution of Quadratic Forms** (Cont'd) |**Mar 01: Assignment 2 due**  |
-| 8 | 10 | Mar 02 | **5. Theory for Multiple Regression** | **Mar 06: Midterm (during class)** |
-| 9 | 11 | Mar 09 | **5. Theory for Multiple Regression** (Cont'd) | |
-| 10 | 12 | Mar 16 | **5. Theory for Multiple Regression** (Cont'd) | |
-| 11 | 13 | Mar 23 | **6. Non-full-rank Models** | |
-| 12 | 14 | Mar 30 | **6. Non-full-rank Models** (Cont'd) | **Apr 05: Assignment 3 due** |
-| 13 | 15 | Apr 06 | **Review** | Apr 06: Last lecture |
 
-: {.schedule-table tbl-colwidths="[10,10,15,40,25]"}
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
 
-::: {.callout-note}
-**Important Notes:** The official schedule and due dates for all assignments and tests are posted on Canvas.
-:::
+library(gt)
+library(dplyr)
 
+# 1. SETUP: Dates
+mondays <- c("Jan 05", "Jan 12", "Jan 19", "Jan 26", "Feb 02", "Feb 09", "Feb 16", 
+             "Feb 23", "Mar 02", "Mar 09", "Mar 16", "Mar 23", "Mar 30", "Apr 06")
+
+# 2. CONTENT
+topics_list <- c(
+  "Jan 05" = "1. Vector Space and Projection",
+  "Jan 12" = "1. Vector Space and Projection (Cont'd)",
+  "Jan 19" = "2. Matrix Algebra",
+  "Jan 26" = "2. Matrix Algebra (Cont'd)",
+  "Feb 02" = "3. Distribution of Multivariate Normal",
+  "Feb 09" = "4. Distribution of Quadratic Forms",
+  "Feb 16" = "—", 
+  "Feb 23" = "4. Distribution of Quadratic Forms (Cont'd)",
+  "Mar 02" = "5. Theory for Multiple Regression",
+  "Mar 09" = "5. Theory for Multiple Regression (Cont'd)",
+  "Mar 16" = "5. Theory for Multiple Regression (Cont'd)",
+  "Mar 23" = "6. Non-full-rank Models",
+  "Mar 30" = "6. Non-full-rank Models (Cont'd)",
+  "Apr 06" = "Review"
+)
+
+remarks_list <- c(
+  "Jan 05" = "Jan 06: First day of class",
+  "Jan 19" = "**Jan 25: Assignment 1 due**",
+  "Feb 16" = "**Reading Week – No classes**",
+  "Feb 23" = "**Mar 01: Assignment 2 due**",
+  "Mar 02" = "**Mar 06: Midterm (during class)**",
+  "Mar 30" = "**Apr 05: Assignment 3 due**",
+  "Apr 06" = "Apr 07: Last lecture"
+)
+
+# 3. BUILD DATAFRAME
+schedule_data <- data.frame(
+  Acad_Week = c("1", "2", "3", "4", "5", "6", "N/A", "7", "8", "9", "10", "11", "12", "13"),
+  Cal_Week = c("2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"),
+  Date = mondays
+)
+
+# FIX: Use unname() to prevent names from interfering with the table
+schedule_data$Topic   <- unname(topics_list[schedule_data$Date])
+schedule_data$Remarks <- ifelse(is.na(remarks_list[schedule_data$Date]), "", unname(remarks_list[schedule_data$Date]))
+
+# 4. RENDER WITH GT
+schedule_data %>%
+  gt() %>%
+  cols_label(
+    Acad_Week = "Academic Week",
+    Cal_Week = "Calendar Week",
+    Date = "Date of Monday",
+    Topic = "Topic",
+    Remarks = "Remarks"
+  ) %>%
+  # FIX: Only apply markdown formatting to Remarks (Topic is plain text now)
+  fmt_markdown(columns = c(Remarks)) %>%
+  cols_align(align = "center", columns = c(Acad_Week, Cal_Week)) %>%
+  cols_align(align = "left", columns = c(Date, Topic, Remarks)) %>%
+  cols_width(
+    Topic ~ px(250),
+    Remarks ~ px(200),
+    everything() ~ px(80)
+  ) %>%
+  opt_row_striping() %>%
+  tab_options(
+    table.border.top.style = "solid",
+    table.border.bottom.style = "solid",
+    column_labels.border.bottom.style = "solid",
+    table_body.hlines.style = "solid",
+    table_body.vlines.style = "solid"
+  ) %>%
+  tab_style(
+    style = list(
+      cell_fill(color = "#d1e7dd"),
+      cell_text(weight = "bold")
+    ),
+    locations = cells_body(rows = 7)
+  )
+```
 
 
 ## Evaluation
@@ -115,14 +183,11 @@ Recording of the lectures will only be allowed in certain circumstances. Please 
 
 ## Use of Generative AI and Electronic Devices
 
-**1. AI for Learning vs. Assessment**
-Students are free (and encouraged) to use Generative AI tools as a study aid to understand course concepts, debug code, or explain complex theorems. However, **all submitted work for assignments must be your own.**
-
-* **Assignments:** You must write your own solutions. Directly copying text, derivations, or code from an AI tool and submitting it as your own may receive a **severe penalty** (up to receiving a 0% on the assignment.
-
-**2. Electronic Devices During Tests**
-All term tests and the final exam are **Open Book**, meaning you may bring printed notes, textbooks, and lecture slides.
-
-* **No Electronic Devices:** You are **NOT allowed** to use laptops, tablets, smartwatches, or any other electronic devices during the exam.
-* **Phone Exception:** You are permitted to bring a smartphone, but it must remain stowed away during the writing period. It may **only** be used at the very end of the exam for the specific purpose of taking photos of your answer sheets for submission (if required). Using the phone for any other reason during the exam will be treated as academic misconduct.
-
+1. AI for Learning vs. Assessment. Students are free (and encouraged) to use Generative AI tools as a study aid to understand course concepts, debug code, or explain complex theorems. However, **all submitted work for assignments must be your own.** You must write your own solutions. Directly copying text, derivations, or code from an AI tool and submitting it as your own may receive a **severe penalty** (up to receiving a 0% on the assignment.
+  
+2. Electronic Devices During Tests. All term tests and the final exam are **Open Book**, meaning you may bring printed notes, textbooks, and lecture slides.
+  
+  * **No Electronic Devices:** You are **NOT allowed** to use laptops, tablets, smartwatches, or any other electronic devices during the exam.
+    
+  * **Phone Exception:** You are permitted to bring a smartphone, but it must remain stowed away during the writing period. It may **only** be used at the very end of the exam for the specific purpose of taking photos of your answer sheets for submission (if required). Using the phone for any other reason during the exam will be treated as academic misconduct.
+`
