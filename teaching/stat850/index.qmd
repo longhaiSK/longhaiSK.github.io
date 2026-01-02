@@ -1,0 +1,234 @@
+---
+title: "STAT 442/850 Statistical Inference (University of Saskatchewan, 2026-01)"
+format: 
+  html: 
+    theme: cosmo
+    toc: true
+    page-layout: full
+    echo: true
+    code-fold: true
+    highlight-style: tango
+    css: syllabusstyles.css
+  pdf: default
+
+
+---
+
+
+## Description
+This course is a rigorous examination of the general linear models using vector space theory, in particular the approach of regarding least square as projection. The topics includes: vector space; projection; matrix algebra; generalized inverses;  quadratic forms; theory for point estimation; theory for hypothesis test; theory for non-full-rank models. 
+
+**Prerequisite(s):** MATH 164 (formerly MATH 264) or MATH 266, STAT 342, and STAT 344 or 345.
+
+## Instructor
+[Longhai Li](https://longhaisk.github.io/), Professor, <br>
+Department of Mathematics and Statistics, University of Saskatchewan<br>
+Email: longhai.li@usask.ca.
+
+## Times and Places
+Lecture Classroom: MCLN 242.1, MWF 9:30-10:20; Office hour: TBA; Lab: no lab.
+
+
+## Course Materials
+
+* [My Lecture Notes](.) are the primary source for learning.
+* [This one-drive folder](https://usaskca1-my.sharepoint.com/:f:/g/personal/lol553_usask_ca/IgBmn-cp6aVuSIH_zsG-r2pcAXPJ4jdZPgUtcl8c20GipDo?e=o9xSaS) releases the assignments, tests, and their solutions if available.
+* Recommended reading: LINEAR MODELS IN STATISTICS, Second Edition, by Alvin C. Rencher and G. Bruce Schaalje, ISBN 978-0-471-75498-5 (cloth). *The book is not required but it is good to have it.*
+
+## Learning Outcomes
+
+By the completion of this course, students will be expected to:
+
+1.  **Utilize Vector Space Theory:** Apply concepts of vector spaces, subspaces, and orthogonal projections to provide a geometric interpretation of least squares estimation and the general linear model.
+2.  **Apply Matrix Algebra:** Employ advanced matrix methods, including spectral theory, generalized inverses, to manipulate linear equations and solve for estimator properties.
+3.  **Derive Distributional Properties:** Derive the properties of multivariate normal vectors and quadratic forms, utilizing Cochran’s Theorem to prove the independence and Chi-square distribution of regression sums of squares required for valid hypothesis testing.
+4.  **Construct Statistical Inference:** Apply the theory of multiple regression to construct confidence regions and execute hypothesis tests (F-tests) for the general linear hypothesis.
+6.  **Analyze Non-Full-Rank Models:** Distinguish between estimable and non-estimable functions in non-full-rank models (e.g., ANOVA frameworks) and formulate appropriate tests for these scenarios.
+
+
+
+## Tentative Schedule
+
+
+```{r find-mondays}
+#| echo: false
+#| eval: false
+
+# 1. Set the first Monday
+start_date <- as.Date("2026-09-05")
+
+# 2. Generate the next 14 weeks
+dates <- seq(from = start_date, by = "week", length.out = 14)
+
+# 3. Print the vector in a copy-paste friendly format
+dput(format(dates, "%b %d"))
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| out-width: "100%"
+#| out-extra: "style='width: 100% !important;'" 
+
+library(gt)
+library(dplyr)
+library(knitr)
+
+# 1. SETUP: Dates
+mondays <- c("Jan 05", "Jan 12", "Jan 19", "Jan 26", "Feb 02", "Feb 09", "Feb 16", 
+             "Feb 23", "Mar 02", "Mar 09", "Mar 16", "Mar 23", "Mar 30", "Apr 06")
+
+# 2. CONTENT
+topics_list <- c(
+  "Jan 05" = "1. Vector Space and Projection",
+  "Jan 12" = "1. Vector Space and Projection (Cont'd)",
+  "Jan 19" = "2. Matrix Algebra",
+  "Jan 26" = "2. Matrix Algebra (Cont'd)",
+  "Feb 02" = "3. Distribution of Multivariate Normal",
+  "Feb 09" = "4. Distribution of Quadratic Forms",
+  "Feb 16" = "—", 
+  "Feb 23" = "4. Distribution of Quadratic Forms (Cont'd)",
+  "Mar 02" = "5. Theory for Multiple Regression",
+  "Mar 09" = "5. Theory for Multiple Regression (Cont'd)",
+  "Mar 16" = "5. Theory for Multiple Regression (Cont'd)",
+  "Mar 23" = "6. Non-full-rank Models",
+  "Mar 30" = "6. Non-full-rank Models (Cont'd)",
+  "Apr 06" = "Review"
+)
+
+remarks_list <- c(
+  "Jan 05" = "Jan 06: First day of class",
+  "Jan 19" = "**Jan 25: Assignment 1 due**",
+  "Feb 16" = "**Reading Week – No classes**",
+  "Feb 23" = "**Mar 01: Assignment 2 due**",
+  "Mar 02" = "**Mar 06: Midterm (during class)**",
+  "Mar 30" = "**Apr 05: Assignment 3 due**",
+  "Apr 06" = "Apr 07: Last lecture"
+)
+
+# 3. BUILD DATAFRAME
+schedule_data <- data.frame(
+  Acad_Week = c("1", "2", "3", "4", "5", "6", "N/A", "7", "8", "9", "10", "11", "12", "13"),
+  Cal_Week = c("2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"),
+  Date = mondays
+)
+
+schedule_data$Topic   <- unname(topics_list[schedule_data$Date])
+schedule_data$Remarks <- ifelse(is.na(remarks_list[schedule_data$Date]), "", unname(remarks_list[schedule_data$Date]))
+
+# 4. CREATE THE TABLE
+gt_tbl <- schedule_data %>%
+  gt() %>%
+  cols_label(
+    Acad_Week = "Academic Week",
+    Cal_Week = "Calendar Week",
+    Date = "Date of Monday",
+    Topic = "Topic",
+    Remarks = "Remarks"
+  ) %>%
+  fmt_markdown(columns = c(Remarks)) %>%
+  cols_align(align = "center", columns = c(Acad_Week, Cal_Week)) %>%
+  cols_align(align = "left", columns = c(Date, Topic, Remarks)) %>%
+  cols_width(
+    Topic ~ px(250),
+    Remarks ~ px(200),
+    everything() ~ px(80)
+  ) %>%
+  opt_row_striping() %>%
+  
+  # --- CRITICAL STYLING ---
+  tab_options(
+    # Body Grid
+    table_body.hlines.style = "solid",
+    table_body.vlines.style = "solid",
+    
+    # Header Grid (This adds the vlines to the header)
+    column_labels.vlines.style = "solid",
+    column_labels.border.top.style = "solid",
+    column_labels.border.bottom.style = "solid",
+    
+    # Outer Border
+    table.border.top.style = "solid",
+    table.border.bottom.style = "solid",
+    
+    # Adjust font for image readability
+    table.font.size = px(16)
+  ) %>%
+  
+  # Bold Headers
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_column_labels()
+  ) %>%
+  
+  # Highlight Reading Week
+  tab_style(
+    style = list(
+      cell_fill(color = "#d1e7dd"),
+      cell_text(weight = "bold")
+    ),
+    locations = cells_body(rows = 7)
+  )
+
+# 5. SAVE & INSERT IMAGE
+# Ensure you have run: webshot2::install_chromote() once
+gtsave(gt_tbl, "schedule_snapshot.png", vwidth = 1200)
+
+include_graphics("schedule_snapshot.png")
+```
+
+:::{.callout-important}
+The schedule may change depending on the course pace. The exact assignment and test dates  are given on Canvas. 
+:::
+## Evaluation
+
+### Grading Scheme
+**3 assignments: 3x10% = 30%,  1 term test:  20%,  final exam: 50%.**
+
+### Assignments and Tests
+**Assignment questions are released in the one-drive folder**. You will submit your solutions via Canvas. **If you miss an assignment without proper excuse, the weight will NOT be shifted to the final.** Undergraduate students will be assigned with different assignments and tests.
+
+### Assignments
+
+* I will accept late assignments only for three (3) days beyond the due date. The penalty for your delay is 10 percentage points per day of lateness from the value of the assignment (including weekends). **Extensions are only granted in rare instances (notably as a result of family or medical emergencies) and upon receipt of adequate documentation/proof.**
+* Answer the questions in the order they appear in the assignment. Neatness is important.
+* Solutions to problems are to be included. Hence, simple answers without work will receive few (or no!) marks.
+* Most problems in statistics have a “real-life” basis. Hence, solutions should include not only numerical solutions but also a statement as to what the numbers say about the problem.
+* The work handed in must not be an exact duplicate of others.
+* Submitting Assignments: The assignment can be typed and/or handwritten. Save your assignment as **one PDF file** (for handwritten assignments, feel free to take a picture/scan of your work and save it as one PDF file). Upload the **PDF file** as an assignment submission in Canvas.
+* More details will be provided ahead of each assignment.
+* Due Date: See Course Schedule.
+
+### Midterm
+* The midterm is given in class period.
+* Midterms must be written on the dates scheduled. Students must do midterms completely on their own. More details (including syllabus) will be provided ahead of each midterm.
+* Type: Short-answer questions, problem-solving, open-book.
+* Calculator: A scientific calculator is allowed.
+* Make-up exam will not be given. If you miss an exam for a legitimate reason (e.g., illness, emergency) and notify me within 48 hours of the scheduled exam, the weight of the missed exam will be transferred to the final exam.
+
+### Final Exam
+* Scheduling: Final examinations may be scheduled at any time during the examination period; students should therefore avoid making prior travel, employment, or other commitments for this period. If a student is unable to write an exam through no fault of their own for medical or other valid reasons, documentation must be provided and an opportunity to write the missed exam may be given. Students are encouraged to review all examination policies and procedures: [http://students.usask.ca/academics/exams.php](http://students.usask.ca/academics/exams.php).
+* The final exam will cover material of the entire course. More details will be provided ahead of the exam.
+* Length: 3-hour in-person exam.
+* Type: Short-answer questions, problem-solving, open-book.
+
+### Criteria That Must Be Met to Pass
+The **final exam is a required component of the course**. Students must complete the final exam in order to be eligible to receive a passing grade in this class.
+
+## Attendance Expectation
+Attendance is highly correlated with student performance. While a syllabus and suggested readings are provided, it is not an adequate substitute for attending class. Your **attendance is highly recommended** but not required, and you will not be graded on your attendance.
+
+## Recording of the Course
+Recording of the lectures will only be allowed in certain circumstances. Please see the instructor for information on how to receive approval. In general, there will be no videos available for in-person lectures. Therefore, **attendance is strongly recommended**.
+
+## Use of Generative AI and Electronic Devices
+
+1. AI for Learning vs. Assessment. Students are free (and encouraged) to use Generative AI tools as a study aid to understand course concepts, debug code, or explain complex theorems. However, **all submitted work for assignments must be your own.** You must write your own solutions. Directly copying text, derivations, or code from an AI tool and submitting it as your own may receive a **severe penalty** (up to receiving a 0% on the assignment.
+  
+2. Electronic Devices During Tests. All term tests and the final exam are **Open Book**, meaning you may bring printed notes, textbooks, and lecture slides.
+  
+  * **No Electronic Devices:** You are **NOT allowed** to use laptops, tablets, smartwatches, or any other electronic devices during the exam.
+    
+  * **Phone Exception:** You are permitted to bring a smartphone, but it must remain stowed away during the writing period. It may **only** be used at the very end of the exam for the specific purpose of taking photos of your answer sheets for submission (if required). Using the phone for any other reason during the exam will be treated as academic misconduct.
+
