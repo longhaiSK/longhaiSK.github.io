@@ -1,4 +1,285 @@
 ---
-title: "Untitled"
+title: "Bayesian Methods"
+format: html
 ---
 
+
+## Bayes Theorem
+Suppose $\theta \sim \pi(\theta)$ and $X \sim f(x; \theta)$. The posterior density of $\theta$ given $X$ is:
+
+$$
+\pi(\theta|x) = \frac{\pi(\theta) f(x;\theta)}{\int_{\Theta} \pi(\theta) f(x;\theta) d\theta} \propto \pi(\theta) \cdot L(\theta; x)
+$$
+
+where $L(\theta; x)$ is the likelihood.
+
+## Examples
+
+### 1. Binomial-Beta
+* $X|\theta \sim \text{Bin}(n, \theta) \Rightarrow f(x|\theta) = \binom{n}{x} \theta^x (1-\theta)^{n-x}$
+* Prior $\theta \sim \text{Beta}(a, b) \Rightarrow \pi(\theta) \propto \theta^{a-1}(1-\theta)^{b-1}$
+
+**Posterior:**
+$$
+\pi(\theta|x) \propto \theta^{a-1}(1-\theta)^{b-1} \cdot \theta^x (1-\theta)^{n-x} = \theta^{a+x-1} (1-\theta)^{b+n-x-1}
+$$
+
+So, $\theta|x \sim \text{Beta}(a+x, b+n-x)$.
+
+**Moments:**
+* Mean: $E(\theta|x) = \frac{a+x}{a+b+n} \approx \frac{x}{n}$ (for small $n$)
+* Variance: $\text{Var}(\theta|x) = \frac{(a+x)(b+n-x)}{(a+b+n)^2(a+b+n+1)}$
+
+### 2. Normal-Normal (Known Variance)
+* $X_1, \dots, X_n \sim N(\mu, \sigma^2)$ where $\sigma^2$ is known.
+* Prior $\mu \sim N(\mu_0, \sigma_0^2)$.
+
+Let $\tau_0 = 1/\sigma_0^2$ (prior precision), $\tau = 1/\sigma^2$ (data precision).
+The posterior precision is $\tau_1 = \tau_0 + n\tau$.
+
+**Posterior:**
+$$
+\mu|x \sim N\left( \frac{\tau_0 \mu_0 + n\tau \bar{x}}{\tau_0 + n\tau}, \frac{1}{\tau_0 + n\tau} \right)
+$$
+
+This shows the posterior mean is a weighted average of the prior mean and the sample mean.
+
+---
+
+# Part 3: Bayes Estimators and Loss Functions
+
+To find a Bayes rule $d(x)$, we minimize the posterior expected loss:
+$$
+\min_d \int_{\Theta} L(\theta, d) \pi(\theta|x) d\theta
+$$
+
+## 1. Squared Error Loss: $L(\theta, a) = (\theta - a)^2$
+Minimizing $E_{\theta|x}[(\theta - d)^2]$ leads to:
+$$
+d(x) = E(\theta|x) \quad \text{(Posterior Mean)}
+$$
+
+## 2. Absolute Error Loss: $L(\theta, a) = |\theta - a|$
+Minimizing $E_{\theta|x}[|\theta - d|]$ leads to:
+$$
+\int_{-\infty}^d \pi(\theta|x) d\theta = \int_{d}^{\infty} \pi(\theta|x) d\theta = 0.5
+$$
+So, $d(x) = \text{Median of } \pi(\theta|x)$.
+
+## 3. 0-1 Loss (Hypothesis Testing)
+* Loss is 1 if error, 0 if correct.
+* Testing $\Theta_0$ vs $\Theta_1$.
+* Bayes Rule: Choose class with highest posterior probability.
+    * Reject $H_0$ if $P(\theta \in \Theta_1 | x) > P(\theta \in \Theta_0 | x)$.
+
+## 4. Interval Estimation
+We want an interval $A = (d-\delta, d+\delta)$ minimizing risk (maximizing coverage probability $1-\alpha$).
+
+**Highest Posterior Density (HPD) Interval:**
+The set $C = \{ \theta : \pi(\theta|x) \ge k \}$ where $P(\theta \in C|x) = 1-\alpha$.
+This is the shortest interval for a given confidence level if the posterior is unimodal.
+
+```{r}
+#| label: fig-hpd
+#| fig-cap: "Illustration of Highest Posterior Density (HPD) Interval vs Equi-tailed Interval on a skewed posterior."
+#| warning: false
+library(ggplot2)
+
+x <- seq(0, 15, length.out = 1000)
+y <- dgamma(x, shape = 3, rate = 0.5)
+df <- data.frame(x = x, y = y)
+
+# Approximate HPD cutoff (visual)
+hpd_level <- 0.05
+cutoff <- 0.08 # Chosen for visual representation of the cut
+
+ggplot(df, aes(x, y)) +
+  geom_line(size = 1) +
+  geom_area(data = subset(df, y > cutoff), fill = "skyblue", alpha = 0.5) +
+  geom_hline(yintercept = cutoff, linetype = "dashed", color = "red") +
+  annotate("text", x = 10, y = cutoff + 0.02, label = "HPD Cutoff line", color = "red") +
+  labs(title = "Highest Posterior Density (HPD) Interval", 
+       subtitle = "Points with density higher than the red line form the HPD set",
+       x = "Theta", y = "Posterior Density") +
+  theme_minimal()
+```
+
+---
+
+# Part 4: Minimax Rules via Bayes
+
+**Goal:** Find a minimax estimator for $\theta$ where $X \sim \text{Bin}(n, \theta)$.
+**Loss:** Squared Error $L(\theta, d) = (\theta - d)^2$.
+
+Strategy: Find a prior $\text{Beta}(a, b)$ such that the Bayes risk $R(\theta, d_{Bayes})$ is constant for all $\theta$. By Theorem 2.2 (Equalizer Rule), if an extended Bayes rule has constant risk, it is Minimax.
+
+The Bayes estimator is $d(x) = \frac{a+x}{a+b+n}$.
+The risk is:
+$$
+R(\theta, d) = E\left[ \left( \theta - \frac{a+X}{a+b+n} \right)^2 \right]
+$$
+Let $c = a+b+n$.
+$$
+R(\theta, d) = \frac{1}{c^2} \left[ (c\theta - a)^2 - 2(c\theta - a)n\theta + n\theta(1-\theta) + n^2\theta^2 \right]
+$$
+
+To make this constant (independent of $\theta$), the coefficients of $\theta$ and $\theta^2$ must vanish or balance out.
+Solving the resulting system yields:
+$$
+a = b = \frac{\sqrt{n}}{2}
+$$
+
+**Minimax Estimator:**
+$$
+d_{minimax}(x) = \frac{x + \sqrt{n}/2}{n + \sqrt{n}}
+$$
+
+```{r}
+#| label: fig-minimax-risk
+#| fig-cap: "Risk Functions: MLE vs Minimax for Binomial(n=10)."
+n <- 10
+theta <- seq(0, 1, length.out = 100)
+
+# MLE Risk: theta(1-theta)/n
+risk_mle <- theta * (1 - theta) / n
+
+# Minimax Risk: Constant 1 / (4 * (sqrt(n) + 1)^2) ? No, calculation is slightly different
+# Actually, Risk is constant = 1 / (4 * (sqrt(n) + n)^2) * n ??? 
+# Let's just use the formula derived: 1 / (2*sqrt(n) + 2)^2 approx. 
+# For standard minimax: Risk = 1 / (4 * (sqrt(n) + 1)^2) if we view it as sample size equivalent.
+# Correct constant risk calculation:
+risk_minimax_val <- 1 / (4 * (sqrt(n) + 1)^2) # Standard result check
+# Actually let's compute it numerically to be safe
+a <- sqrt(n)/2
+b <- sqrt(n)/2
+denom <- n + sqrt(n)
+risk_minimax <- numeric(length(theta))
+for(i in 1:length(theta)) {
+  risk_minimax[i] <- sum(dbinom(0:n, n, theta[i]) * ((0:n + a)/denom - theta[i])^2)
+}
+
+df_risk <- data.frame(
+  theta = rep(theta, 2),
+  Risk = c(risk_mle, risk_minimax),
+  Estimator = rep(c("MLE (x/n)", "Minimax"), each = 100)
+)
+
+ggplot(df_risk, aes(x = theta, y = Risk, color = Estimator)) +
+  geom_line(size = 1.2) +
+  theme_minimal() +
+  labs(title = "Comparison of Risk Functions (n=10)", 
+       y = "Risk (MSE)", x = "Theta")
+```
+
+---
+
+# Part 5: Stein Estimation
+
+**Context:** Estimating a multivariate normal mean $\mu = (\mu_1, \dots, \mu_p)^T$ where $X \sim N_p(\mu, I)$.
+**Loss:** Sum of squared errors $L(\mu, d) = ||\mu - d||^2$.
+
+**Stein's Lemma:**
+If $Y \sim N(\mu, 1)$ and $h(y)$ is differentiable:
+$$
+E[(Y-\mu)h(Y)] = E[h'(Y)]
+$$
+
+**James-Stein Estimator:**
+$$
+d^{JS}(X) = \left( 1 - \frac{p-2}{||X||^2} \right) X
+$$
+This estimator shrinks the observation vector $X$ towards the origin (or a grand mean).
+
+**Result:**
+If $p \ge 3$, the James-Stein estimator dominates the MLE ($d^0(X) = X$).
+$$
+R(\mu, d^{JS}) < R(\mu, d^0) = p \quad \text{for all } \mu
+$$
+
+## Baseball Example (Efron & Morris)
+We observe batting averages for $p=18$ players.
+* MLE: Individual batting averages.
+* JS: Shrinks individual averages toward the global average.
+
+```{r}
+#| label: fig-shrinkage
+#| fig-cap: "Visualizing James-Stein Shrinkage (Mock Data based on Baseball Example). The arrows show MLEs being pulled toward the Grand Mean."
+
+# Creating mock data similar to the baseball example
+player <- 1:10
+MLE <- c(0.400, 0.370, 0.350, 0.300, 0.280, 0.250, 0.220, 0.200, 0.150, 0.100)
+GrandMean <- mean(MLE)
+shrinkage_factor <- 0.6 # c = 1 - (p-2)/S
+JS <- GrandMean + shrinkage_factor * (MLE - GrandMean)
+
+df_base <- data.frame(player, MLE, JS)
+
+ggplot(df_base) +
+  geom_point(aes(x = MLE, y = 1), color = "red", size = 3) +
+  geom_point(aes(x = JS, y = 1), color = "blue", size = 3) +
+  geom_segment(aes(x = MLE, y = 1, xend = JS, yend = 1), arrow = arrow(length = unit(0.2, "cm"))) +
+  geom_vline(xintercept = GrandMean, linetype = "dashed") +
+  annotate("text", x = GrandMean, y = 1.1, label = "Grand Mean") +
+  ylim(0.9, 1.2) +
+  labs(title = "James-Stein Shrinkage Effect", 
+       subtitle = "Red: MLE, Blue: JS Estimator",
+       x = "Batting Average") +
+  theme_void() +
+  theme(axis.title.x = element_text(), axis.text.x = element_text())
+```
+
+---
+
+# Part 6: Empirical Bayes & Hierarchical Models
+
+## Empirical Bayes
+Instead of fixing hyperparameters $(\mu_0, \sigma_0^2)$, we estimate them from the marginal distribution of the data.
+$$
+m(x) = \int f(x|\theta) \pi(\theta|\eta) d\theta
+$$
+We estimate $\eta$ by maximizing $m(x)$ (Type-II MLE) or method of moments.
+
+**Example:**
+If $X_i \sim N(\mu_i, 1)$ and $\mu_i \sim N(0, \tau^2)$, then marginally $X_i \sim N(0, 1+\tau^2)$. We can use $S = \sum X_i^2$ to estimate $\tau^2$.
+
+## Hierarchical Models
+We assume a multistage structure:
+1.  Data model: $X|\theta \sim f(x|\theta)$
+2.  Parameter model: $\theta|\lambda \sim \pi(\theta|\lambda)$
+3.  Hyperparameter model: $\lambda \sim h(\lambda)$
+
+**Computation:**
+Since analytical solutions are often impossible, we use **Markov Chain Monte Carlo (MCMC)**.
+
+### Gibbs Sampling
+To sample from the joint posterior $f(\theta, \lambda | x)$, we sample iteratively from the full conditional distributions:
+1.  Draw $\theta^{(k+1)} \sim f(\theta | \lambda^{(k)}, x)$
+2.  Draw $\lambda^{(k+1)} \sim f(\lambda | \theta^{(k+1)}, x)$
+
+### Metropolis-Hastings
+If a conditional distribution is hard to sample from directly:
+1.  Propose $\theta^*$ from a proposal density $q(\theta^* | \theta^{(t)})$.
+2.  Calculate acceptance ratio $\alpha = \min \left( 1, \frac{f(\theta^*|x)q(\theta^{(t)}|\theta^*)}{f(\theta^{(t)}|x)q(\theta^*|\theta^{(t)})} \right)$.
+3.  Accept $\theta^*$ with probability $\alpha$.
+
+---
+
+# Part 7: Predictive Distributions
+
+We want to predict a new observation $Y^*$.
+$$
+f(y^* | y) = \int f(y^* | \theta) \pi(\theta | y) d\theta
+$$
+
+**Numerical Methods:**
+If we have posterior samples $\theta^{(1)}, \dots, \theta^{(N)}$ from MCMC:
+
+**Method 1: Density Averaging**
+$$
+\hat{f}(y^* | y) \approx \frac{1}{N} \sum_{i=1}^N f(y^* | \theta^{(i)})
+$$
+This is a Rao-Blackwellized estimator and usually has lower variance.
+
+**Method 2: Direct Sampling**
+For each $\theta^{(i)}$, draw $Y^{*(i)} \sim f(y^* | \theta^{(i)})$.
+The histogram of $Y^{*(i)}$ approximates the predictive density.
