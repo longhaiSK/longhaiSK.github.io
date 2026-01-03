@@ -68,9 +68,40 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 <link rel="stylesheet" href="resources/mystyles.css">
 <script src="resources/num_eq.js"></script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -128,7 +159,38 @@ ul.task-list li input[type="checkbox"] {
 </li>
     </ul>
     </div>
-    
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#formulation-of-decision-theory" id="toc-formulation-of-decision-theory" class="nav-link active" data-scroll-target="#formulation-of-decision-theory"><span class="header-section-number">2.1</span> Formulation of Decision Theory</a></li>
+  <li><a href="#decision-rules-and-risk-functions" id="toc-decision-rules-and-risk-functions" class="nav-link" data-scroll-target="#decision-rules-and-risk-functions"><span class="header-section-number">2.2</span> Decision Rules and Risk Functions</a>
+  <ul>
+  <li><a href="#decision-rule" id="toc-decision-rule" class="nav-link" data-scroll-target="#decision-rule"><span class="header-section-number">2.2.1</span> Decision Rule</a></li>
+  <li><a href="#risk-function" id="toc-risk-function" class="nav-link" data-scroll-target="#risk-function"><span class="header-section-number">2.2.2</span> Risk Function</a>
+  <ul class="collapse">
+  <li><a href="#example-mean-squared-error-mse" id="toc-example-mean-squared-error-mse" class="nav-link" data-scroll-target="#example-mean-squared-error-mse"><span class="header-section-number">2.2.2.1</span> Example: Mean Squared Error (MSE)</a></li>
+  <li><a href="#example-hypothesis-testing-risk" id="toc-example-hypothesis-testing-risk" class="nav-link" data-scroll-target="#example-hypothesis-testing-risk"><span class="header-section-number">2.2.2.2</span> Example: Hypothesis Testing Risk</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#comparing-decision-rules" id="toc-comparing-decision-rules" class="nav-link" data-scroll-target="#comparing-decision-rules"><span class="header-section-number">2.3</span> Comparing Decision Rules</a>
+  <ul>
+  <li><a href="#minimax-principle" id="toc-minimax-principle" class="nav-link" data-scroll-target="#minimax-principle"><span class="header-section-number">2.3.1</span> Minimax Principle</a></li>
+  </ul></li>
+  <li><a href="#bayes-decision-rules" id="toc-bayes-decision-rules" class="nav-link" data-scroll-target="#bayes-decision-rules"><span class="header-section-number">2.4</span> Bayes Decision Rules</a>
+  <ul>
+  <li><a href="#bayes-risk" id="toc-bayes-risk" class="nav-link" data-scroll-target="#bayes-risk"><span class="header-section-number">2.4.1</span> Bayes Risk</a></li>
+  <li><a href="#bayes-rule-definition" id="toc-bayes-rule-definition" class="nav-link" data-scroll-target="#bayes-rule-definition"><span class="header-section-number">2.4.2</span> Bayes Rule Definition</a></li>
+  </ul></li>
+  <li><a href="#randomized-decision-rules-risk-sets" id="toc-randomized-decision-rules-risk-sets" class="nav-link" data-scroll-target="#randomized-decision-rules-risk-sets"><span class="header-section-number">2.5</span> Randomized Decision Rules &amp; Risk Sets</a>
+  <ul>
+  <li><a href="#randomized-rules" id="toc-randomized-rules" class="nav-link" data-scroll-target="#randomized-rules"><span class="header-section-number">2.5.1</span> Randomized Rules</a></li>
+  <li><a href="#geometric-interpretation-finite-parameter-space" id="toc-geometric-interpretation-finite-parameter-space" class="nav-link" data-scroll-target="#geometric-interpretation-finite-parameter-space"><span class="header-section-number">2.5.2</span> Geometric Interpretation (Finite Parameter Space)</a></li>
+  </ul></li>
+  <li><a href="#example-the-great-aunts-necklace" id="toc-example-the-great-aunts-necklace" class="nav-link" data-scroll-target="#example-the-great-aunts-necklace"><span class="header-section-number">2.6</span> Example: The “Great Aunt’s Necklace”</a></li>
+  <li><a href="#theorems-relating-minimax-and-bayes" id="toc-theorems-relating-minimax-and-bayes" class="nav-link" data-scroll-target="#theorems-relating-minimax-and-bayes"><span class="header-section-number">2.7</span> Theorems relating Minimax and Bayes</a></li>
+  </ul>
+</nav>
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
@@ -156,8 +218,218 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="formulation-of-decision-theory" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="formulation-of-decision-theory"><span class="header-section-number">2.1</span> Formulation of Decision Theory</h2>
+<p>In decision theory, we formalize the process of making decisions under uncertainty using the following components:</p>
+<ol type="1">
+<li><p><strong>Parameter Space (<span class="math inline">\(\Theta\)</span>):</strong> The set of all possible states of nature or values that the parameter can take. <span class="math inline">\(\theta \in \Theta\)</span> (e.g., mean, variance).</p></li>
+<li><p><strong>Sample Space (<span class="math inline">\(\mathcal{X}\)</span>):</strong> The space where the data <span class="math inline">\(X\)</span> lies. Example: <span class="math inline">\(X = (X_1, X_2, \dots, X_n)\)</span> where <span class="math inline">\(X_i \in \mathbb{R}\)</span>. So <span class="math inline">\(\mathcal{X} \in \mathbb{R}^n\)</span>.</p></li>
+<li><p><strong>Family of Probability Distributions:</strong> <span class="math inline">\(\{P_\theta(x) : \theta \in \Theta\}\)</span>. This describes how likely we are to see the data <span class="math inline">\(X\)</span> given a specific parameter <span class="math inline">\(\theta\)</span>.</p>
+<ul>
+<li>If <span class="math inline">\(X\)</span> is continuous: <span class="math inline">\(P_\theta(x) = f(x, \theta)\)</span> (Probability Density Function).</li>
+<li>If <span class="math inline">\(X\)</span> is discrete: <span class="math inline">\(P_\theta(x) = f(x, \theta)\)</span> (Probability Mass Function).</li>
+</ul></li>
+<li><p><strong>Action Space (<span class="math inline">\(\mathcal{A}\)</span>):</strong> The set of all actions or decisions available to the experimenter.</p>
+<ul>
+<li><em>Example (Hypothesis Testing):</em> <span class="math inline">\(H_0\)</span> vs <span class="math inline">\(H_1\)</span>. <span class="math inline">\(\mathcal{A} = \{0, 1\}\)</span> where <span class="math inline">\(0\)</span> means “Accept <span class="math inline">\(H_0\)</span>” and <span class="math inline">\(1\)</span> means “Reject <span class="math inline">\(H_0\)</span>”.</li>
+<li><em>Example (Point Estimation):</em> <span class="math inline">\(\mathcal{A} = \Theta\)</span>. An action is an estimate of <span class="math inline">\(\theta\)</span>.</li>
+<li><em>Example (Interval Estimation):</em> <span class="math inline">\(\mathcal{A} = \{(l, u) : l \in \mathbb{R}, u \in \mathbb{R}, l \le u\}\)</span>.</li>
+</ul></li>
+<li><p><strong>Loss Function:</strong> <span class="math inline">\(L: \Theta \times \mathcal{A} \rightarrow \mathbb{R}\)</span>. <span class="math inline">\(L(\theta, a)\)</span> specifies the loss incurred if the true parameter is <span class="math inline">\(\theta\)</span> and we take action <span class="math inline">\(a\)</span>. Generally, <span class="math inline">\(L(\theta, a) \ge 0\)</span>.</p>
+<ul>
+<li><em>Examples:</em>
+<ul>
+<li>Squared Error: <span class="math inline">\(L(\theta, a) = (\theta - a)^2\)</span></li>
+<li>Absolute Error: <span class="math inline">\(L(\theta, a) = |\theta - a|\)</span></li>
+<li>0-1 Loss (Hypothesis Testing): <span class="math display">\[
+  L(\theta, a) =
+  \begin{cases}
+  0 &amp; \text{if decision is correct} \\
+  1 &amp; \text{if decision is wrong}
+  \end{cases}
+  \]</span> Specifically:
+<ul>
+<li>If <span class="math inline">\(\theta \in H_0\)</span> and <span class="math inline">\(a=1\)</span> (Type I Error), Loss = 1.</li>
+<li>If <span class="math inline">\(\theta \in H_1\)</span> and <span class="math inline">\(a=0\)</span> (Type II Error), Loss = 1.</li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ol>
+</section>
+<section id="decision-rules-and-risk-functions" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="decision-rules-and-risk-functions"><span class="header-section-number">2.2</span> Decision Rules and Risk Functions</h2>
+<section id="decision-rule" class="level3" data-number="2.2.1">
+<h3 data-number="2.2.1" class="anchored" data-anchor-id="decision-rule"><span class="header-section-number">2.2.1</span> Decision Rule</h3>
+<p>A decision rule is a function <span class="math inline">\(d: \mathcal{X} \rightarrow \mathcal{A}\)</span>. It dictates the action <span class="math inline">\(d(x)\)</span> we take when we observe data <span class="math inline">\(x\)</span>.</p>
+<ul>
+<li><em>Examples:</em>
+<ul>
+<li>Point Estimation: <span class="math inline">\(d(x) = \bar{x}\)</span> (Sample mean).</li>
+<li>Hypothesis Testing: <span class="math inline">\(d(x) = 1\)</span> if <span class="math inline">\(\bar{x} &gt; c\)</span>, else <span class="math inline">\(0\)</span>.</li>
+</ul></li>
+</ul>
+</section>
+<section id="risk-function" class="level3" data-number="2.2.2">
+<h3 data-number="2.2.2" class="anchored" data-anchor-id="risk-function"><span class="header-section-number">2.2.2</span> Risk Function</h3>
+<p>The risk function is the expected loss for a given decision rule <span class="math inline">\(d\)</span> as a function of the parameter <span class="math inline">\(\theta\)</span>.</p>
+<p><span class="math display">\[R(\theta, d) = E_\theta[L(\theta, d(X))]\]</span></p>
+<ul>
+<li>Continuous Case: <span class="math inline">\(R(\theta, d) = \int_{\mathcal{X}} L(\theta, d(x)) f(x, \theta) dx\)</span></li>
+<li>Discrete Case: <span class="math inline">\(R(\theta, d) = \sum_{x \in \mathcal{X}} L(\theta, d(x)) P_\theta(x)\)</span></li>
+</ul>
+<section id="example-mean-squared-error-mse" class="level4" data-number="2.2.2.1">
+<h4 data-number="2.2.2.1" class="anchored" data-anchor-id="example-mean-squared-error-mse"><span class="header-section-number">2.2.2.1</span> Example: Mean Squared Error (MSE)</h4>
+<p>If <span class="math inline">\(L(\theta, a) = (\theta - a)^2\)</span> and <span class="math inline">\(d(x) = \bar{x}\)</span>:</p>
+<p><span class="math display">\[R(\theta, d) = E_\theta[(\bar{x} - \theta)^2] = \text{MSE} = \text{Var}(\bar{x}) + \text{Bias}^2\]</span></p>
+</section>
+<section id="example-hypothesis-testing-risk" class="level4" data-number="2.2.2.2">
+<h4 data-number="2.2.2.2" class="anchored" data-anchor-id="example-hypothesis-testing-risk"><span class="header-section-number">2.2.2.2</span> Example: Hypothesis Testing Risk</h4>
+<p>For testing <span class="math inline">\(H_0\)</span> vs <span class="math inline">\(H_1\)</span> with 0-1 loss:</p>
+<ul>
+<li>If <span class="math inline">\(\theta \in H_0\)</span>: <span class="math inline">\(R(\theta, d) = 1 \cdot P_\theta(d(X)=1) + 0 = P(\text{Type I Error})\)</span>.</li>
+<li>If <span class="math inline">\(\theta \in H_1\)</span>: <span class="math inline">\(R(\theta, d) = 1 \cdot P_\theta(d(X)=0) + 0 = P(\text{Type II Error})\)</span>.</li>
+</ul>
+</section>
+</section>
+</section>
+<section id="comparing-decision-rules" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="comparing-decision-rules"><span class="header-section-number">2.3</span> Comparing Decision Rules</h2>
+<p>We typically do not have a single rule <span class="math inline">\(d\)</span> that is better than all other rules for all <span class="math inline">\(\theta\)</span>.</p>
+<ul>
+<li><span class="math inline">\(d\)</span> strictly dominates <span class="math inline">\(d'\)</span> if <span class="math inline">\(R(\theta, d) \le R(\theta, d')\)</span> for all <span class="math inline">\(\theta\)</span>, with strict inequality for at least one <span class="math inline">\(\theta\)</span>.</li>
+<li><strong>Admissibility:</strong> A decision rule <span class="math inline">\(d\)</span> is admissible if it is not dominated by any other rule. If it is dominated, it is <em>inadmissible</em>.</li>
+</ul>
+<section id="minimax-principle" class="level3" data-number="2.3.1">
+<h3 data-number="2.3.1" class="anchored" data-anchor-id="minimax-principle"><span class="header-section-number">2.3.1</span> Minimax Principle</h3>
+<p>A rule <span class="math inline">\(d\)</span> is Minimax if it minimizes the maximum possible risk.</p>
+<p><span class="math display">\[\sup_{\theta} R(\theta, d) \le \sup_{\theta} R(\theta, d') \quad \text{for all } d' \in \mathcal{D}\]</span></p>
+<p>Visualize the risk functions of two rules, <span class="math inline">\(d_1\)</span> and <span class="math inline">\(d_2\)</span>. <span class="math inline">\(d_2\)</span> might have a higher risk in some areas but a lower “peak” risk, making it Minimax.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-minimax" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-minimax-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="decision_files/figure-html/fig-minimax-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-minimax-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.1: Illustration of Minimax: Rule d2 has a lower maximum risk than d1, making it the Minimax rule, even though d1 is better for some values of theta.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="bayes-decision-rules" class="level2" data-number="2.4">
+<h2 data-number="2.4" class="anchored" data-anchor-id="bayes-decision-rules"><span class="header-section-number">2.4</span> Bayes Decision Rules</h2>
+<p>We specify a <strong>prior distribution</strong> <span class="math inline">\(\pi(\theta)\)</span> on the parameter space <span class="math inline">\(\Theta\)</span>.</p>
+<section id="bayes-risk" class="level3" data-number="2.4.1">
+<h3 data-number="2.4.1" class="anchored" data-anchor-id="bayes-risk"><span class="header-section-number">2.4.1</span> Bayes Risk</h3>
+<p>The Bayes risk of a rule <span class="math inline">\(d\)</span> with respect to prior <span class="math inline">\(\pi\)</span> is the weighted average of the frequentist risk:</p>
+<p><span class="math display">\[r(\pi, d) = E_\pi [R(\theta, d)] = \int_\Theta R(\theta, d) \pi(\theta) d\theta\]</span></p>
+</section>
+<section id="bayes-rule-definition" class="level3" data-number="2.4.2">
+<h3 data-number="2.4.2" class="anchored" data-anchor-id="bayes-rule-definition"><span class="header-section-number">2.4.2</span> Bayes Rule Definition</h3>
+<p>A decision rule <span class="math inline">\(d_\pi\)</span> is a Bayes rule with respect to <span class="math inline">\(\pi\)</span> if it minimizes the Bayes risk:</p>
+<p><span class="math display">\[r(\pi, d_\pi) = \inf_{d' \in \mathcal{D}} r(\pi, d')\]</span></p>
+</section>
+</section>
+<section id="randomized-decision-rules-risk-sets" class="level2" data-number="2.5">
+<h2 data-number="2.5" class="anchored" data-anchor-id="randomized-decision-rules-risk-sets"><span class="header-section-number">2.5</span> Randomized Decision Rules &amp; Risk Sets</h2>
+<section id="randomized-rules" class="level3" data-number="2.5.1">
+<h3 data-number="2.5.1" class="anchored" data-anchor-id="randomized-rules"><span class="header-section-number">2.5.1</span> Randomized Rules</h3>
+<p>A randomized decision rule chooses between deterministic rules <span class="math inline">\(d_1, d_2, \dots\)</span> with probabilities <span class="math inline">\(p_1, p_2, \dots\)</span>. The risk of a randomized rule <span class="math inline">\(d^* = \sum p_i d_i\)</span> is the linear combination of their risks: <span class="math display">\[R(\theta, d^*) = \sum p_i R(\theta, d_i)\]</span></p>
+</section>
+<section id="geometric-interpretation-finite-parameter-space" class="level3" data-number="2.5.2">
+<h3 data-number="2.5.2" class="anchored" data-anchor-id="geometric-interpretation-finite-parameter-space"><span class="header-section-number">2.5.2</span> Geometric Interpretation (Finite Parameter Space)</h3>
+<p>If <span class="math inline">\(\Theta = \{\theta_1, \theta_2, \dots, \theta_k\}\)</span> is finite, we can plot the risk vector <span class="math inline">\((R(\theta_1, d), \dots, R(\theta_k, d))\)</span> in <span class="math inline">\(\mathbb{R}^k\)</span>.</p>
+<p><strong>Risk Set (<span class="math inline">\(S\)</span>):</strong> The set of all possible risk vectors. Lemma: The Risk Set <span class="math inline">\(S\)</span> is <strong>convex</strong>. This is because we can form randomized rules that lie on the line segment connecting any two deterministic rules.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-riskset" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-riskset-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="decision_files/figure-html/fig-riskset-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-riskset-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.2: The Risk Set S. Points d1 and d2 are deterministic rules. The line connecting them represents randomized rules. The Minimax rule lies on the line R1=R2 (if accessible). The Bayes rule is found by bringing a tangent line with slope -pi1/pi2 toward the origin.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="example-the-great-aunts-necklace" class="level2" data-number="2.6">
+<h2 data-number="2.6" class="anchored" data-anchor-id="example-the-great-aunts-necklace"><span class="header-section-number">2.6</span> Example: The “Great Aunt’s Necklace”</h2>
+<p><strong>Scenario:</strong> Two boxes. One contains a real necklace (<span class="math inline">\(\theta=1\)</span>), the other an imitation (<span class="math inline">\(\theta=2\)</span>). Loss is 1 if we choose the wrong box, 0 otherwise.</p>
+<ul>
+<li><span class="math inline">\(\theta \in \{1, 2\}\)</span></li>
+<li>Action <span class="math inline">\(a \in \{1, 2\}\)</span> (Choose Box 1 or Box 2)</li>
+</ul>
+<p><strong>Data (<span class="math inline">\(X\)</span>):</strong> Great Aunt’s judgment. <span class="math inline">\(X \in \{1, 2\}\)</span> (Aunt says Box 1 or Box 2). Probabilities: * If <span class="math inline">\(\theta=1\)</span> (Real in Box 1): Aunt is senile. <span class="math inline">\(P(X=1)=1, P(X=2)=0\)</span>. * If <span class="math inline">\(\theta=2\)</span> (Real in Box 2): Aunt guesses. <span class="math inline">\(P(X=1)=0.5, P(X=2)=0.5\)</span>.</p>
+<p><strong>Decision Rules:</strong> 1. <span class="math inline">\(d_1\)</span>: Always choose Box 1. 2. <span class="math inline">\(d_2\)</span>: Always choose Box 2. 3. <span class="math inline">\(d_3(x) = x\)</span>: Follow Aunt’s advice. 4. <span class="math inline">\(d_4(x) = 3-x\)</span>: Do opposite of Aunt.</p>
+<p><strong>Risk Calculation:</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Rule</th>
+<th style="text-align: left;"><span class="math inline">\(R(\theta=1)\)</span></th>
+<th style="text-align: left;"><span class="math inline">\(R(\theta=2)\)</span></th>
+<th style="text-align: left;">Coordinates <span class="math inline">\((R_1, R_2)\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(d_1\)</span></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">(0, 1)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(d_2\)</span></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">(1, 0)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(d_3\)</span></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">0.5</td>
+<td style="text-align: left;">(0, 0.5)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(d_4\)</span></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">0.5</td>
+<td style="text-align: left;">(1, 0.5)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Geometry and Minimax:</strong> The risk set is the convex hull of these four points.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-necklace" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-necklace-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="decision_files/figure-html/fig-necklace-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-necklace-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.3: Risk Set for the Necklace Example. The set is the quadrilateral defined by d1, d2, d3, d4. The Minimax rule is the intersection of the line R1=R2 and the lower boundary segment connecting d3 and d2.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Calculation of Minimax Rule:</strong> The lower boundary connects <span class="math inline">\(d_3 (0, 0.5)\)</span> and <span class="math inline">\(d_2 (1, 0)\)</span>. Equation of line: <span class="math inline">\(R_2 - 0 = \frac{0.5 - 0}{0 - 1} (R_1 - 1) \Rightarrow R_2 = -0.5(R_1 - 1)\)</span>. For Minimax, set <span class="math inline">\(R_1 = R_2 = R\)</span>. <span class="math inline">\(R = -0.5R + 0.5 \Rightarrow 1.5R = 0.5 \Rightarrow R = 1/3\)</span>. The minimax rule is a randomized combination: <span class="math inline">\(d^* = \frac{2}{3}d_3 + \frac{1}{3}d_2\)</span>.</p>
+</section>
+<section id="theorems-relating-minimax-and-bayes" class="level2" data-number="2.7">
+<h2 data-number="2.7" class="anchored" data-anchor-id="theorems-relating-minimax-and-bayes"><span class="header-section-number">2.7</span> Theorems relating Minimax and Bayes</h2>
+<p><strong>Theorem 2.1:</strong> If a sequence of Bayes rules <span class="math inline">\(\delta_n\)</span> (w.r.t priors <span class="math inline">\(\pi_n\)</span>) has Bayes risk converging to <span class="math inline">\(C\)</span>, and <span class="math inline">\(R(\theta, \delta_0) \le C\)</span> for all <span class="math inline">\(\theta\)</span>, then <span class="math inline">\(\delta_0\)</span> is Minimax.</p>
+<p><strong>Theorem 2.2 (Equalizer Rule):</strong> An “Extended Bayes” rule that is an <strong>equalizer</strong> rule (constant risk across <span class="math inline">\(\theta\)</span>) must be Minimax. <em>Proof sketch:</em> If it were not minimax, there would exist a rule with strictly lower maximum risk. This would imply it has lower Bayes risk for the specific prior, leading to a contradiction with the assumption that the original rule was Bayes.</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

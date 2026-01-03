@@ -1,7 +1,12 @@
 regexrepl.py intro*.qmd "\[cite(?:_start|:[^\]]+)\]" ""
+regexrepl.py intro*.qmd \
+ '(?m)^(?!\s*(?:[-*]|\d+\.)\s)(.+)\n(?!\s*\n)(\s*(?:[-*]|\d+\.)\s)' \
+ '\1\n\n\2'
+ wrap_math_text.py intro*.qmd
 #remove cite_start or cite numbers
 : <<'END'
 regexrepl.py lec5*.qmd "\[cite(?:_start|:[^\]]+)\]" ""
+# sanitize list
 regexrepl.py lec5*.qmd \
  '(?m)^(?!\s*(?:[-*]|\d+\.)\s)(.+)\n(?!\s*\n)(\s*(?:[-*]|\d+\.)\s)' \
  '\1\n\n\2'
