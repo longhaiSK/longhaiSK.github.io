@@ -1,4 +1,255 @@
 ---
 title: "Decision Theory"
+format: html
 ---
 
+## Formulation of Decision Theory
+
+In decision theory, we formalize the process of making decisions under uncertainty using the following components:
+
+1.  **Parameter Space ($\Theta$):**
+    The set of all possible states of nature or values that the parameter can take.
+    $\theta \in \Theta$ (e.g., mean, variance).
+
+2.  **Sample Space ($\mathcal{X}$):**
+    The space where the data $X$ lies.
+    Example: $X = (X_1, X_2, \dots, X_n)$ where $X_i \in \mathbb{R}$. So $\mathcal{X} \in \mathbb{R}^n$.
+
+3.  **Family of Probability Distributions:**
+    $\{P_\theta(x) : \theta \in \Theta\}$.
+    This describes how likely we are to see the data $X$ given a specific parameter $\theta$.
+
+    * If $X$ is continuous: $P_\theta(x) = f(x, \theta)$ (Probability Density Function).
+    * If $X$ is discrete: $P_\theta(x) = f(x, \theta)$ (Probability Mass Function).
+
+4.  **Action Space ($\mathcal{A}$):**
+    The set of all actions or decisions available to the experimenter.
+
+    * *Example (Hypothesis Testing):*
+        $H_0$ vs $H_1$.
+        $\mathcal{A} = \{0, 1\}$ where $0$ means "Accept $H_0$" and $1$ means "Reject $H_0$".
+    * *Example (Point Estimation):*
+        $\mathcal{A} = \Theta$. An action is an estimate of $\theta$.
+    * *Example (Interval Estimation):*
+        $\mathcal{A} = \{(l, u) : l \in \mathbb{R}, u \in \mathbb{R}, l \le u\}$.
+
+5.  **Loss Function:**
+    $L: \Theta \times \mathcal{A} \rightarrow \mathbb{R}$.
+    $L(\theta, a)$ specifies the loss incurred if the true parameter is $\theta$ and we take action $a$. Generally, $L(\theta, a) \ge 0$.
+
+    * *Examples:*
+        * Squared Error: $L(\theta, a) = (\theta - a)^2$
+        * Absolute Error: $L(\theta, a) = |\theta - a|$
+        * 0-1 Loss (Hypothesis Testing):
+            $$
+            L(\theta, a) =
+            \begin{cases}
+            0 & \text{if decision is correct} \\
+            1 & \text{if decision is wrong}
+            \end{cases}
+            $$
+            Specifically:
+            * If $\theta \in H_0$ and $a=1$ (Type I Error), Loss = 1.
+            * If $\theta \in H_1$ and $a=0$ (Type II Error), Loss = 1.
+
+## Decision Rules and Risk Functions
+
+### Decision Rule
+A decision rule is a function $d: \mathcal{X} \rightarrow \mathcal{A}$. It dictates the action $d(x)$ we take when we observe data $x$.
+
+* *Examples:*
+    * Point Estimation: $d(x) = \bar{x}$ (Sample mean).
+    * Hypothesis Testing: $d(x) = 1$ if $\bar{x} > c$, else $0$.
+
+### Risk Function
+The risk function is the expected loss for a given decision rule $d$ as a function of the parameter $\theta$.
+
+$$R(\theta, d) = E_\theta[L(\theta, d(X))]$$
+
+* Continuous Case: $R(\theta, d) = \int_{\mathcal{X}} L(\theta, d(x)) f(x, \theta) dx$
+* Discrete Case: $R(\theta, d) = \sum_{x \in \mathcal{X}} L(\theta, d(x)) P_\theta(x)$
+
+#### Example: Mean Squared Error (MSE)
+If $L(\theta, a) = (\theta - a)^2$ and $d(x) = \bar{x}$:
+
+$$R(\theta, d) = E_\theta[(\bar{x} - \theta)^2] = \text{MSE} = \text{Var}(\bar{x}) + \text{Bias}^2$$
+
+#### Example: Hypothesis Testing Risk
+For testing $H_0$ vs $H_1$ with 0-1 loss:
+
+* If $\theta \in H_0$:
+    $R(\theta, d) = 1 \cdot P_\theta(d(X)=1) + 0 = P(\text{Type I Error})$.
+* If $\theta \in H_1$:
+    $R(\theta, d) = 1 \cdot P_\theta(d(X)=0) + 0 = P(\text{Type II Error})$.
+
+
+
+## Comparing Decision Rules
+
+We typically do not have a single rule $d$ that is better than all other rules for all $\theta$.
+
+* $d$ strictly dominates $d'$ if $R(\theta, d) \le R(\theta, d')$ for all $\theta$, with strict inequality for at least one $\theta$.
+* **Admissibility:** A decision rule $d$ is admissible if it is not dominated by any other rule. If it is dominated, it is *inadmissible*.
+
+### Minimax Principle
+A rule $d$ is Minimax if it minimizes the maximum possible risk.
+
+$$\sup_{\theta} R(\theta, d) \le \sup_{\theta} R(\theta, d') \quad \text{for all } d' \in \mathcal{D}$$
+
+Visualize the risk functions of two rules, $d_1$ and $d_2$. $d_2$ might have a higher risk in some areas but a lower "peak" risk, making it Minimax.
+
+```{r}
+#| label: fig-minimax
+#| echo: false
+#| fig-cap: "Illustration of Minimax: Rule d2 has a lower maximum risk than d1, making it the Minimax rule, even though d1 is better for some values of theta."
+library(ggplot2)
+
+theta <- seq(-3, 3, length.out = 100)
+## d1 has high variance/peak
+risk_d1 <- 1.5 * exp(-theta^2 / 2) 
+## d2 is flatter (lower max risk)
+risk_d2 <- 0.8 * exp(-theta^2 / 5) + 0.1
+
+df <- data.frame(
+  theta = rep(theta, 2),
+  Risk = c(risk_d1, risk_d2),
+  Rule = rep(c("d1", "d2 (Minimax)"), each = 100)
+)
+
+ggplot(df, aes(x = theta, y = Risk, color = Rule)) +
+  geom_line(size = 1.2) +
+  theme_minimal() +
+  labs(title = "Comparison of Risk Functions", y = "Risk R(theta, d)", x = "Parameter Theta")
+```
+
+## Bayes Decision Rules
+
+We specify a **prior distribution** $\pi(\theta)$ on the parameter space $\Theta$.
+
+### Bayes Risk
+The Bayes risk of a rule $d$ with respect to prior $\pi$ is the weighted average of the frequentist risk:
+
+$$r(\pi, d) = E_\pi [R(\theta, d)] = \int_\Theta R(\theta, d) \pi(\theta) d\theta$$
+
+### Bayes Rule Definition
+A decision rule $d_\pi$ is a Bayes rule with respect to $\pi$ if it minimizes the Bayes risk:
+
+$$r(\pi, d_\pi) = \inf_{d' \in \mathcal{D}} r(\pi, d')$$
+
+## Randomized Decision Rules & Risk Sets
+
+### Randomized Rules
+A randomized decision rule chooses between deterministic rules $d_1, d_2, \dots$ with probabilities $p_1, p_2, \dots$.
+The risk of a randomized rule $d^* = \sum p_i d_i$ is the linear combination of their risks:
+$$R(\theta, d^*) = \sum p_i R(\theta, d_i)$$
+
+### Geometric Interpretation (Finite Parameter Space)
+If $\Theta = \{\theta_1, \theta_2, \dots, \theta_k\}$ is finite, we can plot the risk vector $(R(\theta_1, d), \dots, R(\theta_k, d))$ in $\mathbb{R}^k$.
+
+**Risk Set ($S$):** The set of all possible risk vectors.
+Lemma: The Risk Set $S$ is **convex**. This is because we can form randomized rules that lie on the line segment connecting any two deterministic rules.
+
+```{r}
+#| label: fig-riskset
+#| echo: false
+#| fig-cap: "The Risk Set S. Points d1 and d2 are deterministic rules. The line connecting them represents randomized rules. The Minimax rule lies on the line R1=R2 (if accessible). The Bayes rule is found by bringing a tangent line with slope -pi1/pi2 toward the origin."
+library(ggplot2)
+
+## Define a polygon representing the risk set
+risk_polygon <- data.frame(
+  R1 = c(1, 4, 4, 2, 1),
+  R2 = c(4, 4, 1, 1, 4)
+)
+
+ggplot() +
+  ## Draw the convex risk set
+  geom_polygon(data = risk_polygon, aes(x = R1, y = R2), fill = "lightblue", alpha = 0.5, color = "black") +
+  ## Add 45 degree line for minimax
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "red") +
+  annotate("text", x = 3.5, y = 3.8, label = "R1 = R2 (Minimax Line)", color = "red") +
+  coord_fixed(xlim = c(0, 5), ylim = c(0, 5)) +
+  labs(title = "Geometric Representation of Risk Set", x = "Risk R(theta_1)", y = "Risk R(theta_2)") +
+  theme_minimal()
+```
+
+## Example: The "Great Aunt's Necklace"
+
+**Scenario:**
+Two boxes. One contains a real necklace ($\theta=1$), the other an imitation ($\theta=2$).
+Loss is 1 if we choose the wrong box, 0 otherwise.
+
+* $\theta \in \{1, 2\}$
+* Action $a \in \{1, 2\}$ (Choose Box 1 or Box 2)
+
+**Data ($X$):**
+Great Aunt's judgment.
+$X \in \{1, 2\}$ (Aunt says Box 1 or Box 2).
+Probabilities:
+* If $\theta=1$ (Real in Box 1): Aunt is senile. $P(X=1)=1, P(X=2)=0$.
+* If $\theta=2$ (Real in Box 2): Aunt guesses. $P(X=1)=0.5, P(X=2)=0.5$.
+
+**Decision Rules:**
+1.  $d_1$: Always choose Box 1.
+2.  $d_2$: Always choose Box 2.
+3.  $d_3(x) = x$: Follow Aunt's advice.
+4.  $d_4(x) = 3-x$: Do opposite of Aunt.
+
+**Risk Calculation:**
+
+| Rule | $R(\theta=1)$ | $R(\theta=2)$ | Coordinates $(R_1, R_2)$ |
+| :--- | :--- | :--- | :--- |
+| $d_1$ | 0 | 1 | (0, 1) |
+| $d_2$ | 1 | 0 | (1, 0) |
+| $d_3$ | 0 | 0.5 | (0, 0.5) |
+| $d_4$ | 1 | 0.5 | (1, 0.5) |
+
+**Geometry and Minimax:**
+The risk set is the convex hull of these four points.
+
+```{r}
+#| label: fig-necklace
+#| echo: false
+#| fig-cap: "Risk Set for the Necklace Example. The set is the quadrilateral defined by d1, d2, d3, d4. The Minimax rule is the intersection of the line R1=R2 and the lower boundary segment connecting d3 and d2."
+
+df_necklace <- data.frame(
+  R1 = c(0, 1, 1, 0),
+  R2 = c(1, 0, 0.5, 0.5),
+  Label = c("d1", "d2", "d4", "d3")
+)
+
+## Segment for the lower boundary (admissible rules)
+admissible_segment <- data.frame(
+  x = c(0, 1),
+  y = c(0.5, 0)
+)
+
+ggplot() +
+  geom_polygon(data = df_necklace, aes(x = R1, y = R2), fill = "lightgray", alpha = 0.5, color = "black") +
+  geom_point(data = df_necklace, aes(x = R1, y = R2), size = 3) +
+  geom_text(data = df_necklace, aes(x = R1, y = R2, label = Label), vjust = -1) +
+  ## Minimax line R1 = R2
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "blue") +
+  ## Highlight admissible boundary (d3 to d2)
+  geom_segment(aes(x = 0, y = 0.5, xend = 1, yend = 0), color = "red", size = 1.2) +
+  annotate("point", x = 1/3, y = 1/3, color = "red", size = 4, shape = 18) +
+  annotate("text", x = 0.4, y = 0.25, label = "Minimax Rule (1/3, 1/3)", color = "red") +
+  coord_fixed(xlim = c(-0.1, 1.2), ylim = c(-0.1, 1.2)) +
+  labs(title = "Risk Set: Necklace Example", x = "R(theta=1)", y = "R(theta=2)") +
+  theme_bw()
+```
+
+**Calculation of Minimax Rule:**
+The lower boundary connects $d_3 (0, 0.5)$ and $d_2 (1, 0)$.
+Equation of line: $R_2 - 0 = \frac{0.5 - 0}{0 - 1} (R_1 - 1) \Rightarrow R_2 = -0.5(R_1 - 1)$.
+For Minimax, set $R_1 = R_2 = R$.
+$R = -0.5R + 0.5 \Rightarrow 1.5R = 0.5 \Rightarrow R = 1/3$.
+The minimax rule is a randomized combination: $d^* = \frac{2}{3}d_3 + \frac{1}{3}d_2$.
+
+## Theorems relating Minimax and Bayes
+
+**Theorem 2.1:**
+If a sequence of Bayes rules $\delta_n$ (w.r.t priors $\pi_n$) has Bayes risk converging to $C$, and $R(\theta, \delta_0) \le C$ for all $\theta$, then $\delta_0$ is Minimax.
+
+**Theorem 2.2 (Equalizer Rule):**
+An "Extended Bayes" rule that is an **equalizer** rule (constant risk across $\theta$) must be Minimax.
+*Proof sketch:* If it were not minimax, there would exist a rule with strictly lower maximum risk. This would imply it has lower Bayes risk for the specific prior, leading to a contradiction with the assumption that the original rule was Bayes.
