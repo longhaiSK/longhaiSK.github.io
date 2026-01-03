@@ -22,9 +22,9 @@
   {
     "objectID": "introstatinf.html",
     "href": "introstatinf.html",
-    "title": "1  Introduction",
+    "title": "1  Introduction to Statistical Inference",
     "section": "",
-    "text": "1.1 Introduction to Statistical Inference",
+    "text": "1.1 Statistical Inference Setup\nWe begin with observations (units) \\(X_1, X_2, \\dots, X_n\\). These may be vectors. We regard these observations as a realization of random variables.",
     "crumbs": [
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>Introduction to Statistical Inference</span>"
     ]
@@ -147,6 +147,96 @@
     "text": "Parameter Space (\\(\\Theta\\)): The set of all possible states of nature or values that the parameter can take. \\(\\theta \\in \\Theta\\) (e.g., mean, variance).\nSample Space (\\(\\mathcal{X}\\)): The space where the data \\(X\\) lies. Example: \\(X = (X_1, X_2, \\dots, X_n)\\) where \\(X_i \\in \\mathbb{R}\\). So \\(\\mathcal{X} \\in \\mathbb{R}^n\\).\nFamily of Probability Distributions: \\(\\{P_\\theta(x) : \\theta \\in \\Theta\\}\\). This describes how likely we are to see the data \\(X\\) given a specific parameter \\(\\theta\\).\n\nIf \\(X\\) is continuous: \\(P_\\theta(x) = f(x, \\theta)\\) (Probability Density Function).\nIf \\(X\\) is discrete: \\(P_\\theta(x) = f(x, \\theta)\\) (Probability Mass Function).\n\nAction Space (\\(\\mathcal{A}\\)): The set of all actions or decisions available to the experimenter.\n\nExample (Hypothesis Testing): \\(H_0\\) vs \\(H_1\\). \\(\\mathcal{A} = \\{0, 1\\}\\) where \\(0\\) means “Accept \\(H_0\\)” and \\(1\\) means “Reject \\(H_0\\)”.\nExample (Point Estimation): \\(\\mathcal{A} = \\Theta\\). An action is an estimate of \\(\\theta\\).\nExample (Interval Estimation): \\(\\mathcal{A} = \\{(l, u) : l \\in \\mathbb{R}, u \\in \\mathbb{R}, l \\le u\\}\\).\n\nLoss Function: \\(L: \\Theta \\times \\mathcal{A} \\rightarrow \\mathbb{R}\\). \\(L(\\theta, a)\\) specifies the loss incurred if the true parameter is \\(\\theta\\) and we take action \\(a\\). Generally, \\(L(\\theta, a) \\ge 0\\).\n\nExamples:\n\nSquared Error: \\(L(\\theta, a) = (\\theta - a)^2\\)\nAbsolute Error: \\(L(\\theta, a) = |\\theta - a|\\)\n0-1 Loss (Hypothesis Testing): \\[\n  L(\\theta, a) =\n  \\begin{cases}\n  0 & \\text{if decision is correct} \\\\\n  1 & \\text{if decision is wrong}\n  \\end{cases}\n  \\] Specifically:\n\nIf \\(\\theta \\in H_0\\) and \\(a=1\\) (Type I Error), Loss = 1.\nIf \\(\\theta \\in H_1\\) and \\(a=0\\) (Type II Error), Loss = 1.",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>Decision Theory</span>"
+    ]
+  },
+  {
+    "objectID": "bayesian.html",
+    "href": "bayesian.html",
+    "title": "3  Bayesian Methods",
+    "section": "",
+    "text": "3.1 Bayes Theorem\nSuppose \\(\\theta \\sim \\pi(\\theta)\\) and \\(X \\sim f(x; \\theta)\\). The posterior density of \\(\\theta\\) given \\(X\\) is:\n\\[\n\\pi(\\theta|x) = \\frac{\\pi(\\theta) f(x;\\theta)}{\\int_{\\Theta} \\pi(\\theta) f(x;\\theta) d\\theta} \\propto \\pi(\\theta) \\cdot L(\\theta; x)\n\\]\nwhere \\(L(\\theta; x)\\) is the likelihood.",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Bayesian Methods</span>"
+    ]
+  },
+  {
+    "objectID": "bayesian.html#examples",
+    "href": "bayesian.html#examples",
+    "title": "3  Bayesian Methods",
+    "section": "3.2 Examples",
+    "text": "3.2 Examples\n\n3.2.1 1. Binomial-Beta\n\n\\(X|\\theta \\sim \\text{Bin}(n, \\theta) \\Rightarrow f(x|\\theta) = \\binom{n}{x} \\theta^x (1-\\theta)^{n-x}\\)\nPrior \\(\\theta \\sim \\text{Beta}(a, b) \\Rightarrow \\pi(\\theta) \\propto \\theta^{a-1}(1-\\theta)^{b-1}\\)\n\nPosterior: \\[\n\\pi(\\theta|x) \\propto \\theta^{a-1}(1-\\theta)^{b-1} \\cdot \\theta^x (1-\\theta)^{n-x} = \\theta^{a+x-1} (1-\\theta)^{b+n-x-1}\n\\]\nSo, \\(\\theta|x \\sim \\text{Beta}(a+x, b+n-x)\\).\nMoments: * Mean: \\(E(\\theta|x) = \\frac{a+x}{a+b+n} \\approx \\frac{x}{n}\\) (for small \\(n\\)) * Variance: \\(\\text{Var}(\\theta|x) = \\frac{(a+x)(b+n-x)}{(a+b+n)^2(a+b+n+1)}\\)\n\n\n3.2.2 2. Normal-Normal (Known Variance)\n\n\\(X_1, \\dots, X_n \\sim N(\\mu, \\sigma^2)\\) where \\(\\sigma^2\\) is known.\nPrior \\(\\mu \\sim N(\\mu_0, \\sigma_0^2)\\).\n\nLet \\(\\tau_0 = 1/\\sigma_0^2\\) (prior precision), \\(\\tau = 1/\\sigma^2\\) (data precision). The posterior precision is \\(\\tau_1 = \\tau_0 + n\\tau\\).\nPosterior: \\[\n\\mu|x \\sim N\\left( \\frac{\\tau_0 \\mu_0 + n\\tau \\bar{x}}{\\tau_0 + n\\tau}, \\frac{1}{\\tau_0 + n\\tau} \\right)\n\\]\nThis shows the posterior mean is a weighted average of the prior mean and the sample mean.",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Bayesian Methods</span>"
+    ]
+  },
+  {
+    "objectID": "bayesian.html#squared-error-loss-ltheta-a-theta---a2",
+    "href": "bayesian.html#squared-error-loss-ltheta-a-theta---a2",
+    "title": "3  Bayesian Methods",
+    "section": "4.1 1. Squared Error Loss: \\(L(\\theta, a) = (\\theta - a)^2\\)",
+    "text": "4.1 1. Squared Error Loss: \\(L(\\theta, a) = (\\theta - a)^2\\)\nMinimizing \\(E_{\\theta|x}[(\\theta - d)^2]\\) leads to: \\[\nd(x) = E(\\theta|x) \\quad \\text{(Posterior Mean)}\n\\]",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Bayesian Methods</span>"
+    ]
+  },
+  {
+    "objectID": "bayesian.html#absolute-error-loss-ltheta-a-theta---a",
+    "href": "bayesian.html#absolute-error-loss-ltheta-a-theta---a",
+    "title": "3  Bayesian Methods",
+    "section": "4.2 2. Absolute Error Loss: \\(L(\\theta, a) = |\\theta - a|\\)",
+    "text": "4.2 2. Absolute Error Loss: \\(L(\\theta, a) = |\\theta - a|\\)\nMinimizing \\(E_{\\theta|x}[|\\theta - d|]\\) leads to: \\[\n\\int_{-\\infty}^d \\pi(\\theta|x) d\\theta = \\int_{d}^{\\infty} \\pi(\\theta|x) d\\theta = 0.5\n\\] So, \\(d(x) = \\text{Median of } \\pi(\\theta|x)\\).",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Bayesian Methods</span>"
+    ]
+  },
+  {
+    "objectID": "bayesian.html#loss-hypothesis-testing",
+    "href": "bayesian.html#loss-hypothesis-testing",
+    "title": "3  Bayesian Methods",
+    "section": "4.3 3. 0-1 Loss (Hypothesis Testing)",
+    "text": "4.3 3. 0-1 Loss (Hypothesis Testing)\n\nLoss is 1 if error, 0 if correct.\nTesting \\(\\Theta_0\\) vs \\(\\Theta_1\\).\nBayes Rule: Choose class with highest posterior probability.\n\nReject \\(H_0\\) if \\(P(\\theta \\in \\Theta_1 | x) &gt; P(\\theta \\in \\Theta_0 | x)\\).",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Bayesian Methods</span>"
+    ]
+  },
+  {
+    "objectID": "bayesian.html#interval-estimation",
+    "href": "bayesian.html#interval-estimation",
+    "title": "3  Bayesian Methods",
+    "section": "4.4 4. Interval Estimation",
+    "text": "4.4 4. Interval Estimation\nWe want an interval \\(A = (d-\\delta, d+\\delta)\\) minimizing risk (maximizing coverage probability \\(1-\\alpha\\)).\nHighest Posterior Density (HPD) Interval: The set \\(C = \\{ \\theta : \\pi(\\theta|x) \\ge k \\}\\) where \\(P(\\theta \\in C|x) = 1-\\alpha\\). This is the shortest interval for a given confidence level if the posterior is unimodal.\n\n\nCode\nlibrary(ggplot2)\n\nx &lt;- seq(0, 15, length.out = 1000)\ny &lt;- dgamma(x, shape = 3, rate = 0.5)\ndf &lt;- data.frame(x = x, y = y)\n\n# Approximate HPD cutoff (visual)\nhpd_level &lt;- 0.05\ncutoff &lt;- 0.08 # Chosen for visual representation of the cut\n\nggplot(df, aes(x, y)) +\n  geom_line(size = 1) +\n  geom_area(data = subset(df, y &gt; cutoff), fill = \"skyblue\", alpha = 0.5) +\n  geom_hline(yintercept = cutoff, linetype = \"dashed\", color = \"red\") +\n  annotate(\"text\", x = 10, y = cutoff + 0.02, label = \"HPD Cutoff line\", color = \"red\") +\n  labs(title = \"Highest Posterior Density (HPD) Interval\", \n       subtitle = \"Points with density higher than the red line form the HPD set\",\n       x = \"Theta\", y = \"Posterior Density\") +\n  theme_minimal()\n\n\n\n\n\n\n\n\nFigure 4.1: Illustration of Highest Posterior Density (HPD) Interval vs Equi-tailed Interval on a skewed posterior.",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Bayesian Methods</span>"
+    ]
+  },
+  {
+    "objectID": "bayesian.html#baseball-example-efron-morris",
+    "href": "bayesian.html#baseball-example-efron-morris",
+    "title": "3  Bayesian Methods",
+    "section": "6.1 Baseball Example (Efron & Morris)",
+    "text": "6.1 Baseball Example (Efron & Morris)\nWe observe batting averages for \\(p=18\\) players. * MLE: Individual batting averages. * JS: Shrinks individual averages toward the global average.\n\n\nCode\n# Creating mock data similar to the baseball example\nplayer &lt;- 1:10\nMLE &lt;- c(0.400, 0.370, 0.350, 0.300, 0.280, 0.250, 0.220, 0.200, 0.150, 0.100)\nGrandMean &lt;- mean(MLE)\nshrinkage_factor &lt;- 0.6 # c = 1 - (p-2)/S\nJS &lt;- GrandMean + shrinkage_factor * (MLE - GrandMean)\n\ndf_base &lt;- data.frame(player, MLE, JS)\n\nggplot(df_base) +\n  geom_point(aes(x = MLE, y = 1), color = \"red\", size = 3) +\n  geom_point(aes(x = JS, y = 1), color = \"blue\", size = 3) +\n  geom_segment(aes(x = MLE, y = 1, xend = JS, yend = 1), arrow = arrow(length = unit(0.2, \"cm\"))) +\n  geom_vline(xintercept = GrandMean, linetype = \"dashed\") +\n  annotate(\"text\", x = GrandMean, y = 1.1, label = \"Grand Mean\") +\n  ylim(0.9, 1.2) +\n  labs(title = \"James-Stein Shrinkage Effect\", \n       subtitle = \"Red: MLE, Blue: JS Estimator\",\n       x = \"Batting Average\") +\n  theme_void() +\n  theme(axis.title.x = element_text(), axis.text.x = element_text())\n\n\n\n\n\n\n\n\nFigure 6.1: Visualizing James-Stein Shrinkage (Mock Data based on Baseball Example). The arrows show MLEs being pulled toward the Grand Mean.",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Bayesian Methods</span>"
+    ]
+  },
+  {
+    "objectID": "bayesian.html#empirical-bayes",
+    "href": "bayesian.html#empirical-bayes",
+    "title": "3  Bayesian Methods",
+    "section": "7.1 Empirical Bayes",
+    "text": "7.1 Empirical Bayes\nInstead of fixing hyperparameters \\((\\mu_0, \\sigma_0^2)\\), we estimate them from the marginal distribution of the data. \\[\nm(x) = \\int f(x|\\theta) \\pi(\\theta|\\eta) d\\theta\n\\] We estimate \\(\\eta\\) by maximizing \\(m(x)\\) (Type-II MLE) or method of moments.\nExample: If \\(X_i \\sim N(\\mu_i, 1)\\) and \\(\\mu_i \\sim N(0, \\tau^2)\\), then marginally \\(X_i \\sim N(0, 1+\\tau^2)\\). We can use \\(S = \\sum X_i^2\\) to estimate \\(\\tau^2\\).",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Bayesian Methods</span>"
+    ]
+  },
+  {
+    "objectID": "bayesian.html#hierarchical-models",
+    "href": "bayesian.html#hierarchical-models",
+    "title": "3  Bayesian Methods",
+    "section": "7.2 Hierarchical Models",
+    "text": "7.2 Hierarchical Models\nWe assume a multistage structure: 1. Data model: \\(X|\\theta \\sim f(x|\\theta)\\) 2. Parameter model: \\(\\theta|\\lambda \\sim \\pi(\\theta|\\lambda)\\) 3. Hyperparameter model: \\(\\lambda \\sim h(\\lambda)\\)\nComputation: Since analytical solutions are often impossible, we use Markov Chain Monte Carlo (MCMC).\n\n7.2.1 Gibbs Sampling\nTo sample from the joint posterior \\(f(\\theta, \\lambda | x)\\), we sample iteratively from the full conditional distributions: 1. Draw \\(\\theta^{(k+1)} \\sim f(\\theta | \\lambda^{(k)}, x)\\) 2. Draw \\(\\lambda^{(k+1)} \\sim f(\\lambda | \\theta^{(k+1)}, x)\\)\n\n\n7.2.2 Metropolis-Hastings\nIf a conditional distribution is hard to sample from directly: 1. Propose \\(\\theta^*\\) from a proposal density \\(q(\\theta^* | \\theta^{(t)})\\). 2. Calculate acceptance ratio \\(\\alpha = \\min \\left( 1, \\frac{f(\\theta^*|x)q(\\theta^{(t)}|\\theta^*)}{f(\\theta^{(t)}|x)q(\\theta^*|\\theta^{(t)})} \\right)\\). 3. Accept \\(\\theta^*\\) with probability \\(\\alpha\\).",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Bayesian Methods</span>"
     ]
   }
 ]
