@@ -3,6 +3,14 @@ title: "Introduction to Statistical Inference"
 format: html
 ---
 
+```{r}
+#| label: setup
+#| include: false
+# Ensure latex2exp is installed: install.packages("latex2exp")
+library(ggplot2)
+library(latex2exp)
+```
+
 ## Statistical Inference Setup
 
 We begin with observations (units) $X_1, X_2, \dots, X_n$. These may be vectors. We regard these observations as a realization of random variables.
@@ -19,10 +27,6 @@ For simplicity, we often assume the data are Independent and Identically Distrib
 
 In **Parametric Statistics**, we assume $f(x)$ is of a known analytic form but involves unknown parameters.
 
-**Note on Simplicity:**
-
-The assumption that observations are identically distributed is made primarily for **notational simplicity**. There is no fundamental issue in extending this framework to **regression settings**, where the distribution depends on covariates (e.g., $Y_i | X_i$), or to other complex structures.
-
 ::: {#exm-normal-distribution}
 ### Parametric Model: Normal
 Consider the Normal distribution:
@@ -33,10 +37,10 @@ The goal is to learn aspects of the unknown $\theta$ from observations $X_1, \do
 
 ::: {#exm-bernoulli-distribution}
 ### Parametric Model: Bernoulli
-Consider a sequence of coin flips where each $X_i \in \{0, 1\}$. We assume $X_i \sim \text{Bernoulli}(\theta)$.
+Consider a sequence of binary outcomes (e.g., Success/Failure) where each $X_i \in \{0, 1\}$. We assume $X_i \sim \text{Bernoulli}(\theta)$.
 The probability mass function is:
 $$f(x; \theta) = \theta^x (1-\theta)^{1-x}$$
-Here, the parameter space is $\Theta = [0, 1]$, where $\theta$ represents the probability of success (e.g., "Heads").
+Here, the parameter space is $\Theta = [0, 1]$, where $\theta$ represents the probability of success.
 :::
 
 ## Probability vs. Statistics
@@ -49,10 +53,9 @@ There is a fundamental distinction between probability and statistics regarding 
 * **Probability (Deductive):** The center $\theta$ is **known**. We predict where the shots $x$ will land.
 * **Statistics (Inductive):** The shots $x$ are **observed** on the board. The center $\theta$ is unknown. We hypothesize different potential centers to see which one best explains the shots.
 
-
 ```{r}
 #| label: fig-prob-vs-stat-base
-#| fig-cap: "Probability vs Statistics. Left: Probability—The model is fixed (Blue center/contours), generating random data. Right: Statistics—Data is fixed (Black points); we test two hypothesized models: H1 (Green) centered at the sample mean (Good Fit) and H2 (Red) shifted by (1.5, 1.5) (Bad Fit)."
+#| fig-cap: "Probability vs Statistics (Base R). Left: Probability—The model is fixed (Blue center/contours), generating random data. Right: Statistics—Data is fixed (Black points); we test two hypothesized models: H1 (Green) centered at the sample mean (Good Fit) and H2 (Red) shifted by (1.5, 1.5) (Bad Fit)."
 #| echo: false
 #| fig-width: 10
 #| fig-height: 5
@@ -80,7 +83,8 @@ y_prob <- rnorm(n)
 
 # 2. Setup Canvas (asp=1 ensures circles look like circles)
 plot(NA, xlim = c(-4, 4), ylim = c(-4, 4), asp = 1,
-     xlab = "", ylab = "", main = "PROBABILITY\n(Model Known -> Data Random)")
+     xlab = "", ylab = "", 
+     main = "PROBABILITY\n(Model Known -> Data Random)")
 
 # 3. Draw Model (True Center & Contours)
 points(0, 0, pch = 19, col = "blue", cex = 2)
@@ -105,7 +109,8 @@ y_bar <- mean(y_stat)
 
 # 2. Setup Canvas
 plot(NA, xlim = c(-4, 4), ylim = c(-4, 4), asp = 1,
-     xlab = "", ylab = "", main = "STATISTICS\n(Data Observed -> Model Unknown)")
+     xlab = "", ylab = "", 
+     main = "STATISTICS\n(Data Observed -> Model Unknown)")
 
 # 3. Draw Observed Data
 points(x_stat, y_stat, pch = 16, col = adjustcolor("black", alpha = 0.5))
@@ -126,6 +131,46 @@ legend("bottomleft",
        bty = "n", cex = 0.8)
 ```
 
+## Motivating Example: The Lady Tasting Tea
+
+To illustrate the concepts of statistical inference, we consider the famous experiment described by R.A. Fisher.
+
+A lady claims she can distinguish whether milk was poured into the cup before or after the tea. To test this claim, we prepare $n$ cups of tea.
+
+* **Random Variable:** Let $X_i=1$ if she identifies the cup correctly, and $0$ otherwise.
+* **Parameter:** Let $\theta$ be the probability that she correctly identifies a cup.
+* **The Data:** Suppose we observe that she identifies **70%** of cups correctly ($\bar{x} = 0.7$).
+
+::: {.panel-tabset}
+## Small Sample (n=10)
+We observe **7 out of 10** correct ($k=7$).
+$$\bar{x} = 0.7$$
+
+## Large Sample (n=20)
+We observe **14 out of 20** correct ($k=14$).
+$$\bar{x} = 0.7$$
+:::
+
+## Key Questions in Statistical Inference
+
+Using this example, we identify the four main types of statistical inference.
+
+##### Point Estimation {.unnumbered}
+We want to use a single number to capture the parameter: $\hat{\theta} = \theta(X_1, \dots, X_n)$.
+* *Tea Example:* Our best guess for her success rate is $\hat{\theta} = 0.7$.
+
+##### Hypothesis Testing {.unnumbered}
+We want to test a theory about the parameter: $H_0$ vs $H_1$.
+* *Tea Example:* Is she just guessing? We test $H_0: \theta = 0.5$ vs $H_1: \theta > 0.5$.
+
+##### Interval Estimation {.unnumbered}
+We want to construct an interval likely to contain the parameter: $\theta \in (L, U)$.
+* *Tea Example:* We might say her true skill $\theta$ is likely between $0.45$ and $0.95$.
+
+##### Prediction {.unnumbered}
+We want to predict a new observation $Y_{n+1}$ given previous data.
+* *Tea Example:* If we give her an 11th cup, what is the probability she identifies it correctly?
+
 ## The Likelihood Function
 
 The bridge between probability and statistics is the Likelihood Function.
@@ -136,216 +181,186 @@ Let $f(x_1, \dots, x_n; \theta)$ be the joint probability density (or mass) func
 $$L(\theta) = f(x_1, \dots, x_n; \theta)$$
 :::
 
-::: {#exm-bernoulli-likelihood}
-### Example: Bernoulli Trial
-Consider a coin flip where $X \sim \text{Bernoulli}(\theta)$. The probability of Heads (1) is $\theta$, and Tails (0) is $1-\theta$.
-Suppose we observe 3 independent flips: **1, 0, 1**.
+For our Tea Tasting data, the likelihood is proportional to the Binomial probability:
+$$L(\theta) = \binom{n}{k} \theta^k (1-\theta)^{n-k}$$
 
-The probability of observing this specific sequence is:
-$$L(\theta) = P(X_1=1) \cdot P(X_2=0) \cdot P(X_3=1) = \theta \cdot (1-\theta) \cdot \theta = \theta^2(1-\theta)$$
+::: {.panel-tabset}
 
-We can calculate the likelihood for various values of $\theta$:
+## n=10 (k=7)
+Here, $L(\theta) = \binom{10}{7} \theta^7 (1-\theta)^3$.
 
-| $\theta$ | Calculation ($\theta^2(1-\theta)$) | $L(\theta)$ |
+| $\theta$ | Calculation $\binom{10}{7} \theta^7 (1-\theta)^3$ | $L(\theta)$ |
 | :--- | :--- | :--- |
-| 0.0 | $0^2 \times 1$ | 0.000 |
-| 0.2 | $0.04 \times 0.8$ | 0.032 |
-| 0.4 | $0.16 \times 0.6$ | 0.096 |
-| 0.6 | $0.36 \times 0.4$ | 0.144 |
-| 0.8 | $0.64 \times 0.2$ | 0.128 |
-| 1.0 | $1^2 \times 0$ | 0.000 |
-
-We can visualize this function to see which value of $\theta$ is most "likely" (the maximum point).
+| 0.0 | $120 \times 0^7 \times 1^3$ | 0.0000 |
+| 0.2 | $120 \times 0.2^7 \times 0.8^3$ | 0.0008 |
+| 0.4 | $120 \times 0.4^7 \times 0.6^3$ | 0.0425 |
+| 0.6 | $120 \times 0.6^7 \times 0.4^3$ | 0.2150 |
+| 0.7 | $120 \times 0.7^7 \times 0.3^3$ | **0.2668** (Max) |
+| 0.8 | $120 \times 0.8^7 \times 0.2^3$ | 0.2013 |
+| 1.0 | $120 \times 1^7 \times 0^3$ | 0.0000 |
 
 ```{r}
-#| label: fig-likelihood
-#| fig-cap: "The Likelihood Function $L(\\theta)$ for data $x=(1, 0, 1)$. The peak (MLE) is at $\\theta_{\\text{MLE}} = 2/3$."
+#| label: fig-likelihood-tea-10
+#| fig-cap: "Likelihood Function (n=10)"
 #| echo: true
-library(ggplot2)
+library(latex2exp)
 
-# Define the function L(theta) = theta^2 * (1-theta)
-likelihood_fun <- function(theta) { theta^2 * (1 - theta) }
+n <- 10; k <- 7
+likelihood_fun <- function(theta) { choose(n, k) * theta^k * (1 - theta)^(n-k) }
+theta_vals <- seq(0, 1, length.out = 200)
+df <- data.frame(theta = theta_vals, Likelihood = likelihood_fun(theta_vals))
 
-# Generate sequence of theta
-theta_vals <- seq(0, 1, length.out = 100)
-lik_vals <- likelihood_fun(theta_vals)
-df <- data.frame(theta = theta_vals, Likelihood = lik_vals)
-
-# Plot
 ggplot(df, aes(x = theta, y = Likelihood)) +
   geom_line(color = "darkblue", size = 1.2) +
-  geom_vline(xintercept = 2/3, linetype = "dashed", color = "red") +
-  annotate("text", x = 2/3, y = 0.02, label = "Max~at~2/3", color = "red", angle = 90, vjust = -0.5, parse = TRUE) +
-  labs(title = expression(paste("Likelihood Function ", L(theta), " for Data {1, 0, 1}")),
-       x = expression(paste("Parameter ", theta, " (Probability of Heads)")),
-       y = expression(Likelihood~L(theta))) +
+  geom_vline(xintercept = k/n, linetype = "dashed", color = "red") +
+  annotate("text", x = k/n, y = 0.05, label = paste("Max at", k/n), color = "red", angle = 90, vjust = -0.5) +
+  labs(title = TeX(r'(Likelihood $L(\theta)$ for $n=10, k=7$)'),
+       x = TeX(r'(Parameter $\theta$)'),
+       y = TeX(r'(Likelihood $L(\theta)$)')) +
+  theme_minimal()
+```
+
+## n=20 (k=14)
+Here, $L(\theta) = \binom{20}{14} \theta^{14} (1-\theta)^6$.
+Notice how the likelihood becomes **narrower** (more peaked) with more data, even though the peak remains at 0.7.
+
+| $\theta$ | Calculation $\binom{20}{14} \theta^{14} (1-\theta)^6$ | $L(\theta)$ |
+| :--- | :--- | :--- |
+| 0.0 | $38760 \times 0^{14} \times 1^6$ | 0.0000 |
+| 0.4 | $38760 \times 0.4^{14} \times 0.6^6$ | 0.0049 |
+| 0.6 | $38760 \times 0.6^{14} \times 0.4^6$ | 0.1244 |
+| 0.7 | $38760 \times 0.7^{14} \times 0.3^6$ | **0.1916** (Max) |
+| 0.8 | $38760 \times 0.8^{14} \times 0.2^6$ | 0.1091 |
+| 1.0 | $38760 \times 1^{14} \times 0^6$ | 0.0000 |
+
+```{r}
+#| label: fig-likelihood-tea-20
+#| fig-cap: "Likelihood Function (n=20)"
+#| echo: true
+n <- 20; k <- 14
+likelihood_fun <- function(theta) { choose(n, k) * theta^k * (1 - theta)^(n-k) }
+theta_vals <- seq(0, 1, length.out = 200)
+df <- data.frame(theta = theta_vals, Likelihood = likelihood_fun(theta_vals))
+
+ggplot(df, aes(x = theta, y = Likelihood)) +
+  geom_line(color = "darkblue", size = 1.2) +
+  geom_vline(xintercept = k/n, linetype = "dashed", color = "red") +
+  annotate("text", x = k/n, y = 0.05, label = paste("Max at", k/n), color = "red", angle = 90, vjust = -0.5) +
+  labs(title = TeX(r'(Likelihood $L(\theta)$ for $n=20, k=14$)'),
+       x = TeX(r'(Parameter $\theta$)'),
+       y = TeX(r'(Likelihood $L(\theta)$)')) +
   theme_minimal()
 ```
 :::
 
-## Types of Statistical Inference
+## Paradigms of Inference
 
-We can categorize inference into four main types:
-
-::: {#def-point-estimation}
-### Point Estimation
-We use a single number to capture the parameter.
-$$\hat{\theta} = \theta(X_1, \dots, X_n)$$
-:::
-
-::: {#exm-point-est}
-### Estimating Average Height
-We want to estimate the average height ($\mu$) of all students in a university. We measure 100 students and calculate the sample mean $\bar{x} = 170$ cm. Our point estimate is $\hat{\mu} = 170$.
-:::
-
-::: {#def-interval-estimation}
-### Interval Estimation
-We construct an interval that likely contains the true parameter.
-$$\theta \in (L(X_1, \dots, X_n), U(X_1, \dots, X_n))$$
-The true parameter is within this interval.
-:::
-
-::: {#exm-interval-est}
-### Confidence Interval for Height
-Using the same height data, we calculate a 95% Confidence Interval. We state: "We are 95% confident that the true average height is between 168 cm and 172 cm."
-:::
-
-::: {#def-hypothesis-testing}
-### Hypothesis Testing
-We test a specific theory about the parameter.
-$$H_0: \theta = \theta_0 \quad \text{vs} \quad H_1: \theta \neq \theta_0$$
-(Or one-sided alternatives like $\theta > \theta_0$).
-:::
-
-::: {#exm-hypothesis-test}
-### Testing Soda Volume
-A manufacturer claims their soda bottles contain exactly 500ml ($H_0: \mu = 500$). We measure a sample and find an average of 495ml. We perform a test to see if this difference is significant enough to reject the manufacturer's claim.
-:::
-
-::: {#def-predictive-inference}
-### Predictive Inference
-Given observed data $(X_1, Y_1), \dots, (X_n, Y_n)$, we want to predict a new observation $Y_{n+1}$ given $X_{n+1}$.
-This is often the primary goal in **Machine Learning**.
-:::
-
-::: {#exm-predictive-inference}
-### Predicting House Prices
-Based on data about house sizes ($X$) and prices ($Y$) from the last year, we want to predict the selling price ($Y_{n+1}$) of a specific new house that is 2000 sq ft ($X_{n+1}$).
-:::
-
-## Standard Paradigms for Inference
-
-There are two primary frameworks for how to perform these inferences.
+There are two primary frameworks for "How" to perform these inferences.
 
 ### Frequentist Inference (Fisher)
 
-Developed largely by Fisher (c. 1920).
+* **Concept:** $\theta$ is fixed; Data $X$ is random.
+* **Sampling Distribution:** We analyze how $\hat{\theta}$ behaves under hypothetical repeated sampling.
 
-* **Concept:** The parameter $\theta$ is a **fixed, unknown constant**. The data $X$ are random.
-* **Repeated Sampling Principle:** Inference is based on the performance of methods (estimators) under hypothetical repeated sampling of the data.
-* **Sampling Distribution:** We analyze how the estimator $\hat{\theta}$ behaves over many different datasets generated from the same population.
+#### Application: Frequentist Test of the Tea Lady
+We test $H_0: \theta=0.5$ (Guessing) vs $H_1: \theta > 0.5$ (Skill).
+We analyze the behavior of $\bar{X}$ assuming $H_0$ is true. The rejection region (one-sided) is shaded red.
+
+::: {.panel-tabset}
+
+## n=10 (k=7)
+We calculate the P-value: Probability of observing $\ge 7$ correct out of 10, assuming $\theta=0.5$.
 
 ```{r}
-#| label: fig-sampling-dist
-#| fig-cap: "Frequentist Concept: The Sampling Distribution. The parameter $\\theta$ is fixed (vertical line). The curve represents how the estimator $\\hat{\\theta}$ varies across many hypothetical samples."
-#| echo: false
+#| label: fig-freq-sampling-tea-10
+#| fig-cap: "Sampling Distribution (n=10)"
+#| echo: true
+true_theta <- 0.5; n <- 10; k_obs <- 7
+k_vals <- 0:n
+probs <- dbinom(k_vals, size=n, prob=true_theta)
+df_exact <- data.frame(x_bar = k_vals/n, prob = probs)
 
-theta_true <- 5
-x_vals <- seq(2, 8, length.out = 200)
-y_vals <- dnorm(x_vals, mean = theta_true, sd = 0.8)
-df_freq <- data.frame(x = x_vals, y = y_vals)
+# One-sided rejection region
+df_exact$color_group <- ifelse(df_exact$x_bar >= k_obs/n, "Extreme", "Normal")
+p_val <- sum(df_exact$prob[df_exact$color_group == "Extreme"])
 
-ggplot(df_freq, aes(x = x, y = y)) +
-  geom_line(color = "darkgreen", size = 1.2) +
-  geom_area(fill = "lightgreen", alpha = 0.4) +
-  geom_vline(xintercept = theta_true, color = "black", size = 1.2) +
-  annotate("text", x = theta_true, y = 0.1, label = "True~Fixed~theta", hjust = -0.1, parse = TRUE) +
-  labs(title = "Sampling Distribution of an Estimator",
-       x = expression(paste("Value of Estimator (", hat(theta), ")")),
-       y = "Density") +
+# Plot
+ggplot() +
+  geom_segment(data=df_exact, aes(x=x_bar, xend=x_bar, y=0, yend=prob, color=color_group), 
+               size=5, alpha=0.8) +
+  scale_color_manual(values=c("Extreme"="red", "Normal"="darkgreen"), guide="none") +
+  geom_vline(xintercept = k_obs/n, color = "blue", size = 1) +
+  annotate("label", x = 1.05, y = 0.25, 
+           label = paste0("P-value = ", round(p_val, 3)), 
+           hjust = 1, color="red", fontface="bold") +
+  labs(title = TeX(r'(Sampling Distribution ($n=10$))'),
+       subtitle = TeX(r'(Testing $H_0: \theta=0.5$ vs $H_1: \theta > 0.5$)'),
+       x = TeX(r'(Sample Mean $\bar{x}$)'), y = "Probability Mass") +
   theme_minimal()
 ```
 
-#### Bernoulli Example: Sampling Distribution
-
-For our Bernoulli data ($x = \{1, 0, 1\}$, $n=3$), the estimator $\bar{X}$ is a scaled Binomial variable. If the true parameter were $\theta = 0.5$, the exact distribution and its Normal approximation would be:
+## n=20 (k=14)
+We calculate the P-value: Probability of observing $\ge 14$ correct out of 20.
+With a larger sample size, the same proportion (0.7) provides **stronger evidence** against the null.
 
 ```{r}
-#| label: fig-freq-sampling-bernoulli-pvalue
-#| fig-cap: "Sampling Distribution of $\\bar{X}$ for $n=3$ assuming true $\\theta=0.5$. The vertical line shows the observed $\\bar{x}=2/3$. The shaded red areas represent the p-value (probability of observing a result as extreme as 2/3 under the Null)."
+#| label: fig-freq-sampling-tea-20
+#| fig-cap: "Sampling Distribution (n=20)"
 #| echo: true
-#| warning: false
-
-true_theta <- 0.5
-n <- 3
+true_theta <- 0.5; n <- 20; k_obs <- 14
 k_vals <- 0:n
-x_bar_vals <- k_vals / n
 probs <- dbinom(k_vals, size=n, prob=true_theta)
+df_exact <- data.frame(x_bar = k_vals/n, prob = probs)
 
-df_exact <- data.frame(x_bar = x_bar_vals, prob = probs)
-
-x_grid <- seq(-0.2, 1.2, length.out=200)
-sd_approx <- sqrt(true_theta * (1 - true_theta) / n)
-norm_dens <- dnorm(x_grid, mean=true_theta, sd=sd_approx)
-df_approx <- data.frame(x = x_grid, density = norm_dens)
-
-# Identify extreme regions for p-value shading (Two-sided: x >= 2/3 and x <= 1/3)
-# Note: 1/3 is symmetric to 2/3 around the mean of 0.5
-df_shade <- subset(df_approx, x >= 2/3 | x <= 1/3)
+# One-sided rejection region
+df_exact$color_group <- ifelse(df_exact$x_bar >= k_obs/n, "Extreme", "Normal")
+p_val <- sum(df_exact$prob[df_exact$color_group == "Extreme"])
 
 ggplot() +
-  # 1. Exact Discrete Bars
-  geom_segment(data=df_exact, aes(x=x_bar, xend=x_bar, y=0, yend=prob), 
-               size=5, color="darkgreen", alpha=0.6) +
-  
-  # 2. Shaded P-value Regions (Normal Approx)
-  geom_area(data=df_shade, aes(x=x, y=density * (1/n)), 
-            fill="red", alpha=0.3) +
-  
-  # 3. Normal Approximation Curve
-  geom_line(data=df_approx, aes(x=x, y=density * (1/n)), 
-            color="red", size=1.2, linetype="dashed") +
-  
-  # 4. Vertical Line at Observed Mean
-  geom_vline(xintercept = 2/3, color = "blue", size = 1, linetype = "solid") +
-  annotate("text", x = 2/3, y = -0.02, label = "Observed\nbar(x) == 2/3", 
-           parse = TRUE, color = "blue", vjust = 1, size = 3.5) +
-  
-  labs(title = expression(paste("Sampling Distribution: Transformed Binomial vs. Normal")),
-       subtitle = expression(paste("Testing ", H[0]: theta == 0.5, " vs ", H[1]: theta != 0.5)),
-       x = expression(bar(x)), y = "Probability Mass") +
-  theme_minimal() +
-  # Increase bottom margin for annotation
-  theme(plot.margin = margin(t=10, r=10, b=30, l=10))
+  geom_segment(data=df_exact, aes(x=x_bar, xend=x_bar, y=0, yend=prob, color=color_group), 
+               size=4, alpha=0.8) +
+  scale_color_manual(values=c("Extreme"="red", "Normal"="darkgreen"), guide="none") +
+  geom_vline(xintercept = k_obs/n, color = "blue", size = 1) +
+  annotate("label", x = 1.05, y = 0.15, 
+           label = paste0("P-value = ", round(p_val, 3)), 
+           hjust = 1, color="red", fontface="bold") +
+  labs(title = TeX(r'(Sampling Distribution ($n=20$))'),
+       subtitle = TeX(r'(Testing $H_0: \theta=0.5$ vs $H_1: \theta > 0.5$)'),
+       x = TeX(r'(Sample Mean $\bar{x}$)'), y = "Probability Mass") +
+  theme_minimal()
 ```
+:::
+
+#### Methodologies & Challenges (Frequentist)
+In this course, we will answer several challenging questions related to general parametric models in the Frequentist framework.
+
+* **MLE Construction:** How do we find the Maximum Likelihood Estimator (MLE) $\hat{\theta}$ for complex models where no closed-form solution exists?
+* **Sampling Distributions:** What is the distribution of $\hat{\theta}$? If exact derivation is impossible, how do we use Asymptotic Theory to prove $\hat{\theta} \overset{d}{\to} N(\theta, I^{-1}(\theta))$?
+* **Confidence Intervals:** How do we construct Confidence Intervals for parameters in general multiparameter models?
+* **Hypothesis Testing:** How do we derive powerful tests (like the Likelihood Ratio Test) and determine their critical values?
+
 ### Bayesian Inference
 
-In the Bayesian framework, we treat the parameter $\theta$ as a **random variable** representing our knowledge/uncertainty.
+* **Concept:** $\theta$ is a random variable.
+* **Update:** Posterior $\propto$ Likelihood $\times$ Prior.
 
-1.  **Prior:** We assign a prior distribution $\pi(\theta)$ reflecting beliefs before seeing data.
-2.  **Data Model:** We have the likelihood $f(x_1, \ldots, x_n|\theta)$.
-3.  **Posterior:** We compute the posterior distribution using Bayes' theorem:
-    $$f(\theta|x_1, \ldots, x_n) = \frac{\pi(\theta)f(x_1, \ldots, x_n|\theta)}{\int \pi(\theta)f(x_1, \ldots, x_n|\theta) d\theta}$$
+#### Application: Bayesian Analysis of the Tea Lady
+Prior: $\text{Beta}(1,1)$ (Uniform).
 
-In this framework, inference is based entirely on the **Posterior Distribution**, which combines the Prior and the Likelihood.
-
-#### Bernoulli Example: Bayesian Update
-
-Using $x = \{1, 0, 1\}$ and a weakly informative $\text{Beta}(2,2)$ prior:
-
-* **Prior:** $\theta \sim \text{Beta}(2,2)$
-* **Likelihood:** $L(\theta) \propto \theta^2(1-\theta)^1$
-* **Posterior:** $\theta|x \sim \text{Beta}(2+2, 2+1) = \text{Beta}(4,3)$
+::: {.panel-tabset}
+## n=10 (k=7)
+Posterior: $\text{Beta}(1+7, 1+3) = \text{Beta}(8, 4)$.
 
 ```{r}
-#| label: fig-posterior-bernoulli
-#| fig-cap: "Bayesian Updating for Bernoulli Data {1, 0, 1}."
+#| label: fig-bayes-tea-10
+#| fig-cap: "Bayesian Update (n=10)"
 #| echo: true
-#| warning: false
-
+n <- 10; k <- 7
 theta_grid <- seq(0, 1, length.out = 200)
-prior <- dbeta(theta_grid, 2, 2)
-posterior <- dbeta(theta_grid, 4, 3)
+posterior <- dbeta(theta_grid, 1+k, 1+(n-k))
+prior <- dbeta(theta_grid, 1, 1)
+
+prob_skill <- pbeta(0.5, 1+k, 1+(n-k), lower.tail = FALSE)
 
 df_bayes <- data.frame(
   Theta = rep(theta_grid, 2),
@@ -355,13 +370,54 @@ df_bayes <- data.frame(
 
 ggplot(df_bayes, aes(x = Theta, y = Density, color = Type, linetype = Type)) +
   geom_line(size = 1.2) +
-  scale_color_manual(values = c("Posterior" = "blue", "Prior" = "gray")) +
-  labs(title = "Bayesian Updating: Prior vs Posterior",
-       x = expression(theta), y = "Density") +
-  theme_minimal()
+  scale_color_manual(values = c("blue", "gray")) +
+  scale_linetype_manual(values = c("solid", "dashed")) +
+  annotate("label", x = 0.1, y = 2, 
+           label = paste0("P(theta > 0.5 | x) = ", round(prob_skill, 3)), 
+           hjust = 0, color="blue", fontface="bold") +
+  labs(title = TeX(r'(Bayesian Update ($n=10$))'),
+       x = TeX(r'($\theta$)'), y = "Density") +
+  theme_minimal() + theme(legend.position = "top")
 ```
 
-### Bayesian Prediction
+## n=20 (k=14)
+Posterior: $\text{Beta}(1+14, 1+6) = \text{Beta}(15, 7)$.
+The posterior is taller and narrower, indicating **higher certainty**.
 
-The predictive density for a new observation $x_{n+1}$ is obtained by integrating over the posterior:
-$$f(x_{n+1}|x) = \int f(x_{n+1}|\theta) \pi(\theta|x) d\theta$$
+```{r}
+#| label: fig-bayes-tea-20
+#| fig-cap: "Bayesian Update (n=20)"
+#| echo: true
+n <- 20; k <- 14
+theta_grid <- seq(0, 1, length.out = 200)
+posterior <- dbeta(theta_grid, 1+k, 1+(n-k))
+prior <- dbeta(theta_grid, 1, 1)
+
+prob_skill <- pbeta(0.5, 1+k, 1+(n-k), lower.tail = FALSE)
+
+df_bayes <- data.frame(
+  Theta = rep(theta_grid, 2),
+  Density = c(prior, posterior),
+  Type = rep(c("Prior", "Posterior"), each = 200)
+)
+
+ggplot(df_bayes, aes(x = Theta, y = Density, color = Type, linetype = Type)) +
+  geom_line(size = 1.2) +
+  scale_color_manual(values = c("blue", "gray")) +
+  scale_linetype_manual(values = c("solid", "dashed")) +
+  annotate("label", x = 0.1, y = 2.5, 
+           label = paste0("P(theta > 0.5 | x) = ", round(prob_skill, 3)), 
+           hjust = 0, color="blue", fontface="bold") +
+  labs(title = TeX(r'(Bayesian Update ($n=20$))'),
+       x = TeX(r'($\theta$)'), y = "Density") +
+  theme_minimal() + theme(legend.position = "top")
+```
+:::
+
+#### Methodologies & Challenges (Bayesian)
+We will also tackle the specific technical challenges involved in Bayesian analysis.
+
+* **Posterior Derivation:** How do we derive the posterior distribution $f(\theta|x)$ for various likelihoods and priors?
+* **Computation:** When the posterior cannot be derived analytically, how do we use computational techniques like Markov Chain Monte Carlo (MCMC) to sample from it?
+* **Summarization:** How do we construct Credible Intervals (e.g., Highest Posterior Density regions) from posterior samples?
+* **Prediction:** How do we solve the integral required to compute the posterior predictive distribution for future data?
