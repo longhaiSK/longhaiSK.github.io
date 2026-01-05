@@ -216,6 +216,7 @@ window.Quarto = {
   <ul>
   <li><a href="#frequentist-inference-fisher" id="toc-frequentist-inference-fisher" class="nav-link" data-scroll-target="#frequentist-inference-fisher"><span class="header-section-number">1.5.1</span> Frequentist Inference (Fisher)</a></li>
   <li><a href="#bayesian-inference" id="toc-bayesian-inference" class="nav-link" data-scroll-target="#bayesian-inference"><span class="header-section-number">1.5.2</span> Bayesian Inference</a></li>
+  <li><a href="#bayesian-prediction" id="toc-bayesian-prediction" class="nav-link" data-scroll-target="#bayesian-prediction"><span class="header-section-number">1.5.3</span> Bayesian Prediction</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -265,11 +266,27 @@ window.Quarto = {
 </section>
 <section id="probability-vs.-statistics" class="level2" data-number="1.2">
 <h2 data-number="1.2" class="anchored" data-anchor-id="probability-vs.-statistics"><span class="header-section-number">1.2</span> Probability vs.&nbsp;Statistics</h2>
-<p>There is a fundamental distinction between probability and statistics regarding the parameter <span class="math inline">\(\theta\)</span>:</p>
+<p>There is a fundamental distinction between probability and statistics regarding the parameter <span class="math inline">\(\theta\)</span>. We can visualize this using a “shooting target” analogy:</p>
 <ul>
-<li><strong>Probability:</strong> <span class="math inline">\(\theta\)</span> is known. We ask questions about the data <span class="math inline">\(X\)</span>.</li>
-<li><strong>Statistics:</strong> <span class="math inline">\(\theta\)</span> is unknown. We use data <span class="math inline">\(X_1, \dots, X_n\)</span> to infer <span class="math inline">\(\theta\)</span> (from sample to population).</li>
+<li><p><strong><span class="math inline">\(\theta\)</span> (The Center):</strong> The true, unknown bullseye location.</p></li>
+<li><p><strong><span class="math inline">\(x\)</span> (The Shots):</strong> The observed holes on the target board.</p></li>
+<li><p><strong>Probability (Deductive):</strong> The center <span class="math inline">\(\theta\)</span> is <strong>known</strong>. We predict where the shots <span class="math inline">\(x\)</span> will land.</p></li>
+<li><p><strong>Statistics (Inductive):</strong> The shots <span class="math inline">\(x\)</span> are <strong>observed</strong> on the board. The center <span class="math inline">\(\theta\)</span> is unknown. We hypothesize different potential centers to see which one best explains the shots.</p></li>
 </ul>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-prob-vs-stat-target" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-prob-vs-stat-target-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="introstatinf_files/figure-html/fig-prob-vs-stat-target-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-prob-vs-stat-target-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1.1: The Shooting Analogy. Left (Probability): The center <span class="math inline">\(\theta\)</span> is fixed; shots <span class="math inline">\(x\)</span> are generated around it. Right (Statistics): The shots <span class="math inline">\(x\)</span> are fixed on a square board; we test different hypothesized centers (colored circles) to see which <span class="math inline">\(\theta\)</span> fit the data best.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="the-likelihood-function" class="level2" data-number="1.3">
 <h2 data-number="1.3" class="anchored" data-anchor-id="the-likelihood-function"><span class="header-section-number">1.3</span> The Likelihood Function</h2>
@@ -340,10 +357,10 @@ window.Quarto = {
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> theta, <span class="at">y =</span> Likelihood)) <span class="sc">+</span></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"darkblue"</span>, <span class="at">size =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">2</span><span class="sc">/</span><span class="dv">3</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="dv">2</span><span class="sc">/</span><span class="dv">3</span>, <span class="at">y =</span> <span class="fl">0.02</span>, <span class="at">label =</span> <span class="st">"Max at 2/3"</span>, <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">angle =</span> <span class="dv">90</span>, <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Likelihood Function for Data {1, 0, 1}"</span>,</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Parameter Theta (Probability of Heads)"</span>,</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Likelihood"</span>) <span class="sc">+</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="dv">2</span><span class="sc">/</span><span class="dv">3</span>, <span class="at">y =</span> <span class="fl">0.02</span>, <span class="at">label =</span> <span class="st">"Max~at~2/3"</span>, <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">angle =</span> <span class="dv">90</span>, <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.5</span>, <span class="at">parse =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">"Likelihood Function "</span>, <span class="fu">L</span>(theta), <span class="st">" for Data {1, 0, 1}"</span>)),</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">"Parameter "</span>, theta, <span class="st">" (Probability of Heads)"</span>)),</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="fu">expression</span>(Likelihood<span class="sc">~</span><span class="fu">L</span>(theta))) <span class="sc">+</span></span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
@@ -353,7 +370,7 @@ window.Quarto = {
 <img src="introstatinf_files/figure-html/fig-likelihood-1.png" class="img-fluid figure-img" width="576">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-likelihood-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1.1: The Likelihood Function <span class="math inline">\(L(   heta)\)</span> for data <span class="math inline">\(x=(1, 0, 1)\)</span>. The peak (MLE) is at $ heta_{ ext{MLE}} = 2/3$.
+Figure&nbsp;1.2: The Likelihood Function <span class="math inline">\(L(\theta)\)</span> for data <span class="math inline">\(x=(1, 0, 1)\)</span>. The peak (MLE) is at <span class="math inline">\(\theta_{\text{MLE}} = 2/3\)</span>.
 </figcaption>
 </figure>
 </div>
@@ -366,19 +383,27 @@ Figure&nbsp;1.1: The Likelihood Function <span class="math inline">\(L(   heta)\
 <p>We can categorize inference into four main types:</p>
 <div id="def-point-estimation" class="theorem definition">
 <p><span class="theorem-title"><strong>Definition 1.3 (Point Estimation)</strong></span> We use a single number to capture the parameter. <span class="math display">\[\hat{\theta} = \theta(X_1, \dots, X_n)\]</span></p>
-<p><strong>Example:</strong> We want to estimate the average height (<span class="math inline">\(\mu\)</span>) of all students in a university. We measure 100 students and calculate the sample mean <span class="math inline">\(\bar{x} = 170\)</span> cm. Our point estimate is <span class="math inline">\(\hat{\mu} = 170\)</span>.</p>
+</div>
+<div id="exm-point-est" class="theorem example">
+<p><span class="theorem-title"><strong>Example 1.3 (Estimating Average Height)</strong></span> We want to estimate the average height (<span class="math inline">\(\mu\)</span>) of all students in a university. We measure 100 students and calculate the sample mean <span class="math inline">\(\bar{x} = 170\)</span> cm. Our point estimate is <span class="math inline">\(\hat{\mu} = 170\)</span>.</p>
 </div>
 <div id="def-interval-estimation" class="theorem definition">
 <p><span class="theorem-title"><strong>Definition 1.4 (Interval Estimation)</strong></span> We construct an interval that likely contains the true parameter. <span class="math display">\[\theta \in (L(X_1, \dots, X_n), U(X_1, \dots, X_n))\]</span> The true parameter is within this interval.</p>
-<p><strong>Example:</strong> Using the same height data, we calculate a 95% Confidence Interval. We state: “We are 95% confident that the true average height is between 168 cm and 172 cm.”</p>
+</div>
+<div id="exm-interval-est" class="theorem example">
+<p><span class="theorem-title"><strong>Example 1.4 (Confidence Interval for Height)</strong></span> Using the same height data, we calculate a 95% Confidence Interval. We state: “We are 95% confident that the true average height is between 168 cm and 172 cm.”</p>
 </div>
 <div id="def-hypothesis-testing" class="theorem definition">
 <p><span class="theorem-title"><strong>Definition 1.5 (Hypothesis Testing)</strong></span> We test a specific theory about the parameter. <span class="math display">\[H_0: \theta = \theta_0 \quad \text{vs} \quad H_1: \theta \neq \theta_0\]</span> (Or one-sided alternatives like <span class="math inline">\(\theta &gt; \theta_0\)</span>).</p>
-<p><strong>Example:</strong> A manufacturer claims their soda bottles contain exactly 500ml (<span class="math inline">\(H_0: \mu = 500\)</span>). We measure a sample and find an average of 495ml. We perform a test to see if this difference is significant enough to reject the manufacturer’s claim.</p>
+</div>
+<div id="exm-hypothesis-test" class="theorem example">
+<p><span class="theorem-title"><strong>Example 1.5 (Testing Soda Volume)</strong></span> A manufacturer claims their soda bottles contain exactly 500ml (<span class="math inline">\(H_0: \mu = 500\)</span>). We measure a sample and find an average of 495ml. We perform a test to see if this difference is significant enough to reject the manufacturer’s claim.</p>
 </div>
 <div id="def-predictive-inference" class="theorem definition">
 <p><span class="theorem-title"><strong>Definition 1.6 (Predictive Inference)</strong></span> Given observed data <span class="math inline">\((X_1, Y_1), \dots, (X_n, Y_n)\)</span>, we want to predict a new observation <span class="math inline">\(Y_{n+1}\)</span> given <span class="math inline">\(X_{n+1}\)</span>. This is often the primary goal in <strong>Machine Learning</strong>.</p>
-<p><strong>Example:</strong> Based on data about house sizes (<span class="math inline">\(X\)</span>) and prices (<span class="math inline">\(Y\)</span>) from the last year, we want to predict the selling price (<span class="math inline">\(Y_{n+1}\)</span>) of a specific new house that is 2000 sq ft (<span class="math inline">\(X_{n+1}\)</span>).</p>
+</div>
+<div id="exm-predictive-inference" class="theorem example">
+<p><span class="theorem-title"><strong>Example 1.6 (Predicting House Prices)</strong></span> Based on data about house sizes (<span class="math inline">\(X\)</span>) and prices (<span class="math inline">\(Y\)</span>) from the last year, we want to predict the selling price (<span class="math inline">\(Y_{n+1}\)</span>) of a specific new house that is 2000 sq ft (<span class="math inline">\(X_{n+1}\)</span>).</p>
 </div>
 </section>
 <section id="standard-paradigms-for-inference" class="level2" data-number="1.5">
@@ -400,7 +425,7 @@ Figure&nbsp;1.1: The Likelihood Function <span class="math inline">\(L(   heta)\
 <img src="introstatinf_files/figure-html/fig-sampling-dist-1.png" class="img-fluid figure-img" width="576">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-sampling-dist-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1.2: Frequentist Concept: The Sampling Distribution. The parameter theta is fixed (vertical line). The curve represents how the estimator (theta_hat) varies across many hypothetical samples.
+Figure&nbsp;1.3: Frequentist Concept: The Sampling Distribution. The parameter <span class="math inline">\(\theta\)</span> is fixed (vertical line). The curve represents how the estimator <span class="math inline">\(\hat{\theta}\)</span> varies across many hypothetical samples.
 </figcaption>
 </figure>
 </div>
@@ -424,13 +449,16 @@ Figure&nbsp;1.2: Frequentist Concept: The Sampling Distribution. The parameter t
 <img src="introstatinf_files/figure-html/fig-posterior-1.png" class="img-fluid figure-img" width="576">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-posterior-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1.3: Bayesian Concept: Updating Beliefs. The Prior (dashed) is updated by the Data (Likelihood) to form the Posterior (solid). Theta is treated as a random variable.
+Figure&nbsp;1.4: Bayesian Concept: Updating Beliefs. The Prior (dashed) is updated by the Data (Likelihood) to form the Posterior (solid). <span class="math inline">\(\theta\)</span> is treated as a random variable.
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p>4.<strong>Bayesian Prediction</strong> The predictive density for a new observation <span class="math inline">\(x_{n+1}\)</span> is obtained by integrating over the posterior: <span class="math display">\[f(x_{n+1}|x) = \int f(x_{n+1}|\theta) \pi(\theta|x) d\theta\]</span></p>
+</section>
+<section id="bayesian-prediction" class="level3" data-number="1.5.3">
+<h3 data-number="1.5.3" class="anchored" data-anchor-id="bayesian-prediction"><span class="header-section-number">1.5.3</span> Bayesian Prediction</h3>
+<p>The predictive density for a new observation <span class="math inline">\(x_{n+1}\)</span> is obtained by integrating over the posterior: <span class="math display">\[f(x_{n+1}|x) = \int f(x_{n+1}|\theta) \pi(\theta|x) d\theta\]</span></p>
 
 
 </section>

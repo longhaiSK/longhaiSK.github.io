@@ -33,10 +33,105 @@ The goal is to learn aspects of the unknown $\theta$ from observations $X_1, \do
 
 ## Probability vs. Statistics
 
-There is a fundamental distinction between probability and statistics regarding the parameter $\theta$:
+There is a fundamental distinction between probability and statistics regarding the parameter $\theta$. We can visualize this using a "shooting target" analogy:
 
-* **Probability:** $\theta$ is known. We ask questions about the data $X$.
-* **Statistics:** $\theta$ is unknown. We use data $X_1, \dots, X_n$ to infer $\theta$ (from sample to population).
+* **$\theta$ (The Center):** The true, unknown bullseye location.
+* **$x$ (The Shots):** The observed holes on the target board.
+
+* **Probability (Deductive):** The center $\theta$ is **known**. We predict where the shots $x$ will land.
+* **Statistics (Inductive):** The shots $x$ are **observed** on the board. The center $\theta$ is unknown. We hypothesize different potential centers to see which one best explains the shots.
+
+```{r}
+#| label: fig-prob-vs-stat-target
+#| fig-cap: "The Shooting Analogy. Left (Probability): The center $\\theta$ is fixed; shots $x$ are generated around it. Right (Statistics): The shots $x$ are fixed on a square board; we test different hypothesized centers (colored circles) to see which $\\theta$ fit the data best."
+#| echo: false
+#| warning: false
+#| message: false
+library(ggplot2)
+library(patchwork)
+library(ggforce)
+
+set.seed(101)
+
+# --- Shared Data Generation ---
+# The "true" center (unknown to the statistician)
+true_theta_x <- 0
+true_theta_y <- 0
+n_shots <- 30
+
+# Generate random shots (data x) around the true center
+shots_df <- data.frame(
+  x = rnorm(n_shots, true_theta_x, sd = 1.2),
+  y = rnorm(n_shots, true_theta_y, sd = 1.2)
+)
+
+# --- Plot 1: Probability (The Data Generator) ---
+p_prob <- ggplot() +
+  # Target rings
+  geom_circle(aes(x0=0, y0=0, r=c(1, 2, 3, 4)), color="grey80", fill=NA) +
+  # The Known Center (Theta)
+  geom_point(aes(x=0, y=0), size=6, color="blue") +
+  annotate("label", x=0, y=-0.6, label=expression(paste("Known Center ", theta)), color="blue", fontface="bold", fill="white", label.size=NA) +
+  # The Random Shots (x)
+  geom_point(data=shots_df, aes(x=x, y=y), shape=4, size=3, color="darkblue", alpha=0.7) +
+  # Arrows showing generation process
+  geom_segment(aes(x=0, y=0, xend=shots_df$x[1:5], yend=shots_df$y[1:5]), 
+               arrow = arrow(length = unit(0.2, "cm")), color="blue", alpha=0.3) +
+  coord_fixed(xlim=c(-5,5), ylim=c(-5,5)) +
+  theme_void() +
+  theme(panel.border = element_rect(color = "grey", fill = NA, size = 2),
+        plot.title = element_text(hjust = 0.5, face="bold", size=14),
+        plot.subtitle = element_text(hjust = 0.5)) +
+  labs(title = "PROBABILITY: Deductive",
+       subtitle = expression(paste("Given center ", theta, ", where will shots ", x, " land?")))
+
+# --- Plot 2: Statistics (The Inference Game) ---
+
+# Define three hypotheses (potential centers)
+hypotheses_df <- data.frame(
+  hx = c(mean(shots_df$x), 2.5, -2),
+  hy = c(mean(shots_df$y), 2.5, -3),
+  r_guess = c(2, 2, 2),
+  label = c("H1 (Good Fit)", "H2 (Bad Fit)", "H3 (Bad Fit)"),
+  color = c("darkgreen", "red", "orange")
+)
+
+p_stat <- ggplot() +
+  # The Fixed Observed Data (x)
+  geom_point(data=shots_df, aes(x=x, y=y), shape=4, size=3, color="black") +
+  annotate("label", x=mean(shots_df$x), y=mean(shots_df$y)-0.5, label="Observed Shots (x)", fill="white", fontface="italic") +
+  
+  # Draw Hypothesized Centers and their "expected areas"
+  # Hypothesis 1
+  geom_circle(data=hypotheses_df[1,], aes(x0=hx, y0=hy, r=r_guess, color=color), fill=NA, linetype="dashed", size=1) +
+  geom_point(data=hypotheses_df[1,], aes(x=hx, y=hy, color=color), size=5) +
+  # Hypothesis 2
+  geom_circle(data=hypotheses_df[2,], aes(x0=hx, y0=hy, r=r_guess, color=color), fill=NA, linetype="dashed", size=1) +
+  geom_point(data=hypotheses_df[2,], aes(x=hx, y=hy, color=color), size=5) +
+  # Hypothesis 3
+  geom_circle(data=hypotheses_df[3,], aes(x0=hx, y0=hy, r=r_guess, color=color), fill=NA, linetype="dashed", size=1) +
+  geom_point(data=hypotheses_df[3,], aes(x=hx, y=hy, color=color), size=5) +
+  
+  # Labels for hypotheses
+  geom_text(data=hypotheses_df, aes(x=hx, y=hy+0.7, label=label, color=color), fontface="bold") +
+  
+  scale_color_identity() +
+  coord_fixed(xlim=c(-5,5), ylim=c(-5,5)) +
+  # Square board theme
+  theme_bw() +
+  theme(panel.grid.major = element_line(color="grey95"),
+        panel.grid.minor = element_blank(),
+        axis.text = element_blank(), 
+        axis.ticks = element_blank(),
+        panel.border = element_rect(color = "black", fill = NA, size = 2),
+        plot.title = element_text(hjust = 0.5, face="bold", size=14),
+        plot.subtitle = element_text(hjust = 0.5)) +
+  labs(title = "STATISTICS: Inductive",
+       subtitle = expression(paste("Given shots ", x, ", where is the center ", theta, "?")))
+
+# Combine plots
+p_prob + p_stat
+```
 
 ## The Likelihood Function
 
@@ -71,7 +166,7 @@ We can visualize this function to see which value of $\theta$ is most "likely" (
 
 ```{r}
 #| label: fig-likelihood
-#| fig-cap: "The Likelihood Function $L(\theta)$ for data $x=(1, 0, 1)$. The peak (MLE) is at $\theta_{\text{MLE}} = 2/3$."
+#| fig-cap: "The Likelihood Function $L(\\theta)$ for data $x=(1, 0, 1)$. The peak (MLE) is at $\\theta_{\\text{MLE}} = 2/3$."
 #| echo: true
 library(ggplot2)
 
@@ -87,10 +182,10 @@ df <- data.frame(theta = theta_vals, Likelihood = lik_vals)
 ggplot(df, aes(x = theta, y = Likelihood)) +
   geom_line(color = "darkblue", size = 1.2) +
   geom_vline(xintercept = 2/3, linetype = "dashed", color = "red") +
-  annotate("text", x = 2/3, y = 0.02, label = "Max at 2/3", color = "red", angle = 90, vjust = -0.5) +
-  labs(title = "Likelihood Function for Data {1, 0, 1}",
-       x = "Parameter Theta (Probability of Heads)",
-       y = "Likelihood") +
+  annotate("text", x = 2/3, y = 0.02, label = "Max~at~2/3", color = "red", angle = 90, vjust = -0.5, parse = TRUE) +
+  labs(title = expression(paste("Likelihood Function ", L(theta), " for Data {1, 0, 1}")),
+       x = expression(paste("Parameter ", theta, " (Probability of Heads)")),
+       y = expression(Likelihood~L(theta))) +
   theme_minimal()
 ```
 :::
@@ -103,8 +198,10 @@ We can categorize inference into four main types:
 ### Point Estimation
 We use a single number to capture the parameter.
 $$\hat{\theta} = \theta(X_1, \dots, X_n)$$
+:::
 
-**Example:**
+::: {#exm-point-est}
+### Estimating Average Height
 We want to estimate the average height ($\mu$) of all students in a university. We measure 100 students and calculate the sample mean $\bar{x} = 170$ cm. Our point estimate is $\hat{\mu} = 170$.
 :::
 
@@ -113,8 +210,10 @@ We want to estimate the average height ($\mu$) of all students in a university. 
 We construct an interval that likely contains the true parameter.
 $$\theta \in (L(X_1, \dots, X_n), U(X_1, \dots, X_n))$$
 The true parameter is within this interval.
+:::
 
-**Example:**
+::: {#exm-interval-est}
+### Confidence Interval for Height
 Using the same height data, we calculate a 95% Confidence Interval. We state: "We are 95% confident that the true average height is between 168 cm and 172 cm."
 :::
 
@@ -123,8 +222,10 @@ Using the same height data, we calculate a 95% Confidence Interval. We state: "W
 We test a specific theory about the parameter.
 $$H_0: \theta = \theta_0 \quad \text{vs} \quad H_1: \theta \neq \theta_0$$
 (Or one-sided alternatives like $\theta > \theta_0$).
+:::
 
-**Example:**
+::: {#exm-hypothesis-test}
+### Testing Soda Volume
 A manufacturer claims their soda bottles contain exactly 500ml ($H_0: \mu = 500$). We measure a sample and find an average of 495ml. We perform a test to see if this difference is significant enough to reject the manufacturer's claim.
 :::
 
@@ -132,8 +233,10 @@ A manufacturer claims their soda bottles contain exactly 500ml ($H_0: \mu = 500$
 ### Predictive Inference
 Given observed data $(X_1, Y_1), \dots, (X_n, Y_n)$, we want to predict a new observation $Y_{n+1}$ given $X_{n+1}$.
 This is often the primary goal in **Machine Learning**.
+:::
 
-**Example:**
+::: {#exm-predictive-inference}
+### Predicting House Prices
 Based on data about house sizes ($X$) and prices ($Y$) from the last year, we want to predict the selling price ($Y_{n+1}$) of a specific new house that is 2000 sq ft ($X_{n+1}$).
 :::
 
@@ -151,7 +254,7 @@ Developed largely by Fisher (c. 1920).
 
 ```{r}
 #| label: fig-sampling-dist
-#| fig-cap: "Frequentist Concept: The Sampling Distribution. The parameter theta is fixed (vertical line). The curve represents how the estimator (theta_hat) varies across many hypothetical samples."
+#| fig-cap: "Frequentist Concept: The Sampling Distribution. The parameter $\\theta$ is fixed (vertical line). The curve represents how the estimator $\\hat{\\theta}$ varies across many hypothetical samples."
 #| echo: false
 
 theta_true <- 5
@@ -163,9 +266,9 @@ ggplot(df_freq, aes(x = x, y = y)) +
   geom_line(color = "darkgreen", size = 1.2) +
   geom_area(fill = "lightgreen", alpha = 0.4) +
   geom_vline(xintercept = theta_true, color = "black", size = 1.2) +
-  annotate("text", x = theta_true, y = 0.1, label = "True Fixed Theta", hjust = -0.1) +
+  annotate("text", x = theta_true, y = 0.1, label = "True~Fixed~theta", hjust = -0.1, parse = TRUE) +
   labs(title = "Sampling Distribution of an Estimator",
-       x = "Value of Estimator (Theta Hat)",
+       x = expression(paste("Value of Estimator (", hat(theta), ")")),
        y = "Density") +
   theme_minimal()
 ```
@@ -183,7 +286,7 @@ In this framework, inference is based entirely on the **Posterior Distribution**
 
 ```{r}
 #| label: fig-posterior
-#| fig-cap: "Bayesian Concept: Updating Beliefs. The Prior (dashed) is updated by the Data (Likelihood) to form the Posterior (solid). Theta is treated as a random variable."
+#| fig-cap: "Bayesian Concept: Updating Beliefs. The Prior (dashed) is updated by the Data (Likelihood) to form the Posterior (solid). $\\theta$ is treated as a random variable."
 #| echo: false
 
 theta_grid <- seq(0, 1, length.out = 200)
@@ -203,13 +306,12 @@ ggplot(df_bayes, aes(x = Theta, y = Density, color = Type, linetype = Type)) +
   scale_color_manual(values = c("Posterior" = "blue", "Prior" = "gray")) +
   scale_linetype_manual(values = c("Posterior" = "solid", "Prior" = "dashed")) +
   labs(title = "Bayesian Updating: Prior vs Posterior",
-       x = "Parameter Theta (Probability)",
+       x = expression(paste("Parameter ", theta, " (Probability)")),
        y = "Density") +
   theme_minimal()
 ```
-4.**Bayesian Prediction**
+
+### Bayesian Prediction
+
 The predictive density for a new observation $x_{n+1}$ is obtained by integrating over the posterior:
 $$f(x_{n+1}|x) = \int f(x_{n+1}|\theta) \pi(\theta|x) d\theta$$
-
-
-
