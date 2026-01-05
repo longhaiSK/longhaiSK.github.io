@@ -4,11 +4,20 @@ format: html
 ---
 
 ```{r}
-#| label: setup
+#| label: global-setup
 #| include: false
 # Ensure latex2exp is installed: install.packages("latex2exp")
 library(ggplot2)
 library(latex2exp)
+
+# --- USER PARAMETERS ---
+# Change these values to adjust the example throughout the document
+n_small <- 10
+n_large <- 40
+
+# Calculate observed counts assuming fixed proportion p = 0.7
+k_small <- round(n_small * 0.7)
+k_large <- round(n_large * 0.7)
 ```
 
 ## Statistical Inference Setup
@@ -55,14 +64,14 @@ There is a fundamental distinction between probability and statistics regarding 
 
 ```{r}
 #| label: fig-prob-vs-stat-base
-#| fig-cap: "Probability vs Statistics (Base R). Left: Probability—The model is fixed (Blue center/contours), generating random data. Right: Statistics—Data is fixed (Black points); we test two hypothesized models: H1 (Green) centered at the sample mean (Good Fit) and H2 (Red) shifted by (1.5, 1.5) (Bad Fit)."
+#| fig-cap: "Probability vs Statistics. Left: Probability—The model is fixed (Blue center/contours), generating random data. Right: Statistics—Data is fixed (Black points); we test two hypothesized models: H1 (Green) centered at the sample mean (Good Fit) and H2 (Red) shifted by (1.5, 1.5) (Bad Fit)."
 #| echo: false
 #| fig-width: 10
 #| fig-height: 5
 
 # --- Setup ---
 set.seed(2024)
-n <- 100
+n_sim <- 100
 
 # Helper function to draw circles in base R
 draw_circle <- function(x, y, r, col, lty = 1, lwd = 1) {
@@ -78,8 +87,8 @@ par(mfrow = c(1, 2), mar = c(3, 3, 3, 1))
 # PLOT 1: PROBABILITY (The Generator)
 # ---------------------------------------------------------
 # 1. Generate Data
-x_prob <- rnorm(n)
-y_prob <- rnorm(n)
+x_prob <- rnorm(n_sim)
+y_prob <- rnorm(n_sim)
 
 # 2. Setup Canvas (asp=1 ensures circles look like circles)
 plot(NA, xlim = c(-4, 4), ylim = c(-4, 4), asp = 1,
@@ -102,8 +111,8 @@ legend("bottomleft", legend = c("True Model", "Generated Data"),
 # PLOT 2: STATISTICS (The Inference)
 # ---------------------------------------------------------
 # 1. Generate NEW Observed Data
-x_stat <- rnorm(n)
-y_stat <- rnorm(n)
+x_stat <- rnorm(n_sim)
+y_stat <- rnorm(n_sim)
 x_bar <- mean(x_stat)
 y_bar <- mean(y_stat)
 
@@ -142,13 +151,13 @@ A lady claims she can distinguish whether milk was poured into the cup before or
 * **The Data:** Suppose we observe that she identifies **70%** of cups correctly ($\bar{x} = 0.7$).
 
 ::: {.panel-tabset}
-## Small Sample (n=10)
-We observe **7 out of 10** correct ($k=7$).
-$$\bar{x} = 0.7$$
+## Small Sample (n=`r n_small`)
+We observe **`r k_small` out of `r n_small`** correct ($k=`r k_small`$).
+$$\bar{x} = `r k_small/n_small`$$
 
-## Large Sample (n=20)
-We observe **14 out of 20** correct ($k=14$).
-$$\bar{x} = 0.7$$
+## Large Sample (n=`r n_large`)
+We observe **`r k_large` out of `r n_large`** correct ($k=`r k_large`$).
+$$\bar{x} = `r k_large/n_large`$$
 :::
 
 ## Key Questions in Statistical Inference
@@ -157,19 +166,23 @@ Using this example, we identify the four main types of statistical inference.
 
 ##### Point Estimation {.unnumbered}
 We want to use a single number to capture the parameter: $\hat{\theta} = \theta(X_1, \dots, X_n)$.
+
 * *Tea Example:* Our best guess for her success rate is $\hat{\theta} = 0.7$.
 
 ##### Hypothesis Testing {.unnumbered}
 We want to test a theory about the parameter: $H_0$ vs $H_1$.
+
 * *Tea Example:* Is she just guessing? We test $H_0: \theta = 0.5$ vs $H_1: \theta > 0.5$.
 
 ##### Interval Estimation {.unnumbered}
 We want to construct an interval likely to contain the parameter: $\theta \in (L, U)$.
+
 * *Tea Example:* We might say her true skill $\theta$ is likely between $0.45$ and $0.95$.
 
 ##### Prediction {.unnumbered}
 We want to predict a new observation $Y_{n+1}$ given previous data.
-* *Tea Example:* If we give her an 11th cup, what is the probability she identifies it correctly?
+
+* *Tea Example:* If we give her an $(n+1)$-th cup, what is the probability she identifies it correctly?
 
 ## The Likelihood Function
 
@@ -186,67 +199,81 @@ $$L(\theta) = \binom{n}{k} \theta^k (1-\theta)^{n-k}$$
 
 ::: {.panel-tabset}
 
-## n=10 (k=7)
-Here, $L(\theta) = \binom{10}{7} \theta^7 (1-\theta)^3$.
-
-| $\theta$ | Calculation $\binom{10}{7} \theta^7 (1-\theta)^3$ | $L(\theta)$ |
-| :--- | :--- | :--- |
-| 0.0 | $120 \times 0^7 \times 1^3$ | 0.0000 |
-| 0.2 | $120 \times 0.2^7 \times 0.8^3$ | 0.0008 |
-| 0.4 | $120 \times 0.4^7 \times 0.6^3$ | 0.0425 |
-| 0.6 | $120 \times 0.6^7 \times 0.4^3$ | 0.2150 |
-| 0.7 | $120 \times 0.7^7 \times 0.3^3$ | **0.2668** (Max) |
-| 0.8 | $120 \times 0.8^7 \times 0.2^3$ | 0.2013 |
-| 1.0 | $120 \times 1^7 \times 0^3$ | 0.0000 |
+## n=`r n_small` (k=`r k_small`)
+Here, $L(\theta) = \binom{`r n_small`}{`r k_small`} \theta^{`r k_small`} (1-\theta)^{`r n_small-k_small`}$.
 
 ```{r}
-#| label: fig-likelihood-tea-10
-#| fig-cap: "Likelihood Function (n=10)"
-#| echo: true
-library(latex2exp)
+#| label: lik-table-small
+#| echo: false
+# Calculate values for table
+theta_pts <- c(0, 0.2, 0.4, 0.6, 0.7, 0.8, 1.0)
+lik_pts <- choose(n_small, k_small) * theta_pts^k_small * (1-theta_pts)^(n_small-k_small)
+```
 
-n <- 10; k <- 7
-likelihood_fun <- function(theta) { choose(n, k) * theta^k * (1 - theta)^(n-k) }
+| $\theta$ | Calculation $\binom{`r n_small`}{`r k_small`} \theta^{`r k_small`} (1-\theta)^{`r n_small-k_small`}$ | $L(\theta)$ |
+| :--- | :--- | :--- |
+| 0.0 | `r choose(n_small, k_small)` $\times 0^{`r k_small`} \times 1^{`r n_small-k_small`}$ | `r sprintf("%.4f", lik_pts[1])` |
+| 0.2 | `r choose(n_small, k_small)` $\times 0.2^{`r k_small`} \times 0.8^{`r n_small-k_small`}$ | `r sprintf("%.4f", lik_pts[2])` |
+| 0.4 | `r choose(n_small, k_small)` $\times 0.4^{`r k_small`} \times 0.6^{`r n_small-k_small`}$ | `r sprintf("%.4f", lik_pts[3])` |
+| 0.6 | `r choose(n_small, k_small)` $\times 0.6^{`r k_small`} \times 0.4^{`r n_small-k_small`}$ | `r sprintf("%.4f", lik_pts[4])` |
+| 0.7 | `r choose(n_small, k_small)` $\times 0.7^{`r k_small`} \times 0.3^{`r n_small-k_small`}$ | **`r sprintf("%.4f", lik_pts[5])`** (Max) |
+| 0.8 | `r choose(n_small, k_small)` $\times 0.8^{`r k_small`} \times 0.2^{`r n_small-k_small`}$ | `r sprintf("%.4f", lik_pts[6])` |
+| 1.0 | `r choose(n_small, k_small)` $\times 1^{`r k_small`} \times 0^{`r n_small-k_small`}$ | `r sprintf("%.4f", lik_pts[7])` |
+
+```{r}
+#| label: fig-likelihood-tea-small
+#| fig-cap: !expr paste("Likelihood Function (n=", n_small, ")")
+#| echo: true
+
+likelihood_fun <- function(theta) { choose(n_small, k_small) * theta^k_small * (1 - theta)^(n_small-k_small) }
 theta_vals <- seq(0, 1, length.out = 200)
 df <- data.frame(theta = theta_vals, Likelihood = likelihood_fun(theta_vals))
 
 ggplot(df, aes(x = theta, y = Likelihood)) +
   geom_line(color = "darkblue", size = 1.2) +
-  geom_vline(xintercept = k/n, linetype = "dashed", color = "red") +
-  annotate("text", x = k/n, y = 0.05, label = paste("Max at", k/n), color = "red", angle = 90, vjust = -0.5) +
-  labs(title = TeX(r'(Likelihood $L(\theta)$ for $n=10, k=7$)'),
+  geom_vline(xintercept = k_small/n_small, linetype = "dashed", color = "red") +
+  annotate("text", x = k_small/n_small, y = max(df$Likelihood)/4, label = paste("Max at", k_small/n_small), color = "red", angle = 90, vjust = -0.5) +
+  labs(title = TeX(paste0("Likelihood $L(\\theta)$ for $n=", n_small, ", k=", k_small, "$")),
        x = TeX(r'(Parameter $\theta$)'),
        y = TeX(r'(Likelihood $L(\theta)$)')) +
   theme_minimal()
 ```
 
-## n=20 (k=14)
-Here, $L(\theta) = \binom{20}{14} \theta^{14} (1-\theta)^6$.
+## n=`r n_large` (k=`r k_large`)
+Here, $L(\theta) = \binom{`r n_large`}{`r k_large`} \theta^{`r k_large`} (1-\theta)^{`r n_large-k_large`}$.
 Notice how the likelihood becomes **narrower** (more peaked) with more data, even though the peak remains at 0.7.
 
-| $\theta$ | Calculation $\binom{20}{14} \theta^{14} (1-\theta)^6$ | $L(\theta)$ |
+```{r}
+#| label: lik-table-large
+#| echo: false
+# Calculate values for table
+lik_pts_l <- choose(n_large, k_large) * theta_pts^k_large * (1-theta_pts)^(n_large-k_large)
+```
+
+| $\theta$ | Calculation $\binom{`r n_large`}{`r k_large`} \theta^{`r k_large`} (1-\theta)^{`r n_large-k_large`}$ | $L(\theta)$ |
 | :--- | :--- | :--- |
-| 0.0 | $38760 \times 0^{14} \times 1^6$ | 0.0000 |
-| 0.4 | $38760 \times 0.4^{14} \times 0.6^6$ | 0.0049 |
-| 0.6 | $38760 \times 0.6^{14} \times 0.4^6$ | 0.1244 |
-| 0.7 | $38760 \times 0.7^{14} \times 0.3^6$ | **0.1916** (Max) |
-| 0.8 | $38760 \times 0.8^{14} \times 0.2^6$ | 0.1091 |
-| 1.0 | $38760 \times 1^{14} \times 0^6$ | 0.0000 |
+| 0.0 | `r choose(n_large, k_large)` $\times 0^{`r k_large`} \times 1^{`r n_large-k_large`}$ | `r sprintf("%.4f", lik_pts_l[1])` |
+| 0.2 | `r choose(n_large, k_large)` $\times 0.2^{`r k_large`} \times 0.8^{`r n_large-k_large`}$ | `r sprintf("%.4f", lik_pts_l[2])` |
+| 0.4 | `r choose(n_large, k_large)` $\times 0.4^{`r k_large`} \times 0.6^{`r n_large-k_large`}$ | `r sprintf("%.4f", lik_pts_l[3])` |
+| 0.6 | `r choose(n_large, k_large)` $\times 0.6^{`r k_large`} \times 0.4^{`r n_large-k_large`}$ | `r sprintf("%.4f", lik_pts_l[4])` |
+| 0.7 | `r choose(n_large, k_large)` $\times 0.7^{`r k_large`} \times 0.3^{`r n_large-k_large`}$ | **`r sprintf("%.4f", lik_pts_l[5])`** (Max) |
+| 0.8 | `r choose(n_large, k_large)` $\times 0.8^{`r k_large`} \times 0.2^{`r n_large-k_large`}$ | `r sprintf("%.4f", lik_pts_l[6])` |
+| 1.0 | `r choose(n_large, k_large)` $\times 1^{`r k_large`} \times 0^{`r n_large-k_large`}$ | `r sprintf("%.4f", lik_pts_l[7])` |
 
 ```{r}
-#| label: fig-likelihood-tea-20
-#| fig-cap: "Likelihood Function (n=20)"
+#| label: fig-likelihood-tea-large
+#| fig-cap: !expr paste("Likelihood Function (n=", n_large, ")")
 #| echo: true
-n <- 20; k <- 14
-likelihood_fun <- function(theta) { choose(n, k) * theta^k * (1 - theta)^(n-k) }
+
+likelihood_fun <- function(theta) { choose(n_large, k_large) * theta^k_large * (1 - theta)^(n_large-k_large) }
 theta_vals <- seq(0, 1, length.out = 200)
 df <- data.frame(theta = theta_vals, Likelihood = likelihood_fun(theta_vals))
 
 ggplot(df, aes(x = theta, y = Likelihood)) +
   geom_line(color = "darkblue", size = 1.2) +
-  geom_vline(xintercept = k/n, linetype = "dashed", color = "red") +
-  annotate("text", x = k/n, y = 0.05, label = paste("Max at", k/n), color = "red", angle = 90, vjust = -0.5) +
-  labs(title = TeX(r'(Likelihood $L(\theta)$ for $n=20, k=14$)'),
+  geom_vline(xintercept = k_large/n_large, linetype = "dashed", color = "red") +
+  annotate("text", x = k_large/n_large, y = max(df$Likelihood)/4, label = paste("Max at", k_large/n_large), color = "red", angle = 90, vjust = -0.5) +
+  labs(title = TeX(paste0("Likelihood $L(\\theta)$ for $n=", n_large, ", k=", k_large, "$")),
        x = TeX(r'(Parameter $\theta$)'),
        y = TeX(r'(Likelihood $L(\theta)$)')) +
   theme_minimal()
@@ -268,20 +295,20 @@ We analyze the behavior of $\bar{X}$ assuming $H_0$ is true. The rejection regio
 
 ::: {.panel-tabset}
 
-## n=10 (k=7)
-We calculate the P-value: Probability of observing $\ge 7$ correct out of 10, assuming $\theta=0.5$.
+## n=`r n_small` (k=`r k_small`)
+We calculate the P-value: Probability of observing $\ge `r k_small`$ correct out of `r n_small`, assuming $\theta=0.5$.
 
 ```{r}
-#| label: fig-freq-sampling-tea-10
-#| fig-cap: "Sampling Distribution (n=10)"
+#| label: fig-freq-sampling-tea-small
+#| fig-cap: !expr paste("Sampling Distribution (n=", n_small, ")")
 #| echo: true
-true_theta <- 0.5; n <- 10; k_obs <- 7
-k_vals <- 0:n
-probs <- dbinom(k_vals, size=n, prob=true_theta)
-df_exact <- data.frame(x_bar = k_vals/n, prob = probs)
+true_theta <- 0.5; 
+k_vals <- 0:n_small
+probs <- dbinom(k_vals, size=n_small, prob=true_theta)
+df_exact <- data.frame(x_bar = k_vals/n_small, prob = probs)
 
 # One-sided rejection region
-df_exact$color_group <- ifelse(df_exact$x_bar >= k_obs/n, "Extreme", "Normal")
+df_exact$color_group <- ifelse(df_exact$x_bar >= k_small/n_small, "Extreme", "Normal")
 p_val <- sum(df_exact$prob[df_exact$color_group == "Extreme"])
 
 # Plot
@@ -289,42 +316,42 @@ ggplot() +
   geom_segment(data=df_exact, aes(x=x_bar, xend=x_bar, y=0, yend=prob, color=color_group), 
                size=5, alpha=0.8) +
   scale_color_manual(values=c("Extreme"="red", "Normal"="darkgreen"), guide="none") +
-  geom_vline(xintercept = k_obs/n, color = "blue", size = 1) +
+  geom_vline(xintercept = k_small/n_small, color = "blue", size = 1) +
   annotate("label", x = 1.05, y = 0.25, 
            label = paste0("P-value = ", round(p_val, 3)), 
            hjust = 1, color="red", fontface="bold") +
-  labs(title = TeX(r'(Sampling Distribution ($n=10$))'),
+  labs(title = TeX(paste0("Sampling Distribution ($n=", n_small, "$)")),
        subtitle = TeX(r'(Testing $H_0: \theta=0.5$ vs $H_1: \theta > 0.5$)'),
        x = TeX(r'(Sample Mean $\bar{x}$)'), y = "Probability Mass") +
   theme_minimal()
 ```
 
-## n=20 (k=14)
-We calculate the P-value: Probability of observing $\ge 14$ correct out of 20.
+## n=`r n_large` (k=`r k_large`)
+We calculate the P-value: Probability of observing $\ge `r k_large`$ correct out of `r n_large`.
 With a larger sample size, the same proportion (0.7) provides **stronger evidence** against the null.
 
 ```{r}
-#| label: fig-freq-sampling-tea-20
-#| fig-cap: "Sampling Distribution (n=20)"
+#| label: fig-freq-sampling-tea-large
+#| fig-cap: !expr paste("Sampling Distribution (n=", n_large, ")")
 #| echo: true
-true_theta <- 0.5; n <- 20; k_obs <- 14
-k_vals <- 0:n
-probs <- dbinom(k_vals, size=n, prob=true_theta)
-df_exact <- data.frame(x_bar = k_vals/n, prob = probs)
+true_theta <- 0.5; 
+k_vals <- 0:n_large
+probs <- dbinom(k_vals, size=n_large, prob=true_theta)
+df_exact <- data.frame(x_bar = k_vals/n_large, prob = probs)
 
 # One-sided rejection region
-df_exact$color_group <- ifelse(df_exact$x_bar >= k_obs/n, "Extreme", "Normal")
+df_exact$color_group <- ifelse(df_exact$x_bar >= k_large/n_large, "Extreme", "Normal")
 p_val <- sum(df_exact$prob[df_exact$color_group == "Extreme"])
 
 ggplot() +
   geom_segment(data=df_exact, aes(x=x_bar, xend=x_bar, y=0, yend=prob, color=color_group), 
                size=4, alpha=0.8) +
   scale_color_manual(values=c("Extreme"="red", "Normal"="darkgreen"), guide="none") +
-  geom_vline(xintercept = k_obs/n, color = "blue", size = 1) +
+  geom_vline(xintercept = k_large/n_large, color = "blue", size = 1) +
   annotate("label", x = 1.05, y = 0.15, 
            label = paste0("P-value = ", round(p_val, 3)), 
            hjust = 1, color="red", fontface="bold") +
-  labs(title = TeX(r'(Sampling Distribution ($n=20$))'),
+  labs(title = TeX(paste0("Sampling Distribution ($n=", n_large, "$)")),
        subtitle = TeX(r'(Testing $H_0: \theta=0.5$ vs $H_1: \theta > 0.5$)'),
        x = TeX(r'(Sample Mean $\bar{x}$)'), y = "Probability Mass") +
   theme_minimal()
@@ -334,33 +361,33 @@ ggplot() +
 #### Methodologies & Challenges (Frequentist)
 In this course, we will answer several challenging questions related to general parametric models in the Frequentist framework.
 
-* **MLE Construction:** How do we find the Maximum Likelihood Estimator (MLE) $\hat{\theta}$ for complex models where no closed-form solution exists?
-* **Sampling Distributions:** What is the distribution of $\hat{\theta}$? If exact derivation is impossible, how do we use Asymptotic Theory to prove $\hat{\theta} \overset{d}{\to} N(\theta, I^{-1}(\theta))$?
+* **MLE Construction:** How do we find the Maximum Likelihood Estimator (MLE) $\hat{\theta}$ for complex models where no closed-form solution exists? 
+* **Comparing Estimator** Is MLE a good method?
+* **Sampling Distributions:** What is the distribution of $\hat{\theta}_{\text{MLE}}$? If exact derivation is impossible, how do we use Asymptotic Theory to prove $\hat{\theta} \overset{d}{\to} N(\theta, I^{-1}(\theta))$?
 * **Confidence Intervals:** How do we construct Confidence Intervals for parameters in general multiparameter models?
 * **Hypothesis Testing:** How do we derive powerful tests (like the Likelihood Ratio Test) and determine their critical values?
 
 ### Bayesian Inference
 
 * **Concept:** $\theta$ is a random variable.
-* **Update:** Posterior $\propto$ Likelihood $\times$ Prior.
+* **Posterior:** Posterior $\propto$ Likelihood $\times$ Prior.
 
 #### Application: Bayesian Analysis of the Tea Lady
 Prior: $\text{Beta}(1,1)$ (Uniform).
 
 ::: {.panel-tabset}
-## n=10 (k=7)
-Posterior: $\text{Beta}(1+7, 1+3) = \text{Beta}(8, 4)$.
+## n=`r n_small` (k=`r k_small`)
+Posterior: $\text{Beta}(1+`r k_small`, 1+`r n_small-k_small`) = \text{Beta}(`r 1+k_small`, `r 1+n_small-k_small`)`.
 
 ```{r}
-#| label: fig-bayes-tea-10
-#| fig-cap: "Bayesian Update (n=10)"
+#| label: fig-bayes-tea-small
+#| fig-cap: !expr paste("Bayesian Update (n=", n_small, ")")
 #| echo: true
-n <- 10; k <- 7
 theta_grid <- seq(0, 1, length.out = 200)
-posterior <- dbeta(theta_grid, 1+k, 1+(n-k))
+posterior <- dbeta(theta_grid, 1+k_small, 1+(n_small-k_small))
 prior <- dbeta(theta_grid, 1, 1)
 
-prob_skill <- pbeta(0.5, 1+k, 1+(n-k), lower.tail = FALSE)
+prob_skill <- pbeta(0.5, 1+k_small, 1+(n_small-k_small), lower.tail = FALSE)
 
 df_bayes <- data.frame(
   Theta = rep(theta_grid, 2),
@@ -373,27 +400,26 @@ ggplot(df_bayes, aes(x = Theta, y = Density, color = Type, linetype = Type)) +
   scale_color_manual(values = c("blue", "gray")) +
   scale_linetype_manual(values = c("solid", "dashed")) +
   annotate("label", x = 0.1, y = 2, 
-           label = paste0("P(theta > 0.5 | x) = ", round(prob_skill, 3)), 
+           label = TeX(paste0("$P(\\theta > 0.5 | x) = ", round(prob_skill, 3), "$")), 
            hjust = 0, color="blue", fontface="bold") +
-  labs(title = TeX(r'(Bayesian Update ($n=10$))'),
+  labs(title = TeX(paste0("Bayesian Update ($n=", n_small, "$)")),
        x = TeX(r'($\theta$)'), y = "Density") +
   theme_minimal() + theme(legend.position = "top")
 ```
 
-## n=20 (k=14)
-Posterior: $\text{Beta}(1+14, 1+6) = \text{Beta}(15, 7)$.
+## n=`r n_large` (k=`r k_large`)
+Posterior: $\text{Beta}(1+`r k_large`, 1+`r n_large-k_large`) = \text{Beta}(`r 1+k_large`, `r 1+n_large-k_large`)`.
 The posterior is taller and narrower, indicating **higher certainty**.
 
 ```{r}
-#| label: fig-bayes-tea-20
-#| fig-cap: "Bayesian Update (n=20)"
+#| label: fig-bayes-tea-large
+#| fig-cap: !expr paste("Bayesian Update (n=", n_large, ")")
 #| echo: true
-n <- 20; k <- 14
 theta_grid <- seq(0, 1, length.out = 200)
-posterior <- dbeta(theta_grid, 1+k, 1+(n-k))
+posterior <- dbeta(theta_grid, 1+k_large, 1+(n_large-k_large))
 prior <- dbeta(theta_grid, 1, 1)
 
-prob_skill <- pbeta(0.5, 1+k, 1+(n-k), lower.tail = FALSE)
+prob_skill <- pbeta(0.5, 1+k_large, 1+(n_large-k_large), lower.tail = FALSE)
 
 df_bayes <- data.frame(
   Theta = rep(theta_grid, 2),
@@ -406,9 +432,9 @@ ggplot(df_bayes, aes(x = Theta, y = Density, color = Type, linetype = Type)) +
   scale_color_manual(values = c("blue", "gray")) +
   scale_linetype_manual(values = c("solid", "dashed")) +
   annotate("label", x = 0.1, y = 2.5, 
-           label = paste0("P(theta > 0.5 | x) = ", round(prob_skill, 3)), 
+           label = TeX(paste0("$P(\\theta > 0.5 | x) = ", round(prob_skill, 3), "$")), 
            hjust = 0, color="blue", fontface="bold") +
-  labs(title = TeX(r'(Bayesian Update ($n=20$))'),
+  labs(title = TeX(paste0("Bayesian Update ($n=", n_large, "$)")),
        x = TeX(r'($\theta$)'), y = "Density") +
   theme_minimal() + theme(legend.position = "top")
 ```
@@ -418,6 +444,7 @@ ggplot(df_bayes, aes(x = Theta, y = Density, color = Type, linetype = Type)) +
 We will also tackle the specific technical challenges involved in Bayesian analysis.
 
 * **Posterior Derivation:** How do we derive the posterior distribution $f(\theta|x)$ for various likelihoods and priors?
+* **Comparing with Other methods:** Are Bayesain methods good or not?
 * **Computation:** When the posterior cannot be derived analytically, how do we use computational techniques like Markov Chain Monte Carlo (MCMC) to sample from it?
 * **Summarization:** How do we construct Credible Intervals (e.g., Highest Posterior Density regions) from posterior samples?
 * **Prediction:** How do we solve the integral required to compute the posterior predictive distribution for future data?
