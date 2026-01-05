@@ -20,6 +20,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -69,6 +104,8 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 <link rel="stylesheet" href="resources/mystyles.css">
 <script src="resources/num_eq.js"></script>
 
@@ -173,11 +210,12 @@ window.Quarto = {
   <li><a href="#assumptions-and-scope" id="toc-assumptions-and-scope" class="nav-link" data-scroll-target="#assumptions-and-scope"><span class="header-section-number">1.1.1</span> Assumptions and Scope</a></li>
   </ul></li>
   <li><a href="#probability-vs.-statistics" id="toc-probability-vs.-statistics" class="nav-link" data-scroll-target="#probability-vs.-statistics"><span class="header-section-number">1.2</span> Probability vs.&nbsp;Statistics</a></li>
-  <li><a href="#types-of-statistical-inference" id="toc-types-of-statistical-inference" class="nav-link" data-scroll-target="#types-of-statistical-inference"><span class="header-section-number">1.3</span> Types of Statistical Inference</a></li>
-  <li><a href="#standard-paradigms-for-inference" id="toc-standard-paradigms-for-inference" class="nav-link" data-scroll-target="#standard-paradigms-for-inference"><span class="header-section-number">1.4</span> Standard Paradigms for Inference</a>
+  <li><a href="#the-likelihood-function" id="toc-the-likelihood-function" class="nav-link" data-scroll-target="#the-likelihood-function"><span class="header-section-number">1.3</span> The Likelihood Function</a></li>
+  <li><a href="#types-of-statistical-inference" id="toc-types-of-statistical-inference" class="nav-link" data-scroll-target="#types-of-statistical-inference"><span class="header-section-number">1.4</span> Types of Statistical Inference</a></li>
+  <li><a href="#standard-paradigms-for-inference" id="toc-standard-paradigms-for-inference" class="nav-link" data-scroll-target="#standard-paradigms-for-inference"><span class="header-section-number">1.5</span> Standard Paradigms for Inference</a>
   <ul>
-  <li><a href="#bayesian-inference" id="toc-bayesian-inference" class="nav-link" data-scroll-target="#bayesian-inference"><span class="header-section-number">1.4.1</span> Bayesian Inference</a></li>
-  <li><a href="#frequentist-inference-fisher" id="toc-frequentist-inference-fisher" class="nav-link" data-scroll-target="#frequentist-inference-fisher"><span class="header-section-number">1.4.2</span> Frequentist Inference (Fisher)</a></li>
+  <li><a href="#frequentist-inference-fisher" id="toc-frequentist-inference-fisher" class="nav-link" data-scroll-target="#frequentist-inference-fisher"><span class="header-section-number">1.5.1</span> Frequentist Inference (Fisher)</a></li>
+  <li><a href="#bayesian-inference" id="toc-bayesian-inference" class="nav-link" data-scroll-target="#bayesian-inference"><span class="header-section-number">1.5.2</span> Bayesian Inference</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -219,7 +257,7 @@ window.Quarto = {
 <p>For simplicity, we often assume the data are Independent and Identically Distributed (i.i.d.).</p>
 <p>In <strong>Parametric Statistics</strong>, we assume <span class="math inline">\(f(x)\)</span> is of a known analytic form but involves unknown parameters.</p>
 <p><strong>Note on Simplicity:</strong></p>
-<p>The assumption that observations are identically distributed is made primarily for <strong>notational simplicity</strong> . There is no fundamental issue in extending this framework to <strong>regression settings</strong>, where the distribution depends on covariates (e.g., <span class="math inline">\(Y_i | X_i\)</span>), or to other complex structures.</p>
+<p>The assumption that observations are identically distributed is made primarily for <strong>notational simplicity</strong>. There is no fundamental issue in extending this framework to <strong>regression settings</strong>, where the distribution depends on covariates (e.g., <span class="math inline">\(Y_i | X_i\)</span>), or to other complex structures.</p>
 <div id="exm-normal-distribution" class="theorem example">
 <p><span class="theorem-title"><strong>Example 1.1 (Parametric Model)</strong></span> Consider the Normal distribution: <span class="math display">\[f(x; \theta) = \frac{1}{\sqrt{2\pi\sigma^2}} e^{-\frac{(x-\mu)^2}{2\sigma^2}}\]</span> Here, the parameter space is <span class="math inline">\(\Theta = \{ (\mu, \sigma^2) : \mu \in \mathbb{R}, \sigma \in [0, +\infty) \}\)</span>. The goal is to learn aspects of the unknown <span class="math inline">\(\theta\)</span> from observations <span class="math inline">\(X_1, \dots, X_n\)</span>.</p>
 </div>
@@ -233,44 +271,166 @@ window.Quarto = {
 <li><strong>Statistics:</strong> <span class="math inline">\(\theta\)</span> is unknown. We use data <span class="math inline">\(X_1, \dots, X_n\)</span> to infer <span class="math inline">\(\theta\)</span> (from sample to population).</li>
 </ul>
 </section>
-<section id="types-of-statistical-inference" class="level2" data-number="1.3">
-<h2 data-number="1.3" class="anchored" data-anchor-id="types-of-statistical-inference"><span class="header-section-number">1.3</span> Types of Statistical Inference</h2>
+<section id="the-likelihood-function" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="the-likelihood-function"><span class="header-section-number">1.3</span> The Likelihood Function</h2>
+<p>The bridge between probability and statistics is the Likelihood Function.</p>
+<div id="def-likelihood" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 1.2 (Likelihood Function)</strong></span> Let <span class="math inline">\(f(x_1, \dots, x_n; \theta)\)</span> be the joint probability density (or mass) function of the data given the parameter <span class="math inline">\(\theta\)</span>. When we view this function as a function of <span class="math inline">\(\theta\)</span> for fixed observed data <span class="math inline">\(x_1, \dots, x_n\)</span>, we call it the <strong>likelihood function</strong>, denoted <span class="math inline">\(L(\theta)\)</span>. <span class="math display">\[L(\theta) = f(x_1, \dots, x_n; \theta)\]</span></p>
+</div>
+<div id="exm-bernoulli-likelihood" class="theorem example">
+<p><span class="theorem-title"><strong>Example 1.2 (Example: Bernoulli Trial)</strong></span> Consider a coin flip where <span class="math inline">\(X \sim \text{Bernoulli}(\theta)\)</span>. The probability of Heads (1) is <span class="math inline">\(\theta\)</span>, and Tails (0) is <span class="math inline">\(1-\theta\)</span>. Suppose we observe 3 independent flips: <strong>1, 0, 1</strong>.</p>
+<p>The probability of observing this specific sequence is: <span class="math display">\[L(\theta) = P(X_1=1) \cdot P(X_2=0) \cdot P(X_3=1) = \theta \cdot (1-\theta) \cdot \theta = \theta^2(1-\theta)\]</span></p>
+<p>We can calculate the likelihood for various values of <span class="math inline">\(\theta\)</span>:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;"><span class="math inline">\(\theta\)</span></th>
+<th style="text-align: left;">Calculation (<span class="math inline">\(\theta^2(1-\theta)\)</span>)</th>
+<th style="text-align: left;"><span class="math inline">\(L(\theta)\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">0.0</td>
+<td style="text-align: left;"><span class="math inline">\(0^2 \times 1\)</span></td>
+<td style="text-align: left;">0.000</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">0.2</td>
+<td style="text-align: left;"><span class="math inline">\(0.04 \times 0.8\)</span></td>
+<td style="text-align: left;">0.032</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">0.4</td>
+<td style="text-align: left;"><span class="math inline">\(0.16 \times 0.6\)</span></td>
+<td style="text-align: left;">0.096</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">0.6</td>
+<td style="text-align: left;"><span class="math inline">\(0.36 \times 0.4\)</span></td>
+<td style="text-align: left;">0.144</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">0.8</td>
+<td style="text-align: left;"><span class="math inline">\(0.64 \times 0.2\)</span></td>
+<td style="text-align: left;">0.128</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">1.0</td>
+<td style="text-align: left;"><span class="math inline">\(1^2 \times 0\)</span></td>
+<td style="text-align: left;">0.000</td>
+</tr>
+</tbody>
+</table>
+<p>We can visualize this function to see which value of <span class="math inline">\(\theta\)</span> is most “likely” (the maximum point).</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the function L(theta) = theta^2 * (1-theta)</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>likelihood_fun <span class="ot">&lt;-</span> <span class="cf">function</span>(theta) { theta<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> theta) }</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate sequence of theta</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>theta_vals <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">length.out =</span> <span class="dv">100</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>lik_vals <span class="ot">&lt;-</span> <span class="fu">likelihood_fun</span>(theta_vals)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">theta =</span> theta_vals, <span class="at">Likelihood =</span> lik_vals)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> theta, <span class="at">y =</span> Likelihood)) <span class="sc">+</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"darkblue"</span>, <span class="at">size =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">2</span><span class="sc">/</span><span class="dv">3</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="dv">2</span><span class="sc">/</span><span class="dv">3</span>, <span class="at">y =</span> <span class="fl">0.02</span>, <span class="at">label =</span> <span class="st">"Max at 2/3"</span>, <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">angle =</span> <span class="dv">90</span>, <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Likelihood Function for Data {1, 0, 1}"</span>,</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Parameter Theta (Probability of Heads)"</span>,</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Likelihood"</span>) <span class="sc">+</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-likelihood" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-likelihood-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="introstatinf_files/figure-html/fig-likelihood-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-likelihood-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1.1: The Likelihood Function <span class="math inline">\(L(   heta)\)</span> for data <span class="math inline">\(x=(1, 0, 1)\)</span>. The peak (MLE) is at $ heta_{ ext{MLE}} = 2/3$.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="types-of-statistical-inference" class="level2" data-number="1.4">
+<h2 data-number="1.4" class="anchored" data-anchor-id="types-of-statistical-inference"><span class="header-section-number">1.4</span> Types of Statistical Inference</h2>
 <p>We can categorize inference into four main types:</p>
 <div id="def-point-estimation" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 1.2 (Point Estimation)</strong></span> We use a single number to capture the parameter. <span class="math display">\[\hat{\theta} = \theta(X_1, \dots, X_n)\]</span></p>
+<p><span class="theorem-title"><strong>Definition 1.3 (Point Estimation)</strong></span> We use a single number to capture the parameter. <span class="math display">\[\hat{\theta} = \theta(X_1, \dots, X_n)\]</span></p>
+<p><strong>Example:</strong> We want to estimate the average height (<span class="math inline">\(\mu\)</span>) of all students in a university. We measure 100 students and calculate the sample mean <span class="math inline">\(\bar{x} = 170\)</span> cm. Our point estimate is <span class="math inline">\(\hat{\mu} = 170\)</span>.</p>
 </div>
 <div id="def-interval-estimation" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 1.3 (Interval Estimation)</strong></span> We construct an interval that likely contains the true parameter. <span class="math display">\[\theta \in (L(X_1, \dots, X_n), U(X_1, \dots, X_n))\]</span> The true parameter is within this interval.</p>
+<p><span class="theorem-title"><strong>Definition 1.4 (Interval Estimation)</strong></span> We construct an interval that likely contains the true parameter. <span class="math display">\[\theta \in (L(X_1, \dots, X_n), U(X_1, \dots, X_n))\]</span> The true parameter is within this interval.</p>
+<p><strong>Example:</strong> Using the same height data, we calculate a 95% Confidence Interval. We state: “We are 95% confident that the true average height is between 168 cm and 172 cm.”</p>
 </div>
 <div id="def-hypothesis-testing" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 1.4 (Hypothesis Testing)</strong></span> We test a specific theory about the parameter. <span class="math display">\[H_0: \theta = \theta_0 \quad \text{vs} \quad H_1: \theta \neq \theta_0\]</span> (Or one-sided alternatives like <span class="math inline">\(\theta &gt; \theta_0\)</span>) .</p>
+<p><span class="theorem-title"><strong>Definition 1.5 (Hypothesis Testing)</strong></span> We test a specific theory about the parameter. <span class="math display">\[H_0: \theta = \theta_0 \quad \text{vs} \quad H_1: \theta \neq \theta_0\]</span> (Or one-sided alternatives like <span class="math inline">\(\theta &gt; \theta_0\)</span>).</p>
+<p><strong>Example:</strong> A manufacturer claims their soda bottles contain exactly 500ml (<span class="math inline">\(H_0: \mu = 500\)</span>). We measure a sample and find an average of 495ml. We perform a test to see if this difference is significant enough to reject the manufacturer’s claim.</p>
 </div>
 <div id="def-predictive-inference" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 1.5 (Predictive Inference)</strong></span> Given observed data <span class="math inline">\((X_1, Y_1), \dots, (X_n, Y_n)\)</span>, we want to predict a new observation <span class="math inline">\(Y_{n+1}\)</span> given <span class="math inline">\(X_{n+1}\)</span>. This is often the primary goal in <strong>Machine Learning</strong>.</p>
+<p><span class="theorem-title"><strong>Definition 1.6 (Predictive Inference)</strong></span> Given observed data <span class="math inline">\((X_1, Y_1), \dots, (X_n, Y_n)\)</span>, we want to predict a new observation <span class="math inline">\(Y_{n+1}\)</span> given <span class="math inline">\(X_{n+1}\)</span>. This is often the primary goal in <strong>Machine Learning</strong>.</p>
+<p><strong>Example:</strong> Based on data about house sizes (<span class="math inline">\(X\)</span>) and prices (<span class="math inline">\(Y\)</span>) from the last year, we want to predict the selling price (<span class="math inline">\(Y_{n+1}\)</span>) of a specific new house that is 2000 sq ft (<span class="math inline">\(X_{n+1}\)</span>).</p>
 </div>
 </section>
-<section id="standard-paradigms-for-inference" class="level2" data-number="1.4">
-<h2 data-number="1.4" class="anchored" data-anchor-id="standard-paradigms-for-inference"><span class="header-section-number">1.4</span> Standard Paradigms for Inference</h2>
+<section id="standard-paradigms-for-inference" class="level2" data-number="1.5">
+<h2 data-number="1.5" class="anchored" data-anchor-id="standard-paradigms-for-inference"><span class="header-section-number">1.5</span> Standard Paradigms for Inference</h2>
 <p>There are two primary frameworks for how to perform these inferences.</p>
-<section id="bayesian-inference" class="level3" data-number="1.4.1">
-<h3 data-number="1.4.1" class="anchored" data-anchor-id="bayesian-inference"><span class="header-section-number">1.4.1</span> Bayesian Inference</h3>
-<p>In the Bayesian framework, we treat the parameter <span class="math inline">\(\theta\)</span> as a random variable.</p>
-<ol type="1">
-<li><strong>Prior:</strong> We assign a prior distribution <span class="math inline">\(\pi(\theta)\)</span>.</li>
-<li><strong>Data Model:</strong> We have the likelihood <span class="math inline">\(f(D|\theta)\)</span>.</li>
-<li><strong>Posterior:</strong> We compute the posterior distribution using Bayes’ theorem: <span class="math display">\[f(\theta|D) = \frac{\pi(\theta)f(D|\theta)}{\int \pi(\theta)f(D|\theta) d\theta}\]</span></li>
-</ol>
-<div id="exm-predictive-density" class="theorem example">
-<p><span class="theorem-title"><strong>Example 1.2 (Bayesian Prediction)</strong></span> The predictive density for a new observation <span class="math inline">\(x_{n+1}\)</span> is obtained by integrating over the posterior: <span class="math display">\[f(x_{n+1}|x) = \int f(x_{n+1}|\theta) \pi(\theta|x) d\theta\]</span></p>
-</div>
-</section>
-<section id="frequentist-inference-fisher" class="level3" data-number="1.4.2">
-<h3 data-number="1.4.2" class="anchored" data-anchor-id="frequentist-inference-fisher"><span class="header-section-number">1.4.2</span> Frequentist Inference (Fisher)</h3>
+<section id="frequentist-inference-fisher" class="level3" data-number="1.5.1">
+<h3 data-number="1.5.1" class="anchored" data-anchor-id="frequentist-inference-fisher"><span class="header-section-number">1.5.1</span> Frequentist Inference (Fisher)</h3>
 <p>Developed largely by Fisher (c.&nbsp;1920).</p>
 <ul>
-<li><strong>Repeated Sampling Principle:</strong> Inference is based on the performance of methods under hypothetical repeated sampling of the data.</li>
-<li>Uses <strong>Sampling Distributions</strong>.</li>
+<li><strong>Concept:</strong> The parameter <span class="math inline">\(\theta\)</span> is a <strong>fixed, unknown constant</strong>. The data <span class="math inline">\(X\)</span> are random.</li>
+<li><strong>Repeated Sampling Principle:</strong> Inference is based on the performance of methods (estimators) under hypothetical repeated sampling of the data.</li>
+<li><strong>Sampling Distribution:</strong> We analyze how the estimator <span class="math inline">\(\hat{\theta}\)</span> behaves over many different datasets generated from the same population.</li>
 </ul>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-sampling-dist" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-sampling-dist-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="introstatinf_files/figure-html/fig-sampling-dist-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-sampling-dist-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1.2: Frequentist Concept: The Sampling Distribution. The parameter theta is fixed (vertical line). The curve represents how the estimator (theta_hat) varies across many hypothetical samples.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="bayesian-inference" class="level3" data-number="1.5.2">
+<h3 data-number="1.5.2" class="anchored" data-anchor-id="bayesian-inference"><span class="header-section-number">1.5.2</span> Bayesian Inference</h3>
+<p>In the Bayesian framework, we treat the parameter <span class="math inline">\(\theta\)</span> as a <strong>random variable</strong> representing our knowledge/uncertainty.</p>
+<ol type="1">
+<li><strong>Prior:</strong> We assign a prior distribution <span class="math inline">\(\pi(\theta)\)</span> reflecting beliefs before seeing data.</li>
+<li><strong>Data Model:</strong> We have the likelihood <span class="math inline">\(f(x_1, \ldots, x_n|\theta)\)</span>.</li>
+<li><strong>Posterior:</strong> We compute the posterior distribution using Bayes’ theorem: <span class="math display">\[f(\theta|x_1, \ldots, x_n) = \frac{\pi(\theta)f(x_1, \ldots, x_n|\theta)}{\int \pi(\theta)f(x_1, \ldots, x_n|\theta) d\theta}\]</span></li>
+</ol>
+<p>In this framework, inference is based entirely on the <strong>Posterior Distribution</strong>, which combines the Prior and the Likelihood.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-posterior" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-posterior-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="introstatinf_files/figure-html/fig-posterior-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-posterior-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1.3: Bayesian Concept: Updating Beliefs. The Prior (dashed) is updated by the Data (Likelihood) to form the Posterior (solid). Theta is treated as a random variable.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>4.<strong>Bayesian Prediction</strong> The predictive density for a new observation <span class="math inline">\(x_{n+1}\)</span> is obtained by integrating over the posterior: <span class="math display">\[f(x_{n+1}|x) = \int f(x_{n+1}|\theta) \pi(\theta|x) d\theta\]</span></p>
 
 
 </section>
