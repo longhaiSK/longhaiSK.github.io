@@ -24,11 +24,19 @@ In **Parametric Statistics**, we assume $f(x)$ is of a known analytic form but i
 The assumption that observations are identically distributed is made primarily for **notational simplicity**. There is no fundamental issue in extending this framework to **regression settings**, where the distribution depends on covariates (e.g., $Y_i | X_i$), or to other complex structures.
 
 ::: {#exm-normal-distribution}
-### Parametric Model
+### Parametric Model: Normal
 Consider the Normal distribution:
 $$f(x; \theta) = \frac{1}{\sqrt{2\pi\sigma^2}} e^{-\frac{(x-\mu)^2}{2\sigma^2}}$$
 Here, the parameter space is $\Theta = \{ (\mu, \sigma^2) : \mu \in \mathbb{R}, \sigma \in [0, +\infty) \}$.
 The goal is to learn aspects of the unknown $\theta$ from observations $X_1, \dots, X_n$.
+:::
+
+::: {#exm-bernoulli-distribution}
+### Parametric Model: Bernoulli
+Consider a sequence of coin flips where each $X_i \in \{0, 1\}$. We assume $X_i \sim \text{Bernoulli}(\theta)$.
+The probability mass function is:
+$$f(x; \theta) = \theta^x (1-\theta)^{1-x}$$
+Here, the parameter space is $\Theta = [0, 1]$, where $\theta$ represents the probability of success (e.g., "Heads").
 :::
 
 ## Probability vs. Statistics
@@ -41,96 +49,81 @@ There is a fundamental distinction between probability and statistics regarding 
 * **Probability (Deductive):** The center $\theta$ is **known**. We predict where the shots $x$ will land.
 * **Statistics (Inductive):** The shots $x$ are **observed** on the board. The center $\theta$ is unknown. We hypothesize different potential centers to see which one best explains the shots.
 
+
 ```{r}
-#| label: fig-prob-vs-stat-target
-#| fig-cap: "The Shooting Analogy. Left (Probability): The center $\\theta$ is fixed; shots $x$ are generated around it. Right (Statistics): The shots $x$ are fixed on a square board; we test different hypothesized centers (colored circles) to see which $\\theta$ fit the data best."
+#| label: fig-prob-vs-stat-base
+#| fig-cap: "Probability vs Statistics. Left: Probability—The model is fixed (Blue center/contours), generating random data. Right: Statistics—Data is fixed (Black points); we test two hypothesized models: H1 (Green) centered at the sample mean (Good Fit) and H2 (Red) shifted by (1.5, 1.5) (Bad Fit)."
 #| echo: false
-#| warning: false
-#| message: false
-library(ggplot2)
-library(patchwork)
-library(ggforce)
+#| fig-width: 10
+#| fig-height: 5
 
-set.seed(101)
+# --- Setup ---
+set.seed(2024)
+n <- 100
 
-# --- Shared Data Generation ---
-# The "true" center (unknown to the statistician)
-true_theta_x <- 0
-true_theta_y <- 0
-n_shots <- 30
+# Helper function to draw circles in base R
+draw_circle <- function(x, y, r, col, lty = 1, lwd = 1) {
+  theta <- seq(0, 2 * pi, length.out = 200)
+  lines(x + r * cos(theta), y + r * sin(theta), col = col, lty = lty, lwd = lwd)
+}
 
-# Generate random shots (data x) around the true center
-shots_df <- data.frame(
-  x = rnorm(n_shots, true_theta_x, sd = 1.2),
-  y = rnorm(n_shots, true_theta_y, sd = 1.2)
-)
+# Layout: 1 row, 2 columns
+# mar: c(bottom, left, top, right) - decreasing margins to trim space
+par(mfrow = c(1, 2), mar = c(3, 3, 3, 1))
 
-# --- Plot 1: Probability (The Data Generator) ---
-p_prob <- ggplot() +
-  # Target rings
-  geom_circle(aes(x0=0, y0=0, r=c(1, 2, 3, 4)), color="grey80", fill=NA) +
-  # The Known Center (Theta)
-  geom_point(aes(x=0, y=0), size=6, color="blue") +
-  annotate("label", x=0, y=-0.6, label=expression(paste("Known Center ", theta)), color="blue", fontface="bold", fill="white", label.size=NA) +
-  # The Random Shots (x)
-  geom_point(data=shots_df, aes(x=x, y=y), shape=4, size=3, color="darkblue", alpha=0.7) +
-  # Arrows showing generation process
-  geom_segment(aes(x=0, y=0, xend=shots_df$x[1:5], yend=shots_df$y[1:5]), 
-               arrow = arrow(length = unit(0.2, "cm")), color="blue", alpha=0.3) +
-  coord_fixed(xlim=c(-5,5), ylim=c(-5,5)) +
-  theme_void() +
-  theme(panel.border = element_rect(color = "grey", fill = NA, size = 2),
-        plot.title = element_text(hjust = 0.5, face="bold", size=14),
-        plot.subtitle = element_text(hjust = 0.5)) +
-  labs(title = "PROBABILITY: Deductive",
-       subtitle = expression(paste("Given center ", theta, ", where will shots ", x, " land?")))
+# ---------------------------------------------------------
+# PLOT 1: PROBABILITY (The Generator)
+# ---------------------------------------------------------
+# 1. Generate Data
+x_prob <- rnorm(n)
+y_prob <- rnorm(n)
 
-# --- Plot 2: Statistics (The Inference Game) ---
+# 2. Setup Canvas (asp=1 ensures circles look like circles)
+plot(NA, xlim = c(-4, 4), ylim = c(-4, 4), asp = 1,
+     xlab = "", ylab = "", main = "PROBABILITY\n(Model Known -> Data Random)")
 
-# Define three hypotheses (potential centers)
-hypotheses_df <- data.frame(
-  hx = c(mean(shots_df$x), 2.5, -2),
-  hy = c(mean(shots_df$y), 2.5, -3),
-  r_guess = c(2, 2, 2),
-  label = c("H1 (Good Fit)", "H2 (Bad Fit)", "H3 (Bad Fit)"),
-  color = c("darkgreen", "red", "orange")
-)
+# 3. Draw Model (True Center & Contours)
+points(0, 0, pch = 19, col = "blue", cex = 2)
+for(r in 1:3) draw_circle(0, 0, r, col = "blue", lwd = 1.5)
 
-p_stat <- ggplot() +
-  # The Fixed Observed Data (x)
-  geom_point(data=shots_df, aes(x=x, y=y), shape=4, size=3, color="black") +
-  annotate("label", x=mean(shots_df$x), y=mean(shots_df$y)-0.5, label="Observed Shots (x)", fill="white", fontface="italic") +
-  
-  # Draw Hypothesized Centers and their "expected areas"
-  # Hypothesis 1
-  geom_circle(data=hypotheses_df[1,], aes(x0=hx, y0=hy, r=r_guess, color=color), fill=NA, linetype="dashed", size=1) +
-  geom_point(data=hypotheses_df[1,], aes(x=hx, y=hy, color=color), size=5) +
-  # Hypothesis 2
-  geom_circle(data=hypotheses_df[2,], aes(x0=hx, y0=hy, r=r_guess, color=color), fill=NA, linetype="dashed", size=1) +
-  geom_point(data=hypotheses_df[2,], aes(x=hx, y=hy, color=color), size=5) +
-  # Hypothesis 3
-  geom_circle(data=hypotheses_df[3,], aes(x0=hx, y0=hy, r=r_guess, color=color), fill=NA, linetype="dashed", size=1) +
-  geom_point(data=hypotheses_df[3,], aes(x=hx, y=hy, color=color), size=5) +
-  
-  # Labels for hypotheses
-  geom_text(data=hypotheses_df, aes(x=hx, y=hy+0.7, label=label, color=color), fontface="bold") +
-  
-  scale_color_identity() +
-  coord_fixed(xlim=c(-5,5), ylim=c(-5,5)) +
-  # Square board theme
-  theme_bw() +
-  theme(panel.grid.major = element_line(color="grey95"),
-        panel.grid.minor = element_blank(),
-        axis.text = element_blank(), 
-        axis.ticks = element_blank(),
-        panel.border = element_rect(color = "black", fill = NA, size = 2),
-        plot.title = element_text(hjust = 0.5, face="bold", size=14),
-        plot.subtitle = element_text(hjust = 0.5)) +
-  labs(title = "STATISTICS: Inductive",
-       subtitle = expression(paste("Given shots ", x, ", where is the center ", theta, "?")))
+# 4. Draw Generated Data
+points(x_prob, y_prob, pch = 16, col = adjustcolor("darkblue", alpha = 0.5))
 
-# Combine plots
-p_prob + p_stat
+# 5. Legend
+legend("bottomleft", legend = c("True Model", "Generated Data"),
+       col = c("blue", "darkblue"), pch = c(19, 16),
+       lty = c(1, 0), bty = "n", cex = 0.8)
+
+# ---------------------------------------------------------
+# PLOT 2: STATISTICS (The Inference)
+# ---------------------------------------------------------
+# 1. Generate NEW Observed Data
+x_stat <- rnorm(n)
+y_stat <- rnorm(n)
+x_bar <- mean(x_stat)
+y_bar <- mean(y_stat)
+
+# 2. Setup Canvas
+plot(NA, xlim = c(-4, 4), ylim = c(-4, 4), asp = 1,
+     xlab = "", ylab = "", main = "STATISTICS\n(Data Observed -> Model Unknown)")
+
+# 3. Draw Observed Data
+points(x_stat, y_stat, pch = 16, col = adjustcolor("black", alpha = 0.5))
+
+# 4. Draw Hypothesis 1 (Good Fit - Centered at Sample Mean)
+points(x_bar, y_bar, pch = 19, col = "darkgreen", cex = 1.5)
+for(r in 1:3) draw_circle(x_bar, y_bar, r, col = "darkgreen", lty = 2, lwd = 1.5)
+
+# 5. Draw Hypothesis 2 (Bad Fit - Shifted)
+points(x_bar + 1.5, y_bar + 1.5, pch = 19, col = "red", cex = 1.5)
+for(r in 1:3) draw_circle(x_bar + 1.5, y_bar + 1.5, r, col = "red", lty = 2, lwd = 1.5)
+
+# 6. Legend
+legend("bottomleft", 
+       legend = c("Observed Data", "H1 (Good Fit)", "H2 (Bad Fit)"),
+       col = c("black", "darkgreen", "red"), 
+       pch = c(16, 19, 19), lty = c(0, 2, 2), 
+       bty = "n", cex = 0.8)
 ```
 
 ## The Likelihood Function
@@ -273,6 +266,58 @@ ggplot(df_freq, aes(x = x, y = y)) +
   theme_minimal()
 ```
 
+#### Bernoulli Example: Sampling Distribution
+
+For our Bernoulli data ($x = \{1, 0, 1\}$, $n=3$), the estimator $\bar{X}$ is a scaled Binomial variable. If the true parameter were $\theta = 0.5$, the exact distribution and its Normal approximation would be:
+
+```{r}
+#| label: fig-freq-sampling-bernoulli-pvalue
+#| fig-cap: "Sampling Distribution of $\\bar{X}$ for $n=3$ assuming true $\\theta=0.5$. The vertical line shows the observed $\\bar{x}=2/3$. The shaded red areas represent the p-value (probability of observing a result as extreme as 2/3 under the Null)."
+#| echo: true
+#| warning: false
+
+true_theta <- 0.5
+n <- 3
+k_vals <- 0:n
+x_bar_vals <- k_vals / n
+probs <- dbinom(k_vals, size=n, prob=true_theta)
+
+df_exact <- data.frame(x_bar = x_bar_vals, prob = probs)
+
+x_grid <- seq(-0.2, 1.2, length.out=200)
+sd_approx <- sqrt(true_theta * (1 - true_theta) / n)
+norm_dens <- dnorm(x_grid, mean=true_theta, sd=sd_approx)
+df_approx <- data.frame(x = x_grid, density = norm_dens)
+
+# Identify extreme regions for p-value shading (Two-sided: x >= 2/3 and x <= 1/3)
+# Note: 1/3 is symmetric to 2/3 around the mean of 0.5
+df_shade <- subset(df_approx, x >= 2/3 | x <= 1/3)
+
+ggplot() +
+  # 1. Exact Discrete Bars
+  geom_segment(data=df_exact, aes(x=x_bar, xend=x_bar, y=0, yend=prob), 
+               size=5, color="darkgreen", alpha=0.6) +
+  
+  # 2. Shaded P-value Regions (Normal Approx)
+  geom_area(data=df_shade, aes(x=x, y=density * (1/n)), 
+            fill="red", alpha=0.3) +
+  
+  # 3. Normal Approximation Curve
+  geom_line(data=df_approx, aes(x=x, y=density * (1/n)), 
+            color="red", size=1.2, linetype="dashed") +
+  
+  # 4. Vertical Line at Observed Mean
+  geom_vline(xintercept = 2/3, color = "blue", size = 1, linetype = "solid") +
+  annotate("text", x = 2/3, y = -0.02, label = "Observed\nbar(x) == 2/3", 
+           parse = TRUE, color = "blue", vjust = 1, size = 3.5) +
+  
+  labs(title = expression(paste("Sampling Distribution: Transformed Binomial vs. Normal")),
+       subtitle = expression(paste("Testing ", H[0]: theta == 0.5, " vs ", H[1]: theta != 0.5)),
+       x = expression(bar(x)), y = "Probability Mass") +
+  theme_minimal() +
+  # Increase bottom margin for annotation
+  theme(plot.margin = margin(t=10, r=10, b=30, l=10))
+```
 ### Bayesian Inference
 
 In the Bayesian framework, we treat the parameter $\theta$ as a **random variable** representing our knowledge/uncertainty.
@@ -284,16 +329,23 @@ In the Bayesian framework, we treat the parameter $\theta$ as a **random variabl
 
 In this framework, inference is based entirely on the **Posterior Distribution**, which combines the Prior and the Likelihood.
 
+#### Bernoulli Example: Bayesian Update
+
+Using $x = \{1, 0, 1\}$ and a weakly informative $\text{Beta}(2,2)$ prior:
+
+* **Prior:** $\theta \sim \text{Beta}(2,2)$
+* **Likelihood:** $L(\theta) \propto \theta^2(1-\theta)^1$
+* **Posterior:** $\theta|x \sim \text{Beta}(2+2, 2+1) = \text{Beta}(4,3)$
+
 ```{r}
-#| label: fig-posterior
-#| fig-cap: "Bayesian Concept: Updating Beliefs. The Prior (dashed) is updated by the Data (Likelihood) to form the Posterior (solid). $\\theta$ is treated as a random variable."
-#| echo: false
+#| label: fig-posterior-bernoulli
+#| fig-cap: "Bayesian Updating for Bernoulli Data {1, 0, 1}."
+#| echo: true
+#| warning: false
 
 theta_grid <- seq(0, 1, length.out = 200)
-# Prior: Beta(2, 2) - somewhat vague peak at 0.5
 prior <- dbeta(theta_grid, 2, 2)
-# Likelihood (scaled for visual comparison): based on e.g., 8 heads, 2 tails -> Beta(9, 3) roughly
-posterior <- dbeta(theta_grid, 10, 4)
+posterior <- dbeta(theta_grid, 4, 3)
 
 df_bayes <- data.frame(
   Theta = rep(theta_grid, 2),
@@ -304,10 +356,8 @@ df_bayes <- data.frame(
 ggplot(df_bayes, aes(x = Theta, y = Density, color = Type, linetype = Type)) +
   geom_line(size = 1.2) +
   scale_color_manual(values = c("Posterior" = "blue", "Prior" = "gray")) +
-  scale_linetype_manual(values = c("Posterior" = "solid", "Prior" = "dashed")) +
   labs(title = "Bayesian Updating: Prior vs Posterior",
-       x = expression(paste("Parameter ", theta, " (Probability)")),
-       y = "Density") +
+       x = expression(theta), y = "Density") +
   theme_minimal()
 ```
 
