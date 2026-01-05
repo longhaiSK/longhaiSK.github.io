@@ -82,80 +82,123 @@ We want to estimate a range for the parameter.
 
 * **Action Space:** $\mathcal{A} = \{(l, u) : l \in \mathbb{R}, u \in \mathbb{R}, l \le u\}$.
 
-### Example 4: The "Great Aunt's Necklace"
+## Example: The Duchess and the Emerald Necklace
+
 **Scenario:**
-Two boxes. One contains a real necklace ($\theta=1$), the other an imitation ($\theta=2$). Loss is 1 if we choose the wrong box, 0 otherwise.
+You are the Duchess of Omnium. You have two necklaces: a priceless **Real** one and a valueless **Imitation**. They are indistinguishable to you. One is in the **Left Drawer (Box 1)**, the other is in the **Right Drawer (Box 2)**.
 
-* **Parameter Space:** $\theta \in \{1, 2\}$
-* **Action Space:** $a \in \{1, 2\}$ (Choose Box 1 or Box 2)
+**The Data (Great Aunt):**
+You consult your Great Aunt. She inspects the Left Drawer first, then the Right.
+* If the **Real** necklace is in the **Left** ($\theta_1$): She identifies it correctly. (Infallible).
+* If the **Real** necklace is in the **Right** ($\theta_2$): She sees the fake first, gets confused, and guesses randomly ($50/50$).
+## Formulation of the Decision Problem
 
-**Data ($X$):**
-Great Aunt's judgment. $X \in \{1, 2\}$ (Aunt says Box 1 or Box 2).
+### Parameter Space ($\Theta$)
 
-* **Probabilities:**
-    * If $\theta=1$ (Real in Box 1): Aunt is senile. $P(X=1)=1, P(X=2)=0$.
-    * If $\theta=2$ (Real in Box 2): Aunt guesses. $P(X=1)=0.5, P(X=2)=0.5$.
+The set of possible states of nature regarding the location of the real necklace:
 
-**Decision Rules:**
+* $\theta_1$: The **Real** necklace is in the **Left** Drawer.
+* $\theta_2$: The **Real** necklace is in the **Right** Drawer.
 
-1.  $d_1$: Always choose Box 1.
-2.  $d_2$: Always choose Box 2.
-3.  $d_3(x) = x$: Follow Aunt's advice.
-4.  $d_4(x) = 3-x$: Do opposite of Aunt.
+### Action Space ($\mathcal{A}$)
 
-**Risk Calculation:**
+The set of possible actions available to the Duchess:
 
-| Rule | $R(\theta=1)$ | $R(\theta=2)$ | Coordinates $(R_1, R_2)$ |
-| :--- | :--- | :--- | :--- |
-| $d_1$ | 0 | 1 | (0, 1) |
-| $d_2$ | 1 | 0 | (1, 0) |
-| $d_3$ | 0 | 0.5 | (0, 0.5) |
-| $d_4$ | 1 | 0.5 | (1, 0.5) |
+* $a_1$: Wear the **Left** necklace.
+* $a_2$: Wear the **Right** necklace.
 
-**Geometry of the Risk Set:**
-The risk set is the convex hull of these four points.
+### The Data ($X$)
 
-```{r}
-#| label: fig-necklace
-#| echo: false
-#| fig-cap: "Risk Set for the Necklace Example. The set is the quadrilateral defined by d1, d2, d3, d4. The Minimax rule is the intersection of the line R1=R2 and the lower boundary segment connecting d3 and d2."
+The data consists of the Great Aunt's judgment after inspecting the necklaces:
 
-library(ggplot2)
+* $X \in \{1, 2\}$
+* $X=1$: Aunt says "Left is Real".
+* $X=2$: Aunt says "Right is Real".
 
-df_necklace <- data.frame(
-  R1 = c(0, 1, 1, 0),
-  R2 = c(1, 0, 0.5, 0.5),
-  Label = c("d1", "d2", "d4", "d3")
-)
+### Probability of Data Given Parameter ($P_\theta(X)$)
 
-## Segment for the lower boundary (admissible rules)
-admissible_segment <- data.frame(
-  x = c(0, 1),
-  y = c(0.5, 0)
-)
+The probability of the Aunt's advice changes depending on the true state of nature ($\theta$).
 
-ggplot() +
-  geom_polygon(data = df_necklace, aes(x = R1, y = R2), fill = "lightgray", alpha = 0.5, color = "black") +
-  geom_point(data = df_necklace, aes(x = R1, y = R2), size = 3) +
-  geom_text(data = df_necklace, aes(x = R1, y = R2, label = Label), vjust = -1) +
-  ## Minimax line R1 = R2
-  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "blue") +
-  ## Highlight admissible boundary (d3 to d2)
-  geom_segment(aes(x = 0, y = 0.5, xend = 1, yend = 0), color = "red", size = 1.2) +
-  annotate("point", x = 1/3, y = 1/3, color = "red", size = 4, shape = 18) +
-  annotate("text", x = 0.4, y = 0.25, label = "Minimax Rule (1/3, 1/3)", color = "red") +
-  coord_fixed(xlim = c(-0.1, 1.2), ylim = c(-0.1, 1.2)) +
-  labs(title = "Risk Set: Necklace Example", x = "R(theta=1)", y = "R(theta=2)") +
-  theme_bw()
-```
+| State | $P(X=1 \mid \theta)$ | $P(X=2 \mid \theta)$ |
+| :--- | :---: | :---: |
+| **$\theta_1$ (Real Left)** | 1 | 0 |
+| **$\theta_2$ (Real Right)** | 0.5 | 0.5 |
 
-**Calculation of Minimax Rule:**
-The lower boundary connects $d_3 (0, 0.5)$ and $d_2 (1, 0)$.
-Equation of line: $R_2 - 0 = \frac{0.5 - 0}{0 - 1} (R_1 - 1) \Rightarrow R_2 = -0.5(R_1 - 1)$.
-For Minimax, set $R_1 = R_2 = R$.
-$R = -0.5R + 0.5 \Rightarrow 1.5R = 0.5 \Rightarrow R = 1/3$.
-The minimax rule is a randomized combination: $d^* = \frac{2}{3}d_3 + \frac{1}{3}d_2$.
+### Loss Function ($L$)
 
+The loss is defined as 0 for a correct choice and 1 (representing £1M) for an incorrect choice.
+
+| State \ Action | $a_1$ (Wear Left) | $a_2$ (Wear Right) |
+| :--- | :---: | :---: |
+| $\theta_1$ (Real Left) | **0** | **1** |
+| $\theta_2$ (Real Right) | **1** | **0** |
+
+### Decision Rules
+
+There are four possible deterministic decision rules ($d: \mathcal{X} \rightarrow \mathcal{A}$).
+
+| Rule | Description | Action if $X=1$ (Left) | Action if $X=2$ (Right) |
+| :--- | :--- | :---: | :---: |
+| **$d_1$** | Always Left | $a_1$ | $a_1$ |
+| **$d_2$** | Always Right | $a_2$ | $a_2$ |
+| **$d_3$** | Follow Aunt | $a_1$ | $a_2$ |
+| **$d_4$** | Do Opposite | $a_2$ | $a_1$ |
+
+### Risk Calculation Tables
+
+For each decision rule, the table below calculates the risk by summing the expected loss across possible outcomes ($X$) for both states of nature.
+
+#### **Rule $d_1$ (Always Left)**
+
+| State | Component | Outcome $X=1$ | Outcome $X=2$ | Risk (Row Sum) |
+| :--- | :--- | :---: | :---: | :---: |
+| **$\theta_1$** | Action $d_1(X)$ | $a_1$ | $a_1$ | |
+| | Loss $L(\theta_1, d)$ | 0 | 0 | |
+| | Prob $P(X \mid \theta_1)$ | 1 | 0 | |
+| | **Product ($L \times P$)** | **0** | **0** | **Risk = 0** |
+| **$\theta_2$** | Action $d_1(X)$ | $a_1$ | $a_1$ | |
+| | Loss $L(\theta_2, d)$ | 1 | 1 | |
+| | Prob $P(X \mid \theta_2)$ | 0.5 | 0.5 | |
+| | **Product ($L \times P$)** | **0.5** | **0.5** | **Risk = 1** |
+
+#### **Rule $d_2$ (Always Right)**
+
+| State | Component | Outcome $X=1$ | Outcome $X=2$ | Risk (Row Sum) |
+| :--- | :--- | :---: | :---: | :---: |
+| **$\theta_1$** | Action $d_2(X)$ | $a_2$ | $a_2$ | |
+| | Loss $L(\theta_1, d)$ | 1 | 1 | |
+| | Prob $P(X \mid \theta_1)$ | 1 | 0 | |
+| | **Product ($L \times P$)** | **1** | **0** | **Risk = 1** |
+| **$\theta_2$** | Action $d_2(X)$ | $a_2$ | $a_2$ | |
+| | Loss $L(\theta_2, d)$ | 0 | 0 | |
+| | Prob $P(X \mid \theta_2)$ | 0.5 | 0.5 | |
+| | **Product ($L \times P$)** | **0** | **0** | **Risk = 0** |
+
+#### **Rule $d_3$ (Follow Aunt)**
+
+| State | Component | Outcome $X=1$ | Outcome $X=2$ | Risk (Row Sum) |
+| :--- | :--- | :---: | :---: | :---: |
+| **$\theta_1$** | Action $d_3(X)$ | $a_1$ | $a_2$ | |
+| | Loss $L(\theta_1, d)$ | 0 | 1 | |
+| | Prob $P(X \mid \theta_1)$ | 1 | 0 | |
+| | **Product ($L \times P$)** | **0** | **0** | **Risk = 0** |
+| **$\theta_2$** | Action $d_3(X)$ | $a_1$ | $a_2$ | |
+| | Loss $L(\theta_2, d)$ | 1 | 0 | |
+| | Prob $P(X \mid \theta_2)$ | 0.5 | 0.5 | |
+| | **Product ($L \times P$)** | **0.5** | **0** | **Risk = 0.5** |
+
+#### **Rule $d_4$ (Do Opposite)**
+
+| State | Component | Outcome $X=1$ | Outcome $X=2$ | Risk (Row Sum) |
+| :--- | :--- | :---: | :---: | :---: |
+| **$\theta_1$** | Action $d_4(X)$ | $a_2$ | $a_1$ | |
+| | Loss $L(\theta_1, d)$ | 1 | 0 | |
+| | Prob $P(X \mid \theta_1)$ | 1 | 0 | |
+| | **Product ($L \times P$)** | **1** | **0** | **Risk = 1** |
+| **$\theta_2$** | Action $d_4(X)$ | $a_2$ | $a_1$ | |
+| | Loss $L(\theta_2, d)$ | 0 | 1 | |
+| | Prob $P(X \mid \theta_2)$ | 0.5 | 0.5 | |
+| | **Product ($L \times P$)** | **0** | **0.5** | **Risk = 0.5** |
 ## Comparing Decision Rules
 
 We typically do not have a single rule $d$ that is better than all other rules for all $\theta$.
