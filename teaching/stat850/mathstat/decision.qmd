@@ -25,41 +25,14 @@ In decision theory, we formalize the process of making decisions under uncertain
 4.  **Action Space ($\mathcal{A}$):**
     The set of all actions or decisions available to the experimenter.
 
-    * *Example (Hypothesis Testing):*
-        $H_0$ vs $H_1$.
-        $\mathcal{A} = \{0, 1\}$ where $0$ means "Accept $H_0$" and $1$ means "Reject $H_0$".
-    * *Example (Point Estimation):*
-        $\mathcal{A} = \Theta$. An action is an estimate of $\theta$.
-    * *Example (Interval Estimation):*
-        $\mathcal{A} = \{(l, u) : l \in \mathbb{R}, u \in \mathbb{R}, l \le u\}$.
-
 5.  **Loss Function:**
     $L: \Theta \times \mathcal{A} \rightarrow \mathbb{R}$.
     $L(\theta, a)$ specifies the loss incurred if the true parameter is $\theta$ and we take action $a$. Generally, $L(\theta, a) \ge 0$.
-
-    * *Examples:*
-        * Squared Error: $L(\theta, a) = (\theta - a)^2$
-        * Absolute Error: $L(\theta, a) = |\theta - a|$
-        * 0-1 Loss (Hypothesis Testing):
-            $$
-            L(\theta, a) =
-            \begin{cases}
-            0 & \text{if decision is correct} \\
-            1 & \text{if decision is wrong}
-            \end{cases}
-            $$
-            Specifically:
-            * If $\theta \in H_0$ and $a=1$ (Type I Error), Loss = 1.
-            * If $\theta \in H_1$ and $a=0$ (Type II Error), Loss = 1.
 
 ## Decision Rules and Risk Functions
 
 ### Decision Rule
 A decision rule is a function $d: \mathcal{X} \rightarrow \mathcal{A}$. It dictates the action $d(x)$ we take when we observe data $x$.
-
-* *Examples:*
-    * Point Estimation: $d(x) = \bar{x}$ (Sample mean).
-    * Hypothesis Testing: $d(x) = 1$ if $\bar{x} > c$, else $0$.
 
 ### Risk Function
 The risk function is the expected loss for a given decision rule $d$ as a function of the parameter $\theta$.
@@ -69,20 +42,119 @@ $$R(\theta, d) = E_\theta[L(\theta, d(X))]$$
 * Continuous Case: $R(\theta, d) = \int_{\mathcal{X}} L(\theta, d(x)) f(x, \theta) dx$
 * Discrete Case: $R(\theta, d) = \sum_{x \in \mathcal{X}} L(\theta, d(x)) P_\theta(x)$
 
-#### Example: Mean Squared Error (MSE)
-If $L(\theta, a) = (\theta - a)^2$ and $d(x) = \bar{x}$:
+## Examples of Decision Problems
 
-$$R(\theta, d) = E_\theta[(\bar{x} - \theta)^2] = \text{MSE} = \text{Var}(\bar{x}) + \text{Bias}^2$$
+This section applies the definitions above to common statistical problems.
 
-#### Example: Hypothesis Testing Risk
-For testing $H_0$ vs $H_1$ with 0-1 loss:
+### Example 1: Hypothesis Testing
+We want to test $H_0$ vs $H_1$.
 
-* If $\theta \in H_0$:
-    $R(\theta, d) = 1 \cdot P_\theta(d(X)=1) + 0 = P(\text{Type I Error})$.
-* If $\theta \in H_1$:
-    $R(\theta, d) = 1 \cdot P_\theta(d(X)=0) + 0 = P(\text{Type II Error})$.
+* **Action Space:** $\mathcal{A} = \{0, 1\}$ where $0$ means "Accept $H_0$" and $1$ means "Reject $H_0$".
+* **Loss Function (0-1 Loss):**
+    $$
+    L(\theta, a) =
+    \begin{cases}
+    0 & \text{if decision is correct} \\
+    1 & \text{if decision is wrong}
+    \end{cases}
+    $$
+    Specifically:
+    * If $\theta \in H_0$ and $a=1$ (Type I Error), Loss = 1.
+    * If $\theta \in H_1$ and $a=0$ (Type II Error), Loss = 1.
+* **Decision Rule:** A common rule is $d(x) = 1$ if $\bar{x} > c$, else $0$.
+* **Risk Function:**
+    * If $\theta \in H_0$: $R(\theta, d) = 1 \cdot P_\theta(d(X)=1) + 0 = P(\text{Type I Error})$.
+    * If $\theta \in H_1$: $R(\theta, d) = 1 \cdot P_\theta(d(X)=0) + 0 = P(\text{Type II Error})$.
 
+### Example 2: Point Estimation
+We want to estimate a parameter $\theta$.
 
+* **Action Space:** $\mathcal{A} = \Theta$. An action is an estimate of $\theta$.
+* **Loss Function:**
+    * *Squared Error:* $L(\theta, a) = (\theta - a)^2$
+    * *Absolute Error:* $L(\theta, a) = |\theta - a|$
+* **Decision Rule:** A common rule is $d(x) = \bar{x}$ (Sample mean).
+* **Risk Function (for Squared Error):**
+    $$R(\theta, d) = E_\theta[(\bar{x} - \theta)^2] = \text{MSE} = \text{Var}(\bar{x}) + \text{Bias}^2$$
+
+### Example 3: Interval Estimation
+We want to estimate a range for the parameter.
+
+* **Action Space:** $\mathcal{A} = \{(l, u) : l \in \mathbb{R}, u \in \mathbb{R}, l \le u\}$.
+
+### Example 4: The "Great Aunt's Necklace"
+**Scenario:**
+Two boxes. One contains a real necklace ($\theta=1$), the other an imitation ($\theta=2$). Loss is 1 if we choose the wrong box, 0 otherwise.
+
+* **Parameter Space:** $\theta \in \{1, 2\}$
+* **Action Space:** $a \in \{1, 2\}$ (Choose Box 1 or Box 2)
+
+**Data ($X$):**
+Great Aunt's judgment. $X \in \{1, 2\}$ (Aunt says Box 1 or Box 2).
+
+* **Probabilities:**
+    * If $\theta=1$ (Real in Box 1): Aunt is senile. $P(X=1)=1, P(X=2)=0$.
+    * If $\theta=2$ (Real in Box 2): Aunt guesses. $P(X=1)=0.5, P(X=2)=0.5$.
+
+**Decision Rules:**
+
+1.  $d_1$: Always choose Box 1.
+2.  $d_2$: Always choose Box 2.
+3.  $d_3(x) = x$: Follow Aunt's advice.
+4.  $d_4(x) = 3-x$: Do opposite of Aunt.
+
+**Risk Calculation:**
+
+| Rule | $R(\theta=1)$ | $R(\theta=2)$ | Coordinates $(R_1, R_2)$ |
+| :--- | :--- | :--- | :--- |
+| $d_1$ | 0 | 1 | (0, 1) |
+| $d_2$ | 1 | 0 | (1, 0) |
+| $d_3$ | 0 | 0.5 | (0, 0.5) |
+| $d_4$ | 1 | 0.5 | (1, 0.5) |
+
+**Geometry of the Risk Set:**
+The risk set is the convex hull of these four points.
+
+```{r}
+#| label: fig-necklace
+#| echo: false
+#| fig-cap: "Risk Set for the Necklace Example. The set is the quadrilateral defined by d1, d2, d3, d4. The Minimax rule is the intersection of the line R1=R2 and the lower boundary segment connecting d3 and d2."
+
+library(ggplot2)
+
+df_necklace <- data.frame(
+  R1 = c(0, 1, 1, 0),
+  R2 = c(1, 0, 0.5, 0.5),
+  Label = c("d1", "d2", "d4", "d3")
+)
+
+## Segment for the lower boundary (admissible rules)
+admissible_segment <- data.frame(
+  x = c(0, 1),
+  y = c(0.5, 0)
+)
+
+ggplot() +
+  geom_polygon(data = df_necklace, aes(x = R1, y = R2), fill = "lightgray", alpha = 0.5, color = "black") +
+  geom_point(data = df_necklace, aes(x = R1, y = R2), size = 3) +
+  geom_text(data = df_necklace, aes(x = R1, y = R2, label = Label), vjust = -1) +
+  ## Minimax line R1 = R2
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "blue") +
+  ## Highlight admissible boundary (d3 to d2)
+  geom_segment(aes(x = 0, y = 0.5, xend = 1, yend = 0), color = "red", size = 1.2) +
+  annotate("point", x = 1/3, y = 1/3, color = "red", size = 4, shape = 18) +
+  annotate("text", x = 0.4, y = 0.25, label = "Minimax Rule (1/3, 1/3)", color = "red") +
+  coord_fixed(xlim = c(-0.1, 1.2), ylim = c(-0.1, 1.2)) +
+  labs(title = "Risk Set: Necklace Example", x = "R(theta=1)", y = "R(theta=2)") +
+  theme_bw()
+```
+
+**Calculation of Minimax Rule:**
+The lower boundary connects $d_3 (0, 0.5)$ and $d_2 (1, 0)$.
+Equation of line: $R_2 - 0 = \frac{0.5 - 0}{0 - 1} (R_1 - 1) \Rightarrow R_2 = -0.5(R_1 - 1)$.
+For Minimax, set $R_1 = R_2 = R$.
+$R = -0.5R + 0.5 \Rightarrow 1.5R = 0.5 \Rightarrow R = 1/3$.
+The minimax rule is a randomized combination: $d^* = \frac{2}{3}d_3 + \frac{1}{3}d_2$.
 
 ## Comparing Decision Rules
 
@@ -171,79 +243,6 @@ ggplot() +
   labs(title = "Geometric Representation of Risk Set", x = "Risk R(theta_1)", y = "Risk R(theta_2)") +
   theme_minimal()
 ```
-
-## Example: The "Great Aunt's Necklace"
-
-**Scenario:**
-Two boxes. One contains a real necklace ($\theta=1$), the other an imitation ($\theta=2$).
-Loss is 1 if we choose the wrong box, 0 otherwise.
-
-* $\theta \in \{1, 2\}$
-* Action $a \in \{1, 2\}$ (Choose Box 1 or Box 2)
-
-**Data ($X$):**
-Great Aunt's judgment.
-$X \in \{1, 2\}$ (Aunt says Box 1 or Box 2).
-Probabilities:
-* If $\theta=1$ (Real in Box 1): Aunt is senile. $P(X=1)=1, P(X=2)=0$.
-* If $\theta=2$ (Real in Box 2): Aunt guesses. $P(X=1)=0.5, P(X=2)=0.5$.
-
-**Decision Rules:**
-1.  $d_1$: Always choose Box 1.
-2.  $d_2$: Always choose Box 2.
-3.  $d_3(x) = x$: Follow Aunt's advice.
-4.  $d_4(x) = 3-x$: Do opposite of Aunt.
-
-**Risk Calculation:**
-
-| Rule | $R(\theta=1)$ | $R(\theta=2)$ | Coordinates $(R_1, R_2)$ |
-| :--- | :--- | :--- | :--- |
-| $d_1$ | 0 | 1 | (0, 1) |
-| $d_2$ | 1 | 0 | (1, 0) |
-| $d_3$ | 0 | 0.5 | (0, 0.5) |
-| $d_4$ | 1 | 0.5 | (1, 0.5) |
-
-**Geometry and Minimax:**
-The risk set is the convex hull of these four points.
-
-```{r}
-#| label: fig-necklace
-#| echo: false
-#| fig-cap: "Risk Set for the Necklace Example. The set is the quadrilateral defined by d1, d2, d3, d4. The Minimax rule is the intersection of the line R1=R2 and the lower boundary segment connecting d3 and d2."
-
-df_necklace <- data.frame(
-  R1 = c(0, 1, 1, 0),
-  R2 = c(1, 0, 0.5, 0.5),
-  Label = c("d1", "d2", "d4", "d3")
-)
-
-## Segment for the lower boundary (admissible rules)
-admissible_segment <- data.frame(
-  x = c(0, 1),
-  y = c(0.5, 0)
-)
-
-ggplot() +
-  geom_polygon(data = df_necklace, aes(x = R1, y = R2), fill = "lightgray", alpha = 0.5, color = "black") +
-  geom_point(data = df_necklace, aes(x = R1, y = R2), size = 3) +
-  geom_text(data = df_necklace, aes(x = R1, y = R2, label = Label), vjust = -1) +
-  ## Minimax line R1 = R2
-  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "blue") +
-  ## Highlight admissible boundary (d3 to d2)
-  geom_segment(aes(x = 0, y = 0.5, xend = 1, yend = 0), color = "red", size = 1.2) +
-  annotate("point", x = 1/3, y = 1/3, color = "red", size = 4, shape = 18) +
-  annotate("text", x = 0.4, y = 0.25, label = "Minimax Rule (1/3, 1/3)", color = "red") +
-  coord_fixed(xlim = c(-0.1, 1.2), ylim = c(-0.1, 1.2)) +
-  labs(title = "Risk Set: Necklace Example", x = "R(theta=1)", y = "R(theta=2)") +
-  theme_bw()
-```
-
-**Calculation of Minimax Rule:**
-The lower boundary connects $d_3 (0, 0.5)$ and $d_2 (1, 0)$.
-Equation of line: $R_2 - 0 = \frac{0.5 - 0}{0 - 1} (R_1 - 1) \Rightarrow R_2 = -0.5(R_1 - 1)$.
-For Minimax, set $R_1 = R_2 = R$.
-$R = -0.5R + 0.5 \Rightarrow 1.5R = 0.5 \Rightarrow R = 1/3$.
-The minimax rule is a randomized combination: $d^* = \frac{2}{3}d_3 + \frac{1}{3}d_2$.
 
 ## Theorems relating Minimax and Bayes
 
