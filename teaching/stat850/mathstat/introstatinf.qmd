@@ -3,7 +3,6 @@ title: "Introduction to Statistical Inference"
 format: html
 ---
 
-
 ## Statistical Inference Setup
 
 We begin with observations (units) $X_1, X_2, \dots, X_n$. These may be vectors. We regard these observations as a realization of random variables.
@@ -16,15 +15,13 @@ The function $f(x)$ is called the **population distribution**.
 
 ### Assumptions and Scope
 
-For simplicity, we often assume the data are Independent and Identically Distributed (i.i.d.). 
-
-
+For simplicity, we often assume the data are Independent and Identically Distributed (i.i.d.).
 
 In **Parametric Statistics**, we assume $f(x)$ is of a known analytic form but involves unknown parameters.
 
 **Note on Simplicity:**
 
-The assumption that observations are identically distributed is made primarily for **notational simplicity** . There is no fundamental issue in extending this framework to **regression settings**, where the distribution depends on covariates (e.g., $Y_i | X_i$), or to other complex structures.
+The assumption that observations are identically distributed is made primarily for **notational simplicity**. There is no fundamental issue in extending this framework to **regression settings**, where the distribution depends on covariates (e.g., $Y_i | X_i$), or to other complex structures.
 
 ::: {#exm-normal-distribution}
 ### Parametric Model
@@ -41,6 +38,63 @@ There is a fundamental distinction between probability and statistics regarding 
 * **Probability:** $\theta$ is known. We ask questions about the data $X$.
 * **Statistics:** $\theta$ is unknown. We use data $X_1, \dots, X_n$ to infer $\theta$ (from sample to population).
 
+## The Likelihood Function
+
+The bridge between probability and statistics is the Likelihood Function.
+
+::: {#def-likelihood}
+### Likelihood Function
+Let $f(x_1, \dots, x_n; \theta)$ be the joint probability density (or mass) function of the data given the parameter $\theta$. When we view this function as a function of $\theta$ for fixed observed data $x_1, \dots, x_n$, we call it the **likelihood function**, denoted $L(\theta)$.
+$$L(\theta) = f(x_1, \dots, x_n; \theta)$$
+:::
+
+::: {#exm-bernoulli-likelihood}
+### Example: Bernoulli Trial
+Consider a coin flip where $X \sim \text{Bernoulli}(\theta)$. The probability of Heads (1) is $\theta$, and Tails (0) is $1-\theta$.
+Suppose we observe 3 independent flips: **1, 0, 1**.
+
+The probability of observing this specific sequence is:
+$$L(\theta) = P(X_1=1) \cdot P(X_2=0) \cdot P(X_3=1) = \theta \cdot (1-\theta) \cdot \theta = \theta^2(1-\theta)$$
+
+We can calculate the likelihood for various values of $\theta$:
+
+| $\theta$ | Calculation ($\theta^2(1-\theta)$) | $L(\theta)$ |
+| :--- | :--- | :--- |
+| 0.0 | $0^2 \times 1$ | 0.000 |
+| 0.2 | $0.04 \times 0.8$ | 0.032 |
+| 0.4 | $0.16 \times 0.6$ | 0.096 |
+| 0.6 | $0.36 \times 0.4$ | 0.144 |
+| 0.8 | $0.64 \times 0.2$ | 0.128 |
+| 1.0 | $1^2 \times 0$ | 0.000 |
+
+We can visualize this function to see which value of $\theta$ is most "likely" (the maximum point).
+
+```{r}
+#| label: fig-likelihood
+#| fig-cap: "The Likelihood Function $L(\theta)$ for data $x=(1, 0, 1)$. The peak (MLE) is at $\theta_{\text{MLE}} = 2/3$."
+#| echo: true
+library(ggplot2)
+
+# Define the function L(theta) = theta^2 * (1-theta)
+likelihood_fun <- function(theta) { theta^2 * (1 - theta) }
+
+# Generate sequence of theta
+theta_vals <- seq(0, 1, length.out = 100)
+lik_vals <- likelihood_fun(theta_vals)
+df <- data.frame(theta = theta_vals, Likelihood = lik_vals)
+
+# Plot
+ggplot(df, aes(x = theta, y = Likelihood)) +
+  geom_line(color = "darkblue", size = 1.2) +
+  geom_vline(xintercept = 2/3, linetype = "dashed", color = "red") +
+  annotate("text", x = 2/3, y = 0.02, label = "Max at 2/3", color = "red", angle = 90, vjust = -0.5) +
+  labs(title = "Likelihood Function for Data {1, 0, 1}",
+       x = "Parameter Theta (Probability of Heads)",
+       y = "Likelihood") +
+  theme_minimal()
+```
+:::
+
 ## Types of Statistical Inference
 
 We can categorize inference into four main types:
@@ -49,6 +103,9 @@ We can categorize inference into four main types:
 ### Point Estimation
 We use a single number to capture the parameter.
 $$\hat{\theta} = \theta(X_1, \dots, X_n)$$
+
+**Example:**
+We want to estimate the average height ($\mu$) of all students in a university. We measure 100 students and calculate the sample mean $\bar{x} = 170$ cm. Our point estimate is $\hat{\mu} = 170$.
 :::
 
 ::: {#def-interval-estimation}
@@ -56,43 +113,103 @@ $$\hat{\theta} = \theta(X_1, \dots, X_n)$$
 We construct an interval that likely contains the true parameter.
 $$\theta \in (L(X_1, \dots, X_n), U(X_1, \dots, X_n))$$
 The true parameter is within this interval.
+
+**Example:**
+Using the same height data, we calculate a 95% Confidence Interval. We state: "We are 95% confident that the true average height is between 168 cm and 172 cm."
 :::
 
 ::: {#def-hypothesis-testing}
 ### Hypothesis Testing
 We test a specific theory about the parameter.
 $$H_0: \theta = \theta_0 \quad \text{vs} \quad H_1: \theta \neq \theta_0$$
-(Or one-sided alternatives like $\theta > \theta_0$) .
+(Or one-sided alternatives like $\theta > \theta_0$).
+
+**Example:**
+A manufacturer claims their soda bottles contain exactly 500ml ($H_0: \mu = 500$). We measure a sample and find an average of 495ml. We perform a test to see if this difference is significant enough to reject the manufacturer's claim.
 :::
 
 ::: {#def-predictive-inference}
 ### Predictive Inference
 Given observed data $(X_1, Y_1), \dots, (X_n, Y_n)$, we want to predict a new observation $Y_{n+1}$ given $X_{n+1}$.
 This is often the primary goal in **Machine Learning**.
+
+**Example:**
+Based on data about house sizes ($X$) and prices ($Y$) from the last year, we want to predict the selling price ($Y_{n+1}$) of a specific new house that is 2000 sq ft ($X_{n+1}$).
 :::
 
 ## Standard Paradigms for Inference
 
 There are two primary frameworks for how to perform these inferences.
 
-### Bayesian Inference
-
-In the Bayesian framework, we treat the parameter $\theta$ as a random variable.
-
-1.  **Prior:** We assign a prior distribution $\pi(\theta)$.
-2.  **Data Model:** We have the likelihood $f(D|\theta)$.
-3.  **Posterior:** We compute the posterior distribution using Bayes' theorem:
-    $$f(\theta|D) = \frac{\pi(\theta)f(D|\theta)}{\int \pi(\theta)f(D|\theta) d\theta}$$
-
-::: {#exm-predictive-density}
-### Bayesian Prediction
-The predictive density for a new observation $x_{n+1}$ is obtained by integrating over the posterior:
-$$f(x_{n+1}|x) = \int f(x_{n+1}|\theta) \pi(\theta|x) d\theta$$
-:::
-
 ### Frequentist Inference (Fisher)
 
 Developed largely by Fisher (c. 1920).
 
-* **Repeated Sampling Principle:** Inference is based on the performance of methods under hypothetical repeated sampling of the data.
-* Uses **Sampling Distributions**.
+* **Concept:** The parameter $\theta$ is a **fixed, unknown constant**. The data $X$ are random.
+* **Repeated Sampling Principle:** Inference is based on the performance of methods (estimators) under hypothetical repeated sampling of the data.
+* **Sampling Distribution:** We analyze how the estimator $\hat{\theta}$ behaves over many different datasets generated from the same population.
+
+```{r}
+#| label: fig-sampling-dist
+#| fig-cap: "Frequentist Concept: The Sampling Distribution. The parameter theta is fixed (vertical line). The curve represents how the estimator (theta_hat) varies across many hypothetical samples."
+#| echo: false
+
+theta_true <- 5
+x_vals <- seq(2, 8, length.out = 200)
+y_vals <- dnorm(x_vals, mean = theta_true, sd = 0.8)
+df_freq <- data.frame(x = x_vals, y = y_vals)
+
+ggplot(df_freq, aes(x = x, y = y)) +
+  geom_line(color = "darkgreen", size = 1.2) +
+  geom_area(fill = "lightgreen", alpha = 0.4) +
+  geom_vline(xintercept = theta_true, color = "black", size = 1.2) +
+  annotate("text", x = theta_true, y = 0.1, label = "True Fixed Theta", hjust = -0.1) +
+  labs(title = "Sampling Distribution of an Estimator",
+       x = "Value of Estimator (Theta Hat)",
+       y = "Density") +
+  theme_minimal()
+```
+
+### Bayesian Inference
+
+In the Bayesian framework, we treat the parameter $\theta$ as a **random variable** representing our knowledge/uncertainty.
+
+1.  **Prior:** We assign a prior distribution $\pi(\theta)$ reflecting beliefs before seeing data.
+2.  **Data Model:** We have the likelihood $f(x_1, \ldots, x_n|\theta)$.
+3.  **Posterior:** We compute the posterior distribution using Bayes' theorem:
+    $$f(\theta|x_1, \ldots, x_n) = \frac{\pi(\theta)f(x_1, \ldots, x_n|\theta)}{\int \pi(\theta)f(x_1, \ldots, x_n|\theta) d\theta}$$
+
+In this framework, inference is based entirely on the **Posterior Distribution**, which combines the Prior and the Likelihood.
+
+```{r}
+#| label: fig-posterior
+#| fig-cap: "Bayesian Concept: Updating Beliefs. The Prior (dashed) is updated by the Data (Likelihood) to form the Posterior (solid). Theta is treated as a random variable."
+#| echo: false
+
+theta_grid <- seq(0, 1, length.out = 200)
+# Prior: Beta(2, 2) - somewhat vague peak at 0.5
+prior <- dbeta(theta_grid, 2, 2)
+# Likelihood (scaled for visual comparison): based on e.g., 8 heads, 2 tails -> Beta(9, 3) roughly
+posterior <- dbeta(theta_grid, 10, 4)
+
+df_bayes <- data.frame(
+  Theta = rep(theta_grid, 2),
+  Density = c(prior, posterior),
+  Type = rep(c("Prior", "Posterior"), each = 200)
+)
+
+ggplot(df_bayes, aes(x = Theta, y = Density, color = Type, linetype = Type)) +
+  geom_line(size = 1.2) +
+  scale_color_manual(values = c("Posterior" = "blue", "Prior" = "gray")) +
+  scale_linetype_manual(values = c("Posterior" = "solid", "Prior" = "dashed")) +
+  labs(title = "Bayesian Updating: Prior vs Posterior",
+       x = "Parameter Theta (Probability)",
+       y = "Density") +
+  theme_minimal()
+```
+4.**Bayesian Prediction**
+The predictive density for a new observation $x_{n+1}$ is obtained by integrating over the posterior:
+$$f(x_{n+1}|x) = \int f(x_{n+1}|\theta) \pi(\theta|x) d\theta$$
+
+
+
