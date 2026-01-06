@@ -1,7 +1,10 @@
 ---
 title: "Introduction to Statistical Inference"
-format: html
+format: 
+  html: default
+  pdf: default
 ---
+
 
 ```{r}
 #| label: global-setup
@@ -65,7 +68,6 @@ There is a fundamental distinction between probability and statistics regarding 
 ```{r}
 #| label: fig-prob-vs-stat-base
 #| fig-cap: "Probability vs Statistics. Left: Probability—The model is fixed (Blue center/contours), generating random data. Right: Statistics—Data is fixed (Black points); we test two hypothesized models: H1 (Green) centered at the sample mean (Good Fit) and H2 (Red) shifted by (1.5, 1.5) (Bad Fit)."
-#| echo: false
 #| fig-width: 10
 #| fig-height: 5
 
@@ -200,19 +202,19 @@ The bridge between probability and statistics is the Likelihood Function.
 Let $f(x_1, \dots, x_n; \theta)$ be the joint probability density (or mass) function of the data given the parameter $\theta$. When we view this function as a function of $\theta$ for fixed observed data $x_1, \dots, x_n$, we call it the **likelihood function**, denoted $L(\theta)$.
 $$L(\theta) = f(x_1, \dots, x_n; \theta)$$
 :::
-#### Example: Lady Tasting Tea {.unnumbered}
+
+### Example: Lady Tasting Tea {.unnumbered}
 
 For our Tea Tasting data, the likelihood is proportional to the Binomial probability:
 $$L(\theta) = \binom{n}{k} \theta^k (1-\theta)^{n-k}$$
 
 ::: {.panel-tabset}
 
-#### n=`r n_small` (k=`r k_small`)
+### n=`r n_small` (k=`r k_small`)
 Here, $L(\theta) = \binom{`r n_small`}{`r k_small`} \theta^{`r k_small`} (1-\theta)^{`r n_small-k_small`}$.
 
 ```{r}
 #| label: lik-table-small
-#| echo: false
 # Calculate values for table
 theta_pts <- c(0, 0.2, 0.4, 0.6, 0.7, 0.8, 1.0)
 lik_pts <- choose(n_small, k_small) * theta_pts^k_small * (1-theta_pts)^(n_small-k_small)
@@ -231,7 +233,6 @@ lik_pts <- choose(n_small, k_small) * theta_pts^k_small * (1-theta_pts)^(n_small
 ```{r}
 #| label: fig-likelihood-tea-small
 #| fig-cap: !expr paste("Likelihood Function (n=", n_small, ")")
-#| echo: true
 
 likelihood_fun <- function(theta) { choose(n_small, k_small) * theta^k_small * (1 - theta)^(n_small-k_small) }
 theta_vals <- seq(0, 1, length.out = 200)
@@ -271,7 +272,7 @@ lik_pts_l <- choose(n_large, k_large) * theta_pts^k_large * (1-theta_pts)^(n_lar
 ```{r}
 #| label: fig-likelihood-tea-large
 #| fig-cap: !expr paste("Likelihood Function (n=", n_large, ")")
-#| echo: true
+
 
 likelihood_fun <- function(theta) { choose(n_large, k_large) * theta^k_large * (1 - theta)^(n_large-k_large) }
 theta_vals <- seq(0, 1, length.out = 200)
@@ -315,7 +316,7 @@ We calculate the P-value: Probability of observing $\ge `r k_small`$ correct out
 ```{r}
 #| label: fig-freq-sampling-tea-small
 #| fig-cap: !expr paste("Sampling Distribution (n=", n_small, ")")
-#| echo: true
+#| 
 true_theta <- 0.5; 
 k_vals <- 0:n_small
 probs <- dbinom(k_vals, size=n_small, prob=true_theta)
@@ -347,7 +348,7 @@ With a larger sample size, the same proportion (0.7) provides **stronger evidenc
 ```{r}
 #| label: fig-freq-sampling-tea-large
 #| fig-cap: !expr paste("Sampling Distribution (n=", n_large, ")")
-#| echo: true
+#| 
 true_theta <- 0.5; 
 k_vals <- 0:n_large
 probs <- dbinom(k_vals, size=n_large, prob=true_theta)
@@ -398,7 +399,7 @@ Posterior: $\text{Beta}(1+`r k_small`, 1+`r n_small-k_small`) = \text{Beta}(`r 1
 ```{r}
 #| label: fig-bayes-tea-small
 #| fig-cap: !expr paste("Bayesian Update (n=", n_small, ")")
-#| echo: true
+#| 
 theta_grid <- seq(0, 1, length.out = 200)
 posterior <- dbeta(theta_grid, 1+k_small, 1+(n_small-k_small))
 prior <- dbeta(theta_grid, 1, 1)
@@ -429,7 +430,7 @@ Posterior: $\text{Beta}(1+`r k_large`, 1+`r n_large-k_large`) = \text{Beta}(`r 1
 ```{r}
 #| label: fig-bayes-tea-large
 #| fig-cap: !expr paste("Bayesian Update (n=", n_large, ")")
-#| echo: true
+#| 
 theta_grid <- seq(0, 1, length.out = 200)
 posterior <- dbeta(theta_grid, 1+k_large, 1+(n_large-k_large))
 prior <- dbeta(theta_grid, 1, 1)
