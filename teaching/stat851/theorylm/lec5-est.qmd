@@ -1,7 +1,9 @@
 ---
-title: "Point Estimation in Multiple Linear Regression"
-format: html
+format: 
+  html:
+    code-fold: false
 ---
+# Point Estimation in Multiple Linear Regression
 
 ## Linear Models and Least Square Estimator
 
@@ -862,16 +864,14 @@ $$ \text{Var}(\hat{\beta}_1) - \text{Var}(\hat{\beta}_1^*) = \sigma^2 A B^{-1} A
 
 
 
-## A Data Example with House Price Valuation 
+## A Data Example with House Price Valuation
 
+A real estate agency wants to refine their pricing model. They regress the selling price of houses ($y$) on five predictors ($X$): Size, Age, Bedrooms, Garage Capacity, and Lawn Size.
 
-
-A real estate agency wants to refine their pricing model. They regress the selling price of houses ($y$) on four predictors ($X$): Size, Age, Bedrooms, and Garage Capacity.
-
-We assume the data has been collected and saved to `house_prices_4pred.csv`.
+We assume the data has been collected and saved to `house_prices_5pred.csv`.
 
 ```{r}
-#| label: generate-housing-data-4p
+#| label: generate-housing-data-5p
 #| echo: false
 
 # Hidden data generation
@@ -881,20 +881,23 @@ size <- round(runif(n, 1000, 3500), 0)
 age <- round(runif(n, 0, 60), 0)          
 beds <- sample(2:5, n, replace = TRUE)    
 garage <- sample(0:3, n, replace = TRUE)  
+lawn <- round(runif(n, 50, 1000), 0) # Irrelevant predictor
 
-# True model
+# True model (Lawn is NOT included here)
+# Sigma increased from 10,000 to 50,000
 price <- round(30000 + 140 * size - 800 * age + 
-               15000 * beds + 10000 * garage + rnorm(n, 0, 10000), 0)
+               15000 * beds + 10000 * garage + rnorm(n, 0, 50000), 0)
 
 housing_data <- data.frame(
   Price = price,
   Size = size,
   Age = age,
   Beds = beds,
-  Garage = garage
+  Garage = garage,
+  Lawn = lawn
 )
 
-write.csv(housing_data, "house_prices_4pred.csv", row.names = FALSE)
+write.csv(housing_data, "house_prices_5pred.csv", row.names = FALSE)
 ```
 
 ### Visualize the Data
@@ -906,7 +909,7 @@ First, we load the dataset. We display the first 10 rows for PDF output, or a fu
 #| message: false
 
 # Load data
-df <- read.csv("house_prices_4pred.csv")
+df <- read.csv("house_prices_5pred.csv")
 
 # Conditional display
 if (knitr::is_html_output()) {
@@ -928,8 +931,9 @@ This method solves the normal equations directly on the raw data: $\hat{\beta} =
 
 # 1. Define y and X (add column of 1s for intercept)
 y <- as.matrix(df$Price)
+# Note: "Lawn" is included here, even though it is irrelevant
 X_naive <- as.matrix(cbind(Intercept = 1, 
-                           df[, c("Size", "Age", "Beds", "Garage")]))
+                           df[, c("Size", "Age", "Beds", "Garage", "Lawn")]))
 
 # 2. Solve Beta
 XtX <- t(X_naive) %*% X_naive
@@ -953,7 +957,7 @@ Formula: $\hat{\beta}_{slope} = (X_c^{\prime}X_c)^{-1}X_c^{\prime}y_c$. The inte
 
 # 1. Center the data
 y_bar <- mean(y)
-X_raw <- as.matrix(df[, c("Size", "Age", "Beds", "Garage")])
+X_raw <- as.matrix(df[, c("Size", "Age", "Beds", "Garage", "Lawn")])
 X_means <- colMeans(X_raw)
 
 y_c <- y - y_bar
