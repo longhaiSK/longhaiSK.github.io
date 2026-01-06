@@ -100,47 +100,6 @@ $$
 
 :::
 
-### Estimation Example
-
-::: {#exm-7-3-1a name="Computation of $\hat \beta$"}
-We use the data in @tbl-7-1 to illustrate the computation of $\hat{\beta}$ using the normal equations.
-
-Given the data matrices, we compute the cross-product matrices:
-
-$$
-X^{\prime}X = \begin{pmatrix}
-12 & 52 & 102\\
-52 & 395 & 536\\
-102 & 536 & 1004
-\end{pmatrix}
-$$
-
-$$
-X^{\prime}y = \begin{pmatrix}
-90\\
-482\\
-872
-\end{pmatrix}
-$$
-
-The inverse of the cross-product matrix is:
-$$
-(X^{\prime}X)^{-1} = \begin{pmatrix}
-.97476 & .24290 & -.22871\\
-.24290 & .16207 & -.11120\\
--.22871 & -.11120 & .08360
-\end{pmatrix}
-$$
-
-Solving for the estimator:
-$$
-\hat{\beta} = (X^{\prime}X)^{-1}X^{\prime}y = \begin{pmatrix}
-5.3754\\
-3.0118\\
--1.2855
-\end{pmatrix}
-$$
-:::
 
 ### Properties of the Estimator
 
@@ -901,3 +860,267 @@ $$ \text{Var}(\hat{\beta}_1) - \text{Var}(\hat{\beta}_1^*) = \sigma^2 A B^{-1} A
 1.  **Underfitting:** Reduces variance but introduces bias (unless variables are orthogonal).
 2.  **Overfitting:** Keeps estimators unbiased but increases variance.
 
+
+
+## A Data Example with House Price Valuation 
+
+
+
+A real estate agency wants to refine their pricing model. They regress the selling price of houses ($y$) on four predictors ($X$): Size, Age, Bedrooms, and Garage Capacity.
+
+We assume the data has been collected and saved to `house_prices_4pred.csv`.
+
+```{r}
+#| label: generate-housing-data-4p
+#| echo: false
+
+# Hidden data generation
+set.seed(2024)
+n <- 25
+size <- round(runif(n, 1000, 3500), 0)    
+age <- round(runif(n, 0, 60), 0)          
+beds <- sample(2:5, n, replace = TRUE)    
+garage <- sample(0:3, n, replace = TRUE)  
+
+# True model
+price <- round(30000 + 140 * size - 800 * age + 
+               15000 * beds + 10000 * garage + rnorm(n, 0, 10000), 0)
+
+housing_data <- data.frame(
+  Price = price,
+  Size = size,
+  Age = age,
+  Beds = beds,
+  Garage = garage
+)
+
+write.csv(housing_data, "house_prices_4pred.csv", row.names = FALSE)
+```
+
+### Visualize the Data
+
+First, we load the dataset. We display the first 10 rows for PDF output, or a full paged table for HTML.
+
+```{r}
+#| label: load-and-visualize
+#| message: false
+
+# Load data
+df <- read.csv("house_prices_4pred.csv")
+
+# Conditional display
+if (knitr::is_html_output()) {
+  rmarkdown::paged_table(df)
+} else {
+  knitr::kable(head(df, 10), caption = "First 10 rows of House Prices")
+}
+```
+
+### Fit the Model
+
+We will solve for the coefficients $\hat{\beta}$ and fitted values $\hat{y}$ using three distinct methods.
+
+#### Method 1: Naive Matrix Formula
+This method solves the normal equations directly on the raw data: $\hat{\beta} = (X^{\prime}X)^{-1}X^{\prime}y$.
+
+```{r}
+#| label: method-1-naive
+
+# 1. Define y and X (add column of 1s for intercept)
+y <- as.matrix(df$Price)
+X_naive <- as.matrix(cbind(Intercept = 1, 
+                           df[, c("Size", "Age", "Beds", "Garage")]))
+
+# 2. Solve Beta
+XtX <- t(X_naive) %*% X_naive
+Xty <- t(X_naive) %*% y
+beta_naive <- solve(XtX) %*% Xty
+
+# 3. Calculate y_hat
+y_hat_naive <- X_naive %*% beta_naive
+
+# Display
+print(t(beta_naive))
+print(head(y_hat_naive, 10))
+```
+
+#### Method 2: Centralized Formula
+This method reduces multicollinearity issues and computational errors by centering the data first.
+Formula: $\hat{\beta}_{slope} = (X_c^{\prime}X_c)^{-1}X_c^{\prime}y_c$. The intercept is calculated separately: $\beta_0 = \bar{y} - \bar{x}^{\prime}\hat{\beta}_{slope}$.
+
+```{r}
+#| label: method-2-centralized
+
+# 1. Center the data
+y_bar <- mean(y)
+X_raw <- as.matrix(df[, c("Size", "Age", "Beds", "Garage")])
+X_means <- colMeans(X_raw)
+
+y_c <- y - y_bar
+X_c <- sweep(X_raw, 2, X_means) # Subtract column means from X
+
+# 2. Solve for slope coefficients (no intercept column in X_c)
+beta_slope <- solve(t(X_c) %*% X_c) %*% t(X_c) %*% y_c
+
+# 3. Recover Intercept
+beta_0 <- y_bar - sum(X_means * beta_slope)
+
+# Combine for full beta vector
+beta_central <- rbind(Intercept = beta_0, beta_slope)
+
+# 4. Calculate y_hat using the original X and reconstructed betas
+X_full <- cbind(1, X_raw)
+y_hat_central <- X_full %*% beta_central
+
+# Display
+print(t(beta_central))
+print(head(y_hat_central, 10))
+```
+
+#### Method 3: Using R's `lm` Function
+This is the standard approach for practitioners.
+
+```{r}
+#| label: method-3-lm
+
+# Fit model
+model_lm <- lm(Price ~ ., data = df)
+
+# Extract coefficients and fitted values
+beta_lm <- coef(model_lm)
+y_hat_lm <- fitted(model_lm)
+
+# Display
+print(beta_lm)
+print(head(y_hat_lm, 10))
+```
+
+#### Visualization of Fitted Values vs Mean
+
+We define $\hat{y}_0$ as the vector of the mean of $y$ ($\bar{y}$). We plot the actual $y$ against our fitted model $\hat{y}$, using a green line to represent the "Null Model" ($\hat{y}_0$).
+
+*Note: Axes have been set so that X = Predicted Value and Y = Actual Value.*
+
+```{r}
+#| label: plot-y-vs-yhat
+
+# Define y_hat_0 (The Null Model) - for conceptual clarity
+y_hat_0 <- rep(mean(y), length(y))
+
+# Scatterplot (Axes reversed: x=fitted, y=actual)
+plot(y_hat_lm, y,
+     main = "Actual vs Fitted Prices",
+     xlab = "Fitted Price (y_hat)",
+     ylab = "Actual Price (y)",
+     pch = 19, col = "blue")
+
+# Add 1:1 line (Perfect fit area, remains y=x)
+abline(0, 1, col = "gray", lty = 2)
+
+# Add Mean line representing the null model
+# Since y-axis is 'actual y', a horizontal line at mean(y) represents y_bar
+abline(h = mean(y), col = "green", lwd = 2)
+
+legend("topleft", legend = c("Data", "Mean (y_bar)"),
+       col = c("blue", "green"), pch = c(19, NA), lty = c(NA, 1))
+```
+
+### Computing Sums of Squares (SSE, SST, SSR)
+
+We compare different methods to calculate the sources of variation.
+
+#### 1. Naive Sum of Squared Errors
+This uses the standard summation definitions: $\sum (Difference)^2$.
+
+* **SST (Total):** Variation of $y$ around $\hat{y}_0$ (Mean).
+* **SSR (Regression):** Variation of $\hat{y}$ around $\hat{y}_0$ (Mean).
+* **SSE (Error):** Variation of $y$ around $\hat{y}$ (Model).
+
+```{r}
+#| label: ss-naive
+
+# Vectors
+y_vec <- as.vector(y)
+y_hat <- as.vector(y_hat_lm)
+y_bar_vec <- rep(mean(y), length(y))
+
+# Calculations
+SST_naive <- sum((y_vec - y_bar_vec)^2)
+SSR_naive <- sum((y_hat - y_bar_vec)^2)
+SSE_naive <- sum((y_vec - y_hat)^2)
+
+cat("Naive Calculation:\n")
+cat("SST:", SST_naive, " SSR:", SSR_naive, " SSE:", SSE_naive, "\n")
+```
+
+#### 2. Pythagorean Shortcut (Vector Lengths)
+Based on the geometry of least squares, we can treat the variables as vectors. Because the vectors are orthogonal, we can use squared lengths (dot products with themselves).
+
+Formula: $SSR = ||\hat{y}||^2 - ||\hat{y}_0||^2$
+
+```{r}
+#| label: ss-pythagorean
+
+# Function for squared Euclidean norm (length squared)
+len_sq <- function(v) sum(v^2)
+
+# SST = ||y||^2 - ||y_0||^2
+SST_pyth <- len_sq(y_vec) - len_sq(y_bar_vec)
+
+# SSR = ||y_hat||^2 - ||y_0||^2
+SSR_pyth <- len_sq(y_hat) - len_sq(y_bar_vec)
+
+# SSE = ||y||^2 - ||y_hat||^2
+SSE_pyth <- len_sq(y_vec) - len_sq(y_hat)
+
+cat("Pythagorean Calculation:\n")
+cat("SST:", SST_pyth, " SSR:", SSR_pyth, " SSE:", SSE_pyth, "\n")
+```
+
+#### Matrix Algebra Shortcuts
+
+These formulas use the $\beta$ and $X$ matrices directly. This is computationally efficient for large datasets.
+
+* Formula A (Centered with $y_c$): $SSR = \hat{\beta}_c^{\prime} X_c^{\prime} y_c$
+* Formula B (Alternative with $y$): $SSR = \hat{\beta}_c^{\prime} X_c^{\prime} y$
+* Formula C (Uncentered): $SSR = \hat{\beta}^{\prime} X^{\prime} y - n\bar{y}^2$
+
+```{r}
+#| label: ss-matrix-equivalence
+
+n <- length(y)
+term_correction <- n * mean(y)^2 
+
+# --- SSR Calculations ---
+
+# 1. SSR Formula A (Centered, using y_c)
+SSR_centered_yc <- t(beta_slope) %*% t(X_c) %*% y_c
+
+# 2. SSR Formula A (Alternative, using raw y)
+# Since X_c is centered, X_c' * 1 = 0, so X_c'y_c is equivalent to X_c'y
+SSR_centered_y <- t(beta_slope) %*% t(X_c) %*% y
+
+# 3. SSR Formula B (Uncentered Matrix)
+# beta_naive includes intercept, X_naive includes column of 1s
+term_beta_X_y <- t(beta_naive) %*% t(X_naive) %*% y
+SSR_uncentered <- term_beta_X_y - term_correction
+
+# --- Equivalence Check Table ---
+
+results_table <- data.frame(
+  Metric = c("SSR (Centered $X_c,y_c$)", 
+             "SSR (Centered $X_c$)", 
+             "SSR (Uncentered)"),
+  Formula = c("$\\hat{\\beta}_c' X_c' y_c$", 
+              "$\\hat{\\beta}_c' X_c' y$", 
+              "$\\hat{\\beta}' X' y - n\\bar{y}^2$"),
+  Value = c(as.numeric(SSR_centered_yc), 
+            as.numeric(SSR_centered_y), 
+            as.numeric(SSR_uncentered))
+)
+
+# Render the table
+knitr::kable(results_table, 
+             digits = 4, 
+             caption = "Demonstration of SSR Formula Equivalence")
+```
