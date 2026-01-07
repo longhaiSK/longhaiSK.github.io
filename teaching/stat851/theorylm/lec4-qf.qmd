@@ -1102,14 +1102,96 @@ Let $y \sim N_n(\mu, \sigma^2 I)$ and $y'y = \sum y'A_iy$. The quadratic forms $
 * $n = \sum r_i$.
 :::
 
-## Non-central F, t, and Beta distributions
 
-::: {#def-f-t-beta name="F, t, and Beta Distributions"}
 
-1. **F-Distribution:** If $U_1 \sim \chi^2(n_1, \lambda)$ and $U_2 \sim \chi^2(n_2)$ are independent, then $V = \frac{U_1/n_1}{U_2/n_2}$ follows a non-central F distribution.
-2. **t-Distribution:** If $W \sim N(\delta, 1)$ and $Y \sim \chi^2(m)$ are independent, then $T = \frac{W}{\sqrt{Y/m}}$ follows a non-central t distribution $t(m, \delta)$.
-3. **Beta-Distribution:** If $U_1 \sim \chi^2(n_1, \lambda)$ and $U_2 \sim \chi^2(n_2)$ are independent, then $B = \frac{U_1}{U_1 + U_2}$ follows a non-central Beta distribution with parameters $n_1/2, n_2/2$ and non-centrality $\lambda$.
+## The Distributions Constructed with Non-Central $\chi^2$
+
+In statistical power analysis and the study of OLS estimators under the alternative hypothesis, we transition from central distributions to non-central versions. These distributions are characterized by a non-centrality parameter $\lambda$.
+
+### The Non-Central F-Distribution
+
+::: {#def-noncentral-f}
+### Non-central F
+If $U_1 \sim \chi^2(n_1, \lambda)$ and $U_2 \sim \chi^2(n_2)$ are independent, then $V$ follows a **non-central F-distribution** $F(n_1, n_2, \lambda)$, defined as:
+
+$$V = \frac{U_1/n_1}{U_2/n_2}$$
 :::
+
+The PDF and CDF are weighted sums of central F-distributions:
+
+$$f_V(v) = \sum_{j=0}^{\infty} \frac{e^{-\lambda/2}(\lambda/2)^j}{j!} f_{F}\left(v; n_1+2j, n_2\right)$$
+
+$$F_V(v) = \sum_{j=0}^{\infty} \frac{e^{-\lambda/2}(\lambda/2)^j}{j!} F_{F}\left(v; n_1+2j, n_2\right)$$
+
+The mean of $V$ (for $n_2 > 2$) is:
+
+$$E[V] = \frac{n_2(n_1 + \lambda)}{n_1(n_2 - 2)}$$
+
+---
+
+### Type I Non-Central Beta Distribution ($R^2$)
+
+::: {#def-noncentral-beta1}
+### Type I Non-central Beta
+If $U_1 \sim \chi^2(n_1, \lambda)$ and $U_2 \sim \chi^2(n_2)$ are independent, then $B_I$ follows a **Type I non-central Beta distribution** $Beta_I(\alpha, \beta, \lambda)$, where $\alpha = n_1/2$ and $\beta = n_2/2$, defined as:
+
+$$B_I = \frac{U_1}{U_1 + U_2}$$
+:::
+
+
+
+This distribution describes the behavior of the coefficient of determination ($R^2$) under the alternative hypothesis:
+
+$$f_{B_I}(x) = \sum_{j=0}^{\infty} \frac{e^{-\lambda/2}(\lambda/2)^j}{j!} f_{Beta}(x; \alpha+j, \beta)$$
+
+$$F_{B_I}(x) = \sum_{j=0}^{\infty} \frac{e^{-\lambda/2}(\lambda/2)^j}{j!} F_{Beta}(x; \alpha+j, \beta)$$
+
+The mean of $B_I$ is:
+
+$$E[B_I] = \sum_{j=0}^{\infty} \frac{e^{-\lambda/2}(\lambda/2)^j}{j!} \frac{\alpha + j}{\alpha + \beta + j}$$
+
+---
+
+### Type II Non-Central Beta Distribution ($SSE/SST$)
+
+::: {#def-noncentral-beta2}
+### Type II Non-central Beta
+If $U_1 \sim \chi^2(n_1, \lambda)$ and $U_2 \sim \chi^2(n_2)$ are independent, then $B_{II}$ follows a **Type II non-central Beta distribution** $Beta_{II}(\alpha, \beta, \lambda)$, defined as:
+
+$$B_{II} = \frac{U_2}{U_1 + U_2}$$
+:::
+
+For the Type II distribution (representing the proportion of unexplained variance $SSE/SST$), the non-centrality affects the second shape parameter:
+
+$$f_{B_{II}}(x) = \sum_{j=0}^{\infty} \frac{e^{-\lambda/2}(\lambda/2)^j}{j!} f_{Beta}(x; \beta, \alpha+j)$$
+
+$$F_{B_{II}}(x) = \sum_{j=0}^{\infty} \frac{e^{-\lambda/2}(\lambda/2)^j}{j!} F_{Beta}(x; \beta, \alpha+j)$$
+
+The mean of $B_{II}$ is:
+
+$$E[B_{II}] = \sum_{j=0}^{\infty} \frac{e^{-\lambda/2}(\lambda/2)^j}{j!} \frac{\beta}{\alpha + \beta + j}$$
+
+---
+
+### Scaled Type II Beta ($MSE/MST$)
+
+::: {#def-scaled-beta}
+### Scaled Type II Beta
+The ratio of mean squares $S = MSE/MST$ is a **scaled Type II beta variable**, defined as:
+
+$$S = \frac{U_2/n_2}{U_1/n_1}$$
+:::
+
+The density and distribution functions are:
+
+$$f_S(s) = \sum_{j=0}^{\infty} \frac{e^{-\lambda/2}(\lambda/2)^j}{j!} f_{\text{Inv-F}}(s; n_2, n_1+2j)$$
+
+$$F_S(s) = 1 - F_V(1/s)$$
+
+The mean of $S$ (for $n_1 > 2$) is:
+
+$$E[S] = \sum_{j=0}^{\infty} \frac{e^{-\lambda/2}(\lambda/2)^j}{j!} \frac{n_1}{n_1 + 2j - 2}$$
+
 
 ## Example: Inference of the mean of normal sample
 
