@@ -1102,97 +1102,249 @@ Let $y \sim N_n(\mu, \sigma^2 I)$ and $y'y = \sum y'A_iy$. The quadratic forms $
 * $n = \sum r_i$.
 :::
 
+## Non-Central Distributions Derived from $\chi^2$
 
+Suppose $X_1 \sim \chi^2(n_1, \lambda)$ is a non-central chi-squared random variable representing the **Signal**, and $X_2 \sim \chi^2(n_2)$ is a central chi-squared random variable representing the **Noise**. We assume $X_1$ and $X_2$ are independent.
 
-## The Distributions Constructed with Non-Central $\chi^2$
+The additive relationship between these independent components and the Total Sum of Squares is displayed in @fig-variance-partition.
 
-In statistical power analysis and the study of OLS estimators under the alternative hypothesis, we transition from central distributions to non-central versions. These distributions are characterized by a non-centrality parameter $\lambda$.
+```{r}
+#| label: fig-variance-partition
+#| fig-cap: "Partitioning of Total Variation into Independent Signal and Noise Components."
+#| echo: false
+#| fig-width: 8
+#| fig-height: 3
+#| warning: false
 
-### The Non-Central F-Distribution
+library(ggplot2)
+
+# Define segment coordinates
+x_start <- 0
+x_break <- 5
+x_end   <- 12
+
+ggplot() +
+  # --- 1. Main Line Segments ---
+  # Signal Segment (Blue)
+  geom_segment(aes(x = x_start, xend = x_break, y = 0, yend = 0), 
+               color = "darkblue", linewidth = 2) +
+  # Noise Segment (Red)
+  geom_segment(aes(x = x_break, xend = x_end, y = 0, yend = 0), 
+               color = "darkred", linewidth = 2) +
+  
+  # --- 2. Vertical Ticks ---
+  geom_segment(aes(x = c(x_start, x_break, x_end), 
+                   xend = c(x_start, x_break, x_end),
+                   y = -0.2, yend = 0.2), 
+               color = "black", linewidth = 1) +
+
+  # --- 3. Labels Above (X1, X2) ---
+  annotate("text", x = (x_start + x_break)/2, y = 0.5, 
+           label = "X[1] ~ (Signal)", parse = TRUE, 
+           color = "darkblue", fontface = "bold", size = 5) +
+  annotate("text", x = (x_break + x_end)/2, y = 0.5, 
+           label = "X[2] ~ (Noise)", parse = TRUE, 
+           color = "darkred", fontface = "bold", size = 5) +
+
+  # --- 4. Distribution Brackets (Level 1) ---
+  # Blue Bracket (Manual construction for portability)
+  geom_segment(aes(x = x_start, xend = x_break, y = -0.5, yend = -0.5), color = "darkblue") +
+  geom_segment(aes(x = x_start, xend = x_start, y = -0.5, yend = -0.3), color = "darkblue") +
+  geom_segment(aes(x = x_break, xend = x_break, y = -0.5, yend = -0.3), color = "darkblue") +
+  annotate("text", x = (x_start + x_break)/2, y = -0.9, 
+           label = "chi^2(n[1], lambda)", parse = TRUE, color = "darkblue", size = 4) +
+
+  # Red Bracket
+  geom_segment(aes(x = x_break, xend = x_end, y = -0.5, yend = -0.5), color = "darkred") +
+  geom_segment(aes(x = x_break, xend = x_break, y = -0.5, yend = -0.3), color = "darkred") +
+  geom_segment(aes(x = x_end, xend = x_end, y = -0.5, yend = -0.3), color = "darkred") +
+  annotate("text", x = (x_break + x_end)/2, y = -0.9, 
+           label = "chi^2(n[2])", parse = TRUE, color = "darkred", size = 4) +
+
+  # --- 5. Total Sum Bracket (Level 2) ---
+  geom_segment(aes(x = x_start, xend = x_end, y = -1.6, yend = -1.6), color = "black", linewidth = 0.8) +
+  geom_segment(aes(x = x_start, xend = x_start, y = -1.6, yend = -1.4), color = "black", linewidth = 0.8) +
+  geom_segment(aes(x = x_end, xend = x_end, y = -1.6, yend = -1.4), color = "black", linewidth = 0.8) +
+  annotate("text", x = (x_start + x_end)/2, y = -2.1, 
+           label = "Total ~ Sum == X[1] + X[2]", parse = TRUE, 
+           fontface = "bold", size = 5) +
+
+  # --- Cleanup ---
+  theme_void() +
+  coord_fixed(ratio = 1) +
+  ylim(-2.5, 1) +
+  xlim(-0.5, 12.5)
+```
+
+Using $X_1$ and $X_2$, we define the four primary non-central distributions below.
+
+### 1. The Non-Central F-Distribution
+
+The Non-central F-distribution arises when we compare the normalized magnitude of the signal to the normalized magnitude of the noise. It is the fundamental distribution for power analysis in ANOVA and regression, testing if the signal density is significantly larger than the noise density.
 
 ::: {#def-noncentral-f}
 ### Non-central F
-If $U_1 \sim \chi^2(n_1, \lambda)$ and $U_2 \sim \chi^2(n_2)$ are independent, then $V$ follows a **non-central F-distribution** $F(n_1, n_2, \lambda)$, defined as:
-
-$$V = \frac{U_1/n_1}{U_2/n_2}$$
+The random variable $V$ follows a **non-central F-distribution** $F(n_1, n_2, \lambda)$ defined as:
+$$V = \frac{X_1/n_1}{X_2/n_2}$$
 :::
 
-The PDF and CDF are weighted sums of central F-distributions:
+The probability density function is expressed as a weighted sum of central F densities, where the weights are Poisson probabilities. This structure reflects the stochastic nature of the non-centrality parameter $\lambda$.
 
 $$f_V(v) = \sum_{j=0}^{\infty} \frac{e^{-\lambda/2}(\lambda/2)^j}{j!} f_{F}\left(v; n_1+2j, n_2\right)$$
 
-$$F_V(v) = \sum_{j=0}^{\infty} \frac{e^{-\lambda/2}(\lambda/2)^j}{j!} F_{F}\left(v; n_1+2j, n_2\right)$$
+* **Exact Mean** (for $n_2 > 2$):
+    $$E[V] = \frac{n_2(n_1 + \lambda)}{n_1(n_2 - 2)}$$
+* **Approximate Mean:**
+    $$E[V] \approx 1 + \frac{\lambda}{n_1}$$
 
-The mean of $V$ (for $n_2 > 2$) is:
+```{r}
+#| label: fig-nc-f
+#| echo: false
+#| fig-height: 4
+#| fig-cap: "Densities of Non-Central F (n1=5, n2=20)"
 
-$$E[V] = \frac{n_2(n_1 + \lambda)}{n_1(n_2 - 2)}$$
+x_f <- seq(0, 5, length.out = 300)
+df_list <- lapply(c(0, 5, 10), function(l) {
+  data.frame(x = x_f, y = df(x_f, 5, 20, ncp = l), lambda = as.factor(l))
+})
+plot_data <- do.call(rbind, df_list)
 
----
+ggplot(plot_data, aes(x, y, color = lambda)) + geom_line(size=1) +
+  labs(title="Non-central F-Distribution", y="Density") + theme_minimal()
+```
 
-### Type I Non-Central Beta Distribution ($R^2$)
+### 2. Type I Non-Central Beta Distribution
+
+The Type I Non-central Beta distribution models the ratio of the signal segment to the total stick length. In regression analysis, this statistic is the Coefficient of Determination ($R^2$). It measures the proportion of total variation explained by the model.
 
 ::: {#def-noncentral-beta1}
 ### Type I Non-central Beta
-If $U_1 \sim \chi^2(n_1, \lambda)$ and $U_2 \sim \chi^2(n_2)$ are independent, then $B_I$ follows a **Type I non-central Beta distribution** $Beta_I(\alpha, \beta, \lambda)$, where $\alpha = n_1/2$ and $\beta = n_2/2$, defined as:
-
-$$B_I = \frac{U_1}{U_1 + U_2}$$
+The random variable $B_I$ follows a **Type I non-central Beta distribution** $Beta_I(n_1/2, n_2/2, \lambda)$ defined as:
+$$B_I = \frac{X_1}{X_1 + X_2}$$
 :::
 
+The density is defined by a Poisson mixture of central Beta distributions. As $\lambda$ increases, the probability mass shifts towards 1, indicating a higher proportion of explained variance.
 
+$$f_{B_I}(x) = \sum_{j=0}^{\infty} \frac{e^{-\lambda/2}(\lambda/2)^j}{j!} f_{Beta}\left(x; \frac{n_1}{2}+j, \frac{n_2}{2}\right)$$
 
-This distribution describes the behavior of the coefficient of determination ($R^2$) under the alternative hypothesis:
+* **Exact Mean** (using $_1F_1$ confluent hypergeometric function):
+    $$E[B_I] = e^{-\lambda/2} \frac{n_1}{n_1+n_2} \,_1F_1\left(\frac{n_1}{2}+1; \frac{n_1+n_2}{2}+1; \frac{\lambda}{2}\right)$$
+* **Approximate Mean:**
+    $$E[B_I] \approx \frac{n_1 + \lambda}{n_1 + n_2 + \lambda}$$
 
-$$f_{B_I}(x) = \sum_{j=0}^{\infty} \frac{e^{-\lambda/2}(\lambda/2)^j}{j!} f_{Beta}(x; \alpha+j, \beta)$$
+```{r}
+#| label: fig-nc-beta1
+#| echo: false
+#| fig-height: 4
+#| fig-cap: "Densities of Type I Beta (R-squared)"
 
-$$F_{B_I}(x) = \sum_{j=0}^{\infty} \frac{e^{-\lambda/2}(\lambda/2)^j}{j!} F_{Beta}(x; \alpha+j, \beta)$$
+x_b <- seq(0, 1, length.out = 300)
+df_list <- lapply(c(0, 5, 10), function(l) {
+  data.frame(x = x_b, y = dbeta(x_b, 2.5, 10, ncp = l), lambda = as.factor(l))
+})
+plot_data <- do.call(rbind, df_list)
 
-The mean of $B_I$ is:
+ggplot(plot_data, aes(x, y, color = lambda)) + geom_line(size=1) +
+  labs(title="Type I Non-central Beta (R²)", y="Density") + theme_minimal()
+```
 
-$$E[B_I] = \sum_{j=0}^{\infty} \frac{e^{-\lambda/2}(\lambda/2)^j}{j!} \frac{\alpha + j}{\alpha + \beta + j}$$
+### 3. Type II Non-Central Beta Distribution
 
----
-
-### Type II Non-Central Beta Distribution ($SSE/SST$)
+The Type II Non-central Beta distribution models the complementary ratio: the proportion of the total stick length occupied by the noise ($X_2$). This corresponds to the ratio $SSE/SST$ in linear models.
 
 ::: {#def-noncentral-beta2}
 ### Type II Non-central Beta
-If $U_1 \sim \chi^2(n_1, \lambda)$ and $U_2 \sim \chi^2(n_2)$ are independent, then $B_{II}$ follows a **Type II non-central Beta distribution** $Beta_{II}(\alpha, \beta, \lambda)$, defined as:
-
-$$B_{II} = \frac{U_2}{U_1 + U_2}$$
+The random variable $B_{II}$ follows a **Type II non-central Beta distribution** defined as:
+$$B_{II} = \frac{X_2}{X_1 + X_2} = 1 - B_I$$
 :::
 
-For the Type II distribution (representing the proportion of unexplained variance $SSE/SST$), the non-centrality affects the second shape parameter:
+Here, the non-centrality parameter $\lambda$ affects the *second* shape parameter of the mixture components. As the signal ($\lambda$) gets stronger, the proportion of unexplained noise decreases, shifting the density mass towards 0.
 
-$$f_{B_{II}}(x) = \sum_{j=0}^{\infty} \frac{e^{-\lambda/2}(\lambda/2)^j}{j!} f_{Beta}(x; \beta, \alpha+j)$$
+$$f_{B_{II}}(x) = \sum_{j=0}^{\infty} \frac{e^{-\lambda/2}(\lambda/2)^j}{j!} f_{Beta}\left(x; \frac{n_2}{2}, \frac{n_1}{2}+j\right)$$
 
-$$F_{B_{II}}(x) = \sum_{j=0}^{\infty} \frac{e^{-\lambda/2}(\lambda/2)^j}{j!} F_{Beta}(x; \beta, \alpha+j)$$
+* **Exact Mean:**
+    $$E[B_{II}] = e^{-\lambda/2} \frac{n_2}{n_1+n_2} \,_1F_1\left(\frac{n_1}{2}; \frac{n_1+n_2}{2}+1; \frac{\lambda}{2}\right)$$
+* **Approximate Mean:**
+    $$E[B_{II}] \approx \frac{n_2}{n_1 + n_2 + \lambda}$$
 
-The mean of $B_{II}$ is:
+```{r}
+#| label: fig-nc-beta2
+#| echo: false
+#| fig-height: 4
+#| fig-cap: "Densities of Type II Beta (Unexplained Variance)"
 
-$$E[B_{II}] = \sum_{j=0}^{\infty} \frac{e^{-\lambda/2}(\lambda/2)^j}{j!} \frac{\beta}{\alpha + \beta + j}$$
+x_b <- seq(0, 1, length.out = 300)
+df_list <- lapply(c(0, 5, 10), function(l) {
+  data.frame(x = x_b, y = dbeta(1-x_b, 2.5, 10, ncp = l), lambda = as.factor(l))
+})
+plot_data <- do.call(rbind, df_list)
 
----
+ggplot(plot_data, aes(x, y, color = lambda)) + geom_line(size=1) +
+  labs(title="Type II Non-central Beta (SSE/SST)", y="Density") + theme_minimal()
+```
 
-### Scaled Type II Beta ($MSE/MST$)
+### 4. Scaled Type II Beta Distribution
+
+The ratio of Mean Square Error ($MSE$) to Mean Square Total ($MST$) is a rescaled version of the Type II Beta variable. It accounts for the degrees of freedom associated with the signal and noise segments, providing a direct metric for comparing error variance to total variance.
 
 ::: {#def-scaled-beta}
 ### Scaled Type II Beta
-The ratio of mean squares $S = MSE/MST$ is a **scaled Type II beta variable**, defined as:
-
-$$S = \frac{U_2/n_2}{U_1/n_1}$$
+The statistic $S = MSE/MST$ follows a **Scaled Type II Beta distribution** defined as:
+$$S = \frac{X_2/n_2}{(X_1+X_2)/(n_1+n_2)} = \left( \frac{n_1+n_2}{n_2} \right) B_{II}$$
 :::
 
-The density and distribution functions are:
+This variable is bounded by $[0, \frac{n_1+n_2}{n_2}]$ rather than $[0, 1]$. Its probability density function is derived by a linear transformation of the Type II Beta PDF.
 
-$$f_S(s) = \sum_{j=0}^{\infty} \frac{e^{-\lambda/2}(\lambda/2)^j}{j!} f_{\text{Inv-F}}(s; n_2, n_1+2j)$$
+$$f_S(s) = \frac{n_2}{n_1+n_2} f_{B_{II}}\left( s \cdot \frac{n_2}{n_1+n_2} \right)$$
 
-$$F_S(s) = 1 - F_V(1/s)$$
+* **Exact Mean:**
+    $$E[S] = \left( \frac{n_1+n_2}{n_2} \right) E[B_{II}]$$
+* **Approximate Mean:**
+    $$E[S] \approx \frac{n_1+n_2}{n_1+n_2+\lambda}$$
 
-The mean of $S$ (for $n_1 > 2$) is:
+```{r}
+#| label: fig-scaled-beta
+#| echo: false
+#| fig-height: 4
+#| fig-cap: "Densities of Scaled Type II Beta (MSE/MST)"
 
-$$E[S] = \sum_{j=0}^{\infty} \frac{e^{-\lambda/2}(\lambda/2)^j}{j!} \frac{n_1}{n_1 + 2j - 2}$$
+n1 <- 5; n2 <- 20
+scale_factor <- (n1 + n2) / n2
+x_s <- seq(0, scale_factor, length.out = 300)
 
+df_list <- lapply(c(0, 5, 10), function(l) {
+  # Map grid back to [0,1] for calculation
+  y_val <- (1/scale_factor) * dbeta(1 - (x_s/scale_factor), n1/2, n2/2, ncp = l)
+  y_val[x_s > scale_factor] <- 0
+  data.frame(x = x_s, y = y_val, lambda = as.factor(l))
+})
+plot_data <- do.call(rbind, df_list)
 
+ggplot(plot_data, aes(x, y, color = lambda)) + geom_line(size=1) +
+  labs(title="Scaled Type II Beta (MSE/MST)", y="Density") + theme_minimal()
+```
+
+## Application: Inference on the Mean of a Normal Sample
+
+Consider a random sample $y \sim N_n(\mu j_n, \sigma^2 I_n)$. We test the full model $M_1: \mu \neq \mu_0$ against the reduced model $M_0: \mu = \mu_0$.
+
+Let $y^* = y - \mu_0 j_n$. We partition the sums of squares as:
+
+1.  **Signal ($U_1$):** $SS_{\text{diff}} = n(\bar{Y} - \mu_0)^2$. Under $M_1$, $SS_{\text{diff}}/\sigma^2 \sim \chi^2(1, \lambda)$.
+2.  **Noise ($U_2$):** $SSE_1 = \sum (Y_i - \bar{Y})^2$. Under $M_1$, $SSE_1/\sigma^2 \sim \chi^2(n-1)$.
+    
+    *(Note: $n_1 = 1$ and $n_2 = n-1$)*.
+
+### Mapping Statistics to Distributions
+
+The standard test statistics used in this inference problem map directly to the distributions defined above.
+
+| Statistic | Formula | Distribution | Interpretation |
+| :--- | :--- | :--- | :--- |
+| **F-Statistic** | $F = \frac{SS_{\text{diff}}/1}{SSE_1/(n-1)}$ | **Non-central F** <br> $F(1, n-1, \lambda)$ | Ratio of Signal Variance to Noise Variance. |
+| **Beta Statistic** | $B = \frac{SS_{\text{diff}}}{SS_{\text{diff}} + SSE_1}$ | **Type I Beta** <br> $Beta_I(\frac{1}{2}, \frac{n-1}{2}, \lambda)$ | Proportion of total variation explained by the model ($R^2$). |
+| **Unexplained** | $1-B = \frac{SSE_1}{SS_{\text{diff}} + SSE_1}$ | **Type II Beta** <br> $Beta_{II}(\frac{1}{2}, \frac{n-1}{2}, \lambda)$ | Proportion of total variation remaining in the residuals. |
+| **Inverse F** | $S = \frac{1}{F} = \frac{S^2}{n(\bar{Y}-\mu_0)^2}$ | **Scaled Type II** | Ratio of Noise Variance to Signal Variance. |
 ## Example: Inference of the mean of normal sample
 
 Consider a random sample $y \sim N_n(\mu j_n, \sigma^2 I_n)$. We wish to test:
