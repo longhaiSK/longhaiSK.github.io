@@ -1103,26 +1103,23 @@ Let $y \sim N_n(\mu, \sigma^2 I)$ and $y'y = \sum y'A_iy$. The quadratic forms $
 :::
 
 
-
 ## Non-central Distributions Derived from Non-central $\chi^2$
 
 We begin by defining two independent Chi-squared random variables that form the building blocks for statistical power analysis.
 
-* **Non-central Component ($X_1$):** $X_1 \sim \chi^2(n_1, 2\lambda)$.
-  Here, we use the "natural" definition where $\lambda$ is **half the sum of squared means** (or signal energy). This simplifies density formulas into direct Poisson mixtures.
-  *(Note: R defines the non-centrality parameter as the full sum of squares, i.e., $2\lambda$.)*
+* **Non-central Component ($X_1$):** $X_1 \sim \chi^2(\text{df}_1, 2\lambda)$.
+  Here, we use the "natural" definition where $\lambda$ is **half the sum of squared means**.  *(Note: R uses the non-centrality parameter as the full sum of squares, i.e., $2\lambda$.)*
 
-* **Central Component ($X_2$):** $X_2 \sim \chi^2(n_2)$.
-  Represents the **Noise Sum of Squares** (SSE), arising from pure error.
+* **Central Component ($X_2$):** $X_2 \sim \chi^2(\text{df}_2)$. $X_2$ often represents the **Noise Sum of Squares**, SSE$_1$ of an adequate model, which is assume to follow a central $\chi^2$,
 
-We visualize these components as partitioning the Total Sum of Squares (SST).
+We visualize these components as using the follow diagram.
 
 ```{tikz}
 %| label: fig-variance-partition
-%| fig-cap: "Partitioning of Total Variation ($SST = X_1 + X_2$)."
+%| fig-cap: "A diagram of two independent $\\chi^2$ random variables"
 %| echo: false
 %| fig-align: "center"
-%| out-extra: 'style="width: 78% !important;"'
+%| out-extra: 'style="width: 85% !important;"'
 %| engine.opts:
 %|   extra.preamble: "\\usepackage{amssymb}"
 
@@ -1141,6 +1138,9 @@ We visualize these components as partitioning the Total Sum of Squares (SST).
 \draw[thick] (O) -- ++(0, -0.2) node[below] {\textbf{0}};
 \draw[thick] (P_SSE) -- ++(0, -0.2) node[below] {\textbf{$X_2$ (SSE)}};
 \draw[thick] (P_SST) -- ++(0, -0.2) node[below] {\textbf{$X_1+X_2$ (SST)}};
+
+% Dashed Drop Lines (connecting bars to axis values)
+\draw[dashed, gray] (Bar_Start) -- (O); % Added vertical dashed line at 0
 \draw[dashed, gray] (Bar_Mid) -- (P_SSE);
 \draw[dashed, gray] (Bar_End) -- (P_SST);
 
@@ -1151,27 +1151,23 @@ We visualize these components as partitioning the Total Sum of Squares (SST).
 \node[above, blue!70!black, font=\bfseries] at ($(Bar_Mid)!0.5!(Bar_End)$) {$X_1$ (Signal)};
 
 \draw[decorate, decoration={brace, mirror, amplitude=6pt, raise=2pt}, thick, red!70!black] 
-    (0, \yBrace) -- (\lenNoise, \yBrace) node[midway, below=8pt] {$\sim \chi^2(n_2)$};
+    (0, \yBrace) -- (\lenNoise, \yBrace) node[midway, below=8pt] {$\sim \chi^2(\text{df}_2)$};
 \draw[decorate, decoration={brace, mirror, amplitude=6pt, raise=2pt}, thick, blue!70!black] 
-    (\lenNoise, \yBrace) -- (\lenNoise + \lenSignal, \yBrace) node[midway, below=8pt] {$\sim \chi^2(n_1, 2\lambda)$};
+    (\lenNoise, \yBrace) -- (\lenNoise + \lenSignal, \yBrace) node[midway, below=8pt] {$\sim \chi^2(\text{df}_1, \lambda)$};
 \end{tikzpicture}
 ```
 
-### The Non-central F-distribution $f(n_1, N_2, \lambda)$
+### The Non-central F-distribution $F(\text{df}_1, \text{df}_2, \lambda)$
 
 ::: {#def-noncentral-f}
 ### Non-central F
-Let $X_1 \sim \chi^2(n_1, 2\lambda)$ and $X_2 \sim \chi^2(n_2)$ be independent. The random variable $V$ follows a **non-central F-distribution**, defined as:
-$$V = \frac{X_1/n_1}{X_2/n_2} \sim F(n_1, n_2, \lambda)$$
+Let $X_1 \sim \chi^2(\text{df}_1, \lambda)$ and $X_2 \sim \chi^2(\text{df}_2)$ be independent. The random variable $F$ follows a **non-central F-distribution**:
+$$F = \frac{X_1/\text{df}_1}{X_2/\text{df}_2} \sim F(\text{df}_1, \text{df}_2, \lambda)$$
 :::
 
-Physically, this compares the *density* of the signal to the *density* of the noise.
-
-* **PDF:** A Poisson mixture of central F densities with weights $P(\text{Poisson}=\lambda)$.
-  $$f_V(v) = \sum_{j=0}^{\infty} \frac{e^{-\lambda}\lambda^j}{j!} f_{F}\left(v; n_1+2j, n_2\right)$$
-
-* **Exact Mean:** $E[V] = \frac{n_2(n_1 + 2\lambda)}{n_1(n_2 - 2)}$
-* **Approximate Mean:** $E[V] \approx 1 + \frac{2\lambda}{n_1}$
+* **Expectation:**
+    * **Under $H_0$ ($\lambda=0$):** Exact mean is $\frac{\text{df}_2}{\text{df}_2 - 2}$ (for $\text{df}_2 > 2$).
+    * **Under $H_1$ ($\lambda \neq 0$):** Approximate mean is $1 + \frac{2\lambda}{\text{df}_1}$.
 
 ```{r}
 #| label: fig-nc-f
@@ -1181,7 +1177,7 @@ Physically, this compares the *density* of the signal to the *density* of the no
 
 library(ggplot2)
 x_f <- seq(0, 6, length.out = 300)
-# Use 2*l for R's Ncp Argument
+# Use 2*l for R's ncp argument
 df_list <- lapply(c(0, 2.5, 5), function(l) {
   data.frame(x = x_f, y = df(x_f, 5, 20, ncp = 2*l), lambda = as.factor(l))
 })
@@ -1191,20 +1187,18 @@ ggplot(plot_data, aes(x, y, color = lambda)) + geom_line(linewidth=1) +
   labs(x="Value", y="Density", title="Non-Central F Distribution") + theme_minimal()
 ```
 
-### Type I Non-central Beta $\text{beta}_i(n_1/2, N_2/2, \lambda)$
+### Type I Non-central Beta $\text{Beta}_1(\text{df}_1/2, \text{df}_2/2, \lambda)$
 
 ::: {#def-noncentral-beta1}
 ### Type I Non-central Beta
-The random variable $B_I$ follows a **Type I non-central Beta distribution**, defined as the signal's proportion of the total sum:
-$$B_I = \frac{X_1}{X_1 + X_2} \sim \text{Beta}\left(\frac{n_1}{2}, \frac{n_2}{2}, \lambda\right)$$
+The random variable $B_I$ follows a **Type I non-central Beta distribution**, defined as the signal's proportion of the total sum ($R^2$):
+$$B_I = \frac{X_1}{X_1 + X_2} \sim \text{Beta}_1\left(\frac{\text{df}_1}{2}, \frac{\text{df}_2}{2}, \lambda\right)$$
 :::
 
-This represents the **Coefficient of Determination ($R^2$)**.
-
-$$f_{B_I}(x) = \sum_{j=0}^{\infty} \frac{e^{-\lambda}\lambda^j}{j!} f_{\text{Beta}}\left(x; \frac{n_1}{2}+j, \frac{n_2}{2}\right)$$
-
-* **Exact Mean:** $E[B_I] = e^{-\lambda} \frac{n_1}{n_1+n_2} \,_1F_1\left(\frac{n_1}{2}+1; \frac{n_1+n_2}{2}+1; \lambda\right)$
-* **Approximate Mean:** $E[B_I] \approx \frac{n_1 + 2\lambda}{n_1 + n_2 + 2\lambda}$
+* **Relationship to F:** $B_I = \frac{(\text{df}_1/\text{df}_2) F}{1 + (\text{df}_1/\text{df}_2) F}$
+* **Expectation:**
+    * **Under $H_0$ ($\lambda=0$):** Exact mean is $\frac{\text{df}_1}{\text{df}_1 + \text{df}_2}$.
+    * **Under $H_1$ ($\lambda \neq 0$):** Approximate mean is $\frac{\text{df}_1 + 2\lambda}{\text{df}_1 + \text{df}_2 + 2\lambda}$.
 
 ```{r}
 #| label: fig-nc-beta1
@@ -1222,16 +1216,17 @@ ggplot(plot_data, aes(x, y, color = lambda)) + geom_line(linewidth=1) +
   labs(x="Value", y="Density", title="Type I Non-Central Beta") + theme_minimal()
 ```
 
-### Type II Non-central Beta $\text{beta}_{ii}(n_2/2, N_1/2, \lambda)$
+### Type II Non-central Beta $\text{Beta}_2(\text{df}_2/2, \text{df}_1/2, \lambda)$
 
 ::: {#def-noncentral-beta2}
 ### Type II Non-central Beta
-$$B_{II} = \frac{X_2}{X_1 + X_2} = 1 - B_I \sim \text{Beta}\left(\frac{n_2}{2}, \frac{n_1}{2}, \lambda\right)$$
+$$B_{II} = \frac{X_2}{X_1 + X_2} = 1 - B_I \sim \text{Beta}_2\left(\frac{\text{df}_2}{2}, \frac{\text{df}_1}{2}, \lambda\right)$$
 :::
 
-Represents the proportion of **unexplained variance ($\text{SSE}/\text{SST}$)**.
-
-* **Approximate Mean:** $E[B_{II}] \approx \frac{n_2}{n_1 + n_2 + 2\lambda}$
+* **Relationship to F:** $B_{II} = \frac{1}{1 + (\text{df}_1/\text{df}_2) F}$
+* **Expectation:**
+    * **Under $H_0$ ($\lambda=0$):** Exact mean is $\frac{\text{df}_2}{\text{df}_1 + \text{df}_2}$.
+    * **Under $H_1$ ($\lambda \neq 0$):** Approximate mean is $\frac{\text{df}_2}{\text{df}_1 + \text{df}_2 + 2\lambda}$.
 
 ```{r}
 #| label: fig-beta-ii
@@ -1258,16 +1253,17 @@ ggplot(plot_data, aes(x, y, color = lambda)) +
   theme_minimal()
 ```
 
-### Scaled Type II Beta $\text{scaled-beta}_{ii}(n_2/2, N_1/2, \lambda)$
+### Scaled Type II Beta $\text{Scaled-Beta}_2(\text{df}_2/2, \text{df}_1/2, \lambda)$
 
 ::: {#def-scaled-beta}
 ### Scaled Type II Beta
-$$S = \frac{X_2/n_2}{(X_1+X_2)/(n_1+n_2)} \sim \text{Scaled-Beta}_{II}\left(\frac{n_2}{2}, \frac{n_1}{2}, \lambda\right)$$
+$$S = \frac{X_2/\text{df}_2}{(X_1+X_2)/(\text{df}_1+\text{df}_2)} \sim \text{Scaled-Beta}_2$$
 :::
 
-Represents the ratio of variances **$\text{MSE}/MST$**.
-
-* **Approximate Mean:** $E[S] \approx \frac{n_1+n_2}{n_1+n_2+2\lambda}$
+* **Relationship to F:** $S = \frac{\text{df}_1+\text{df}_2}{\text{df}_2 + \text{df}_1 F}$
+* **Expectation:**
+    * **Under $H_0$ ($\lambda=0$):** Exact mean is $1$.
+    * **Under $H_1$ ($\lambda \neq 0$):** Approximate mean is $\frac{\text{df}_1+\text{df}_2}{\text{df}_1+\text{df}_2+2\lambda}$.
 
 ```{r}
 #| label: fig-scaled-beta
@@ -1298,18 +1294,18 @@ ggplot(plot_data, aes(x, y, color = lambda)) +
   theme_minimal()
 ```
 
-### The Non-central T-distribution $t(n_2, \delta)$
+### The Non-central t-distribution $t(\text{df}_2, \delta)$
 
 ::: {#def-noncentral-t}
-### Non-central T
-Let $Z \sim N(\delta, 1)$ and $X_2 \sim \chi^2(n_2)$ be independent. The random variable $T$ follows a **non-central t-distribution**:
-$$T = \frac{Z}{\sqrt{X_2/n_2}} \sim t(n_2, \delta)$$
+### Non-central t
+Let $Z \sim N(\delta, 1)$ and $X_2 \sim \chi^2(\text{df}_2)$ be independent. The random variable $T$ follows a **non-central t-distribution**:
+$$T = \frac{Z}{\sqrt{X_2/\text{df}_2}} \sim t(\text{df}_2, \delta)$$
 :::
 
-This models **Signal Amplitude vs. Noise Amplitude**. Note that $\delta^2$ relates to the non-centrality parameter of the corresponding F-distribution by $\delta^2 = 2\lambda$ (under our "natural" $\lambda$ definition).
-
-* **Exact Mean:** $E[T] = \delta \sqrt{\frac{n_2}{2}} \frac{\Gamma((n_2-1)/2)}{\Gamma(n_2/2)}$
-* **Approximate Mean:** $E[T] \approx \delta$
+* **Relationship to F:** $F = T^2$ (when $\text{df}_1=1$). Note $\delta^2 = 2\lambda$.
+* **Expectation:**
+    * **Under $H_0$ ($\delta=0$):** Exact mean is $0$.
+    * **Under $H_1$ ($\delta \neq 0$):** Approximate mean is $\delta$.
 
 ```{r}
 #| label: fig-nc-t
@@ -1327,7 +1323,6 @@ ggplot(plot_data, aes(x, y, color = delta)) + geom_line(linewidth=1) +
   labs(x="Value", y="Density", title="Non-Central t Distribution") + theme_minimal()
 ```
 
-
 ## Example: Inference of the Mean of Normal Sample
 
 Consider a random sample $y \sim N_n(\mu j_n, \sigma^2 I_n)$. We wish to test:
@@ -1339,31 +1334,26 @@ Let's define the transformed vector $y^* = y - \mu_0 j_n$. Note that $y^* \sim N
 
 ### Sum of Squares and Their Distributions
 
-We use the projection matrix $P_{j_n} = \frac{1}{n}j_n j_n'$ and its complement $(I_n - P_{j_n})$ to partition the transformed vector. By applying **@thm-proj-matrix**, we derive the sampling distributions for the Sum of Squared Errors under each model.
+We use the projection matrix $P_{j_n} = \frac{1}{n}j_n j_n'$ and its complement $(I_n - P_{j_n})$ to partition the transformed vector.
 
 * **Total SSE ($SSE_0$ for $M_0$):**
-    This represents the total squared deviation from the hypothesized mean $\mu_0$.
     $$SSE_0 = \|I_n y^*\|^2 = \sum_{i=1}^n (Y_i - \mu_0)^2$$
-    Since $E[y^*] \neq 0$, it follows a non-central distribution:
+    This follows a non-central distribution with $\text{df}_{\text{total}} = n$:
     $$\frac{SSE_0}{\sigma^2} \sim \chi^2(n, \lambda) \quad \text{where } \lambda = \frac{n(\mu - \mu_0)^2}{2\sigma^2}$$
 
 * **Residual SSE ($SSE_1$ for $M_1$):**
-    This represents the internal variation around the sample mean $\bar{Y}$.
     $$SSE_1 = \|(I_n - P_{j_n})y^*\|^2 = \sum_{i=1}^n (Y_i - \bar{Y})^2$$
-    This captures the random noise (central component):
+    This captures the random noise (central component) with $\text{df}_2 = n-1$:
     $$\frac{SSE_1}{\sigma^2} \sim \chi^2(n-1)$$
 
 * **Difference SS ($SS_{\text{diff}}$):**
-    This represents the variation explained by the sample mean's deviation from $\mu_0$.
     $$SS_{\text{diff}} = \|P_{j_n} y^*\|^2 = n(\bar{Y} - \mu_0)^2$$
-    This captures the signal (non-central component):
+    This captures the signal (non-central component) with $\text{df}_1 = 1$:
     $$\frac{SS_{\text{diff}}}{\sigma^2} \sim \chi^2(1, \lambda)$$
-
-By Cochran's Theorem, $SS_{\text{diff}}$ (Signal) and $SSE_1$ (Noise) are independent.
 
 ### Distributions of Equivalent Statistics
 
-We can construct five equivalent statistics to compare $M_0$ and $M_1$. While the T-statistic is standard for this specific test, the Beta family provides insight into the "proportion of variance" explained.
+We can construct five equivalent statistics to compare $M_0$ and $M_1$.
 
 * **The t-statistic ($T$):**
     $$T = \frac{\bar{Y} - \mu_0}{S/\sqrt{n}}$$
@@ -1372,38 +1362,29 @@ We can construct five equivalent statistics to compare $M_0$ and $M_1$. While th
     $$F = \frac{n(\bar{Y} - \mu_0)^2}{S^2} = T^2$$
 
 * **The Type I Beta statistic ($B_I$):**
-    Represents the proportion of total variation explained by the deviation from $\mu_0$ (analogous to $R^2$).
     $$B_I = \frac{SS_{\text{diff}}}{SSE_0} = \frac{n(\bar{Y} - \mu_0)^2}{\sum (Y_i - \mu_0)^2}$$
 
 * **The Type II Beta statistic ($B_{II}$):**
-    Represents the proportion of total variation that remains *unexplained* (Noise/Total).
     $$B_{II} = \frac{SSE_1}{SSE_0} = \frac{\sum (Y_i - \bar{Y})^2}{\sum (Y_i - \mu_0)^2} = 1 - B_I$$
 
 * **The Scaled Type II Beta statistic ($S_{\text{scaled}}$):**
-    Represents the ratio of Mean Square Error to Mean Square Total (MSE/MST).
     $$S_{\text{scaled}} = \frac{SSE_1/(n-1)}{SSE_0/n} = \left( \frac{n}{n-1} \right) B_{II}$$
 
 ### Expectations Under $M_1$ and $M_0$
 
-Under the Full Model ($M_1$), these statistics follow their respective **non-central** distributions: $t(n-1, \delta)$, $F(1, n-1, \lambda)$, and the Beta variants. Under $H_0$, $\lambda = 0$ and the means simplify to constants or functions of $n$.
-
 The table below contrasts the expected values (means) of these statistics.
+We assume the sample size $n$ is large enough for the mean of $F$ to exist ($n > 3$).
 
-| Statistic | Mean under $H_0$ ($\mu = \mu_0$) | Approximate Mean under $H_1$ ($\mu \neq \mu_0$) |
+**Signal Term:** Let $SNR = \frac{n(\mu - \mu_0)^2}{\sigma^2} = 2\lambda$.
+
+| Statistic | Exact Mean under $H_0$ ($\lambda=0$) | Approximate Mean under $H_1$ ($\lambda \neq 0$) |
 | :--- | :--- | :--- |
-| **$T$** | $0$ | $\delta$ |
-| **$F$** | $\frac{n-1}{n-3} \approx 1$ | $1 + 2\lambda$ |
-| **$B_I$** | $\frac{1}{n}$ | $\frac{1 + 2\lambda}{n + 2\lambda}$ |
-| **$B_{II}$** | $\frac{n-1}{n}$ | $\frac{n-1}{n + 2\lambda}$ |
-| **$S_{\text{scaled}}$** | $1$ | $\frac{n}{n + 2\lambda}$ |
+| **$T$** | $0$ | $\frac{\sqrt{n}(\mu - \mu_0)}{\sigma}$ |
+| **$F$** | $\frac{n-1}{n-3} \approx 1$ | $1 + SNR$ |
+| **$B_I$** | $\frac{1}{n}$ | $\frac{1 + SNR}{n + SNR}$ |
+| **$B_{II}$** | $\frac{n-1}{n}$ | $\frac{n-1}{n + SNR}$ |
+| **$S_{\text{scaled}}$** | $1$ | $\frac{n}{n + SNR}$ |
 
 **Key Interpretation:**
+All statistics are functionally driven by the **Signal-to-Noise Ratio (SNR)** term. As the true mean $\mu$ deviates further from $\mu_0$, this term grows, driving $F$ up, $B_I$ toward 1, and $S_{\text{scaled}}$ toward 0.
 
-* **$F$** grows linearly with the signal ($2\lambda$).
-* **$B_I$** grows from near 0 to 1.
-* **$S_{\text{scaled}}$** starts at 1 (indicating the error variance equals the total variance) and shrinks toward 0 as the signal $\lambda$ pushes the total variance up.
-
-*Definitions:*
-
-* $\delta = \frac{\mu - \mu_0}{\sigma/\sqrt{n}}$
-* $\lambda = \frac{1}{2}\delta^2 = \frac{n(\mu - \mu_0)^2}{2\sigma^2}$
