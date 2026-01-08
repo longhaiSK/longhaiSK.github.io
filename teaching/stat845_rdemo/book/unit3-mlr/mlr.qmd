@@ -247,263 +247,213 @@ Here,
 -   $\mathrm{Var}\!\big(E[y \mid x]\big)$ corresponds to the **explained variation** due to the regression component $x^\top\beta$, and\
 -   $E\!\big(\mathrm{Var}[y \mid x]\big)$ corresponds to the **residual variation** due to $\epsilon$.
 
-### An Animation to Visualize the Distributions of RSS
+### Comparing Model Selection Criteria under $H_0$ and $H_1$
 
-**Data Generating Model**
+We simulate a dataset with $n=30$ observations and consider a sequence of nested models adding groups of predictors.
 
-For $n=30$ and $p_{max}=20$, simulate with either $H_0:\beta=\mathbf 0$ or $H_1$ where only $\beta_1\neq 0$; $\epsilon_i\sim N(0,1)$.
+**Predictor Groups:**
 
-**Sequence of Fitted Models**
+1.  **Step 1 ($k=1$):** Add $x_1$. (Signal under $H_1$).
+2.  **Step 2 ($k=6$):** Add $x_2, \dots, x_6$ (Noise).
+3.  **Step 3 ($k=11$):** Add $x_7, \dots, x_{11}$ (Noise).
+4.  **Step 4 ($k=20$):** Add $x_{12}, \dots, x_{20}$ (Noise).
 
-| Model Name | \# of Predictors (k) | \# of Parameters (p) | R Formula |
-|:----------------|:----------------:|:----------------:|:--------------------|
-| Model 0 | 0 | 1 | `y ~ 1` |
-| Model 1 | 2 | 3 | `y ~ x_1 + x_2` |
-| ... | ... | ... | ... |
-| Final Model | 20 | 21 | `y ~ x_1 + ... + x_20` |
+```{r}
+#| label: generate-all-animations
+#| include: false
+#| cache: true
 
-```{r, include=FALSE}
+# --- Setup ---
+library(ggplot2)
+library(patchwork)
 require("latex2exp")
-require("animation")
-```
 
+# knobs
+n_frames <- 30
+fps      <- 2
+n        <- 30
+sigma    <- 1
 
-#### When $H_0$ is true
+# [FLEXIBLE] Define your steps here. 
+# Ensure max(model_steps) < n - 1 to avoid division by zero in MSE/R2_adj
+model_steps <- c(0, 1, 6, 11, 20) 
 
-```{r}
-#| include: false
-#| cache: true
-#| label: build-h0-assets
+# Automatically determine the maximum number of predictors needed
+max_k <- max(model_steps) 
 
-# --- knobs (override in your setup) ---
-n_frames <- getOption("sim_frames", 50L)
-rebuild  <- isTRUE(getOption("sim_rebuild"))
-fps      <- getOption("sim_fps", 1)           # frames per second for MP4
+# --- Generator Function ---
+generate_animation <- function(scenario = "H0", filename) {
+  
+  # Ensure directory exists
+  dir.create(dirname(filename), showWarnings = FALSE)
+  
+  # Temp directory for frames
+  frame_dir <- file.path("frames_temp", scenario)
+  dir.create(frame_dir, recursive = TRUE, showWarnings = FALSE)
+  
+  # --- 1. Theoretical Limits Setup ---
+  
+  # A. Y-axis Lower Limit for R^2_adj
+  # Worst case: R^2 = 0 with max complexity p = max_k + 1
+  max_p <- max_k + 1
+  
+  # Safety check: if p >= n, theoretical min is undefined (-Inf)
+  if (max_p >= n) {
+    y_min_limit <- -1 # fallback if user pushes limit
+  } else {
+    min_r2_theoretical <- 1 - (n - 1) / (n - max_p)
+    y_min_limit <- floor((min_r2_theoretical - 0.1) * 10) / 10 
+  }
 
-# --- deps ---
-library(ggplot2); library(patchwork)
+  # B. Theoretical Variance Expectations
+  var_x <- 1 
+  signal_var <- if(scenario == "H1") (2^2 * var_x) else 0
+  
+  theory_df <- data.frame(
+    k = model_steps,
+    expected_mse = ifelse(model_steps == 0, sigma^2 + signal_var, sigma^2)
+  )
 
-# --- paths ---
-dir.create("frames0", showWarnings = FALSE)
-dir.create("figs",     showWarnings = FALSE)
-video_h0 <- "figs/rss-h0.mp4"
-png_h0   <- "figs/rss-h0.png"
+  # --- Frame Loop ---
+  for (j in 1:n_frames) {
+    
+    # 2. Generate Data [DYNAMIC]
+    # Generate exactly as many columns as the max step requires
+    X <- as.data.frame(replicate(max_k, rnorm(n)))
+    names(X) <- paste0("x", 1:max_k)
+    
+    # Define Beta Vector [DYNAMIC]
+    beta_vec <- rep(0, max_k)
+    if (scenario == "H1") beta_vec[1] <- 2 
+    
+    y <- as.numeric(as.matrix(X) %*% beta_vec + rnorm(n, sd = sigma))
+    
+    # 3. Fit Sequence of Models
+    stats_list <- lapply(model_steps, function(k) {
+      if (k == 0) {
+        fit <- lm(y ~ 1)
+      } else {
+        # Dynamically build formula based on current k
+        # checks if k exceeds available columns (safety)
+        k_safe <- min(k, ncol(X))
+        form <- as.formula(paste("y ~", paste(names(X)[1:k_safe], collapse = " + ")))
+        fit <- lm(form, data = X)
+      }
+      
+      rss <- sum(residuals(fit)^2)
+      p   <- k + 1 
+      
+      # Handle potential division by zero if p == n
+      denom_mse <- if(n - p > 0) (n - p) else NA
+      
+      data.frame(
+        k = k,
+        p = p,
+        MSE = if(!is.na(denom_mse)) rss / denom_mse else NA,
+        MLE = rss / n,
+        R2 = summary(fit)$r.squared,
+        R2_adj = summary(fit)$adj.r.squared
+      )
+    })
+    
+    df <- do.call(rbind, stats_list)
+    
+    # 4. Plotting
+    
+    # Plot A: Variance Estimators
+    g1 <- ggplot(df, aes(x = k)) +
+      geom_step(data = theory_df, aes(y = expected_mse, linetype = "Theoretical"), 
+                color = "gray40", size = 0.8, direction = "vh") +
+      
+      geom_line(aes(y = MLE, color = "Naive (MLE)"), size = 1, linetype = "solid") +
+      geom_point(aes(y = MLE, color = "Naive (MLE)"), size = 2) +
+      
+      geom_line(aes(y = MSE, color = "Corrected (MSE)"), size = 1, linetype = "dashed") +
+      geom_point(aes(y = MSE, color = "Corrected (MSE)"), size = 2, shape = 17) +
+      
+      scale_color_manual(values = c("Naive (MLE)" = "firebrick", "Corrected (MSE)" = "blue")) +
+      scale_linetype_manual(values = c("Theoretical" = "dotted"), name=NULL) +
+      
+      scale_x_continuous(breaks = model_steps) +
+      coord_cartesian(ylim = c(0, max(theory_df$expected_mse) + 1)) +
+      labs(title = paste0("Scenario ", scenario, ": Estimators of Error Variance"),
+           y = "Variance Estimate", x = NULL, color = NULL) +
+      theme_minimal() + theme(legend.position = "top")
 
-# --- model params ---
-n <- 30; p_max <- 20
-beta <- rep(0, p_max); sigma <- 1
-x_lim <- c(0, n); ks <- seq(0, p_max, by = 2)
+    # Plot B: Model Fit
+    g2 <- ggplot(df, aes(x = k)) +
+      geom_hline(yintercept = 0, color = "black", size = 0.2) +
+      
+      geom_line(aes(y = R2, color = "Naive (R^2)"), size = 1, linetype = "solid") +
+      geom_point(aes(y = R2, color = "Naive (R^2)"), size = 2) +
+      
+      geom_line(aes(y = R2_adj, color = "Corrected (Adj R^2)"), size = 1, linetype = "dashed") +
+      geom_point(aes(y = R2_adj, color = "Corrected (Adj R^2)"), size = 2, shape = 17) +
+      
+      scale_color_manual(values = c("Naive (R^2)" = "firebrick", "Corrected (Adj R^2)" = "blue")) +
+      
+      scale_x_continuous(breaks = model_steps) +
+      scale_y_continuous(limits = c(y_min_limit, 1), labels = scales::percent) +
+      labs(title = "Estimate of R-squared",
+           y = "Value", x = "Number of Predictors (k)", color = NULL) +
+      theme_minimal() + theme(legend.position = "bottom")
 
-# --- frame generator (returns a patchwork object) ---
-make_one_frame <- function() {
-  X <- as.data.frame(replicate(p_max, rnorm(n)))
-  names(X) <- paste0("x", 1:p_max)
-  y <- as.numeric(as.matrix(X) %*% beta + rnorm(n, sd = sigma))
-
-  stats_list <- lapply(ks, function(k) {
-    num_params <- k + 1
-    fitsim <- if (k == 0) lm(y ~ 1) else lm(reformulate(paste0("x", 1:k), "y"), data = X)
-    s <- summary(fitsim)
-    f_val <- s$fstatistic
-    data.frame(
-      p = num_params,
-      RSS = sum(residuals(fitsim)^2),
-      R2 = ifelse(k == 0, 0, s$r.squared),
-      R2_adj = ifelse(k == 0, 0, s$adj.r.squared),
-      F_stat = ifelse(is.null(f_val), NA_real_, f_val[1])
-    )
-  })
-  df <- do.call(rbind, stats_list)
-  df <- rbind(df, data.frame(p = n, RSS = 0, R2 = 1, R2_adj = NA_real_, F_stat = NA_real_))
-
-  g1 <- ggplot(df, aes(p, RSS)) +
-    geom_line() + geom_point() +
-    geom_point(data = subset(df, p == n), size = 2) +
-    annotate("text", x = n, y = 0, label = "(n, 0)", vjust = -0.8, size = 3) +
-    scale_x_continuous(limits = x_lim, breaks = pretty(x_lim)) +
-    labs(title = "Residual Sum of Squares vs. Number of Parameters",
-         x = "Number of parameters (p)", y = "Residual Sum of Squares (RSS)") +
-    theme_minimal(base_size = 13)
-
-  scale_factor <- max(df$F_stat, na.rm = TRUE); if (!is.finite(scale_factor) || scale_factor <= 0) scale_factor <- 1
-  g2 <- ggplot(df, aes(p)) +
-    geom_line(aes(y = F_stat, color = "F")) + geom_point(aes(y = F_stat, color = "F")) +
-    geom_line(aes(y = R2 * scale_factor, color = "R2")) +
-    geom_point(aes(y = R2 * scale_factor, color = "R2")) +
-    geom_line(aes(y = R2_adj * scale_factor, color = "R2_adj"), linetype = "dashed") +
-    geom_point(aes(y = R2_adj * scale_factor, color = "R2_adj")) +
-    scale_x_continuous(limits = x_lim, breaks = pretty(x_lim)) +
-    scale_y_continuous(
-      name = "F-statistic",
-      sec.axis = sec_axis(~ . / scale_factor,
-                          name = expression(paste(R^2," / ",R[adj]^2)),
-                          labels = scales::percent)
-    ) +
-    scale_color_manual(values = c(F = "firebrick", R2 = "blue", R2_adj = "cyan4"), name = "Metric") +
-    labs(title = "Model Fit Statistics vs. Number of Parameters", x = "Number of parameters (p)") +
-    theme_minimal(base_size = 13) + theme(legend.position = "top")
-
-  g1 / g2
+    final_plot <- g1 / g2
+    ggsave(file.path(frame_dir, sprintf("f%03d.png", j)), final_plot, width = 7, height = 7, dpi = 100)
+  }
+  
+  if (requireNamespace("av", quietly = TRUE)) {
+    pngs <- list.files(frame_dir, "\\.png$", full.names = TRUE)
+    av::av_encode_video(pngs, filename, framerate = fps, verbose = FALSE)
+  }
 }
 
-# --- build assets by format ---
-if (knitr::is_html_output()) {
-  if (!file.exists(video_h0) || rebuild) {
-    # render frames, encode MP4
-    frm <- file.path("frames0", sprintf("f%03d.png", seq_len(n_frames)))
-    for (j in seq_len(n_frames)) {
-      g <- make_one_frame()
-      ggsave(frm[j], g, width = 8, height = 8, dpi = 150)
-    }
-    if (!requireNamespace("av", quietly = TRUE)) {
-      stop("Package 'av' is required to create the MP4. Install it with install.packages('av').")
-    }
-    pngs <- list.files("frames0", "\\.png$", full.names = TRUE)
-    pngs <- pngs[order(nchar(pngs), pngs)]
-    av::av_encode_video(pngs, video_h0, framerate = fps, verbose = FALSE)
-  }
-} else if (knitr::is_latex_output()) {
-  if (!file.exists(png_h0) || rebuild) {
-    # single representative frame for PDF
-    g <- make_one_frame()
-    ggsave(png_h0, g, width = 8, height = 8, dpi = 300)
-  }
-}
+# --- Execution ---
+generate_animation("H0", "figs/rss-h0-v5.mp4")
+generate_animation("H1", "figs/rss-h1-v5.mp4")
 ```
+
+::: {.panel-tabset}
+
+## Null Hypothesis ($H_0$)
+
+Under $H_0$, the true coefficient for $x_1$ is $\beta_1 = 0$. All predictors are noise.
 
 ```{r}
 #| echo: false
-#| cache: true
 #| fig.align: center
-#| fig.cap: "When $H_0$ is true: MP4 animation (HTML) or a representative static frame (PDF)."
 
 if (knitr::is_html_output()) {
   htmltools::tags$video(
-    controls = "controls", width = "100%", htmltools::tags$source(src = "figs/rss-h0.mp4", type = "video/mp4")
+    controls = "controls", width = "100%", 
+    htmltools::tags$source(src = "figs/rss-h0-v5.mp4", type = "video/mp4")
   )
-} else if (knitr::is_latex_output()) {
-  knitr::include_graphics("figs/rss-h0.png")
+} else {
+  plot(1, 1, type="n", axes=FALSE, xlab="", ylab="", main="Animation available in HTML version")
+  text(1, 1, "View HTML for H0 Animation")
 }
 ```
 
+## Alternative Hypothesis ($H_1$)
 
-
-#### When $H_1$ is true
-
-```{r}
-#| include: false
-#| cache: true
-#| label: build-h1-assets
-
-# --- knobs (reuse) ---
-n_frames <- getOption("sim_frames", 50L)
-rebuild  <- isTRUE(getOption("sim_rebuild"))
-fps      <- getOption("sim_fps", 1)
-
-# --- deps ---
-library(ggplot2); library(patchwork)
-
-# --- paths ---
-dir.create("frames1", showWarnings = FALSE)
-dir.create("figs",     showWarnings = FALSE)
-video_h1 <- "figs/rss-h1.mp4"
-png_h1   <- "figs/rss-h1.png"
-
-# --- model params (H1: beta_1 = 1) ---
-n <- 30; p_max <- 20
-beta <- rep(0, p_max); beta[1] <- 1
-sigma <- 1
-x_lim <- c(0, n); ks <- seq(0, p_max, by = 2)
-
-make_one_frame_h1 <- function() {
-  X <- as.data.frame(replicate(p_max, rnorm(n)))
-  names(X) <- paste0("x", 1:p_max)
-  y <- as.numeric(as.matrix(X) %*% beta + rnorm(n, sd = sigma))
-
-  stats_list <- lapply(ks, function(k) {
-    num_params <- k + 1
-    fitsim <- if (k == 0) lm(y ~ 1) else lm(reformulate(paste0("x", 1:k), "y"), data = X)
-    s <- summary(fitsim)
-    f_val <- s$fstatistic
-    data.frame(
-      p = num_params,
-      RSS = sum(residuals(fitsim)^2),
-      R2 = ifelse(k == 0, 0, s$r.squared),
-      R2_adj = ifelse(k == 0, 0, s$adj.r.squared),
-      F_stat = ifelse(is.null(f_val), NA_real_, f_val[1])
-    )
-  })
-  df <- do.call(rbind, stats_list)
-  df <- rbind(df, data.frame(p = n, RSS = 0, R2 = 1, R2_adj = NA_real_, F_stat = NA_real_))
-
-  g1 <- ggplot(df, aes(p, RSS)) +
-    geom_line() + geom_point() +
-    geom_point(data = subset(df, p == n), size = 2) +
-    annotate("text", x = n, y = 0, label = "(n, 0)", vjust = -0.8, size = 3) +
-    scale_x_continuous(limits = x_lim, breaks = pretty(x_lim)) +
-    labs(title = "Residual Sum of Squares vs. Number of Parameters",
-         x = "Number of parameters (p)", y = "Residual Sum of Squares (RSS)") +
-    theme_minimal(base_size = 13)
-
-  scale_factor <- max(df$F_stat, na.rm = TRUE); if (!is.finite(scale_factor) || scale_factor <= 0) scale_factor <- 1
-  g2 <- ggplot(df, aes(p)) +
-    geom_line(aes(y = F_stat, color = "F")) + geom_point(aes(y = F_stat, color = "F")) +
-    geom_line(aes(y = R2 * scale_factor, color = "R2")) +
-    geom_point(aes(y = R2 * scale_factor, color = "R2")) +
-    geom_line(aes(y = R2_adj * scale_factor, color = "R2_adj"), linetype = "dashed") +
-    geom_point(aes(y = R2_adj * scale_factor, color = "R2_adj")) +
-    scale_x_continuous(limits = x_lim, breaks = pretty(x_lim)) +
-    scale_y_continuous(
-      name = "F-statistic",
-      sec.axis = sec_axis(~ . / scale_factor,
-                          name = expression(paste(R^2," / ",R[adj]^2)),
-                          labels = scales::percent)
-    ) +
-    scale_color_manual(values = c(F = "firebrick", R2 = "blue", R2_adj = "cyan4"), name = "Metric") +
-    labs(title = "Model Fit Statistics vs. Number of Parameters", x = "Number of parameters (p)") +
-    theme_minimal(base_size = 13) + theme(legend.position = "top")
-
-  g1 / g2
-}
-
-if (knitr::is_html_output()) {
-  if (!file.exists(video_h1) || rebuild) {
-    frm <- file.path("frames1", sprintf("f%03d.png", seq_len(n_frames)))
-    for (j in seq_len(n_frames)) {
-      g <- make_one_frame_h1()
-      ggsave(frm[j], g, width = 8, height = 8, dpi = 150)
-    }
-    if (!requireNamespace("av", quietly = TRUE)) {
-      stop("Package 'av' is required to create the MP4. Install it with install.packages('av').")
-    }
-    pngs <- list.files("frames1", "\\.png$", full.names = TRUE)
-    pngs <- pngs[order(nchar(pngs), pngs)]
-    av::av_encode_video(pngs, video_h1, framerate = fps, verbose = FALSE)
-  }
-} else if (knitr::is_latex_output()) {
-  if (!file.exists(png_h1) || rebuild) {
-    g <- make_one_frame_h1()
-    ggsave(png_h1, g, width = 8, height = 8, dpi = 300)
-  }
-}
-```
+Under $H_1$, $x_1$ is a true predictor ($\beta_1 = 2$). The subsequent groups ($x_2 \dots x_{20}$) remain noise.
 
 ```{r}
 #| echo: false
-#| cache: true
 #| fig.align: center
-#| fig.cap: "When $H_1$ is true: MP4 animation (HTML) or a representative static frame (PDF)."
 
 if (knitr::is_html_output()) {
   htmltools::tags$video(
-    controls = "controls", width = "100%", htmltools::tags$source(src = "figs/rss-h1.mp4", type = "video/mp4")
+    controls = "controls", width = "100%", 
+    htmltools::tags$source(src = "figs/rss-h1-v5.mp4", type = "video/mp4")
   )
-} else if (knitr::is_latex_output()) {
-  knitr::include_graphics("figs/rss-h1.png")
+} else {
+  plot(1, 1, type="n", axes=FALSE, xlab="", ylab="", main="Animation available in HTML version")
+  text(1, 1, "View HTML for H1 Animation")
 }
 ```
 
-
+:::
 
 ### Example:  Modelling Children Weight with Height and Age
 
