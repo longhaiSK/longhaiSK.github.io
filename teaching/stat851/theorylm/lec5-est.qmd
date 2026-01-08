@@ -906,43 +906,42 @@ Both the standard and adjusted coefficients of determination are monotonic funct
 2.  **Adjusted $R^2_a$:**
     $$ R^2_a = 1 - \left( 1 - R^2 \right) \frac{n-1}{n-k-1} = 1 - \frac{n-1}{(n-k-1) + kF} $$
 
+
 ### Comparing Model Selection Criteria under $H_0$ and $H_1$
 
 We simulate a dataset with $n=30$ observations and consider a sequence of nested models adding groups of predictors.
 
 **Predictor Groups:**
 
-1.  **Step 1 ($k=1$):** Add $x_1$. (This is the **Signal** under $H_1$, but Noise under $H_0$).
-2.  **Step 2 ($k=6$):** Add $x_2, \dots, x_6$ (Pure Noise).
-3.  **Step 3 ($k=11$):** Add $x_7, \dots, x_{11}$ (Pure Noise).
-
-We visualize how the estimators for variance ($MSE$ vs $MLE$) and model fit ($R^2$ vs $R^2_{adj}$) behave as we add these variables.
-
-::: {.panel-tabset}
-
-## Null Hypothesis ($H_0$)
-
-Under $H_0$, the true coefficient for $x_1$ is $\beta_1 = 0$. All predictors are noise.
+1.  **Step 1 ($k=1$):** Add $x_1$. (Signal under $H_1$).
+2.  **Step 2 ($k=6$):** Add $x_2, \dots, x_6$ (Noise).
+3.  **Step 3 ($k=11$):** Add $x_7, \dots, x_{11}$ (Noise).
+4.  **Step 4 ($k=20$):** Add $x_{12}, \dots, x_{20}$ (Noise).
 
 ```{r}
+#| label: generate-all-animations
 #| include: false
-#| label: setup-animation-func
+#| cache: true
 
-# --- Common Setup for Both Animations ---
+# --- Setup ---
 library(ggplot2)
 library(patchwork)
 require("latex2exp")
 
 # knobs
-n_frames <- 30  # Number of simulation frames
+n_frames <- 30
 fps      <- 2
 n        <- 30
 sigma    <- 1
 
-# Define the sequence of models (number of predictors k)
-# k=0 (Int), k=1 (x1), k=6 (x1..x6), k=11 (x1..x11)
-model_steps <- c(0, 1, 6, 11)
+# [FLEXIBLE] Define your steps here. 
+# Ensure max(model_steps) < n - 1 to avoid division by zero in MSE/R2_adj
+model_steps <- c(0, 1, 6, 11, 20) 
 
+# Automatically determine the maximum number of predictors needed
+max_k <- max(model_steps) 
+
+# --- Generator Function ---
 generate_animation <- function(scenario = "H0", filename) {
   
   # Ensure directory exists
@@ -952,118 +951,132 @@ generate_animation <- function(scenario = "H0", filename) {
   frame_dir <- file.path("frames_temp", scenario)
   dir.create(frame_dir, recursive = TRUE, showWarnings = FALSE)
   
+  # --- 1. Theoretical Limits Setup ---
+  
+  # A. Y-axis Lower Limit for R^2_adj
+  # Worst case: R^2 = 0 with max complexity p = max_k + 1
+  max_p <- max_k + 1
+  
+  # Safety check: if p >= n, theoretical min is undefined (-Inf)
+  if (max_p >= n) {
+    y_min_limit <- -1 # fallback if user pushes limit
+  } else {
+    y_min_limit <- -0.25
+  }
+
+  # B. Theoretical Variance Expectations
+  var_x <- 1 
+  signal_var <- if(scenario == "H1") (2^2 * var_x) else 0
+  
+  theory_df <- data.frame(
+    k = model_steps,
+    expected_mse = ifelse(model_steps == 0, sigma^2 + signal_var, sigma^2)
+  )
+
   # --- Frame Loop ---
   for (j in 1:n_frames) {
     
-    # 1. Generate Data
-    # 11 predictors total
-    X <- as.data.frame(replicate(11, rnorm(n)))
-    names(X) <- paste0("x", 1:11)
+    # 2. Generate Data [DYNAMIC]
+    # Generate exactly as many columns as the max step requires
+    X <- as.data.frame(replicate(max_k, rnorm(n)))
+    names(X) <- paste0("x", 1:max_k)
     
-    # Define True Beta based on Scenario
-    # H0: all betas 0
-    # H1: beta1 = 2 (Signal), others 0
-    beta_vec <- rep(0, 11)
+    # Define Beta Vector [DYNAMIC]
+    beta_vec <- rep(0, max_k)
     if (scenario == "H1") beta_vec[1] <- 2 
     
-    # Generate y
     y <- as.numeric(as.matrix(X) %*% beta_vec + rnorm(n, sd = sigma))
     
-    # 2. Fit Sequence of Models and Collect Stats
+    # 3. Fit Sequence of Models
     stats_list <- lapply(model_steps, function(k) {
-      
-      # Fit model
       if (k == 0) {
         fit <- lm(y ~ 1)
       } else {
-        form <- as.formula(paste("y ~", paste(names(X)[1:k], collapse = " + ")))
+        # Dynamically build formula based on current k
+        # checks if k exceeds available columns (safety)
+        k_safe <- min(k, ncol(X))
+        form <- as.formula(paste("y ~", paste(names(X)[1:k_safe], collapse = " + ")))
         fit <- lm(form, data = X)
       }
       
-      # Extract Stats
       rss <- sum(residuals(fit)^2)
-      p   <- k + 1  # param count (k predictors + intercept)
+      p   <- k + 1 
       
-      # Variance Estimators
-      # MSE (Unbiased): SSE / (n-p)
-      mse <- rss / (n - p)
-      # MLE (Biased): SSE / n
-      mle <- rss / n
-      
-      # Fit Indices
-      r2 <- summary(fit)$r.squared
-      r2_adj <- summary(fit)$adj.r.squared
+      # Handle potential division by zero if p == n
+      denom_mse <- if(n - p > 0) (n - p) else NA
       
       data.frame(
         k = k,
         p = p,
-        MSE = mse,
-        MLE = mle,
-        R2 = r2,
-        R2_adj = r2_adj
+        MSE = if(!is.na(denom_mse)) rss / denom_mse else NA,
+        MLE = rss / n,
+        R2 = summary(fit)$r.squared,
+        R2_adj = summary(fit)$adj.r.squared
       )
     })
     
     df <- do.call(rbind, stats_list)
     
-    # 3. plotting
+    # 4. Plotting
     
-    # Plot A: Variance Estimators (MSE vs MLE)
+    # Plot A: Variance Estimators
     g1 <- ggplot(df, aes(x = k)) +
-      # True Sigma^2 Reference
-      geom_hline(yintercept = sigma^2, linetype = "dashed", color = "gray50") +
-      annotate("text", x = 0, y = sigma^2 + 0.1, label = "True Variance", color="gray50", hjust=0, size=3) +
+      geom_step(data = theory_df, aes(y = expected_mse, linetype = "Theoretical"), 
+                color = "gray40", size = 0.8, direction = "vh") +
       
-      # Lines
-      geom_line(aes(y = MSE, color = "MSE (Unbiased)"), size = 1) +
-      geom_point(aes(y = MSE, color = "MSE (Unbiased)"), size = 2) +
-      geom_line(aes(y = MLE, color = "MLE (SSE/n)"), size = 1) +
-      geom_point(aes(y = MLE, color = "MLE (SSE/n)"), size = 2) +
+      geom_line(aes(y = MLE, color = "Naive (MLE)"), size = 1, linetype = "solid") +
+      geom_point(aes(y = MLE, color = "Naive (MLE)"), size = 2) +
       
-      scale_color_manual(values = c("MSE (Unbiased)" = "blue", "MLE (SSE/n)" = "red")) +
+      geom_line(aes(y = MSE, color = "Corrected (MSE)"), size = 1, linetype = "dashed") +
+      geom_point(aes(y = MSE, color = "Corrected (MSE)"), size = 2, shape = 17) +
+      
+      scale_color_manual(values = c("Naive (MLE)" = "firebrick", "Corrected (MSE)" = "blue")) +
+      scale_linetype_manual(values = c("Theoretical" = "dotted"), name=NULL) +
+      
       scale_x_continuous(breaks = model_steps) +
-      coord_cartesian(ylim = c(0, 2.5)) +
+      coord_cartesian(ylim = c(0, max(theory_df$expected_mse) + 1)) +
       labs(title = paste0("Scenario ", scenario, ": Estimators of Error Variance"),
            y = "Variance Estimate", x = NULL, color = NULL) +
       theme_minimal() + theme(legend.position = "top")
 
-    # Plot B: R-squared vs Adjusted R-squared
+    # Plot B: Model Fit
     g2 <- ggplot(df, aes(x = k)) +
-      geom_line(aes(y = R2, color = "R-squared"), size = 1) +
-      geom_point(aes(y = R2, color = "R-squared"), size = 2) +
-      geom_line(aes(y = R2_adj, color = "Adjusted R^2"), size = 1, linetype="dashed") +
-      geom_point(aes(y = R2_adj, color = "Adjusted R^2"), size = 2) +
+      geom_hline(yintercept = 0, color = "black", size = 0.2) +
       
-      scale_color_manual(values = c("R-squared" = "darkgreen", "Adjusted R^2" = "purple")) +
+      geom_line(aes(y = R2, color = "Naive (R^2)"), size = 1, linetype = "solid") +
+      geom_point(aes(y = R2, color = "Naive (R^2)"), size = 2) +
+      
+      geom_line(aes(y = R2_adj, color = "Corrected (Adj R^2)"), size = 1, linetype = "dashed") +
+      geom_point(aes(y = R2_adj, color = "Corrected (Adj R^2)"), size = 2, shape = 17) +
+      
+      scale_color_manual(values = c("Naive (R^2)" = "firebrick", "Corrected (Adj R^2)" = "blue")) +
+      
       scale_x_continuous(breaks = model_steps) +
-      scale_y_continuous(limits = c(-0.2, 1), labels = scales::percent) +
-      labs(title = "Model Fit Measures",
+      scale_y_continuous(limits = c(y_min_limit, 1), labels = scales::percent) +
+      labs(title = "Estimate of R-squared",
            y = "Value", x = "Number of Predictors (k)", color = NULL) +
       theme_minimal() + theme(legend.position = "bottom")
 
-    # Combine plots
     final_plot <- g1 / g2
-    
-    # Save frame
     ggsave(file.path(frame_dir, sprintf("f%03d.png", j)), final_plot, width = 7, height = 7, dpi = 100)
   }
   
-  # --- Encode Video ---
   if (requireNamespace("av", quietly = TRUE)) {
     pngs <- list.files(frame_dir, "\\.png$", full.names = TRUE)
     av::av_encode_video(pngs, filename, framerate = fps, verbose = FALSE)
   }
 }
+
+# --- Execution ---
+generate_animation("H0", "figs/rss-h0-v5.mp4")
+generate_animation("H1", "figs/rss-h1-v5.mp4")
 ```
 
-```{r}
-#| include: false
-#| cache: true
+::: {.panel-tabset}
 
-# Generate H0 Video
-video_path_h0 <- "figs/rss-h0-v2.mp4"
-generate_animation("H0", video_path_h0)
-```
+#### Null Hypothesis ($H_0$)
+
+Under $H_0$, the true coefficient for $x_1$ is $\beta_1 = 0$. All predictors are noise.
 
 ```{r}
 #| echo: false
@@ -1072,28 +1085,17 @@ generate_animation("H0", video_path_h0)
 if (knitr::is_html_output()) {
   htmltools::tags$video(
     controls = "controls", width = "100%", 
-    htmltools::tags$source(src = "figs/rss-h0-v2.mp4", type = "video/mp4")
+    htmltools::tags$source(src = "figs/rss-h0-v5.mp4", type = "video/mp4")
   )
 } else {
-  # Static placeholder for PDF
-  # (In practice, you might generate a static plot here)
   plot(1, 1, type="n", axes=FALSE, xlab="", ylab="", main="Animation available in HTML version")
   text(1, 1, "View HTML for H0 Animation")
 }
 ```
 
-## Alternative Hypothesis ($H_1$)
+#### Alternative Hypothesis ($H_1$)
 
-Under $H_1$, $x_1$ is a true predictor ($\beta_1 = 2$). The subsequent groups ($x_2 \dots x_{11}$) remain noise.
-
-```{r}
-#| include: false
-#| cache: true
-
-# Generate H1 Video
-video_path_h1 <- "figs/rss-h1-v2.mp4"
-generate_animation("H1", video_path_h1)
-```
+Under $H_1$, $x_1$ is a true predictor ($\beta_1 = 2$). The subsequent groups ($x_2 \dots x_{20}$) remain noise.
 
 ```{r}
 #| echo: false
@@ -1102,7 +1104,7 @@ generate_animation("H1", video_path_h1)
 if (knitr::is_html_output()) {
   htmltools::tags$video(
     controls = "controls", width = "100%", 
-    htmltools::tags$source(src = "figs/rss-h1-v2.mp4", type = "video/mp4")
+    htmltools::tags$source(src = "figs/rss-h1-v5.mp4", type = "video/mp4")
   )
 } else {
   plot(1, 1, type="n", axes=FALSE, xlab="", ylab="", main="Animation available in HTML version")
