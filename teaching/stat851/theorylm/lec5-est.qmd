@@ -746,6 +746,51 @@ We apply @thm-proj-dist to the specific projection matrices identified in the de
   This shows that while $E[\text{SSE}]$ depends only on the noise variance and sample size, $E[\text{SSR}]$ is inflated by the magnitude of the true regression signal $\|P_{X_c}\mu\|^2$.
 :::
 
+## F-test for Testing Overall Regression Effect
+
+We wish to test whether the regression model provides any explanatory power beyond the simple intercept-only model.
+
+**Hypotheses:**
+
+* **Null Hypothesis ($H_0$):** $\beta_1 = \beta_2 = \dots = \beta_k = 0$ (No regression effect).
+    This implies $\mu \in \text{span}(j_n)$ and the true signal variance $\|X_c\beta_1\|^2 = 0$.
+* **Alternative Hypothesis ($H_1$):** At least one $\beta_j \neq 0$.
+
+### The F-Statistic
+
+We construct the test statistic using the ratio of the Mean Squares defined previously:
+
+$$ F = \frac{\text{MSR}}{\text{MSE}} = \frac{\text{SSR}/k}{\text{SSE}/(n-k-1)} $$
+
+### Distribution under $H_1$ and $H_0$
+
+Using the independence and distributional results from @thm-distribution-ss-v2, the ratio follows a non-central F-distribution.
+
+* **Under $H_1$:**
+    $$ F \sim F(k, n-k-1, \lambda) $$
+    where the non-centrality parameter is $\lambda = \frac{\|X_c \beta_1\|^2}{2\sigma^2}$.
+
+* **Under $H_0$:**
+    Since $\beta_1 = 0$, the non-centrality vanishes ($\lambda = 0$). The statistic follows a central F-distribution:
+    $$ F \sim F(k, n-k-1) $$
+
+### Justification via Expectations
+
+The logic of the F-test is transparent when we examine the expected values of the numerator and denominator:
+
+$$
+\begin{aligned}
+E[\text{MSE}] &= \sigma^2 \\
+E[\text{MSR}] &= \sigma^2 + \frac{\|X_c \beta_1\|^2}{k}
+\end{aligned}
+$$
+
+* **If $H_0$ is true:** The signal term is zero. Both Mean Squares estimate $\sigma^2$ unbiasedly. We expect $F \approx 1$.
+* **If $H_1$ is true:** The numerator includes the positive term $\frac{\|X_c \beta_1\|^2}{k}$. We expect $F > 1$.
+
+Therefore, we reject $H_0$ for sufficiently large values of $F$. Specifically, we reject at level $\alpha$ if:
+$$ F_{obs} > F_{\alpha}(k, n-k-1) $$
+
 ## Coefficient of Determination
 
 ### Definition and Expectation
@@ -807,25 +852,45 @@ Under $H_0$ ($\|X_c\beta_1\|^2 = 0$), this expectation becomes 0, confirming tha
 
 ### Relationship with Rao-Blackwell Decomposition of Variances
 
-The formula for the expected Adjusted $R^2$ reveals a deep connection to the decomposition of variance in population quantities. Recall the Rao-Blackwell theorem (or Law of Total Variance), which decomposes the total variance of $Y$ into the expected conditional variance (noise) and the variance of the conditional expectation (signal):
-$$ \text{Var}(Y) = E[\text{Var}(Y|X)] + \text{Var}(E[Y|X]) $$
+The formula for the expected Adjusted $R^2$ reveals a deep connection to the decomposition of variance in population quantities. Recall the Rao-Blackwell theorem (or Law of Total Variance), which decomposes the total variance of a single observation $Y_i$ into the expected conditional variance (noise) and the variance of the conditional expectation (signal):
+$$ \text{Var}(Y_i) = E[\text{Var}(Y_i|x_{(i)})] + \text{Var}(E[Y_i|x_{(i)}]) $$
 $$ \sigma^2_Y = \sigma^2 + \text{Var}_{\text{signal}} $$
 
 In our derived expectation for $R^2_a$:
 $$ E[R^2_a] \approx \frac{\frac{\|X_c\beta_1\|^2}{n-1}}{\sigma^2 + \frac{\|X_c\beta_1\|^2}{n-1}} $$
 
 The term in the numerator, $\frac{\|X_c\beta_1\|^2}{n-1}$, is precisely the **sample variance of the true means** $\mu_i$.
-Let $\mu = X\beta$. Since $X_c\beta_1 = P_{X_c} \mu = \mu - \bar{\mu}j_n$, the squared norm divided by degrees of freedom is:
+Let $\mu = X\beta$. We can expand the centered signal vector $X_c\beta_1$ to see this explicitly. Since $\mu \in \text{Col}(X)$, we know $H\mu = \mu$:
+
+$$
+X_c\beta_1 = P_{X_c} \mu = (H - P_{j_n})\mu = H\mu - P_{j_n}\mu = \mu - \bar{\mu}j_n = 
+\begin{pmatrix} 
+\mu_1 - \bar{\mu} \\ 
+\mu_2 - \bar{\mu} \\ 
+\vdots \\ 
+\mu_n - \bar{\mu} 
+\end{pmatrix}
+$$
+
+This vector represents the deviation of each observation's true mean from the grand mean. Consequently, the squared norm divided by degrees of freedom is:
 $$ \frac{\|X_c\beta_1\|^2}{n-1} = \frac{\sum_{i=1}^n (\mu_i - \bar{\mu})^2}{n-1} = \widehat{\text{Var}}(\mu) $$
 
-If we view the rows of $X$ as random draws from a population of regressors, this term estimates $\text{Var}(x_{(i)}'\beta)$, which is the variance of the signal component $\text{Var}(E[Y|X])$.
+If we view the rows of the design matrix $X$ as random draws $x_{(1)}, \dots, x_{(n)}$ from a population of covariate vectors, this term estimates $\text{Var}(x_{(i)}'\beta)$, which is the variance of the signal component $\text{Var}(E[Y_i|x_{(i)}])$.
 
 Thus, $R^2_a$ can be interpreted as a method-of-moments estimator for the **proportion of variance explained by the signal** in the population:
-$$ E[R^2_a] \approx \frac{\text{Var}_{\text{signal}}}{\text{Var}_{\text{noise}} + \text{Var}_{\text{signal}}} = \frac{\text{Var}(E[Y|X])}{\text{Var}(Y)} $$
+$$ E[R^2_a] \approx \frac{\text{Var}_{\text{signal}}}{\text{Var}_{\text{noise}} + \text{Var}_{\text{signal}}} = \frac{\text{Var}(E[Y_i|x_{(i)}])}{\text{Var}(Y_i)} $$
 
-This makes $R^2_a$ a more "honest" estimator of the population effect size than the standard $R^2$, which includes spurious correlations from sampling noise.
 
-## Testing Overall Regression Effect with $F$ Test
+
+::: {.callout-note}
+### MSR is Not a Variance Estimator
+* Observing that $E[\text{MST}] \approx \sigma^2 + \text{Var}_{\text{signal}}$ and $E[\text{MSE}] = \sigma^2$, we can see that the difference $\text{MST} - \text{MSE}$ provides a direct method-of-moments estimator for the variance of the signal itself. 
+
+* It is important to recognize that the commonly used **Mean Square Regression (MSR)**, defined as $\text{SSR}/k$, is **not** an estimator of the signal variance. Because $E[\text{MSR}] = \sigma^2 + \frac{\|X_c\beta_1\|^2}{k}$, it scales with the sample size $n$ (via the squared norm) rather than converging to a population parameter. MSR is designed for hypothesis testing (detecting *existence* of signal), not for estimating the *magnitude* of the signal variance.
+:::
+
+
+### Relationship with $F$ Test
 
 The proportion of *unexplained* variance, $1 - R^2$, follows the Type II Non-central Beta distribution.
 
@@ -841,8 +906,211 @@ Both the standard and adjusted coefficients of determination are monotonic funct
 2.  **Adjusted $R^2_a$:**
     $$ R^2_a = 1 - \left( 1 - R^2 \right) \frac{n-1}{n-k-1} = 1 - \frac{n-1}{(n-k-1) + kF} $$
 
+### Comparing Model Selection Criteria under $H_0$ and $H_1$
 
+We simulate a dataset with $n=30$ observations and consider a sequence of nested models adding groups of predictors.
 
+**Predictor Groups:**
+
+1.  **Step 1 ($k=1$):** Add $x_1$. (This is the **Signal** under $H_1$, but Noise under $H_0$).
+2.  **Step 2 ($k=6$):** Add $x_2, \dots, x_6$ (Pure Noise).
+3.  **Step 3 ($k=11$):** Add $x_7, \dots, x_{11}$ (Pure Noise).
+
+We visualize how the estimators for variance ($MSE$ vs $MLE$) and model fit ($R^2$ vs $R^2_{adj}$) behave as we add these variables.
+
+::: {.panel-tabset}
+
+## Null Hypothesis ($H_0$)
+
+Under $H_0$, the true coefficient for $x_1$ is $\beta_1 = 0$. All predictors are noise.
+
+```{r}
+#| include: false
+#| label: setup-animation-func
+
+# --- Common Setup for Both Animations ---
+library(ggplot2)
+library(patchwork)
+require("latex2exp")
+
+# knobs
+n_frames <- 30  # Number of simulation frames
+fps      <- 2
+n        <- 30
+sigma    <- 1
+
+# Define the sequence of models (number of predictors k)
+# k=0 (Int), k=1 (x1), k=6 (x1..x6), k=11 (x1..x11)
+model_steps <- c(0, 1, 6, 11)
+
+generate_animation <- function(scenario = "H0", filename) {
+  
+  # Ensure directory exists
+  dir.create(dirname(filename), showWarnings = FALSE)
+  
+  # Temp directory for frames
+  frame_dir <- file.path("frames_temp", scenario)
+  dir.create(frame_dir, recursive = TRUE, showWarnings = FALSE)
+  
+  # --- Frame Loop ---
+  for (j in 1:n_frames) {
+    
+    # 1. Generate Data
+    # 11 predictors total
+    X <- as.data.frame(replicate(11, rnorm(n)))
+    names(X) <- paste0("x", 1:11)
+    
+    # Define True Beta based on Scenario
+    # H0: all betas 0
+    # H1: beta1 = 2 (Signal), others 0
+    beta_vec <- rep(0, 11)
+    if (scenario == "H1") beta_vec[1] <- 2 
+    
+    # Generate y
+    y <- as.numeric(as.matrix(X) %*% beta_vec + rnorm(n, sd = sigma))
+    
+    # 2. Fit Sequence of Models and Collect Stats
+    stats_list <- lapply(model_steps, function(k) {
+      
+      # Fit model
+      if (k == 0) {
+        fit <- lm(y ~ 1)
+      } else {
+        form <- as.formula(paste("y ~", paste(names(X)[1:k], collapse = " + ")))
+        fit <- lm(form, data = X)
+      }
+      
+      # Extract Stats
+      rss <- sum(residuals(fit)^2)
+      p   <- k + 1  # param count (k predictors + intercept)
+      
+      # Variance Estimators
+      # MSE (Unbiased): SSE / (n-p)
+      mse <- rss / (n - p)
+      # MLE (Biased): SSE / n
+      mle <- rss / n
+      
+      # Fit Indices
+      r2 <- summary(fit)$r.squared
+      r2_adj <- summary(fit)$adj.r.squared
+      
+      data.frame(
+        k = k,
+        p = p,
+        MSE = mse,
+        MLE = mle,
+        R2 = r2,
+        R2_adj = r2_adj
+      )
+    })
+    
+    df <- do.call(rbind, stats_list)
+    
+    # 3. plotting
+    
+    # Plot A: Variance Estimators (MSE vs MLE)
+    g1 <- ggplot(df, aes(x = k)) +
+      # True Sigma^2 Reference
+      geom_hline(yintercept = sigma^2, linetype = "dashed", color = "gray50") +
+      annotate("text", x = 0, y = sigma^2 + 0.1, label = "True Variance", color="gray50", hjust=0, size=3) +
+      
+      # Lines
+      geom_line(aes(y = MSE, color = "MSE (Unbiased)"), size = 1) +
+      geom_point(aes(y = MSE, color = "MSE (Unbiased)"), size = 2) +
+      geom_line(aes(y = MLE, color = "MLE (SSE/n)"), size = 1) +
+      geom_point(aes(y = MLE, color = "MLE (SSE/n)"), size = 2) +
+      
+      scale_color_manual(values = c("MSE (Unbiased)" = "blue", "MLE (SSE/n)" = "red")) +
+      scale_x_continuous(breaks = model_steps) +
+      coord_cartesian(ylim = c(0, 2.5)) +
+      labs(title = paste0("Scenario ", scenario, ": Estimators of Error Variance"),
+           y = "Variance Estimate", x = NULL, color = NULL) +
+      theme_minimal() + theme(legend.position = "top")
+
+    # Plot B: R-squared vs Adjusted R-squared
+    g2 <- ggplot(df, aes(x = k)) +
+      geom_line(aes(y = R2, color = "R-squared"), size = 1) +
+      geom_point(aes(y = R2, color = "R-squared"), size = 2) +
+      geom_line(aes(y = R2_adj, color = "Adjusted R^2"), size = 1, linetype="dashed") +
+      geom_point(aes(y = R2_adj, color = "Adjusted R^2"), size = 2) +
+      
+      scale_color_manual(values = c("R-squared" = "darkgreen", "Adjusted R^2" = "purple")) +
+      scale_x_continuous(breaks = model_steps) +
+      scale_y_continuous(limits = c(-0.2, 1), labels = scales::percent) +
+      labs(title = "Model Fit Measures",
+           y = "Value", x = "Number of Predictors (k)", color = NULL) +
+      theme_minimal() + theme(legend.position = "bottom")
+
+    # Combine plots
+    final_plot <- g1 / g2
+    
+    # Save frame
+    ggsave(file.path(frame_dir, sprintf("f%03d.png", j)), final_plot, width = 7, height = 7, dpi = 100)
+  }
+  
+  # --- Encode Video ---
+  if (requireNamespace("av", quietly = TRUE)) {
+    pngs <- list.files(frame_dir, "\\.png$", full.names = TRUE)
+    av::av_encode_video(pngs, filename, framerate = fps, verbose = FALSE)
+  }
+}
+```
+
+```{r}
+#| include: false
+#| cache: true
+
+# Generate H0 Video
+video_path_h0 <- "figs/rss-h0-v2.mp4"
+generate_animation("H0", video_path_h0)
+```
+
+```{r}
+#| echo: false
+#| fig.align: center
+
+if (knitr::is_html_output()) {
+  htmltools::tags$video(
+    controls = "controls", width = "100%", 
+    htmltools::tags$source(src = "figs/rss-h0-v2.mp4", type = "video/mp4")
+  )
+} else {
+  # Static placeholder for PDF
+  # (In practice, you might generate a static plot here)
+  plot(1, 1, type="n", axes=FALSE, xlab="", ylab="", main="Animation available in HTML version")
+  text(1, 1, "View HTML for H0 Animation")
+}
+```
+
+## Alternative Hypothesis ($H_1$)
+
+Under $H_1$, $x_1$ is a true predictor ($\beta_1 = 2$). The subsequent groups ($x_2 \dots x_{11}$) remain noise.
+
+```{r}
+#| include: false
+#| cache: true
+
+# Generate H1 Video
+video_path_h1 <- "figs/rss-h1-v2.mp4"
+generate_animation("H1", video_path_h1)
+```
+
+```{r}
+#| echo: false
+#| fig.align: center
+
+if (knitr::is_html_output()) {
+  htmltools::tags$video(
+    controls = "controls", width = "100%", 
+    htmltools::tags$source(src = "figs/rss-h1-v2.mp4", type = "video/mp4")
+  )
+} else {
+  plot(1, 1, type="n", axes=FALSE, xlab="", ylab="", main="Animation available in HTML version")
+  text(1, 1, "View HTML for H1 Animation")
+}
+```
+
+:::
 
 ## Underfitting and Overfitting
 
