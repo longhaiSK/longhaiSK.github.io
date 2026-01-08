@@ -3,7 +3,7 @@ format:
   html:
     code-fold: false
 ---
-# Point Estimation in Multiple Linear Regression
+# Estimation in Multiple Linear Regression
 
 ## Linear Models and Least Square Estimator
 
@@ -697,6 +697,7 @@ The decomposition of the total variation is visualized below. The total deviatio
 \end{tikzpicture}
 ```
 
+
 ### Distribution of Sum of Squares
 
 We apply the general theory of projections to the specific components defined in @def-ss-components.
@@ -705,17 +706,17 @@ We apply the general theory of projections to the specific components defined in
 Let $y \sim N(\mu, \sigma^2 I_n)$, where $\mu \in \text{Col}(X)$.
 Consider the decomposition defined by the projection matrices $P_{X_c}$ and $M = I - H$.
 
-1.  **Independence:** The quadratic forms $\text{SSR}$ and $\text{SSE}$ are statistically independent because the subspaces $L(X_c)$ and $\text{Col}(X)^\perp$ are orthogonal.
+* **Independence:** The quadratic forms $\text{SSR}$ and $\text{SSE}$ are statistically independent because the subspaces $L(X_c)$ and $\text{Col}(X)^\perp$ are orthogonal.
 
-2.  **Distribution of SSE:** The scaled sum of squared errors follows a central Chi-squared distribution:
-    $$ \frac{\text{SSE}}{\sigma^2} = \frac{\|(I - H)y\|^2}{\sigma^2} \sim \chi^2(n-p) $$
-    **Mean:**
-    $$ E[\text{SSE}] = \sigma^2(n-p) $$
+* **Distribution of SSE:** The scaled sum of squared errors follows a central Chi-squared distribution:
+  $$ \frac{\text{SSE}}{\sigma^2} = \frac{\|(I - H)y\|^2}{\sigma^2} \sim \chi^2(n-k-1) $$
+  **Mean:**
+  $$ E[\text{SSE}] = \sigma^2(n-k-1) $$
 
-3.  **Distribution of SSR:** The scaled regression sum of squares follows a **non-central** Chi-squared distribution:
-    $$ \frac{\text{SSR}}{\sigma^2} = \frac{\|P_{X_c}y\|^2}{\sigma^2} \sim \chi^2(p-1, \lambda) $$
-    **Mean:**
-    $$ E[\text{SSR}] = \sigma^2(p-1) + \|P_{X_c}\mu\|^2 $$
+* **Distribution of SSR:** The scaled regression sum of squares follows a **non-central** Chi-squared distribution:
+  $$ \frac{\text{SSR}}{\sigma^2} = \frac{\|P_{X_c}y\|^2}{\sigma^2} \sim \chi^2(k, \lambda) $$
+  **Mean:**
+  $$ E[\text{SSR}] = \sigma^2 k + \|P_{X_c}\mu\|^2 $$
 
 **Non-centrality Parameter ($\lambda$):**
 $$ \lambda = \frac{1}{2\sigma^2} \|P_{X_c} \mu\|^2 $$
@@ -725,27 +726,29 @@ where $$\|P_{X_c} \mu\|^2 = \|X_c \beta_1\|^2 = (X_c \beta_1)' (X_c \beta_1) = \
 ::: proof
 We apply @thm-proj-dist to the specific projection matrices identified in the definitions.
 
-1.  **For SSE (Error Space):**
-    $\text{SSE}$ is defined by the projection matrix $P_V = I - H$.
-    
-    * **Dimension:** The rank of $(I - H)$ is $n - \text{rank}(X) = n - p$.
-    * **Non-centrality:** Since $\mu \in \text{Col}(X)$, the projection onto the orthogonal complement is zero: $\|(I - H)\mu\|^2 = 0$. Thus, $\lambda = 0$.
-    * **Expectation:** Using Part 2 of @thm-proj-dist ($E(\|P_V y\|^2) = \sigma^2 k + \|P_V \mu\|^2$):
-        $$ E[\text{SSE}] = \sigma^2(n-p) + 0 = \sigma^2(n-p) $$
+* **For SSE (Error Space):**
+  $\text{SSE}$ is defined by the projection matrix $P_V = I - H$.
 
-2.  **For SSR (Regression Space):**
-    $\text{SSR}$ is defined by the projection matrix $P_V = P_{X_c}$.
-    
-    * **Dimension:** The rank of $P_{X_c}$ is $p - 1$.
-    * **Non-centrality:** The projection of $\mu$ onto $L(X_c)$ is $P_{X_c}\mu$.
-        $$ \lambda = \frac{1}{2\sigma^2} \|P_{X_c} \mu\|^2 $$
-    * **Expectation:** Using Part 2 of @thm-proj-dist:
-        $$ E[\text{SSR}] = \sigma^2(p-1) + \|P_{X_c}\mu\|^2 $$
-        
-    This shows that while $E[\text{SSE}]$ depends only on the noise variance and sample size, $E[\text{SSR}]$ is inflated by the magnitude of the true regression signal $\|P_{X_c}\mu\|^2$.
+  - **Dimension:** The rank of $(I - H)$ is $n - \text{rank}(X) = n - (k+1) = n - k - 1$.
+  - **Non-centrality:** Since $\mu \in \text{Col}(X)$, the projection onto the orthogonal complement is zero: $\|(I - H)\mu\|^2 = 0$. Thus, $\lambda = 0$.
+  - **Expectation:** Using Part 2 of @thm-proj-dist ($E(\|P_V y\|^2) = \sigma^2 \text{rank}(P_V) + \|P_V \mu\|^2$):
+    $$ E[\text{SSE}] = \sigma^2(n-k-1) + 0 = \sigma^2(n-k-1) $$
+
+* **For SSR (Regression Space):**
+  $\text{SSR}$ is defined by the projection matrix $P_V = P_{X_c}$.
+
+  - **Dimension:** The rank of $P_{X_c}$ is $(k+1) - 1 = k$.
+  - **Non-centrality:** The projection of $\mu$ onto $L(X_c)$ is $P_{X_c}\mu$.
+    $$ \lambda = \frac{1}{2\sigma^2} \|P_{X_c} \mu\|^2 $$
+  - **Expectation:** Using Part 2 of @thm-proj-dist:
+    $$ E[\text{SSR}] = \sigma^2 k + \|P_{X_c}\mu\|^2 $$
+
+  This shows that while $E[\text{SSE}]$ depends only on the noise variance and sample size, $E[\text{SSR}]$ is inflated by the magnitude of the true regression signal $\|P_{X_c}\mu\|^2$.
 :::
 
-## Coefficient of Determination ($R^2$)
+## Coefficient of Determination
+
+### Definition and Expectation
 
 The $R^2$ statistic measures the proportion of total variation explained by the regression model.
 
@@ -754,66 +757,92 @@ $$R^2 = \frac{\text{SSR}}{\text{SST}} = 1 - \frac{\text{SSE}}{\text{SST}}$$
 Since $0 \le \text{SSE} \le \text{SST}$, it follows that $0 \le R^2 \le 1$.
 :::
 
-In terms of the centered coefficients:
-$$R^2 = \frac{\hat{\beta}_1' X_c' X_c \hat{\beta}_1}{\sum (y_i - \bar{y})^2}$$
+To understand the behavior of $R^2$, we look at the expectations of its components. From the distributions derived previously:
 
-### Adjusted $R^2$ ($R^2_a$)
+* **Error Sum of Squares:** $E[\text{SSE}] = \sigma^2(n-k-1)$.
+* **Total Sum of Squares:** $E[\text{SST}] = E[\text{SSR}] + E[\text{SSE}] = \sigma^2(n-1) + 2\sigma^2\lambda$.
 
-Standard $R^2$ always increases (or stays the same) as predictors are added, regardless of their value. The Adjusted $R^2$ penalizes for model complexity.
+Using the first-order approximation $E[X/Y] \approx E[X]/E[Y]$, we find the expected value of $R^2$:
+
+$$ E[R^2] \approx \frac{E[\text{SSR}]}{E[\text{SST}]} = \frac{k + 2\lambda}{(n-1) + 2\lambda} $$
+
+**Behavior under Null Hypothesis ($H_0: \beta_1 = 0$):**
+
+When there is no true relationship ($\lambda = 0$), the approximation yields:
+$$ E[R^2 | H_0] = \frac{k}{n-1} $$
+
+This result is **exact** for the central Beta distribution. This highlights a bias: even when the predictors have no effect, $R^2$ is expected to be positive, strictly increasing with the number of predictors $k$.
+
+### Exact Distribution of $R^2$
+
+The $R^2$ statistic follows the Type I Non-central Beta distribution derived from the ratio of independent Chi-squared variables.
+
+::: {#thm-r2-dist name="Distribution of R-Squared"}
+$$ R^2 \sim \text{Beta}_1\left( \frac{k}{2}, \frac{n-k-1}{2}, \lambda \right) $$
+where $\text{df}_1 = k$ and $\text{df}_2 = n-k-1$.
+:::
+
+
+### Adjusted $R^2$ via Mean Squares of Two Nested Models
+
+To correct for the degrees of freedom bias, we define the Mean Squares.
+
+* **Mean Square Error (MSE):** $\text{MSE} = \text{SSE} / (n-k-1)$.
+    $$ E[\text{MSE}] = \sigma^2 $$
+* **Mean Square Total (MST):** $\text{MST} = \text{SST} / (n-1)$.
+    $$ E[\text{MST}] = \sigma^2 + \frac{\|X_c\beta_1\|^2}{n-1} $$
+
+The expected ratio of MSE to MST depends on the average signal per observation relative to the noise.
+$$ E\left[ \frac{\text{MSE}}{\text{MST}} \right] \approx \frac{\sigma^2}{\sigma^2 + \frac{\|X_c\beta_1\|^2}{n-1}} = \frac{1}{1 + \frac{\|X_c\beta_1\|^2}{(n-1)\sigma^2}} $$
 
 ::: {#def-adj-r2 name="Adjusted R-Squared"}
-$$R^2_a = 1 - \frac{\text{SSE} / (n - k - 1)}{\text{SST} / (n - 1)} = 1 - \frac{\text{MSE}}{\text{MST}}$$
-Relationship to $R^2$:
-$$R^2_a = 1 - (1 - R^2) \frac{n-1}{n-k-1}$$
+The Adjusted $R^2$ is defined using the ratio of variances rather than sums of squares:
+$$ R^2_a = 1 - \frac{\text{MSE}}{\text{MST}} $$
 :::
 
-### Distribution of $R^2$
+Substituting the approximate expectation of the ratio:
+$$ E[R^2_a] \approx 1 - \frac{\sigma^2}{\sigma^2 + \frac{\|X_c\beta_1\|^2}{n-1}} = \frac{\frac{\|X_c\beta_1\|^2}{n-1}}{\sigma^2 + \frac{\|X_c\beta_1\|^2}{n-1}} $$
 
-The distribution of the coefficient of determination $R^2 = \text{SSR} / (\text{SSR} + \text{SSE})$ follows directly from the ratio of the independent Chi-squared variables defined in @thm-distribution-ss-v2.
+Under $H_0$ ($\|X_c\beta_1\|^2 = 0$), this expectation becomes 0, confirming that $R^2_a$ removes the bias present in standard $R^2$.
 
-::: {#thm-r2-noncentral name="Non-Central Distribution of R-Squared"}
-If $\beta_1 \neq 0$, the $R^2$ statistic follows a non-central Beta distribution:
-$$ R^2 \sim \text{Beta}\left( \frac{p-1}{2}, \frac{n-p}{2}; \lambda \right) $$
-where the non-centrality parameter is $\lambda = \frac{1}{2\sigma^2} \beta_1' X_c' X_c \beta_1$.
+### Relationship with Rao-Blackwell Decomposition of Variances
+
+The formula for the expected Adjusted $R^2$ reveals a deep connection to the decomposition of variance in population quantities. Recall the Rao-Blackwell theorem (or Law of Total Variance), which decomposes the total variance of $Y$ into the expected conditional variance (noise) and the variance of the conditional expectation (signal):
+$$ \text{Var}(Y) = E[\text{Var}(Y|X)] + \text{Var}(E[Y|X]) $$
+$$ \sigma^2_Y = \sigma^2 + \text{Var}_{\text{signal}} $$
+
+In our derived expectation for $R^2_a$:
+$$ E[R^2_a] \approx \frac{\frac{\|X_c\beta_1\|^2}{n-1}}{\sigma^2 + \frac{\|X_c\beta_1\|^2}{n-1}} $$
+
+The term in the numerator, $\frac{\|X_c\beta_1\|^2}{n-1}$, is precisely the **sample variance of the true means** $\mu_i$.
+Let $\mu = X\beta$. Since $X_c\beta_1 = P_{X_c} \mu = \mu - \bar{\mu}j_n$, the squared norm divided by degrees of freedom is:
+$$ \frac{\|X_c\beta_1\|^2}{n-1} = \frac{\sum_{i=1}^n (\mu_i - \bar{\mu})^2}{n-1} = \widehat{\text{Var}}(\mu) $$
+
+If we view the rows of $X$ as random draws from a population of regressors, this term estimates $\text{Var}(x_{(i)}'\beta)$, which is the variance of the signal component $\text{Var}(E[Y|X])$.
+
+Thus, $R^2_a$ can be interpreted as a method-of-moments estimator for the **proportion of variance explained by the signal** in the population:
+$$ E[R^2_a] \approx \frac{\text{Var}_{\text{signal}}}{\text{Var}_{\text{noise}} + \text{Var}_{\text{signal}}} = \frac{\text{Var}(E[Y|X])}{\text{Var}(Y)} $$
+
+This makes $R^2_a$ a more "honest" estimator of the population effect size than the standard $R^2$, which includes spurious correlations from sampling noise.
+
+## Testing Overall Regression Effect with $F$ Test
+
+The proportion of *unexplained* variance, $1 - R^2$, follows the Type II Non-central Beta distribution.
+
+::: {#thm-r2-complement name="Distribution of Unexplained Variance"}
+$$ 1 - R^2 = \frac{\text{SSE}}{\text{SST}} \sim \text{Beta}_2\left( \frac{n-k-1}{2}, \frac{k}{2}, \lambda \right) $$
 :::
 
-::: proof
-Let $U = \text{SSR}/\sigma^2$ and $V = \text{SSE}/\sigma^2$. From @thm-distribution-ss-v2, we have established:
+Both the standard and adjusted coefficients of determination are monotonic functions of the $F$-statistic ($F = \text{MSR}/\text{MSE}$):
 
-1.  $U \sim \chi^2(p-1, \lambda)$ (Non-central Chi-squared).
-2.  $V \sim \chi^2(n-p)$ (Central Chi-squared).
-3.  $U$ and $V$ are independent.
+1.  **Standard $R^2$:**
+    $$ R^2 = \frac{\frac{k}{n-k-1} F}{1 + \frac{k}{n-k-1} F} $$
 
-We express $R^2$ in terms of these scaled variables:
-$$ R^2 = \frac{\text{SSR}}{\text{SSR} + \text{SSE}} = \frac{U\sigma^2}{U\sigma^2 + V\sigma^2} = \frac{U}{U + V} $$
-
-**Definition:** A random variable $X$ follows a non-central Beta distribution $\text{Beta}(\alpha, \beta; \lambda)$ if it can be written as $X = \frac{A}{A+B}$, where $A \sim \chi^2(2\alpha, \lambda)$ and $B \sim \chi^2(2\beta)$ are independent.
-
-Matching our terms to this definition:
-* $2\alpha = p-1 \implies \alpha = \frac{p-1}{2}$
-* $2\beta = n-p \implies \beta = \frac{n-p}{2}$
-
-Therefore:
-$$ R^2 \sim \text{Beta}\left( \frac{p-1}{2}, \frac{n-p}{2}; \lambda \right) $$
-:::
+2.  **Adjusted $R^2_a$:**
+    $$ R^2_a = 1 - \left( 1 - R^2 \right) \frac{n-1}{n-k-1} = 1 - \frac{n-1}{(n-k-1) + kF} $$
 
 
-::: {#cor-r2-null-behavior name="Null Behavior of R-Squared and Adjusted R-Squared"}
-Under the null hypothesis of no regression effect ($H_0: \beta_1 = 0$), the non-centrality parameter vanishes ($\lambda = 0$), leading to the following properties:
 
-1.  **Distribution of $R^2$:** It follows a central Beta distribution:
-    $$ R^2 \sim \text{Beta}\left( \frac{p-1}{2}, \frac{n-p}{2} \right) $$
-
-2.  **Expected Value of $R^2$ (Bias):**
-    Even when no relationship exists, the expected $R^2$ is positive due to chance correlation:
-    $$ E[R^2 | H_0] = \frac{p-1}{n-1} $$
-
-3.  **Expected Value of $R^2_{adj}$ (Unbiasedness):**
-    The Adjusted $R^2$ corrects for this bias. Using the linear relation $R^2_{adj} = 1 - (1 - R^2) \frac{n-1}{n-p}$:
-    $$
-    E[R^2_{adj} | H_0] = 1 - \left( 1 - \frac{p-1}{n-1} \right) \frac{n-1}{n-p} = 0
-    $$
-:::
 
 ## Underfitting and Overfitting
 
