@@ -10,16 +10,16 @@ title: "Distribution of Quadratic Forms"
 library(pdftools)
 library(magick)
 
-# Define path to PDF
+# Define Path to PDF
 pdf_path <- "../Lec40-quadratic-form.pdf"
 img_dir <- "lec40_images"
 
-# Create image directory
+# Create Image Directory
 if (!dir.exists(img_dir)) {
   dir.create(img_dir)
 }
 
-# Helper function to extract and crop a specific page
+# Helper Function to Extract and Crop a Specific Page
 extract_page_image <- function(page_num, filename, geometry = "1200x800+0+200", force = FALSE) {
   target_file <- file.path(img_dir, filename)
   
@@ -105,10 +105,10 @@ Sigma <- diag(2) * sigma_val^2
 mu_orig <- c(5, 6)      # Original Mean
 y_orig  <- c(7, 5)      # Updated Point y
 
-# Generate 100 points from N(mu, I)
+# Generate 100 Points from N(mu, I)
 data_orig <- mvrnorm(n, mu_orig, Sigma)
 
-# Define rotation angles
+# Define Rotation Angles
 angles <- c(0, 70, 180)
 
 # --- 2. Process Data for Each Angle ---
@@ -142,7 +142,7 @@ all_points  <- do.call(rbind, points_list)
 all_vectors <- do.call(rbind, vectors_list)
 
 # --- 3. Create Circle Data ---
-# Radius is the length of mu
+# Radius Is the Length of Mu
 radius_mu <- sqrt(sum(mu_orig^2))
 circle_data <- data.frame(
   x0 = 0, y0 = 0, r = radius_mu
@@ -404,12 +404,12 @@ sigma <- 1
 
 # --- Data Generation ---
 
-# Case 1: i.i.d. Case (Common Mean)
+# Case 1: I.i.d. Case (common Mean)
 mu_iid <- rep(3, n)
 y_iid <- mu_iid + rnorm(n, 0, sigma)
 
-# Case 2: Regression Case (Sorted Mean)
-# mu_i is sampled from N(3, sd=3) and sorted
+# Case 2: Regression Case (sorted Mean)
+# Mu_i Is Sampled from N(3, Sd=3) and Sorted
 mu_reg <- sort(rnorm(n, 3, 3)) 
 y_reg <- mu_reg + rnorm(n, 0, sigma)
 
@@ -429,7 +429,7 @@ df_reg <- data.frame(
   type = "Regression Case (Sorted Mean)"
 )
 
-# Determine common Y limits for comparison across both plots
+# Determine Common Y Limits for Comparison Across Both Plots
 y_min <- min(c(df_iid$y, df_reg$y, df_iid$mu, df_reg$mu)) - 1
 y_max <- max(c(df_iid$y, df_reg$y, df_iid$mu, df_reg$mu)) + 1
 y_lims <- c(y_min, y_max)
@@ -714,7 +714,7 @@ lambda <- 4     # Non-centrality parameter (lambda = 1/2 * ||mu||^2)
 x_limit <- 25   # X-axis range
 j_values <- 0:15 # Sequence of J = 0, 1, 2...
 
-# Generate data for the mixture components
+# Generate Data for the Mixture Components
 x <- seq(0, x_limit, length.out = 400)
 mixture_df <- do.call(rbind, lapply(j_values, function(j) {
   weight <- dpois(j, lambda)
@@ -726,8 +726,8 @@ mixture_df <- do.call(rbind, lapply(j_values, function(j) {
   )
 }))
 
-# Generate data for the true non-central chi-square
-# R uses ncp = ||mu||^2, which equals 2 * lambda
+# Generate Data for the True Non-central Chi-square
+# R Uses Ncp = ||mu||^2, Which Equals 2 * Lambda
 true_nc <- data.frame(
   x = x,
   y = dchisq(x, df = n, ncp = 2 * lambda)
@@ -1102,141 +1102,161 @@ Let $y \sim N_n(\mu, \sigma^2 I)$ and $y'y = \sum y'A_iy$. The quadratic forms $
 * $n = \sum r_i$.
 :::
 
-## Non-Central Distributions Derived from $\chi^2$
 
-Suppose $X_1 \sim \chi^2(n_1, \lambda)$ is a non-central chi-squared random variable representing the **Signal**, and $X_2 \sim \chi^2(n_2)$ is a central chi-squared random variable representing the **Noise**. We assume $X_1$ and $X_2$ are independent.
 
-The additive relationship between these independent components and the Total Sum of Squares is displayed in @fig-variance-partition.
+## Non-central Distributions Derived from Non-central $\chi^2$
 
-```{r}
-#| label: fig-variance-partition
-#| fig-cap: "Partitioning of Total Variation into Independent Signal and Noise Components."
-#| echo: false
-#| fig-width: 8
-#| fig-height: 3
-#| warning: false
+We begin by considering two independent Chi-squared random variables that form the building blocks for several distributions fundamental to statistical power analysis and hypothesis testing.
 
-library(ggplot2)
+Let the random variables $X_1$ and $X_2$ be defined as:
 
-# Define segment coordinates
-x_start <- 0
-x_break <- 5
-x_end   <- 12
+1.  **Non-central Component ($X_1$):** $X_1 \sim \chi^2(n_1, \lambda)$.
+    This variable contains the non-centrality parameter $\lambda$. In applications such as linear models, this typically represents the **Signal Sum of Squares** (the variation explained by the model), where $\lambda$ quantifies the systematic deviation from the null hypothesis.
 
-ggplot() +
-  # --- 1. Main Line Segments ---
-  # Signal Segment (Blue)
-  geom_segment(aes(x = x_start, xend = x_break, y = 0, yend = 0), 
-               color = "darkblue", linewidth = 2) +
-  # Noise Segment (Red)
-  geom_segment(aes(x = x_break, xend = x_end, y = 0, yend = 0), 
-               color = "darkred", linewidth = 2) +
-  
-  # --- 2. Vertical Ticks ---
-  geom_segment(aes(x = c(x_start, x_break, x_end), 
-                   xend = c(x_start, x_break, x_end),
-                   y = -0.2, yend = 0.2), 
-               color = "black", linewidth = 1) +
+2.  **Central Component ($X_2$):** $X_2 \sim \chi^2(n_2)$.
+    This variable follows a central Chi-squared distribution. It typically represents the **Noise (or Error) Sum of Squares**, arising from pure random variation.
 
-  # --- 3. Labels Above (X1, X2) ---
-  annotate("text", x = (x_start + x_break)/2, y = 0.5, 
-           label = "X[1] ~ (Signal)", parse = TRUE, 
-           color = "darkblue", fontface = "bold", size = 5) +
-  annotate("text", x = (x_break + x_end)/2, y = 0.5, 
-           label = "X[2] ~ (Noise)", parse = TRUE, 
-           color = "darkred", fontface = "bold", size = 5) +
+We can visualize the summation of these independent components as partitioning a fixed total length.
 
-  # --- 4. Distribution Brackets (Level 1) ---
-  # Blue Bracket (Manual construction for portability)
-  geom_segment(aes(x = x_start, xend = x_break, y = -0.5, yend = -0.5), color = "darkblue") +
-  geom_segment(aes(x = x_start, xend = x_start, y = -0.5, yend = -0.3), color = "darkblue") +
-  geom_segment(aes(x = x_break, xend = x_break, y = -0.5, yend = -0.3), color = "darkblue") +
-  annotate("text", x = (x_start + x_break)/2, y = -0.9, 
-           label = "chi^2(n[1], lambda)", parse = TRUE, color = "darkblue", size = 4) +
+```{tikz}
+%| label: fig-variance-partition
+%| fig-cap: "Partitioning of Total Variation. The axis marks the cumulative sums: $X_2$ (Noise) and $X_1$ (Signal). In linear models, these correspond to SSE and Model SS, summing to SST."
+%| echo: false
+%| fig-align: "center"
+%| out-extra: 'style="width: 78% !important;"'
+%| engine.opts:
+%|   extra.preamble: "\\usepackage{amssymb}"
 
-  # Red Bracket
-  geom_segment(aes(x = x_break, xend = x_end, y = -0.5, yend = -0.5), color = "darkred") +
-  geom_segment(aes(x = x_break, xend = x_break, y = -0.5, yend = -0.3), color = "darkred") +
-  geom_segment(aes(x = x_end, xend = x_end, y = -0.5, yend = -0.3), color = "darkred") +
-  annotate("text", x = (x_break + x_end)/2, y = -0.9, 
-           label = "chi^2(n[2])", parse = TRUE, color = "darkred", size = 4) +
+\begin{tikzpicture}[
+    scale=1,
+    transform shape,
+    >=latex,
+    font=\small
+]
+\usetikzlibrary{decorations.pathreplacing, calc}
 
-  # --- 5. Total Sum Bracket (Level 2) ---
-  geom_segment(aes(x = x_start, xend = x_end, y = -1.6, yend = -1.6), color = "black", linewidth = 0.8) +
-  geom_segment(aes(x = x_start, xend = x_start, y = -1.6, yend = -1.4), color = "black", linewidth = 0.8) +
-  geom_segment(aes(x = x_end, xend = x_end, y = -1.6, yend = -1.4), color = "black", linewidth = 0.8) +
-  annotate("text", x = (x_start + x_end)/2, y = -2.1, 
-           label = "Total ~ Sum == X[1] + X[2]", parse = TRUE, 
-           fontface = "bold", size = 5) +
+% Define Lengths
+\def\lenNoise{4}
+\def\lenSignal{6}
+\def\yBar{1.0} % Height of the bars to "leave 0" visible
+\def\yBrace{0.8}
 
-  # --- Cleanup ---
-  theme_void() +
-  coord_fixed(ratio = 1) +
-  ylim(-2.5, 1) +
-  xlim(-0.5, 12.5)
+% Coordinates on Axis (y=0)
+\coordinate (O) at (0,0);
+\coordinate (P_SSE) at (\lenNoise, 0);
+\coordinate (P_SST) at (\lenNoise + \lenSignal, 0);
+
+% Coordinates for Bars (y=\yBar)
+\coordinate (Bar_Start) at (0, \yBar);
+\coordinate (Bar_Mid)   at (\lenNoise, \yBar);
+\coordinate (Bar_End)   at (\lenNoise + \lenSignal, \yBar);
+
+% --- 1. The Axis (Bottom) ---
+\draw[->, thick] (-0.5,0) -- (\lenNoise + \lenSignal + 1, 0);
+
+% Axis Ticks and Labels
+\draw[thick] (O) -- ++(0, -0.2) node[below] {\textbf{0}};
+\draw[thick] (P_SSE) -- ++(0, -0.2) node[below] {\textbf{$X_2$ (SSE)}};
+\draw[thick] (P_SST) -- ++(0, -0.2) node[below] {\textbf{$X_1+X_2$ (SST)}};
+
+% Dashed Drop Lines (connecting bars to axis values)
+\draw[dashed, gray] (Bar_Mid) -- (P_SSE);
+\draw[dashed, gray] (Bar_End) -- (P_SST);
+
+% --- 2. The Bars (Lifted Up) ---
+% Segment X2 (Noise) - Red
+\draw[ultra thick, red!70!black] (Bar_Start) -- (Bar_Mid);
+\node[above, red!70!black, font=\bfseries] at ($(Bar_Start)!0.5!(Bar_Mid)$) {$X_2$ (Noise)};
+
+% Segment X1 (Signal) - Blue
+\draw[ultra thick, blue!70!black] (Bar_Mid) -- (Bar_End);
+\node[above, blue!70!black, font=\bfseries] at ($(Bar_Mid)!0.5!(Bar_End)$) {$X_1$ (Signal)};
+
+% --- 3. Braces (Under the Bars) ---
+% Brace for X2
+\draw[decorate, decoration={brace, mirror, amplitude=6pt, raise=2pt}, thick, red!70!black] 
+    (0, \yBrace) -- (\lenNoise, \yBrace) 
+    node[midway, below=8pt] {$\sim \chi^2(n_2)$};
+
+% Brace for X1
+\draw[decorate, decoration={brace, mirror, amplitude=6pt, raise=2pt}, thick, blue!70!black] 
+    (\lenNoise, \yBrace) -- (\lenNoise + \lenSignal, \yBrace) 
+    node[midway, below=8pt] {$\sim \chi^2(n_1, \lambda)$};
+
+\end{tikzpicture}
 ```
 
-Using $X_1$ and $X_2$, we define the four primary non-central distributions below.
+Using these two components, we construct four distributions.
 
-### 1. The Non-Central F-Distribution
-
-The Non-central F-distribution arises when we compare the normalized magnitude of the signal to the normalized magnitude of the noise. It is the fundamental distribution for power analysis in ANOVA and regression, testing if the signal density is significantly larger than the noise density.
+### The Non-central F-distribution
 
 ::: {#def-noncentral-f}
 ### Non-central F
-The random variable $V$ follows a **non-central F-distribution** $F(n_1, n_2, \lambda)$ defined as:
+Let $X_1 \sim \chi^2(n_1, \lambda)$ and $X_2 \sim \chi^2(n_2)$ be independent. The random variable $V$ follows a **non-central F-distribution** $F(n_1, n_2, \lambda)$, defined as the ratio of the mean squares:
 $$V = \frac{X_1/n_1}{X_2/n_2}$$
 :::
 
-The probability density function is expressed as a weighted sum of central F densities, where the weights are Poisson probabilities. This structure reflects the stochastic nature of the non-centrality parameter $\lambda$.
+Physically, this statistic compares the "density" of the signal ($X_1/n_1$) to the "density" of the noise ($X_2/n_2$). In the context of ANOVA or regression, this is the standard test statistic. When $\lambda=0$ (the null hypothesis), $V$ follows the central F-distribution. As $\lambda$ increases, the numerator $X_1$ grows stochastically larger, shifting the distribution to the right and increasing the probability of rejection.
+
+The probability density function is a Poisson mixture of central F densities:
 
 $$f_V(v) = \sum_{j=0}^{\infty} \frac{e^{-\lambda/2}(\lambda/2)^j}{j!} f_{F}\left(v; n_1+2j, n_2\right)$$
 
-* **Exact Mean** (for $n_2 > 2$):
+**Expectation** (for $n_2 > 2$):
+The mean increases linearly with $\lambda$.
+
+* **Exact Mean:**
     $$E[V] = \frac{n_2(n_1 + \lambda)}{n_1(n_2 - 2)}$$
+
 * **Approximate Mean:**
     $$E[V] \approx 1 + \frac{\lambda}{n_1}$$
+    *(Note: This approximation assumes $n_2$ is large. It converges to the exact central mean $1$ only asymptotically as $n_2 \to \infty$.)*
 
 ```{r}
 #| label: fig-nc-f
 #| echo: false
 #| fig-height: 4
-#| fig-cap: "Densities of Non-Central F (n1=5, n2=20)"
+#| fig-cap: "Densities of Non-Central F ($n_1=5, n_2=20$) for varying $\\lambda$."
 
-x_f <- seq(0, 5, length.out = 300)
+library(ggplot2)
+x_f <- seq(0, 6, length.out = 300)
 df_list <- lapply(c(0, 5, 10), function(l) {
   data.frame(x = x_f, y = df(x_f, 5, 20, ncp = l), lambda = as.factor(l))
 })
 plot_data <- do.call(rbind, df_list)
 
-ggplot(plot_data, aes(x, y, color = lambda)) + geom_line(size=1) +
-  labs(title="Non-central F-Distribution", y="Density") + theme_minimal()
+ggplot(plot_data, aes(x, y, color = lambda)) + geom_line(linewidth=1) +
+  labs(x="Value", y="Density") + theme_minimal()
 ```
 
-### 2. Type I Non-Central Beta Distribution
-
-The Type I Non-central Beta distribution models the ratio of the signal segment to the total stick length. In regression analysis, this statistic is the Coefficient of Determination ($R^2$). It measures the proportion of total variation explained by the model.
+### Type I Non-central Beta Distribution
 
 ::: {#def-noncentral-beta1}
 ### Type I Non-central Beta
-The random variable $B_I$ follows a **Type I non-central Beta distribution** $Beta_I(n_1/2, n_2/2, \lambda)$ defined as:
+The random variable $B_I$ follows a **Type I non-central Beta distribution** $Beta_I(n_1/2, n_2/2, \lambda)$, defined as the proportion of the non-central component to the sum:
 $$B_I = \frac{X_1}{X_1 + X_2}$$
 :::
 
-The density is defined by a Poisson mixture of central Beta distributions. As $\lambda$ increases, the probability mass shifts towards 1, indicating a higher proportion of explained variance.
+This distribution models the proportion of total variation attributable to the signal. In linear regression, this is the distribution of the **Coefficient of Determination ($R^2$)** under the alternative hypothesis. As $\lambda$ increases, $X_1$ dominates the total sum, causing the probability mass to concentrate near 1.
 
-$$f_{B_I}(x) = \sum_{j=0}^{\infty} \frac{e^{-\lambda/2}(\lambda/2)^j}{j!} f_{Beta}\left(x; \frac{n_1}{2}+j, \frac{n_2}{2}\right)$$
+The density is a Poisson mixture where the non-centrality increments the first shape parameter:
 
-* **Exact Mean** (using $_1F_1$ confluent hypergeometric function):
+$$f_{B_I}(x) = \sum_{j=0}^{\infty} \frac{e^{-\lambda/2}(\lambda/2)^j}{j!} f_{\text{Beta}}\left(x; \frac{n_1}{2}+j, \frac{n_2}{2}\right)$$
+
+**Expectation:**
+
+* **Exact Mean:**
     $$E[B_I] = e^{-\lambda/2} \frac{n_1}{n_1+n_2} \,_1F_1\left(\frac{n_1}{2}+1; \frac{n_1+n_2}{2}+1; \frac{\lambda}{2}\right)$$
+
 * **Approximate Mean:**
     $$E[B_I] \approx \frac{n_1 + \lambda}{n_1 + n_2 + \lambda}$$
+    *(Note: This formula becomes the exact mean of the central Beta distribution when $\lambda = 0$.)*
 
 ```{r}
 #| label: fig-nc-beta1
 #| echo: false
 #| fig-height: 4
-#| fig-cap: "Densities of Type I Beta (R-squared)"
+#| fig-cap: "Densities of Type I Beta ($R^2$) for varying $\\lambda$."
 
 x_b <- seq(0, 1, length.out = 300)
 df_list <- lapply(c(0, 5, 10), function(l) {
@@ -1244,34 +1264,38 @@ df_list <- lapply(c(0, 5, 10), function(l) {
 })
 plot_data <- do.call(rbind, df_list)
 
-ggplot(plot_data, aes(x, y, color = lambda)) + geom_line(size=1) +
-  labs(title="Type I Non-central Beta (R²)", y="Density") + theme_minimal()
+ggplot(plot_data, aes(x, y, color = lambda)) + geom_line(linewidth=1) +
+  labs(x="Value", y="Density") + theme_minimal()
 ```
 
-### 3. Type II Non-Central Beta Distribution
-
-The Type II Non-central Beta distribution models the complementary ratio: the proportion of the total stick length occupied by the noise ($X_2$). This corresponds to the ratio $SSE/SST$ in linear models.
+### Type II Non-central Beta Distribution
 
 ::: {#def-noncentral-beta2}
 ### Type II Non-central Beta
-The random variable $B_{II}$ follows a **Type II non-central Beta distribution** defined as:
+The random variable $B_{II}$ follows a **Type II non-central Beta distribution**, defined as the proportion of the central component to the sum:
 $$B_{II} = \frac{X_2}{X_1 + X_2} = 1 - B_I$$
 :::
 
-Here, the non-centrality parameter $\lambda$ affects the *second* shape parameter of the mixture components. As the signal ($\lambda$) gets stronger, the proportion of unexplained noise decreases, shifting the density mass towards 0.
+This distribution describes the proportion of total variation that remains unexplained (noise). In regression, this corresponds to the ratio **SSE/SST**. While the amount of noise ($X_2$) does not change with $\lambda$, its *relative* share of the total diminishes as the signal $X_1$ grows. Thus, the distribution shifts toward 0 as $\lambda$ increases.
 
-$$f_{B_{II}}(x) = \sum_{j=0}^{\infty} \frac{e^{-\lambda/2}(\lambda/2)^j}{j!} f_{Beta}\left(x; \frac{n_2}{2}, \frac{n_1}{2}+j\right)$$
+The Poisson weights affect the second shape parameter, reflecting that the non-centrality is present in the denominator (the total) but not the numerator (the noise):
+
+$$f_{B_{II}}(x) = \sum_{j=0}^{\infty} \frac{e^{-\lambda/2}(\lambda/2)^j}{j!} f_{\text{Beta}}\left(x; \frac{n_2}{2}, \frac{n_1}{2}+j\right)$$
+
+**Expectation:**
 
 * **Exact Mean:**
     $$E[B_{II}] = e^{-\lambda/2} \frac{n_2}{n_1+n_2} \,_1F_1\left(\frac{n_1}{2}; \frac{n_1+n_2}{2}+1; \frac{\lambda}{2}\right)$$
+
 * **Approximate Mean:**
     $$E[B_{II}] \approx \frac{n_2}{n_1 + n_2 + \lambda}$$
+    *(Note: This formula becomes the exact mean of the central Beta distribution when $\lambda = 0$.)*
 
 ```{r}
 #| label: fig-nc-beta2
 #| echo: false
 #| fig-height: 4
-#| fig-cap: "Densities of Type II Beta (Unexplained Variance)"
+#| fig-cap: "Densities of Type II Beta ($SSE/SST$) for varying $\\lambda$."
 
 x_b <- seq(0, 1, length.out = 300)
 df_list <- lapply(c(0, 5, 10), function(l) {
@@ -1279,34 +1303,38 @@ df_list <- lapply(c(0, 5, 10), function(l) {
 })
 plot_data <- do.call(rbind, df_list)
 
-ggplot(plot_data, aes(x, y, color = lambda)) + geom_line(size=1) +
-  labs(title="Type II Non-central Beta (SSE/SST)", y="Density") + theme_minimal()
+ggplot(plot_data, aes(x, y, color = lambda)) + geom_line(linewidth=1) +
+  labs(x="Value", y="Density") + theme_minimal()
 ```
 
-### 4. Scaled Type II Beta Distribution
-
-The ratio of Mean Square Error ($MSE$) to Mean Square Total ($MST$) is a rescaled version of the Type II Beta variable. It accounts for the degrees of freedom associated with the signal and noise segments, providing a direct metric for comparing error variance to total variance.
+### Scaled Type II Beta Distribution
 
 ::: {#def-scaled-beta}
 ### Scaled Type II Beta
-The statistic $S = MSE/MST$ follows a **Scaled Type II Beta distribution** defined as:
+The statistic $S$ follows a **Scaled Type II Beta distribution**, defined as the ratio of the mean square of the central component to the mean square of the total:
 $$S = \frac{X_2/n_2}{(X_1+X_2)/(n_1+n_2)} = \left( \frac{n_1+n_2}{n_2} \right) B_{II}$$
 :::
 
-This variable is bounded by $[0, \frac{n_1+n_2}{n_2}]$ rather than $[0, 1]$. Its probability density function is derived by a linear transformation of the Type II Beta PDF.
+This distribution models the ratio **MSE/MST**. Unlike the standard Type II Beta, which compares raw sums, this statistic adjusts for degrees of freedom to compare *variances*. Because the Mean Square Total averages over more degrees of freedom ($n_1+n_2$) than the Mean Square Error ($n_2$), the support of this distribution is $[0, \frac{n_1+n_2}{n_2}]$, extending beyond 1.
+
+The density function is a linear transformation of the Type II Beta PDF:
 
 $$f_S(s) = \frac{n_2}{n_1+n_2} f_{B_{II}}\left( s \cdot \frac{n_2}{n_1+n_2} \right)$$
 
+**Expectation:**
+
 * **Exact Mean:**
     $$E[S] = \left( \frac{n_1+n_2}{n_2} \right) E[B_{II}]$$
+
 * **Approximate Mean:**
     $$E[S] \approx \frac{n_1+n_2}{n_1+n_2+\lambda}$$
+    *(Note: This formula becomes the exact mean when $\lambda = 0$, yielding $E[S]=1$.)*
 
 ```{r}
 #| label: fig-scaled-beta
 #| echo: false
 #| fig-height: 4
-#| fig-cap: "Densities of Scaled Type II Beta (MSE/MST)"
+#| fig-cap: "Densities of Scaled Type II Beta ($MSE/MST$)."
 
 n1 <- 5; n2 <- 20
 scale_factor <- (n1 + n2) / n2
@@ -1320,32 +1348,53 @@ df_list <- lapply(c(0, 5, 10), function(l) {
 })
 plot_data <- do.call(rbind, df_list)
 
-ggplot(plot_data, aes(x, y, color = lambda)) + geom_line(size=1) +
-  labs(title="Scaled Type II Beta (MSE/MST)", y="Density") + theme_minimal()
+ggplot(plot_data, aes(x, y, color = lambda)) + geom_line(linewidth=1) +
+  labs(x="Value", y="Density") + theme_minimal()
 ```
 
-## Application: Inference on the Mean of a Normal Sample
+### The Non-central t-distribution
 
-Consider a random sample $y \sim N_n(\mu j_n, \sigma^2 I_n)$. We test the full model $M_1: \mu \neq \mu_0$ against the reduced model $M_0: \mu = \mu_0$.
+While the distributions above model *variances* (sums of squares), the **Non-central t-distribution** models *amplitudes*. It is the standard statistic for testing the mean of a single group or the difference between two means (t-test) when the null hypothesis is false.
 
-Let $y^* = y - \mu_0 j_n$. We partition the sums of squares as:
+This statistic compares a **Signal Amplitude** (Normal variable) to a **Noise Amplitude** (Root-mean-square error).
 
-1.  **Signal ($U_1$):** $SS_{\text{diff}} = n(\bar{Y} - \mu_0)^2$. Under $M_1$, $SS_{\text{diff}}/\sigma^2 \sim \chi^2(1, \lambda)$.
-2.  **Noise ($U_2$):** $SSE_1 = \sum (Y_i - \bar{Y})^2$. Under $M_1$, $SSE_1/\sigma^2 \sim \chi^2(n-1)$.
-    
-    *(Note: $n_1 = 1$ and $n_2 = n-1$)*.
+::: {#def-noncentral-t}
+### Non-central t
+Let $Z \sim N(\delta, 1)$ and $X_2 \sim \chi^2(n_2)$ be independent. The random variable $T$ follows a **non-central t-distribution** $t(n_2, \delta)$:
+$$T = \frac{Z}{\sqrt{X_2/n_2}}$$
+:::
 
-### Mapping Statistics to Distributions
+**Relationship to F-distribution:**
+The square of a non-central t-variable is a non-central F-variable with 1 numerator degree of freedom:
+$$T^2 \sim F(1, n_2, \lambda) \quad \text{where } \lambda = \delta^2$$
 
-The standard test statistics used in this inference problem map directly to the distributions defined above.
+**Expectation:**
+The mean is proportional to the non-centrality parameter $\delta$.
 
-| Statistic | Formula | Distribution | Interpretation |
-| :--- | :--- | :--- | :--- |
-| **F-Statistic** | $F = \frac{SS_{\text{diff}}/1}{SSE_1/(n-1)}$ | **Non-central F** <br> $F(1, n-1, \lambda)$ | Ratio of Signal Variance to Noise Variance. |
-| **Beta Statistic** | $B = \frac{SS_{\text{diff}}}{SS_{\text{diff}} + SSE_1}$ | **Type I Beta** <br> $Beta_I(\frac{1}{2}, \frac{n-1}{2}, \lambda)$ | Proportion of total variation explained by the model ($R^2$). |
-| **Unexplained** | $1-B = \frac{SSE_1}{SS_{\text{diff}} + SSE_1}$ | **Type II Beta** <br> $Beta_{II}(\frac{1}{2}, \frac{n-1}{2}, \lambda)$ | Proportion of total variation remaining in the residuals. |
-| **Inverse F** | $S = \frac{1}{F} = \frac{S^2}{n(\bar{Y}-\mu_0)^2}$ | **Scaled Type II** | Ratio of Noise Variance to Signal Variance. |
-## Example: Inference of the mean of normal sample
+* **Exact Mean** (for $n_2 > 1$):
+    $$E[T] = \delta \sqrt{\frac{n_2}{2}} \frac{\Gamma((n_2-1)/2)}{\Gamma(n_2/2)}$$
+
+* **Approximate Mean:**
+    $$E[T] \approx \delta$$
+    *(Note: As $n_2 \to \infty$, the denominator $\sqrt{X_2/n_2}$ converges to 1, and $T$ converges to $Z \sim N(\delta, 1)$.)*
+
+```{r}
+#| label: fig-nc-t
+#| echo: false
+#| fig-height: 4
+#| fig-cap: "Densities of Non-Central t ($df=20$) for varying $\\delta$."
+
+x_t <- seq(-5, 15, length.out = 300)
+df_list <- lapply(c(0, 3, 6), function(d) {
+  data.frame(x = x_t, y = dt(x_t, df = 20, ncp = d), delta = as.factor(d))
+})
+plot_data <- do.call(rbind, df_list)
+
+ggplot(plot_data, aes(x, y, color = delta)) + geom_line(linewidth=1) +
+  labs(x="Value", y="Density") + theme_minimal()
+```
+
+## Example: Inference of the Mean of Normal Sample
 
 Consider a random sample $y \sim N_n(\mu j_n, \sigma^2 I_n)$. We wish to test:
 
@@ -1379,7 +1428,7 @@ We use the projection matrix $P_{j_n} = \frac{1}{n}j_n j_n'$ and its complement 
 
 By Cochran's Theorem, because $P_{j_n}(I_n - P_{j_n}) = 0$, $SS_{\text{diff}}$ and $SSE_1$ are independent.
 
-### Distributions of three equivalent Statistics
+### Distributions of Three Equivalent Statistics
 
 Below are the explicit forms of the statistics used to compare $M_0$ and $M_1$:
 
@@ -1394,7 +1443,7 @@ Below are the explicit forms of the statistics used to compare $M_0$ and $M_1$:
 
 
 
-### Distributions under $M_1$ and $M_0$
+### Distributions Under $M_1$ and $M_0$
 
 Under the Full Model ($M_1$), these statistics follow **non-central** distributions because the mean of $y^*$ is $(\mu - \mu_0)j_n \neq 0$. Under the Reduced Model ($M_0$), these simplify to the **central** distributions familiar from introductory statistics.
 
