@@ -89,7 +89,7 @@ In this context, $\beta_0^*$ and $\beta_1^*$ are the population-projected coeffi
 We will first consider the case that $\text{rank}(X)=k+1$.
 :::
 
-### Least Squares Estimator of $\beta$ and Fitted Value $\hat y$
+### Least Squares Estimator of $\beta$ and Fitted Value $\hat Y$
 
 ::: {#def-least-squares name="Least Squares Estimator"}
 The **Least Squares Estimator (LSE)** of $\beta$, denoted as $\hat{\beta}$, is the vector that minimizes the Sum of Squared Errors (SSE), which measures the discrepancy between the observed responses $y$ and the fitted values $X\hat{\beta}$.
@@ -100,12 +100,12 @@ $$
 
 We can derive the closed-form solution for $\hat{\beta}$ using the geometry of projections discussed in previous chapters.
 
-#### 1. Obtaining $\hat y$ {.unnumbered}
+#### 1. Obtaining $\hat Y$ {.unnumbered}
 
 In the linear model $y = X\beta + e$, the systematic component (the mean $E[y]$) is constrained to lie in the column space of $X$, denoted as $\text{Col}(X)$. We seek the vector in $\text{Col}(X)$ that is "closest" to the observed data vector $y$. As established in the theory of projections, this closest vector is the **orthogonal projection** of $y$ onto $\text{Col}(X)$. Let $\hat{y}$ denote this fitted value vector. Using the explicit formula for the projection matrix $$H = X(X'X)^{-1}X',$$ we have:
 $$ \hat{y} = Hy = X(X'X)^{-1}X' y.$$
 
-#### 2. Obtaining $\hat{\beta}$ by Solving $X\beta = \hat{y}$ {.unnumbered}
+#### 2. Obtaining $\hat{\beta}$ by Solving $x\beta = \hat{y}$ {.unnumbered}
 
 Since the fitted vector $\hat{y}$ is a projection onto $\text{Col}(X)$, it must lie entirely within that column space. This guarantees that the linear system for the coefficients $\hat{\beta}$ is consistent (has an exact solution):
 $$ X\hat{\beta} = \hat{y} $$
@@ -202,7 +202,7 @@ Thus, the minimum variance estimator is:
 $$Ay = (X'X)^{-1}X'y = \hat{\beta}$$
 :::
 
-### Notes on Gauss-Markov
+### Notes on Gauss-markov
 
 1.  **Distributional Generality:** The remarkable feature of the Gauss-Markov theorem is that it holds for *any* distribution of $y$; normality is not required. The only assumptions used are linearity ($E(y)=X\beta$) and homoscedasticity ($\text{Var}(y)=\sigma^2 I$).
 
@@ -301,7 +301,7 @@ $$E(\text{SSE}) = \sigma^2(n - k - 1)$$
 Dividing by the degrees of freedom $(n-k-1)$, we get $E(s^2) = \sigma^2$.
 :::
 
-## Distributions under Normality
+## Distributions Under Normality
 
 If we add Assumption A5 ($y \sim N_n(X\beta, \sigma^2 I)$), we can derive the exact sampling distributions.
 
@@ -441,67 +441,75 @@ Visually, this corresponds to projecting the vector $y$ onto three orthogonal ax
 We generate a cloud of 100 observations of $y$ from $N(\mu, \sigma=1)$ where $\mu = (5,5,0)$. The projections onto the Model Plane ($z=0$) are highlighted in **red**, and the projections onto the error axis ($z$) are in **yellow**.
 
 ```{r}
-#| label: fig-geometry-3d-projections
-#| fig-cap: "Geometric Decomposition: Hollow Circles for Axis Projections"
-#| warning: false
-#| message: false
-#| echo: false
+#| label: setup-3d-geometry
+#| include: false
 
 library(plotly)
 library(MASS)
-# Ensure webshot and htmlwidgets are available for PDF generation
-if (!requireNamespace("webshot", quietly = TRUE)) {
-  warning("The 'webshot' package is required for PDF output of plotly figures.")
+
+# --- Check Dependencies for PDF ---
+if (!knitr::is_html_output()) {
+  if (!requireNamespace("webshot2", quietly = TRUE)) {
+    stop("Package 'webshot2' is required for PDF output. Run: install.packages('webshot2')")
+  }
 }
-if (!requireNamespace("htmlwidgets", quietly = TRUE)) {
-  warning("The 'htmlwidgets' package is required for PDF output of plotly figures.")
-}
 
-# --- 1. Generate Data for Both Scenarios ---
-set.seed(123)
-n <- 50
-sigma <- 0.5
-Sigma <- diag(3) * sigma^2
-
-# Scenario A: Regression Effect (beta1 != 0)
-mu_A <- c(3, 4, 0)
-data_A <- mvrnorm(n, mu = mu_A, Sigma = Sigma)
-df_A <- as.data.frame(data_A)
-colnames(df_A) <- c("x", "y", "z")
-
-# Scenario B: No Regression Effect (beta1 = 0)
-mu_B <- c(3, 0, 0)
-data_B <- mvrnorm(n, mu = mu_B, Sigma = Sigma)
-df_B <- as.data.frame(data_B)
-colnames(df_B) <- c("x", "y", "z")
-
-# --- 2. Helper to Add Traces for a Scenario ---
-add_scenario_traces <- function(fig, df, mu, visible_status) {
+# --- 1. Data Generation Helper ---
+get_data <- function(beta_effect = TRUE) {
+  set.seed(123)
+  n <- 50
+  sigma <- 0.5
+  Sigma <- diag(3) * sigma^2
   
-  # 1. Floor Projections (Red)
+  mu <- if(beta_effect) c(3, 4, 0) else c(3, 0, 0)
+  
+  data <- mvrnorm(n, mu = mu, Sigma = Sigma)
+  df <- as.data.frame(data)
+  colnames(df) <- c("x", "y", "z")
+  
+  list(df = df, mu = mu)
+}
+
+# --- 2. Plotting Helper Function ---
+create_3d_plot <- function(data_list, title) {
+  df <- data_list$df
+  mu <- data_list$mu
+  n <- nrow(df)
+  
+  fig <- plot_ly()
+  
+  # Static Floor
+  x_grid <- seq(0, 7, length.out = 20)
+  y_grid <- seq(-4, 8, length.out = 20)
+  z_plane <- matrix(0, nrow = 20, ncol = 20)
+  
+  fig <- fig %>% add_surface(
+    x = x_grid, y = y_grid, z = z_plane,
+    opacity = 0.3, colorscale = list(c(0, 1), c("steelblue", "steelblue")),
+    showscale = FALSE, name = 'Model Space'
+  )
+  
+  # Floor Projections
   fig <- fig %>% add_trace(
     data = df, type = 'scatter3d', mode = 'markers',
     x = ~x, y = ~y, z = rep(0, n),
     marker = list(size = 4, color = 'red', symbol = 'diamond', opacity = 0.8),
-    visible = visible_status,
     name = 'Proj on Floor'
   )
   
-  # 2. Data Cloud (Black)
+  # Data Cloud
   fig <- fig %>% add_trace(
     data = df, type = 'scatter3d', mode = 'markers',
     x = ~x, y = ~y, z = ~z,
     marker = list(size = 4, color = 'black', symbol = 'circle', opacity = 0.6),
-    visible = visible_status,
     name = 'Data Cloud'
   )
   
-  # 3. Axis Projections (Hollow)
+  # Axis Projections
   fig <- fig %>% add_trace(
     data = df, type = 'scatter3d', mode = 'markers',
     x = ~x, y = rep(0, n), z = rep(0, n),
     marker = list(size = 4, color = 'blue', symbol = 'circle-open', opacity = 0.6),
-    visible = visible_status,
     name = 'Proj L(jn)'
   )
   
@@ -509,7 +517,6 @@ add_scenario_traces <- function(fig, df, mu, visible_status) {
     data = df, type = 'scatter3d', mode = 'markers',
     x = rep(0, n), y = ~y, z = rep(0, n),
     marker = list(size = 4, color = 'green', symbol = 'circle-open', opacity = 0.6),
-    visible = visible_status,
     name = 'Proj L(Xc)'
   )
   
@@ -517,25 +524,22 @@ add_scenario_traces <- function(fig, df, mu, visible_status) {
     data = df, type = 'scatter3d', mode = 'markers',
     x = rep(0, n), y = rep(0, n), z = ~z,
     marker = list(size = 4, color = 'gold', symbol = 'circle-open', opacity = 0.8),
-    visible = visible_status,
     name = 'Error'
   )
   
-  # 4. Mean Vector
+  # Vectors
   fig <- fig %>% add_trace(
     type = 'scatter3d', mode = 'lines',
     x = c(0, mu[1]), y = c(0, mu[2]), z = c(0, 0),
     line = list(color = 'black', width = 6),
-    visible = visible_status,
     name = 'Mean Vector'
   )
   
-  # 5. Guide Lines
+  # Guide Lines
   fig <- fig %>% add_trace(
     type = 'scatter3d', mode = 'lines',
     x = c(mu[1], mu[1]), y = c(mu[2], 0), z = c(0, 0),
     line = list(color = 'blue', width = 4, dash = 'dash'),
-    visible = visible_status,
     name = 'Link to X'
   )
   
@@ -543,101 +547,91 @@ add_scenario_traces <- function(fig, df, mu, visible_status) {
     type = 'scatter3d', mode = 'lines',
     x = c(mu[1], 0), y = c(mu[2], mu[2]), z = c(0, 0),
     line = list(color = 'green', width = 4, dash = 'dash'),
-    visible = visible_status,
     name = 'Link to Y'
+  )
+  
+  # Layout
+  fig <- fig %>% layout(
+    title = title,
+    scene = list(
+      xaxis = list(title = "L(j<sub>n</sub>)", range = c(0, 8)),
+      yaxis = list(title = "L(X<sub>c</sub>)", range = c(-4, 8)),
+      zaxis = list(title = "Col(X)<sup>&perp;</sup>", range = c(-4, 4)),
+      aspectmode = "cube",
+      camera = list(eye = list(x = 1.6, y = 1.6, z = 0.6))
+    ),
+    margin = list(l = 0, r = 0, b = 0, t = 30), 
+    showlegend = FALSE
   )
   
   return(fig)
 }
 
-# --- 3. Build the Combined Figure ---
-fig <- plot_ly()
-
-# Add Static Floor (Always Visible)
-x_grid_range <- seq(0, 7, length.out = 20)
-y_grid_range <- seq(-4, 8, length.out = 20)
-z_plane <- matrix(0, nrow = 20, ncol = 20)
-
-fig <- fig %>% add_surface(
-  x = x_grid_range, y = y_grid_range, z = z_plane,
-  opacity = 0.3, colorscale = list(c(0, 1), c("steelblue", "steelblue")),
-  showscale = FALSE, name = 'Model Space'
-)
-
-# Add Scenario A Traces (Indices 2-9) -> Visible initially
-fig <- add_scenario_traces(fig, df_A, mu_A, visible_status = TRUE)
-
-# Add Scenario B Traces (Indices 10-17) -> Hidden initially
-fig <- add_scenario_traces(fig, df_B, mu_B, visible_status = FALSE)
-
-# --- 4. Layout ---
-vis_A <- c(TRUE, rep(TRUE, 8), rep(FALSE, 8))
-vis_B <- c(TRUE, rep(FALSE, 8), rep(TRUE, 8))
-
-fig <- fig %>% layout(
-  title = "Comparing Regression Effects",
-  scene = list(
-    xaxis = list(title = "L(j<sub>n</sub>)", range = c(0, 8)),
-    yaxis = list(title = "L(X<sub>c</sub>)", range = c(-4, 8)),
-    zaxis = list(title = "Col(X)<sup>&perp;</sup>", range = c(-4, 4)),
-    aspectmode = "cube",
-    camera = list(eye = list(x = 1.6, y = 1.6, z = 0.6))
-  ),
-  updatemenus = list(
-    list(
-      type = "buttons",
-      direction = "left",
-      x = 0.05, y = 1,
-      buttons = list(
-        list(
-          method = "update",
-          args = list(list(visible = vis_A), 
-                      list(title = "Scenario 1: Regression Effect (beta1 != 0)")),
-          label = "Effect Exists"
-        ),
-        list(
-          method = "update",
-          args = list(list(visible = vis_B), 
-                      list(title = "Scenario 2: No Effect (beta1 = 0)")),
-          label = "No Effect"
-        )
-      )
+# --- 3. Output Logic Helper (HTML vs PDF) ---
+render_3d <- function(fig, filename) {
+  if (knitr::is_html_output()) {
+    return(fig)
+  } else {
+    dir.create("figs", showWarnings = FALSE)
+    img_path <- file.path("figs", filename)
+    tmp_html <- tempfile(fileext = ".html")
+    
+    htmlwidgets::saveWidget(as_widget(fig), tmp_html)
+    
+    # Capture with webshot2
+    # Increased vwidth/vheight for higher resolution
+    webshot2::webshot(
+      url = tmp_html, 
+      file = img_path, 
+      delay = 2,
+      vwidth = 1500, 
+      vheight = 1000, 
+      cliprect = "viewport"
     )
-  ),
-  showlegend = FALSE
-)
-
-# --- 5. Output Logic (PDF vs HTML) ---
-if (knitr::is_html_output()) {
-  fig
-} else {
-  # 1. Define paths
-  dir.create("figs", showWarnings = FALSE)
-  img_path <- "figs/geometry-3d-static.png"
-  tmp_html <- "temp_plotly.html"
-  
-  # 2. Save interactive widget to temporary HTML file
-  htmlwidgets::saveWidget(as_widget(fig), tmp_html)
-  
-  # 3. Take screenshot using webshot
-  # 'delay' is CRITICAL for 3D plots to allow WebGL to render
-  webshot::webshot(
-    url = tmp_html, 
-    file = img_path, 
-    delay = 2, 
-    vwidth = 800, 
-    vheight = 600,
-    cliprect = "viewport"
-  )
-  
-  # 4. Clean up temp HTML
-  if (file.exists(tmp_html)) file.remove(tmp_html)
-  
-  # 5. Insert static image
-  knitr::include_graphics(img_path)
+    
+    if (file.exists(tmp_html)) unlink(tmp_html)
+    
+    if (file.exists(img_path)) {
+      knitr::include_graphics(img_path)
+    } else {
+      plot(1, 1, type="n", axes=FALSE, xlab="", ylab="")
+      text(1, 1, "Error: Screenshot failed.")
+    }
+  }
 }
 ```
 
+::: {.panel-tabset}
+
+#### Effect Exists (signal){.unnumbered}
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| out-width: "100%"
+#| fig-cap: "Scenario 1: Significant regression effect ($\\beta_1 \not= 0$). The mean vector projects significantly onto the predictor space."
+
+data_A <- get_data(beta_effect = TRUE)
+fig_A  <- create_3d_plot(data_A, "Scenario A: Effect Exists")
+render_3d(fig_A, "geometry-3d-signal.png")
+```
+
+#### No Effect (noise){.unnumbered}
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| out-width: "100%"
+#| fig-cap: "Scenario 2: No regression effect ($\\beta_1 = 0$). The mean vector lies purely on the intercept axis."
+
+data_B <- get_data(beta_effect = FALSE)
+fig_B  <- create_3d_plot(data_B, "Scenario B: No Effect")
+render_3d(fig_B, "geometry-3d-noise.png")
+```
+
+:::
 
 ### A Diagram to Show Decomposition of Sum of Squares
 
@@ -765,11 +759,13 @@ We apply @thm-proj-dist to the specific projection matrices identified in the de
   - **Dimension:** The rank of $P_{X_c}$ is $(k+1) - 1 = k$.
   - **Non-centrality:** The projection of $\mu$ onto $L(X_c)$ is $P_{X_c}\mu$.
     $$ \lambda = \frac{1}{2\sigma^2} \|P_{X_c} \mu\|^2 $$
+
   - **Expectation:** Using Part 2 of @thm-proj-dist:
     $$ E[\text{SSR}] = \sigma^2 k + \|P_{X_c}\mu\|^2 $$
 
   This shows that while $E[\text{SSE}]$ depends only on the noise variance and sample size, $E[\text{SSR}]$ is inflated by the magnitude of the true regression signal $\|P_{X_c}\mu\|^2$.
 :::
+
 
 ## F-test for Testing Overall Regression Effect
 
@@ -779,27 +775,16 @@ We wish to test whether the regression model provides any explanatory power beyo
 
 * **Null Hypothesis ($H_0$):** $\beta_1 = \beta_2 = \dots = \beta_k = 0$ (No regression effect).
     This implies $\mu \in \text{span}(j_n)$ and the true signal variance $\|X_c\beta_1\|^2 = 0$.
+
 * **Alternative Hypothesis ($H_1$):** At least one $\beta_j \neq 0$.
 
-### The F-Statistic
+### The F-statistic {.unnumbered}
 
 We construct the test statistic using the ratio of the Mean Squares defined previously:
 
-$$ F = \frac{\text{MSR}}{\text{MSE}} = \frac{\text{SSR}/k}{\text{SSE}/(n-k-1)} $$
+$$F = \frac{\text{MSR}}{\text{MSE}} = \frac{\text{SSR}/k}{\text{SSE}/(n-k-1)}$$
 
-### Distribution under $H_1$ and $H_0$
-
-Using the independence and distributional results from @thm-distribution-ss-v2, the ratio follows a non-central F-distribution.
-
-* **Under $H_1$:**
-    $$ F \sim F(k, n-k-1, \lambda) $$
-    where the non-centrality parameter is $\lambda = \frac{\|X_c \beta_1\|^2}{2\sigma^2}$.
-
-* **Under $H_0$:**
-    Since $\beta_1 = 0$, the non-centrality vanishes ($\lambda = 0$). The statistic follows a central F-distribution:
-    $$ F \sim F(k, n-k-1) $$
-
-### Justification via Expectations
+### Understanding $F$ via Expectations {.unnumbered}
 
 The logic of the F-test is transparent when we examine the expected values of the numerator and denominator:
 
@@ -813,12 +798,100 @@ $$
 * **If $H_0$ is true:** The signal term is zero. Both Mean Squares estimate $\sigma^2$ unbiasedly. We expect $F \approx 1$.
 * **If $H_1$ is true:** The numerator includes the positive term $\frac{\|X_c \beta_1\|^2}{k}$. We expect $F > 1$.
 
-Therefore, we reject $H_0$ for sufficiently large values of $F$. Specifically, we reject at level $\alpha$ if:
-$$ F_{obs} > F_{\alpha}(k, n-k-1) $$
+Therefore, we reject $H_0$ for sufficiently large values of $F$. Specifically, we reject at level $\alpha$ if $F_{obs} > F_{\alpha}(k, n-k-1)$.
 
-## Coefficient of Determination
+### Distributional Theory
 
-### Definition and Expectation
+To derive the exact sampling distribution, we rely on the independence of the sums of squares (from @thm-distribution-ss-v2) and the definition of the non-central F-distribution given in **@def-noncentral-f**.
+
+::: {#thm-regression-f-dist name="Distribution of Regression F-Statistic"}
+Under the assumption of normality, the regression F-statistic follows a **non-central F-distribution**:
+
+$$ F \sim F(k, n-k-1, \lambda) $$
+
+The non-centrality parameter $\lambda$ is determined by the ratio of the signal sum of squares to the error variance:
+$$ \lambda = \frac{\|X_c \beta_1\|^2}{2\sigma^2} $$
+
+**Special Cases:**
+
+1.  **Under $H_1$ (Signal exists):** $\lambda > 0$, so $F$ follows the non-central distribution.
+2.  **Under $H_0$ (No signal):** $\beta_1 = 0 \implies \lambda = 0$. The distribution collapses to the **central F-distribution**:
+    $$ F \sim F(k, n-k-1) $$
+:::
+
+::: proof
+We identify the components from @def-noncentral-f:
+
+1.  **Numerator ($X_1$):** Let $X_1 = \text{SSR}/\sigma^2$. From @thm-distribution-ss-v2, $X_1 \sim \chi^2(k, 2\lambda)$.
+2.  **Denominator ($X_2$):** Let $X_2 = \text{SSE}/\sigma^2$. From @thm-distribution-ss-v2, $X_2 \sim \chi^2(n-k-1)$.
+3.  **Independence:** $X_1$ and $X_2$ are independent.
+
+Substituting these into the F-statistic:
+$$
+F = \frac{\text{MSR}}{\text{MSE}} = \frac{(\text{SSR}/\sigma^2)/k}{(\text{SSE}/\sigma^2)/(n-k-1)} = \frac{X_1/k}{X_2/(n-k-1)}
+$$
+By definition @def-noncentral-f, this ratio follows $F(k, n-k-1, \lambda)$.
+:::
+
+### Visualization of the Rejection Region
+
+The following plot illustrates the central F-distribution (valid under $H_0$) for $k=3$ predictors and $n=20$ observations ($df_1 = 3, df_2 = 16$). An observed statistic of $F=2$ is marked, with the p-value represented by the shaded tail area.
+
+```{r}
+#| label: fig-f-dist-example
+#| fig-cap: "Probability Density Function of F(3, 16) under H0. The shaded region represents the p-value."
+#| echo: false
+#| warning: false
+
+library(ggplot2)
+library(latex2exp)
+
+# Parameters
+n <- 20
+k <- 3
+df1 <- k
+df2 <- n - k - 1
+f_obs <- 2
+
+# Create Data for Plotting
+x_vals <- seq(0, 6, length.out = 500)
+df <- data.frame(
+  x = x_vals,
+  y = df(x_vals, df1, df2)
+)
+
+# Create Plot
+ggplot(df, aes(x, y)) +
+  # Draw the main density line
+  geom_line(size = 1) +
+  
+  # Shade the p-value area (x > f_obs)
+  geom_area(data = subset(df, x >= f_obs), aes(x = x, y = y), 
+            fill = "firebrick", alpha = 0.6) +
+  
+  # Add vertical line at F_obs
+  geom_vline(xintercept = f_obs, linetype = "dashed", color = "black") +
+  
+  # Annotations with LaTeX
+  annotate("text", x = f_obs + 0.2, y = max(df$y)*0.6, 
+           label = TeX(paste0("$F_{obs} = ", f_obs, "$")), 
+           hjust = 0, size = 5) +
+  
+  annotate("text", x = f_obs + 1, y = 0.05, 
+           label = TeX(paste0("$P(F > ", f_obs, ")$")), 
+           color = "firebrick", size = 5, fontface="bold") +
+  
+  # Labels and Theme
+  labs(x = "F statistic", y = "Density", 
+       title = TeX(paste0("Central F-Distribution ($H_0$) with $df_1 = ", df1, "$ and $df_2 = ", df2, "$"))) +
+  theme_minimal(base_size = 14) +
+  scale_x_continuous(breaks = seq(0, 6, 1))
+```
+
+
+## Coefficient of Determination ($R^2$)
+
+### Definition
 
 The $R^2$ statistic measures the proportion of total variation explained by the regression model.
 
@@ -827,23 +900,37 @@ $$R^2 = \frac{\text{SSR}}{\text{SST}} = 1 - \frac{\text{SSE}}{\text{SST}}$$
 Since $0 \le \text{SSE} \le \text{SST}$, it follows that $0 \le R^2 \le 1$.
 :::
 
-To understand the behavior of $R^2$, we look at the expectations of its components. From the distributions derived previously:
 
-* **Error Sum of Squares:** $E[\text{SSE}] = \sigma^2(n-k-1)$.
-* **Total Sum of Squares:** $E[\text{SST}] = E[\text{SSR}] + E[\text{SSE}] = \sigma^2(n-1) + 2\sigma^2\lambda$.
+### Expectation and Bias
 
-Using the first-order approximation $E[X/Y] \approx E[X]/E[Y]$, we find the expected value of $R^2$:
+To understand the bias in $R^2$, it is more illuminating to analyze the expectation of the **unexplained variance** ($1 - R^2$). This term represents the ratio of error sum of squares to the total sum of squares:
 
-$$ E[R^2] \approx \frac{E[\text{SSR}]}{E[\text{SST}]} = \frac{k + 2\lambda}{(n-1) + 2\lambda} $$
+$$ E[1 - R^2] = E\left[ \frac{\text{SSE}}{\text{SST}} \right] $$
 
-**Behavior under Null Hypothesis ($H_0: \beta_1 = 0$):**
+Using the first-order approximation $E[X/Y] \approx E[X]/E[Y]$, we examine the numerator and denominator separately:
 
-When there is no true relationship ($\lambda = 0$), the approximation yields:
-$$ E[R^2 | H_0] = \frac{k}{n-1} $$
+$$
+\begin{aligned}
+E[\text{SSE}] &= \sigma^2(n-k-1) \\
+E[\text{SST}] &= \sigma^2(n-1) + 2\sigma^2\lambda = \sigma^2 \left( (n-1) + \frac{\|X_c \beta_1\|^2}{\sigma^2} \right)
+\end{aligned}
+$$
 
-This result is **exact** for the central Beta distribution. This highlights a bias: even when the predictors have no effect, $R^2$ is expected to be positive, strictly increasing with the number of predictors $k$.
+Substituting these back, we approximate the expected unexplained fraction:
 
-### Exact Distribution of $R^2$
+$$ E[1 - R^2] \approx \frac{\sigma^2(n-k-1)}{\sigma^2 \left( (n-1) + \frac{\|X_c \beta_1\|^2}{\sigma^2} \right)} = \frac{n-k-1}{(n-1) + \frac{\|X_c \beta_1\|^2}{\sigma^2}} $$
+
+**Behavior under Null Hypothesis ($H_0$):**
+When there is no true signal ($\beta_1 = 0$), the term $\frac{\|X_c \beta_1\|^2}{\sigma^2}$ vanishes. The expected proportion of unexplained variance becomes:
+
+$$ E[1 - R^2 | H_0] \approx \frac{n-k-1}{n-1} $$
+
+This result reveals the source of the bias:
+1.  Ideally, if predictors are noise, the model should explain nothing, and $E[1-R^2]$ should be $1$.
+2.  Instead, the expected error ratio is **less than 1**, specifically scaled by $\frac{n-k-1}{n-1}$.
+3.  This scaling factor is exactly what the **Adjusted R-squared ($R^2_a$)** attempts to correct by multiplying the observed ratio by the inverse $\frac{n-1}{n-k-1}$.
+
+### Exact Distribution
 
 The $R^2$ statistic follows the Type I Non-central Beta distribution derived from the ratio of independent Chi-squared variables.
 
@@ -853,29 +940,33 @@ where $\text{df}_1 = k$ and $\text{df}_2 = n-k-1$.
 :::
 
 
-### Adjusted $R^2$ via Mean Squares of Two Nested Models
+### Adjusted R-squared ($R^2_a$)
 
-To correct for the degrees of freedom bias, we define the Mean Squares.
+To correct for the inflation of $R^2$ due to model complexity ($k$), we introduce the Adjusted $R^2$.
 
-* **Mean Square Error (MSE):** $\text{MSE} = \text{SSE} / (n-k-1)$.
-    $$ E[\text{MSE}] = \sigma^2 $$
-* **Mean Square Total (MST):** $\text{MST} = \text{SST} / (n-1)$.
-    $$ E[\text{MST}] = \sigma^2 + \frac{\|X_c\beta_1\|^2}{n-1} $$
+$$ R^2_a = 1 - \frac{\text{MSE}}{\text{MST}} = 1 - (1 - R^2) \frac{n-1}{n-k-1} $$
 
-The expected ratio of MSE to MST depends on the average signal per observation relative to the noise.
-$$ E\left[ \frac{\text{MSE}}{\text{MST}} \right] \approx \frac{\sigma^2}{\sigma^2 + \frac{\|X_c\beta_1\|^2}{n-1}} = \frac{1}{1 + \frac{\|X_c\beta_1\|^2}{(n-1)\sigma^2}} $$
+**Expectation:**
+Under $H_0$, since $E[\text{MSE}] = E[\text{MST}] = \sigma^2$, the estimator is asymptotically unbiased:
+$$ E[R^2_a | H_0] \approx 0 $$
 
-::: {#def-adj-r2 name="Adjusted R-Squared"}
-The Adjusted $R^2$ is defined using the ratio of variances rather than sums of squares:
-$$ R^2_a = 1 - \frac{\text{MSE}}{\text{MST}} $$
-:::
+**Variance and Stability:**
+While $R^2_a$ corrects the bias, it introduces instability. The variance of $R^2_a$ under $H_0$ can be derived from the variance of the Beta distribution:
 
-Substituting the approximate expectation of the ratio:
-$$ E[R^2_a] \approx 1 - \frac{\sigma^2}{\sigma^2 + \frac{\|X_c\beta_1\|^2}{n-1}} = \frac{\frac{\|X_c\beta_1\|^2}{n-1}}{\sigma^2 + \frac{\|X_c\beta_1\|^2}{n-1}} $$
+$$ \text{Var}(R^2_a | H_0) = \left( \frac{n-1}{n-k-1} \right)^2 \text{Var}(R^2 | H_0) $$
 
-Under $H_0$ ($\|X_c\beta_1\|^2 = 0$), this expectation becomes 0, confirming that $R^2_a$ removes the bias present in standard $R^2$.
+Substituting $\text{Var}(R^2 | H_0) = \frac{2k(n-k-1)}{(n-1)^2(n+1)}$, we obtain:
 
-### Relationship with Rao-Blackwell Decomposition of Variances
+$$ \text{Var}(R^2_a | H_0) = \frac{2k}{(n-k-1)(n+1)} $$
+
+**Key Insight:** As the model complexity $k$ increases relative to $n$:
+
+1.  The denominator $(n-k-1)$ shrinks.
+2.  The variance $\text{Var}(R^2_a)$ explodes.
+
+This implies that for high-dimensional models (large $k/n$), $R^2_a$ becomes an extremely noisy estimator, often yielding large negative values even for null models.
+
+### Relationship with Rao-blackwell Decomposition of Variances
 
 The formula for the expected Adjusted $R^2$ reveals a deep connection to the decomposition of variance in population quantities. Recall the Rao-Blackwell theorem (or Law of Total Variance), which decomposes the total variance of a single observation $Y_i$ into the expected conditional variance (noise) and the variance of the conditional expectation (signal):
 $$ \text{Var}(Y_i) = E[\text{Var}(Y_i|x_{(i)})] + \text{Var}(E[Y_i|x_{(i)}]) $$
@@ -908,7 +999,8 @@ $$ E[R^2_a] \approx \frac{\text{Var}_{\text{signal}}}{\text{Var}_{\text{noise}} 
 
 
 ::: {.callout-note}
-### MSR is Not a Variance Estimator
+### MSR Is Not a Variance Estimator
+
 * Observing that $E[\text{MST}] \approx \sigma^2 + \text{Var}_{\text{signal}}$ and $E[\text{MSE}] = \sigma^2$, we can see that the difference $\text{MST} - \text{MSE}$ provides a direct method-of-moments estimator for the variance of the signal itself. 
 
 * It is important to recognize that the commonly used **Mean Square Regression (MSR)**, defined as $\text{SSR}/k$, is **not** an estimator of the signal variance. Because $E[\text{MSR}] = \sigma^2 + \frac{\|X_c\beta_1\|^2}{k}$, it scales with the sample size $n$ (via the squared norm) rather than converging to a population parameter. MSR is designed for hypothesis testing (detecting *existence* of signal), not for estimating the *magnitude* of the signal variance.
@@ -932,7 +1024,7 @@ Both the standard and adjusted coefficients of determination are monotonic funct
     $$ R^2_a = 1 - \left( 1 - R^2 \right) \frac{n-1}{n-k-1} = 1 - \frac{n-1}{(n-k-1) + kF} $$
 
 
-### An Animation for Illustrating $R^2_a$ under $H_0$ and $H_1$
+### An Animation for Illustrating $r^2_a$ Under $H_0$ and $H_1$
 
 We simulate a dataset with $n=30$ observations and consider a sequence of nested models adding groups of predictors.
 
@@ -954,17 +1046,17 @@ library(patchwork)
 require("latex2exp")
 set.seed(123)
 
-# knobs
+# Knobs
 n_frames <- 30
 fps      <- 2
 n        <- 30
 sigma    <- 1
 beta1    <- 2 # Explicitly set to 2 as per text description
 
-# [FLEXIBLE] Define your steps here. 
+# [FLEXIBLE] Define your Steps Here.
 model_steps <- c(0, 1, 6, 11, 20) 
 
-# Automatically determine the maximum number of predictors needed
+# Automatically Determine the Maximum Number of Predictors Needed
 max_k <- max(model_steps) 
 
 # --- Generator Function ---
@@ -1251,7 +1343,7 @@ We assume the data has been collected and saved to `house_prices_5pred.csv`.
 #| label: generate-housing-data-5p
 #| echo: false
 
-# Hidden data generation
+# Hidden Data Generation
 set.seed(2024)
 n <- 25
 size <- round(runif(n, 1000, 3500), 0)    
@@ -1260,8 +1352,8 @@ beds <- sample(2:5, n, replace = TRUE)
 garage <- sample(0:3, n, replace = TRUE)  
 lawn <- round(runif(n, 50, 1000), 0) # Irrelevant predictor
 
-# True model (Lawn is NOT included here)
-# Sigma increased from 10,000 to 50,000
+# True Model (lawn Is NOT Included Here)
+# Sigma Increased from 10,000 to 50,000
 price <- round(30000 + 140 * size - 800 * age + 
                15000 * beds + 10000 * garage + rnorm(n, 0, 50000), 0)
 
@@ -1285,10 +1377,10 @@ First, we load the dataset. We display the first 10 rows for PDF output, or a fu
 #| label: load-and-visualize
 #| message: false
 
-# Load data
+# Load Data
 df <- read.csv("house_prices_5pred.csv")
 
-# Conditional display
+# Conditional Display
 if (knitr::is_html_output()) {
   rmarkdown::paged_table(df)
 } else {
@@ -1306,9 +1398,9 @@ This method solves the normal equations directly on the raw data: $\hat{\beta} =
 ```{r}
 #| label: method-1-naive
 
-# 1. Define y and X (add column of 1s for intercept)
+# 1. Define Y and X (add Column of 1s for Intercept)
 y <- as.matrix(df$Price)
-# Note: "Lawn" is included here, even though it is irrelevant
+# Note: "lawn" Is Included Here, Even Though It Is Irrelevant
 X_naive <- as.matrix(cbind(Intercept = 1, 
                            df[, c("Size", "Age", "Beds", "Garage", "Lawn")]))
 
@@ -1317,7 +1409,7 @@ XtX <- t(X_naive) %*% X_naive
 Xty <- t(X_naive) %*% y
 beta_naive <- solve(XtX) %*% Xty
 
-# 3. Calculate y_hat
+# 3. Calculate Y_hat
 y_hat_naive <- X_naive %*% beta_naive
 
 # Display
@@ -1327,12 +1419,12 @@ print(head(y_hat_naive, 10))
 
 #### Method 2: Centralized Formula
 This method reduces multicollinearity issues and computational errors by centering the data first.
-Formula: $\hat{\beta}_{slope} = (X_c^{\prime}X_c)^{-1}X_c^{\prime}y_c$. The intercept is calculated separately: $\beta_0 = \bar{y} - \bar{x}^{\prime}\hat{\beta}_{slope}$.
+Formula: $\hat{\beta}_{\text{slope}} = (X_c^{\prime}X_c)^{-1}X_c^{\prime}y_c$. The intercept is calculated separately: $\beta_0 = \bar{y} - \bar{x}^{\prime}\hat{\beta}_{\text{slope}}$.
 
 ```{r}
 #| label: method-2-centralized
 
-# 1. Center the data
+# 1. Center the Data
 y_bar <- mean(y)
 X_raw <- as.matrix(df[, c("Size", "Age", "Beds", "Garage", "Lawn")])
 X_means <- colMeans(X_raw)
@@ -1340,16 +1432,16 @@ X_means <- colMeans(X_raw)
 y_c <- y - y_bar
 X_c <- sweep(X_raw, 2, X_means) # Subtract column means from X
 
-# 2. Solve for slope coefficients (no intercept column in X_c)
+# 2. Solve for Slope Coefficients (no Intercept Column in X_c)
 beta_slope <- solve(t(X_c) %*% X_c) %*% t(X_c) %*% y_c
 
 # 3. Recover Intercept
 beta_0 <- y_bar - sum(X_means * beta_slope)
 
-# Combine for full beta vector
+# Combine for Full Beta Vector
 beta_central <- rbind(Intercept = beta_0, beta_slope)
 
-# 4. Calculate y_hat using the original X and reconstructed betas
+# 4. Calculate Y_hat Using the Original X and Reconstructed Betas
 X_full <- cbind(1, X_raw)
 y_hat_central <- X_full %*% beta_central
 
@@ -1364,10 +1456,10 @@ This is the standard approach for practitioners.
 ```{r}
 #| label: method-3-lm
 
-# Fit model
+# Fit Model
 model_lm <- lm(Price ~ ., data = df)
 
-# Extract coefficients and fitted values
+# Extract Coefficients and Fitted Values
 beta_lm <- coef(model_lm)
 y_hat_lm <- fitted(model_lm)
 
@@ -1385,21 +1477,21 @@ We define $\hat{y}_0$ as the vector of the mean of $y$ ($\bar{y}$). We plot the 
 ```{r}
 #| label: plot-y-vs-yhat
 
-# Define y_hat_0 (The Null Model) - for conceptual clarity
+# Define Y_hat_0 (the Null Model) - for Conceptual Clarity
 y_hat_0 <- rep(mean(y), length(y))
 
-# Scatterplot (Axes reversed: x=fitted, y=actual)
+# Scatterplot (axes Reversed: X=fitted, Y=actual)
 plot(y_hat_lm, y,
      main = "Actual vs Fitted Prices",
      xlab = "Fitted Price (y_hat)",
      ylab = "Actual Price (y)",
      pch = 19, col = "blue")
 
-# Add 1:1 line (Perfect fit area, remains y=x)
+# Add 1:1 Line (perfect Fit Area, Remains Y=x)
 abline(0, 1, col = "gray", lty = 2)
 
-# Add Mean line representing the null model
-# Since y-axis is 'actual y', a horizontal line at mean(y) represents y_bar
+# Add Mean Line Representing the Null Model
+# Since Y-axis Is 'actual Y', a Horizontal Line at Mean(y) Represents Y_bar
 abline(h = mean(y), col = "green", lwd = 2)
 
 legend("topleft", legend = c("Data", "Mean (y_bar)"),
@@ -1411,7 +1503,7 @@ legend("topleft", legend = c("Data", "Mean (y_bar)"),
 We compare different methods to calculate the sources of variation.
 
 #### 1. Naive Sum of Squared Errors
-This uses the standard summation definitions: $\sum (Difference)^2$.
+This uses the standard summation definitions: $\sum (\text{Difference})^2$.
 
 * **SST (Total):** Variation of $y$ around $\hat{y}_0$ (Mean).
 * **SSR (Regression):** Variation of $\hat{y}$ around $\hat{y}_0$ (Mean).
@@ -1434,15 +1526,15 @@ cat("Naive Calculation:\n")
 cat("SST:", SST_naive, " SSR:", SSR_naive, " SSE:", SSE_naive, "\n")
 ```
 
-#### 2. Pythagorean Shortcut (Vector Lengths)
+#### 2. Pythagorean Shortcut (vector Lengths)
 Based on the geometry of least squares, we can treat the variables as vectors. Because the vectors are orthogonal, we can use squared lengths (dot products with themselves).
 
-Formula: $SSR = ||\hat{y}||^2 - ||\hat{y}_0||^2$
+Formula: $\text{SSR} = ||\hat{y}||^2 - ||\hat{y}_0||^2$
 
 ```{r}
 #| label: ss-pythagorean
 
-# Function for squared Euclidean norm (length squared)
+# Function for Squared Euclidean Norm (length Squared)
 len_sq <- function(v) sum(v^2)
 
 # SST = ||y||^2 - ||y_0||^2
@@ -1462,9 +1554,9 @@ cat("SST:", SST_pyth, " SSR:", SSR_pyth, " SSE:", SSE_pyth, "\n")
 
 These formulas use the $\beta$ and $X$ matrices directly. This is computationally efficient for large datasets.
 
-* Formula A (Centered with $y_c$): $SSR = \hat{\beta}_c^{\prime} X_c^{\prime} y_c$
-* Formula B (Alternative with $y$): $SSR = \hat{\beta}_c^{\prime} X_c^{\prime} y$
-* Formula C (Uncentered): $SSR = \hat{\beta}^{\prime} X^{\prime} y - n\bar{y}^2$
+* Formula A (Centered with $y_c$): $\text{SSR} = \hat{\beta}_c^{\prime} X_c^{\prime} y_c$
+* Formula B (Alternative with $y$): $\text{SSR} = \hat{\beta}_c^{\prime} X_c^{\prime} y$
+* Formula C (Uncentered): $\text{SSR} = \hat{\beta}^{\prime} X^{\prime} y - n\bar{y}^2$
 
 ```{r}
 #| label: ss-matrix-equivalence
@@ -1474,15 +1566,15 @@ term_correction <- n * mean(y)^2
 
 # --- SSR Calculations ---
 
-# 1. SSR Formula A (Centered, using y_c)
+# 1. SSR Formula a (centered, Using Y_c)
 SSR_centered_yc <- t(beta_slope) %*% t(X_c) %*% y_c
 
-# 2. SSR Formula A (Alternative, using raw y)
-# Since X_c is centered, X_c' * 1 = 0, so X_c'y_c is equivalent to X_c'y
+# 2. SSR Formula a (alternative, Using Raw Y)
+# Since X_c Is Centered, X_c' * 1 = 0, so X_c'y_c Is Equivalent to X_c'y
 SSR_centered_y <- t(beta_slope) %*% t(X_c) %*% y
 
-# 3. SSR Formula B (Uncentered Matrix)
-# beta_naive includes intercept, X_naive includes column of 1s
+# 3. SSR Formula B (uncentered Matrix)
+# Beta_naive Includes Intercept, X_naive Includes Column of 1s
 term_beta_X_y <- t(beta_naive) %*% t(X_naive) %*% y
 SSR_uncentered <- term_beta_X_y - term_correction
 
@@ -1500,7 +1592,7 @@ results_table <- data.frame(
             as.numeric(SSR_uncentered))
 )
 
-# Render the table
+# Render the Table
 knitr::kable(results_table, 
              digits = 4, 
              caption = "Demonstration of SSR Formula Equivalence")
