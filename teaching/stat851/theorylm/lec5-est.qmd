@@ -1,5 +1,6 @@
 ---
 format: 
+  pdf: default
   html:
     code-fold: false
 ---
@@ -29,7 +30,7 @@ $e_{1},...,e_{n}$ all have the same variance $\sigma^{2}$; that is, $\text{Var}(
 
 * **A5. (Normality)**
 $e\sim N_{n}(0,\sigma^{2}I_{n})$.
-:::
+
 
 ### Matrix Formulation
 
@@ -448,6 +449,13 @@ We generate a cloud of 100 observations of $y$ from $N(\mu, \sigma=1)$ where $\m
 
 library(plotly)
 library(MASS)
+# Ensure webshot and htmlwidgets are available for PDF generation
+if (!requireNamespace("webshot", quietly = TRUE)) {
+  warning("The 'webshot' package is required for PDF output of plotly figures.")
+}
+if (!requireNamespace("htmlwidgets", quietly = TRUE)) {
+  warning("The 'htmlwidgets' package is required for PDF output of plotly figures.")
+}
 
 # --- 1. Generate Data for Both Scenarios ---
 set.seed(123)
@@ -468,8 +476,6 @@ df_B <- as.data.frame(data_B)
 colnames(df_B) <- c("x", "y", "z")
 
 # --- 2. Helper to Add Traces for a Scenario ---
-# We use a 'group' argument to keep track of which scenario the traces belong to
-# visible_status: TRUE for the first scenario, FALSE for the others (hidden initially)
 add_scenario_traces <- function(fig, df, mu, visible_status) {
   
   # 1. Floor Projections (Red)
@@ -550,8 +556,8 @@ fig <- plot_ly()
 # Add Static Floor (Always Visible)
 x_grid_range <- seq(0, 7, length.out = 20)
 y_grid_range <- seq(-4, 8, length.out = 20)
-
 z_plane <- matrix(0, nrow = 20, ncol = 20)
+
 fig <- fig %>% add_surface(
   x = x_grid_range, y = y_grid_range, z = z_plane,
   opacity = 0.3, colorscale = list(c(0, 1), c("steelblue", "steelblue")),
@@ -564,17 +570,8 @@ fig <- add_scenario_traces(fig, df_A, mu_A, visible_status = TRUE)
 # Add Scenario B Traces (Indices 10-17) -> Hidden initially
 fig <- add_scenario_traces(fig, df_B, mu_B, visible_status = FALSE)
 
-
-# --- 4. Define Buttons (Update Menus) ---
-# Each trace added creates an index in the plot object.
-# Index 1: Surface (Always visible)
-# Indices 2-9: Scenario A (8 traces)
-# Indices 10-17: Scenario B (8 traces)
-
-# Vector for Scenario A: [TRUE (Surface), TRUE, TRUE..., FALSE, FALSE...]
+# --- 4. Layout ---
 vis_A <- c(TRUE, rep(TRUE, 8), rep(FALSE, 8))
-
-# Vector for Scenario B: [TRUE (Surface), FALSE, FALSE..., TRUE, TRUE...]
 vis_B <- c(TRUE, rep(FALSE, 8), rep(TRUE, 8))
 
 fig <- fig %>% layout(
@@ -610,7 +607,35 @@ fig <- fig %>% layout(
   showlegend = FALSE
 )
 
-fig
+# --- 5. Output Logic (PDF vs HTML) ---
+if (knitr::is_html_output()) {
+  fig
+} else {
+  # 1. Define paths
+  dir.create("figs", showWarnings = FALSE)
+  img_path <- "figs/geometry-3d-static.png"
+  tmp_html <- "temp_plotly.html"
+  
+  # 2. Save interactive widget to temporary HTML file
+  htmlwidgets::saveWidget(as_widget(fig), tmp_html)
+  
+  # 3. Take screenshot using webshot
+  # 'delay' is CRITICAL for 3D plots to allow WebGL to render
+  webshot::webshot(
+    url = tmp_html, 
+    file = img_path, 
+    delay = 2, 
+    vwidth = 800, 
+    vheight = 600,
+    cliprect = "viewport"
+  )
+  
+  # 4. Clean up temp HTML
+  if (file.exists(tmp_html)) file.remove(tmp_html)
+  
+  # 5. Insert static image
+  knitr::include_graphics(img_path)
+}
 ```
 
 
@@ -907,7 +932,7 @@ Both the standard and adjusted coefficients of determination are monotonic funct
     $$ R^2_a = 1 - \left( 1 - R^2 \right) \frac{n-1}{n-k-1} = 1 - \frac{n-1}{(n-k-1) + kF} $$
 
 
-### Comparing Model Selection Criteria under $H_0$ and $H_1$
+### An Animation for Illustrating $R^2_a$ under $H_0$ and $H_1$
 
 We simulate a dataset with $n=30$ observations and consider a sequence of nested models adding groups of predictors.
 
@@ -934,10 +959,9 @@ n_frames <- 30
 fps      <- 2
 n        <- 30
 sigma    <- 1
-beta1    <- 1
+beta1    <- 2 # Explicitly set to 2 as per text description
 
 # [FLEXIBLE] Define your steps here. 
-# Ensure max(model_steps) < n - 1 to avoid division by zero in MSE/R2_adj
 model_steps <- c(0, 1, 6, 11, 20) 
 
 # Automatically determine the maximum number of predictors needed
@@ -956,33 +980,44 @@ generate_animation <- function(scenario = "H0", filename) {
   # --- 1. Theoretical Limits Setup ---
   
   # A. Y-axis Lower Limit for R^2_adj
-  # Worst case: R^2 = 0 with max complexity p = max_k + 1
   max_p <- max_k + 1
-  
-  # Safety check: if p >= n, theoretical min is undefined (-Inf)
   if (max_p >= n) {
-    y_min_limit <- -1 # fallback if user pushes limit
+    y_min_limit <- -1 
   } else {
     y_min_limit <- -0.2
   }
 
-  # B. Theoretical Variance Expectations
+  # B. Theoretical Expectations
   var_x <- 1 
-  signal_var <- if(scenario == "H1") (beta1^2 * var_x) else 0
   
-  theory_df <- data.frame(
-    k = model_steps,
-    expected_mse = ifelse(model_steps == 0, sigma^2 + signal_var, sigma^2)
-  )
+  # Calculate Total Variance (Var(Y))
+  # H0: beta=0 -> Total Var = sigma^2
+  # H1: beta=2 -> Total Var = sigma^2 + beta^2*var(x)
+  total_var <- if(scenario == "H1") (sigma^2 + beta1^2 * var_x) else sigma^2
+  
+  # Calculate Expected Residual Variance (Sigma^2_k)
+  # k=0: Model has no predictors, so Residual Var = Total Var
+  # k>=1: Model includes x1. 
+  #       In H1, x1 explains signal, so Residual Var drops to sigma^2.
+  #       In H0, x1 is noise, so Residual Var is still sigma^2 (which is also Total Var).
+  get_expected_residual_var <- function(k) {
+    if (k == 0) return(total_var)
+    return(sigma^2)
+  }
+  
+  theory_df <- data.frame(k = model_steps)
+  theory_df$expected_mse <- sapply(theory_df$k, get_expected_residual_var)
+  
+  # Calculate Theoretical R^2 = 1 - (Residual Var / Total Var)
+  theory_df$expected_r2 <- 1 - (theory_df$expected_mse / total_var)
 
   # --- Frame Loop ---
   for (j in 1:n_frames) {
     
-    # 2. Generate Data [DYNAMIC]
+    # 2. Generate Data
     X <- as.data.frame(replicate(max_k, rnorm(n)))
     names(X) <- paste0("x", 1:max_k)
     
-    # Define Beta Vector [DYNAMIC]
     beta_vec <- rep(0, max_k)
     if (scenario == "H1") beta_vec[1] <- beta1 
     
@@ -1037,9 +1072,13 @@ generate_animation <- function(scenario = "H0", filename) {
            y = "Variance Estimate", x = NULL, color = NULL) +
       theme_minimal() + theme(legend.position = "top")
 
-    # Plot B: Model Fit (Updated Layout)
+    # Plot B: Model Fit
     g2 <- ggplot(df, aes(x = k)) +
       geom_hline(yintercept = 0, color = "black", size = 0.2) +
+      
+      # Theoretical R2 Line
+      geom_step(data = theory_df, aes(y = expected_r2, linetype = "Theoretical"), 
+                color = "gray40", size = 0.8, direction = "vh") +
       
       geom_line(aes(y = R2, color = "Naive (R^2)"), size = 1, linetype = "solid") +
       geom_point(aes(y = R2, color = "Naive (R^2)"), size = 2) +
@@ -1048,20 +1087,27 @@ generate_animation <- function(scenario = "H0", filename) {
       geom_point(aes(y = R2_adj, color = "Corrected (Adj R^2)"), size = 2, shape = 17) +
       
       scale_color_manual(values = c("Naive (R^2)" = "firebrick", "Corrected (Adj R^2)" = "blue")) +
+      # Re-use linetype scale to match top plot style
+      scale_linetype_manual(values = c("Theoretical" = "dotted"), name=NULL) +
       
       scale_x_continuous(breaks = model_steps) +
       scale_y_continuous(limits = c(y_min_limit, 1), labels = scales::percent) +
       labs(title = "Estimate of R-squared",
            y = "Value", x = "Number of Predictors (k)", color = NULL) +
       theme_minimal() + 
-      # MOVE LEGEND TOP & ADD BOTTOM MARGIN
       theme(
         legend.position = "top",
         plot.margin = margin(t = 5, r = 5, b = 40, l = 5, unit = "pt")
       )
 
     final_plot <- g1 / g2
+    
     ggsave(file.path(frame_dir, sprintf("f%03d.png", j)), final_plot, width = 7, height = 7, dpi = 100)
+    
+    if (j == 1) {
+      static_name <- sub("\\.mp4$", ".png", filename)
+      ggsave(static_name, final_plot, width = 7, height = 7, dpi = 100)
+    }
   }
   
   if (requireNamespace("av", quietly = TRUE)) {
@@ -1071,8 +1117,8 @@ generate_animation <- function(scenario = "H0", filename) {
 }
 
 # --- Execution ---
-generate_animation("H0", "figs/rss-h0-v5.mp4")
-generate_animation("H1", "figs/rss-h1-v5.mp4")
+generate_animation("H0", "figs/rss-h0-v6.mp4")
+generate_animation("H1", "figs/rss-h1-v6.mp4")
 ```
 
 ::: {.panel-tabset}
@@ -1084,15 +1130,15 @@ Under $H_0$, the true coefficient for $x_1$ is $\beta_1 = 0$. All predictors are
 ```{r}
 #| echo: false
 #| fig.align: center
+#| fig.cap: "Simulation under H0: As predictors are added (pure noise), standard R-squared increases while Adjusted R-squared and MSE remain stable."
 
 if (knitr::is_html_output()) {
   htmltools::tags$video(
     controls = "controls", width = "100%", 
-    htmltools::tags$source(src = "figs/rss-h0-v5.mp4", type = "video/mp4")
+    htmltools::tags$source(src = "figs/rss-h0-v6.mp4", type = "video/mp4")
   )
 } else {
-  plot(1, 1, type="n", axes=FALSE, xlab="", ylab="", main="Animation available in HTML version")
-  text(1, 1, "View HTML for H0 Animation")
+  knitr::include_graphics("figs/rss-h0-v6.png")
 }
 ```
 
@@ -1103,20 +1149,19 @@ Under $H_1$, $x_1$ is a true predictor ($\beta_1 = 2$). The subsequent groups ($
 ```{r}
 #| echo: false
 #| fig.align: center
+#| fig.cap: "Simulation under H1: Adjusted R-squared correctly identifies the signal at k=1, then penalizes the subsequent noise predictors."
 
 if (knitr::is_html_output()) {
   htmltools::tags$video(
     controls = "controls", width = "100%", 
-    htmltools::tags$source(src = "figs/rss-h1-v5.mp4", type = "video/mp4")
+    htmltools::tags$source(src = "figs/rss-h1-v6.mp4", type = "video/mp4")
   )
 } else {
-  plot(1, 1, type="n", axes=FALSE, xlab="", ylab="", main="Animation available in HTML version")
-  text(1, 1, "View HTML for H1 Animation")
+  knitr::include_graphics("figs/rss-h1-v6.png")
 }
 ```
 
 :::
-
 ## Underfitting and Overfitting
 
 We consider the effects of omitting explanatory variables that should be included (underfitting) and including variables that should be excluded (overfitting).
