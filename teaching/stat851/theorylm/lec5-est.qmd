@@ -927,12 +927,14 @@ We simulate a dataset with $n=30$ observations and consider a sequence of nested
 library(ggplot2)
 library(patchwork)
 require("latex2exp")
+set.seed(123)
 
 # knobs
 n_frames <- 30
 fps      <- 2
 n        <- 30
 sigma    <- 1
+beta1    <- 1
 
 # [FLEXIBLE] Define your steps here. 
 # Ensure max(model_steps) < n - 1 to avoid division by zero in MSE/R2_adj
@@ -961,12 +963,12 @@ generate_animation <- function(scenario = "H0", filename) {
   if (max_p >= n) {
     y_min_limit <- -1 # fallback if user pushes limit
   } else {
-    y_min_limit <- -0.25
+    y_min_limit <- -0.2
   }
 
   # B. Theoretical Variance Expectations
   var_x <- 1 
-  signal_var <- if(scenario == "H1") (2^2 * var_x) else 0
+  signal_var <- if(scenario == "H1") (beta1^2 * var_x) else 0
   
   theory_df <- data.frame(
     k = model_steps,
@@ -977,13 +979,12 @@ generate_animation <- function(scenario = "H0", filename) {
   for (j in 1:n_frames) {
     
     # 2. Generate Data [DYNAMIC]
-    # Generate exactly as many columns as the max step requires
     X <- as.data.frame(replicate(max_k, rnorm(n)))
     names(X) <- paste0("x", 1:max_k)
     
     # Define Beta Vector [DYNAMIC]
     beta_vec <- rep(0, max_k)
-    if (scenario == "H1") beta_vec[1] <- 2 
+    if (scenario == "H1") beta_vec[1] <- beta1 
     
     y <- as.numeric(as.matrix(X) %*% beta_vec + rnorm(n, sd = sigma))
     
@@ -992,8 +993,6 @@ generate_animation <- function(scenario = "H0", filename) {
       if (k == 0) {
         fit <- lm(y ~ 1)
       } else {
-        # Dynamically build formula based on current k
-        # checks if k exceeds available columns (safety)
         k_safe <- min(k, ncol(X))
         form <- as.formula(paste("y ~", paste(names(X)[1:k_safe], collapse = " + ")))
         fit <- lm(form, data = X)
@@ -1002,7 +1001,6 @@ generate_animation <- function(scenario = "H0", filename) {
       rss <- sum(residuals(fit)^2)
       p   <- k + 1 
       
-      # Handle potential division by zero if p == n
       denom_mse <- if(n - p > 0) (n - p) else NA
       
       data.frame(
@@ -1039,7 +1037,7 @@ generate_animation <- function(scenario = "H0", filename) {
            y = "Variance Estimate", x = NULL, color = NULL) +
       theme_minimal() + theme(legend.position = "top")
 
-    # Plot B: Model Fit
+    # Plot B: Model Fit (Updated Layout)
     g2 <- ggplot(df, aes(x = k)) +
       geom_hline(yintercept = 0, color = "black", size = 0.2) +
       
@@ -1055,7 +1053,12 @@ generate_animation <- function(scenario = "H0", filename) {
       scale_y_continuous(limits = c(y_min_limit, 1), labels = scales::percent) +
       labs(title = "Estimate of R-squared",
            y = "Value", x = "Number of Predictors (k)", color = NULL) +
-      theme_minimal() + theme(legend.position = "bottom")
+      theme_minimal() + 
+      # MOVE LEGEND TOP & ADD BOTTOM MARGIN
+      theme(
+        legend.position = "top",
+        plot.margin = margin(t = 5, r = 5, b = 40, l = 5, unit = "pt")
+      )
 
     final_plot <- g1 / g2
     ggsave(file.path(frame_dir, sprintf("f%03d.png", j)), final_plot, width = 7, height = 7, dpi = 100)
