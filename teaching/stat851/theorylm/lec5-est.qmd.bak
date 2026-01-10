@@ -900,6 +900,37 @@ $$R^2 = \frac{\text{SSR}}{\text{SST}} = 1 - \frac{\text{SSE}}{\text{SST}}$$
 Since $0 \le \text{SSE} \le \text{SST}$, it follows that $0 \le R^2 \le 1$.
 :::
 
+
+### Expectation and Bias
+
+To understand the bias in $R^2$, it is more illuminating to analyze the expectation of the **unexplained variance** ($1 - R^2$). This term represents the ratio of error sum of squares to the total sum of squares:
+
+$$ E[1 - R^2] = E\left[ \frac{\text{SSE}}{\text{SST}} \right] $$
+
+Using the first-order approximation $E[X/Y] \approx E[X]/E[Y]$, we examine the numerator and denominator separately:
+
+$$
+\begin{aligned}
+E[\text{SSE}] &= \sigma^2(n-k-1) \\
+E[\text{SST}] &= \sigma^2(n-1) + 2\sigma^2\lambda = \sigma^2 \left( (n-1) + \frac{\|X_c \beta_1\|^2}{\sigma^2} \right)
+\end{aligned}
+$$
+
+Substituting these back, we approximate the expected unexplained fraction:
+
+$$ E[1 - R^2] \approx \frac{\sigma^2(n-k-1)}{\sigma^2 \left( (n-1) + \frac{\|X_c \beta_1\|^2}{\sigma^2} \right)} = \frac{n-k-1}{(n-1) + \frac{\|X_c \beta_1\|^2}{\sigma^2}} $$
+
+**Behavior under Null Hypothesis ($H_0$):**
+When there is no true signal ($\beta_1 = 0$), the term $\frac{\|X_c \beta_1\|^2}{\sigma^2}$ vanishes. The expected proportion of unexplained variance becomes:
+
+$$ E[1 - R^2 | H_0] \approx \frac{n-k-1}{n-1} $$
+
+This result reveals the source of the bias:
+
+1.  Ideally, if predictors are noise, the model should explain nothing, and $E[1-R^2]$ should be $1$.
+2.  Instead, the expected error ratio is **less than 1**, specifically scaled by $\frac{n-k-1}{n-1}$.
+3.  This scaling factor is exactly what the **Adjusted R-squared ($R^2_a$)** attempts to correct by multiplying the observed ratio by the inverse $\frac{n-1}{n-k-1}$.
+
 ### Exact Distribution
 
 The $R^2$ statistic follows the Type I Non-central Beta distribution derived from the ratio of independent Chi-squared variables.
@@ -909,37 +940,8 @@ $$ R^2 \sim \text{Beta}_1\left( \frac{k}{2}, \frac{n-k-1}{2}, \lambda \right) $$
 where $\text{df}_1 = k$ and $\text{df}_2 = n-k-1$.
 :::
 
-### Expectation and Bias
 
-To understand the behavior of $R^2$, it is often easier to analyze the fraction of **unexplained variance** ($1 - R^2$).
-
-$$ E[R^2] = 1 - E\left[ \frac{\text{SSE}}{\text{SST}} \right] $$
-
-Using the first-order approximation $E[X/Y] \approx E[X]/E[Y]$ and plugging in the non-centrality parameter $\lambda = \frac{\|X_c \beta_1\|^2}{2\sigma^2}$:
-
-$$
-\begin{aligned}
-E[\text{SSE}] &= \sigma^2(n-k-1) \\
-E[\text{SST}] &= \sigma^2(n-1) + 2\sigma^2\lambda = \sigma^2 \left( (n-1) + \frac{\|X_c \beta_1\|^2}{\sigma^2} \right)
-\end{aligned}
-$$
-
-Substituting these back gives the approximation for the expected $R^2$:
-
-$$ E[R^2] \approx 1 - \frac{n-k-1}{(n-1) + \frac{\|X_c \beta_1\|^2}{\sigma^2}} = \frac{k + \frac{\|X_c \beta_1\|^2}{\sigma^2}}{(n-1) + \frac{\|X_c \beta_1\|^2}{\sigma^2}} $$
-
-**Behavior under Null Hypothesis ($H_0$):**
-When there is no true relationship ($\beta_1 = 0$), the signal term vanishes. The expectation becomes exact:
-
-$$ E[R^2 | H_0] = \frac{k}{n-1} $$
-
-This highlights a fundamental bias:
-
-1.  **Positive Bias:** Even when predictors are pure noise, $R^2$ is expected to be positive.
-2.  **Overfitting:** As the number of predictors $k$ approaches the sample size $n$ (specifically $n-1$), the expected $R^2$ converges to 1 regardless of the true signal.
-    $$ \lim_{k \to n-1} E[R^2 | H_0] = 1 $$
-
-### Adjusted R-Squared ($R^2_a$)
+### Adjusted R-squared ($R^2_a$)
 
 To correct for the inflation of $R^2$ due to model complexity ($k$), we introduce the Adjusted $R^2$.
 
@@ -964,6 +966,7 @@ $$ \text{Var}(R^2_a | H_0) = \frac{2k}{(n-k-1)(n+1)} $$
 2.  The variance $\text{Var}(R^2_a)$ explodes.
 
 This implies that for high-dimensional models (large $k/n$), $R^2_a$ becomes an extremely noisy estimator, often yielding large negative values even for null models.
+
 ### Relationship with Rao-blackwell Decomposition of Variances
 
 The formula for the expected Adjusted $R^2$ reveals a deep connection to the decomposition of variance in population quantities. Recall the Rao-Blackwell theorem (or Law of Total Variance), which decomposes the total variance of a single observation $Y_i$ into the expected conditional variance (noise) and the variance of the conditional expectation (signal):
