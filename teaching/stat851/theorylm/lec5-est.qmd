@@ -926,6 +926,7 @@ When there is no true signal ($\beta_1 = 0$), the term $\frac{\|X_c \beta_1\|^2}
 $$ E[1 - R^2 | H_0] \approx \frac{n-k-1}{n-1} $$
 
 This result reveals the source of the bias:
+
 1.  Ideally, if predictors are noise, the model should explain nothing, and $E[1-R^2]$ should be $1$.
 2.  Instead, the expected error ratio is **less than 1**, specifically scaled by $\frac{n-k-1}{n-1}$.
 3.  This scaling factor is exactly what the **Adjusted R-squared ($R^2_a$)** attempts to correct by multiplying the observed ratio by the inverse $\frac{n-1}{n-k-1}$.
@@ -942,15 +943,18 @@ where $\text{df}_1 = k$ and $\text{df}_2 = n-k-1$.
 
 ### Adjusted R-squared ($R^2_a$)
 
-To correct for the inflation of $R^2$ due to model complexity ($k$), we introduce the Adjusted $R^2$.
+To correct for the inflation of $R^2$ due to model complexity ($k$), we introduce the Adjusted $R^2$. This statistic penalizes the sum of squares by their degrees of freedom:
 
-$$ R^2_a = 1 - \frac{\text{MSE}}{\text{MST}} = 1 - (1 - R^2) \frac{n-1}{n-k-1} $$
+$$ R^2_a = 1 - \frac{\text{SSE}/(n-k-1)}{\text{SST}/(n-1)} = 1 - \frac{\text{MSE}}{\text{MST}} = 1 - (1 - R^2) \frac{n-1}{n-k-1} $$
 
 **Expectation:**
+
 Under $H_0$, since $E[\text{MSE}] = E[\text{MST}] = \sigma^2$, the estimator is asymptotically unbiased:
+
 $$ E[R^2_a | H_0] \approx 0 $$
 
 **Variance and Stability:**
+
 While $R^2_a$ corrects the bias, it introduces instability. The variance of $R^2_a$ under $H_0$ can be derived from the variance of the Beta distribution:
 
 $$ \text{Var}(R^2_a | H_0) = \left( \frac{n-1}{n-k-1} \right)^2 \text{Var}(R^2 | H_0) $$
@@ -959,18 +963,21 @@ Substituting $\text{Var}(R^2 | H_0) = \frac{2k(n-k-1)}{(n-1)^2(n+1)}$, we obtain
 
 $$ \text{Var}(R^2_a | H_0) = \frac{2k}{(n-k-1)(n+1)} $$
 
-**Key Insight:** As the model complexity $k$ increases relative to $n$:
+**Key Insight:**
+
+As the model complexity $k$ increases relative to $n$:
 
 1.  The denominator $(n-k-1)$ shrinks.
 2.  The variance $\text{Var}(R^2_a)$ explodes.
 
 This implies that for high-dimensional models (large $k/n$), $R^2_a$ becomes an extremely noisy estimator, often yielding large negative values even for null models.
 
-### Relationship with Rao-blackwell Decomposition of Variances
+### Relationship with Rao-Blackwell Decomposition of Variances
 
-The formula for the expected Adjusted $R^2$ reveals a deep connection to the decomposition of variance in population quantities. Recall the Rao-Blackwell theorem (or Law of Total Variance), which decomposes the total variance of a single observation $Y_i$ into the expected conditional variance (noise) and the variance of the conditional expectation (signal):
+The formula for the expected Adjusted $R^2$ reveals a deep connection to the decomposition of variance in population quantities. Recall the Rao-Blackwell theorem (or Law of Total Variance), which decomposes the total variance of a single observation $Y_i$ into the expected conditional variance (noise) and the variance of the conditional expectation (signal). Let $\sigma^2_\mu$ denote the signal variance and $\sigma^2$ denote the noise variance:
+
 $$ \text{Var}(Y_i) = E[\text{Var}(Y_i|x_{(i)})] + \text{Var}(E[Y_i|x_{(i)}]) $$
-$$ \sigma^2_Y = \sigma^2 + \text{Var}_{\text{signal}} $$
+$$ \sigma^2_Y = \sigma^2 + \sigma^2_\mu $$
 
 In our derived expectation for $R^2_a$:
 $$ E[R^2_a] \approx \frac{\frac{\|X_c\beta_1\|^2}{n-1}}{\sigma^2 + \frac{\|X_c\beta_1\|^2}{n-1}} $$
@@ -989,42 +996,158 @@ X_c\beta_1 = P_{X_c} \mu = (H - P_{j_n})\mu = H\mu - P_{j_n}\mu = \mu - \bar{\mu
 $$
 
 This vector represents the deviation of each observation's true mean from the grand mean. Consequently, the squared norm divided by degrees of freedom is:
-$$ \frac{\|X_c\beta_1\|^2}{n-1} = \frac{\sum_{i=1}^n (\mu_i - \bar{\mu})^2}{n-1} = \widehat{\text{Var}}(\mu) $$
+$$ \frac{\|X_c\beta_1\|^2}{n-1} = \frac{\sum_{i=1}^n (\mu_i - \bar{\mu})^2}{n-1} = \widehat{\sigma}^2_\mu $$
 
-If we view the rows of the design matrix $X$ as random draws $x_{(1)}, \dots, x_{(n)}$ from a population of covariate vectors, this term estimates $\text{Var}(x_{(i)}'\beta)$, which is the variance of the signal component $\text{Var}(E[Y_i|x_{(i)}])$.
+If we view the rows of the design matrix $X$ as random draws $x_{(1)}, \dots, x_{(n)}$ from a population of covariate vectors, this term estimates $\text{Var}(x_{(i)}'\beta)$, which is the variance of the signal component $\sigma^2_\mu$.
 
 Thus, $R^2_a$ can be interpreted as a method-of-moments estimator for the **proportion of variance explained by the signal** in the population:
-$$ E[R^2_a] \approx \frac{\text{Var}_{\text{signal}}}{\text{Var}_{\text{noise}} + \text{Var}_{\text{signal}}} = \frac{\text{Var}(E[Y_i|x_{(i)}])}{\text{Var}(Y_i)} $$
+$$ E[R^2_a] \approx \frac{\sigma^2_\mu}{\sigma^2 + \sigma^2_\mu} = \frac{\text{Var}(E[Y_i|x_{(i)}])}{\text{Var}(Y_i)} $$
 
+::: {.callout-important title="MSR Is Not a Variance Estimator"}
 
-
-::: {.callout-note}
-### MSR Is Not a Variance Estimator
-
-* Observing that $E[\text{MST}] \approx \sigma^2 + \text{Var}_{\text{signal}}$ and $E[\text{MSE}] = \sigma^2$, we can see that the difference $\text{MST} - \text{MSE}$ provides a direct method-of-moments estimator for the variance of the signal itself. 
+* Observing that $E[\text{MST}] \approx \sigma^2 + \sigma^2_\mu$ and $E[\text{MSE}] = \sigma^2$, we can see that the difference $\text{MST} - \text{MSE}$ provides a direct method-of-moments estimator for the variance of the signal itself ($\sigma^2_\mu$). 
 
 * It is important to recognize that the commonly used **Mean Square Regression (MSR)**, defined as $\text{SSR}/k$, is **not** an estimator of the signal variance. Because $E[\text{MSR}] = \sigma^2 + \frac{\|X_c\beta_1\|^2}{k}$, it scales with the sample size $n$ (via the squared norm) rather than converging to a population parameter. MSR is designed for hypothesis testing (detecting *existence* of signal), not for estimating the *magnitude* of the signal variance.
 :::
 
-
-### Relationship with $F$ Test
+## Relationship between $R^2$ and $F$ Test
 
 The proportion of *unexplained* variance, $1 - R^2$, follows the Type II Non-central Beta distribution.
 
 ::: {#thm-r2-complement name="Distribution of Unexplained Variance"}
-$$ 1 - R^2 = \frac{\text{SSE}}{\text{SST}} \sim \text{Beta}_2\left( \frac{n-k-1}{2}, \frac{k}{2}, \lambda \right) $$
+$$1 - R^2 = \frac{\text{SSE}}{\text{SST}} \sim \text{Beta}_2\left( \frac{n-k-1}{2}, \frac{k}{2}, \lambda \right)$$
 :::
 
-Both the standard and adjusted coefficients of determination are monotonic functions of the $F$-statistic ($F = \text{MSR}/\text{MSE}$):
+Both the standard and adjusted coefficients of determination are monotonic functions of the $F$-statistic ($F = \text{MSR}/\text{MSE}$). We can derive these relationships directly from the definition of $F$:
+
+$$F = \frac{\text{SSR}/k}{\text{SSE}/(n-k-1)} \implies \frac{\text{SSR}}{\text{SSE}} = \frac{k}{n-k-1} F$$
 
 1.  **Standard $R^2$:**
-    $$ R^2 = \frac{\frac{k}{n-k-1} F}{1 + \frac{k}{n-k-1} F} $$
+
+    Recall that $R^2 = \frac{\text{SSR}}{\text{SST}} = \frac{\text{SSR}}{\text{SSR} + \text{SSE}}$. Dividing the numerator and denominator by $\text{SSE}$:
+
+    $$R^2 = \frac{\text{SSR}/\text{SSE}}{(\text{SSR}/\text{SSE}) + 1} = \frac{\frac{k}{n-k-1} F}{1 + \frac{k}{n-k-1} F}$$
 
 2.  **Adjusted $R^2_a$:**
-    $$ R^2_a = 1 - \left( 1 - R^2 \right) \frac{n-1}{n-k-1} = 1 - \frac{n-1}{(n-k-1) + kF} $$
+
+    Start with the definition involving the unexplained variance scaling:
+
+    $$R^2_a = 1 - (1 - R^2) \frac{n-1}{n-k-1}$$
+
+    From the derivation above, note that the unexplained variance is:
+    $$1 - R^2 = \frac{1}{1 + \frac{k}{n-k-1}F} = \frac{n-k-1}{(n-k-1) + kF}$$
+
+    Substituting this into the adjusted formula simplifies the expression:
+
+    $$R^2_a = 1 - \left( \frac{n-k-1}{(n-k-1) + kF} \right) \frac{n-1}{n-k-1} = 1 - \frac{n-1}{(n-k-1) + kF}$$
 
 
-### An Animation for Illustrating $r^2_a$ Under $H_0$ and $H_1$
+### Confidence Interval of Population $R^2$
+
+Since we have identified that $R^2_a$ estimates the population proportion of variance, let us define this target parameter formally as $\rho^2$:
+
+$$ \rho^2 = 1 - \frac{\sigma^2}{\sigma^2_Y} = \frac{\sigma^2_\mu}{\sigma^2_Y} $$
+
+While $R^2_a$ provides a point estimate, we can construct an exact confidence interval for $\rho^2$ by exploiting the distribution of the $F$-statistic.
+
+**1. The Link to Non-centrality:**
+
+Recall that the $F$-statistic follows a non-central distribution $F(k, n-k-1, \lambda)$. The non-centrality parameter $\lambda$ is directly related to the population $\rho^2$. Using the variance decomposition derived above:
+
+$$ \lambda = \frac{\|X_c \beta_1\|^2}{2\sigma^2} = \frac{n-1}{2} \left( \frac{\sigma^2_\mu}{\sigma^2} \right) $$
+
+Substituting the signal-to-noise ratio $\frac{\sigma^2_\mu}{\sigma^2} = \frac{\rho^2}{1-\rho^2}$, we obtain a one-to-one mapping between $\lambda$ and $\rho^2$:
+
+$$ \lambda(\rho^2) = \frac{n-1}{2} \left( \frac{\rho^2}{1-\rho^2} \right) $$
+
+**2. Inverting the Test Statistic:**
+
+We find a confidence interval $[\lambda_L, \lambda_U]$ for $\lambda$ by "inverting" the observed $F$-statistic ($F_{obs}$). We search for two specific non-central F-distributions: one where $F_{obs}$ cuts off the upper $\alpha/2$ tail, and one where it cuts off the lower $\alpha/2$ tail.
+
+* **Lower Bound ($\lambda_L$):** The non-centrality parameter such that $F_{obs}$ is the $1-\alpha/2$ quantile.
+* **Upper Bound ($\lambda_U$):** The non-centrality parameter such that $F_{obs}$ is the $\alpha/2$ quantile.
+
+This concept is illustrated in the figure below.
+
+```{r}
+#| label: fig-ci-inversion
+#| fig-cap: "Illustration of constructing a confidence interval for the non-centrality parameter $\\lambda$ by inverting the F-test. The observed $F_{obs}$ (dashed line) is the $97.5^{th}$ percentile of the distribution defined by the lower bound $\\lambda_L$ (blue), and the $2.5^{th}$ percentile of the distribution defined by the upper bound $\\lambda_U$ (red). The shaded areas each represent $\\alpha/2$."
+#| echo: false
+#| warning: false
+#| message: false
+
+library(ggplot2)
+library(latex2exp)
+
+# 1. Setup Parameters for illustration
+n <- 30; k <- 3
+df1 <- k; df2 <- n - k - 1
+F_obs <- 5 
+alpha <- 0.05
+
+# 2. Use values that approximately correspond to the parameters for illustration
+lambda_L_approx <- 2.5 
+lambda_U_approx <- 28.1
+
+# 3. Create Data for Plotting
+x_seq <- seq(0, 18, length.out = 1000)
+
+# Density curves
+dens_L <- df(x_seq, df1, df2, ncp = lambda_L_approx)
+dens_U <- df(x_seq, df1, df2, ncp = lambda_U_approx)
+
+# Shading data
+shade_L_data <- data.frame(x = x_seq[x_seq >= F_obs], y = dens_L[x_seq >= F_obs])
+shade_L_data <- rbind(c(F_obs, 0), shade_L_data, c(max(x_seq), 0))
+
+shade_U_data <- data.frame(x = x_seq[x_seq <= F_obs], y = dens_U[x_seq <= F_obs])
+shade_U_data <- rbind(c(min(x_seq), 0), shade_U_data, c(F_obs, 0))
+
+# Combine densities for ggplot
+plot_data <- data.frame(
+  x = c(x_seq, x_seq),
+  y = c(dens_L, dens_U),
+  Distribution = rep(c("Lower Bound Dist", "Upper Bound Dist"), each = length(x_seq))
+)
+
+# 4. Plot
+ggplot() +
+  # Densities
+  geom_line(data = plot_data, aes(x = x, y = y, color = Distribution), size = 1) +
+  
+  # Shaded Areas representing alpha/2
+  geom_polygon(data = shade_L_data, aes(x = x, y = y), fill = "blue", alpha = 0.3) +
+  geom_polygon(data = shade_U_data, aes(x = x, y = y), fill = "red", alpha = 0.3) +
+  
+  # Vertical line for F_obs
+  geom_vline(xintercept = F_obs, linetype = "dashed", size = 1) +
+  
+  # Annotations
+  annotate("text", x = F_obs, y = max(plot_data$y)*1.05, label = TeX("$F_{obs}$"), vjust = 0, size = 5) +
+  annotate("text", x = F_obs + 2, y = 0.02, label = TeX("$\\alpha/2$"), color = "blue") +
+  annotate("text", x = F_obs - 2, y = 0.02, label = TeX("$\\alpha/2$"), color = "red") +
+  
+  # Styling
+  scale_color_manual(values = c("blue", "red"), 
+                     labels = c(TeX("Lower Bound Dist (using $\\lambda_L$)"), 
+                                TeX("Upper Bound Dist (using $\\lambda_U$)"))) +
+  labs(x = TeX("$F$-statistic value"), y = TeX("Density"), 
+       title = TeX("Constructing Confidence Intervals by Inverting the $F$-test")) +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  coord_cartesian(ylim = c(0, max(plot_data$y)*1.1), xlim=c(0, 16))
+```
+
+**3. The Interval for $\rho^2$:**
+
+Once $[\lambda_L, \lambda_U]$ are found numerically, we map them back to the population $R^2$ scale using the inverse relationship:
+
+$$ \rho^2 = \frac{2\lambda}{2\lambda + (n-1)} $$
+
+This produces an exact confidence interval $[\rho^2_L, \rho^2_U]$ for the proportion of variance explained by the model in the population.
+
+
+## An Animation for Illustrating $R^2_a$ Under $H_0$ and $H_1$
 
 We simulate a dataset with $n=30$ observations and consider a sequence of nested models adding groups of predictors.
 
@@ -1254,82 +1377,6 @@ if (knitr::is_html_output()) {
 ```
 
 :::
-## Underfitting and Overfitting
-
-We consider the effects of omitting explanatory variables that should be included (underfitting) and including variables that should be excluded (overfitting).
-
-Suppose the true model is:
-$$y = X\beta + e = \begin{pmatrix} X_1 & X_2 \end{pmatrix} \begin{pmatrix} \beta_1 \\ \beta_2 \end{pmatrix} + e = X_1\beta_1 + X_2\beta_2 + e \quad (\dagger)$$
-where $\text{Var}(e) = \sigma^2 I$.
-
-* **Underfitting:** Leaving out $X_2\beta_2$ when $\beta_2 \neq 0$.
-* **Overfitting:** Including $X_2\beta_2$ when $\beta_2 = 0$.
-
-### Underfitting
-
-Suppose model $(\dagger)$ holds, but we fit the reduced model:
-$$y = X_1\beta_1^* + e^*$$
-The OLS estimator for this reduced model is $\hat{\beta}_1^* = (X_1^T X_1)^{-1}X_1^T y$.
-
-::: {#thm-underfitting name="Bias and Variance under Underfitting"}
-If we fit the reduced model when the full model $(\dagger)$ is true:
-
-1.  **Bias:** $E(\hat{\beta}_1^*) = \beta_1 + A\beta_2$, where $A = (X_1^T X_1)^{-1}X_1^T X_2$ is the alias matrix.
-2.  **Variance:** $\text{Var}(\hat{\beta}_1^*) = \sigma^2(X_1^T X_1)^{-1}$.
-:::
-
-::: {.proof}
-**Part (i):**
-$$
-\begin{aligned}
-E(\hat{\beta}_1^*) &= E[(X_1^T X_1)^{-1}X_1^T y] \\
-&= (X_1^T X_1)^{-1}X_1^T E(y) \\
-&= (X_1^T X_1)^{-1}X_1^T (X_1\beta_1 + X_2\beta_2) \\
-&= (X_1^T X_1)^{-1}X_1^T X_1\beta_1 + (X_1^T X_1)^{-1}X_1^T X_2\beta_2 \\
-&= \beta_1 + A\beta_2
-\end{aligned}
-$$
-Thus, $\hat{\beta}_1^*$ is biased unless $\beta_2 = 0$ or $X_1^T X_2 = 0$ (orthogonal design).
-
-**Part (ii):**
-$$
-\begin{aligned}
-\text{Var}(\hat{\beta}_1^*) &= \text{Var}[(X_1^T X_1)^{-1}X_1^T y] \\
-&= (X_1^T X_1)^{-1}X_1^T [\sigma^2 I] X_1 (X_1^T X_1)^{-1} \\
-&= \sigma^2 (X_1^T X_1)^{-1}
-\end{aligned}
-$$
-.
-:::
-
-### Overfitting
-
-Suppose the reduced model $y = X_1\beta_1^* + e$ is true (i.e., $\beta_2 = 0$), but we fit the full model $(\dagger)$.
-Since the full model includes the true model as a special case, the estimator $\hat{\beta}$ from the full model remains unbiased.
-
-However, fitting the extraneous variables affects the variance.
-
-::: {#thm-overfitting name="Variance Comparison"}
-Let $\hat{\beta}_1$ be the estimator from the full model and $\hat{\beta}_1^*$ be the estimator from the reduced model. Then:
-$$ \text{Var}(\hat{\beta}_1) - \text{Var}(\hat{\beta}_1^*) = \sigma^2 A B^{-1} A^T $$
-where $A = (X_1^T X_1)^{-1}X_1^T X_2$ and $B = X_2^T X_2 - X_2^T X_1 A$.
-Since $A B^{-1} A^T$ is positive semidefinite, $\text{Var}(\hat{\beta}_1) \ge \text{Var}(\hat{\beta}_1^*)$.
-:::
-
-::: {.proof}
-Using the inverse of a partitioned matrix, the top-left block of $(X^T X)^{-1}$ corresponding to $\beta_1$ is:
-$$ H^{11} = (X_1^T X_1)^{-1} + (X_1^T X_1)^{-1} X_1^T X_2 B^{-1} X_2^T X_1 (X_1^T X_1)^{-1} $$
-Since $\text{Var}(\hat{\beta}_1) = \sigma^2 H^{11}$ and $\text{Var}(\hat{\beta}_1^*) = \sigma^2 (X_1^T X_1)^{-1}$, the difference is the second term:
-$$ \text{Var}(\hat{\beta}_1) - \text{Var}(\hat{\beta}_1^*) = \sigma^2 A B^{-1} A^T $$
-.
-:::
-
-
-
-### Summary
-
-1.  **Underfitting:** Reduces variance but introduces bias (unless variables are orthogonal).
-2.  **Overfitting:** Keeps estimators unbiased but increases variance.
 
 
 
@@ -1346,10 +1393,10 @@ We assume the data has been collected and saved to `house_prices_5pred.csv`.
 # Hidden Data Generation
 set.seed(2024)
 n <- 25
-size <- round(runif(n, 1000, 3500), 0)    
-age <- round(runif(n, 0, 60), 0)          
-beds <- sample(2:5, n, replace = TRUE)    
-garage <- sample(0:3, n, replace = TRUE)  
+size <- round(runif(n, 1000, 3500), 0)      
+age <- round(runif(n, 0, 60), 0)           
+beds <- sample(2:5, n, replace = TRUE)     
+garage <- sample(0:3, n, replace = TRUE)   
 lawn <- round(runif(n, 50, 1000), 0) # Irrelevant predictor
 
 # True Model (lawn Is NOT Included Here)
@@ -1390,9 +1437,10 @@ if (knitr::is_html_output()) {
 
 ### Fit the Model
 
-We will solve for the coefficients $\hat{\beta}$ and fitted values $\hat{y}$ using three distinct methods.
+We will solve for the coefficients $\hat{\beta}$ using three distinct methods.
 
 #### Method 1: Naive Matrix Formula
+
 This method solves the normal equations directly on the raw data: $\hat{\beta} = (X^{\prime}X)^{-1}X^{\prime}y$.
 
 ```{r}
@@ -1404,22 +1452,28 @@ y <- as.matrix(df$Price)
 X_naive <- as.matrix(cbind(Intercept = 1, 
                            df[, c("Size", "Age", "Beds", "Garage", "Lawn")]))
 
-# 2. Solve Beta
+# 2. Compute Intermediate Matrices
 XtX <- t(X_naive) %*% X_naive
 Xty <- t(X_naive) %*% y
+
+# Display Intermediate Steps
+cat("Matrix X'X (Cross-products of predictors):\n")
+print(round(XtX, 0))
+
+cat("\nMatrix X'y (Cross-products with response):\n")
+print(round(Xty, 0))
+
+# 3. Solve Beta
 beta_naive <- solve(XtX) %*% Xty
 
-# 3. Calculate Y_hat
-y_hat_naive <- X_naive %*% beta_naive
-
-# Display
+# Display Result
+cat("\nSolved Coefficients (Beta):\n")
 print(t(beta_naive))
-print(head(y_hat_naive, 10))
 ```
 
 #### Method 2: Centralized Formula
-This method reduces multicollinearity issues and computational errors by centering the data first.
-Formula: $\hat{\beta}_{\text{slope}} = (X_c^{\prime}X_c)^{-1}X_c^{\prime}y_c$. The intercept is calculated separately: $\beta_0 = \bar{y} - \bar{x}^{\prime}\hat{\beta}_{\text{slope}}$.
+
+This method reduces multicollinearity issues. Formula: $\hat{\beta}_{\text{slope}} = (X_c^{\prime}X_c)^{-1}X_c^{\prime}y_c$.
 
 ```{r}
 #| label: method-2-centralized
@@ -1430,27 +1484,33 @@ X_raw <- as.matrix(df[, c("Size", "Age", "Beds", "Garage", "Lawn")])
 X_means <- colMeans(X_raw)
 
 y_c <- y - y_bar
-X_c <- sweep(X_raw, 2, X_means) # Subtract column means from X
+X_c <- sweep(X_raw, 2, X_means) 
 
-# 2. Solve for Slope Coefficients (no Intercept Column in X_c)
-beta_slope <- solve(t(X_c) %*% X_c) %*% t(X_c) %*% y_c
+# 2. Compute Intermediate Matrices
+XctXc <- t(X_c) %*% X_c
+Xctyc <- t(X_c) %*% y_c
 
-# 3. Recover Intercept
+# Display Intermediate Steps
+cat("Matrix X_c'X_c (Centered Sum of Squares):\n")
+print(round(XctXc, 0))
+
+cat("\nMatrix X_c'y_c (Centered Cross-products):\n")
+print(round(Xctyc, 0))
+
+# 3. Solve for Slope Coefficients
+beta_slope <- solve(XctXc) %*% Xctyc
+
+# 4. Recover Intercept
 beta_0 <- y_bar - sum(X_means * beta_slope)
-
-# Combine for Full Beta Vector
 beta_central <- rbind(Intercept = beta_0, beta_slope)
 
-# 4. Calculate Y_hat Using the Original X and Reconstructed Betas
-X_full <- cbind(1, X_raw)
-y_hat_central <- X_full %*% beta_central
-
-# Display
+# Display Result
+cat("\nSolved Coefficients (Beta):\n")
 print(t(beta_central))
-print(head(y_hat_central, 10))
 ```
 
 #### Method 3: Using R's `lm` Function
+
 This is the standard approach for practitioners.
 
 ```{r}
@@ -1458,59 +1518,21 @@ This is the standard approach for practitioners.
 
 # Fit Model
 model_lm <- lm(Price ~ ., data = df)
-
-# Extract Coefficients and Fitted Values
-beta_lm <- coef(model_lm)
 y_hat_lm <- fitted(model_lm)
 
-# Display
-print(beta_lm)
-print(head(y_hat_lm, 10))
+# Extract Coefficients
+print(coef(model_lm))
 ```
 
-#### Visualization of Fitted Values vs Mean
+### Analysis of Variance (ANOVA)
 
-We define $\hat{y}_0$ as the vector of the mean of $y$ ($\bar{y}$). We plot the actual $y$ against our fitted model $\hat{y}$, using a green line to represent the "Null Model" ($\hat{y}_0$).
+We now evaluate the sources of variation to test the overall model significance.
 
-*Note: Axes have been set so that X = Predicted Value and Y = Actual Value.*
-
-```{r}
-#| label: plot-y-vs-yhat
-
-# Define Y_hat_0 (the Null Model) - for Conceptual Clarity
-y_hat_0 <- rep(mean(y), length(y))
-
-# Scatterplot (axes Reversed: X=fitted, Y=actual)
-plot(y_hat_lm, y,
-     main = "Actual vs Fitted Prices",
-     xlab = "Fitted Price (y_hat)",
-     ylab = "Actual Price (y)",
-     pch = 19, col = "blue")
-
-# Add 1:1 Line (perfect Fit Area, Remains Y=x)
-abline(0, 1, col = "gray", lty = 2)
-
-# Add Mean Line Representing the Null Model
-# Since Y-axis Is 'actual Y', a Horizontal Line at Mean(y) Represents Y_bar
-abline(h = mean(y), col = "green", lwd = 2)
-
-legend("topleft", legend = c("Data", "Mean (y_bar)"),
-       col = c("blue", "green"), pch = c(19, NA), lty = c(NA, 1))
-```
-
-### Computing Sums of Squares (SSE, SST, SSR)
-
-We compare different methods to calculate the sources of variation.
-
-#### 1. Naive Sum of Squared Errors
-This uses the standard summation definitions: $\sum (\text{Difference})^2$.
-
-* **SST (Total):** Variation of $y$ around $\hat{y}_0$ (Mean).
-* **SSR (Regression):** Variation of $\hat{y}$ around $\hat{y}_0$ (Mean).
-* **SSE (Error):** Variation of $y$ around $\hat{y}$ (Model).
+#### 1. Computing Sums of Squares
 
 ```{r}
-#| label: ss-naive
+#| label: ss-calc
+#| code-fold: true
 
 # Vectors
 y_vec <- as.vector(y)
@@ -1522,78 +1544,209 @@ SST_naive <- sum((y_vec - y_bar_vec)^2)
 SSR_naive <- sum((y_hat - y_bar_vec)^2)
 SSE_naive <- sum((y_vec - y_hat)^2)
 
-cat("Naive Calculation:\n")
 cat("SST:", SST_naive, " SSR:", SSR_naive, " SSE:", SSE_naive, "\n")
 ```
 
-#### 2. Pythagorean Shortcut (vector Lengths)
-Based on the geometry of least squares, we can treat the variables as vectors. Because the vectors are orthogonal, we can use squared lengths (dot products with themselves).
+#### 2. Manual ANOVA Construction
 
-Formula: $\text{SSR} = ||\hat{y}||^2 - ||\hat{y}_0||^2$
-
-```{r}
-#| label: ss-pythagorean
-
-# Function for Squared Euclidean Norm (length Squared)
-len_sq <- function(v) sum(v^2)
-
-# SST = ||y||^2 - ||y_0||^2
-SST_pyth <- len_sq(y_vec) - len_sq(y_bar_vec)
-
-# SSR = ||y_hat||^2 - ||y_0||^2
-SSR_pyth <- len_sq(y_hat) - len_sq(y_bar_vec)
-
-# SSE = ||y||^2 - ||y_hat||^2
-SSE_pyth <- len_sq(y_vec) - len_sq(y_hat)
-
-cat("Pythagorean Calculation:\n")
-cat("SST:", SST_pyth, " SSR:", SSR_pyth, " SSE:", SSE_pyth, "\n")
-```
-
-#### Matrix Algebra Shortcuts
-
-These formulas use the $\beta$ and $X$ matrices directly. This is computationally efficient for large datasets.
-
-* Formula A (Centered with $y_c$): $\text{SSR} = \hat{\beta}_c^{\prime} X_c^{\prime} y_c$
-* Formula B (Alternative with $y$): $\text{SSR} = \hat{\beta}_c^{\prime} X_c^{\prime} y$
-* Formula C (Uncentered): $\text{SSR} = \hat{\beta}^{\prime} X^{\prime} y - n\bar{y}^2$
+We build the table manually using the sums of squares and degrees of freedom.
 
 ```{r}
-#| label: ss-matrix-equivalence
+#| label: anova-manual
 
-n <- length(y)
-term_correction <- n * mean(y)^2 
+# Parameters
+k <- 5             # Predictors
+df_e <- n - k - 1  # Error DF
+df_t <- n - 1      # Total DF
 
-# --- SSR Calculations ---
+# Mean Squares
+MSR <- SSR_naive / k
+MSE <- SSE_naive / df_e
+MST <- SST_naive / df_t # Mean Square Total (Variance of Y)
 
-# 1. SSR Formula a (centered, Using Y_c)
-SSR_centered_yc <- t(beta_slope) %*% t(X_c) %*% y_c
+# F-statistic
+F_stat <- MSR / MSE
 
-# 2. SSR Formula a (alternative, Using Raw Y)
-# Since X_c Is Centered, X_c' * 1 = 0, so X_c'y_c Is Equivalent to X_c'y
-SSR_centered_y <- t(beta_slope) %*% t(X_c) %*% y
+# P-value
+p_val <- pf(F_stat, k, df_e, lower.tail = FALSE)
 
-# 3. SSR Formula B (uncentered Matrix)
-# Beta_naive Includes Intercept, X_naive Includes Column of 1s
-term_beta_X_y <- t(beta_naive) %*% t(X_naive) %*% y
-SSR_uncentered <- term_beta_X_y - term_correction
-
-# --- Equivalence Check Table ---
-
-results_table <- data.frame(
-  Metric = c("SSR (Centered $X_c,y_c$)", 
-             "SSR (Centered $X_c$)", 
-             "SSR (Uncentered)"),
-  Formula = c("$\\hat{\\beta}_c' X_c' y_c$", 
-              "$\\hat{\\beta}_c' X_c' y$", 
-              "$\\hat{\\beta}' X' y - n\\bar{y}^2$"),
-  Value = c(as.numeric(SSR_centered_yc), 
-            as.numeric(SSR_centered_y), 
-            as.numeric(SSR_uncentered))
+# Assemble Table
+anova_manual <- data.frame(
+  Source = c("Regression (Model)", "Error (Residual)", "Total"),
+  DF = c(k, df_e, df_t),
+  SS = c(SSR_naive, SSE_naive, SST_naive),
+  MS = c(MSR, MSE, MST), # Included MST here
+  F_Statistic = c(F_stat, NA, NA),
+  P_Value = c(p_val, NA, NA)
 )
 
-# Render the Table
-knitr::kable(results_table, 
-             digits = 4, 
-             caption = "Demonstration of SSR Formula Equivalence")
+knitr::kable(anova_manual, digits = 4, caption = "Manual ANOVA Table")
 ```
+
+#### 3. Standard R Output (`summary` and `anova`)
+
+We display the standard `summary()` which provides the coefficients, t-tests, and the overall F-statistic found at the bottom. We also show `anova()` which gives the sequential sum of squares.
+
+```{r}
+#| label: r-summary-output
+
+# Summary shows Coefficients and Overall F-test
+summary(model_lm)
+
+# Anova shows sequential breakdown
+print(anova(model_lm))
+```
+
+### Coefficient of Determination and Variance Decomposition
+
+We calculate $R^2$ and Adjusted $R^2$, and then present them in a **Variance Decomposition Table**.
+
+#### 1. Calculation
+
+```{r}
+#| label: calc-r2
+
+# Standard R-squared
+R2 <- 1 - (SSE_naive / SST_naive)
+
+# Adjusted R-squared
+# Formula: 1 - (MSE / MST)
+R2_adj <- 1 - (MSE / MST)
+
+cat("Standard R^2:  ", round(R2, 4), "\n")
+cat("Adjusted R^2:  ", round(R2_adj, 4), "\n")
+```
+
+#### 2. Variance Decomposition Table
+
+This table extends standard ANOVA. While ANOVA focuses on **Mean Squares (MS)** for hypothesis testing (is $MSR > MSE$?), this table focuses on **Variance Components ($\hat{\sigma}^2$)** for estimation (how much variance is Signal vs. Noise?).
+
+* **Signal Variance ($\hat{\sigma}^2_\mu$):** Estimated by $MST - MSE$. (Note: $MSR$ is biased and overestimates signal).
+* **Noise Variance ($\hat{\sigma}^2$):** Estimated by $MSE$.
+* **Total Variance ($\hat{\sigma}^2_Y$):** Estimated by $MST$.
+
+```{r}
+#| label: variance-decomp-table
+
+# Variance Component Estimators (Method of Moments)
+sigma2_noise_est  <- MSE
+sigma2_total_est  <- MST
+sigma2_signal_est <- MST - MSE
+
+# Proportions
+prop_signal <- sigma2_signal_est / sigma2_total_est # Equals R^2_adj
+prop_noise  <- sigma2_noise_est / sigma2_total_est  # Equals 1 - R^2_adj
+
+# Assemble Table
+decomp_table <- data.frame(
+  Component = c("Signal (Model)", "Noise (Error)", "Total (Y)"),
+  DF = c(k, df_e, df_t),
+  SS = c(SSR_naive, SSE_naive, SST_naive),
+  MS = c(MSR, MSE, MST),
+  Estimator_Sigma2 = c(sigma2_signal_est, sigma2_noise_est, sigma2_total_est),
+  Proportion = c(prop_signal, prop_noise, 1.0)
+)
+
+# Display
+knitr::kable(decomp_table, 
+             digits = 4, 
+             col.names = c("Component", "DF", "SS", "MS", "Value ($\\hat{\\sigma}^2$)", "Proportion"),
+             caption = "Variance Decomposition Table: Estimating Signal vs. Noise")
+```
+
+### Confidence Interval for Population $R^2$ ($\rho^2$)
+
+We construct a 95% confidence interval for the population proportion of variance explained ($\rho^2$) by inverting the non-central F-distribution.
+
+#### Manual Inversion Method
+
+We solve for the non-centrality parameters $\lambda_L$ and $\lambda_U$ such that our observed $F_{obs}$ corresponds to the appropriate quantiles.
+
+```{r}
+#| label: ci-rho2-manual
+
+# 1. Define Helper Function to Find Lambda
+get_lambda <- function(target_prob, F_val, df1, df2) {
+  f_root <- function(lam) {
+    pf(F_val, df1, df2, ncp = lam) - target_prob
+  }
+  tryCatch({
+    res <- uniroot(f_root, interval = c(0, 1000))$root
+    return(res)
+  }, error = function(e) return(NA))
+}
+
+# 2. Calculate Lambda Bounds (95% CI -> alpha = 0.05)
+alpha <- 0.05
+lambda_Lower <- get_lambda(1 - alpha/2, F_stat, k, df_e)
+lambda_Upper <- get_lambda(alpha/2, F_stat, k, df_e)
+
+if (is.na(lambda_Lower)) lambda_Lower <- 0
+
+# 3. Convert Lambda to Rho^2
+# Formula: rho^2 = 2*lambda / (2*lambda + n - 1)
+rho2_Lower <- (2 * lambda_Lower) / (2 * lambda_Lower + n - 1)
+rho2_Upper <- (2 * lambda_Upper) / (2 * lambda_Upper + n - 1)
+
+cat("Observed R^2_adj:            ", round(R2_adj, 4), "\n")
+cat("95% CI for Population Rho^2: [", round(rho2_Lower, 4), ", ", round(rho2_Upper, 4), "]\n")
+```
+
+#### Using R Package `MBESS`
+
+The `MBESS` package automates this exact procedure. We use `Random.Predictors = FALSE` to assume fixed predictors, matching the non-central F approach derived above.
+
+```{r}
+#| label: ci-rho2-mbess
+#| warning: false
+#| message: false
+
+# Check if MBESS is installed, otherwise skip
+
+  
+  ci_res1<- MBESS::ci.R2(F.value = F_stat, 
+                         df.1 = k, 
+                         df.2 = df_e, 
+                         conf.level = 0.95,
+                         Random.Predictors = FALSE)
+ 
+  ci_res2 <- MBESS::ci.R2(F.value = F_stat, 
+                         df.1 = k, 
+                         df.2 = df_e, 
+                         conf.level = 0.95,
+                         Random.Predictors = TRUE)
+ 
+  ci_res1
+  ci_res2
+
+```
+
+## Overfitting
+
+Suppose the reduced model $y = X_1\beta_1^* + e$ is true (i.e., $\beta_2 = 0$), but we fit the full model $(\dagger)$.
+Since the full model includes the true model as a special case, the estimator $\hat{\beta}$ from the full model remains unbiased.
+
+However, fitting the extraneous variables affects the variance.
+
+::: {#thm-overfitting name="Variance Comparison"}
+Let $\hat{\beta}_1$ be the estimator from the full model and $\hat{\beta}_1^*$ be the estimator from the reduced model. Then:
+$$ \text{Var}(\hat{\beta}_1) - \text{Var}(\hat{\beta}_1^*) = \sigma^2 A B^{-1} A^T $$
+where $A = (X_1^T X_1)^{-1}X_1^T X_2$ and $B = X_2^T X_2 - X_2^T X_1 A$.
+Since $A B^{-1} A^T$ is positive semidefinite, $\text{Var}(\hat{\beta}_1) \ge \text{Var}(\hat{\beta}_1^*)$.
+:::
+
+::: {.proof}
+Using the inverse of a partitioned matrix, the top-left block of $(X^T X)^{-1}$ corresponding to $\beta_1$ is:
+$$ H^{11} = (X_1^T X_1)^{-1} + (X_1^T X_1)^{-1} X_1^T X_2 B^{-1} X_2^T X_1 (X_1^T X_1)^{-1} $$
+Since $\text{Var}(\hat{\beta}_1) = \sigma^2 H^{11}$ and $\text{Var}(\hat{\beta}_1^*) = \sigma^2 (X_1^T X_1)^{-1}$, the difference is the second term:
+$$ \text{Var}(\hat{\beta}_1) - \text{Var}(\hat{\beta}_1^*) = \sigma^2 A B^{-1} A^T $$
+.
+:::
+
+
+
+### Summary
+
+1.  **Underfitting:** Reduces variance but introduces bias (unless variables are orthogonal).
+2.  **Overfitting:** Keeps estimators unbiased but increases variance.
+
