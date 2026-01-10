@@ -1656,16 +1656,19 @@ knitr::kable(decomp_table,
 
 ### Confidence Interval for Population $R^2$ ($\rho^2$)
 
-We construct a 95% confidence interval for the population proportion of variance explained ($\rho^2$) by inverting the non-central F-distribution.
+We construct a 95% confidence interval for the population proportion of variance explained ($\rho^2$).
 
-#### Manual Inversion Method
+#### 1. Manual Inversion Method
 
 We solve for the non-centrality parameters $\lambda_L$ and $\lambda_U$ such that our observed $F_{obs}$ corresponds to the appropriate quantiles.
+
+* **Correction Note:** R's `ncp` parameter represents the *full* sum of squares. Therefore, the conversion to $\rho^2$ for fixed predictors is $\rho^2 = \frac{\lambda}{\lambda + n}$.
 
 ```{r}
 #| label: ci-rho2-manual
 
 # 1. Define Helper Function to Find Lambda
+# We want to find lambda such that: pf(F_stat, df1, df2, ncp = lambda) = target_prob
 get_lambda <- function(target_prob, F_val, df1, df2) {
   f_root <- function(lam) {
     pf(F_val, df1, df2, ncp = lam) - target_prob
@@ -1678,48 +1681,49 @@ get_lambda <- function(target_prob, F_val, df1, df2) {
 
 # 2. Calculate Lambda Bounds (95% CI -> alpha = 0.05)
 alpha <- 0.05
+# Lower Bound Lambda: F_obs is the (1 - alpha/2) quantile
 lambda_Lower <- get_lambda(1 - alpha/2, F_stat, k, df_e)
+# Upper Bound Lambda: F_obs is the (alpha/2) quantile
 lambda_Upper <- get_lambda(alpha/2, F_stat, k, df_e)
 
 if (is.na(lambda_Lower)) lambda_Lower <- 0
 
 # 3. Convert Lambda to Rho^2
-# Formula: rho^2 = 2*lambda / (2*lambda + n - 1)
-rho2_Lower <- (2 * lambda_Lower) / (2 * lambda_Lower + n - 1)
-rho2_Upper <- (2 * lambda_Upper) / (2 * lambda_Upper + n - 1)
+# Formula for Fixed Predictors: rho^2 = lambda / (lambda + n)
+rho2_Lower <- lambda_Lower / (lambda_Lower + n)
+rho2_Upper <- lambda_Upper / (lambda_Upper + n)
 
-cat("Observed R^2_adj:            ", round(R2_adj, 4), "\n")
+cat("Manual Calculation:\n")
 cat("95% CI for Population Rho^2: [", round(rho2_Lower, 4), ", ", round(rho2_Upper, 4), "]\n")
 ```
 
-#### Using R Package `MBESS`
+#### 2. Using R Package `MBESS`
 
-The `MBESS` package automates this exact procedure. We use `Random.Predictors = FALSE` to assume fixed predictors, matching the non-central F approach derived above.
+The `MBESS` package automates this procedure. We use `Random.Predictors = FALSE` to match the fixed-predictor assumption used in our manual calculation.
 
 ```{r}
 #| label: ci-rho2-mbess
 #| warning: false
 #| message: false
 
-# Check if MBESS is installed, otherwise skip
-
+if (requireNamespace("MBESS", quietly = TRUE)) {
   
-  ci_res1<- MBESS::ci.R2(F.value = F_stat, 
-                         df.1 = k, 
-                         df.2 = df_e, 
+  # Use N (sample size) and p (number of predictors) 
+  # instead of df.1/df.2 to avoid the redundancy error.
+  ci_res <- MBESS::ci.R2(F.value = F_stat, 
+                         p = k,      # Number of predictors
+                         N = n,      # Sample size
                          conf.level = 0.95,
                          Random.Predictors = FALSE)
- 
-  ci_res2 <- MBESS::ci.R2(F.value = F_stat, 
-                         df.1 = k, 
-                         df.2 = df_e, 
-                         conf.level = 0.95,
-                         Random.Predictors = TRUE)
- 
-  ci_res1
-  ci_res2
-
+  
+  print(ci_res)
+  
+} else {
+  cat("Package 'MBESS' is not installed.")
+}
 ```
+
+
 
 ## Overfitting
 

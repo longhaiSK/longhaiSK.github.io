@@ -315,8 +315,8 @@ window.Quarto = {
   </ul></li>
   <li><a href="#confidence-interval-for-population-r2-rho2" id="toc-confidence-interval-for-population-r2-rho2" class="nav-link" data-scroll-target="#confidence-interval-for-population-r2-rho2"><span class="header-section-number">6.12.5</span> Confidence Interval for Population <span class="math inline">\(R^2\)</span> (<span class="math inline">\(\rho^2\)</span>)</a>
   <ul class="collapse">
-  <li><a href="#manual-inversion-method" id="toc-manual-inversion-method" class="nav-link" data-scroll-target="#manual-inversion-method"><span class="header-section-number">6.12.5.1</span> Manual Inversion Method</a></li>
-  <li><a href="#using-r-package-mbess" id="toc-using-r-package-mbess" class="nav-link" data-scroll-target="#using-r-package-mbess"><span class="header-section-number">6.12.5.2</span> Using R Package <code>MBESS</code></a></li>
+  <li><a href="#manual-inversion-method" id="toc-manual-inversion-method" class="nav-link" data-scroll-target="#manual-inversion-method"><span class="header-section-number">6.12.5.1</span> 1. Manual Inversion Method</a></li>
+  <li><a href="#using-r-package-mbess" id="toc-using-r-package-mbess" class="nav-link" data-scroll-target="#using-r-package-mbess"><span class="header-section-number">6.12.5.2</span> 2. Using R Package <code>MBESS</code></a></li>
   </ul></li>
   </ul></li>
   <li><a href="#overfitting" id="toc-overfitting" class="nav-link" data-scroll-target="#overfitting"><span class="header-section-number">6.13</span> Overfitting</a>
@@ -1439,64 +1439,69 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </section>
 <section id="confidence-interval-for-population-r2-rho2" class="level3" data-number="6.12.5">
 <h3 data-number="6.12.5" class="anchored" data-anchor-id="confidence-interval-for-population-r2-rho2"><span class="header-section-number">6.12.5</span> Confidence Interval for Population <span class="math inline">\(R^2\)</span> (<span class="math inline">\(\rho^2\)</span>)</h3>
-<p>We construct a 95% confidence interval for the population proportion of variance explained (<span class="math inline">\(\rho^2\)</span>) by inverting the non-central F-distribution.</p>
+<p>We construct a 95% confidence interval for the population proportion of variance explained (<span class="math inline">\(\rho^2\)</span>).</p>
 <section id="manual-inversion-method" class="level4" data-number="6.12.5.1">
-<h4 data-number="6.12.5.1" class="anchored" data-anchor-id="manual-inversion-method"><span class="header-section-number">6.12.5.1</span> Manual Inversion Method</h4>
+<h4 data-number="6.12.5.1" class="anchored" data-anchor-id="manual-inversion-method"><span class="header-section-number">6.12.5.1</span> 1. Manual Inversion Method</h4>
 <p>We solve for the non-centrality parameters <span class="math inline">\(\lambda_L\)</span> and <span class="math inline">\(\lambda_U\)</span> such that our observed <span class="math inline">\(F_{obs}\)</span> corresponds to the appropriate quantiles.</p>
+<ul>
+<li><strong>Correction Note:</strong> R’s <code>ncp</code> parameter represents the <em>full</em> sum of squares. Therefore, the conversion to <span class="math inline">\(\rho^2\)</span> for fixed predictors is <span class="math inline">\(\rho^2 = \frac{\lambda}{\lambda + n}\)</span>.</li>
+</ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Define Helper Function to Find Lambda</span></span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>get_lambda <span class="ot">&lt;-</span> <span class="cf">function</span>(target_prob, F_val, df1, df2) {</span>
-<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  f_root <span class="ot">&lt;-</span> <span class="cf">function</span>(lam) {</span>
-<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pf</span>(F_val, df1, df2, <span class="at">ncp =</span> lam) <span class="sc">-</span> target_prob</span>
-<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tryCatch</span>({</span>
-<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> <span class="fu">uniroot</span>(f_root, <span class="at">interval =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1000</span>))<span class="sc">$</span>root</span>
-<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(res)</span>
-<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>  }, <span class="at">error =</span> <span class="cf">function</span>(e) <span class="fu">return</span>(<span class="cn">NA</span>))</span>
-<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Calculate Lambda Bounds (95% CI -&gt; alpha = 0.05)</span></span>
-<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> <span class="fl">0.05</span></span>
-<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a>lambda_Lower <span class="ot">&lt;-</span> <span class="fu">get_lambda</span>(<span class="dv">1</span> <span class="sc">-</span> alpha<span class="sc">/</span><span class="dv">2</span>, F_stat, k, df_e)</span>
-<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a>lambda_Upper <span class="ot">&lt;-</span> <span class="fu">get_lambda</span>(alpha<span class="sc">/</span><span class="dv">2</span>, F_stat, k, df_e)</span>
-<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">is.na</span>(lambda_Lower)) lambda_Lower <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-19"><a href="#cb40-19" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Convert Lambda to Rho^2</span></span>
-<span id="cb40-20"><a href="#cb40-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Formula: rho^2 = 2*lambda / (2*lambda + n - 1)</span></span>
-<span id="cb40-21"><a href="#cb40-21" aria-hidden="true" tabindex="-1"></a>rho2_Lower <span class="ot">&lt;-</span> (<span class="dv">2</span> <span class="sc">*</span> lambda_Lower) <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">*</span> lambda_Lower <span class="sc">+</span> n <span class="sc">-</span> <span class="dv">1</span>)</span>
-<span id="cb40-22"><a href="#cb40-22" aria-hidden="true" tabindex="-1"></a>rho2_Upper <span class="ot">&lt;-</span> (<span class="dv">2</span> <span class="sc">*</span> lambda_Upper) <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">*</span> lambda_Upper <span class="sc">+</span> n <span class="sc">-</span> <span class="dv">1</span>)</span>
-<span id="cb40-23"><a href="#cb40-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-24"><a href="#cb40-24" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Observed R^2_adj:            "</span>, <span class="fu">round</span>(R2_adj, <span class="dv">4</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="co"># We want to find lambda such that: pf(F_stat, df1, df2, ncp = lambda) = target_prob</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>get_lambda <span class="ot">&lt;-</span> <span class="cf">function</span>(target_prob, F_val, df1, df2) {</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  f_root <span class="ot">&lt;-</span> <span class="cf">function</span>(lam) {</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pf</span>(F_val, df1, df2, <span class="at">ncp =</span> lam) <span class="sc">-</span> target_prob</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tryCatch</span>({</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> <span class="fu">uniroot</span>(f_root, <span class="at">interval =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1000</span>))<span class="sc">$</span>root</span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(res)</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>  }, <span class="at">error =</span> <span class="cf">function</span>(e) <span class="fu">return</span>(<span class="cn">NA</span>))</span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Calculate Lambda Bounds (95% CI -&gt; alpha = 0.05)</span></span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> <span class="fl">0.05</span></span>
+<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Lower Bound Lambda: F_obs is the (1 - alpha/2) quantile</span></span>
+<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a>lambda_Lower <span class="ot">&lt;-</span> <span class="fu">get_lambda</span>(<span class="dv">1</span> <span class="sc">-</span> alpha<span class="sc">/</span><span class="dv">2</span>, F_stat, k, df_e)</span>
+<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Upper Bound Lambda: F_obs is the (alpha/2) quantile</span></span>
+<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a>lambda_Upper <span class="ot">&lt;-</span> <span class="fu">get_lambda</span>(alpha<span class="sc">/</span><span class="dv">2</span>, F_stat, k, df_e)</span>
+<span id="cb40-19"><a href="#cb40-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-20"><a href="#cb40-20" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">is.na</span>(lambda_Lower)) lambda_Lower <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb40-21"><a href="#cb40-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-22"><a href="#cb40-22" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Convert Lambda to Rho^2</span></span>
+<span id="cb40-23"><a href="#cb40-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Formula for Fixed Predictors: rho^2 = lambda / (lambda + n)</span></span>
+<span id="cb40-24"><a href="#cb40-24" aria-hidden="true" tabindex="-1"></a>rho2_Lower <span class="ot">&lt;-</span> lambda_Lower <span class="sc">/</span> (lambda_Lower <span class="sc">+</span> n)</span>
+<span id="cb40-25"><a href="#cb40-25" aria-hidden="true" tabindex="-1"></a>rho2_Upper <span class="ot">&lt;-</span> lambda_Upper <span class="sc">/</span> (lambda_Upper <span class="sc">+</span> n)</span>
+<span id="cb40-26"><a href="#cb40-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-27"><a href="#cb40-27" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Manual Calculation:</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Observed R^2_adj:             0.7315 </code></pre>
+<pre><code>Manual Calculation:</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"95% CI for Population Rho^2: ["</span>, <span class="fu">round</span>(rho2_Lower, <span class="dv">4</span>), <span class="st">", "</span>, <span class="fu">round</span>(rho2_Upper, <span class="dv">4</span>), <span class="st">"]</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>95% CI for Population Rho^2: [ 0.6464 ,  0.9163 ]</code></pre>
+<pre><code>95% CI for Population Rho^2: [ 0.4674 ,  0.8401 ]</code></pre>
 </div>
 </div>
 </section>
 <section id="using-r-package-mbess" class="level4" data-number="6.12.5.2">
-<h4 data-number="6.12.5.2" class="anchored" data-anchor-id="using-r-package-mbess"><span class="header-section-number">6.12.5.2</span> Using R Package <code>MBESS</code></h4>
-<p>The <code>MBESS</code> package automates this exact procedure. We use <code>Random.Predictors = FALSE</code> to assume fixed predictors, matching the non-central F approach derived above.</p>
+<h4 data-number="6.12.5.2" class="anchored" data-anchor-id="using-r-package-mbess"><span class="header-section-number">6.12.5.2</span> 2. Using R Package <code>MBESS</code></h4>
+<p>The <code>MBESS</code> package automates this procedure. We use <code>Random.Predictors = FALSE</code> to match the fixed-predictor assumption used in our manual calculation.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check if MBESS is installed, otherwise skip</span></span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>  ci_res1<span class="ot">&lt;-</span> MBESS<span class="sc">::</span><span class="fu">ci.R2</span>(<span class="at">F.value =</span> F_stat, </span>
-<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>                         <span class="at">df.1 =</span> k, </span>
-<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>                         <span class="at">df.2 =</span> df_e, </span>
-<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>                         <span class="at">conf.level =</span> <span class="fl">0.95</span>,</span>
-<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>                         <span class="at">Random.Predictors =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a> </span>
-<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a>  ci_res2 <span class="ot">&lt;-</span> MBESS<span class="sc">::</span><span class="fu">ci.R2</span>(<span class="at">F.value =</span> F_stat, </span>
-<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a>                         <span class="at">df.1 =</span> k, </span>
-<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a>                         <span class="at">df.2 =</span> df_e, </span>
-<span id="cb44-13"><a href="#cb44-13" aria-hidden="true" tabindex="-1"></a>                         <span class="at">conf.level =</span> <span class="fl">0.95</span>,</span>
-<span id="cb44-14"><a href="#cb44-14" aria-hidden="true" tabindex="-1"></a>                         <span class="at">Random.Predictors =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb44-15"><a href="#cb44-15" aria-hidden="true" tabindex="-1"></a> </span>
-<span id="cb44-16"><a href="#cb44-16" aria-hidden="true" tabindex="-1"></a>  ci_res1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">requireNamespace</span>(<span class="st">"MBESS"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Use N (sample size) and p (number of predictors) </span></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># instead of df.1/df.2 to avoid the redundancy error.</span></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>  ci_res <span class="ot">&lt;-</span> MBESS<span class="sc">::</span><span class="fu">ci.R2</span>(<span class="at">F.value =</span> F_stat, </span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>                         <span class="at">p =</span> k,      <span class="co"># Number of predictors</span></span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>                         <span class="at">N =</span> n,      <span class="co"># Sample size</span></span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>                         <span class="at">conf.level =</span> <span class="fl">0.95</span>,</span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>                         <span class="at">Random.Predictors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(ci_res)</span>
+<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb44-13"><a href="#cb44-13" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb44-14"><a href="#cb44-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"Package 'MBESS' is not installed."</span>)</span>
+<span id="cb44-15"><a href="#cb44-15" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>$Lower.Conf.Limit.R2
 [1] 0.467363
@@ -1506,20 +1511,6 @@ $Prob.Less.Lower
 
 $Upper.Conf.Limit.R2
 [1] 0.8400781
-
-$Prob.Greater.Upper
-[1] 0.025</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>  ci_res2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>$Lower.Conf.Limit.R2
-[1] 0.4565431
-
-$Prob.Less.Lower
-[1] 0.025
-
-$Upper.Conf.Limit.R2
-[1] 0.8774864
 
 $Prob.Greater.Upper
 [1] 0.025</code></pre>
