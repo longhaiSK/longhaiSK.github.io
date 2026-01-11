@@ -1,8 +1,9 @@
 ---
 title: "Projection in Vector Space"
+format: 
+  html: 
+    keep-md: true
 ---
-
-
 
 ## Vector and Projection onto a Line
 
@@ -490,7 +491,6 @@ $$ This confirms that Row Rank (2) $\ge$ Column Rank. (By symmetry, they are equ
 :::
 
 ::: {#thm-rank-properties name="Row Rank equals Column Rank"}
-
 1.  **Row Rank equals Column Rank:** The dimension of the column space is equal to the dimension of the row space. $$
     \text{Dim}(\text{Col}(X)) = \text{Dim}(\text{Row}(X)) \implies \text{Rank}(X) = \text{Rank}(X')
     $$
@@ -525,7 +525,6 @@ $$
 For a matrix transformation defined by $X$, we define two key spaces: the Image (Column Space) and the Kernel (Null Space).
 
 ::: {#def-image-kernel name="Image and Kernel"}
-
 1.  **Image (Column Space):** The set of all possible outputs. $$
     \text{Im}(X) = \text{Col}(X) = \{ X\beta \mid \beta \in \mathbb{R}^p \}
     $$
@@ -678,7 +677,6 @@ $$
 :::
 
 ::: proof
-
 1.  **Forward (**$\subseteq$): Let $z \in \text{Col}(XX')$. Then $z = XX'w$ for some vector $w$. We can rewrite this as $z = X(X'w)$. Since $z$ is a linear combination of columns of $X$ (with coefficients $X'w$), $z \in \text{Col}(X)$. Thus, $\text{Col}(XX') \subseteq \text{Col}(X)$.
 
 2.  **Equality via Rank:** From the previous theorem, we know that $\text{Rank}(XX') = \text{Rank}(X)$. Since $\text{Col}(XX')$ is a subspace of $\text{Col}(X)$ and they have the same finite dimension (Rank), the subspaces must be identical.
@@ -966,11 +964,9 @@ To use the simplified formula $P = QQ'$, we need an orthonormal basis. The Gram-
 :::
 
 
-
-
 ::: {.cell}
 ::: {.cell-output-display}
-![Gram-Schmidt Process: Projecting $x_2$ onto $x_1$](lec1-vecspace_files/figure-html/fig-gram-schmidt-python-1.png){#fig-gram-schmidt-python width=576}
+![Gram-Schmidt Process: Projecting $x_2$ onto $x_1$](lec1-vecspace_files/figure-html/fig-gram-schmidt-python-3.png){#fig-gram-schmidt-python width=576}
 :::
 :::
 
@@ -1306,7 +1302,7 @@ $$ Since $\hat{y}_1$ is orthogonal to $v_3$, and $\hat{y}_0$ is a component of $
 
 ::: {.cell}
 ::: {.cell-output-display}
-![Illustration of Projections onto Nested Subspaces](lec1-vecspace_files/figure-html/fig-anova-decomposition-v2-3.png){#fig-anova-decomposition-v2 width=960}
+![Illustration of Projections onto Nested Subspaces](lec1-vecspace_files/figure-html/fig-anova-decomposition-v2-5.png){#fig-anova-decomposition-v2 width=960}
 :::
 :::
 
@@ -1319,12 +1315,12 @@ We apply the **Nested Model Theorem** ($M_0 \subset M_1$) to the One-way ANOVA s
 Consider a dataset with $k$ groups. Let $i = 1, \dots, k$ index the groups, and $j = 1, \dots, n_i$ index the observations within group $i$.
 
 -   $N$: Total number of observations, $N = \sum_{i=1}^k n_i$.
--   $y_{ij}$: The $j$-th observation in the $i$-th group.
--   $\bar{y}_{i.}$: The sample mean of group $i$. 
-    $$ \bar{y}_{i.} = \frac{1}{n_i} \sum_{j=1}^{n_i} y_{ij} $$
 
--   $\bar{y}_{..}$: The grand mean of all observations. 
-    $$ \bar{y}_{..} = \frac{1}{N} \sum_{i=1}^k \sum_{j=1}^{n_i} y_{ij} $$
+-   $y_{ij}$: The $j$-th observation in the $i$-th group.
+
+-   $\bar{y}_{i.}$: The sample mean of group $i$. $$ \bar{y}_{i.} = \frac{1}{n_i} \sum_{j=1}^{n_i} y_{ij} $$
+
+-   $\bar{y}_{..}$: The grand mean of all observations. $$ \bar{y}_{..} = \frac{1}{N} \sum_{i=1}^k \sum_{j=1}^{n_i} y_{ij} $$
 
 **2. The Data and Projection Vectors**
 
@@ -1337,30 +1333,19 @@ Consider a dataset with $k$ groups. Let $i = 1, \dots, k$ index the groups, and 
 **3. Decomposition and Sum of Squares**
 
 | Component | Notation | Definition | Vector Elements | Squared Norm (Sum of Squares) |
-|:------------|:-----------:|:-----------:|:------------|:---------------------|
+|:-------------|:------------:|:------------:|:-------------|:----------------|
 | **Null Proj.** | $\hat{y}_0$ | $P_0 y$ | Grand Mean ($\bar{y}_{..}$) | $\|\hat{y}_0\|^2 = N \bar{y}_{..}^2$ |
 | **Full Proj.** | $\hat{y}_1$ | $P_1 y$ | Group Means ($\bar{y}_{i.}$) | $\|\hat{y}_1\|^2 = \sum_{i=1}^k n_i \bar{y}_{i.}^2$ |
 
 **4. Geometric Justification of Shortcut Formulas**
 
-**A. Total Sum of Squares (SST)**
-Since $\hat{y}_0 \perp (y - \hat{y}_0)$, we have $\|y\|^2 = \|\hat{y}_0\|^2 + \|y - \hat{y}_0\|^2$:
-$$ \text{SST} = \|y - \hat{y}_0\|^2 = \|y\|^2 - \|\hat{y}_0\|^2 $$
-$$ \text{SST} = \sum_{i=1}^k \sum_{j=1}^{n_i} y_{ij}^2 - N\bar{y}_{..}^2 $$
+**A. Total Sum of Squares (SST)** Since $\hat{y}_0 \perp (y - \hat{y}_0)$, we have $\|y\|^2 = \|\hat{y}_0\|^2 + \|y - \hat{y}_0\|^2$: $$ \text{SST} = \|y - \hat{y}_0\|^2 = \|y\|^2 - \|\hat{y}_0\|^2 $$ $$ \text{SST} = \sum_{i=1}^k \sum_{j=1}^{n_i} y_{ij}^2 - N\bar{y}_{..}^2 $$
 
-**B. Between Group Sum of Squares (SSB)**
-Since $\hat{y}_0 \perp (\hat{y}_1 - \hat{y}_0)$, we have $\|\hat{y}_1\|^2 = \|\hat{y}_0\|^2 + \|\hat{y}_1 - \hat{y}_0\|^2$:
-$$ \text{SSB} = \|\hat{y}_1 - \hat{y}_0\|^2 = \|\hat{y}_1\|^2 - \|\hat{y}_0\|^2 $$
-$$ \text{SSB} = \sum_{i=1}^k n_i\bar{y}_{i.}^2 - N\bar{y}_{..}^2 $$
+**B. Between Group Sum of Squares (SSB)** Since $\hat{y}_0 \perp (\hat{y}_1 - \hat{y}_0)$, we have $\|\hat{y}_1\|^2 = \|\hat{y}_0\|^2 + \|\hat{y}_1 - \hat{y}_0\|^2$: $$ \text{SSB} = \|\hat{y}_1 - \hat{y}_0\|^2 = \|\hat{y}_1\|^2 - \|\hat{y}_0\|^2 $$ $$ \text{SSB} = \sum_{i=1}^k n_i\bar{y}_{i.}^2 - N\bar{y}_{..}^2 $$
 
-**C. Within Group Sum of Squares (SSW)**
-Since $\hat{y}_1 \perp (y - \hat{y}_1)$, we have $\|y\|^2 = \|\hat{y}_1\|^2 + \|y - \hat{y}_1\|^2$:
-$$ \text{SSW} = \|y - \hat{y}_1\|^2 = \|y\|^2 - \|\hat{y}_1\|^2 $$
-$$ \text{SSW} = \sum_{i=1}^k \sum_{j=1}^{n_i} y_{ij}^2 - \sum_{i=1}^k n_i\bar{y}_{i.}^2 $$
+**C. Within Group Sum of Squares (SSW)** Since $\hat{y}_1 \perp (y - \hat{y}_1)$, we have $\|y\|^2 = \|\hat{y}_1\|^2 + \|y - \hat{y}_1\|^2$: $$ \text{SSW} = \|y - \hat{y}_1\|^2 = \|y\|^2 - \|\hat{y}_1\|^2 $$ $$ \text{SSW} = \sum_{i=1}^k \sum_{j=1}^{n_i} y_{ij}^2 - \sum_{i=1}^k n_i\bar{y}_{i.}^2 $$
 
-**Conclusion:**
-$$ \underbrace{\|y\|^2 - N\bar{y}_{..}^2}_{\text{SST}} = \underbrace{(\sum n_i\bar{y}_{i.}^2 - N\bar{y}_{..}^2)}_{\text{SSB}} + \underbrace{(\sum \sum y_{ij}^2 - \sum n_i\bar{y}_{i.}^2)}_{\text{SSW}} $$
-**5. Visualizing ANOVA Components in Data Space**
+**Conclusion:** $$ \underbrace{\|y\|^2 - N\bar{y}_{..}^2}_{\text{SST}} = \underbrace{(\sum n_i\bar{y}_{i.}^2 - N\bar{y}_{..}^2)}_{\text{SSB}} + \underbrace{(\sum \sum y_{ij}^2 - \sum n_i\bar{y}_{i.}^2)}_{\text{SSW}} $$ **5. Visualizing ANOVA Components in Data Space**
 
 
 ::: {.cell}
@@ -1450,12 +1435,11 @@ plt.show()
 ```
 
 ::: {.cell-output-display}
-![Visualization of Group Means vs. Grand Mean](lec1-vecspace_files/figure-html/fig-anova-data-space-colored-5.png){#fig-anova-data-space-colored width=1152}
+![Visualization of Group Means vs. Grand Mean](lec1-vecspace_files/figure-html/fig-anova-data-space-colored-7.png){#fig-anova-data-space-colored width=1152}
 :::
 :::
 
 :::
-
 
 ## Projections onto Orthogonal Subspaces
 
@@ -1486,19 +1470,17 @@ $$
 y - \hat{y}_i = \sum_{j \ne i} \hat{y}_j
 $$ Let $z$ be any vector in $V_i$. We calculate the inner product: $$
 \langle y - \hat{y}_i, z \rangle = \left\langle \sum_{j \ne i} \hat{y}_j, z \right\rangle = \sum_{j \ne i} \langle \hat{y}_j, z \rangle
-$$ 
-Since $\hat{y}_j \in V_j$ and $z \in V_i$, and the subspaces are mutually orthogonal ($V_j \perp V_i$ for $j \ne i$), every term in the sum is zero. Therefore, $(y - \hat{y}_i) \perp V_i$. By the definition of orthogonal projection, $\hat{y}_i = P_i y$.
+$$ Since $\hat{y}_j \in V_j$ and $z \in V_i$, and the subspaces are mutually orthogonal ($V_j \perp V_i$ for $j \ne i$), every term in the sum is zero. Therefore, $(y - \hat{y}_i) \perp V_i$. By the definition of orthogonal projection, $\hat{y}_i = P_i y$.
 :::
 
-This implies that the identity matrix can be decomposed into a sum of projection matrices: 
-$$
+This implies that the identity matrix can be decomposed into a sum of projection matrices: $$
 I_n = P_1 + P_2 + \dots + P_k
 $$
 
 
 ::: {.cell}
 ::: {.cell-output-display}
-![Orthogonal decomposition of vector y into subspaces](lec1-vecspace_files/figure-html/fig-orthogonal-decomp-rotated-7.png){#fig-orthogonal-decomp-rotated width=960}
+![Orthogonal decomposition of vector y into subspaces](lec1-vecspace_files/figure-html/fig-orthogonal-decomp-rotated-9.png){#fig-orthogonal-decomp-rotated width=960}
 :::
 :::
 
@@ -1624,8 +1606,8 @@ fig
 ::: {#fig-orthogonal-decomp-r .cell-output-display}
 
 ```{=html}
-<div class="plotly html-widget html-fill-item" id="htmlwidget-2e2daceff3b4eeaeb277" style="width:100%;height:520px;"></div>
-<script type="application/json" data-for="htmlwidget-2e2daceff3b4eeaeb277">{"x":{"visdat":{"62bc527ed928":["function () ","plotlyVisDat"]},"cur_data":"62bc527ed928","attrs":{"62bc527ed928":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,3],"y":[0,0],"z":[0,0],"line":{"color":"red","width":6},"name":"P1 y","showlegend":true,"inherit":true},"62bc527ed928.1":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"cone","x":3,"y":0,"z":0,"u":3,"v":0,"w":0,"sizemode":"absolute","sizeref":0.5,"anchor":"tip","colorscale":[[0,1],["red","red"]],"showscale":false,"name":"P1 y","showlegend":false,"inherit":true},"62bc527ed928.2":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,4],"z":[0,0],"line":{"color":"green","width":6},"name":"P2 y","showlegend":true,"inherit":true},"62bc527ed928.3":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"cone","x":0,"y":4,"z":0,"u":0,"v":4,"w":0,"sizemode":"absolute","sizeref":0.5,"anchor":"tip","colorscale":[[0,1],["green","green"]],"showscale":false,"name":"P2 y","showlegend":false,"inherit":true},"62bc527ed928.4":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,0],"z":[0,5],"line":{"color":"blue","width":6},"name":"P3 y","showlegend":true,"inherit":true},"62bc527ed928.5":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"cone","x":0,"y":0,"z":5,"u":0,"v":0,"w":5,"sizemode":"absolute","sizeref":0.5,"anchor":"tip","colorscale":[[0,1],["blue","blue"]],"showscale":false,"name":"P3 y","showlegend":false,"inherit":true},"62bc527ed928.6":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,3],"y":[0,4],"z":[0,5],"line":{"color":"black","width":6},"name":"y","showlegend":true,"inherit":true},"62bc527ed928.7":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"cone","x":3,"y":4,"z":5,"u":3,"v":4,"w":5,"sizemode":"absolute","sizeref":0.5,"anchor":"tip","colorscale":[[0,1],["black","black"]],"showscale":false,"name":"y","showlegend":false,"inherit":true},"62bc527ed928.8":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,0],"z":[5,0],"line":{"color":"rgba(255, 0, 0, 0.5)","width":3,"dash":"dash"},"name":"y -> P1","hoverinfo":"text","text":"y -> P1","inherit":true},"62bc527ed928.9":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,4],"z":[5,0],"line":{"color":"rgba(0, 255, 0, 0.5)","width":3,"dash":"dash"},"name":"y -> P2","hoverinfo":"text","text":"y -> P2","inherit":true},"62bc527ed928.10":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,0],"z":[5,5],"line":{"color":"rgba(0, 0, 255, 0.5)","width":3,"dash":"dash"},"name":"y -> P3","hoverinfo":"text","text":"y -> P3","inherit":true},"62bc527ed928.11":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,4],"z":[5,0],"line":{"color":"purple","width":3,"dash":"dash"},"name":"y -> (P1+P2)","hoverinfo":"text","text":"y -> (P1+P2)","inherit":true},"62bc527ed928.12":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,0],"z":[5,5],"line":{"color":"orange","width":3,"dash":"dash"},"name":"y -> (P1+P3)","hoverinfo":"text","text":"y -> (P1+P3)","inherit":true},"62bc527ed928.13":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,4],"z":[5,5],"line":{"color":"cyan","width":3,"dash":"dash"},"name":"y -> (P2+P3)","hoverinfo":"text","text":"y -> (P2+P3)","inherit":true},"62bc527ed928.14":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,6],"y":[0,0],"z":[0,0],"line":{"color":"gray","dash":"dot","width":2},"name":"V1 (x)","inherit":true},"62bc527ed928.15":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,6],"z":[0,0],"line":{"color":"gray","dash":"dot","width":2},"name":"V2 (y)","inherit":true},"62bc527ed928.16":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,0],"z":[0,6],"line":{"color":"gray","dash":"dot","width":2},"name":"V3 (z)","inherit":true}},"layout":{"width":900,"height":700,"margin":{"b":0,"l":0,"t":50,"r":0},"title":"Orthogonal Decomposition Geometry","scene":{"xaxis":{"title":"V1","range":[0,6]},"yaxis":{"title":"V2","range":[0,6]},"zaxis":{"title":"V3","range":[0,6]},"aspectmode":"cube","camera":{"eye":{"x":1.5,"y":1.5,"z":1.2}}},"legend":{"x":0.75,"y":0.90000000000000002},"xaxis":{"title":[]},"yaxis":{"title":[]},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"type":"scatter3d","mode":"lines","x":[0,3],"y":[0,0],"z":[0,0],"line":{"color":"red","width":6},"name":"P1 y","showlegend":true,"marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"frame":null},{"colorbar":{"title":"","ticklen":2},"colorscale":[[0,"red"],[1,"red"]],"showscale":false,"type":"cone","x":[3],"y":[0],"z":[0],"u":[3],"v":[0],"w":[0],"sizemode":"absolute","sizeref":0.5,"anchor":"tip","name":"P1 y","showlegend":false,"frame":null},{"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,4],"z":[0,0],"line":{"color":"green","width":6},"name":"P2 y","showlegend":true,"marker":{"color":"rgba(44,160,44,1)","line":{"color":"rgba(44,160,44,1)"}},"error_y":{"color":"rgba(44,160,44,1)"},"error_x":{"color":"rgba(44,160,44,1)"},"frame":null},{"colorbar":{"title":"","ticklen":2},"colorscale":[[0,"green"],[1,"green"]],"showscale":false,"type":"cone","x":[0],"y":[4],"z":[0],"u":[0],"v":[4],"w":[0],"sizemode":"absolute","sizeref":0.5,"anchor":"tip","name":"P2 y","showlegend":false,"frame":null},{"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,0],"z":[0,5],"line":{"color":"blue","width":6},"name":"P3 y","showlegend":true,"marker":{"color":"rgba(148,103,189,1)","line":{"color":"rgba(148,103,189,1)"}},"error_y":{"color":"rgba(148,103,189,1)"},"error_x":{"color":"rgba(148,103,189,1)"},"frame":null},{"colorbar":{"title":"","ticklen":2},"colorscale":[[0,"blue"],[1,"blue"]],"showscale":false,"type":"cone","x":[0],"y":[0],"z":[5],"u":[0],"v":[0],"w":[5],"sizemode":"absolute","sizeref":0.5,"anchor":"tip","name":"P3 y","showlegend":false,"frame":null},{"type":"scatter3d","mode":"lines","x":[0,3],"y":[0,4],"z":[0,5],"line":{"color":"black","width":6},"name":"y","showlegend":true,"marker":{"color":"rgba(227,119,194,1)","line":{"color":"rgba(227,119,194,1)"}},"error_y":{"color":"rgba(227,119,194,1)"},"error_x":{"color":"rgba(227,119,194,1)"},"frame":null},{"colorbar":{"title":"","ticklen":2},"colorscale":[[0,"black"],[1,"black"]],"showscale":false,"type":"cone","x":[3],"y":[4],"z":[5],"u":[3],"v":[4],"w":[5],"sizemode":"absolute","sizeref":0.5,"anchor":"tip","name":"y","showlegend":false,"frame":null},{"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,0],"z":[5,0],"line":{"color":"rgba(255, 0, 0, 0.5)","width":3,"dash":"dash"},"name":"y -> P1","hoverinfo":["text","text"],"text":["y -> P1","y -> P1"],"marker":{"color":"rgba(188,189,34,1)","line":{"color":"rgba(188,189,34,1)"}},"error_y":{"color":"rgba(188,189,34,1)"},"error_x":{"color":"rgba(188,189,34,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,4],"z":[5,0],"line":{"color":"rgba(0, 255, 0, 0.5)","width":3,"dash":"dash"},"name":"y -> P2","hoverinfo":["text","text"],"text":["y -> P2","y -> P2"],"marker":{"color":"rgba(23,190,207,1)","line":{"color":"rgba(23,190,207,1)"}},"error_y":{"color":"rgba(23,190,207,1)"},"error_x":{"color":"rgba(23,190,207,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,0],"z":[5,5],"line":{"color":"rgba(0, 0, 255, 0.5)","width":3,"dash":"dash"},"name":"y -> P3","hoverinfo":["text","text"],"text":["y -> P3","y -> P3"],"marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,4],"z":[5,0],"line":{"color":"purple","width":3,"dash":"dash"},"name":"y -> (P1+P2)","hoverinfo":["text","text"],"text":["y -> (P1+P2)","y -> (P1+P2)"],"marker":{"color":"rgba(255,127,14,1)","line":{"color":"rgba(255,127,14,1)"}},"error_y":{"color":"rgba(255,127,14,1)"},"error_x":{"color":"rgba(255,127,14,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,0],"z":[5,5],"line":{"color":"orange","width":3,"dash":"dash"},"name":"y -> (P1+P3)","hoverinfo":["text","text"],"text":["y -> (P1+P3)","y -> (P1+P3)"],"marker":{"color":"rgba(44,160,44,1)","line":{"color":"rgba(44,160,44,1)"}},"error_y":{"color":"rgba(44,160,44,1)"},"error_x":{"color":"rgba(44,160,44,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,4],"z":[5,5],"line":{"color":"cyan","width":3,"dash":"dash"},"name":"y -> (P2+P3)","hoverinfo":["text","text"],"text":["y -> (P2+P3)","y -> (P2+P3)"],"marker":{"color":"rgba(214,39,40,1)","line":{"color":"rgba(214,39,40,1)"}},"error_y":{"color":"rgba(214,39,40,1)"},"error_x":{"color":"rgba(214,39,40,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[0,6],"y":[0,0],"z":[0,0],"line":{"color":"gray","dash":"dot","width":2},"name":"V1 (x)","marker":{"color":"rgba(148,103,189,1)","line":{"color":"rgba(148,103,189,1)"}},"error_y":{"color":"rgba(148,103,189,1)"},"error_x":{"color":"rgba(148,103,189,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,6],"z":[0,0],"line":{"color":"gray","dash":"dot","width":2},"name":"V2 (y)","marker":{"color":"rgba(140,86,75,1)","line":{"color":"rgba(140,86,75,1)"}},"error_y":{"color":"rgba(140,86,75,1)"},"error_x":{"color":"rgba(140,86,75,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,0],"z":[0,6],"line":{"color":"gray","dash":"dot","width":2},"name":"V3 (z)","marker":{"color":"rgba(227,119,194,1)","line":{"color":"rgba(227,119,194,1)"}},"error_y":{"color":"rgba(227,119,194,1)"},"error_x":{"color":"rgba(227,119,194,1)"},"frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<div class="plotly html-widget html-fill-item" id="htmlwidget-ff00796d5ee6e7909b65" style="width:100%;height:520px;"></div>
+<script type="application/json" data-for="htmlwidget-ff00796d5ee6e7909b65">{"x":{"visdat":{"16b2a44f5d042":["function () ","plotlyVisDat"]},"cur_data":"16b2a44f5d042","attrs":{"16b2a44f5d042":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,3],"y":[0,0],"z":[0,0],"line":{"color":"red","width":6},"name":"P1 y","showlegend":true,"inherit":true},"16b2a44f5d042.1":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"cone","x":3,"y":0,"z":0,"u":3,"v":0,"w":0,"sizemode":"absolute","sizeref":0.5,"anchor":"tip","colorscale":[[0,1],["red","red"]],"showscale":false,"name":"P1 y","showlegend":false,"inherit":true},"16b2a44f5d042.2":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,4],"z":[0,0],"line":{"color":"green","width":6},"name":"P2 y","showlegend":true,"inherit":true},"16b2a44f5d042.3":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"cone","x":0,"y":4,"z":0,"u":0,"v":4,"w":0,"sizemode":"absolute","sizeref":0.5,"anchor":"tip","colorscale":[[0,1],["green","green"]],"showscale":false,"name":"P2 y","showlegend":false,"inherit":true},"16b2a44f5d042.4":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,0],"z":[0,5],"line":{"color":"blue","width":6},"name":"P3 y","showlegend":true,"inherit":true},"16b2a44f5d042.5":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"cone","x":0,"y":0,"z":5,"u":0,"v":0,"w":5,"sizemode":"absolute","sizeref":0.5,"anchor":"tip","colorscale":[[0,1],["blue","blue"]],"showscale":false,"name":"P3 y","showlegend":false,"inherit":true},"16b2a44f5d042.6":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,3],"y":[0,4],"z":[0,5],"line":{"color":"black","width":6},"name":"y","showlegend":true,"inherit":true},"16b2a44f5d042.7":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"cone","x":3,"y":4,"z":5,"u":3,"v":4,"w":5,"sizemode":"absolute","sizeref":0.5,"anchor":"tip","colorscale":[[0,1],["black","black"]],"showscale":false,"name":"y","showlegend":false,"inherit":true},"16b2a44f5d042.8":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,0],"z":[5,0],"line":{"color":"rgba(255, 0, 0, 0.5)","width":3,"dash":"dash"},"name":"y -> P1","hoverinfo":"text","text":"y -> P1","inherit":true},"16b2a44f5d042.9":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,4],"z":[5,0],"line":{"color":"rgba(0, 255, 0, 0.5)","width":3,"dash":"dash"},"name":"y -> P2","hoverinfo":"text","text":"y -> P2","inherit":true},"16b2a44f5d042.10":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,0],"z":[5,5],"line":{"color":"rgba(0, 0, 255, 0.5)","width":3,"dash":"dash"},"name":"y -> P3","hoverinfo":"text","text":"y -> P3","inherit":true},"16b2a44f5d042.11":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,4],"z":[5,0],"line":{"color":"purple","width":3,"dash":"dash"},"name":"y -> (P1+P2)","hoverinfo":"text","text":"y -> (P1+P2)","inherit":true},"16b2a44f5d042.12":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,0],"z":[5,5],"line":{"color":"orange","width":3,"dash":"dash"},"name":"y -> (P1+P3)","hoverinfo":"text","text":"y -> (P1+P3)","inherit":true},"16b2a44f5d042.13":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,4],"z":[5,5],"line":{"color":"cyan","width":3,"dash":"dash"},"name":"y -> (P2+P3)","hoverinfo":"text","text":"y -> (P2+P3)","inherit":true},"16b2a44f5d042.14":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,6],"y":[0,0],"z":[0,0],"line":{"color":"gray","dash":"dot","width":2},"name":"V1 (x)","inherit":true},"16b2a44f5d042.15":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,6],"z":[0,0],"line":{"color":"gray","dash":"dot","width":2},"name":"V2 (y)","inherit":true},"16b2a44f5d042.16":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,0],"z":[0,6],"line":{"color":"gray","dash":"dot","width":2},"name":"V3 (z)","inherit":true}},"layout":{"width":900,"height":700,"margin":{"b":0,"l":0,"t":50,"r":0},"title":"Orthogonal Decomposition Geometry","scene":{"xaxis":{"title":"V1","range":[0,6]},"yaxis":{"title":"V2","range":[0,6]},"zaxis":{"title":"V3","range":[0,6]},"aspectmode":"cube","camera":{"eye":{"x":1.5,"y":1.5,"z":1.2}}},"legend":{"x":0.75,"y":0.90000000000000002},"xaxis":{"title":[]},"yaxis":{"title":[]},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"type":"scatter3d","mode":"lines","x":[0,3],"y":[0,0],"z":[0,0],"line":{"color":"red","width":6},"name":"P1 y","showlegend":true,"marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"frame":null},{"colorbar":{"title":"","ticklen":2},"colorscale":[[0,"red"],[1,"red"]],"showscale":false,"type":"cone","x":[3],"y":[0],"z":[0],"u":[3],"v":[0],"w":[0],"sizemode":"absolute","sizeref":0.5,"anchor":"tip","name":"P1 y","showlegend":false,"frame":null},{"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,4],"z":[0,0],"line":{"color":"green","width":6},"name":"P2 y","showlegend":true,"marker":{"color":"rgba(44,160,44,1)","line":{"color":"rgba(44,160,44,1)"}},"error_y":{"color":"rgba(44,160,44,1)"},"error_x":{"color":"rgba(44,160,44,1)"},"frame":null},{"colorbar":{"title":"","ticklen":2},"colorscale":[[0,"green"],[1,"green"]],"showscale":false,"type":"cone","x":[0],"y":[4],"z":[0],"u":[0],"v":[4],"w":[0],"sizemode":"absolute","sizeref":0.5,"anchor":"tip","name":"P2 y","showlegend":false,"frame":null},{"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,0],"z":[0,5],"line":{"color":"blue","width":6},"name":"P3 y","showlegend":true,"marker":{"color":"rgba(148,103,189,1)","line":{"color":"rgba(148,103,189,1)"}},"error_y":{"color":"rgba(148,103,189,1)"},"error_x":{"color":"rgba(148,103,189,1)"},"frame":null},{"colorbar":{"title":"","ticklen":2},"colorscale":[[0,"blue"],[1,"blue"]],"showscale":false,"type":"cone","x":[0],"y":[0],"z":[5],"u":[0],"v":[0],"w":[5],"sizemode":"absolute","sizeref":0.5,"anchor":"tip","name":"P3 y","showlegend":false,"frame":null},{"type":"scatter3d","mode":"lines","x":[0,3],"y":[0,4],"z":[0,5],"line":{"color":"black","width":6},"name":"y","showlegend":true,"marker":{"color":"rgba(227,119,194,1)","line":{"color":"rgba(227,119,194,1)"}},"error_y":{"color":"rgba(227,119,194,1)"},"error_x":{"color":"rgba(227,119,194,1)"},"frame":null},{"colorbar":{"title":"","ticklen":2},"colorscale":[[0,"black"],[1,"black"]],"showscale":false,"type":"cone","x":[3],"y":[4],"z":[5],"u":[3],"v":[4],"w":[5],"sizemode":"absolute","sizeref":0.5,"anchor":"tip","name":"y","showlegend":false,"frame":null},{"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,0],"z":[5,0],"line":{"color":"rgba(255, 0, 0, 0.5)","width":3,"dash":"dash"},"name":"y -> P1","hoverinfo":["text","text"],"text":["y -> P1","y -> P1"],"marker":{"color":"rgba(188,189,34,1)","line":{"color":"rgba(188,189,34,1)"}},"error_y":{"color":"rgba(188,189,34,1)"},"error_x":{"color":"rgba(188,189,34,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,4],"z":[5,0],"line":{"color":"rgba(0, 255, 0, 0.5)","width":3,"dash":"dash"},"name":"y -> P2","hoverinfo":["text","text"],"text":["y -> P2","y -> P2"],"marker":{"color":"rgba(23,190,207,1)","line":{"color":"rgba(23,190,207,1)"}},"error_y":{"color":"rgba(23,190,207,1)"},"error_x":{"color":"rgba(23,190,207,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,0],"z":[5,5],"line":{"color":"rgba(0, 0, 255, 0.5)","width":3,"dash":"dash"},"name":"y -> P3","hoverinfo":["text","text"],"text":["y -> P3","y -> P3"],"marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,4],"z":[5,0],"line":{"color":"purple","width":3,"dash":"dash"},"name":"y -> (P1+P2)","hoverinfo":["text","text"],"text":["y -> (P1+P2)","y -> (P1+P2)"],"marker":{"color":"rgba(255,127,14,1)","line":{"color":"rgba(255,127,14,1)"}},"error_y":{"color":"rgba(255,127,14,1)"},"error_x":{"color":"rgba(255,127,14,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[3,3],"y":[4,0],"z":[5,5],"line":{"color":"orange","width":3,"dash":"dash"},"name":"y -> (P1+P3)","hoverinfo":["text","text"],"text":["y -> (P1+P3)","y -> (P1+P3)"],"marker":{"color":"rgba(44,160,44,1)","line":{"color":"rgba(44,160,44,1)"}},"error_y":{"color":"rgba(44,160,44,1)"},"error_x":{"color":"rgba(44,160,44,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[3,0],"y":[4,4],"z":[5,5],"line":{"color":"cyan","width":3,"dash":"dash"},"name":"y -> (P2+P3)","hoverinfo":["text","text"],"text":["y -> (P2+P3)","y -> (P2+P3)"],"marker":{"color":"rgba(214,39,40,1)","line":{"color":"rgba(214,39,40,1)"}},"error_y":{"color":"rgba(214,39,40,1)"},"error_x":{"color":"rgba(214,39,40,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[0,6],"y":[0,0],"z":[0,0],"line":{"color":"gray","dash":"dot","width":2},"name":"V1 (x)","marker":{"color":"rgba(148,103,189,1)","line":{"color":"rgba(148,103,189,1)"}},"error_y":{"color":"rgba(148,103,189,1)"},"error_x":{"color":"rgba(148,103,189,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,6],"z":[0,0],"line":{"color":"gray","dash":"dot","width":2},"name":"V2 (y)","marker":{"color":"rgba(140,86,75,1)","line":{"color":"rgba(140,86,75,1)"}},"error_y":{"color":"rgba(140,86,75,1)"},"error_x":{"color":"rgba(140,86,75,1)"},"frame":null},{"type":"scatter3d","mode":"lines","x":[0,0],"y":[0,0],"z":[0,6],"line":{"color":"gray","dash":"dot","width":2},"name":"V3 (z)","marker":{"color":"rgba(227,119,194,1)","line":{"color":"rgba(227,119,194,1)"}},"error_y":{"color":"rgba(227,119,194,1)"},"error_x":{"color":"rgba(227,119,194,1)"},"frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 ```
 
 
@@ -1634,9 +1616,8 @@ Orthogonal decomposition geometry (R Plotly)
 :::
 
 
-::: {#thm-complete-decomposition name="Complete Orthogonal Decomposition of $\mathbb{R}^n$"}
-Let $P_0, P_1, \dots, P_k$ be a sequence of orthogonal projection matrices with nested column spaces:
-$$
+::: {#thm-complete-decomposition name="Complete Orthogonal Decomposition of $\\mathbb{R}^n$"}
+Let $P_0, P_1, \dots, P_k$ be a sequence of orthogonal projection matrices with nested column spaces: $$
 \text{Col}(P_0) \subseteq \text{Col}(P_1) \subseteq \dots \subseteq \text{Col}(P_k)
 $$
 
@@ -1651,45 +1632,31 @@ Define the sequence of difference matrices $\Delta P_i$ and their column spaces 
 **Conclusion:**
 
 1.  **Projection Property:** Each $\Delta P_i$ is the orthogonal projection matrix onto $V_i$ for $i = 0, \dots, k+1$.
-2.  **Mutual Orthogonality:** The collection $\{\Delta P_i\}$ are mutually orthogonal operators:
-    $$ \Delta P_i \Delta P_j = 0 \quad \text{for all } i \ne j $$
 
-3.  **Direct Sum Decomposition:** The vector space $\mathbb{R}^n$ is the direct sum of these orthogonal subspaces:
-    $$ \mathbb{R}^n = V_0 \oplus V_1 \oplus \dots \oplus V_{k+1} $$
+2.  **Mutual Orthogonality:** The collection $\{\Delta P_i\}$ are mutually orthogonal operators: $$ \Delta P_i \Delta P_j = 0 \quad \text{for all } i \ne j $$
+
+3.  **Direct Sum Decomposition:** The vector space $\mathbb{R}^n$ is the direct sum of these orthogonal subspaces: $$ \mathbb{R}^n = V_0 \oplus V_1 \oplus \dots \oplus V_{k+1} $$
 :::
 
 ::: proof
-**1. Proof that $\Delta P_i$ is the Projection onto $V_i$**
-We must show each $\Delta P_i$ is symmetric and idempotent.
+**1. Proof that** $\Delta P_i$ is the Projection onto $V_i$ We must show each $\Delta P_i$ is symmetric and idempotent.
 
-* For $\Delta P_0 = P_0$: True by definition.
-* For $\Delta P_i$ ($1 \le i \le k$):
-    * **Symmetry:** Difference of symmetric matrices ($P_i, P_{i-1}$) is symmetric.
-    * **Idempotency:** $(\Delta P_i)^2 = (P_i - P_{i-1})^2 = P_i^2 - P_i P_{i-1} - P_{i-1} P_i + P_{i-1}^2$. Using nested properties ($P_i P_{i-1} = P_{i-1}$), this simplifies to $P_i - P_{i-1} = \Delta P_i$.
-* For $\Delta P_{k+1} = I - P_k$:
-    * **Symmetry:** $(I - P_k)' = I - P_k$.
-    * **Idempotency:** $(I - P_k)^2 = I - 2P_k + P_k^2 = I - P_k$.
+-   For $\Delta P_0 = P_0$: True by definition.
+-   For $\Delta P_i$ ($1 \le i \le k$):
+    -   **Symmetry:** Difference of symmetric matrices ($P_i, P_{i-1}$) is symmetric.
+    -   **Idempotency:** $(\Delta P_i)^2 = (P_i - P_{i-1})^2 = P_i^2 - P_i P_{i-1} - P_{i-1} P_i + P_{i-1}^2$. Using nested properties ($P_i P_{i-1} = P_{i-1}$), this simplifies to $P_i - P_{i-1} = \Delta P_i$.
+-   For $\Delta P_{k+1} = I - P_k$:
+    -   **Symmetry:** $(I - P_k)' = I - P_k$.
+    -   **Idempotency:** $(I - P_k)^2 = I - 2P_k + P_k^2 = I - P_k$.
 
-**2. Proof of Mutual Orthogonality**
-We show $\Delta P_j \Delta P_i = 0$ for $i < j$.
+**2. Proof of Mutual Orthogonality** We show $\Delta P_j \Delta P_i = 0$ for $i < j$.
 
-* **Case 1: Both indices $\le k$** (i.e., $1 \le i < j \le k$):
-    $$ (P_j - P_{j-1})(P_i - P_{i-1}) = P_j P_i - P_j P_{i-1} - P_{j-1} P_i + P_{j-1} P_{i-1} $$
-    Since $\text{Col}(P_i) \subseteq \text{Col}(P_{j-1})$, all terms reduce to $P_i - P_{i-1} - P_i + P_{i-1} = 0$.
+-   **Case 1: Both indices** $\le k$ (i.e., $1 \le i < j \le k$): $$ (P_j - P_{j-1})(P_i - P_{i-1}) = P_j P_i - P_j P_{i-1} - P_{j-1} P_i + P_{j-1} P_{i-1} $$ Since $\text{Col}(P_i) \subseteq \text{Col}(P_{j-1})$, all terms reduce to $P_i - P_{i-1} - P_i + P_{i-1} = 0$.
 
-* **Case 2: One index is the residual** ($j = k+1$):
-    We check $\Delta P_{k+1} \Delta P_i = (I - P_k)\Delta P_i$ for any $i \le k$.
-    Since $V_i \subseteq \text{Col}(P_k)$, we have $P_k \Delta P_i = \Delta P_i$.
-    $$ (I - P_k)\Delta P_i = \Delta P_i - P_k \Delta P_i = \Delta P_i - \Delta P_i = 0 $$
+-   **Case 2: One index is the residual** ($j = k+1$): We check $\Delta P_{k+1} \Delta P_i = (I - P_k)\Delta P_i$ for any $i \le k$. Since $V_i \subseteq \text{Col}(P_k)$, we have $P_k \Delta P_i = \Delta P_i$. $$ (I - P_k)\Delta P_i = \Delta P_i - P_k \Delta P_i = \Delta P_i - \Delta P_i = 0 $$
 
-**3. Proof of Direct Sum**
-The sum of the difference matrices forms a telescoping series:
-$$ \sum_{j=0}^{k+1} \Delta P_j = P_0 + \sum_{i=1}^k (P_i - P_{i-1}) + (I - P_k) $$
-$$ = P_k + (I - P_k) = I $$
-Since the identity operator $I$ (which maps $\mathbb{R}^n$ to itself) is the sum of mutually orthogonal projection operators, the space $\mathbb{R}^n$ decomposes into the direct sum of their respective image subspaces $V_i$.
+**3. Proof of Direct Sum** The sum of the difference matrices forms a telescoping series: $$ \sum_{j=0}^{k+1} \Delta P_j = P_0 + \sum_{i=1}^k (P_i - P_{i-1}) + (I - P_k) $$ $$ = P_k + (I - P_k) = I $$ Since the identity operator $I$ (which maps $\mathbb{R}^n$ to itself) is the sum of mutually orthogonal projection operators, the space $\mathbb{R}^n$ decomposes into the direct sum of their respective image subspaces $V_i$.
 :::
-
-
 
 
 ::: {.cell layout-align="center"}
@@ -1697,3 +1664,4 @@ Since the identity operator $I$ (which maps $\mathbb{R}^n$ to itself) is the sum
 ![Venn Diagram of Nested Projections with Colored Increments](lec1-vecspace_files/figure-html/fig-venn-nested-projection-1.png){#fig-venn-nested-projection fig-align='center' width=576 style="width: 80% !important;"}
 :::
 :::
+
