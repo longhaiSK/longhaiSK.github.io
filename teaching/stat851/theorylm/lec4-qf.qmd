@@ -40,6 +40,7 @@ $$
 :::
 
 ::: {.proof}
+
 Let us decompose $y$ into its mean and a stochastic component: $y = \mu + z$, where $E(z) = 0$ and $\text{Var}(z) = E(zz') = I_n$.
 Substituting this into the quadratic form:
 $$
@@ -58,6 +59,8 @@ E(y'y) &= \mu'\mu + 2\mu'E(z) + E(z'z) \\
 $$
 Since $\text{Var}(z_i) = E(z_i^2) - (E(z_i))^2 = 1 - 0 = 1$, we have $E(\sum z_i^2) = \sum 1 = n$.
 Thus, $E(y'y) = n + \mu'\mu$.
+
+
 :::
 
 
@@ -358,8 +361,7 @@ This shows that in regression, the SST estimates $(n-1)\sigma^2$ *plus* the vari
 
 
 
-```{r}
-#| label: fig-sst-comparison-sorted-v2
+```{r fig-sst-comparison-sorted-v2}
 #| fig-cap: "Comparison of SST components with increased variation in the true means. The vertical lines represent the deviations $(y_i - \\bar{y})$. With $\\text{sd}(\\mu_i) = 3$, the regression case (right) shows significantly larger deviations, illustrating how the systematic spread of the means dominates the Total Sum of Squares."
 #| warning: false
 #| message: false
@@ -449,15 +451,16 @@ V \sim \chi^2(n, \lambda) \quad \text{where } \lambda = \mu'\mu = ||\mu||^2
 $$
 :::
 
-**Note:** Some definitions of non-central $\chi^2$ use $\lambda = \frac{1}{2}\mu'\mu$. In this course, we use $\lambda = \mu'\mu$. With this convention, the Poisson-mixture representation below uses Poisson($\lambda/2$) weights.
+::: {.callout-important}
+**Note on NCP Definition:** Some definitions of non-central $\chi^2$ use $\lambda = \frac{1}{2}\mu'\mu$. In this course, we use $\lambda = \mu'\mu$. With this convention, the Poisson-mixture representation below uses Poisson($\lambda/2$) weights.
+:::
 
 ### Visualizing $\chi^2$ Distributions
 
 Here is a plot visualizing the difference between central and non-central Chi-square distributions.
 
 
-```{r}
-#| label: fig-plot-chisq
+```{r fig-plot-chisq}
 #| echo: false
 #| fig-cap: "Central vs Non-central Chi-square Distribution"
 
@@ -510,7 +513,7 @@ Let $V \sim \chi^2(n, \lambda)$. Then:
 By definition, $V \sim \chi^2(n, \lambda)$ is the distribution of $y'y$ where $y \sim N_n(\mu, I_n)$ and the non-centrality parameter is $\lambda = \mu'\mu = ||\mu||^2$.
 Applying @lem-simple-qf to the random vector $y$:
 $$
-E(V) = E(y'y) = n + \mu'\mu = n + 2\lambda
+E(V) = E(y'y) = n + \mu'\mu = n + \lambda
 $$
 :::
 
@@ -555,25 +558,25 @@ Note that $\displaystyle \frac{\lambda t}{1-2t} = -\frac{\lambda}{2}\left(1 - \f
 ::: {.proof name="Variance"}
 We use the **Cumulant Generating Function**, $K_V(t) = \ln m_V(t)$, as its derivatives yield the mean and variance directly:
 $$
-K_V(t) = -\frac{n}{2} \ln(1-2t) + \frac{2\lambda t}{1-2t}
+K_V(t) = -\frac{n}{2} \ln(1-2t) + \frac{\lambda t}{1-2t}
 $$
 First derivative (Mean):
 $$
 \begin{aligned}
-K'_V(t) &= -\frac{n}{2} \left(\frac{-2}{1-2t}\right) + 2\lambda \left[ \frac{1(1-2t) - t(-2)}{(1-2t)^2} \right] \\
-&= \frac{n}{1-2t} + 2\lambda \frac{1}{(1-2t)^2}
+K'_V(t) &= -\frac{n}{2} \left(\frac{-2}{1-2t}\right) + \lambda \left[ \frac{1(1-2t) - t(-2)}{(1-2t)^2} \right] \\
+&= \frac{n}{1-2t} + \frac{\lambda}{(1-2t)^2}
 \end{aligned}
 $$
 Second derivative (Variance):
 $$
 \begin{aligned}
-K''_V(t) &= n(-1)(1-2t)^{-2}(-2) + 2\lambda(-2)(1-2t)^{-3}(-2) \\
-&= \frac{2n}{(1-2t)^2} + \frac{8\lambda}{(1-2t)^3}
+K''_V(t) &= n(-1)(1-2t)^{-2}(-2) + \lambda(-2)(1-2t)^{-3}(-2) \\
+&= \frac{2n}{(1-2t)^2} + \frac{4\lambda}{(1-2t)^3}
 \end{aligned}
 $$
 Evaluating at $t=0$:
 $$
-\text{Var}(V) = K''_V(0) = 2n + 8\lambda
+\text{Var}(V) = K''_V(0) = 2n + 4\lambda
 $$
 :::
 
@@ -633,7 +636,7 @@ $$
 Let $v \sim \chi^2(n, \lambda)$ be a non-central chi-square random variable. Its probability density function can be represented as a Poisson-weighted sum of central chi-square density functions:
 
 $$
-f(v; n, \lambda) = \sum_{j=0}^{\infty} \left( \frac{e^{-\lambda} \lambda^j}{j!} \right) f(v; n+2j, 0)
+f(v; n, \lambda) = \sum_{j=0}^{\infty} \left( \frac{e^{-\lambda/2} (\lambda/2)^j}{j!} \right) f(v; n+2j, 0)
 $$
 
 where $f(v; \nu, 0)$ is the density of a central chi-square distribution with $\nu$ degrees of freedom.
@@ -665,14 +668,13 @@ Since the MGF of the mixture is the sum of the MGFs of the components weighted b
 ::: {.remark}
 This theorem implies a hierarchical model for generating a non-central chi-square variable:
 
-1.  Sample $J \sim \text{Poisson}(\lambda)$.
+1.  Sample $J \sim \text{Poisson}(\lambda/2)$.
 2.  Given $J=j$, sample $V \sim \chi^2(n+2j, 0)$.
 
 This is particularly useful for numerical computation, as it allows the non-central CDF to be approximated by a finite sum of central chi-square CDFs.
 :::
 
-```{r}
-#| label: fig-chisq-poisson-mixture-fixed
+```{r fig-chisq-poisson-mixture-fixed}
 #| fig-cap: "The non-central chi-square distribution as a Poisson mixture. The black curves represent central chi-square densities with $df = n + 2j$, with transparency (alpha) proportional to the Poisson weight $P(J=j)$. The solid blue line is the true non-central chi-square density."
 #| warning: false
 #| message: false
@@ -753,7 +755,7 @@ We will prove a simplified version of @thm-dist-quad first.
 If $y \sim N_n(\mu, \sigma^2 I_n)$ and $P_V$ is a projection matrix onto a subspace $V$ of dimension $r$, then:
 
 $$
-\frac{1}{\sigma^2} y'P_V y = \frac{||P_V y||^2}{\sigma^2} \sim \chi^2\left(r, \frac{||P_V \mu||^2}{2\sigma^2}\right)
+\frac{1}{\sigma^2} y'P_V y = \frac{||P_V y||^2}{\sigma^2} \sim \chi^2\left(r, \frac{||P_V \mu||^2}{\sigma^2}\right)
 $$
 
 This holds because $\frac{1}{\sigma^2} P_V (\sigma^2 I) = P_V$, which is idempotent.
@@ -782,19 +784,19 @@ $$
 y' P_V y = y' Q Q' y = (Q'y)' (Q'y) = ||Q'y||^2
 $$
 
-Since $y \sim N(\mu, I_n)$, the linear transformation $z = Q'y$ follows:
+Since $y \sim N(\mu, I_n)$, the linear transformation $w = Q'y$ follows:
 $$
-z \sim N(Q'\mu, Q' I_n Q) = N(Q'\mu, I_r)
+w \sim N(Q'\mu, Q' I_n Q) = N(Q'\mu, I_r)
 $$
 
-Thus, $z$ is a vector of $r$ independent normal variables with variance 1. The sum of squares $||z||^2$ is by definition non-central chi-square:
+Thus, $w$ is a vector of $r$ independent normal variables with variance 1. The sum of squares $||w||^2$ is by definition non-central chi-square:
 
 $$
-||z||^2 \sim \chi^2(r, \lambda)
+||w||^2 \sim \chi^2(r, \lambda)
 $$
 where the non-centrality parameter is:
 $$
-\lambda = ||E(z)||^2 = ||Q'\mu||^2
+\lambda = ||E(w)||^2 = ||Q'\mu||^2
 $$
 
 Note that $||Q'\mu||^2 = \mu' Q Q' \mu = \mu' P_V \mu = ||P_V \mu||^2$.
@@ -805,15 +807,15 @@ Thus, $y' P_V y \sim \chi^2(r, ||P_V \mu||^2)$.
 
 If $y \sim N(\mu, \sigma^2 I_n)$, we standardize by dividing by $\sigma$.
 
-Let $z = y/\sigma$. Then $z \sim N(\mu/\sigma, I_n)$.
-Applying the previous result to $z$:
+Let $w = y/\sigma$. Then $w \sim N(\mu/\sigma, I_n)$.
+Applying the previous result to $w$:
 
 $$
-z' P_V z = \frac{y' P_V y}{\sigma^2} \sim \chi^2\left(r, \left|\left| P_V \frac{\mu}{\sigma} \right|\right|^2\right)
+w' P_V w = \frac{y' P_V y}{\sigma^2} \sim \chi^2\left(r, \left|\left| P_V \frac{\mu}{\sigma} \right|\right|^2\right)
 $$
 which simplifies to:
 $$
-\frac{||P_V y||^2}{\sigma^2} \sim \chi^2\left(r, \frac{||P_V \mu||^2}{2\sigma^2}\right)
+\frac{||P_V y||^2}{\sigma^2} \sim \chi^2\left(r, \frac{||P_V \mu||^2}{\sigma^2}\right)
 $$
 
 :::
@@ -828,8 +830,7 @@ E(\|P_V y\|^2) = \sigma^2 \left(r + \frac{\|P_V \mu\|^2}{\sigma^2}\right) = r\si
 $$
 :::
 
-```{r}
-#| label: plot-projection-3d-refined
+```{r plot-projection-3d-refined}
 #| warning: false
 #| message: false
 #| fig-cap: "Visualization of Projected Trivariate Normal Cloud"
@@ -922,6 +923,7 @@ plot_ly() %>%
   )
 ```
 
+
 ### Distribution of General Quadratic Forms
 
 ::: {#lem-idempotent-sigma name="Idempotent Matrix Property"}
@@ -1010,7 +1012,7 @@ $$(y-\mu_0)'\Sigma^{-1}(y-\mu_0) \sim \chi^2(n, \lambda = (\mu-\mu_0)'\Sigma^{-1
 :::
 
 ::: {.proof}
-Let $A = \Sigma^{-1}$. Then $A\Sigma = \Sigma^{-1}\Sigma = I_n$, which is clearly idempotent. Alternatively, let $z = \Sigma^{-1/2}(y-\mu_0)$, then $z \sim N_n(\Sigma^{-1/2}(\mu-\mu_0), I_n)$. By the definition of chi-square, $\|z\|^2 = (y-\mu_0)'\Sigma^{-1}(y-\mu_0)$ follows the stated distribution.
+Let $A = \Sigma^{-1}$. Then $A\Sigma = \Sigma^{-1}\Sigma = I_n$, which is clearly idempotent. Alternatively, let $w = \Sigma^{-1/2}(y-\mu_0)$, then $w \sim N_n(\Sigma^{-1/2}(\mu-\mu_0), I_n)$. By the definition of chi-square, $\|w\|^2 = (y-\mu_0)'\Sigma^{-1}(y-\mu_0)$ follows the stated distribution.
 :::
 
 ::: {.callout-important}
@@ -1026,7 +1028,7 @@ Let $V$ be a $k$-dimensional subspace of $\mathcal{R}^n$ with projection matrix 
 
 1. $E(P_V y) = P_V \mu$.
 2. If $\text{Var}(y)=\sigma^2 I_n$, then $\text{Var}(P_V y) = \sigma^2 P_V$ and $E(\|P_V y\|^2) = \sigma^2 k + \|P_V \mu\|^2$.
-3. If $y \sim N_n(\mu, \sigma^2 I_n)$, then $\frac{1}{\sigma^2}\|P_V y\|^2 = \frac{1}{\sigma^2}y'P_Vy \sim \chi^2(k, \frac{1}{2\sigma^2}\|P_V \mu\|^2)$.
+3. If $y \sim N_n(\mu, \sigma^2 I_n)$, then $\frac{1}{\sigma^2}\|P_V y\|^2 = \frac{1}{\sigma^2}y'P_Vy \sim \chi^2(k, \frac{1}{\sigma^2}\|P_V \mu\|^2)$.
 :::
 
 ::: {.proof}
@@ -1041,7 +1043,7 @@ Let $V_1, \dots, V_k$ be mutually orthogonal subspaces with dimensions d_i and p
 
 1. The projections $\hat{y}_i = P_i y$ are independent with $\hat{y}_i \sim N(P_i \mu, \sigma^2 P_i)$.
 2. The squared norms $\|\hat{y}_i\|^2$ are mutually independent.
-3. $\frac{1}{\sigma^2}\|\hat{y}_i\|^2 \sim \chi^2(d_i, \frac{1}{2\sigma^2}\|P_i \mu\|^2)$.
+3. $\frac{1}{\sigma^2}\|\hat{y}_i\|^2 \sim \chi^2(d_i, \frac{1}{\sigma^2}\|P_i \mu\|^2)$.
 :::
 
 ::: {.proof}
@@ -1079,8 +1081,8 @@ Let $y \sim N_n(\mu, \sigma^2 I)$ and $y'y = \sum y'A_iy$. The quadratic forms $
 
 We begin by defining two independent Chi-squared random variables that form the building blocks for statistical power analysis.
 
-* **Non-central Component ($X_1$):** $X_1 \sim \chi^2(\text{df}_1, 2\lambda)$.
-  Here, we use the "natural" definition where $\lambda$ is **half the sum of squared means**.  *(Note: R uses the non-centrality parameter as the full sum of squares, i.e., $2\lambda$.)*
+* **Non-central Component ($X_1$):** $X_1 \sim \chi^2(\text{df}_1, \lambda)$.
+  Here, $\lambda$ is the non-centrality parameter, defined as the sum of squared means, $\lambda = ||\mu||^2$. This is consistent with the definition used throughout this chapter. *(Note: This definition is also used by R's `ncp` argument.)*
 
 * **Central Component ($X_2$):** $X_2 \sim \chi^2(\text{df}_2)$. $X_2$ often represents the **Noise Sum of Squares**, SSE$_1$ of an adequate model, which is assume to follow a central $\chi^2$,
 
@@ -1141,8 +1143,7 @@ $$F = \frac{X_1/\text{df}_1}{X_2/\text{df}_2} \sim F(\text{df}_1, \text{df}_2, \
     * **Under $H_0$ ($\lambda=0$):** Exact mean is $\frac{\text{df}_2}{\text{df}_2 - 2}$ (for $\text{df}_2 > 2$).
     * **Under $H_1$ ($\lambda \neq 0$):** Approximate mean is $1 + \frac{\lambda}{\text{df}_1}$.
 
-```{r}
-#| label: fig-nc-f
+```{r fig-nc-f}
 #| echo: false
 #| fig-height: 3.5
 #| fig-cap: "Densities of Non-Central F ($\\lambda$ defined as sum of squares)."
@@ -1170,10 +1171,9 @@ $$B_I = \frac{X_1}{X_1 + X_2} \sim \text{Beta}_1\left(\frac{\text{df}_1}{2}, \fr
 * **Relationship to F:** $B_I = \frac{(\text{df}_1/\text{df}_2) F}{1 + (\text{df}_1/\text{df}_2) F}$
 * **Expectation:**
     * **Under $H_0$ ($\lambda=0$):** Exact mean is $\frac{\text{df}_1}{\text{df}_1 + \text{df}_2}$.
-    * **Under $H_1$ ($\lambda \neq 0$):** Approximate mean is $\frac{\text{df}_1 + 2\lambda}{\text{df}_1 + \text{df}_2 + 2\lambda}$.
+    * **Under $H_1$ ($\lambda \neq 0$):** Approximate mean is $\frac{\text{df}_1 + \lambda}{\text{df}_1 + \text{df}_2 + \lambda}$.
 
-```{r}
-#| label: fig-nc-beta1
+```{r fig-nc-beta1}
 #| echo: false
 #| fig-height: 3.5
 #| fig-cap: "Densities of Type I Beta ($R^2$)."
@@ -1198,10 +1198,9 @@ $$B_{II} = \frac{X_2}{X_1 + X_2} = 1 - B_I \sim \text{Beta}_2\left(\frac{\text{d
 * **Relationship to F:** $B_{II} = \frac{1}{1 + (\text{df}_1/\text{df}_2) F}$
 * **Expectation:**
     * **Under $H_0$ ($\lambda=0$):** Exact mean is $\frac{\text{df}_2}{\text{df}_1 + \text{df}_2}$.
-    * **Under $H_1$ ($\lambda \neq 0$):** Approximate mean is $\frac{\text{df}_2}{\text{df}_1 + \text{df}_2 + 2\lambda}$.
+    * **Under $H_1$ ($\lambda \neq 0$):** Approximate mean is $\frac{\text{df}_2}{\text{df}_1 + \text{df}_2 + \lambda}$.
 
-```{r}
-#| label: fig-beta-ii
+```{r fig-beta-ii}
 #| echo: false
 #| fig-height: 3.5
 #| fig-cap: "Densities of Type II Beta ($SSE/SST$). Support is [0, 1]."
@@ -1212,7 +1211,6 @@ x_common <- seq(0, 1.5, length.out = 400)
 plot_data <- data.frame()
 for(l in c(0, 2.5, 5)) {
   # B_II = 1 - B_I. 
-  # Use 2*l for R's ncp
   y_val <- dbeta(1 - x_common, n1/2, n2/2, ncp = l)
   y_val[x_common > 1] <- 0
   plot_data <- rbind(plot_data, data.frame(x=x_common, y=y_val, lambda=as.factor(l)))
@@ -1235,10 +1233,9 @@ $$S = \frac{X_2/\text{df}_2}{(X_1+X_2)/(\text{df}_1+\text{df}_2)} \sim \text{Sca
 * **Relationship to F:** $S = \frac{\text{df}_1+\text{df}_2}{\text{df}_2 + \text{df}_1 F}$
 * **Expectation:**
     * **Under $H_0$ ($\lambda=0$):** Exact mean is $1$.
-    * **Under $H_1$ ($\lambda \neq 0$):** Approximate mean is $\frac{\text{df}_1+\text{df}_2}{\text{df}_1+\text{df}_2+2\lambda}$.
+    * **Under $H_1$ ($\lambda \neq 0$):** Approximate mean is $\frac{\text{df}_1+\text{df}_2}{\text{df}_1+\text{df}_2+\lambda}$.
 
-```{r}
-#| label: fig-scaled-beta
+```{r fig-scaled-beta}
 #| echo: false
 #| fig-height: 3.5
 #| fig-cap: "Densities of Scaled Type II Beta ($MSE/MST$)."
@@ -1266,6 +1263,7 @@ ggplot(plot_data, aes(x, y, color = lambda)) +
   theme_minimal()
 ```
 
+
 ### The Non-central t-distribution $t(\text{df}_2, \delta)$
 
 ::: {#def-noncentral-t}
@@ -1274,13 +1272,12 @@ Let $Z \sim N(\delta, 1)$ and $X_2 \sim \chi^2(\text{df}_2)$ be independent. The
 $$T = \frac{Z}{\sqrt{X_2/\text{df}_2}} \sim t(\text{df}_2, \delta)$$
 :::
 
-* **Relationship to F:** $F = T^2$ (when $\text{df}_1=1$). Note $\delta^2 = 2\lambda$.
+* **Relationship to F:** $F = T^2$ (when $\text{df}_1=1$). Note $\delta^2 = \lambda$.
 * **Expectation:**
     * **Under $H_0$ ($\delta=0$):** Exact mean is $0$.
     * **Under $H_1$ ($\delta \neq 0$):** Approximate mean is $\delta$.
 
-```{r}
-#| label: fig-nc-t
+```{r fig-nc-t}
 #| echo: false
 #| fig-height: 3.5
 #| fig-cap: "Densities of Non-Central t ($df=20$)."
