@@ -595,7 +595,7 @@ $$
 
 The moment generating function of $v_i \sim \chi^2(n_i, \lambda_i)$ is:
 $$
-M_{v_i}(t) = \frac{\exp\left[-\lambda_i \left(1 - \frac{1}{1-2t}\right)\right]}{(1-2t)^{n_i/2}}
+M_{v_i}(t) = \frac{\exp\left[-\frac{\lambda_i}{2} \left(1 - \frac{1}{1-2t}\right)\right]}{(1-2t)^{n_i/2}}
 $$
 
 Since $v_1, \dots, v_k$ are independent, the MGF of their sum $V = \sum v_i$ is the product of their individual MGFs:
@@ -603,8 +603,8 @@ Since $v_1, \dots, v_k$ are independent, the MGF of their sum $V = \sum v_i$ is 
 $$
 \begin{aligned}
 M_V(t) &= \prod_{i=1}^k M_{v_i}(t) \\
-&= \prod_{i=1}^k \frac{\exp\left[-\lambda_i \left(1 - \frac{1}{1-2t}\right)\right]}{(1-2t)^{n_i/2}} \\
-&= \frac{\exp\left[-\sum \lambda_i \left(1 - \frac{1}{1-2t}\right)\right]}{(1-2t)^{\sum n_i/2}}
+&= \prod_{i=1}^k \frac{\exp\left[-\frac{\lambda_i}{2} \left(1 - \frac{1}{1-2t}\right)\right]}{(1-2t)^{n_i/2}} \\
+&= \frac{\exp\left[-\frac{\sum \lambda_i}{2} \left(1 - \frac{1}{1-2t}\right)\right]}{(1-2t)^{\sum n_i/2}}
 \end{aligned}
 $$
 
@@ -830,11 +830,11 @@ E(\|P_V y\|^2) = \sigma^2 \left(r + \frac{\|P_V \mu\|^2}{\sigma^2}\right) = r\si
 $$
 :::
 
+
 ```{r plot-projection-3d-refined}
 #| warning: false
 #| message: false
 #| fig-cap: "Visualization of Projected Trivariate Normal Cloud"
-#| screenshot.force: true
 #| webshot2: !expr list(vwidth = 900, vheight = 600, zoom = 2)
 #| out-width: "100%"
 
@@ -1100,34 +1100,23 @@ We visualize these components as using the follow diagram.
 \begin{tikzpicture}[scale=1, transform shape, >=latex, font=\small]
 \usetikzlibrary{decorations.pathreplacing, calc}
 
-\def\lenNoise{4} \def\lenSignal{6} \def\yBar{1.0} \def\yBrace{0.8}
+\def\lenNoise{4} \def\lenSignal{6}
 \coordinate (O) at (0,0);
 \coordinate (P_SSE) at (\lenNoise, 0);
 \coordinate (P_SST) at (\lenNoise + \lenSignal, 0);
-\coordinate (Bar_Start) at (0, \yBar);
-\coordinate (Bar_Mid)   at (\lenNoise, \yBar);
-\coordinate (Bar_End)   at (\lenNoise + \lenSignal, \yBar);
 
 \draw[->, thick] (-0.5,0) -- (\lenNoise + \lenSignal + 1, 0);
 \draw[thick] (O) -- ++(0, -0.2) node[below] {\textbf{0}};
-\draw[thick] (P_SSE) -- ++(0, -0.2) node[below] {\textbf{$X_2$ (SSE)}};
-\draw[thick] (P_SST) -- ++(0, -0.2) node[below] {\textbf{$X_1+X_2$ (SST)}};
+\draw[thick] (P_SSE) -- ++(0, -0.2) node[below] {\textbf{$X_2$}};
+\draw[thick] (P_SST) -- ++(0, -0.2) node[below] {\textbf{$X_2+X_1$}};
 
-% Dashed Drop Lines (connecting bars to axis values)
-\draw[dashed, gray] (Bar_Start) -- (O); % Added vertical dashed line at 0
-\draw[dashed, gray] (Bar_Mid) -- (P_SSE);
-\draw[dashed, gray] (Bar_End) -- (P_SST);
+\draw[ultra thick, red!70!black] (O) -- (P_SSE);
+\draw[ultra thick, blue!70!black] (P_SSE) -- (P_SST);
 
-\draw[ultra thick, red!70!black] (Bar_Start) -- (Bar_Mid);
-\node[above, red!70!black, font=\bfseries] at ($(Bar_Start)!0.5!(Bar_Mid)$) {$X_2$ (Noise)};
-
-\draw[ultra thick, blue!70!black] (Bar_Mid) -- (Bar_End);
-\node[above, blue!70!black, font=\bfseries] at ($(Bar_Mid)!0.5!(Bar_End)$) {$X_1$ (Signal)};
-
-\draw[decorate, decoration={brace, mirror, amplitude=6pt, raise=2pt}, thick, red!70!black] 
-    (0, \yBrace) -- (\lenNoise, \yBrace) node[midway, below=8pt] {$\sim \chi^2(\text{df}_2)$};
-\draw[decorate, decoration={brace, mirror, amplitude=6pt, raise=2pt}, thick, blue!70!black] 
-    (\lenNoise, \yBrace) -- (\lenNoise + \lenSignal, \yBrace) node[midway, below=8pt] {$\sim \chi^2(\text{df}_1, \lambda)$};
+\draw[decorate, decoration={brace, mirror, amplitude=6pt, raise=5pt}, thick, red!70!black] 
+    (O) -- (P_SSE) node[midway, below=12pt, align=center] {\textbf{$X_2$ (Noise)} \\ $\sim \chi^2(\text{df}_2)$};
+\draw[decorate, decoration={brace, mirror, amplitude=6pt, raise=5pt}, thick, blue!70!black] 
+    (P_SSE) -- (P_SST) node[midway, below=12pt, align=center] {\textbf{$X_1$ (Signal)} \\ $\sim \chi^2(\text{df}_1, \lambda)$};
 \end{tikzpicture}
 ```
 
