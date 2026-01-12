@@ -6,39 +6,7 @@ format:
 ---
 
 
-```{r}
-#| label: setup-images-lec40-p1-10
-#| include: false
-#| warning: false
 
-library(pdftools)
-library(magick)
-
-# Define Path to PDF
-pdf_path <- "../Lec40-quadratic-form.pdf"
-img_dir <- "lec40_images"
-
-# Create Image Directory
-if (!dir.exists(img_dir)) {
-  dir.create(img_dir)
-}
-
-# Helper Function to Extract and Crop a Specific Page
-extract_page_image <- function(page_num, filename, geometry = "1200x800+0+200", force = FALSE) {
-  target_file <- file.path(img_dir, filename)
-  
-  if (file.exists(pdf_path) && (force || !file.exists(target_file))) {
-    tryCatch({
-      bitmap <- pdf_render_page(pdf_path, page = page_num, dpi = 150)
-      img <- image_read(bitmap)
-      img_cropped <- image_crop(img, geometry)
-      image_write(img_cropped, target_file)
-    }, error = function(e) {
-      warning(paste("Failed to extract page", page_num, ":", e$message))
-    })
-  }
-}
-```
 
 This chapter covers the distribution of quadratic forms (sums of squares), which is crucial for hypothesis testing in linear models.
 
@@ -477,11 +445,11 @@ To understand the distribution of quadratic forms under normality, we introduce 
 Let $y \sim N_n(\mu, I_n)$. The random variable $V = y'y = \sum y_i^2$ follows a **non-central chi-square distribution** with $n$ degrees of freedom and non-centrality parameter $\lambda$.
 
 $$
-V \sim \chi^2(n, \lambda) \quad \text{where } \lambda = \frac{1}{2} \mu'\mu = \frac{1}{2} ||\mu||^2
+V \sim \chi^2(n, \lambda) \quad \text{where } \lambda = \mu'\mu = ||\mu||^2
 $$
 :::
 
-**Note:** Some definitions of non-central $\chi^2$ use $\lambda = \mu'\mu$. In this course, we use $\lambda = \frac{1}{2}\mu'\mu$.
+**Note:** Some definitions of non-central $\chi^2$ use $\lambda = \frac{1}{2}\mu'\mu$. In this course, we use $\lambda = \mu'\mu$. With this convention, the Poisson-mixture representation below uses Poisson($\lambda/2$) weights.
 
 ### Visualizing $\chi^2$ Distributions
 
@@ -530,16 +498,16 @@ We summarize the key properties of the non-central chi-square distribution.
 ::: {#thm-chisq-properties name="Properties of Non-central Chi-square"}
 Let $V \sim \chi^2(n, \lambda)$. Then:
 
-1.  **Mean:** $E(V) = n + 2\lambda$
-2.  **Variance:** $\text{Var}(V) = 2n + 8\lambda$
+1.  **Mean:** $E(V) = n + \lambda$
+2.  **Variance:** $\text{Var}(V) = 2n + 4\lambda$
 3.  **Moment Generating Function (MGF):**
     $$
-    m_V(t) = \frac{\exp[-\lambda \{1 - 1/(1-2t)\}]}{(1-2t)^{n/2}} \quad \text{for } t < 1/2
+    m_V(t) = \frac{\exp\left[ -\frac{\lambda}{2} \left\{1 - \frac{1}{1-2t}\right\} \right]}{(1-2t)^{n/2}} \quad \text{for } t < 1/2
     $$
 :::
 
 ::: {.proof name="Mean"}
-By definition, $V \sim \chi^2(n, \lambda)$ is the distribution of $y'y$ where $y \sim N_n(\mu, I_n)$ and the non-centrality parameter is $\lambda = \frac{1}{2}\mu'\mu$.
+By definition, $V \sim \chi^2(n, \lambda)$ is the distribution of $y'y$ where $y \sim N_n(\mu, I_n)$ and the non-centrality parameter is $\lambda = \mu'\mu = ||\mu||^2$.
 Applying @lem-simple-qf to the random vector $y$:
 $$
 E(V) = E(y'y) = n + \mu'\mu = n + 2\lambda
@@ -577,11 +545,11 @@ m_V(t) &= \prod_{i=1}^n (1-2t)^{-1/2} \exp\left( \frac{\mu_i^2 t}{1-2t} \right) 
 &= (1-2t)^{-n/2} \exp\left( \frac{t \sum \mu_i^2}{1-2t} \right)
 \end{aligned}
 $$
-Substituting $\lambda = \frac{1}{2} \sum \mu_i^2$ (so $\sum \mu_i^2 = 2\lambda$):
+Substituting $\lambda = \sum \mu_i^2$ (so $\sum \mu_i^2 = \lambda$):
 $$
-m_V(t) = (1-2t)^{-n/2} \exp\left( \frac{2\lambda t}{1-2t} \right)
+m_V(t) = (1-2t)^{-n/2} \exp\left( \frac{\lambda t}{1-2t} \right)
 $$
-This form matches the theorem statement, noting that $\frac{2\lambda t}{1-2t} = -\lambda (1 - \frac{1}{1-2t})$.
+Note that $\displaystyle \frac{\lambda t}{1-2t} = -\frac{\lambda}{2}\left(1 - \frac{1}{1-2t}\right)$, which leads to the Poisson-mixture representation with $J \sim \text{Poisson}(\lambda/2)$.
 :::
 
 ::: {.proof name="Variance"}
@@ -652,10 +620,10 @@ $$
 \sum v_i = \sum ||y_i||^2 = ||y||^2
 $$
 
-By definition, $||y||^2$ follows a non-central chi-square distribution with degrees of freedom equal to the dimension of $y$ ($\sum n_i$) and non-centrality parameter $\lambda = \frac{1}{2} ||\mu||^2$.
+By definition, $||y||^2$ follows a non-central chi-square distribution with degrees of freedom equal to the dimension of $y$ ($\sum n_i$) and non-centrality parameter $\lambda = ||\mu||^2$.
 
 $$
-\lambda = \frac{1}{2} \sum_{i=1}^k ||\mu_i||^2 = \sum_{i=1}^k \lambda_i
+\lambda = \sum_{i=1}^k ||\mu_i||^2 = \sum_{i=1}^k \lambda_i
 $$
 :::
 
@@ -674,21 +642,21 @@ where $f(v; \nu, 0)$ is the density of a central chi-square distribution with $\
 ::: {.proof}
 We use the Moment Generating Function (MGF) approach. The MGF of a non-central chi-square distribution $v \sim \chi^2(n, \lambda)$ is:
 $$
-M_v(t) = (1-2t)^{-n/2} \exp\left( \lambda \left[ \frac{1}{1-2t} - 1 \right] \right)
+M_v(t) = (1-2t)^{-n/2} \exp\left( \frac{\lambda}{2} \left[ \frac{1}{1-2t} - 1 \right] \right)
 $$
 
 We can expand the exponential term using the power series $e^x = \sum_{j=0}^\infty \frac{x^j}{j!}$:
 $$
 \begin{aligned}
-M_v(t) &= (1-2t)^{-n/2} e^{-\lambda} \exp\left( \frac{\lambda}{1-2t} \right) \\
-&= e^{-\lambda} (1-2t)^{-n/2} \sum_{j=0}^{\infty} \frac{1}{j!} \left( \frac{\lambda}{1-2t} \right)^j \\
-&= \sum_{j=0}^{\infty} \left( \frac{e^{-\lambda} \lambda^j}{j!} \right) (1-2t)^{-(n+2j)/2}
+M_v(t) &= (1-2t)^{-n/2} e^{-\lambda/2} \exp\left( \frac{\lambda/2}{1-2t} \right) \\
+&= e^{-\lambda/2} (1-2t)^{-n/2} \sum_{j=0}^{\infty} \frac{1}{j!} \left( \frac{\lambda/2}{1-2t} \right)^j \\
+&= \sum_{j=0}^{\infty} \left( \frac{e^{-\lambda/2} (\lambda/2)^j}{j!} \right) (1-2t)^{-(n+2j)/2}
 \end{aligned}
 $$
 
 Recognizing the terms:
 
-1.  The term in parentheses, $P(J=j) = \frac{e^{-\lambda} \lambda^j}{j!}$, is the probability mass function of a **Poisson** random variable $J \sim \text{Poisson}(\lambda)$.
+1.  The term in parentheses, $P(J=j) = \frac{e^{-\lambda/2} (\lambda/2)^j}{j!}$, is the probability mass function of a **Poisson** random variable $J \sim \text{Poisson}(\lambda/2)$. 
 2.  The term $(1-2t)^{-(n+2j)/2}$ is the MGF of a **central chi-square** distribution with $n+2j$ degrees of freedom.
 
 Since the MGF of the mixture is the sum of the MGFs of the components weighted by the mixture probabilities, the density must follow the same mixture structure.
@@ -714,14 +682,14 @@ library(dplyr)
 
 # Parameters
 n <- 4          # Base degrees of freedom
-lambda <- 4     # Non-centrality parameter (lambda = 1/2 * ||mu||^2)
+lambda <- 4     # Non-centrality parameter (lambda = ||mu||^2)
 x_limit <- 25   # X-axis range
 j_values <- 0:15 # Sequence of J = 0, 1, 2...
 
 # Generate Data for the Mixture Components
 x <- seq(0, x_limit, length.out = 400)
 mixture_df <- do.call(rbind, lapply(j_values, function(j) {
-  weight <- dpois(j, lambda)
+  weight <- dpois(j, lambda/2)
   data.frame(
     x = x,
     y = dchisq(x, df = n + 2*j),
@@ -731,11 +699,11 @@ mixture_df <- do.call(rbind, lapply(j_values, function(j) {
 }))
 
 # Generate Data for the True Non-central Chi-square
-# R Uses Ncp = ||mu||^2, Which Equals 2 * Lambda
+# R Uses Ncp = ||mu||^2 (we set lambda = ||mu||^2)
 true_nc <- data.frame(
   x = x,
-  y = dchisq(x, df = n, ncp = 2 * lambda)
-)
+  y = dchisq(x, df = n, ncp = lambda)
+) 
 
 # Plotting
 ggplot() +
@@ -826,12 +794,12 @@ $$
 $$
 where the non-centrality parameter is:
 $$
-\lambda = \frac{1}{2} ||E(z)||^2 = \frac{1}{2} ||Q'\mu||^2
+\lambda = ||E(z)||^2 = ||Q'\mu||^2
 $$
 
 Note that $||Q'\mu||^2 = \mu' Q Q' \mu = \mu' P_V \mu = ||P_V \mu||^2$.
 
-Thus, $y' P_V y \sim \chi^2(r, \frac{1}{2} ||P_V \mu||^2)$.
+Thus, $y' P_V y \sim \chi^2(r, ||P_V \mu||^2)$.
 
 **When $\sigma^2\not=1$**
 
@@ -841,7 +809,7 @@ Let $z = y/\sigma$. Then $z \sim N(\mu/\sigma, I_n)$.
 Applying the previous result to $z$:
 
 $$
-z' P_V z = \frac{y' P_V y}{\sigma^2} \sim \chi^2\left(r, \frac{1}{2} \left|\left| P_V \frac{\mu}{\sigma} \right|\right|^2\right)
+z' P_V z = \frac{y' P_V y}{\sigma^2} \sim \chi^2\left(r, \left|\left| P_V \frac{\mu}{\sigma} \right|\right|^2\right)
 $$
 which simplifies to:
 $$
@@ -1023,7 +991,7 @@ Since similar matrices have the same rank, the equality holds.
 
 ::: {#thm-dist-quad name="Distribution of y'Ay"}
 Let $y \sim N_p(\mu, \Sigma)$. Let $A$ be a symmetric matrix of rank $r$.
-Then $y'Ay \sim \chi^2(r, \lambda)$ with $\lambda = \frac{1}{2} \mu' A \mu$ **if and only if** $A\Sigma$ is idempotent ($A\Sigma A\Sigma = A\Sigma$).
+Then $y'Ay \sim \chi^2(r, \lambda)$ with $\lambda = \mu' A \mu$ **if and only if** $A\Sigma$ is idempotent ($A\Sigma A\Sigma = A\Sigma$).
 
 **Special Case ($\Sigma = I$):**
 If $\Sigma = I$, the condition simplifies to $A$ being idempotent ($A^2 = A$).
@@ -1032,13 +1000,13 @@ If $\Sigma = I$, the condition simplifies to $A$ being idempotent ($A^2 = A$).
 ::: {.proof}
 Let $y^* = \Sigma^{-1/2}y$, so $y^* \sim N_n(\Sigma^{-1/2}\mu, I_n)$. We rewrite the quadratic form:
 $$y'Ay = y' \Sigma^{-1/2} (\Sigma^{1/2} A \Sigma^{1/2}) \Sigma^{-1/2} y = (y^*)' P_V y^* = \|P_V y^*\|^2$$
-Since $A\Sigma$ is idempotent, $P_V = \Sigma^{1/2} A \Sigma^{1/2}$ is a projection matrix with rank $r$. By the definition of the non-central chi-square, $y'Ay \sim \chi^2(r, \frac{1}{2}\|P_V \Sigma^{-1/2}\mu\|^2)$. The non-centrality parameter simplifies to $\lambda = \frac{1}{2}\mu'A\mu$.
+Since $A\Sigma$ is idempotent, $P_V = \Sigma^{1/2} A \Sigma^{1/2}$ is a projection matrix with rank $r$. By the definition of the non-central chi-square, $y'Ay \sim \chi^2(r, \|P_V \Sigma^{-1/2}\mu\|^2)$. The non-centrality parameter simplifies to $\lambda = \mu'A\mu$.
 :::
 
 ### Standardized Distance Distribution
 ::: {#cor-standardized-mvn name="Standardized Distance Distribution"}
 Suppose $y \sim N_n(\mu, \Sigma)$. Then the quadratic form representing the standardized distance from a constant vector $\mu_0$ follows a non-central chi-square distribution:
-$$(y-\mu_0)'\Sigma^{-1}(y-\mu_0) \sim \chi^2(n, \lambda = \frac{1}{2}(\mu-\mu_0)'\Sigma^{-1}(\mu-\mu_0))$$
+$$(y-\mu_0)'\Sigma^{-1}(y-\mu_0) \sim \chi^2(n, \lambda = (\mu-\mu_0)'\Sigma^{-1}(\mu-\mu_0))$$
 :::
 
 ::: {.proof}
@@ -1171,19 +1139,19 @@ $$F = \frac{X_1/\text{df}_1}{X_2/\text{df}_2} \sim F(\text{df}_1, \text{df}_2, \
 
 * **Expectation:**
     * **Under $H_0$ ($\lambda=0$):** Exact mean is $\frac{\text{df}_2}{\text{df}_2 - 2}$ (for $\text{df}_2 > 2$).
-    * **Under $H_1$ ($\lambda \neq 0$):** Approximate mean is $1 + \frac{2\lambda}{\text{df}_1}$.
+    * **Under $H_1$ ($\lambda \neq 0$):** Approximate mean is $1 + \frac{\lambda}{\text{df}_1}$.
 
 ```{r}
 #| label: fig-nc-f
 #| echo: false
 #| fig-height: 3.5
-#| fig-cap: "Densities of Non-Central F ($\\lambda$ defined as half-sum of squares)."
+#| fig-cap: "Densities of Non-Central F ($\\lambda$ defined as sum of squares)."
 
 library(ggplot2)
 x_f <- seq(0, 6, length.out = 300)
-# Use 2*l for R's ncp argument
+# Use l for R's ncp argument
 df_list <- lapply(c(0, 2.5, 5), function(l) {
-  data.frame(x = x_f, y = df(x_f, 5, 20, ncp = 2*l), lambda = as.factor(l))
+  data.frame(x = x_f, y = df(x_f, 5, 20, ncp = l), lambda = as.factor(l))
 })
 plot_data <- do.call(rbind, df_list)
 
@@ -1212,7 +1180,7 @@ $$B_I = \frac{X_1}{X_1 + X_2} \sim \text{Beta}_1\left(\frac{\text{df}_1}{2}, \fr
 
 x_b <- seq(0, 1, length.out = 300)
 df_list <- lapply(c(0, 2.5, 5), function(l) {
-  data.frame(x = x_b, y = dbeta(x_b, 2.5, 10, ncp = 2*l), lambda = as.factor(l))
+  data.frame(x = x_b, y = dbeta(x_b, 2.5, 10, ncp = l), lambda = as.factor(l))
 })
 plot_data <- do.call(rbind, df_list)
 
@@ -1245,7 +1213,7 @@ plot_data <- data.frame()
 for(l in c(0, 2.5, 5)) {
   # B_II = 1 - B_I. 
   # Use 2*l for R's ncp
-  y_val <- dbeta(1 - x_common, n1/2, n2/2, ncp = 2*l)
+  y_val <- dbeta(1 - x_common, n1/2, n2/2, ncp = l)
   y_val[x_common > 1] <- 0
   plot_data <- rbind(plot_data, data.frame(x=x_common, y=y_val, lambda=as.factor(l)))
 }
@@ -1282,10 +1250,10 @@ x_common <- seq(0, 1.5, length.out = 400)
 plot_data <- data.frame()
 for(l in c(0, 2.5, 5)) {
   # Density scaling: f_S(s) = (1/scale) * f_B_II(s/scale)
-  # R ncp = 2*l
+  # R ncp = l
   val_mapped <- x_common / scale_factor
   
-  y_val <- (1/scale_factor) * dbeta(1 - val_mapped, n1/2, n2/2, ncp = 2*l)
+  y_val <- (1/scale_factor) * dbeta(1 - val_mapped, n1/2, n2/2, ncp = l)
   y_val[x_common > scale_factor] <- 0
   
   plot_data <- rbind(plot_data, data.frame(x=x_common, y=y_val, lambda=as.factor(l)))
@@ -1343,7 +1311,7 @@ We use the projection matrix $P_{j_n} = \frac{1}{n}j_n j_n'$ and its complement 
 * **Total SSE ($SSE_0$ for $M_0$):**
     $$SSE_0 = \|I_n y^*\|^2 = \sum_{i=1}^n (Y_i - \mu_0)^2$$
     This follows a non-central distribution with $\text{df}_{\text{total}} = n$:
-    $$\frac{SSE_0}{\sigma^2} \sim \chi^2(n, \lambda) \quad \text{where } \lambda = \frac{n(\mu - \mu_0)^2}{2\sigma^2}$$
+    $$\frac{SSE_0}{\sigma^2} \sim \chi^2(n, \lambda) \quad \text{where } \lambda = \frac{n(\mu - \mu_0)^2}{\sigma^2}$$
 
 * **Residual SSE ($SSE_1$ for $M_1$):**
     $$SSE_1 = \|(I_n - P_{j_n})y^*\|^2 = \sum_{i=1}^n (Y_i - \bar{Y})^2$$
@@ -1379,7 +1347,7 @@ We can construct five equivalent statistics to compare $M_0$ and $M_1$.
 The table below contrasts the distributions and expected values of these statistics. We assume the sample size $n$ is large enough for the mean of $F$ to exist ($n > 3$).
 
 * **Degrees of Freedom:** $\text{df}_1 = 1$, $\text{df}_2 = n-1$.
-* **Non-centrality:** $\delta = \frac{\sqrt{n}(\mu - \mu_0)}{\sigma}$ and $\lambda = \frac{1}{2}\delta^2 = \frac{n(\mu - \mu_0)^2}{2\sigma^2}$.
+* **Non-centrality:** $\delta = \frac{\sqrt{n}(\mu - \mu_0)}{\sigma}$ and $\lambda = \delta^2 = \frac{n(\mu - \mu_0)^2}{\sigma^2}$.
 
 | Statistic | Distribution under $H_1$ ($\mu \neq \mu_0$) | Exact Mean under $H_0$ ($\mu=\mu_0$) | Approximate Mean under $H_1$ |
 | :--- | :--- | :--- | :--- |
