@@ -407,7 +407,7 @@ Thus:
 Recovering the original intercept:
 $$ \hat{\beta}_0 = \hat{\alpha} - \hat{\beta}_1 \bar{x}_1 - \dots - \hat{\beta}_k \bar{x}_k = \bar{y} - \hat{\beta}_{1}'\bar{x} $$
 
-## Sum of Squares Decomposition
+## Decomposition of Sum of Squares 
 
 We partition the total variation based on the orthogonal subspaces.
 
@@ -890,7 +890,7 @@ ggplot(df, aes(x, y)) +
 ```
 
 
-## Coefficient of Determination ($R^2$)
+## Raw Coefficient of Determination ($R^2$)
 
 ### Definition
 
@@ -942,7 +942,7 @@ where $\text{df}_1 = k$ and $\text{df}_2 = n-k-1$.
 :::
 
 
-### Adjusted R-squared ($R^2_a$)
+## Adjusted R-squared ($R^2_a$)
 
 To correct for the inflation of $R^2$ due to model complexity ($k$), we introduce the Adjusted $R^2$. This statistic penalizes the sum of squares by their degrees of freedom:
 
@@ -973,7 +973,7 @@ As the model complexity $k$ increases relative to $n$:
 
 This implies that for high-dimensional models (large $k/n$), $R^2_a$ becomes an extremely noisy estimator, often yielding large negative values even for null models.
 
-### Relationship with Rao-Blackwell Decomposition of Variances
+## Population Proportion of Signals ($\rho^2$)
 
 The formula for the expected Adjusted $R^2$ reveals a deep connection to the decomposition of variance in population quantities. Recall the Rao-Blackwell theorem (or Law of Total Variance), which decomposes the total variance of a single observation $Y_i$ into the expected conditional variance (noise) and the variance of the conditional expectation (signal). Let $\sigma^2_\mu$ denote the signal variance and $\sigma^2$ denote the noise variance:
 
@@ -997,12 +997,20 @@ X_c\beta_1 = P_{X_c} \mu = (H - P_{j_n})\mu = H\mu - P_{j_n}\mu = \mu - \bar{\mu
 $$
 
 This vector represents the deviation of each observation's true mean from the grand mean. Consequently, the squared norm divided by degrees of freedom is:
-$$ \frac{\|X_c\beta_1\|^2}{n-1} = \frac{\sum_{i=1}^n (\mu_i - \bar{\mu})^2}{n-1} = \widehat{\sigma}^2_\mu $$
+$$ \frac{\|X_c\beta_1\|^2}{n-1} = \frac{\sum_{i=1}^n (\mu_i - \bar{\mu})^2}{n-1} = \sigma^2_\mu $$
 
-If we view the rows of the design matrix $X$ as random draws $x_{(1)}, \dots, x_{(n)}$ from a population of covariate vectors, this term estimates $\text{Var}(x_{(i)}'\beta)$, which is the variance of the signal component $\sigma^2_\mu$.
 
-Thus, $R^2_a$ can be interpreted as a method-of-moments estimator for the **proportion of variance explained by the signal** in the population:
-$$ E[R^2_a] \approx \frac{\sigma^2_\mu}{\sigma^2 + \sigma^2_\mu} = \frac{\text{Var}(E[Y_i|x_{(i)}])}{\text{Var}(Y_i)} $$
+
+Thus, $R^2_a$ is therefore an unbiased estimator for the **proportion of variance explained by the signal** in the population:
+$$ E[R^2_a] \approx \frac{\sigma^2_\mu}{\sigma^2 + \sigma^2_\mu}$$
+
+We will denote this 'parameter' by $\rho^2$:
+
+$$ \rho^2 = 1 - \frac{\sigma^2}{\sigma^2_Y} = \frac{\sigma^2_\mu}{\sigma^2_Y} $$
+
+::: {.remark}
+In the fixed covariate framework, the 'parameter' $\rho^2$ is a function of the specific design matrix $X$, the coefficients $\beta$, and the sample size $n$. If we assume the $x_i$ are random draws from a population, then as $n \to \infty$, $\sigma^2_\mu$ converges to $\text{Var}(x^T\beta)$ (where $x$ is a random vector), and $\rho^2$ converges to the true population proportion of variance explained.
+:::
 
 ::: {.callout-important title="MSR Is Not a Variance Estimator"}
 
@@ -1013,45 +1021,36 @@ $$ E[R^2_a] \approx \frac{\sigma^2_\mu}{\sigma^2 + \sigma^2_\mu} = \frac{\text{V
 
 ## Relationship between $R^2$ and $F$ Test
 
-The proportion of *unexplained* variance, $1 - R^2$, follows the Type II Non-central Beta distribution.
+The $F$-statistic for the overall regression effect is a monotonic function of the coefficient of determination. We can express $F$ directly in terms of both the standard $R^2$ and the adjusted $R^2_a$, as well as relate its expected value to the population variance components.
 
-::: {#thm-r2-complement name="Distribution of Unexplained Variance"}
-$$1 - R^2 = \frac{\text{SSE}}{\text{SST}} \sim \text{Beta}_2\left( \frac{n-k-1}{2}, \frac{k}{2}, \lambda \right)$$
-:::
+1.  **Expressing $F$ via Standard $R^2$:**
 
-Both the standard and adjusted coefficients of determination are monotonic functions of the $F$-statistic ($F = \text{MSR}/\text{MSE}$). We can derive these relationships directly from the definition of $F$:
+    Since $R^2 = \text{SSR}/\text{SST}$ and $1 - R^2 = \text{SSE}/\text{SST}$, we can substitute these into the definition of $F$:
+    $$F = \frac{\text{SSR}/k}{\text{SSE}/(n-k-1)} = \frac{(R^2 \cdot \text{SST}) / k}{((1 - R^2) \cdot \text{SST}) / (n - k - 1)} = \frac{R^2 / k}{(1 - R^2) / (n - k - 1)}$$
+    This simplifies to:
+    $$F = \frac{R^2}{1 - R^2} \cdot \frac{n - k - 1}{k}$$
 
-$$F = \frac{\text{SSR}/k}{\text{SSE}/(n-k-1)} \implies \frac{\text{SSR}}{\text{SSE}} = \frac{k}{n-k-1} F$$
+2.  **Expressing $F$ via Adjusted $R^2_a$:**
 
-1.  **Standard $R^2$:**
+    Using the relationship $1 - R^2 = (1 - R^2_a) \frac{n-k-1}{n-1}$, we can express the $F$-statistic in terms of the adjusted coefficient:
+    $$F = \frac{1 - (1 - R^2_a) \frac{n-k-1}{n-1}}{(1 - R^2_a) \frac{n-k-1}{n-1}} \cdot \frac{n-k-1}{k} = \frac{R^2_a (n - k - 1) + k}{k (1 - R^2_a)}$$
 
-    Recall that $R^2 = \frac{\text{SSR}}{\text{SST}} = \frac{\text{SSR}}{\text{SSR} + \text{SSE}}$. Dividing the numerator and denominator by $\text{SSE}$:
+3.  **Expected Value of $F$ as a function of $\sigma^2_\mu$ and $\sigma^2$:**
 
-    $$R^2 = \frac{\text{SSR}/\text{SSE}}{(\text{SSR}/\text{SSE}) + 1} = \frac{\frac{k}{n-k-1} F}{1 + \frac{k}{n-k-1} F}$$
-
-2.  **Adjusted $R^2_a$:**
-
-    Start with the definition involving the unexplained variance scaling:
-
-    $$R^2_a = 1 - (1 - R^2) \frac{n-1}{n-k-1}$$
-
-    From the derivation above, note that the unexplained variance is:
-    $$1 - R^2 = \frac{1}{1 + \frac{k}{n-k-1}F} = \frac{n-k-1}{(n-k-1) + kF}$$
-
-    Substituting this into the adjusted formula simplifies the expression:
-
-    $$R^2_a = 1 - \left( \frac{n-k-1}{(n-k-1) + kF} \right) \frac{n-1}{n-k-1} = 1 - \frac{n-1}{(n-k-1) + kF}$$
+    Using the population signal variance $\sigma^2_\mu$ and noise variance $\sigma^2$, the expected value of the $F$-statistic (using the first-order approximation $E[F] \approx E[\text{MSR}]/E[\text{MSE}]$) is:
+    $$E[F] \approx \frac{\sigma^2 + \frac{n-1}{k}\sigma^2_\mu}{\sigma^2} = 1 + \frac{n-1}{k} \left( \frac{\sigma^2_\mu}{\sigma^2} \right)$$
+    The exact mean, derived from the non-central $F$ distribution, is:
+    $$E[F] = \frac{n-k-1}{n-k-3} \left( 1 + \frac{n-1}{k} \frac{\sigma^2_\mu}{\sigma^2} \right), \quad \text{for } n-k-1 > 3$$
 
 
-### Confidence Interval of Population $R^2$
+## Confidence Interval of Population $\rho^2$
 
-Since we have identified that $R^2_a$ estimates the population proportion of variance, let us define this target parameter formally as $\rho^2$:
 
-$$ \rho^2 = 1 - \frac{\sigma^2}{\sigma^2_Y} = \frac{\sigma^2_\mu}{\sigma^2_Y} $$
 
 While $R^2_a$ provides a point estimate, we can construct an exact confidence interval for $\rho^2$ by exploiting the distribution of the $F$-statistic.
 
-**1. The Link to Non-centrality:**
+**1. The link between $\lambda$ and $\rho^2$:**
+
 
 Recall that the $F$-statistic follows a non-central distribution $F(k, n-k-1, \lambda)$. The non-centrality parameter $\lambda$ is directly related to the population $\rho^2$. Using the variance decomposition derived above:
 
