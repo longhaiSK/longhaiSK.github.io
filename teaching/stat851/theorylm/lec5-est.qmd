@@ -1,6 +1,6 @@
 ---
 execute: 
-  cache: refresh
+  cache: true
 format: 
   pdf: default
   html: default
@@ -1920,7 +1920,7 @@ $$
 P_1 P_0 = P_0 \quad \text{and} \quad P_1 - P_0 \text{ is a projection matrix.}
 $$
 
----
+
 
 ### Case 1: Underfitting
 
@@ -1961,7 +1961,30 @@ $$
 The difference is $\sigma^2(P_1 - P_0)$. Since $\mathcal{C}(X_1) \subset \mathcal{C}(X)$, the difference $P_1 - P_0$ projects onto the orthogonal complement of $\mathcal{C}(X_1)$ within $\mathcal{C}(X)$. It is idempotent and positive semidefinite.
 :::
 
-**Conclusion:** Using $M_0$ when $M_1$ is true introduces bias but reduces variance.
+**Remark: Scalar Variance and Coefficients**
+
+From the matrix inequality above, we can state that for any arbitrary vector $a$, the scalar variance of the linear combination $a^T \hat{y}$ is always smaller in the reduced model:
+$$
+\text{Var}(a^T \hat{y}_0) \le \text{Var}(a^T \hat{y}_1)
+$$
+
+We can extend this property to the regression coefficients $\hat{\beta}$. Since $\hat{y} = X\hat{\beta}$, we can recover the coefficients from the fitted values using the left pseudo-inverse:
+
+$$
+\begin{aligned}
+(X^T X)^{-1}X^T (X\hat{\beta}) &= (X^T X)^{-1}X^T \hat{y} \\
+\underbrace{(X^T X)^{-1}(X^T X)}_{I} \hat{\beta} &= (X^T X)^{-1}X^T \hat{y}
+\end{aligned}
+$$
+
+::: {#cor-beta-variance name="Variance of Coefficients"}
+Because $\hat{\beta}$ is a linear transformation of $\hat{y}$, the variance reduction in $\hat{y}_0$ propagates to the coefficients.
+
+For any specific coefficient $\beta_j$ included in the reduced model (i.e., $\beta_j \in \beta_1$), the variance of the estimator is smaller in the reduced model than in the full model:
+$$ \text{Var}(\hat{\beta}_{j, reduced}) \le \text{Var}(\hat{\beta}_{j, full}) $$
+:::
+
+**Conclusion:** Using $M_0$ when $M_1$ is true introduces bias but reduces variance for both the fitted values and the estimated coefficients.
 
 ### Case 2: Overfitting
 
