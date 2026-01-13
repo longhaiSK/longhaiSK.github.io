@@ -333,13 +333,51 @@ $$
 
 
 :::
+
+
+
 :::{.callout-important}
 Therefore, to minimize the Bayes risk, one just need to  choose $d(x)$ to minimize the posterior expected loss for each $x$.
 :::
 
+The following diagram summarizes the general workflow for deriving a Bayes estimator:
+
+```{tikz fig-bayes-workflow}
+%| fig-cap: "Workflow for Finding the Bayes Rule"
+%| echo: false
+%| fig-align: "center"
+%| out-extra: 'style="width: 80% !important;"'
+%| engine.opts:
+%|   extra.preamble: "\\usetikzlibrary{shapes.geometric, arrows}"
+
+\begin{tikzpicture}[node distance=2cm, auto]
+    % Styles
+    \tikzstyle{block} = [rectangle, draw, fill=blue!10, text width=8em, text centered, rounded corners, minimum height=3em]
+    \tikzstyle{input} = [trapezium, trapezium left angle=70, trapezium right angle=110, draw, fill=green!10, text width=6em, text centered, minimum height=3em]
+    \tikzstyle{line} = [draw, -latex, thick]
+
+    % Nodes
+    \node [input] (inputs) {Prior $\pi(\theta)$ \\ Likelihood $f(x|\theta)$ \\ Data $x$};
+    \node [block, below of=inputs, node distance=3cm] (posterior) {Compute Posterior \\ $\pi(\theta|x)$};
+    \node [input, right of=posterior, node distance=5cm] (loss) {Loss Function \\ $L(\theta, d)$};
+    \node [block, below of=posterior, node distance=3cm] (exp_loss) {Compute Posterior Expected Loss \\ $E_{\theta|x}[L(\theta, d)]$};
+    \node [block, below of=exp_loss, node distance=3cm] (minimize) {Minimize w.r.t $d$ \\ $\arg\min_d E[L]$};
+    \node [block, below of=minimize, node distance=3cm, fill=red!10] (bayesrule) {Bayes Rule \\ $d(x)$};
+
+    % Paths
+    \path [line] (inputs) -- (posterior);
+    \path [line] (posterior) -- (exp_loss);
+    \path [line] (loss) |- (exp_loss);
+    \path [line] (exp_loss) -- (minimize);
+    \path [line] (minimize) -- (bayesrule);
+
+\end{tikzpicture}
+```
+
+
 ## Common Loss Functions and Bayes Estimators
 
-### Squared Error Loss (Point Estimate)
+### Squared Error Loss (point Estimate)
 
 $$L(\theta, a) = (\theta - a)^2$$
 
@@ -447,7 +485,7 @@ $$
 
 **Result:** With asymmetric costs, we accept $H_1$ only if the posterior probability of the null hypothesis is sufficiently small (below the threshold $\frac{1}{1+c}$). If the cost of false rejection $c$ is high, we require stronger evidence against $H_0$.
 
-### Classification Prediction (Categorical Parameter)
+### Classification Prediction (categorical Parameter)
 
 In classification problems, the parameter of interest is a discrete class label $\theta$ (often denoted as $y$) taking values in a set of categories $\{1, 2, \dots, K\}$. The goal is to predict the true class label based on observed features $x$.
 
@@ -472,7 +510,7 @@ Minimizing the misclassification rate $1 - P(\theta = \hat{\theta} | x)$ is math
 **Result:** The Bayes rule for classification is to predict the class with the highest posterior probability. While this is technically the **Maximum A Posteriori (MAP)** estimator, in the context of machine learning and pattern recognition, this decision rule is known as the **Bayes Optimal Classifier**.
 
 $$
-\hat{\theta}_{Bayes}(x) = \underset{k \in \{1, \dots, K\}}{\arg\max} \ P(\theta = k | x)
+\hat{\theta}_{\text{Bayes}}(x) = \underset{k \in \{1, \dots, K\}}{\arg\max} \ P(\theta = k | x)
 $$
 
 
@@ -508,20 +546,20 @@ The plot below illustrates a skewed posterior distribution (Gamma). Notice how t
 #| fig-cap: "Comparison of HPD and Equal-Tailed Intervals for a Skewed Distribution"
 #| echo: true
 
-# Define a skewed distribution: Gamma(shape=2, rate=0.5)
+# Define a Skewed Distribution: Gamma(shape=2, Rate=0.5)
 x_vals <- seq(0, 15, length.out = 1000)
 y_vals <- dgamma(x_vals, shape = 2, rate = 0.5)
 
-# Target coverage
+# Target Coverage
 alpha <- 0.10
 target_prob <- 1 - alpha
 
-# 1. Equal-Tailed Interval (Quantiles)
+# 1. Equal-tailed Interval (quantiles)
 eq_lower <- qgamma(alpha/2, shape = 2, rate = 0.5)
 eq_upper <- qgamma(1 - alpha/2, shape = 2, rate = 0.5)
 
-# 2. HPD Interval (Density threshold optimization)
-# We look for a density threshold k such that the area above k is 0.90
+# 2. HPD Interval (density Threshold Optimization)
+# We Look for a Density Threshold K Such That the Area Above K Is 0.90
 find_hpd <- function(dist_vals, density_vals, probability) {
   # Sort density values
   ord <- order(density_vals, decreasing = TRUE)
@@ -555,9 +593,9 @@ polygon(c(x_vals[x_vals >= hpd_lower & x_vals <= hpd_upper], hpd_upper, hpd_lowe
         c(y_vals[x_vals >= hpd_lower & x_vals <= hpd_upper], 0, 0),
         col = rgb(0, 0, 1, 0.2), border = NA)
 
-# Draw Equal-Tailed lines (Red)
+# Draw Equal-tailed Lines (red)
 abline(v = c(eq_lower, eq_upper), col = "red", lwd = 2, lty = 2)
-# Draw HPD lines (Blue)
+# Draw HPD Lines (blue)
 abline(v = c(hpd_lower, hpd_upper), col = "blue", lwd = 2, lty = 1)
 
 legend("topright", 
@@ -569,19 +607,89 @@ legend("topright",
        fill = c(NA, NA, rgb(0, 0, 1, 0.2)), border = NA)
 
 ```
-:::
 
 
-## Minimax Estimation
+## Constant Risk Bayes Estimator Is Minimax
 
 A decision rule $d(x)$ is **minimax** if it minimizes the maximum possible risk: $\sup_\theta R(\theta, d)$.
 
 ::: {#thm-minimax-constant}
-### Constant Risk Theorem
-If a Bayes rule $d^\pi$ has constant risk (i.e., $R(\theta, d^\pi) = c$ for all $\theta$), then $d^\pi$ is a minimax estimator.
+### Constant Risk Bayes Estimator Is Minimax
+
+Let $\delta^\pi$ be a Bayes estimator with respect to a prior $\pi$. If the risk function of $\delta^\pi$ is constant on the parameter space $\Theta$, such that $R(\theta, \delta^\pi) = c$ for all $\theta \in \Theta$, then $\delta^\pi$ is a minimax estimator.
 :::
 
-::: {#ex-binomial-minimax}
+::: {.proof}
+Let $\delta^\pi$ be the Bayes estimator with constant risk $c$. First, we compute its Bayes risk $r(\pi, \delta^\pi)$. Since the risk is constant:
+
+$$
+r(\pi, \delta^\pi) = \int_\Theta R(\theta, \delta^\pi) \pi(\theta) d\theta = \int_\Theta c \, \pi(\theta) d\theta = c
+$$
+
+Now, let $\delta'$ be any arbitrary estimator. By the definition of a Bayes estimator, $\delta^\pi$ minimizes the Bayes risk among all estimators:
+
+$$
+r(\pi, \delta^\pi) \le r(\pi, \delta')
+$$
+
+Next, we observe that the Bayes risk of $\delta'$ is the expectation of its risk function with respect to the prior $\pi$. An average cannot exceed the maximum value of the function being averaged (the supremum):
+
+$$
+r(\pi, \delta') = \int_\Theta R(\theta, \delta') \pi(\theta) d\theta \le \sup_{\theta \in \Theta} R(\theta, \delta') \cdot \int_\Theta \pi(\theta) d\theta = \sup_{\theta \in \Theta} R(\theta, \delta')
+$$
+
+Combining these inequalities, we have:
+
+$$
+\sup_{\theta \in \Theta} R(\theta, \delta^\pi) = c = r(\pi, \delta^\pi) \le r(\pi, \delta') \le \sup_{\theta \in \Theta} R(\theta, \delta')
+$$
+
+Since $\sup_\theta R(\theta, \delta^\pi) \le \sup_\theta R(\theta, \delta')$ holds for any estimator $\delta'$, $\delta^\pi$ minimizes the maximum risk. Therefore, it is minimax.
+:::
+
+The plot below visualizes the logic of the proof. The red line represents the **Constant Risk Bayes Estimator** ($\delta^\pi$), which has a constant height $c$. The blue curve represents an **Arbitrary Estimator** ($\delta'$).
+
+Because $\delta^\pi$ minimizes the *weighted average* risk (Bayes risk), the average height of the blue curve cannot be lower than the red line (with respect to the prior). Consequently, the blue curve must rise above the red line at some point, making its maximum risk ($\sup R$) strictly greater than or equal to $c$. Thus, the constant risk estimator has the lowest possible maximum.
+
+```{r}
+#| label: fig-minimax-proof
+#| fig-cap: "Visual Proof: Any alternative estimator (Blue) with Bayes risk comparable to the Constant Risk estimator (Red) must have a higher maximum risk."
+#| echo: true
+
+# Define Parameter Space Theta
+theta <- seq(0, 1, length.out = 200)
+
+# 1. Constant Risk Bayes Estimator (risk = C)
+c_val <- 0.5
+risk_bayes <- rep(c_val, length(theta))
+
+# 2. Arbitrary Alternative Estimator
+# This Function Is Chosen Such That It Dips Below C but Rises Above It Elsewhere
+risk_alt <- c_val + 0.2 * sin(2 * pi * theta) - 0.05
+
+# Plotting
+plot(theta, risk_alt, type = 'l', lwd = 2, col = "blue",
+     ylim = c(0, 1), ylab = "Risk R(theta, d)", xlab = expression(theta),
+     main = "Geometry of the Minimax Theorem")
+
+# Add Constant Risk Line
+lines(theta, risk_bayes, col = "red", lwd = 2)
+
+# Mark the Maximum of the Alternative
+max_alt <- max(risk_alt)
+max_theta <- theta[which.max(risk_alt)]
+points(max_theta, max_alt, pch = 19, col = "blue")
+text(max_theta, max_alt, labels = expression(sup~R(theta, delta^"'")), pos = 3, col = "blue")
+
+# Label the Constant Risk
+text(0.1, c_val, labels = expression(R(theta, delta^pi) == c), pos = 3, col = "red")
+
+# Add Legend
+legend("bottomright", legend = c("Arbitrary Estimator", "Constant Risk Bayes Est."),
+       col = c("blue", "red"), lwd = 2, lty = 1)
+```
+
+::: {#exm-binomial-minimax}
 ### Binomial Minimax Estimator
 
 Let $X \sim \text{Bin}(n, \theta)$ and $\theta \sim \text{Beta}(a, b)$.
@@ -609,46 +717,175 @@ $$d(x) = \frac{x + \sqrt{n}/2}{n + \sqrt{n}}$$
 This differs from the standard MLE $\hat{p} = x/n$ and the uniform prior Bayes estimator ($a=b=1$).
 :::
 
-## Stein Estimation and Shrinkage
+# Stein's Paradox and the James-stein Estimator
 
-Consider estimating a multivariate mean vector $\mu = (\mu_1, \dots, \mu_p)$ given independent observations $X_i \sim N(\mu_i, 1)$ for $i=1, \dots, p$.
+In high-dimensional estimation ($p \ge 3$), the Maximum Likelihood Estimator (MLE) is inadmissible under squared error loss. The **James-Stein Estimator** dominates the MLE, meaning it achieves lower risk for all values of $\theta$.
 
-The standard estimator is the MLE: $d^0(X) = X$.
-The loss function is the sum of squared errors: $L(\mu, d) = ||\mu - d||^2 = \sum (\mu_i - d_i)^2$.
+::: {#exm-anova-js}
+### Practical Application: One-Way ANOVA and "Borrowing Strength"
 
-::: {#thm-stein-inadmissibility}
-### Stein's Result
+Consider a One-Way ANOVA setting where we wish to estimate the means of $p$ different independent groups (e.g., the true batting averages of $p=10$ baseball players, or the efficacy of $p=5$ different hospital treatments).
 
-When $p \ge 3$, the estimator $d^0(X)$ is **inadmissible**. There exists an estimator that strictly dominates it (has lower risk everywhere).
+* **Model:** Let $X_i \sim N(\theta_i, \sigma^2)$ be the observed sample mean for group $i$, for $i = 1, \dots, p$.
+* **Goal:** Estimate the vector of true means $\boldsymbol{\theta} = (\theta_1, \dots, \theta_p)$ simultaneously. The loss is the sum of squared errors: $L(\boldsymbol{\theta}, \hat{\boldsymbol{\theta}}) = \sum (\theta_i - \hat{\theta}_i)^2$.
+
+**The MLE Approach (Total Separation):**
+The standard estimator is $\hat{\theta}_i^{MLE} = X_i$. This estimates each group entirely independently, using only data from that specific group. If a specific player has a lucky streak, their estimate is very high; if they are unlucky, it is very low.
+
+**The James-Stein Approach (Shrinkage / Pooling):**
+In this context, the James-Stein estimator (specifically the variation shrinking toward the grand mean $\bar{X}$) is:
+$$
+\hat{\theta}_i^{JS} = \bar{X} + \left( 1 - \frac{(p-3)\sigma^2}{\sum (X_i - \bar{X})^2} \right) (X_i - \bar{X})
+$$
+
+**Why is this better?**
+Even though the groups might be physically independent (e.g., distinct hospitals), the James-Stein estimator **"borrows strength"** from the ensemble.
+
+1.  **Noise Reduction:** Extreme observations $X_i$ are likely to contain more positive noise than signal. Shrinking them toward the global average $\bar{X}$ reduces this variance.
+2.  **Stein's Paradox:** While $\hat{\theta}_i^{JS}$ introduces bias (estimates are pulled toward the center), the reduction in variance is so significant that the **Total Risk** (sum of squared errors over all groups) is strictly lower than that of the MLE, provided $p \ge 3$.
+
+Thus, estimating the groups *together* yields a more accurate global picture than estimating them *separately*, even if the groups are independent.
 :::
 
-Consider the class of shrinkage estimators:
-$$d^a(X) = \left( 1 - \frac{a}{||X||^2} \right) X$$
-where $X = (X_1, \dots, X_p)^T$.
+Consider the setting:
 
-When $a > 0$, this estimator "shrinks" the data vector toward the origin $(0, \dots, 0)$.
+* Data: $X \sim N_p(\theta, I)$
+* Prior: $\theta \sim N_p(0, \tau^2 I)$
+* Estimator: $d^{JS}(x) = \left( 1 - \frac{p-2}{||x||^2} \right) x$
 
-::: {#lem-stein}
-### Stein's Lemma
+We can derive the Bayes Risk $r(\pi, d^{JS})$ of this estimator using two equivalent methods: minimizing the expected frequentist risk, or minimizing the expected posterior loss.
 
-If $X \sim N(\mu, 1)$, then for a differentiable function $h$:
-$$E[(X-\mu)h(X)] = E[h'(X)]$$
+::: {#thm-js-bayes-risk}
+### Bayes Risk of James-stein Estimator
+
+For $p \ge 3$, the Bayes risk of the James-Stein estimator $d^{JS}$ with respect to the prior $\theta \sim N(0, \tau^2 I)$ is:
+
+$$
+r(\pi, d^{JS}) = \frac{p\tau^2 + 2}{\tau^2 + 1}
+$$
 :::
 
 ::: {.proof}
-Using this lemma and integration by parts, we can evaluate the risk of the shrinkage estimator $d^a$.
+**Method 1: Integration over the Prior (Frequentist Risk approach)** 
 
-$$R(\mu, d^a) = E || \mu - d^a(X) ||^2$$
+The Bayes risk is defined as $r(\pi, d) = E_\pi [ R(\theta, d) ]$.
 
-After expanding and applying Stein's Lemma, the risk becomes:
-$$R(\mu, d^a) = p - [2a(p-2) - a^2] E \left( \frac{1}{||X||^2} \right)$$
+First, recall the frequentist risk of the James-Stein estimator for a fixed $\theta$. Using Stein's Lemma, the risk is given by:
+$$
+R(\theta, d^{JS}) = p - (p-2)^2 E_\theta \left[ \frac{1}{||X||^2} \right]
+$$
 
-For $d^a$ to possess lower risk than $d^0$ (where risk = $p$), we need the term in the brackets to be positive:
-$$2a(p-2) - a^2 > 0 \implies 0 < a < 2(p-2)$$
+To find the Bayes risk, we take the expectation of this risk with respect to the prior $\pi(\theta)$:
+$$
+r(\pi, d^{JS}) = \int R(\theta, d^{JS}) \pi(\theta) d\theta = p - (p-2)^2 E_\pi \left[ E_\theta \left( \frac{1}{||X||^2} \right) \right]
+$$
 
-The optimal choice (minimizing risk) is $a = p-2$.
-This yields the **James-Stein Estimator**:
-$$\delta^{JS}(X) = \left( 1 - \frac{p-2}{||X||^2} \right) X$$
+By the law of iterated expectations, $E_\pi [ E_\theta (\cdot) ]$ is equivalent to the expectation with respect to the marginal distribution of $X$, denoted as $m(x)$.
+Under the conjugate prior, the marginal distribution is $X \sim N(0, (1+\tau^2)I)$.
+
+Consequently, the quantity $\frac{||X||^2}{1+\tau^2}$ follows a Chi-squared distribution with $p$ degrees of freedom ($\chi^2_p$). The expectation of the inverse chi-square is:
+$$
+E \left[ \frac{1}{||X||^2} \right] = \frac{1}{1+\tau^2} E \left[ \frac{1}{\chi^2_p} \right] = \frac{1}{1+\tau^2} \cdot \frac{1}{p-2}
+$$
+
+Substituting this back into the risk equation:
+$$
+\begin{aligned}
+r(\pi, d^{JS}) &= p - (p-2)^2 \cdot \frac{1}{(p-2)(1+\tau^2)} \\
+&= p - \frac{p-2}{1+\tau^2} \\
+&= \frac{p(1+\tau^2) - (p-2)}{1+\tau^2} \\
+&= \frac{p\tau^2 + p - p + 2}{1+\tau^2} = \frac{p\tau^2 + 2}{\tau^2 + 1}
+\end{aligned}
+$$
+:::
+
+::: {.proof}
+**Method 2: Integration over the Marginal (Posterior Loss approach)** 
+
+Alternatively, we can compute the Bayes risk by first finding the posterior expected loss for a given $x$, and then averaging over the marginal distribution of $x$:
+$$
+r(\pi, d) = E_m [ E_{\theta|x} [ L(\theta, d(x)) ] ]
+$$
+
+**Step 1: Posterior Expected Loss**
+
+The posterior distribution of $\theta$ given $x$ is:
+$$
+\theta | x \sim N \left( \frac{\tau^2}{1+\tau^2}x, \frac{\tau^2}{1+\tau^2}I \right)
+$$
+
+The expected squared error loss can be decomposed into the variance (trace) and the squared bias:
+$$
+E_{\theta|x} [ ||\theta - d^{JS}(x)||^2 ] = \text{tr}(\text{Var}(\theta|x)) + || E[\theta|x] - d^{JS}(x) ||^2
+$$
+
+* **Trace term:**
+    $$\text{tr} \left( \frac{\tau^2}{1+\tau^2} I_p \right) = \frac{p\tau^2}{1+\tau^2}$$
+
+* **Squared Bias term:**
+    Let $B = \frac{1}{1+\tau^2}$. Then $E[\theta|x] = (1-B)x$.
+    The estimator is $d^{JS}(x) = (1 - \frac{p-2}{||x||^2})x$.
+    The difference is:
+    $$
+    E[\theta|x] - d^{JS}(x) = \left( (1-B) - \left( 1 - \frac{p-2}{||x||^2} \right) \right) x = \left( \frac{p-2}{||x||^2} - B \right) x
+    $$
+    Squaring the norm gives:
+    $$
+    \left( \frac{p-2}{||x||^2} - B \right)^2 ||x||^2 = \frac{(p-2)^2}{||x||^2} - 2B(p-2) + B^2 ||x||^2
+    $$
+
+**Step 2: Expectation with respect to Marginal $X$** 
+
+We now take the expectation $E_m[\cdot]$ of the posterior loss. Recall $X \sim N(0, (1+\tau^2)I)$, so $E[||X||^2] = p(1+\tau^2)$ and $E[1/||X||^2] = \frac{1}{(p-2)(1+\tau^2)}$.
+
+* **Expectation of Trace term:** Constant, remains $\frac{p\tau^2}{1+\tau^2}$.
+* **Expectation of Bias term:**
+    $$
+    \begin{aligned}
+    E_m \left[ \frac{(p-2)^2}{||X||^2} - \frac{2(p-2)}{1+\tau^2} + \frac{||X||^2}{(1+\tau^2)^2} \right] &= (p-2)^2 \frac{1}{(p-2)(1+\tau^2)} - \frac{2(p-2)}{1+\tau^2} + \frac{p(1+\tau^2)}{(1+\tau^2)^2} \\
+    &= \frac{p-2}{1+\tau^2} - \frac{2p-4}{1+\tau^2} + \frac{p}{1+\tau^2} \\
+    &= \frac{p - 2 - 2p + 4 + p}{1+\tau^2} \\
+    &= \frac{2}{1+\tau^2}
+    \end{aligned}
+    $$
+
+**Step 3: Combine Terms** 
+
+$$
+r(\pi, d^{JS}) = \underbrace{\frac{p\tau^2}{1+\tau^2}}_{\text{Variance Part}} + \underbrace{\frac{2}{1+\tau^2}}_{\text{Bias Part}} = \frac{p\tau^2 + 2}{\tau^2 + 1}
+$$
+
+Both methods yield the same result.
+:::
+
+::: {#thm-mle-inadmissible}
+### Inadmissibility of the MLE in High Dimensions (Stein's Phenomenon)
+
+Let $X \sim N_p(\theta, I)$ be a $p$-dimensional random vector with $p \ge 3$. Under the squared error loss function $L(\theta, d) = ||\theta - d||^2$, the standard Maximum Likelihood Estimator $d^0(X) = X$ is **inadmissible**.
+:::
+
+::: {.proof}
+To show that $d^0(X) = X$ is inadmissible, we must find another estimator that dominates it (i.e., has equal or lower risk for all $\theta$, and strictly lower risk for at least one $\theta$).
+
+First, consider the risk of the standard estimator $d^0$. Since $X_i \sim N(\theta_i, 1)$ are independent:
+
+$$
+R(\theta, d^0) = E_\theta [ ||X - \theta||^2 ] = \sum_{i=1}^p E [ (X_i - \theta_i)^2 ] = \sum_{i=1}^p \text{Var}(X_i) = p
+$$
+
+Now consider the James-Stein estimator $d^{JS}(X) = \left( 1 - \frac{p-2}{||X||^2} \right) X$. As established in the derivation of the Bayes Risk in @thm-js-bayes-risk, the frequentist risk function of $d^{JS}$ is:
+
+$$
+R(\theta, d^{JS}) = p - (p-2)^2 E_\theta \left[ \frac{1}{||X||^2} \right]
+$$
+
+Since the random variable $||X||^2$ is non-negative and not identically infinity, the expectation $E_\theta [ 1/||X||^2 ]$ is strictly positive for all $\theta$. Therefore:
+
+$$
+R(\theta, d^{JS}) < p = R(\theta, d^0) \quad \text{for all } \theta \in \mathbb{R}^p
+$$
+
+Because $d^{JS}$ achieves a strictly lower risk than $d^0$ everywhere in the parameter space, $d^0$ is dominated by $d^{JS}$ and is thus inadmissible.
 :::
 
 ## Empirical Bayes
