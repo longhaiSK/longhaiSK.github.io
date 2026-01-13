@@ -334,27 +334,35 @@ $$
 
 :::
 
+
+
 :::{.callout-important}
 Therefore, to minimize the Bayes risk, one just need to  choose $d(x)$ to minimize the posterior expected loss for each $x$.
-
+:::
 
 The following diagram summarizes the general workflow for deriving a Bayes estimator:
 
-```{=latex}
-\begin{center}
+```{tikz fig-bayes-workflow}
+%| fig-cap: "Workflow for Finding the Bayes Rule"
+%| echo: false
+%| fig-align: "center"
+%| out-extra: 'style="width: 80% !important;"'
+%| engine.opts:
+%|   extra.preamble: "\\usetikzlibrary{shapes.geometric, arrows}"
+
 \begin{tikzpicture}[node distance=2cm, auto]
     % Styles
-    \tikzstyle{block} = [rectangle, draw, fill=blue!10, text width=6em, text centered, rounded corners, minimum height=3em]
-    \tikzstyle{input} = [trapezium, trapezium left angle=70, trapezium right angle=110, draw, fill=green!10, text width=5em, text centered, minimum height=3em]
+    \tikzstyle{block} = [rectangle, draw, fill=blue!10, text width=8em, text centered, rounded corners, minimum height=3em]
+    \tikzstyle{input} = [trapezium, trapezium left angle=70, trapezium right angle=110, draw, fill=green!10, text width=6em, text centered, minimum height=3em]
     \tikzstyle{line} = [draw, -latex, thick]
 
     % Nodes
     \node [input] (inputs) {Prior $\pi(\theta)$ \\ Likelihood $f(x|\theta)$ \\ Data $x$};
-    \node [block, below of=inputs, node distance=2.5cm] (posterior) {Compute Posterior \\ $\pi(\theta|x)$};
-    \node [input, right of=posterior, node distance=4cm] (loss) {Loss Function \\ $L(\theta, d)$};
-    \node [block, below of=posterior, node distance=2.5cm] (exp_loss) {Compute Posterior Expected Loss \\ $E_{\theta|x}[L(\theta, d)]$};
-    \node [block, below of=exp_loss, node distance=2.5cm] (minimize) {Minimize w.r.t $d$ \\ $\arg\min_d E[L]$};
-    \node [block, below of=minimize, node distance=2.5cm, fill=red!10] (bayesrule) {Bayes Rule \\ $d(x)$};
+    \node [block, below of=inputs, node distance=3cm] (posterior) {Compute Posterior \\ $\pi(\theta|x)$};
+    \node [input, right of=posterior, node distance=5cm] (loss) {Loss Function \\ $L(\theta, d)$};
+    \node [block, below of=posterior, node distance=3cm] (exp_loss) {Compute Posterior Expected Loss \\ $E_{\theta|x}[L(\theta, d)]$};
+    \node [block, below of=exp_loss, node distance=3cm] (minimize) {Minimize w.r.t $d$ \\ $\arg\min_d E[L]$};
+    \node [block, below of=minimize, node distance=3cm, fill=red!10] (bayesrule) {Bayes Rule \\ $d(x)$};
 
     % Paths
     \path [line] (inputs) -- (posterior);
@@ -364,15 +372,12 @@ The following diagram summarizes the general workflow for deriving a Bayes estim
     \path [line] (minimize) -- (bayesrule);
 
 \end{tikzpicture}
-\end{center}
-
 ```
 
-:::
 
 ## Common Loss Functions and Bayes Estimators
 
-### Squared Error Loss (Point Estimate)
+### Squared Error Loss (point Estimate)
 
 $$L(\theta, a) = (\theta - a)^2$$
 
@@ -480,7 +485,7 @@ $$
 
 **Result:** With asymmetric costs, we accept $H_1$ only if the posterior probability of the null hypothesis is sufficiently small (below the threshold $\frac{1}{1+c}$). If the cost of false rejection $c$ is high, we require stronger evidence against $H_0$.
 
-### Classification Prediction (Categorical Parameter)
+### Classification Prediction (categorical Parameter)
 
 In classification problems, the parameter of interest is a discrete class label $\theta$ (often denoted as $y$) taking values in a set of categories $\{1, 2, \dots, K\}$. The goal is to predict the true class label based on observed features $x$.
 
@@ -505,78 +510,56 @@ Minimizing the misclassification rate $1 - P(\theta = \hat{\theta} | x)$ is math
 **Result:** The Bayes rule for classification is to predict the class with the highest posterior probability. While this is technically the **Maximum A Posteriori (MAP)** estimator, in the context of machine learning and pattern recognition, this decision rule is known as the **Bayes Optimal Classifier**.
 
 $$
-\hat{\theta}_{Bayes}(x) = \underset{k \in \{1, \dots, K\}}{\arg\max} \ P(\theta = k | x)
+\hat{\theta}_{\text{Bayes}}(x) = \underset{k \in \{1, \dots, K\}}{\arg\max} \ P(\theta = k | x)
 $$
 
 
 ### Interval Estimation and Highest Posterior Density (HPD)
 
-In interval estimation, our goal is typically to find a set or interval that contains the true parameter $\theta$ with a high degree of certainty.
+In interval estimation, our goal is typically to find a set $C(x)$ with a specified probability coverage $1-\alpha$ (i.e., $P(\theta \in C(x)|x) = 1-\alpha$) that minimizes the "size" or length of the interval.
 
-**Loss Function (Fixed Width Approach):**
-
-We can motivate interval estimation using a loss function where we seek the "best" interval of a predetermined length $2\delta$ centered at $d$. The loss is defined as:
-
-$$
-L(\theta, d) = \begin{cases} 0 & \text{if } |\theta - d| \le \delta \\ 1 & \text{if } |\theta - d| > \delta \end{cases}
-$$
-
-Minimizing the posterior expected loss is equivalent to minimizing the posterior probability that $\theta$ falls outside the interval $(d - \delta, d + \delta)$. Conversely, this means we want to maximize the posterior probability that $\theta$ is contained within the interval:
+**Loss Function for HPD:**
+The HPD interval can be formally derived as the Bayes rule under a loss function that linearly combines the size of the interval and the error of non-coverage:
 
 $$
-\text{Maximize } P(d - \delta \le \theta \le d + \delta | x)
+L(\theta, C) = \text{Length}(C) + k \cdot I(\theta \notin C)
 $$
 
-**Dual Formulation (Fixed Probability):**
+where $k$ is a positive constant representing the penalty for failing to include the true parameter $\theta$. Minimizing the posterior expected loss leads to including all values of $\theta$ where the posterior density $\pi(\theta|x)$ exceeds $1/k$. By adjusting $k$, we control the credibility level $1-\alpha$.
 
-While the loss function above fixes the length and maximizes probability, in practice we often do the reverse: we specify a coverage probability $1-\alpha$ (e.g., 0.95) and seek the interval of the **shortest length** that satisfies this coverage.
+**Justification for HPD:**
+To minimize the length of the interval for a fixed probability mass (or equivalently, minimize this loss function), we should include the values of $\theta$ that have the highest probability density. If we include a value with low density while excluding a value with higher density, we could swap them to increase the probability mass without increasing the interval length (or conversely, shrink the length while maintaining the mass).
 
-For a **unimodal** posterior density (one with a single peak that decreases monotonically on both sides), the solution to both problems—maximizing probability for a fixed width, or minimizing width for a fixed probability—is identical. The resulting interval collects the values of $\theta$ with the highest probability density.
+Therefore, the **Highest Posterior Density (HPD)** interval is defined as:
+$$C_{HPD} = \{ \theta : \pi(\theta|x) \ge k_\alpha \}$$
+where $k_\alpha$ is a threshold chosen such that the posterior probability of the set is $1-\alpha$.
 
-::: {#def-hpd}
-### Highest Posterior Density (HPD) Interval
+**Comparison with Equal-Tailed Intervals:**
 
-The **Highest Posterior Density (HPD)** interval is defined as the set of values where the posterior density exceeds a certain threshold $c$:
+* **Equal-Tailed Interval:** We simply cut off $\alpha/2$ probability from each tail of the distribution. This is easy to compute but may not be the shortest interval if the distribution is skewed.
+* **HPD Interval:** This is the shortest possible interval for the given coverage. For unimodal distributions, the probability density at the two endpoints of the HPD interval is identical.
 
-$$
-C_{HPD} = \{ \theta : \pi(\theta|x) \ge c \}
-$$
-
-where $c$ is chosen such that the total posterior probability of the set is $1-\alpha$.
-:::
-
-**Computation and Alternatives:**
-
-Although the HPD interval is optimal in terms of length, it can be computationally difficult to evaluate for complex posteriors. Common alternatives include:
-
-1.  **Equal-Tailed Interval:** We construct the interval $[L, U]$ such that the probability of $\theta$ being below $L$ or above $U$ is exactly $\alpha/2$.
-    $$P(\theta < L | x) = \alpha/2 \quad \text{and} \quad P(\theta > U | x) = \alpha/2$$
-
-2.  **Normal Approximation:** If the posterior is approximately normal (which is often true for large samples), we can use the posterior mean $\mu$ and standard deviation $\sigma$:
-    $$(\mu - z_{\alpha/2}\sigma, \mu + z_{\alpha/2}\sigma)$$
-    where $z_{\alpha/2}$ is the upper-$\alpha$ point of the standard normal distribution.
-
-The plot below illustrates a skewed posterior distribution (Gamma). Notice how the **HPD Interval (Blue)** is shifted toward the mode to capture the highest density values, resulting in a shorter interval length compared to the **Equal-Tailed Interval (Red)**.
+The plot below illustrates a skewed posterior distribution (Gamma). Notice how the **HPD Interval (Blue)** is shifted toward the mode (the peak) to capture the highest density values, resulting in a shorter interval length compared to the **Equal-Tailed Interval (Red)**.
 
 ```{r}
 #| label: fig-hpd-vs-equal
 #| fig-cap: "Comparison of HPD and Equal-Tailed Intervals for a Skewed Distribution"
 #| echo: true
 
-# Define a skewed distribution: Gamma(shape=2, rate=0.5)
+# Define a Skewed Distribution: Gamma(shape=2, Rate=0.5)
 x_vals <- seq(0, 15, length.out = 1000)
 y_vals <- dgamma(x_vals, shape = 2, rate = 0.5)
 
-# Target coverage
+# Target Coverage
 alpha <- 0.10
 target_prob <- 1 - alpha
 
-# 1. Equal-Tailed Interval (Quantiles)
+# 1. Equal-tailed Interval (quantiles)
 eq_lower <- qgamma(alpha/2, shape = 2, rate = 0.5)
 eq_upper <- qgamma(1 - alpha/2, shape = 2, rate = 0.5)
 
-# 2. HPD Interval (Density threshold optimization)
-# We look for a density threshold k such that the area above k is 0.90
+# 2. HPD Interval (density Threshold Optimization)
+# We Look for a Density Threshold K Such That the Area Above K Is 0.90
 find_hpd <- function(dist_vals, density_vals, probability) {
   # Sort density values
   ord <- order(density_vals, decreasing = TRUE)
@@ -610,9 +593,9 @@ polygon(c(x_vals[x_vals >= hpd_lower & x_vals <= hpd_upper], hpd_upper, hpd_lowe
         c(y_vals[x_vals >= hpd_lower & x_vals <= hpd_upper], 0, 0),
         col = rgb(0, 0, 1, 0.2), border = NA)
 
-# Draw Equal-Tailed lines (Red)
+# Draw Equal-tailed Lines (red)
 abline(v = c(eq_lower, eq_upper), col = "red", lwd = 2, lty = 2)
-# Draw HPD lines (Blue)
+# Draw HPD Lines (blue)
 abline(v = c(hpd_lower, hpd_upper), col = "blue", lwd = 2, lty = 1)
 
 legend("topright", 
@@ -625,14 +608,13 @@ legend("topright",
 
 ```
 
-## Finding Minimax Estimators with Bayes Rules
 
-
+## Constant Risk Bayes Estimator Is Minimax
 
 A decision rule $d(x)$ is **minimax** if it minimizes the maximum possible risk: $\sup_\theta R(\theta, d)$.
 
 ::: {#thm-minimax-constant}
-### Constant Risk Bayes Estimator is Minimax
+### Constant Risk Bayes Estimator Is Minimax
 
 Let $\delta^\pi$ be a Bayes estimator with respect to a prior $\pi$. If the risk function of $\delta^\pi$ is constant on the parameter space $\Theta$, such that $R(\theta, \delta^\pi) = c$ for all $\theta \in \Theta$, then $\delta^\pi$ is a minimax estimator.
 :::
@@ -674,15 +656,15 @@ Because $\delta^\pi$ minimizes the *weighted average* risk (Bayes risk), the ave
 #| fig-cap: "Visual Proof: Any alternative estimator (Blue) with Bayes risk comparable to the Constant Risk estimator (Red) must have a higher maximum risk."
 #| echo: true
 
-# Define parameter space theta
+# Define Parameter Space Theta
 theta <- seq(0, 1, length.out = 200)
 
-# 1. Constant Risk Bayes Estimator (Risk = c)
+# 1. Constant Risk Bayes Estimator (risk = C)
 c_val <- 0.5
 risk_bayes <- rep(c_val, length(theta))
 
 # 2. Arbitrary Alternative Estimator
-# This function is chosen such that it dips below c but rises above it elsewhere
+# This Function Is Chosen Such That It Dips Below C but Rises Above It Elsewhere
 risk_alt <- c_val + 0.2 * sin(2 * pi * theta) - 0.05
 
 # Plotting
@@ -706,7 +688,6 @@ text(0.1, c_val, labels = expression(R(theta, delta^pi) == c), pos = 3, col = "r
 legend("bottomright", legend = c("Arbitrary Estimator", "Constant Risk Bayes Est."),
        col = c("blue", "red"), lwd = 2, lty = 1)
 ```
-
 
 ::: {#exm-binomial-minimax}
 ### Binomial Minimax Estimator
@@ -736,119 +717,328 @@ $$d(x) = \frac{x + \sqrt{n}/2}{n + \sqrt{n}}$$
 This differs from the standard MLE $\hat{p} = x/n$ and the uniform prior Bayes estimator ($a=b=1$).
 :::
 
-## Stein Estimation and Shrinkage
+## Stein's Paradox and the James-stein Estimator
 
-Consider estimating a multivariate mean vector $\mu = (\mu_1, \dots, \mu_p)$ given independent observations $X_i \sim N(\mu_i, 1)$ for $i=1, \dots, p$.
+In high-dimensional estimation ($p \ge 3$), the Maximum Likelihood Estimator (MLE) is inadmissible under squared error loss. The **James-Stein Estimator** dominates the MLE, meaning it achieves lower risk for all values of $\theta$.
 
-The standard estimator is the MLE: $d^0(X) = X$.
-The loss function is the sum of squared errors: $L(\mu, d) = ||\mu - d||^2 = \sum (\mu_i - d_i)^2$.
 
-::: {#thm-stein-inadmissibility}
-### Stein's Result
 
-When $p \ge 3$, the estimator $d^0(X)$ is **inadmissible**. There exists an estimator that strictly dominates it (has lower risk everywhere).
-:::
+Consider the setting:
 
-Consider the class of shrinkage estimators:
-$$d^a(X) = \left( 1 - \frac{a}{||X||^2} \right) X$$
-where $X = (X_1, \dots, X_p)^T$.
+* Data: $X \sim N_p(\theta, I)$
+* Prior: $\theta \sim N_p(0, \tau^2 I)$
+* Estimator: $d^{JS}(x) = \left( 1 - \frac{p-2}{||x||^2} \right) x$
 
-When $a > 0$, this estimator "shrinks" the data vector toward the origin $(0, \dots, 0)$.
+We can derive the Bayes Risk $r(\pi, d^{JS})$ of this estimator using two equivalent methods: minimizing the expected frequentist risk, or minimizing the expected posterior loss.
 
-::: {#lem-stein}
-### Stein's Lemma
+::: {#thm-js-bayes-risk}
+### Bayes Risk of James-stein Estimator
 
-If $X \sim N(\mu, 1)$, then for a differentiable function $h$:
-$$E[(X-\mu)h(X)] = E[h'(X)]$$
+For $p \ge 3$, the Bayes risk of the James-Stein estimator $d^{JS}$ with respect to the prior $\theta \sim N(0, \tau^2 I)$ is:
+
+$$
+r(\pi, d^{JS}) = \frac{p\tau^2 + 2}{\tau^2 + 1}
+$$
 :::
 
 ::: {.proof}
-Using this lemma and integration by parts, we can evaluate the risk of the shrinkage estimator $d^a$.
+**Method 1: Integration over the Prior (Frequentist Risk approach)** 
 
-$$R(\mu, d^a) = E || \mu - d^a(X) ||^2$$
+The Bayes risk is defined as $r(\pi, d) = E_\pi [ R(\theta, d) ]$.
 
-After expanding and applying Stein's Lemma, the risk becomes:
-$$R(\mu, d^a) = p - [2a(p-2) - a^2] E \left( \frac{1}{||X||^2} \right)$$
+First, recall the frequentist risk of the James-Stein estimator for a fixed $\theta$. Using Stein's Lemma, the risk is given by:
+$$
+R(\theta, d^{JS}) = p - (p-2)^2 E_\theta \left[ \frac{1}{||X||^2} \right]
+$$
 
-For $d^a$ to possess lower risk than $d^0$ (where risk = $p$), we need the term in the brackets to be positive:
-$$2a(p-2) - a^2 > 0 \implies 0 < a < 2(p-2)$$
+To find the Bayes risk, we take the expectation of this risk with respect to the prior $\pi(\theta)$:
+$$
+r(\pi, d^{JS}) = \int R(\theta, d^{JS}) \pi(\theta) d\theta = p - (p-2)^2 E_\pi \left[ E_\theta \left( \frac{1}{||X||^2} \right) \right]
+$$
 
-The optimal choice (minimizing risk) is $a = p-2$.
-This yields the **James-Stein Estimator**:
-$$\delta^{JS}(X) = \left( 1 - \frac{p-2}{||X||^2} \right) X$$
+By the law of iterated expectations, $E_\pi [ E_\theta (\cdot) ]$ is equivalent to the expectation with respect to the marginal distribution of $X$, denoted as $m(x)$.
+Under the conjugate prior, the marginal distribution is $X \sim N(0, (1+\tau^2)I)$.
+
+Consequently, the quantity $\frac{||X||^2}{1+\tau^2}$ follows a Chi-squared distribution with $p$ degrees of freedom ($\chi^2_p$). The expectation of the inverse chi-square is:
+$$
+E \left[ \frac{1}{||X||^2} \right] = \frac{1}{1+\tau^2} E \left[ \frac{1}{\chi^2_p} \right] = \frac{1}{1+\tau^2} \cdot \frac{1}{p-2}
+$$
+
+Substituting this back into the risk equation:
+$$
+\begin{aligned}
+r(\pi, d^{JS}) &= p - (p-2)^2 \cdot \frac{1}{(p-2)(1+\tau^2)} \\
+&= p - \frac{p-2}{1+\tau^2} \\
+&= \frac{p(1+\tau^2) - (p-2)}{1+\tau^2} \\
+&= \frac{p\tau^2 + p - p + 2}{1+\tau^2} = \frac{p\tau^2 + 2}{\tau^2 + 1}
+\end{aligned}
+$$
 :::
+
+::: {.proof}
+**Method 2: Integration over the Marginal (Posterior Loss approach)** 
+
+Alternatively, we can compute the Bayes risk by first finding the posterior expected loss for a given $x$, and then averaging over the marginal distribution of $x$:
+$$
+r(\pi, d) = E_m [ E_{\theta|x} [ L(\theta, d(x)) ] ]
+$$
+
+**Step 1: Posterior Expected Loss**
+
+The posterior distribution of $\theta$ given $x$ is:
+$$
+\theta | x \sim N \left( \frac{\tau^2}{1+\tau^2}x, \frac{\tau^2}{1+\tau^2}I \right)
+$$
+
+The expected squared error loss can be decomposed into the variance (trace) and the squared bias:
+$$
+E_{\theta|x} [ ||\theta - d^{JS}(x)||^2 ] = \text{tr}(\text{Var}(\theta|x)) + || E[\theta|x] - d^{JS}(x) ||^2
+$$
+
+* **Trace term:**
+    $$\text{tr} \left( \frac{\tau^2}{1+\tau^2} I_p \right) = \frac{p\tau^2}{1+\tau^2}$$
+
+* **Squared Bias term:**
+    Let $B = \frac{1}{1+\tau^2}$. Then $E[\theta|x] = (1-B)x$.
+    The estimator is $d^{JS}(x) = (1 - \frac{p-2}{||x||^2})x$.
+    The difference is:
+    $$
+    E[\theta|x] - d^{JS}(x) = \left( (1-B) - \left( 1 - \frac{p-2}{||x||^2} \right) \right) x = \left( \frac{p-2}{||x||^2} - B \right) x
+    $$
+    Squaring the norm gives:
+    $$
+    \left( \frac{p-2}{||x||^2} - B \right)^2 ||x||^2 = \frac{(p-2)^2}{||x||^2} - 2B(p-2) + B^2 ||x||^2
+    $$
+
+**Step 2: Expectation with respect to Marginal $X$** 
+
+We now take the expectation $E_m[\cdot]$ of the posterior loss. Recall $X \sim N(0, (1+\tau^2)I)$, so $E[||X||^2] = p(1+\tau^2)$ and $E[1/||X||^2] = \frac{1}{(p-2)(1+\tau^2)}$.
+
+* **Expectation of Trace term:** Constant, remains $\frac{p\tau^2}{1+\tau^2}$.
+* **Expectation of Bias term:**
+    $$
+    \begin{aligned}
+    E_m \left[ \frac{(p-2)^2}{||X||^2} - \frac{2(p-2)}{1+\tau^2} + \frac{||X||^2}{(1+\tau^2)^2} \right] &= (p-2)^2 \frac{1}{(p-2)(1+\tau^2)} - \frac{2(p-2)}{1+\tau^2} + \frac{p(1+\tau^2)}{(1+\tau^2)^2} \\
+    &= \frac{p-2}{1+\tau^2} - \frac{2p-4}{1+\tau^2} + \frac{p}{1+\tau^2} \\
+    &= \frac{p - 2 - 2p + 4 + p}{1+\tau^2} \\
+    &= \frac{2}{1+\tau^2}
+    \end{aligned}
+    $$
+
+**Step 3: Combine Terms** 
+
+$$
+r(\pi, d^{JS}) = \underbrace{\frac{p\tau^2}{1+\tau^2}}_{\text{Variance Part}} + \underbrace{\frac{2}{1+\tau^2}}_{\text{Bias Part}} = \frac{p\tau^2 + 2}{\tau^2 + 1}
+$$
+
+Both methods yield the same result.
+:::
+
+::: {#thm-mle-inadmissible}
+### Inadmissibility of the MLE in High Dimensions (stein's Phenomenon)
+
+Let $X \sim N_p(\theta, I)$ be a $p$-dimensional random vector with $p \ge 3$. Under the squared error loss function $L(\theta, d) = ||\theta - d||^2$, the standard Maximum Likelihood Estimator $d^0(X) = X$ is **inadmissible**.
+:::
+
+::: {.proof}
+To show that $d^0(X) = X$ is inadmissible, we must find another estimator that dominates it (i.e., has equal or lower risk for all $\theta$, and strictly lower risk for at least one $\theta$).
+
+First, consider the risk of the standard estimator $d^0$. Since $X_i \sim N(\theta_i, 1)$ are independent:
+
+$$
+R(\theta, d^0) = E_\theta [ ||X - \theta||^2 ] = \sum_{i=1}^p E [ (X_i - \theta_i)^2 ] = \sum_{i=1}^p \text{Var}(X_i) = p
+$$
+
+Now consider the James-Stein estimator $d^{JS}(X) = \left( 1 - \frac{p-2}{||X||^2} \right) X$. As established in the derivation of the Bayes Risk in @thm-js-bayes-risk, the frequentist risk function of $d^{JS}$ is:
+
+$$
+R(\theta, d^{JS}) = p - (p-2)^2 E_\theta \left[ \frac{1}{||X||^2} \right]
+$$
+
+Since the random variable $||X||^2$ is non-negative and not identically infinity, the expectation $E_\theta [ 1/||X||^2 ]$ is strictly positive for all $\theta$. Therefore:
+
+$$
+R(\theta, d^{JS}) < p = R(\theta, d^0) \quad \text{for all } \theta \in \mathbb{R}^p
+$$
+
+Because $d^{JS}$ achieves a strictly lower risk than $d^0$ everywhere in the parameter space, $d^0$ is dominated by $d^{JS}$ and is thus inadmissible.
+:::
+
+### Practical Application: One-way ANOVA and "borrowing Strength"
+
+::: {#exm-anova-js}
+
+Consider a One-Way ANOVA setting where we wish to estimate the means of $p$ different independent groups (e.g., the true batting averages of $p=10$ baseball players, or the efficacy of $p=5$ different hospital treatments).
+
+* **Model:** Let $X_i \sim N(\theta_i, \sigma^2)$ be the observed sample mean for group $i$, for $i = 1, \dots, p$.
+* **Goal:** Estimate the vector of true means $\boldsymbol{\theta} = (\theta_1, \dots, \theta_p)$ simultaneously. The loss is the sum of squared errors: $L(\boldsymbol{\theta}, \hat{\boldsymbol{\theta}}) = \sum (\theta_i - \hat{\theta}_i)^2$.
+
+**The MLE Approach (Total Separation):**
+The standard estimator is $\hat{\theta}_i^{\text{MLE}} = X_i$. This estimates each group entirely independently, using only data from that specific group. If a specific player has a lucky streak, their estimate is very high; if they are unlucky, it is very low.
+
+**The James-Stein Approach (Shrinkage / Pooling):**
+In this context, the James-Stein estimator (specifically the variation shrinking toward the grand mean $\bar{X}$) is:
+$$
+\hat{\theta}_i^{JS} = \bar{X} + \left( 1 - \frac{(p-3)\sigma^2}{\sum (X_i - \bar{X})^2} \right) (X_i - \bar{X})
+$$
+
+**Why is this better?**
+Even though the groups might be physically independent (e.g., distinct hospitals), the James-Stein estimator **"borrows strength"** from the ensemble.
+
+1.  **Noise Reduction:** Extreme observations $X_i$ are likely to contain more positive noise than signal. Shrinking them toward the global average $\bar{X}$ reduces this variance.
+2.  **Stein's Paradox:** While $\hat{\theta}_i^{JS}$ introduces bias (estimates are pulled toward the center), the reduction in variance is so significant that the **Total Risk** (sum of squared errors over all groups) is strictly lower than that of the MLE, provided $p \ge 3$.
+
+Thus, estimating the groups *together* yields a more accurate global picture than estimating them *separately*, even if the groups are independent.
+:::
+
+### Why is this Paradoxical?
+
+The result that $d^{JS}$ dominates $d^0$ is called **Stein's Paradox** because it defies intuition in several ways:
+
+1.  **Independence Irrelevance:** The result holds even if the components $X_i$ are completely unrelated (e.g., $X_1$ is the price of tea in China, $X_2$ is the temperature in Saskatoon, and $X_3$ is the weight of a local cat). It seems absurd that combining unrelated data improves the estimate of each, but the combined risk is indeed lower.
+2.  **No "Free Lunch":** The James-Stein estimator does not improve every individual component $\theta_i$ simultaneously for every realization. Instead, it minimizes the **total** risk $\sum E(\hat{\theta}_i - \theta_i)^2$. It sacrifices accuracy on outliers (by biasing them) to gain significant stability on the bulk of the data.
+3.  **Destruction of Symmetry:** The MLE is invariant under translation and rotation. The James-Stein estimator breaks this symmetry by shrinking toward an arbitrary point (usually the origin or the grand mean), yet it yields a better objective performance.
+
+### What We Learned
+
+1.  **Bias-Variance Tradeoff:** This is the most famous example where introducing **bias** (shrinkage) leads to a massive reduction in **variance**, thereby reducing the overall Mean Squared Error (MSE). Unbiasedness is not always a virtue in estimation.
+2.  **Inadmissibility in High Dimensions:** Intuitions formed in 1D or 2D (where MLE is admissible) fail in higher dimensions ($p \ge 3$). The volume of space grows so fast that "standard" diffuse priors or MLEs become inefficient.
+3.  **Hierarchical Modeling:** Stein's result provides the theoretical foundation for **Hierarchical Bayesian Models**. When we assume parameters come from a common distribution (e.g., $\theta_i \sim N(\mu, \tau^2)$), we naturally derive shrinkage estimators that "borrow strength" across groups, formalized as Empirical Bayes or fully Bayesian methods.
 
 ## Empirical Bayes
 
-The James-Stein estimator can be motivated via an Empirical Bayes approach.
+The James-Stein estimator provides a natural entry point into the concept of **Empirical Bayes (EB)**. While the Stein estimator was originally derived using frequentist risk arguments, it can be intuitively understood as a Bayesian estimator where the parameters of the prior distribution are estimated from the data itself.
+
+### The General Empirical Bayes Framework
+
+In a standard Bayesian analysis, the hyperparameters of the prior are fixed based on subjective belief or external information. In contrast, Empirical Bayes uses the observed data to "learn" the prior.
+
+The workflow typically follows these steps:
+
+1.  **Hierarchical Model:**
+    We assume the data $X$ comes from a distribution $f(x|\theta)$, and the parameter $\theta$ comes from a prior $\pi(\theta|\eta)$ controlled by hyperparameters $\eta$.
+
+2.  **Marginal Likelihood (Evidence):**
+    We integrate out the parameter $\theta$ to obtain the marginal distribution of the data given the hyperparameters:
+    $$m(x|\eta) = \int f(x|\theta) \pi(\theta|\eta) d\theta$$
+
+3.  **Estimation of Hyperparameters:**
+    Instead of fixing $\eta$, we estimate it by maximizing the marginal likelihood (Type-II Maximum Likelihood) or using method-of-moments:
+    $$\hat{\eta} = \underset{\eta}{\arg\max} \ m(x|\eta)$$
+
+4.  **Posterior Inference:**
+    We proceed with standard Bayesian inference, but we substitute the estimated estimate $\hat{\eta}$ into the posterior:
+    $$\pi(\theta|x, \hat{\eta}) \propto f(x|\theta) \pi(\theta|\hat{\eta})$$
+
+**Discussion:**
+
+* **"Borrowing Strength":** EB allows us to pool information across independent groups to estimate the common structure (the prior) governing them.
+* **The Critique:** A purist Bayesian might object that using the data twice (once to estimate the prior, once to estimate $\theta$) underestimates the uncertainty. A fully Bayesian Hierarchical model would instead place a "hyperprior" on $\eta$ and integrate it out.
+
+### Deriving James-Stein as Empirical Bayes
+
+We can derive the James-Stein rule explicitly using this framework.
 
 **Model:**
 
-1.  $X_i | \mu_i \sim N(\mu_i, 1)$
-2.  Prior: $\mu_i \sim N(0, \tau^2)$
+1.  Likelihood: $X_i | \mu_i \sim N(\mu_i, 1)$ for $i=1, \dots, p$.
+2.  Prior: $\mu_i \sim N(0, \tau^2)$. Here, $\tau^2$ is the unknown hyperparameter.
 
-The posterior mean for $\mu_i$ (if $\tau^2$ were known) is:
-$$E(\mu_i|x_i) = \frac{\tau^2}{1+\tau^2} x_i = \left( 1 - \frac{1}{1+\tau^2} \right) x_i$$
+**Step 1: The Ideal Bayes Estimator**
 
-The marginal distribution of $X_i$ is $N(0, 1+\tau^2)$.
-Consequently, $S = \sum X_i^2 \sim (1+\tau^2) \chi^2_p$.
+If we knew $\tau^2$, the posterior distribution of $\mu_i$ would be Normal with mean:
+$$E(\mu_i|x_i, \tau^2) = \frac{\tau^2}{1+\tau^2} x_i = \left( 1 - \frac{1}{1+\tau^2} \right) x_i$$
+We define the shrinkage factor $B = \frac{1}{1+\tau^2}$.
 
-We can estimate the unknown shrinkage factor $B = \frac{1}{1+\tau^2}$ using the data.
-Since $E[ \frac{p-2}{S} ] = \frac{1}{1+\tau^2}$, we replace the theoretical shrinkage factor with its unbiased estimate:
-$$\hat{B} = \frac{p-2}{||X||^2}$$
+**Step 2: Marginal Estimation**
 
-This recovers the James-Stein rule:
-$$\delta^{EB}(X) = \left( 1 - \frac{p-2}{||X||^2} \right) X$$
+Since $\mu_i$ and $X_i-\mu_i$ are independent normals, the marginal distribution of the data is:
+$$X_i \sim N(0, 1+\tau^2)$$
+Consequently, the sum of squares $S = ||X||^2 = \sum X_i^2$ follows a scaled Chi-squared distribution:
+$$S \sim (1+\tau^2) \chi^2_p$$
 
-::: {#exm-baseball}
-### Baseball Example (efron & Morris)
+**Step 3: Estimating the Shrinkage Factor**
 
-We illustrate Stein estimation using baseball batting averages.
-Let $y_i$ be the number of hits for player $i$ in their first $n=45$ at-bats.
-Let $\hat{p}_i = y_i/n$ be the observed average.
+We need to estimate $B = \frac{1}{1+\tau^2}$. Note that the expected value of an inverse Chi-square variable is $E[1/\chi^2_p] = \frac{1}{p-2}$. Therefore:
+$$E \left[ \frac{p-2}{S} \right] = \frac{p-2}{1+\tau^2} E\left[\frac{1}{\chi^2_p}\right] = \frac{p-2}{1+\tau^2} \cdot \frac{1}{p-2} = \frac{1}{1+\tau^2} = B$$
 
-To apply the Normal model, we use a variance-stabilizing transformation:
-$$X_i = \sqrt{n} \arcsin(2\hat{p}_i - 1)$$
-Under this transformation, $X_i \approx N(\mu_i, 1)$.
+Thus, $\hat{B} = \frac{p-2}{||X||^2}$ is an unbiased estimator of the optimal shrinkage factor.
 
-Using the James-Stein estimator on the transformed data shrinks the individual averages toward the grand mean (or a specific value $\mu_0$).
-Result: The James-Stein estimator provides a lower total prediction error for the rest of the season compared to the individual averages $\hat{p}_i$.
-:::
+**Step 4: The Empirical Bayes Rule**
 
-## Predictive Distributions
+Plugging $\hat{B}$ into the ideal Bayes estimator recovers the James-Stein rule:
+$$\delta^{EB}(X) = \left( 1 - \hat{B} \right) X = \left( 1 - \frac{p-2}{||X||^2} \right) X$$
 
-A key feature of Bayesian analysis is the predictive distribution for a future observation $x^*$.
 
-$$f(x^*|x) = \int f(x^*|\theta) \pi(\theta|x) d\theta$$
-
-::: {#exm-predictive-normal}
-### Normal-normal Predictive Distribution
-
-If $x_1, \dots, x_n \sim N(\mu, \sigma^2)$ (with $\sigma^2$ known) and $\mu \sim N(\mu_0, \sigma_0^2)$, the predictive distribution for a new observation $x^*$ is:
-
-$$x^*|x \sim N(\mu_1, \sigma^2 + \sigma_1^2)$$
-
-where $\mu_1$ and $\sigma_1^2$ are the posterior mean and variance of $\mu$. The predictive variance includes both the inherent sampling uncertainty ($\sigma^2$) and the uncertainty about the parameter ($\sigma_1^2$).
-:::
 
 ## Hierarchical Modeling and MCMC
 
-When analytic solutions are unavailable, we use Hierarchical Models and Markov Chain Monte Carlo (MCMC).
+When analytic solutions (like conjugate priors) are unavailable or the model structure is complex, we rely on **Hierarchical Models** to structure the problem and **Markov Chain Monte Carlo (MCMC)** methods to estimate the posterior distributions.
 
-**Hierarchical Structure:**
+### Graphical Model Representation
 
-1.  **Data:** $X_i | \mu_i \sim f(x_i|\mu_i)$
-2.  **Parameters:** $\mu_i | \theta \sim \pi(\mu_i|\theta)$
-3.  **Hyperparameters:** $\theta \sim \pi(\theta)$
+A Hierarchical Model can be visualized as a Directed Acyclic Graph (DAG). The diagram below illustrates the flow of information:
+* $\theta$ is the global **hyperparameter** (top level).
+* $\mu_i$ are the group-specific **parameters** (middle level), which depend on $\theta$.
+* $X_i$ are the observed **data** (bottom level), which depend on $\mu_i$.
+* The box (plate) represents the repetition for $i = 1, \dots, N$.
 
-**Gibbs Sampling:**
-To estimate the posterior $f(\mu, \theta | x)$, we sample iteratively from the **full conditional distributions**:
+```{tikz fig-hierarchical-dag}
+%| fig-cap: "Directed Acyclic Graph (DAG) of a Hierarchical Model"
+%| echo: false
+%| fig-align: "center"
+%| out-extra: 'style="width: 60% !important;"'
+%| engine.opts:
+%|   extra.preamble: "\\usetikzlibrary{fit, positioning, shapes, backgrounds}"
 
-1.  Sample $\mu_i$ from $f(\mu_i | x, \theta)$.
-2.  Sample $\theta$ from $f(\theta | \mu, x)$.
+\begin{tikzpicture}[
+    node distance=1.5cm,
+    obs/.style={circle, draw=black, fill=gray!30, thick, minimum size=1cm},
+    latent/.style={circle, draw=black, thick, minimum size=1cm},
+    plate/.style={draw, thick, shape=rectangle, rounded corners, inner sep=0.6cm}
+]
 
-::: {#exm-hierarchical-baseball}
-### Baseball Example with Hierarchical Model
+% Nodes
+\node[latent] (theta) {$\theta$};
+\node[latent] (mu) [below=of theta] {$\mu_i$};
+\node[obs] (x) [below=of mu] {$X_i$};
+
+% Edges
+\draw[-latex, thick] (theta) -- (mu);
+\draw[-latex, thick] (mu) -- (x);
+
+% Plate
+\begin{scope}[on background layer]
+    \node[plate, fit=(mu) (x), label={[anchor=south east]south east:$i=1,\dots,N$}] (p1) {};
+\end{scope}
+
+\end{tikzpicture}
+```
+
+## Baseball Example with Hierarchical Model
+
+### Empirical Bayes Method with Variance Stability Transformation (Efron & Morris, 1975)
+
+In their seminal paper *Data Analysis Using Stein's Estimator and its Generalizations*, Efron and Morris applied this method to predict the batting averages of 18 Major League Baseball players.
+
+* **Data:** They used the batting average of each player after their first 45 at-bats ($n=45$) as the initial observation $y_i$.
+* **Goal:** Predict the batting average for the remainder of the season.
+
+**Transformation:**
+Since batting averages are binomial proportions $\hat{p}_i$, their variance depends on the true mean $p_i(1-p_i)/n$. To apply the homoscedastic Normal model ($X_i \sim N(\mu_i, 1)$), they applied a variance-stabilizing transformation:
+$$X_i = \sqrt{n} \arcsin(2\hat{p}_i - 1)$$
+
+**The Result:**
+The Maximum Likelihood Estimator would simply predict that a player's future performance will match their first 45 at-bats.
+The James-Stein (Empirical Bayes) estimator shrunk all individual averages toward the **Grand Mean** of all 18 players.
+
+* Players with unusually high initial averages (e.g., Clemente, who started at .400) were predicted to regress downward.
+* Players with unusually low starts were predicted to improve.
+
+**Outcome:**
+The James-Stein estimator reduced the total squared prediction error by roughly a factor of 3 compared to the MLE. This famously demonstrated that even for real-world independent parameters (different human beings), pooling information improves predictive accuracy.
+
+
 
 * $Y_i \sim \text{Bin}(n_i, p_i)$
 * Logit transform: $\mu_i = \text{logit}(p_i)$
@@ -865,4 +1055,19 @@ Since the full conditionals for the Binomial-Normal hierarchy are not closed-for
 4.  Repeat until convergence.
 
 The marginal posterior density for a specific parameter (e.g., $f(\mu_j|x)$) can be estimated using Kernel Density Estimation on the MCMC samples or via Rao-Blackwellization.
+
+## Predictive Distributions
+
+A key feature of Bayesian analysis is the predictive distribution for a future observation $x^*$.
+
+$$f(x^*|x) = \int f(x^*|\theta) \pi(\theta|x) d\theta$$
+
+::: {#exm-predictive-normal}
+### Normal-normal Predictive Distribution
+
+If $x_1, \dots, x_n \sim N(\mu, \sigma^2)$ (with $\sigma^2$ known) and $\mu \sim N(\mu_0, \sigma_0^2)$, the predictive distribution for a new observation $x^*$ is:
+
+$$x^*|x \sim N(\mu_1, \sigma^2 + \sigma_1^2)$$
+
+where $\mu_1$ and $\sigma_1^2$ are the posterior mean and variance of $\mu$. The predictive variance includes both the inherent sampling uncertainty ($\sigma^2$) and the uncertainty about the parameter ($\sigma_1^2$).
 :::
