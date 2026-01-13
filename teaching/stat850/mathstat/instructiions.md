@@ -19,3 +19,6 @@ Content of Theorem/Definition/Corollary
 ::: {.proof}
 :::
 
+* Always add a blank line before and after making a list or a division.
+
+* Displayed math is put in \n$$ \n ... \n $$\n format where \n is a new line.

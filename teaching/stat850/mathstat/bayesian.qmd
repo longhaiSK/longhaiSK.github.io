@@ -4,22 +4,23 @@
 
 The foundation of Bayesian inference relies on the relationship between the prior distribution, the likelihood of the data, and the posterior distribution. This relationship is governed by Bayes' Theorem (or Law).
 
-::: {#thm-bayes}
+::: {#def-posterior}
 ### Posterior Distribution
 
 Suppose we have a parameter $\theta$ with a prior distribution denoted by $\pi(\theta)$. If we observe data $x$ drawn from a distribution with probability density function (pdf) $f(x; \theta)$, then the **posterior density** of $\theta$ given the data $x$ is defined as:
 
 $$
-\pi(\theta|x) = \frac{\pi(\theta) f(x;\theta)}{\int_{\Theta} \pi(\theta) f(x;\theta) d\theta}
+\pi(\theta|x) = \frac{\pi(\theta) f(x;\theta)}{m(x)}
 $$
 
-In this equation:
+where $m(x)$ is the **marginal distribution** (or marginal likelihood) of the data, calculated as:
+$$
+m(x) = \int_{\Theta} \pi(\theta) f(x;\theta) d\theta
+$$
 
-* $\pi(\theta)$ is the **prior**.
-* $f(x;\theta)$ is the **likelihood**.
-* The denominator is the marginal distribution of $x$, often represented as a normalizing constant $c(x)$ which is free of $\theta$.
+In this context, $m(x)$ acts as a normalizing constant. Since it depends only on the data $x$ and not on the parameter $\theta$, it ensures that the posterior density integrates to 1 but does not influence the **shape** of the posterior distribution.
 
-Thus, we can state the proportional relationship:
+Thus, we often state the proportional relationship:
 
 $$
 \pi(\theta|x) \propto \pi(\theta) f(x;\theta)
@@ -276,7 +277,7 @@ By inspecting the factored equation above, we identify the updated parameters:
     where $k' = k + n$ and $\nu' = \frac{k\nu + n\bar{x}}{k+n}$.
 :::
 
-## Decision Theory and Bayes Rules
+## Paradigm to Find Bayes Rules
 
 The general form of Bayes rule is derived by minimizing risk.
 
@@ -330,67 +331,384 @@ $$
 \int_{\Theta} L(\theta, d(x)) \pi(\theta|x) d\theta = E_{\theta|x} [ L(\theta, d(x)) ]
 $$
 
-Therefore, to minimize the Bayes risk, one must choose $d(x)$ to minimize the posterior expected loss for each $x$.
+
 :::
 
-### Common Loss Functions and Estimators
+:::{.callout-important}
+Therefore, to minimize the Bayes risk, one just need to  choose $d(x)$ to minimize the posterior expected loss for each $x$.
 
-::: {#ex-squared-loss}
-### Squared Error Loss (point Estimate)
-    
+
+The following diagram summarizes the general workflow for deriving a Bayes estimator:
+
+```{=latex}
+\begin{center}
+\begin{tikzpicture}[node distance=2cm, auto]
+    % Styles
+    \tikzstyle{block} = [rectangle, draw, fill=blue!10, text width=6em, text centered, rounded corners, minimum height=3em]
+    \tikzstyle{input} = [trapezium, trapezium left angle=70, trapezium right angle=110, draw, fill=green!10, text width=5em, text centered, minimum height=3em]
+    \tikzstyle{line} = [draw, -latex, thick]
+
+    % Nodes
+    \node [input] (inputs) {Prior $\pi(\theta)$ \\ Likelihood $f(x|\theta)$ \\ Data $x$};
+    \node [block, below of=inputs, node distance=2.5cm] (posterior) {Compute Posterior \\ $\pi(\theta|x)$};
+    \node [input, right of=posterior, node distance=4cm] (loss) {Loss Function \\ $L(\theta, d)$};
+    \node [block, below of=posterior, node distance=2.5cm] (exp_loss) {Compute Posterior Expected Loss \\ $E_{\theta|x}[L(\theta, d)]$};
+    \node [block, below of=exp_loss, node distance=2.5cm] (minimize) {Minimize w.r.t $d$ \\ $\arg\min_d E[L]$};
+    \node [block, below of=minimize, node distance=2.5cm, fill=red!10] (bayesrule) {Bayes Rule \\ $d(x)$};
+
+    % Paths
+    \path [line] (inputs) -- (posterior);
+    \path [line] (posterior) -- (exp_loss);
+    \path [line] (loss) |- (exp_loss);
+    \path [line] (exp_loss) -- (minimize);
+    \path [line] (minimize) -- (bayesrule);
+
+\end{tikzpicture}
+\end{center}
+
+```
+
+:::
+
+## Common Loss Functions and Bayes Estimators
+
+### Squared Error Loss (Point Estimate)
+
 $$L(\theta, a) = (\theta - a)^2$$
-    
-To find the optimal estimator $d(x)$, we minimize $E_{\theta|x}[(\theta - d(x))^2]$. Taking the derivative with respect to $d$ and setting to 0:
-    
+
+To find the optimal estimator $d(x)$, we minimize the posterior expected loss $E_{\theta|x}[(\theta - d(x))^2]$. Taking the derivative with respect to $d$ and setting it to 0:
+
 $$-2 E_{\theta|x}(\theta - d) = 0 \implies d(x) = E(\theta|x)$$
-    
-**Result:** The Bayes rule is the **posterior mean**.
-:::
 
-::: {#ex-absolute-loss}
+**Result:** The Bayes rule under squared error loss is the **posterior mean**.
+
 ### Absolute Error Loss
-    
-$$L(\theta, d) = |\theta - d|$$
-    
-Minimizing $E_{\theta|x}[|\theta - d|]$ requires solving:
-    
-$$\int_{-\infty}^{d} \pi(\theta|x) d\theta = \int_{d}^{\infty} \pi(\theta|x) d\theta = \frac{1}{2}$$
-    
-**Result:** The Bayes rule is the **posterior median**.
-:::
 
-::: {#ex-hypothesis-testing}
+$$L(\theta, d) = |\theta - d|$$
+
+To find the Bayes rule, we minimize the posterior expected loss:
+
+$$
+\psi(d) = E_{\theta|x} [ |\theta - d| ] = \int_{-\infty}^{\infty} |\theta - d| \, dF(\theta|x)
+$$
+
+where $F(\theta|x)$ is the cumulative distribution function (CDF) of the posterior. Splitting the integral at the decision point $d$:
+
+$$
+\psi(d) = \int_{-\infty}^{d} (d - \theta) \, dF(\theta|x) + \int_{d}^{\infty} (\theta - d) \, dF(\theta|x)
+$$
+
+We find the minimum by analyzing the rate of change of $\psi(d)$ with respect to $d$. Differentiating (or taking the subgradient for non-differentiable points):
+
+$$
+\frac{d}{dd} \psi(d) = \int_{-\infty}^{d} 1 \, dF(\theta|x) - \int_{d}^{\infty} 1 \, dF(\theta|x) = P(\theta \le d|x) - P(\theta > d|x)
+$$
+
+Setting this derivative to zero implies we seek a point where the probability mass to the left equals the probability mass to the right:
+
+$$
+P(\theta \le d|x) = P(\theta > d|x)
+$$
+
+Since the total probability is 1, this condition simplifies to finding $d$ such that the cumulative probability is $1/2$.
+
+**General Case (Discrete or Mixed Distributions)**
+
+In cases where the posterior distribution is discrete or has jump discontinuities (e.g., the CDF jumps from 0.4 to 0.6 at a specific value), an exact solution to $F(d) = 0.5$ may not exist. To generalize, the Bayes rule is defined as any **median** $m$ of the posterior distribution.
+
+A median is formally defined as any value $m$ that satisfies the following two conditions simultaneously:
+
+* $P(\theta \le m|x) \ge \frac{1}{2}$
+* $P(\theta \ge m|x) \ge \frac{1}{2}$
+
+**Result:** The Bayes rule under absolute error loss is the **posterior median**.
+
 ### Hypothesis Testing (0-1 Loss)
-    
-Testing $H_0: \theta \in \Theta_0$ vs $H_1: \theta \in \Theta_1$.
-    
-$$L(\theta, a) = \begin{cases} 1 & \text{if error} \\ 0 & \text{if correct} \end{cases}$$
-    
-The Bayes rule selects the hypothesis with the higher posterior probability.
-    
-$$d(x) = 1 \iff P(\theta \in \Theta_1 | x) \ge P(\theta \in \Theta_0 | x)$$
-:::
+
+Consider the hypothesis test $H_0: \theta \in \Theta_0$ versus $H_1: \theta \in \Theta_1$. We define the decision space as $\mathcal{A} = \{0, 1\}$, where $a=0$ means accepting $H_0$ and $a=1$ means rejecting $H_0$ (accepting $H_1$).
+
+**Case 1: 0-1 Loss**
+
+The standard 0-1 loss function assigns a penalty of 1 for an incorrect decision and 0 for a correct one:
+$$L(\theta, a) = \begin{cases} 0 & \text{if } \theta \in \Theta_0, a=0 \ (\text{Correct } H_0) \\ 1 & \text{if } \theta \in \Theta_0, a=1 \ (\text{Type I Error}) \\ 1 & \text{if } \theta \in \Theta_1, a=0 \ (\text{Type II Error}) \\ 0 & \text{if } \theta \in \Theta_1, a=1 \ (\text{Correct } H_1) \end{cases}$$
+
+To find the Bayes rule, we minimize the **posterior expected loss** for a given $x$, denoted as $E_{\theta|x}[L(\theta, a)]$.
+
+* **Expected Loss for choosing $a=0$ (Accept $H_0$):**
+    $$
+    E_{\theta|x}[L(\theta, 0)] = 0 \cdot P(\theta \in \Theta_0|x) + 1 \cdot P(\theta \in \Theta_1|x) = P(\theta \in \Theta_1|x)
+    $$
+
+* **Expected Loss for choosing $a=1$ (Reject $H_0$):**
+    $$
+    E_{\theta|x}[L(\theta, 1)] = 1 \cdot P(\theta \in \Theta_0|x) + 0 \cdot P(\theta \in \Theta_1|x) = P(\theta \in \Theta_0|x)
+    $$
+
+The Bayes rule selects the action with the smaller expected loss. Thus, we choose $a=1$ if:
+$$
+P(\theta \in \Theta_0|x) \le P(\theta \in \Theta_1|x)
+$$
+This confirms that under 0-1 loss, the Bayes rule simply selects the hypothesis with the higher posterior probability.
+
+**Case 2: General Loss (Asymmetric Costs)**
+
+In many practical applications, the cost of errors is not symmetric. For example, a Type I error (false rejection) might be more costly than a Type II error. Let $c_1$ be the cost of a Type I error and $c_2$ be the cost of a Type II error. Usually, we normalize one cost to 1.
+
+Suppose the loss function is:
+$$L(\theta, a) = \begin{cases} 0 & \text{if } \theta \in \Theta_0, a=0 \\ c & \text{if } \theta \in \Theta_0, a=1 \ (\text{Cost of Type I Error}) \\ 1 & \text{if } \theta \in \Theta_1, a=0 \ (\text{Cost of Type II Error}) \\ 0 & \text{if } \theta \in \Theta_1, a=1 \end{cases}$$
+
+We again calculate the posterior expected loss:
+
+* **Expected Loss for $a=0$:**
+    $$E[L(\theta, 0)|x] = 0 \cdot P(\Theta_0|x) + 1 \cdot P(\Theta_1|x) = P(\Theta_1|x)$$
+
+* **Expected Loss for $a=1$:**
+    $$E[L(\theta, 1)|x] = c \cdot P(\Theta_0|x) + 0 \cdot P(\Theta_1|x) = c P(\Theta_0|x)$$
+
+We reject $H_0$ ($a=1$) if the expected loss of doing so is lower:
+$$
+c P(\Theta_0|x) \le P(\Theta_1|x)
+$$
+
+Since $P(\Theta_1|x) = 1 - P(\Theta_0|x)$, we can rewrite this condition as:
+$$
+c P(\Theta_0|x) \le 1 - P(\Theta_0|x) \implies (1+c) P(\Theta_0|x) \le 1
+$$
+$$
+P(\Theta_0|x) \le \frac{1}{1+c}
+$$
+
+**Result:** With asymmetric costs, we accept $H_1$ only if the posterior probability of the null hypothesis is sufficiently small (below the threshold $\frac{1}{1+c}$). If the cost of false rejection $c$ is high, we require stronger evidence against $H_0$.
+
+### Classification Prediction (Categorical Parameter)
+
+In classification problems, the parameter of interest is a discrete class label $\theta$ (often denoted as $y$) taking values in a set of categories $\{1, 2, \dots, K\}$. The goal is to predict the true class label based on observed features $x$.
+
+We typically employ the **0-1 loss function**, which assigns a penalty of 1 for a misclassification and 0 for a correct prediction:
+
+$$L(\theta, \hat{\theta}) = \begin{cases} 0 & \text{if } \hat{\theta} = \theta \ (\text{Correct Classification}) \\ 1 & \text{if } \hat{\theta} \neq \theta \ (\text{Misclassification}) \end{cases}$$
+
+To find the optimal classification rule (the Bayes Classifier), we minimize the posterior expected loss, which is equivalent to minimizing the probability of misclassification.
+
+$$
+E_{\theta|x}[L(\theta, \hat{\theta})] = \sum_{\theta} L(\theta, \hat{\theta}) \pi(\theta|x)
+$$
+
+Since the loss is 1 only when the predicted class $\hat{\theta}$ differs from the true class $\theta$, this sum simplifies to:
+
+$$
+E_{\theta|x}[L(\theta, \hat{\theta})] = \sum_{\theta \neq \hat{\theta}} 1 \cdot \pi(\theta|x) = P(\theta \neq \hat{\theta} | x) = 1 - P(\theta = \hat{\theta} | x)
+$$
+
+Minimizing the misclassification rate $1 - P(\theta = \hat{\theta} | x)$ is mathematically equivalent to maximizing the probability of being correct, $P(\theta = \hat{\theta} | x)$.
+
+**Result:** The Bayes rule for classification is to predict the class with the highest posterior probability. While this is technically the **Maximum A Posteriori (MAP)** estimator, in the context of machine learning and pattern recognition, this decision rule is known as the **Bayes Optimal Classifier**.
+
+$$
+\hat{\theta}_{Bayes}(x) = \underset{k \in \{1, \dots, K\}}{\arg\max} \ P(\theta = k | x)
+$$
+
+
+### Interval Estimation and Highest Posterior Density (HPD)
+
+In interval estimation, our goal is typically to find a set or interval that contains the true parameter $\theta$ with a high degree of certainty.
+
+**Loss Function (Fixed Width Approach):**
+
+We can motivate interval estimation using a loss function where we seek the "best" interval of a predetermined length $2\delta$ centered at $d$. The loss is defined as:
+
+$$
+L(\theta, d) = \begin{cases} 0 & \text{if } |\theta - d| \le \delta \\ 1 & \text{if } |\theta - d| > \delta \end{cases}
+$$
+
+Minimizing the posterior expected loss is equivalent to minimizing the posterior probability that $\theta$ falls outside the interval $(d - \delta, d + \delta)$. Conversely, this means we want to maximize the posterior probability that $\theta$ is contained within the interval:
+
+$$
+\text{Maximize } P(d - \delta \le \theta \le d + \delta | x)
+$$
+
+**Dual Formulation (Fixed Probability):**
+
+While the loss function above fixes the length and maximizes probability, in practice we often do the reverse: we specify a coverage probability $1-\alpha$ (e.g., 0.95) and seek the interval of the **shortest length** that satisfies this coverage.
+
+For a **unimodal** posterior density (one with a single peak that decreases monotonically on both sides), the solution to both problems—maximizing probability for a fixed width, or minimizing width for a fixed probability—is identical. The resulting interval collects the values of $\theta$ with the highest probability density.
 
 ::: {#def-hpd}
 ### Highest Posterior Density (HPD) Interval
-    
-In interval estimation, we prescribe a set $A = (d-\delta, d+\delta)$ and minimize the loss associated with $\theta$ falling outside this interval.
-    
-The Bayes rule $d(x)$ is the center of the interval with the highest probability coverage. This leads to the **Highest Posterior Density (HPD)** interval.
-    
-In practice, if the posterior is unimodal and symmetric (like the Normal distribution), the HPD interval coincides with the **Equal-Tailed Interval**, where we cut off $\alpha/2$ probability from each tail.
+
+The **Highest Posterior Density (HPD)** interval is defined as the set of values where the posterior density exceeds a certain threshold $c$:
+
+$$
+C_{HPD} = \{ \theta : \pi(\theta|x) \ge c \}
+$$
+
+where $c$ is chosen such that the total posterior probability of the set is $1-\alpha$.
 :::
 
-## Minimax Estimation
+**Computation and Alternatives:**
+
+Although the HPD interval is optimal in terms of length, it can be computationally difficult to evaluate for complex posteriors. Common alternatives include:
+
+1.  **Equal-Tailed Interval:** We construct the interval $[L, U]$ such that the probability of $\theta$ being below $L$ or above $U$ is exactly $\alpha/2$.
+    $$P(\theta < L | x) = \alpha/2 \quad \text{and} \quad P(\theta > U | x) = \alpha/2$$
+
+2.  **Normal Approximation:** If the posterior is approximately normal (which is often true for large samples), we can use the posterior mean $\mu$ and standard deviation $\sigma$:
+    $$(\mu - z_{\alpha/2}\sigma, \mu + z_{\alpha/2}\sigma)$$
+    where $z_{\alpha/2}$ is the upper-$\alpha$ point of the standard normal distribution.
+
+The plot below illustrates a skewed posterior distribution (Gamma). Notice how the **HPD Interval (Blue)** is shifted toward the mode to capture the highest density values, resulting in a shorter interval length compared to the **Equal-Tailed Interval (Red)**.
+
+```{r}
+#| label: fig-hpd-vs-equal
+#| fig-cap: "Comparison of HPD and Equal-Tailed Intervals for a Skewed Distribution"
+#| echo: true
+
+# Define a skewed distribution: Gamma(shape=2, rate=0.5)
+x_vals <- seq(0, 15, length.out = 1000)
+y_vals <- dgamma(x_vals, shape = 2, rate = 0.5)
+
+# Target coverage
+alpha <- 0.10
+target_prob <- 1 - alpha
+
+# 1. Equal-Tailed Interval (Quantiles)
+eq_lower <- qgamma(alpha/2, shape = 2, rate = 0.5)
+eq_upper <- qgamma(1 - alpha/2, shape = 2, rate = 0.5)
+
+# 2. HPD Interval (Density threshold optimization)
+# We look for a density threshold k such that the area above k is 0.90
+find_hpd <- function(dist_vals, density_vals, probability) {
+  # Sort density values
+  ord <- order(density_vals, decreasing = TRUE)
+  sorted_dens <- density_vals[ord]
+  sorted_dist <- dist_vals[ord]
+  
+  # Accumulate probability (approximation)
+  dx <- diff(dist_vals)[1]
+  cum_prob <- cumsum(sorted_dens * dx)
+  
+  # Find cutoff index
+  cutoff_idx <- which(cum_prob >= probability)[1]
+  
+  # Get the subset of x values
+  hpd_set <- sorted_dist[1:cutoff_idx]
+  return(c(min(hpd_set), max(hpd_set)))
+}
+
+hpd_bounds <- find_hpd(x_vals, y_vals, target_prob)
+hpd_lower <- hpd_bounds[1]
+hpd_upper <- hpd_bounds[2]
+
+# Plotting
+plot(x_vals, y_vals, type = 'l', lwd = 2, col = "black",
+     main = "90% Credible Intervals (Skewed Posterior)",
+     xlab = expression(theta), ylab = "Density",
+     ylim = c(0, max(y_vals) * 1.2))
+
+# Shade HPD
+polygon(c(x_vals[x_vals >= hpd_lower & x_vals <= hpd_upper], hpd_upper, hpd_lower),
+        c(y_vals[x_vals >= hpd_lower & x_vals <= hpd_upper], 0, 0),
+        col = rgb(0, 0, 1, 0.2), border = NA)
+
+# Draw Equal-Tailed lines (Red)
+abline(v = c(eq_lower, eq_upper), col = "red", lwd = 2, lty = 2)
+# Draw HPD lines (Blue)
+abline(v = c(hpd_lower, hpd_upper), col = "blue", lwd = 2, lty = 1)
+
+legend("topright", 
+       legend = c("Posterior Density", 
+                  paste0("Equal-Tailed (Len: ", round(eq_upper - eq_lower, 2), ")"), 
+                  paste0("HPD (Len: ", round(hpd_upper - hpd_lower, 2), ")")),
+       col = c("black", "red", "blue"), 
+       lty = c(1, 2, 1), lwd = 2,
+       fill = c(NA, NA, rgb(0, 0, 1, 0.2)), border = NA)
+
+```
+
+## Finding Minimax Estimators with Bayes Rules
+
+
 
 A decision rule $d(x)$ is **minimax** if it minimizes the maximum possible risk: $\sup_\theta R(\theta, d)$.
 
 ::: {#thm-minimax-constant}
-### Constant Risk Theorem
-If a Bayes rule $d^\pi$ has constant risk (i.e., $R(\theta, d^\pi) = c$ for all $\theta$), then $d^\pi$ is a minimax estimator.
+### Constant Risk Bayes Estimator is Minimax
+
+Let $\delta^\pi$ be a Bayes estimator with respect to a prior $\pi$. If the risk function of $\delta^\pi$ is constant on the parameter space $\Theta$, such that $R(\theta, \delta^\pi) = c$ for all $\theta \in \Theta$, then $\delta^\pi$ is a minimax estimator.
 :::
 
-::: {#ex-binomial-minimax}
+::: {.proof}
+Let $\delta^\pi$ be the Bayes estimator with constant risk $c$. First, we compute its Bayes risk $r(\pi, \delta^\pi)$. Since the risk is constant:
+
+$$
+r(\pi, \delta^\pi) = \int_\Theta R(\theta, \delta^\pi) \pi(\theta) d\theta = \int_\Theta c \, \pi(\theta) d\theta = c
+$$
+
+Now, let $\delta'$ be any arbitrary estimator. By the definition of a Bayes estimator, $\delta^\pi$ minimizes the Bayes risk among all estimators:
+
+$$
+r(\pi, \delta^\pi) \le r(\pi, \delta')
+$$
+
+Next, we observe that the Bayes risk of $\delta'$ is the expectation of its risk function with respect to the prior $\pi$. An average cannot exceed the maximum value of the function being averaged (the supremum):
+
+$$
+r(\pi, \delta') = \int_\Theta R(\theta, \delta') \pi(\theta) d\theta \le \sup_{\theta \in \Theta} R(\theta, \delta') \cdot \int_\Theta \pi(\theta) d\theta = \sup_{\theta \in \Theta} R(\theta, \delta')
+$$
+
+Combining these inequalities, we have:
+
+$$
+\sup_{\theta \in \Theta} R(\theta, \delta^\pi) = c = r(\pi, \delta^\pi) \le r(\pi, \delta') \le \sup_{\theta \in \Theta} R(\theta, \delta')
+$$
+
+Since $\sup_\theta R(\theta, \delta^\pi) \le \sup_\theta R(\theta, \delta')$ holds for any estimator $\delta'$, $\delta^\pi$ minimizes the maximum risk. Therefore, it is minimax.
+:::
+
+The plot below visualizes the logic of the proof. The red line represents the **Constant Risk Bayes Estimator** ($\delta^\pi$), which has a constant height $c$. The blue curve represents an **Arbitrary Estimator** ($\delta'$).
+
+Because $\delta^\pi$ minimizes the *weighted average* risk (Bayes risk), the average height of the blue curve cannot be lower than the red line (with respect to the prior). Consequently, the blue curve must rise above the red line at some point, making its maximum risk ($\sup R$) strictly greater than or equal to $c$. Thus, the constant risk estimator has the lowest possible maximum.
+
+```{r}
+#| label: fig-minimax-proof
+#| fig-cap: "Visual Proof: Any alternative estimator (Blue) with Bayes risk comparable to the Constant Risk estimator (Red) must have a higher maximum risk."
+#| echo: true
+
+# Define parameter space theta
+theta <- seq(0, 1, length.out = 200)
+
+# 1. Constant Risk Bayes Estimator (Risk = c)
+c_val <- 0.5
+risk_bayes <- rep(c_val, length(theta))
+
+# 2. Arbitrary Alternative Estimator
+# This function is chosen such that it dips below c but rises above it elsewhere
+risk_alt <- c_val + 0.2 * sin(2 * pi * theta) - 0.05
+
+# Plotting
+plot(theta, risk_alt, type = 'l', lwd = 2, col = "blue",
+     ylim = c(0, 1), ylab = "Risk R(theta, d)", xlab = expression(theta),
+     main = "Geometry of the Minimax Theorem")
+
+# Add Constant Risk Line
+lines(theta, risk_bayes, col = "red", lwd = 2)
+
+# Mark the Maximum of the Alternative
+max_alt <- max(risk_alt)
+max_theta <- theta[which.max(risk_alt)]
+points(max_theta, max_alt, pch = 19, col = "blue")
+text(max_theta, max_alt, labels = expression(sup~R(theta, delta^"'")), pos = 3, col = "blue")
+
+# Label the Constant Risk
+text(0.1, c_val, labels = expression(R(theta, delta^pi) == c), pos = 3, col = "red")
+
+# Add Legend
+legend("bottomright", legend = c("Arbitrary Estimator", "Constant Risk Bayes Est."),
+       col = c("blue", "red"), lwd = 2, lty = 1)
+```
+
+
+::: {#exm-binomial-minimax}
 ### Binomial Minimax Estimator
 
 Let $X \sim \text{Bin}(n, \theta)$ and $\theta \sim \text{Beta}(a, b)$.
@@ -482,7 +800,7 @@ $$\hat{B} = \frac{p-2}{||X||^2}$$
 This recovers the James-Stein rule:
 $$\delta^{EB}(X) = \left( 1 - \frac{p-2}{||X||^2} \right) X$$
 
-::: {#ex-baseball}
+::: {#exm-baseball}
 ### Baseball Example (efron & Morris)
 
 We illustrate Stein estimation using baseball batting averages.
@@ -503,7 +821,7 @@ A key feature of Bayesian analysis is the predictive distribution for a future o
 
 $$f(x^*|x) = \int f(x^*|\theta) \pi(\theta|x) d\theta$$
 
-::: {#ex-predictive-normal}
+::: {#exm-predictive-normal}
 ### Normal-normal Predictive Distribution
 
 If $x_1, \dots, x_n \sim N(\mu, \sigma^2)$ (with $\sigma^2$ known) and $\mu \sim N(\mu_0, \sigma_0^2)$, the predictive distribution for a new observation $x^*$ is:
@@ -529,7 +847,7 @@ To estimate the posterior $f(\mu, \theta | x)$, we sample iteratively from the *
 1.  Sample $\mu_i$ from $f(\mu_i | x, \theta)$.
 2.  Sample $\theta$ from $f(\theta | \mu, x)$.
 
-::: {#ex-hierarchical-baseball}
+::: {#exm-hierarchical-baseball}
 ### Baseball Example with Hierarchical Model
 
 * $Y_i \sim \text{Bin}(n_i, p_i)$
