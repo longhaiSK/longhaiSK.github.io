@@ -226,7 +226,7 @@ window.Quarto = {
   <li><a href="#the-general-empirical-bayes-framework" id="toc-the-general-empirical-bayes-framework" class="nav-link" data-scroll-target="#the-general-empirical-bayes-framework"><span class="header-section-number">3.4.1</span> The General Empirical Bayes Framework</a></li>
   <li><a href="#deriving-james-stein-as-empirical-bayes" id="toc-deriving-james-stein-as-empirical-bayes" class="nav-link" data-scroll-target="#deriving-james-stein-as-empirical-bayes"><span class="header-section-number">3.4.2</span> Deriving James-Stein as Empirical Bayes</a></li>
   </ul></li>
-  <li><a href="#hierarchical-modeling-and-mcmc" id="toc-hierarchical-modeling-and-mcmc" class="nav-link" data-scroll-target="#hierarchical-modeling-and-mcmc"><span class="header-section-number">3.5</span> Hierarchical Modeling and MCMC</a>
+  <li><a href="#hierarchical-modeling-via-mcmc" id="toc-hierarchical-modeling-via-mcmc" class="nav-link" data-scroll-target="#hierarchical-modeling-via-mcmc"><span class="header-section-number">3.5</span> Hierarchical Modeling via MCMC</a>
   <ul>
   <li><a href="#hierarchical-model-structure" id="toc-hierarchical-model-structure" class="nav-link" data-scroll-target="#hierarchical-model-structure"><span class="header-section-number">3.5.1</span> Hierarchical Model Structure</a></li>
   <li><a href="#graphical-model-representation-tree-structure" id="toc-graphical-model-representation-tree-structure" class="nav-link" data-scroll-target="#graphical-model-representation-tree-structure"><span class="header-section-number">3.5.2</span> Graphical Model Representation (Tree Structure)</a></li>
@@ -607,7 +607,7 @@ Important
 <p>The following diagram summarizes the general workflow for deriving a Bayes estimator:</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-bayes-workflow" class="quarto-float quarto-figure quarto-figure-center anchored" style="width: 80% !important;" data-fig-align="center">
+<div id="fig-bayes-workflow" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" style="width: 80% !important;">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-bayes-workflow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="bayesian_files/figure-html/fig-bayes-workflow-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width: 80% !important;" width="576">
@@ -713,14 +713,18 @@ E_{\theta|x}[L(\theta, \hat{\theta})] = \sum_{\theta \neq \hat{\theta}} 1 \cdot 
 </section>
 <section id="interval-estimation-and-highest-posterior-density-hpd" class="level4" data-number="3.2.1.5">
 <h4 data-number="3.2.1.5" class="anchored" data-anchor-id="interval-estimation-and-highest-posterior-density-hpd"><span class="header-section-number">3.2.1.5</span> Interval Estimation and Highest Posterior Density (HPD)</h4>
-<p>In interval estimation, our goal is typically to find a set <span class="math inline">\(C(x)\)</span> with a specified probability coverage <span class="math inline">\(1-\alpha\)</span> (i.e., <span class="math inline">\(P(\theta \in C(x)|x) = 1-\alpha\)</span>) that minimizes the “size” or length of the interval.</p>
-<p><strong>Loss Function for HPD:</strong> The HPD interval can be formally derived as the Bayes rule under a loss function that linearly combines the size of the interval and the error of non-coverage:</p>
+<p>We can motivate the choice of a Credible Interval by defining a specific loss function for interval estimation. Suppose we seek an estimate <span class="math inline">\(d\)</span> and specify a tolerance <span class="math inline">\(\delta &gt; 0\)</span>. We define the loss function as:</p>
 <p><span class="math display">\[
-L(\theta, C) = \text{Length}(C) + k \cdot I(\theta \notin C)
+L(\theta, d) = \begin{cases}
+0 &amp; \text{if } |\theta - d| \le \delta \\
+1 &amp; \text{if } |\theta - d| &gt; \delta
+\end{cases}
 \]</span></p>
-<p>where <span class="math inline">\(k\)</span> is a positive constant representing the penalty for failing to include the true parameter <span class="math inline">\(\theta\)</span>. Minimizing the posterior expected loss leads to including all values of <span class="math inline">\(\theta\)</span> where the posterior density <span class="math inline">\(\pi(\theta|x)\)</span> exceeds <span class="math inline">\(1/k\)</span>. By adjusting <span class="math inline">\(k\)</span>, we control the credibility level <span class="math inline">\(1-\alpha\)</span>.</p>
-<p><strong>Justification for HPD:</strong> To minimize the length of the interval for a fixed probability mass (or equivalently, minimize this loss function), we should include the values of <span class="math inline">\(\theta\)</span> that have the highest probability density. If we include a value with low density while excluding a value with higher density, we could swap them to increase the probability mass without increasing the interval length (or conversely, shrink the length while maintaining the mass).</p>
-<p>Therefore, the <strong>Highest Posterior Density (HPD)</strong> interval is defined as: <span class="math display">\[C_{HPD} = \{ \theta : \pi(\theta|x) \ge k_\alpha \}\]</span> where <span class="math inline">\(k_\alpha\)</span> is a threshold chosen such that the posterior probability of the set is <span class="math inline">\(1-\alpha\)</span>.</p>
+<p>The <strong>Expected Posterior Loss</strong> is the posterior probability that <span class="math inline">\(\theta\)</span> lies outside the interval <span class="math inline">\((d - \delta, d + \delta)\)</span>. Therefore, minimizing the loss is equivalent to finding the interval of fixed length <span class="math inline">\(2\delta\)</span> that <strong>maximizes the posterior probability</strong>:</p>
+<p><span class="math display">\[ P(d - \delta \le \theta \le d + \delta \mid x) \]</span></p>
+<p>In practice, we typically reverse this formulation: instead of fixing the length <span class="math inline">\(2\delta\)</span>, we fix the coverage probability <span class="math inline">\(1-\alpha\)</span> (e.g., 0.95) and seek the interval with the <strong>shortest possible length</strong>. This results in the <strong>Highest Posterior Density (HPD)</strong> interval, defined as the region where the posterior density exceeds a certain threshold <span class="math inline">\(c\)</span>:</p>
+<p><span class="math display">\[ C_{HPD} = \{ \theta : \pi(\theta \mid x) \ge c \} \]</span></p>
+<p>This HPD interval is optimal because it includes the “most likely” values of <span class="math inline">\(\theta\)</span> and, for a unimodal distribution, provides the narrowest interval for a given confidence level.</p>
 <p><strong>Comparison with Equal-Tailed Intervals:</strong></p>
 <ul>
 <li><strong>Equal-Tailed Interval:</strong> We simply cut off <span class="math inline">\(\alpha/2\)</span> probability from each tail of the distribution. This is easy to compute but may not be the shortest interval if the distribution is skewed.</li>
@@ -1066,8 +1070,8 @@ R(\theta, d^{JS}) &lt; p = R(\theta, d^0) \quad \text{for all } \theta \in \math
 <p>Plugging <span class="math inline">\(\hat{B}\)</span> into the ideal Bayes estimator recovers the James-Stein rule: <span class="math display">\[\delta^{EB}(X) = \left( 1 - \hat{B} \right) X = \left( 1 - \frac{p-2}{||X||^2} \right) X\]</span></p>
 </section>
 </section>
-<section id="hierarchical-modeling-and-mcmc" class="level2" data-number="3.5">
-<h2 data-number="3.5" class="anchored" data-anchor-id="hierarchical-modeling-and-mcmc"><span class="header-section-number">3.5</span> Hierarchical Modeling and MCMC</h2>
+<section id="hierarchical-modeling-via-mcmc" class="level2" data-number="3.5">
+<h2 data-number="3.5" class="anchored" data-anchor-id="hierarchical-modeling-via-mcmc"><span class="header-section-number">3.5</span> Hierarchical Modeling via MCMC</h2>
 <p>In complex Bayesian settings where the posterior distribution cannot be derived analytically, we utilize hierarchical structures to represent levels of uncertainty and Markov Chain Monte Carlo (MCMC) to approximate the resulting distributions.</p>
 <section id="hierarchical-model-structure" class="level3" data-number="3.5.1">
 <h3 data-number="3.5.1" class="anchored" data-anchor-id="hierarchical-model-structure"><span class="header-section-number">3.5.1</span> Hierarchical Model Structure</h3>
@@ -1089,7 +1093,7 @@ p(\boldsymbol{\mu}, \theta, \tau^2 | X) \propto \left[ \prod_{i=1}^n f(x_i | \mu
 <p>The following tree diagram illustrates the conditional dependencies. Note that the parameters <span class="math inline">\(\mu_i\)</span> are conditionally independent given the hyperparameter <span class="math inline">\(\theta\)</span>, which facilitates “borrowing strength” across groups.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-hierarchical-tree" class="quarto-float quarto-figure quarto-figure-center anchored" style="width: 80% !important;" data-fig-align="center">
+<div id="fig-hierarchical-tree" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" style="width: 80% !important;">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-hierarchical-tree-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="bayesian_files/figure-html/fig-hierarchical-tree-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width: 80% !important;" width="576">

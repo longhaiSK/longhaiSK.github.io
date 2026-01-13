@@ -514,25 +514,28 @@ $$
 $$
 
 
+
 #### Interval Estimation and Highest Posterior Density (HPD)
 
-In interval estimation, our goal is typically to find a set $C(x)$ with a specified probability coverage $1-\alpha$ (i.e., $P(\theta \in C(x)|x) = 1-\alpha$) that minimizes the "size" or length of the interval.
-
-**Loss Function for HPD:**
-The HPD interval can be formally derived as the Bayes rule under a loss function that linearly combines the size of the interval and the error of non-coverage:
+We can motivate the choice of a Credible Interval by defining a specific loss function for interval estimation. Suppose we seek an estimate $d$ and specify a tolerance $\delta > 0$. We define the loss function as:
 
 $$
-L(\theta, C) = \text{Length}(C) + k \cdot I(\theta \notin C)
+L(\theta, d) = \begin{cases} 
+0 & \text{if } |\theta - d| \le \delta \\
+1 & \text{if } |\theta - d| > \delta
+\end{cases}
 $$
 
-where $k$ is a positive constant representing the penalty for failing to include the true parameter $\theta$. Minimizing the posterior expected loss leads to including all values of $\theta$ where the posterior density $\pi(\theta|x)$ exceeds $1/k$. By adjusting $k$, we control the credibility level $1-\alpha$.
+The **Expected Posterior Loss** is the posterior probability that $\theta$ lies outside the interval $(d - \delta, d + \delta)$. Therefore, minimizing the loss is equivalent to finding the interval of fixed length $2\delta$ that **maximizes the posterior probability**:
 
-**Justification for HPD:**
-To minimize the length of the interval for a fixed probability mass (or equivalently, minimize this loss function), we should include the values of $\theta$ that have the highest probability density. If we include a value with low density while excluding a value with higher density, we could swap them to increase the probability mass without increasing the interval length (or conversely, shrink the length while maintaining the mass).
+$$ P(d - \delta \le \theta \le d + \delta \mid x) $$
 
-Therefore, the **Highest Posterior Density (HPD)** interval is defined as:
-$$C_{HPD} = \{ \theta : \pi(\theta|x) \ge k_\alpha \}$$
-where $k_\alpha$ is a threshold chosen such that the posterior probability of the set is $1-\alpha$.
+In practice, we typically reverse this formulation: instead of fixing the length $2\delta$, we fix the coverage probability $1-\alpha$ (e.g., 0.95) and seek the interval with the **shortest possible length**. This results in the **Highest Posterior Density (HPD)** interval, defined as the region where the posterior density exceeds a certain threshold $c$:
+
+$$ C_{HPD} = \{ \theta : \pi(\theta \mid x) \ge c \} $$
+
+This HPD interval is optimal because it includes the "most likely" values of $\theta$ and, for a unimodal distribution, provides the narrowest interval for a given confidence level.
+
 
 **Comparison with Equal-Tailed Intervals:**
 
@@ -971,7 +974,7 @@ $$\delta^{EB}(X) = \left( 1 - \hat{B} \right) X = \left( 1 - \frac{p-2}{||X||^2}
 
 
 
-## Hierarchical Modeling and MCMC
+## Hierarchical Modeling via MCMC
 
 In complex Bayesian settings where the posterior distribution cannot be derived analytically, we utilize hierarchical structures to represent levels of uncertainty and Markov Chain Monte Carlo (MCMC) to approximate the resulting distributions.
 
