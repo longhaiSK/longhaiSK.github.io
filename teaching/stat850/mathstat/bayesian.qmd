@@ -971,51 +971,483 @@ $$\delta^{EB}(X) = \left( 1 - \hat{B} \right) X = \left( 1 - \frac{p-2}{||X||^2}
 
 
 
-## Hierarchical Modeling and MCMC
+# Hierarchical Modeling and MCMC
 
-When analytic solutions (like conjugate priors) are unavailable or the model structure is complex, we rely on **Hierarchical Models** to structure the problem and **Markov Chain Monte Carlo (MCMC)** methods to estimate the posterior distributions.
+In complex Bayesian settings where the posterior distribution cannot be derived analytically, we utilize hierarchical structures to represent levels of uncertainty and Markov Chain Monte Carlo (MCMC) to approximate the resulting distributions.
 
-### Graphical Model Representation
 
-A Hierarchical Model can be visualized as a Directed Acyclic Graph (DAG). The diagram below illustrates the flow of information:
-* $\theta$ is the global **hyperparameter** (top level).
-* $\mu_i$ are the group-specific **parameters** (middle level), which depend on $\theta$.
-* $X_i$ are the observed **data** (bottom level), which depend on $\mu_i$.
-* The box (plate) represents the repetition for $i = 1, \dots, N$.
+## Hierarchical Model Structure
 
-```{tikz fig-hierarchical-dag}
-%| fig-cap: "Directed Acyclic Graph (DAG) of a Hierarchical Model"
+A hierarchical model decomposes a complex joint distribution into a series of conditional levels. The general mathematical form is:
+
+$$
+\begin{aligned}
+\text{Level 1 (Data Likelihood):} & \quad X_i | \mu_i, \sigma^2 \sim f(x_i | \mu_i, \sigma^2) \\
+\text{Level 2 (Parameters):} & \quad \mu_i | \theta, \tau^2 \sim \pi(\mu_i | \theta, \tau^2) \\
+\text{Level 3 (Hyperparameters):} & \quad \theta, \tau^2 \sim \pi(\theta, \tau^2)
+\end{aligned}
+$$
+
+The goal is to compute the joint posterior distribution of all unobserved parameters given the data $X = \{X_1, \dots, X_n\}$:
+
+$$
+p(\boldsymbol{\mu}, \theta, \tau^2 | X) \propto \left[ \prod_{i=1}^n f(x_i | \mu_i, \sigma^2) \pi(\mu_i | \theta, \tau^2) \right] \pi(\theta, \tau^2)
+$$
+
+
+## Graphical Model Representation (Tree Structure)
+
+The following tree diagram illustrates the conditional dependencies. Note that the parameters $\mu_i$ are conditionally independent given the hyperparameter $\theta$, which facilitates "borrowing strength" across groups.
+
+```{tikz fig-hierarchical-tree}
+%| fig-cap: "Hierarchical Tree Structure"
 %| echo: false
 %| fig-align: "center"
-%| out-extra: 'style="width: 60% !important;"'
+%| out-extra: 'style="width: 80% !important;"'
 %| engine.opts:
-%|   extra.preamble: "\\usetikzlibrary{fit, positioning, shapes, backgrounds}"
+%|   extra.preamble: "\\usetikzlibrary{arrows, positioning, shapes}"
 
 \begin{tikzpicture}[
-    node distance=1.5cm,
-    obs/.style={circle, draw=black, fill=gray!30, thick, minimum size=1cm},
-    latent/.style={circle, draw=black, thick, minimum size=1cm},
-    plate/.style={draw, thick, shape=rectangle, rounded corners, inner sep=0.6cm}
+    node distance=1.5cm and 1.5cm,
+    obs/.style={circle, draw=black, fill=gray!30, thick, minimum size=0.8cm},
+    latent/.style={circle, draw=black, thick, minimum size=0.8cm},
+    every node/.style={align=center}
 ]
 
-% Nodes
-\node[latent] (theta) {$\theta$};
-\node[latent] (mu) [below=of theta] {$\mu_i$};
-\node[obs] (x) [below=of mu] {$X_i$};
+% Top Level: Hyperparameter
+\node[latent] (theta) {$\theta, \tau^2$};
+
+% Middle Level: Parameters (mu)
+\node[latent] (mu2) [below=of theta] {$\mu_2$};
+\node[latent] (mu1) [left=of mu2] {$\mu_1$};
+\node (dots) [right=of mu2] {$\dots$};
+\node[latent] (mun) [right=of dots] {$\mu_n$};
+
+% Bottom Level: Data (X)
+\node[obs] (x1) [below=of mu1] {$X_1$};
+\node[obs] (x2) [below=of mu2] {$X_2$};
+\node[obs] (xn) [below=of mun] {$X_n$};
 
 % Edges
-\draw[-latex, thick] (theta) -- (mu);
-\draw[-latex, thick] (mu) -- (x);
+\draw[-latex, thick] (theta) -- (mu1);
+\draw[-latex, thick] (theta) -- (mu2);
+\draw[-latex, thick] (theta) -- (mun);
 
-% Plate
-\begin{scope}[on background layer]
-    \node[plate, fit=(mu) (x), label={[anchor=south east]south east:$i=1,\dots,N$}] (p1) {};
-\end{scope}
+\draw[-latex, thick] (mu1) -- (x1);
+\draw[-latex, thick] (mu2) -- (x2);
+\draw[-latex, thick] (mun) -- (xn);
 
 \end{tikzpicture}
 ```
 
-## Baseball Example with Hierarchical Model
+
+## MCMC Estimation
+
+In hierarchical models, the joint posterior distribution $p(\boldsymbol{\mu}, \theta | X)$ often lacks a closed-form analytical solution due to the integration required for the normalizing constant. We use **Markov Chain Monte Carlo (MCMC)** to draw sequence of samples $\{\boldsymbol{\mu}^{(t)}, \theta^{(t)}\}$ that converge to the target posterior distribution.
+
+
+::: {#alg-gibbs-sampling}
+### Gibbs Sampling Algorithm
+Gibbs sampling is an algorithm for sampling from a multivariate distribution by sequentially sampling from the **full conditional distributions**. To sample from a target distribution $p(\theta_1, \theta_2, \dots, \theta_k)$, the algorithm iterates through each variable, updating it conditioned on the current values of all other variables:
+
+$$
+\begin{aligned}
+\theta_1^{(t+1)} &\sim p(\theta_1 | \theta_2^{(t)}, \theta_3^{(t)}, \dots, \theta_k^{(t)}) \\
+\theta_2^{(t+1)} &\sim p(\theta_2 | \theta_1^{(t+1)}, \theta_3^{(t)}, \dots, \theta_k^{(t)}) \\
+&\vdots \\
+\theta_k^{(t+1)} &\sim p(\theta_k | \theta_1^{(t+1)}, \theta_2^{(t+1)}, \dots, \theta_{k-1}^{(t+1)})
+\end{aligned}
+$$
+:::
+
+
+
+::: {#exm-hierarchical-gibbs}
+### Gibbs Sampling for Groups of Normal Data
+**The Model**
+
+To apply the general Gibbs sampling framework $\theta_1, \theta_2, \dots, \theta_k$ to our specific hierarchical model, we identify the variables as follows:
+
+* **Data Observations ($X_i$):** These are the known, measured values at the lowest level of the hierarchy (e.g., test scores of students in school $i$). In the Gibbs sampler, these remain fixed and condition the updates of the parameters.
+
+* **Group-Level Parameters ($\theta_1 = \mu_i$):** These represent the latent means for each specific group or cluster. In the update step, $\mu_i$ acts as the first block of variables. It is updated by "compromising" between the local data $X_i$ and the global characteristic $\theta$.
+
+* **Global Hyperparameter ($\theta_2 = \theta$):** This represents the common mean across all groups. It acts as the second block in the sampler. Its update depends on the current state of all $\mu_i$ values, effectively "pooling" information from all groups to estimate the overall population center.
+
+**Gibbs Update in Hierarchical Models**
+
+In the hierarchical tree structure provided earlier, let our parameter vector be $(\mu_i, \theta)$. The "orthogonality" of the updates becomes clear when we derive the full conditionals for a Gaussian case:
+
+* **Case $\theta_1 = \mu_i$:** Sample $\mu_i^{(t+1)}$ from $p(\mu_i | X_i, \theta^{(t)})$. This is a normal distribution with:
+$$
+\mu_i^{(t+1)} \sim N\left( \frac{\tau^2 X_i + \sigma^2 \theta^{(t)}}{\sigma^2 + \tau^2}, \frac{\sigma^2 \tau^2}{\sigma^2 + \tau^2} \right)
+$$
+
+* **Case $\theta_2 = \theta$:** Sample $\theta^{(t+1)}$ from $p(\theta | \boldsymbol{\mu}^{(t+1)})$. Assuming a flat prior $\pi(\theta) \propto 1$:
+$$
+\theta^{(t+1)} \sim N\left( \frac{1}{n} \sum_{i=1}^n \mu_i^{(t+1)}, \frac{\tau^2}{n} \right)
+$$
+:::
+
+
+**Visual Characteristic:** Gibbs sampling moves along the coordinate axes because it updates one parameter at a time while holding others constant.
+
+
+### Metropolis-Hastings (MH) Sampling
+
+When the full conditional distributions are not easy to sample from, we use the Metropolis-Hastings algorithm. At each step $t$:
+
+* **Propose:** Draw a candidate state $\theta^*$ from a proposal distribution $q(\theta^* | \theta^{(t)})$.
+* **Accept/Reject:** Calculate the acceptance probability:
+$$
+\alpha = \min \left( 1, \frac{p(\theta^* | X) q(\theta^{(t)} | \theta^*)}{p(\theta^{(t)} | X) q(\theta^* | \theta^{(t)})} \right)
+$$
+* Set $\theta^{(t+1)} = \theta^*$ with probability $\alpha$; otherwise, set $\theta^{(t+1)} = \theta^{(t)}$.
+
+**Visual Characteristic:** MH sampling moves in arbitrary directions and can "stay put" if a proposal is rejected, exploring the space via a random walk.
+
+```{r}
+#| label: fig-mcmc-comparison
+#| fig-cap: "Comparison of Sampling Paths"
+#| echo: true
+#| fig-height: 5
+#| fig-width: 10
+
+set.seed(123)
+rho <- 0.8
+log_target <- function(x, y) { -0.5 * (x^2 - 2*rho*x*y + y^2) / (1 - rho^2) }
+
+# Gibbs Path (Step-wise update)
+gx <- -2; gy <- -2
+gx_path <- gx; gy_path <- gy
+for(i in 1:25) {
+  gx <- rnorm(1, rho * gy, sqrt(1 - rho^2))
+  gx_path <- c(gx_path, gx, gx); gy_path <- c(gy_path, gy, gy) # Horizontal move
+  gy <- rnorm(1, rho * gx, sqrt(1 - rho^2))
+  gx_path <- c(gx_path, gx); gy_path <- c(gy_path, gy) # Vertical move
+}
+
+# MH Path (Random Walk)
+mx <- numeric(50); my <- numeric(50)
+mx[1] <- -2; my[1] <- -2
+for(i in 2:50) {
+  px <- mx[i-1] + rnorm(1, 0, 0.4); py <- my[i-1] + rnorm(1, 0, 0.4)
+  acc <- exp(log_target(px, py) - log_target(mx[i-1], my[i-1]))
+  if(runif(1) < acc) { mx[i] <- px; my[i] <- py } else { mx[i] <- mx[i-1]; my[i] <- my[i-1] }
+}
+
+par(mfrow = c(1, 2))
+t_seq <- seq(-3, 3, length=50); z <- outer(t_seq, t_seq, function(x,y) exp(log_target(x,y)))
+plot(gx_path, gy_path, type="l", col="blue", main="Gibbs (Orthogonal Steps)", xlab=expression(theta[1]), ylab=expression(theta[2]))
+contour(t_seq, t_seq, z, add=TRUE, col="gray")
+plot(mx, my, type="l", col="red", main="Metropolis-Hastings (Random Walk)", xlab=expression(theta[1]), ylab=expression(theta[2]))
+contour(t_seq, t_seq, z, add=TRUE, col="gray")
+```
+
+## Case Study: 1998 Major League Baseball Home Run Race
+
+In 1998, the baseball world was captivated by Mark McGwire and Sammy Sosa as they chased Roger Maris' 1961 record of 61 home runs in a single season. While McGwire and Sosa finished with 70 and 66 home runs respectively, we consider whether such performance could have been predicted using pre-season exhibition data.
+
+For a set of $i = 1, \dots, 17$ players (including McGwire and Sosa), we observe their batting records in pre-season exhibition matches. Our goal is to estimate each player's home run "strike rate" for the competitive season.
+
+
+** Transforming Data**
+
+We utilize the pre-season home runs ($y_i$) and at-bats ($n_i$) for 17 players. The data is transformed using a variance-stabilizing transformation to approximate a normal distribution with known variance $\sigma^2 = 1$.
+
+$$
+X_i = \sqrt{n_i} \arcsin\left( 2 \frac{y_i}{n_i} - 1 \right)
+$$
+
+The goal is to estimate the latent parameter $\mu_i$ for each player and compare it to the "true" regular season performance.
+The following table summarizes the pre-season exhibition statistics and the final regular-season results for the 17 players analyzed in the study.
+
+```{r}
+#| label: setup-data
+#| echo: true
+#| message: false
+#| warning: false
+
+library(ggplot2)
+library(brms)
+library(dplyr)
+library(tidyr)
+
+# Data Source
+ni <- c(58, 59, 74, 84, 69, 63, 60, 54, 53, 60, 66, 66, 72, 64, 42, 38, 58)
+yi <- c(7, 9, 4, 7, 3, 6, 2, 10, 2, 2, 4, 3, 2, 5, 3, 2, 6)
+Ni <- c(509, 643, 633, 645, 606, 555, 619, 609, 552, 540, 561, 440, 585, 531, 454, 504, 244)
+Yi <- c(70, 66, 56, 46, 45, 44, 43, 40, 37, 34, 32, 30, 29, 28, 23, 21, 15)
+
+# Transformations
+x <- sqrt(ni) * asin(2 * yi / ni - 1)           # Transformed Pre-season (Data)
+true_mu <- sqrt(ni) * asin(2 * Yi / Ni - 1)     # Transformed Season (Truth)
+
+# Calculate Proportions
+p_pre <- yi / ni       # Pre-season home run rate
+p_season <- Yi / Ni    # All-season home run rate
+
+df_baseball <- data.frame(
+  Player = 1:17,
+  x = x,
+  p_pre = p_pre,
+  p_season = p_season,
+  true_mu = true_mu,
+  sei = 1 # Known standard error after transformation
+)
+knitr::kable(df_baseball)
+```
+
+
+In this analysis, we model the home run strike rates of 17 Major League Baseball players using pre-season exhibition data from 1998. We apply four statistical methods ranging from simple independent estimation to hierarchical Bayesian modeling.
+
+
+
+
+## Method 1: Simple Estimation (MLE)
+
+The Maximum Likelihood Estimator (MLE) assumes each player's performance is independent. It relies solely on the observed pre-season data.
+
+$$
+\hat{\mu}_i^{MLE} = X_i
+$$
+
+```{r}
+#| label: method-mle
+#| echo: true
+
+# Simple Estimate is just the data itself
+mu_mle <- df_baseball$x
+
+# MSE Calculation
+mse_mle <- sum((mu_mle - df_baseball$true_mu)^2)
+```
+
+
+## Method 2: Empirical Bayes (James-Stein)
+
+The James-Stein estimator introduces a global mean $\bar{X}$ and shrinks individual estimates toward it. This assumes the players come from a common population distribution.
+
+::: {#def-james-stein}
+### James-Stein Estimator
+The estimator is defined as a convex combination of the individual observation and the global mean:
+
+$$
+\hat{\mu}_i^{JS} = \bar{X} + \left( 1 - \frac{k-3}{\sum (X_i - \bar{X})^2} \right) (X_i - \bar{X})
+$$
+
+where $k=17$ is the number of players.
+:::
+
+```{r}
+#| label: method-js
+#| echo: true
+
+theta_hat <- mean(x)
+S <- sum((x - theta_hat)^2)
+shrinkage_factor <- 1 - (14 / S)
+
+mu_js <- theta_hat + shrinkage_factor * (x - theta_hat)
+
+# MSE Calculation
+mse_js <- sum((mu_js - df_baseball$true_mu)^2)
+```
+
+
+## Method 3: Fully Bayesian MCMC (brms)
+
+We use a hierarchical Bayesian model where parameters are treated as random variables. We implement this using `brms`.
+
+Model Specification:
+$$
+\begin{aligned}
+X_i &\sim N(\mu_i, 1) \\
+\mu_i &\sim N(\theta, \tau^2) \\
+\theta &\sim N(0, 10) \\
+\tau &\sim \text{Cauchy}(0, 2)
+\end{aligned}
+$$
+
+```{r}
+#| label: method-brms
+#| echo: true
+#| results: hide
+#| message: false
+#| warning: false
+
+# Fit Random Intercept Model: x | se(1) ~ 1 + (1|Player)
+fit_brms <- brm(
+  formula = x | se(sei, sigma = TRUE) ~ 1 + (1 | Player),
+  data = df_baseball,
+  prior = c(
+    prior(normal(0, 10), class = "Intercept"),
+    prior(cauchy(0, 2), class = "sd")
+  ),
+  chains = 2, iter = 4000, warmup = 1000, seed = 123,
+  refresh = 0
+)
+
+# Extract Point Estimates (Posterior Means)
+post_means <- fitted(fit_brms)[, "Estimate"]
+mu_brms <- post_means
+
+# MSE Calculation
+mse_brms <- sum((mu_brms - df_baseball$true_mu)^2)
+```
+
+
+## Method 4: Rao-Blackwellized Density Estimation
+
+Standard histograms of MCMC samples can be rough. Rao-Blackwellization improves density estimation by exploiting the conditional independence structure.
+
+::: {#thm-rao-blackwell}
+### Rao-Blackwellized Density
+Instead of kernel density estimation on samples of $\mu_i$, we average the conditional densities. Given samples $(\theta^{(t)}, \tau^{(t)})$, the conditional posterior for $\mu_i$ is Normal:
+
+$$
+p(\mu_i | X) \approx \frac{1}{T} \sum_{t=1}^T N\left(\mu_i \mid m_i^{(t)}, v^{(t)}\right)
+$$
+
+where:
+$$
+\begin{aligned}
+w^{(t)} &= \frac{(\tau^{(t)})^2}{(\tau^{(t)})^2 + 1} \\
+m_i^{(t)} &= w^{(t)} X_i + (1 - w^{(t)}) \theta^{(t)} \\
+v^{(t)} &= w^{(t)}
+\end{aligned}
+$$
+:::
+
+```{r}
+#| label: method-rb
+#| echo: true
+
+# Extract Posterior Samples of Hyperparameters
+# b_Intercept = theta, sd_Player__Intercept = tau
+samples <- as_draws_df(fit_brms)
+theta_mc <- samples$b_Intercept
+tau_mc   <- samples$sd_Player__Intercept
+
+# Function to compute RB density for a specific player index i
+get_rb_density <- function(player_idx, x_val, grid_points) {
+  # Calculate weights for every MCMC sample
+  w <- (tau_mc^2) / (tau_mc^2 + 1)
+  
+  # Calculate conditional means and variances
+  cond_mean <- w * x_val + (1 - w) * theta_mc
+  cond_var  <- w # Since sigma^2 = 1, variance is just w
+  
+  # Average densities over the MCMC samples
+  dens_vals <- numeric(length(grid_points))
+  for(k in seq_along(grid_points)) {
+    dens_vals[k] <- mean(dnorm(grid_points[k], mean = cond_mean, sd = sqrt(cond_var)))
+  }
+  return(data.frame(x = grid_points, density = dens_vals))
+}
+```
+
+
+## Comparison and Results
+
+### 1. MSE Performance
+
+The following table compares the sum of squared errors for the three point-estimation methods.
+
+```{r}
+#| label: tbl-mse
+#| echo: false
+
+mse_table <- data.frame(
+  Method = c("Simple (MLE)", "James-Stein", "Fully Bayesian (brms)"),
+  MSE = round(c(mse_mle, mse_js, mse_brms), 3)
+)
+
+knitr::kable(mse_table, caption = "Comparison of Estimation Error (Sum of Squared Differences)")
+```
+
+### 2. Shrinkage Plot
+
+This plot visualizes how the methods adjust the estimates. The MLE lies on the 1:1 line (no adjustment). The Bayesian and James-Stein estimates are pulled horizontally toward the global mean.
+
+```{r}
+#| label: fig-shrinkage
+#| fig-cap: "Shrinkage Effect: Estimated vs True Strike Rate"
+#| echo: true
+#| fig-height: 5
+
+plot(df_baseball$true_mu, df_baseball$x, 
+     xlab = "True Season Rate (Transformed)", 
+     ylab = "Estimated Rate", 
+     main = "Shrinkage of Estimators",
+     pch = 1, col = "black", xlim = c(-8, -2), ylim = c(-8, -2))
+abline(0, 1, lty = 2, col = "gray")
+
+# Add James-Stein
+points(df_baseball$true_mu, mu_js, pch = 19, col = "blue")
+
+# Add brms (Fully Bayesian)
+points(df_baseball$true_mu, mu_brms, pch = 17, col = "red")
+
+legend("topleft", legend = c("MLE (Data)", "James-Stein", "Bayesian (brms)"),
+       col = c("black", "blue", "red"), pch = c(1, 19, 17))
+
+# Draw arrows for player 1 (McGwire) to show shrinkage
+idx <- 1
+arrows(df_baseball$true_mu[idx], df_baseball$x[idx], 
+       df_baseball$true_mu[idx], mu_brms[idx], 
+       length = 0.1, col = "red")
+```
+
+### 3. Posterior Density Comparison (Player 1: McGwire)
+
+Here we compare the raw histogram of posterior samples for Mark McGwire against the smooth Rao-Blackwellized density.
+
+```{r}
+#| label: fig-density-rb
+#| fig-cap: "Posterior Density for Player 1 (McGwire)"
+#| echo: true
+
+# Grid for plotting
+grid <- seq(-6, -2, length.out = 200)
+
+# Calculate RB Density for Player 1
+rb_dens <- get_rb_density(1, x[1], grid)
+
+# Standard Histogram from brms samples
+mu1_samples <- as_draws_df(fit_brms)$`r_Player[1,Intercept]` + samples$b_Intercept
+
+hist(mu1_samples, probability = TRUE, breaks = 30, col = "lightgray", border = "white",
+     main = "Posterior Density: Player 1", xlab = expression(mu[1]))
+lines(rb_dens$x, rb_dens$density, col = "darkblue", lwd = 2)
+abline(v = x[1], col = "red", lty = 2, lwd = 2)
+legend("topright", legend = c("Rao-Blackwell Density", "MCMC Histogram", "Observed Data"),
+       col = c("darkblue", "lightgray", "red"), lty = c(1, 1, 2), lwd = c(2, 10, 2))
+```
+
+Because the strike rates $p_i$ likely share similarities across professional players, we can use a hierarchical model to "borrow strength" across the 17 players. To facilitate the use of Normal distributions in our MCMC (Gibbs) framework, we apply a logit transformation to the probabilities:
+
+$$
+\mu_i = \text{logit}(p_i) = \log\left( \frac{p_i}{1 - p_i} \right)
+$$
+
+
+::: {#exm-baseball-hierarchy}
+### Hierarchical Components for Baseball Example
+In this specific context, the general variables $\theta_1, \theta_2$ from the Gibbs sampler are mapped as follows:
+
+* **Data ($X_i$):** Here, our data consists of the pairs $(Y_i, n_i)$ for each of the 17 players.
+
+* **Group-Level Parameters ($\theta_1 = \mu_i$):** These are the individual logit-strike rates for each player. A high $\mu_i$ corresponds to a high probability $p_i$ of hitting a home run.
+
+* **Global Hyperparameter ($\theta_2 = \theta$):** This represents the "league average" logit-strike rate for top-tier home run hitters. It determines the center of the distribution from which the individual $\mu_i$ are drawn.
+:::
+
+
+
+
+
+
+## Final Example: Baseball Example with Hierarchical Model
 
 ### Empirical Bayes Method with Variance Stability Transformation (Efron & Morris, 1975)
 
