@@ -26,8 +26,10 @@ $$
 $$
 :::
 
+
+
 ::: {#exm-binomial-beta}
-### Binomial-Beta Conjugacy
+### Binomial-beta Conjugacy
 
 Consider an experiment where $x|\theta \sim \text{Bin}(n, \theta)$. The likelihood function is:
 
@@ -70,10 +72,41 @@ $$
 * The posterior variance is:
     $$\text{Var}(\theta|x) = \frac{(a+x)(n+b-x)}{(a+b+n)^2(a+b+n+1)}$$
     For large $n$, this approximates $\frac{x(n-x)}{n^3} = \frac{\hat{p}(1-\hat{p})}{n}$.
+
+**Numerical Illustration:**
+
+Suppose we are estimating a probability $\theta$.
+
+* **Prior:** $\theta \sim \text{Beta}(2, 2)$ (Mean = 0.5).
+* **Data:** 10 trials, 8 successes ($n=10, x=8$).
+* **Posterior:** $\theta|x \sim \text{Beta}(2+8, 2+2) = \text{Beta}(10, 4)$ (Mean $\approx$ 0.71).
+
+The plot below shows the prior (dashed) and posterior (solid) densities.
+
+```{r}
+#| label: fig-beta-conjugacy
+#| fig-cap: "Prior vs Posterior for Beta-Binomial Example"
+#| echo: true
+
+theta <- seq(0, 1, length.out = 200)
+
+# Prior: Beta(2, 2)
+prior <- dbeta(theta, shape1 = 2, shape2 = 2)
+
+# Posterior: Beta(10, 4)
+posterior <- dbeta(theta, shape1 = 10, shape2 = 4)
+
+plot(theta, posterior, type = 'l', lwd = 2, col = "blue",
+     xlab = expression(theta), ylab = "Density",
+     main = "Beta Prior vs Posterior", ylim = c(0, max(c(prior, posterior))))
+lines(theta, prior, col = "red", lty = 2, lwd = 2)
+legend("topleft", legend = c("Prior Beta(2,2)", "Posterior Beta(10,4)"),
+       col = c("red", "blue"), lty = c(2, 1), lwd = 2)
+```
 :::
 
 ::: {#exm-normal-normal}
-### Normal-Normal Conjugacy (Known Variance)
+### Normal-normal Conjugacy (known Variance)
 
 Let $X_1, X_2, \dots, X_n$ be independent and identically distributed (i.i.d.) variables such that $X_i \sim N(\mu, \sigma^2)$, where $\sigma^2$ is known.
 
@@ -89,7 +122,7 @@ $$
 \propto \exp\left\{-\frac{(\mu-\mu_0)^2}{2\sigma_0^2}\right\} \cdot \exp\left\{-\sum_{i=1}^n \frac{(x_i-\mu)^2}{2\sigma^2}\right\}
 $$
 
-Expanding the squares and collecting terms involving $\mu$ (completing the square), we find that the posterior is also a Normal distribution $\mu|x \sim N(\mu_1, \sigma_1^2)$.
+
 
 **Posterior Precision:**
 
@@ -120,8 +153,43 @@ So, the posterior distribution is:
 $$
 \mu|x_1, \dots, x_n \sim N\left( \frac{\mu_0 \tau_0 + n\bar{x}\tau}{\tau_0 + n\tau}, \frac{1}{\tau_0 + n\tau} \right)
 $$
-:::
 
+**Numerical Illustration:**
+
+Suppose we estimate a mean height $\mu$.
+
+* **Known Variance:** $\sigma^2 = 100$ ($\tau = 0.01$).
+* **Prior:** $\mu \sim N(175, 25)$ (Precision $\tau_0 = 0.04$).
+* **Data:** $n=10, \bar{x}=180$. (Total data precision $n\tau = 0.1$).
+* **Posterior:**
+  * Precision $\tau_1 = 0.04 + 0.1 = 0.14$.
+  * Variance $\sigma_1^2 \approx 7.14$.
+  * Mean $\mu_1 = \frac{175(0.04) + 180(0.1)}{0.14} \approx 178.6$.
+
+The plot below illustrates the prior (dashed) and posterior (solid) normal densities.
+
+```{r}
+#| label: fig-normal-conjugacy
+#| fig-cap: "Prior vs Posterior for Normal-Normal Example"
+#| echo: true
+
+mu_vals <- seq(150, 200, length.out = 200)
+
+# Prior: N(175, 25) -> SD = 5
+prior_norm <- dnorm(mu_vals, mean = 175, sd = 5)
+
+# Posterior: N(178.6, 7.14) -> SD = Sqrt(7.14) Approx 2.67
+posterior_norm <- dnorm(mu_vals, mean = 178.6, sd = sqrt(7.14))
+
+plot(mu_vals, posterior_norm, type = 'l', lwd = 2, col = "blue",
+     xlab = expression(mu), ylab = "Density",
+     main = "Normal Prior vs Posterior",
+     ylim = c(0, max(c(prior_norm, posterior_norm))))
+lines(mu_vals, prior_norm, col = "red", lty = 2, lwd = 2)
+legend("topleft", legend = c("Prior N(175, 25)", "Posterior N(178.6, 7.14)"),
+       col = c("red", "blue"), lty = c(2, 1), lwd = 2)
+```
+:::
 
 ::: {#exm-discrete-posterior}
 ### Discrete Posterior Calculation
@@ -138,22 +206,16 @@ Given:
     * If $\theta=2$, $x \sim \text{Uniform on } \{0, 1, 2\}$ (Prob = 1/3).
     * If $\theta=3$, $x \sim \text{Uniform on } \{0, 1, 2, 3\}$ (Prob = 1/4).
 
-Suppose we observe $x=2$. We calculate the posterior $\pi(\theta|x=2)$:
+Suppose we observe $x=2$. The calculation of the posterior probabilities is summarized in the table below:
 
-$$
-\pi(\theta|x) = \frac{\pi(\theta)\pi(x|\theta)}{\sum \pi(\theta)\pi(x|\theta)}
-$$
+| | $\theta=1$ | $\theta=2$ | $\theta=3$ | Sum |
+|:---|:---:|:---:|:---:|:---:|
+| **Prior** $\pi(\theta)$ | $1/3$ | $1/3$ | $1/3$ | $1$ |
+| **Likelihood** $\pi(x=2|\theta)$ | $0$ | $1/3$ | $1/4$ | - |
+| **Product** $\pi(\theta)\pi(x|\theta)$ | $0$ | $1/9$ | $1/12$ | $7/36$ |
+| **Posterior** $\pi(\theta|x)$ | $0$ | $4/7$ | $3/7$ | $1$ |
 
-* For $\theta=1$: $\pi(x=2|1) = 0$. Product = 0.
-* For $\theta=2$: $\pi(x=2|2) = 1/3$. Product = $1/3 \times 1/3 = 1/9$.
-* For $\theta=3$: $\pi(x=2|3) = 1/4$. Product = $1/3 \times 1/4 = 1/12$.
-
-The marginal sum is $0 + 1/9 + 1/12 = 7/36$.
-The posterior probabilities are:
-
-* $\pi(1|x=2) = 0$
-* $\pi(2|x=2) = (1/9) / (7/36) = 4/7$
-* $\pi(3|x=2) = (1/12) / (7/36) = 3/7$
+The marginal sum (evidence) is calculated as $0 + 1/9 + 1/12 = 4/36 + 3/36 = 7/36$. The posterior values are obtained by dividing the product row by this sum.
 :::
 
 ::: {#exm-Normal-with-Unknown-Mean-and-Variance}
@@ -165,21 +227,53 @@ We use a **Normal-Gamma** conjugate prior:
 
 1.  $\tau \sim \text{Gamma}(\alpha, \beta)$
     $$\pi(\tau) \propto \tau^{\alpha-1} e^{-\beta\tau}$$
+
 2.  $\mu|\tau \sim N(\nu, 1/(k\tau))$
     $$\pi(\mu|\tau) \propto \tau^{1/2} e^{-\frac{k\tau}{2}(\mu-\nu)^2}$$
 
-The joint prior is:
-
+The joint prior is the product of the conditional and the marginal:
 $$
 \pi(\mu, \tau) \propto \tau^{\alpha - 1/2} \exp\left\{ -\tau \left( \beta + \frac{k}{2}(\mu - \nu)^2 \right) \right\}
 $$
 
-Multiplying by the likelihood leads to a posterior of the same form (Conjugate), with updated parameters:
+**Derivation of the Posterior:**
 
-* $\alpha' = \alpha + n/2$
-* $k' = k + n$
-* $\nu' = \frac{k\nu + n\bar{x}}{k+n}$
-* $\beta' = \beta + \frac{1}{2} \frac{nk}{n+k}(\bar{x}-\nu)^2 + \frac{1}{2}\sum (x_i - \bar{x})^2$
+First, we write the likelihood in terms of the sufficient statistics $\bar{x}$ and $S_{xx} = \sum (x_i - \bar{x})^2$:
+$$
+L(\mu, \tau|x) \propto \tau^{n/2} \exp\left\{ -\frac{\tau}{2} \left[ S_{xx} + n(\bar{x}-\mu)^2 \right] \right\}
+$$
+
+Multiplying the prior by the likelihood gives the joint posterior:
+$$
+\begin{aligned}
+\pi(\mu, \tau | x) &\propto \tau^{\alpha - 1/2} e^{-\beta\tau} e^{-\frac{k\tau}{2}(\mu-\nu)^2} \cdot \tau^{n/2} e^{-\frac{\tau}{2}S_{xx}} e^{-\frac{n\tau}{2}(\mu-\bar{x})^2} \\
+&\propto \tau^{\alpha + n/2 - 1/2} \exp\left\{ -\tau \left[ \beta + \frac{S_{xx}}{2} + \frac{1}{2}\left( k(\mu-\nu)^2 + n(\mu-\bar{x})^2 \right) \right] \right\}
+\end{aligned}
+$$
+
+Next, we complete the square for the terms involving $\mu$ inside the brackets. It can be shown that:
+$$
+k(\mu-\nu)^2 + n(\mu-\bar{x})^2 = (k+n)\left(\mu - \frac{k\nu+n\bar{x}}{k+n}\right)^2 + \frac{nk}{n+k}(\bar{x}-\nu)^2
+$$
+
+Substituting this back into the joint density and grouping terms that do not depend on $\mu$:
+$$
+\pi(\mu, \tau | x) \propto \underbrace{\tau^{\alpha + n/2 - 1} \exp\left\{ -\tau \left[ \beta + \frac{S_{xx}}{2} + \frac{nk}{2(n+k)}(\bar{x}-\nu)^2 \right] \right\}}_{\text{Marginal of } \tau} \cdot \underbrace{\tau^{1/2} \exp\left\{ -\frac{(k+n)\tau}{2} \left( \mu - \frac{k\nu+n\bar{x}}{k+n} \right)^2 \right\}}_{\text{Conditional of } \mu|\tau}
+$$
+
+**Results:**
+
+By inspecting the factored equation above, we identify the updated parameters:
+
+* **Marginal Posterior of $\tau$:**
+    The first part corresponds to a Gamma kernel $\tau^{\alpha' - 1} e^{-\beta'\tau}$.
+    $$\tau|x \sim \text{Gamma}(\alpha', \beta')$$
+    where $\alpha' = \alpha + n/2$ and $\beta' = \beta + \frac{1}{2}\sum(x_i-\bar{x})^2 + \frac{nk}{2(n+k)}(\bar{x}-\nu)^2$.
+
+* **Conditional Posterior of $\mu$:**
+    The second part corresponds to a Normal kernel with precision $k'\tau$.
+    $$\mu|\tau, x \sim N(\nu', 1/(k'\tau))$$
+    where $k' = k + n$ and $\nu' = \frac{k\nu + n\bar{x}}{k+n}$.
 :::
 
 ## Decision Theory and Bayes Rules
@@ -194,16 +288,55 @@ The general form of Bayes rule is derived by minimizing risk.
     $$r(\pi, d) = \int_{\Theta} R(\theta, d) \pi(\theta) d\theta$$
 :::
 
-Minimizing the Bayes Risk is equivalent to minimizing the expected loss for each $x$. The quantity to minimize is the **Posterior Expected Loss**:
+::: {#thm-bayes-rule-minimization}
+### Minimization of Bayes Risk
+
+Minimizing the Bayes risk $r(\pi, d)$ is equivalent to minimizing the posterior expected loss for each observed $x$. That is, the Bayes rule $d(x)$ satisfies:
+$$
+d(x) = \underset{a}{\arg\min} \ E_{\theta|x} [ L(\theta, a) ]
+$$
+:::
+
+::: {.proof}
+We start by writing the Bayes risk essentially as a double integral over the parameters and the data. Substituting the definition of the risk function $R(\theta, d)$:
+
+$$
+\begin{aligned}
+r(\pi, d) &= \int_{\Theta} R(\theta, d) \pi(\theta) d\theta \\
+&= \int_{\Theta} \left[ \int_{X} L(\theta, d(x)) f(x|\theta) dx \right] \pi(\theta) d\theta
+\end{aligned}
+$$
+
+Assuming the conditions for Fubini's Theorem are met, we switch the order of integration:
+
+$$
+r(\pi, d) = \int_{X} \left[ \int_{\Theta} L(\theta, d(x)) f(x|\theta) \pi(\theta) d\theta \right] dx
+$$
+
+Recall that the joint density can be factored as $f(x, \theta) = f(x|\theta)\pi(\theta) = \pi(\theta|x)m(x)$, where $m(x)$ is the marginal density of the data. Substituting this into the inner integral:
+
+$$
+\begin{aligned}
+r(\pi, d) &= \int_{X} \left[ \int_{\Theta} L(\theta, d(x)) \pi(\theta|x) m(x) d\theta \right] dx \\
+&= \int_{X} m(x) \left[ \int_{\Theta} L(\theta, d(x)) \pi(\theta|x) d\theta \right] dx
+\end{aligned}
+$$
+
+Since the marginal density $m(x)$ is non-negative, minimizing the total integral $r(\pi, d)$ with respect to the decision rule $d(\cdot)$ is equivalent to minimizing the term inside the brackets for every $x$ (specifically where $m(x) > 0$).
+
+The term inside the brackets is the **Posterior Expected Loss**:
 
 $$
 \int_{\Theta} L(\theta, d(x)) \pi(\theta|x) d\theta = E_{\theta|x} [ L(\theta, d(x)) ]
 $$
 
+Therefore, to minimize the Bayes risk, one must choose $d(x)$ to minimize the posterior expected loss for each $x$.
+:::
+
 ### Common Loss Functions and Estimators
 
 ::: {#ex-squared-loss}
-### Squared Error Loss (Point Estimate)
+### Squared Error Loss (point Estimate)
     
 $$L(\theta, a) = (\theta - a)^2$$
     
@@ -350,7 +483,7 @@ This recovers the James-Stein rule:
 $$\delta^{EB}(X) = \left( 1 - \frac{p-2}{||X||^2} \right) X$$
 
 ::: {#ex-baseball}
-### Baseball Example (Efron & Morris)
+### Baseball Example (efron & Morris)
 
 We illustrate Stein estimation using baseball batting averages.
 Let $y_i$ be the number of hits for player $i$ in their first $n=45$ at-bats.
@@ -371,7 +504,7 @@ A key feature of Bayesian analysis is the predictive distribution for a future o
 $$f(x^*|x) = \int f(x^*|\theta) \pi(\theta|x) d\theta$$
 
 ::: {#ex-predictive-normal}
-### Normal-Normal Predictive Distribution
+### Normal-normal Predictive Distribution
 
 If $x_1, \dots, x_n \sim N(\mu, \sigma^2)$ (with $\sigma^2$ known) and $\mu \sim N(\mu_0, \sigma_0^2)$, the predictive distribution for a new observation $x^*$ is:
 

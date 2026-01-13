@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -67,6 +101,8 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 <link rel="stylesheet" href="resources/bookstyles.css">
 <script src="resources/num_eq.js"></script>
 
@@ -170,7 +206,7 @@ window.Quarto = {
   <li><a href="#decision-theory-and-bayes-rules" id="toc-decision-theory-and-bayes-rules" class="nav-link" data-scroll-target="#decision-theory-and-bayes-rules"><span class="header-section-number">3.2</span> Decision Theory and Bayes Rules</a>
   <ul>
   <li><a href="#common-loss-functions-and-estimators" id="toc-common-loss-functions-and-estimators" class="nav-link" data-scroll-target="#common-loss-functions-and-estimators"><span class="header-section-number">3.2.1</span> Common Loss Functions and Estimators</a></li>
-  <li><a href="#squared-error-loss-point-estimate" id="toc-squared-error-loss-point-estimate" class="nav-link" data-scroll-target="#squared-error-loss-point-estimate"><span class="header-section-number">3.2.2</span> Squared Error Loss (Point Estimate)</a></li>
+  <li><a href="#squared-error-loss-point-estimate" id="toc-squared-error-loss-point-estimate" class="nav-link" data-scroll-target="#squared-error-loss-point-estimate"><span class="header-section-number">3.2.2</span> Squared Error Loss (point Estimate)</a></li>
   <li><a href="#absolute-error-loss" id="toc-absolute-error-loss" class="nav-link" data-scroll-target="#absolute-error-loss"><span class="header-section-number">3.2.3</span> Absolute Error Loss</a></li>
   <li><a href="#hypothesis-testing-0-1-loss" id="toc-hypothesis-testing-0-1-loss" class="nav-link" data-scroll-target="#hypothesis-testing-0-1-loss"><span class="header-section-number">3.2.4</span> Hypothesis Testing (0-1 Loss)</a></li>
   </ul></li>
@@ -181,11 +217,11 @@ window.Quarto = {
   <li><a href="#stein-estimation-and-shrinkage" id="toc-stein-estimation-and-shrinkage" class="nav-link" data-scroll-target="#stein-estimation-and-shrinkage"><span class="header-section-number">3.4</span> Stein Estimation and Shrinkage</a></li>
   <li><a href="#empirical-bayes" id="toc-empirical-bayes" class="nav-link" data-scroll-target="#empirical-bayes"><span class="header-section-number">3.5</span> Empirical Bayes</a>
   <ul>
-  <li><a href="#baseball-example-efron-morris" id="toc-baseball-example-efron-morris" class="nav-link" data-scroll-target="#baseball-example-efron-morris"><span class="header-section-number">3.5.1</span> Baseball Example (Efron &amp; Morris)</a></li>
+  <li><a href="#baseball-example-efron-morris" id="toc-baseball-example-efron-morris" class="nav-link" data-scroll-target="#baseball-example-efron-morris"><span class="header-section-number">3.5.1</span> Baseball Example (efron &amp; Morris)</a></li>
   </ul></li>
   <li><a href="#predictive-distributions" id="toc-predictive-distributions" class="nav-link" data-scroll-target="#predictive-distributions"><span class="header-section-number">3.6</span> Predictive Distributions</a>
   <ul>
-  <li><a href="#normal-normal-predictive-distribution" id="toc-normal-normal-predictive-distribution" class="nav-link" data-scroll-target="#normal-normal-predictive-distribution"><span class="header-section-number">3.6.1</span> Normal-Normal Predictive Distribution</a></li>
+  <li><a href="#normal-normal-predictive-distribution" id="toc-normal-normal-predictive-distribution" class="nav-link" data-scroll-target="#normal-normal-predictive-distribution"><span class="header-section-number">3.6.1</span> Normal-normal Predictive Distribution</a></li>
   </ul></li>
   <li><a href="#hierarchical-modeling-and-mcmc" id="toc-hierarchical-modeling-and-mcmc" class="nav-link" data-scroll-target="#hierarchical-modeling-and-mcmc"><span class="header-section-number">3.7</span> Hierarchical Modeling and MCMC</a>
   <ul>
@@ -240,7 +276,7 @@ window.Quarto = {
 \]</span></p>
 </div>
 <div id="exm-binomial-beta" class="theorem example">
-<p><span class="theorem-title"><strong>Example 3.1 (Binomial-Beta Conjugacy)</strong></span> Consider an experiment where <span class="math inline">\(x|\theta \sim \text{Bin}(n, \theta)\)</span>. The likelihood function is:</p>
+<p><span class="theorem-title"><strong>Example 3.1 (Binomial-beta Conjugacy)</strong></span> Consider an experiment where <span class="math inline">\(x|\theta \sim \text{Bin}(n, \theta)\)</span>. The likelihood function is:</p>
 <p><span class="math display">\[
 f(x|\theta) = \binom{n}{x} \theta^x (1-\theta)^{n-x}
 \]</span></p>
@@ -266,9 +302,48 @@ f(x|\theta) = \binom{n}{x} \theta^x (1-\theta)^{n-x}
 <li><p>The posterior mean is: <span class="math display">\[E(\theta|x) = \frac{a+x}{a+b+n}\]</span> As <span class="math inline">\(n \to \infty\)</span>, this approximates the maximum likelihood estimate <span class="math inline">\(\frac{x}{n}\)</span>.</p></li>
 <li><p>The posterior variance is: <span class="math display">\[\text{Var}(\theta|x) = \frac{(a+x)(n+b-x)}{(a+b+n)^2(a+b+n+1)}\]</span> For large <span class="math inline">\(n\)</span>, this approximates <span class="math inline">\(\frac{x(n-x)}{n^3} = \frac{\hat{p}(1-\hat{p})}{n}\)</span>.</p></li>
 </ul>
+<p><strong>Numerical Illustration:</strong></p>
+<p>Suppose we are estimating a probability <span class="math inline">\(\theta\)</span>.</p>
+<ul>
+<li><strong>Prior:</strong> <span class="math inline">\(\theta \sim \text{Beta}(2, 2)\)</span> (Mean = 0.5).</li>
+<li><strong>Data:</strong> 10 trials, 8 successes (<span class="math inline">\(n=10, x=8\)</span>).</li>
+<li><strong>Posterior:</strong> <span class="math inline">\(\theta|x \sim \text{Beta}(2+8, 2+2) = \text{Beta}(10, 4)\)</span> (Mean <span class="math inline">\(\approx\)</span> 0.71).</li>
+</ul>
+<p>The plot below shows the prior (dashed) and posterior (solid) densities.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>theta <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">length.out =</span> <span class="dv">200</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Prior: Beta(2, 2)</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>prior <span class="ot">&lt;-</span> <span class="fu">dbeta</span>(theta, <span class="at">shape1 =</span> <span class="dv">2</span>, <span class="at">shape2 =</span> <span class="dv">2</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Posterior: Beta(10, 4)</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>posterior <span class="ot">&lt;-</span> <span class="fu">dbeta</span>(theta, <span class="at">shape1 =</span> <span class="dv">10</span>, <span class="at">shape2 =</span> <span class="dv">4</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(theta, posterior, <span class="at">type =</span> <span class="st">'l'</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">"blue"</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="fu">expression</span>(theta), <span class="at">ylab =</span> <span class="st">"Density"</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Beta Prior vs Posterior"</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">max</span>(<span class="fu">c</span>(prior, posterior))))</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(theta, prior, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lty =</span> <span class="dv">2</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topleft"</span>, <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">"Prior Beta(2,2)"</span>, <span class="st">"Posterior Beta(10,4)"</span>),</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"red"</span>, <span class="st">"blue"</span>), <span class="at">lty =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">1</span>), <span class="at">lwd =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-beta-conjugacy" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-beta-conjugacy-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="bayesian_files/figure-html/fig-beta-conjugacy-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-beta-conjugacy-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.1: Prior vs Posterior for Beta-Binomial Example
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 </div>
 <div id="exm-normal-normal" class="theorem example">
-<p><span class="theorem-title"><strong>Example 3.2 (Normal-Normal Conjugacy (Known Variance))</strong></span> Let <span class="math inline">\(X_1, X_2, \dots, X_n\)</span> be independent and identically distributed (i.i.d.) variables such that <span class="math inline">\(X_i \sim N(\mu, \sigma^2)\)</span>, where <span class="math inline">\(\sigma^2\)</span> is known.</p>
+<p><span class="theorem-title"><strong>Example 3.2 (Normal-normal Conjugacy (known Variance))</strong></span> Let <span class="math inline">\(X_1, X_2, \dots, X_n\)</span> be independent and identically distributed (i.i.d.) variables such that <span class="math inline">\(X_i \sim N(\mu, \sigma^2)\)</span>, where <span class="math inline">\(\sigma^2\)</span> is known.</p>
 <p>We assign a Normal prior to the mean <span class="math inline">\(\mu\)</span>: <span class="math inline">\(\mu \sim N(\mu_0, \sigma_0^2)\)</span>.</p>
 <p>To find the posterior <span class="math inline">\(\pi(\mu|x_1, \dots, x_n)\)</span>, let <span class="math inline">\(x = (x_1, \dots, x_n)\)</span>. The posterior is proportional to:</p>
 <p><span class="math display">\[
@@ -277,7 +352,6 @@ f(x|\theta) = \binom{n}{x} \theta^x (1-\theta)^{n-x}
 <p><span class="math display">\[
 \propto \exp\left\{-\frac{(\mu-\mu_0)^2}{2\sigma_0^2}\right\} \cdot \exp\left\{-\sum_{i=1}^n \frac{(x_i-\mu)^2}{2\sigma^2}\right\}
 \]</span></p>
-<p>Expanding the squares and collecting terms involving <span class="math inline">\(\mu\)</span> (completing the square), we find that the posterior is also a Normal distribution <span class="math inline">\(\mu|x \sim N(\mu_1, \sigma_1^2)\)</span>.</p>
 <p><strong>Posterior Precision:</strong></p>
 <p>It is often more convenient to work with <strong>precision</strong> (the inverse of variance). Let:</p>
 <ul>
@@ -300,6 +374,52 @@ f(x|\theta) = \binom{n}{x} \theta^x (1-\theta)^{n-x}
 <p><span class="math display">\[
 \mu|x_1, \dots, x_n \sim N\left( \frac{\mu_0 \tau_0 + n\bar{x}\tau}{\tau_0 + n\tau}, \frac{1}{\tau_0 + n\tau} \right)
 \]</span></p>
+<p><strong>Numerical Illustration:</strong></p>
+<p>Suppose we estimate a mean height <span class="math inline">\(\mu\)</span>.</p>
+<ul>
+<li><strong>Known Variance:</strong> <span class="math inline">\(\sigma^2 = 100\)</span> (<span class="math inline">\(\tau = 0.01\)</span>).</li>
+<li><strong>Prior:</strong> <span class="math inline">\(\mu \sim N(175, 25)\)</span> (Precision <span class="math inline">\(\tau_0 = 0.04\)</span>).</li>
+<li><strong>Data:</strong> <span class="math inline">\(n=10, \bar{x}=180\)</span>. (Total data precision <span class="math inline">\(n\tau = 0.1\)</span>).</li>
+<li><strong>Posterior:</strong>
+<ul>
+<li>Precision <span class="math inline">\(\tau_1 = 0.04 + 0.1 = 0.14\)</span>.</li>
+<li>Variance <span class="math inline">\(\sigma_1^2 \approx 7.14\)</span>.</li>
+<li>Mean <span class="math inline">\(\mu_1 = \frac{175(0.04) + 180(0.1)}{0.14} \approx 178.6\)</span>.</li>
+</ul></li>
+</ul>
+<p>The plot below illustrates the prior (dashed) and posterior (solid) normal densities.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>mu_vals <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">150</span>, <span class="dv">200</span>, <span class="at">length.out =</span> <span class="dv">200</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Prior: N(175, 25) -&gt; SD = 5</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>prior_norm <span class="ot">&lt;-</span> <span class="fu">dnorm</span>(mu_vals, <span class="at">mean =</span> <span class="dv">175</span>, <span class="at">sd =</span> <span class="dv">5</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Posterior: N(178.6, 7.14) -&gt; SD = Sqrt(7.14) Approx 2.67</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>posterior_norm <span class="ot">&lt;-</span> <span class="fu">dnorm</span>(mu_vals, <span class="at">mean =</span> <span class="fl">178.6</span>, <span class="at">sd =</span> <span class="fu">sqrt</span>(<span class="fl">7.14</span>))</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(mu_vals, posterior_norm, <span class="at">type =</span> <span class="st">'l'</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">"blue"</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="fu">expression</span>(mu), <span class="at">ylab =</span> <span class="st">"Density"</span>,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Normal Prior vs Posterior"</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">max</span>(<span class="fu">c</span>(prior_norm, posterior_norm))))</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(mu_vals, prior_norm, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lty =</span> <span class="dv">2</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topleft"</span>, <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">"Prior N(175, 25)"</span>, <span class="st">"Posterior N(178.6, 7.14)"</span>),</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>       <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"red"</span>, <span class="st">"blue"</span>), <span class="at">lty =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">1</span>), <span class="at">lwd =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-normal-conjugacy" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-normal-conjugacy-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="bayesian_files/figure-html/fig-normal-conjugacy-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-normal-conjugacy-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.2: Prior vs Posterior for Normal-Normal Example
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 </div>
 <div id="exm-discrete-posterior" class="theorem example">
 <p><span class="theorem-title"><strong>Example 3.3 (Discrete Posterior Calculation)</strong></span> Consider the following table where we calculate the posterior probabilities for a discrete parameter space.</p>
@@ -314,39 +434,88 @@ f(x|\theta) = \binom{n}{x} \theta^x (1-\theta)^{n-x}
 <li>If <span class="math inline">\(\theta=3\)</span>, <span class="math inline">\(x \sim \text{Uniform on } \{0, 1, 2, 3\}\)</span> (Prob = 1/4).</li>
 </ul></li>
 </ul>
-<p>Suppose we observe <span class="math inline">\(x=2\)</span>. We calculate the posterior <span class="math inline">\(\pi(\theta|x=2)\)</span>:</p>
-<p><span class="math display">\[
-\pi(\theta|x) = \frac{\pi(\theta)\pi(x|\theta)}{\sum \pi(\theta)\pi(x|\theta)}
-\]</span></p>
-<ul>
-<li>For <span class="math inline">\(\theta=1\)</span>: <span class="math inline">\(\pi(x=2|1) = 0\)</span>. Product = 0.</li>
-<li>For <span class="math inline">\(\theta=2\)</span>: <span class="math inline">\(\pi(x=2|2) = 1/3\)</span>. Product = <span class="math inline">\(1/3 \times 1/3 = 1/9\)</span>.</li>
-<li>For <span class="math inline">\(\theta=3\)</span>: <span class="math inline">\(\pi(x=2|3) = 1/4\)</span>. Product = <span class="math inline">\(1/3 \times 1/4 = 1/12\)</span>.</li>
-</ul>
-<p>The marginal sum is <span class="math inline">\(0 + 1/9 + 1/12 = 7/36\)</span>. The posterior probabilities are:</p>
-<ul>
-<li><span class="math inline">\(\pi(1|x=2) = 0\)</span></li>
-<li><span class="math inline">\(\pi(2|x=2) = (1/9) / (7/36) = 4/7\)</span></li>
-<li><span class="math inline">\(\pi(3|x=2) = (1/12) / (7/36) = 3/7\)</span></li>
-</ul>
+<p>Suppose we observe <span class="math inline">\(x=2\)</span>. The calculation of the posterior probabilities is summarized in the table below:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: center;"><span class="math inline">\(\theta=1\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(\theta=2\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(\theta=3\)</span></th>
+<th style="text-align: center;">Sum</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Prior</strong> <span class="math inline">\(\pi(\theta)\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1/3\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1/3\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1/3\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Likelihood</strong> <span class="math inline">\(\pi(x=2|\theta)\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1/3\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1/4\)</span></td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Product</strong> <span class="math inline">\(\pi(\theta)\pi(x|\theta)\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1/9\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1/12\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(7/36\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Posterior</strong> <span class="math inline">\(\pi(\theta|x)\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(4/7\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(3/7\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>The marginal sum (evidence) is calculated as <span class="math inline">\(0 + 1/9 + 1/12 = 4/36 + 3/36 = 7/36\)</span>. The posterior values are obtained by dividing the product row by this sum.</p>
 </div>
 <div id="exm-Normal-with-Unknown-Mean-and-Variance" class="theorem example">
 <p><span class="theorem-title"><strong>Example 3.4 (Normal with Unknown Mean and Variance)</strong></span> Consider <span class="math inline">\(X_1, \dots, X_n \sim N(\mu, 1/\tau)\)</span>, where both <span class="math inline">\(\mu\)</span> and the precision <span class="math inline">\(\tau\)</span> are unknown.</p>
 <p>We use a <strong>Normal-Gamma</strong> conjugate prior:</p>
 <ol type="1">
-<li><span class="math inline">\(\tau \sim \text{Gamma}(\alpha, \beta)\)</span> <span class="math display">\[\pi(\tau) \propto \tau^{\alpha-1} e^{-\beta\tau}\]</span></li>
-<li><span class="math inline">\(\mu|\tau \sim N(\nu, 1/(k\tau))\)</span> <span class="math display">\[\pi(\mu|\tau) \propto \tau^{1/2} e^{-\frac{k\tau}{2}(\mu-\nu)^2}\]</span></li>
+<li><p><span class="math inline">\(\tau \sim \text{Gamma}(\alpha, \beta)\)</span> <span class="math display">\[\pi(\tau) \propto \tau^{\alpha-1} e^{-\beta\tau}\]</span></p></li>
+<li><p><span class="math inline">\(\mu|\tau \sim N(\nu, 1/(k\tau))\)</span> <span class="math display">\[\pi(\mu|\tau) \propto \tau^{1/2} e^{-\frac{k\tau}{2}(\mu-\nu)^2}\]</span></p></li>
 </ol>
-<p>The joint prior is:</p>
-<p><span class="math display">\[
+<p>The joint prior is the product of the conditional and the marginal: <span class="math display">\[
 \pi(\mu, \tau) \propto \tau^{\alpha - 1/2} \exp\left\{ -\tau \left( \beta + \frac{k}{2}(\mu - \nu)^2 \right) \right\}
 \]</span></p>
-<p>Multiplying by the likelihood leads to a posterior of the same form (Conjugate), with updated parameters:</p>
+<p><strong>Derivation of the Posterior:</strong></p>
+<p>First, we write the likelihood in terms of the sufficient statistics <span class="math inline">\(\bar{x}\)</span> and <span class="math inline">\(S_{xx} = \sum (x_i - \bar{x})^2\)</span>: <span class="math display">\[
+L(\mu, \tau|x) \propto \tau^{n/2} \exp\left\{ -\frac{\tau}{2} \left[ S_{xx} + n(\bar{x}-\mu)^2 \right] \right\}
+\]</span></p>
+<p>Multiplying the prior by the likelihood gives the joint posterior: <span class="math display">\[
+\begin{aligned}
+\pi(\mu, \tau | x) &amp;\propto \tau^{\alpha - 1/2} e^{-\beta\tau} e^{-\frac{k\tau}{2}(\mu-\nu)^2} \cdot \tau^{n/2} e^{-\frac{\tau}{2}S_{xx}} e^{-\frac{n\tau}{2}(\mu-\bar{x})^2} \\
+&amp;\propto \tau^{\alpha + n/2 - 1/2} \exp\left\{ -\tau \left[ \beta + \frac{S_{xx}}{2} + \frac{1}{2}\left( k(\mu-\nu)^2 + n(\mu-\bar{x})^2 \right) \right] \right\}
+\end{aligned}
+\]</span></p>
+<p>Next, we complete the square for the terms involving <span class="math inline">\(\mu\)</span> inside the brackets. It can be shown that: <span class="math display">\[
+k(\mu-\nu)^2 + n(\mu-\bar{x})^2 = (k+n)\left(\mu - \frac{k\nu+n\bar{x}}{k+n}\right)^2 + \frac{nk}{n+k}(\bar{x}-\nu)^2
+\]</span></p>
+<p>Substituting this back into the joint density and grouping terms that do not depend on <span class="math inline">\(\mu\)</span>: <span class="math display">\[
+\pi(\mu, \tau | x) \propto \underbrace{\tau^{\alpha + n/2 - 1} \exp\left\{ -\tau \left[ \beta + \frac{S_{xx}}{2} + \frac{nk}{2(n+k)}(\bar{x}-\nu)^2 \right] \right\}}_{\text{Marginal of } \tau} \cdot \underbrace{\tau^{1/2} \exp\left\{ -\frac{(k+n)\tau}{2} \left( \mu - \frac{k\nu+n\bar{x}}{k+n} \right)^2 \right\}}_{\text{Conditional of } \mu|\tau}
+\]</span></p>
+<p><strong>Results:</strong></p>
+<p>By inspecting the factored equation above, we identify the updated parameters:</p>
 <ul>
-<li><span class="math inline">\(\alpha' = \alpha + n/2\)</span></li>
-<li><span class="math inline">\(k' = k + n\)</span></li>
-<li><span class="math inline">\(\nu' = \frac{k\nu + n\bar{x}}{k+n}\)</span></li>
-<li><span class="math inline">\(\beta' = \beta + \frac{1}{2} \frac{nk}{n+k}(\bar{x}-\nu)^2 + \frac{1}{2}\sum (x_i - \bar{x})^2\)</span></li>
+<li><p><strong>Marginal Posterior of <span class="math inline">\(\tau\)</span>:</strong> The first part corresponds to a Gamma kernel <span class="math inline">\(\tau^{\alpha' - 1} e^{-\beta'\tau}\)</span>. <span class="math display">\[\tau|x \sim \text{Gamma}(\alpha', \beta')\]</span> where <span class="math inline">\(\alpha' = \alpha + n/2\)</span> and <span class="math inline">\(\beta' = \beta + \frac{1}{2}\sum(x_i-\bar{x})^2 + \frac{nk}{2(n+k)}(\bar{x}-\nu)^2\)</span>.</p></li>
+<li><p><strong>Conditional Posterior of <span class="math inline">\(\mu\)</span>:</strong> The second part corresponds to a Normal kernel with precision <span class="math inline">\(k'\tau\)</span>. <span class="math display">\[\mu|\tau, x \sim N(\nu', 1/(k'\tau))\]</span> where <span class="math inline">\(k' = k + n\)</span> and <span class="math inline">\(\nu' = \frac{k\nu + n\bar{x}}{k+n}\)</span>.</p></li>
 </ul>
 </div>
 </section>
@@ -360,16 +529,43 @@ f(x|\theta) = \binom{n}{x} \theta^x (1-\theta)^{n-x}
 <li><strong>Bayes Risk:</strong> The expected risk with respect to the prior. <span class="math display">\[r(\pi, d) = \int_{\Theta} R(\theta, d) \pi(\theta) d\theta\]</span></li>
 </ul>
 </div>
-<p>Minimizing the Bayes Risk is equivalent to minimizing the expected loss for each <span class="math inline">\(x\)</span>. The quantity to minimize is the <strong>Posterior Expected Loss</strong>:</p>
+<div id="thm-bayes-rule-minimization" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 3.2 (Minimization of Bayes Risk)</strong></span> Minimizing the Bayes risk <span class="math inline">\(r(\pi, d)\)</span> is equivalent to minimizing the posterior expected loss for each observed <span class="math inline">\(x\)</span>. That is, the Bayes rule <span class="math inline">\(d(x)\)</span> satisfies: <span class="math display">\[
+d(x) = \underset{a}{\arg\min} \ E_{\theta|x} [ L(\theta, a) ]
+\]</span></p>
+</div>
+<div class="proof">
+<p><span class="proof-title"><em>Proof</em>. </span>We start by writing the Bayes risk essentially as a double integral over the parameters and the data. Substituting the definition of the risk function <span class="math inline">\(R(\theta, d)\)</span>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+r(\pi, d) &amp;= \int_{\Theta} R(\theta, d) \pi(\theta) d\theta \\
+&amp;= \int_{\Theta} \left[ \int_{X} L(\theta, d(x)) f(x|\theta) dx \right] \pi(\theta) d\theta
+\end{aligned}
+\]</span></p>
+<p>Assuming the conditions for Fubini’s Theorem are met, we switch the order of integration:</p>
+<p><span class="math display">\[
+r(\pi, d) = \int_{X} \left[ \int_{\Theta} L(\theta, d(x)) f(x|\theta) \pi(\theta) d\theta \right] dx
+\]</span></p>
+<p>Recall that the joint density can be factored as <span class="math inline">\(f(x, \theta) = f(x|\theta)\pi(\theta) = \pi(\theta|x)m(x)\)</span>, where <span class="math inline">\(m(x)\)</span> is the marginal density of the data. Substituting this into the inner integral:</p>
+<p><span class="math display">\[
+\begin{aligned}
+r(\pi, d) &amp;= \int_{X} \left[ \int_{\Theta} L(\theta, d(x)) \pi(\theta|x) m(x) d\theta \right] dx \\
+&amp;= \int_{X} m(x) \left[ \int_{\Theta} L(\theta, d(x)) \pi(\theta|x) d\theta \right] dx
+\end{aligned}
+\]</span></p>
+<p>Since the marginal density <span class="math inline">\(m(x)\)</span> is non-negative, minimizing the total integral <span class="math inline">\(r(\pi, d)\)</span> with respect to the decision rule <span class="math inline">\(d(\cdot)\)</span> is equivalent to minimizing the term inside the brackets for every <span class="math inline">\(x\)</span> (specifically where <span class="math inline">\(m(x) &gt; 0\)</span>).</p>
+<p>The term inside the brackets is the <strong>Posterior Expected Loss</strong>:</p>
 <p><span class="math display">\[
 \int_{\Theta} L(\theta, d(x)) \pi(\theta|x) d\theta = E_{\theta|x} [ L(\theta, d(x)) ]
 \]</span></p>
+<p>Therefore, to minimize the Bayes risk, one must choose <span class="math inline">\(d(x)\)</span> to minimize the posterior expected loss for each <span class="math inline">\(x\)</span>.</p>
+</div>
 <section id="common-loss-functions-and-estimators" class="level3" data-number="3.2.1">
 <h3 data-number="3.2.1" class="anchored" data-anchor-id="common-loss-functions-and-estimators"><span class="header-section-number">3.2.1</span> Common Loss Functions and Estimators</h3>
 </section>
 <div id="ex-squared-loss">
 <section id="squared-error-loss-point-estimate" class="level3" data-number="3.2.2">
-<h3 data-number="3.2.2" class="anchored" data-anchor-id="squared-error-loss-point-estimate"><span class="header-section-number">3.2.2</span> Squared Error Loss (Point Estimate)</h3>
+<h3 data-number="3.2.2" class="anchored" data-anchor-id="squared-error-loss-point-estimate"><span class="header-section-number">3.2.2</span> Squared Error Loss (point Estimate)</h3>
 <p><span class="math display">\[L(\theta, a) = (\theta - a)^2\]</span></p>
 <p>To find the optimal estimator <span class="math inline">\(d(x)\)</span>, we minimize <span class="math inline">\(E_{\theta|x}[(\theta - d(x))^2]\)</span>. Taking the derivative with respect to <span class="math inline">\(d\)</span> and setting to 0:</p>
 <p><span class="math display">\[-2 E_{\theta|x}(\theta - d) = 0 \implies d(x) = E(\theta|x)\]</span></p>
@@ -404,7 +600,7 @@ f(x|\theta) = \binom{n}{x} \theta^x (1-\theta)^{n-x}
 <h2 data-number="3.3" class="anchored" data-anchor-id="minimax-estimation"><span class="header-section-number">3.3</span> Minimax Estimation</h2>
 <p>A decision rule <span class="math inline">\(d(x)\)</span> is <strong>minimax</strong> if it minimizes the maximum possible risk: <span class="math inline">\(\sup_\theta R(\theta, d)\)</span>.</p>
 <div id="thm-minimax-constant" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 3.2 (Constant Risk Theorem)</strong></span> If a Bayes rule <span class="math inline">\(d^\pi\)</span> has constant risk (i.e., <span class="math inline">\(R(\theta, d^\pi) = c\)</span> for all <span class="math inline">\(\theta\)</span>), then <span class="math inline">\(d^\pi\)</span> is a minimax estimator.</p>
+<p><span class="theorem-title"><strong>Theorem 3.3 (Constant Risk Theorem)</strong></span> If a Bayes rule <span class="math inline">\(d^\pi\)</span> has constant risk (i.e., <span class="math inline">\(R(\theta, d^\pi) = c\)</span> for all <span class="math inline">\(\theta\)</span>), then <span class="math inline">\(d^\pi\)</span> is a minimax estimator.</p>
 </div>
 <div id="ex-binomial-minimax">
 <section id="binomial-minimax-estimator" class="level3" data-number="3.3.1">
@@ -427,7 +623,7 @@ R(\theta, d) = E_x \left[ \left( \theta - \frac{a+x}{a+b+n} \right)^2 \right]
 <p>Consider estimating a multivariate mean vector <span class="math inline">\(\mu = (\mu_1, \dots, \mu_p)\)</span> given independent observations <span class="math inline">\(X_i \sim N(\mu_i, 1)\)</span> for <span class="math inline">\(i=1, \dots, p\)</span>.</p>
 <p>The standard estimator is the MLE: <span class="math inline">\(d^0(X) = X\)</span>. The loss function is the sum of squared errors: <span class="math inline">\(L(\mu, d) = ||\mu - d||^2 = \sum (\mu_i - d_i)^2\)</span>.</p>
 <div id="thm-stein-inadmissibility" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 3.3 (Stein’s Result)</strong></span> When <span class="math inline">\(p \ge 3\)</span>, the estimator <span class="math inline">\(d^0(X)\)</span> is <strong>inadmissible</strong>. There exists an estimator that strictly dominates it (has lower risk everywhere).</p>
+<p><span class="theorem-title"><strong>Theorem 3.4 (Stein’s Result)</strong></span> When <span class="math inline">\(p \ge 3\)</span>, the estimator <span class="math inline">\(d^0(X)\)</span> is <strong>inadmissible</strong>. There exists an estimator that strictly dominates it (has lower risk everywhere).</p>
 </div>
 <p>Consider the class of shrinkage estimators: <span class="math display">\[d^a(X) = \left( 1 - \frac{a}{||X||^2} \right) X\]</span> where <span class="math inline">\(X = (X_1, \dots, X_p)^T\)</span>.</p>
 <p>When <span class="math inline">\(a &gt; 0\)</span>, this estimator “shrinks” the data vector toward the origin <span class="math inline">\((0, \dots, 0)\)</span>.</p>
@@ -456,7 +652,7 @@ R(\theta, d) = E_x \left[ \left( \theta - \frac{a+x}{a+b+n} \right)^2 \right]
 <p>This recovers the James-Stein rule: <span class="math display">\[\delta^{EB}(X) = \left( 1 - \frac{p-2}{||X||^2} \right) X\]</span></p>
 <div id="ex-baseball">
 <section id="baseball-example-efron-morris" class="level3" data-number="3.5.1">
-<h3 data-number="3.5.1" class="anchored" data-anchor-id="baseball-example-efron-morris"><span class="header-section-number">3.5.1</span> Baseball Example (Efron &amp; Morris)</h3>
+<h3 data-number="3.5.1" class="anchored" data-anchor-id="baseball-example-efron-morris"><span class="header-section-number">3.5.1</span> Baseball Example (efron &amp; Morris)</h3>
 <p>We illustrate Stein estimation using baseball batting averages. Let <span class="math inline">\(y_i\)</span> be the number of hits for player <span class="math inline">\(i\)</span> in their first <span class="math inline">\(n=45\)</span> at-bats. Let <span class="math inline">\(\hat{p}_i = y_i/n\)</span> be the observed average.</p>
 <p>To apply the Normal model, we use a variance-stabilizing transformation: <span class="math display">\[X_i = \sqrt{n} \arcsin(2\hat{p}_i - 1)\]</span> Under this transformation, <span class="math inline">\(X_i \approx N(\mu_i, 1)\)</span>.</p>
 <p>Using the James-Stein estimator on the transformed data shrinks the individual averages toward the grand mean (or a specific value <span class="math inline">\(\mu_0\)</span>). Result: The James-Stein estimator provides a lower total prediction error for the rest of the season compared to the individual averages <span class="math inline">\(\hat{p}_i\)</span>.</p>
@@ -469,7 +665,7 @@ R(\theta, d) = E_x \left[ \left( \theta - \frac{a+x}{a+b+n} \right)^2 \right]
 <p><span class="math display">\[f(x^*|x) = \int f(x^*|\theta) \pi(\theta|x) d\theta\]</span></p>
 <div id="ex-predictive-normal">
 <section id="normal-normal-predictive-distribution" class="level3" data-number="3.6.1">
-<h3 data-number="3.6.1" class="anchored" data-anchor-id="normal-normal-predictive-distribution"><span class="header-section-number">3.6.1</span> Normal-Normal Predictive Distribution</h3>
+<h3 data-number="3.6.1" class="anchored" data-anchor-id="normal-normal-predictive-distribution"><span class="header-section-number">3.6.1</span> Normal-normal Predictive Distribution</h3>
 <p>If <span class="math inline">\(x_1, \dots, x_n \sim N(\mu, \sigma^2)\)</span> (with <span class="math inline">\(\sigma^2\)</span> known) and <span class="math inline">\(\mu \sim N(\mu_0, \sigma_0^2)\)</span>, the predictive distribution for a new observation <span class="math inline">\(x^*\)</span> is:</p>
 <p><span class="math display">\[x^*|x \sim N(\mu_1, \sigma^2 + \sigma_1^2)\]</span></p>
 <p>where <span class="math inline">\(\mu_1\)</span> and <span class="math inline">\(\sigma_1^2\)</span> are the posterior mean and variance of <span class="math inline">\(\mu\)</span>. The predictive variance includes both the inherent sampling uncertainty (<span class="math inline">\(\sigma^2\)</span>) and the uncertainty about the parameter (<span class="math inline">\(\sigma_1^2\)</span>).</p>
