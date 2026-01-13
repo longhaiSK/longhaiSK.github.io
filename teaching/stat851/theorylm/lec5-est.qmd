@@ -1887,25 +1887,25 @@ We compare the properties of two competing estimators for the mean response vect
 
 ### Notation and Setup
 
-Consider the data partition $X = [X_1 \ X_2]$, where $X_1$ is $n \times p_1$ and $X_2$ is $n \times p_2$.
+Consider the data partition $X = [X_1 \ X_2]$. We define two competing models:
 
-**1. Reduced Model (Index 0)**
-Uses only $X_1$.
+**1. Reduced Model ($M_0$)**
+
+Assumes $y = X_1\beta_1 + e$.
 $$
 \begin{aligned}
-P_0 &= X_1(X_1^T X_1)^{-1}X_1^T & (\text{Projection Matrix}) \\
-M_0 &= I - P_0 & (\text{Annihilator Matrix}) \\
-\hat{y}_0 &= P_0 y & (\text{Reduced Estimator})
+P_0 &= X_1(X_1^T X_1)^{-1}X_1^T & (\text{Projection for } M_0) \\
+\hat{y}_0 &= P_0 y & (\text{Estimator for } M_0)
 \end{aligned}
 $$
 
-**2. Full Model (Index 1)**
-Uses the full matrix $X = [X_1 \ X_2]$.
+**2. Full Model ($M_1$)**
+
+Assumes $y = X_1\beta_1 + X_2\beta_2 + e$.
 $$
 \begin{aligned}
-P_1 &= X(X^T X)^{-1}X^T & (\text{Projection Matrix}) \\
-M_1 &= I - P_1 & (\text{Annihilator Matrix}) \\
-\hat{y}_1 &= P_1 y & (\text{Full Estimator})
+P_1 &= X(X^T X)^{-1}X^T & (\text{Projection for } M_1) \\
+\hat{y}_1 &= P_1 y & (\text{Estimator for } M_1)
 \end{aligned}
 $$
 
@@ -1919,20 +1919,20 @@ $$
 
 ### Case 1: Underfitting
 
-**The Truth:** The full model is correct.
+**The Truth:** The Full Model ($M_1$) is correct.
 $$
 y = X_1\beta_1 + X_2\beta_2 + e, \quad \beta_2 \neq 0
 $$
 The true mean is $\mu = X_1\beta_1 + X_2\beta_2$.
 
-We analyze the properties of the **Reduced Estimator** $\hat{y}_0$ (which "underfits" the data) compared to the Full Estimator $\hat{y}_1$.
+We analyze the properties of the **Reduced Estimator** $\hat{y}_0$ (from $M_0$) compared to the correct Full Estimator $\hat{y}_1$ (from $M_1$).
 
 ::: {#thm-underfitting name="Bias-Variance Tradeoff in Underfitting"}
-When the full model is true:
+When $M_1$ is true:
 
-1.  **Bias:** The reduced estimator $\hat{y}_0$ is **biased**, while $\hat{y}_1$ is unbiased.
-    $$ \text{Bias}(\hat{y}_0) = -M_0 X_2 \beta_2 $$
-2.  **Variance:** The reduced estimator $\hat{y}_0$ has **smaller variance** (matrix difference is positive semidefinite).
+1.  **Bias:** The estimator $\hat{y}_0$ is **biased**, while $\hat{y}_1$ is unbiased.
+    $$ \text{Bias}(\hat{y}_0) = -(I - P_0) X_2 \beta_2 $$
+2.  **Variance:** The estimator $\hat{y}_0$ has **smaller variance** (matrix difference is positive semidefinite).
     $$ \text{Var}(\hat{y}_1) - \text{Var}(\hat{y}_0) = \sigma^2 (P_1 - P_0) \ge 0 $$
 :::
 
@@ -1946,7 +1946,7 @@ E[\hat{y}_0] &= P_0 E[y] = P_0(X_1\beta_1 + X_2\beta_2) \\
 $$
 The bias is:
 $$
-\text{Bias} = E[\hat{y}_0] - \mu = (X_1\beta_1 + P_0 X_2 \beta_2) - (X_1\beta_1 + X_2\beta_2) = -(I - P_0)X_2\beta_2 = -M_0 X_2 \beta_2
+\text{Bias} = E[\hat{y}_0] - \mu = (X_1\beta_1 + P_0 X_2 \beta_2) - (X_1\beta_1 + X_2\beta_2) = -(I - P_0)X_2\beta_2
 $$
 
 **Part 2 (Variance):**
@@ -1956,24 +1956,24 @@ $$
 The difference is $\sigma^2(P_1 - P_0)$. Since $\mathcal{C}(X_1) \subset \mathcal{C}(X)$, the difference $P_1 - P_0$ projects onto the orthogonal complement of $\mathcal{C}(X_1)$ within $\mathcal{C}(X)$. It is idempotent and positive semidefinite.
 :::
 
-**Conclusion:** Underfitting introduces bias (proportional to $M_0 X_2$) but reduces variance.
+**Conclusion:** Using $M_0$ when $M_1$ is true introduces bias but reduces variance.
 
 ### Case 2: Overfitting
 
-**The Truth:** The reduced model is correct.
+**The Truth:** The Reduced Model ($M_0$) is correct.
 $$
 y = X_1\beta_1 + e \quad (\text{i.e., } \beta_2 = 0)
 $$
 The true mean is $\mu = X_1\beta_1$.
 
-We analyze the properties of the **Full Estimator** $\hat{y}_1$ (which "overfits" the data) compared to the Reduced Estimator $\hat{y}_0$.
+We analyze the properties of the **Full Estimator** $\hat{y}_1$ (from $M_1$) compared to the correct Reduced Estimator $\hat{y}_0$ (from $M_0$).
 
 ::: {#thm-overfitting name="Variance Inflation in Overfitting"}
-When the reduced model is true:
+When $M_0$ is true:
 
 1.  **Bias:** Both estimators are **unbiased**.
     $$ E[\hat{y}_1] = \mu \quad \text{and} \quad E[\hat{y}_0] = \mu $$
-2.  **Variance:** The full estimator $\hat{y}_1$ has **unnecessarily higher variance**.
+2.  **Variance:** The estimator $\hat{y}_1$ has **unnecessarily higher variance**.
     $$ \text{Var}(\hat{y}_1) \ge \text{Var}(\hat{y}_0) $$
 :::
 
@@ -1995,85 +1995,5 @@ $$
 $$
 :::
 
-**Conclusion:** Overfitting offers no benefit in bias but strictly increases estimation variance.
+**Conclusion:** Using $M_1$ when $M_0$ is true offers no benefit in bias but strictly increases estimation variance.
 
-We compare the properties of two competing estimators for the mean response vector $\mu = E[y]$.
-
-Consider the **Full Model** matrix $X = [X_1 \ X_2]$.
-We define two estimators for the fitted values:
-
-1.  **Reduced Estimator ($\hat{y}_0$):** Based on $X_1$ only.
-    $$ \hat{y}_0 = P_1 y \quad \text{where} \quad P_1 = X_1(X_1^T X_1)^{-1}X_1^T $$
-2.  **Full Estimator ($\hat{y}_1$):** Based on the full $X$.
-    $$ \hat{y}_1 = P y \quad \text{where} \quad P = X(X^T X)^{-1}X^T $$
-
-Note that $P_1$ and $P$ are symmetric projection matrices (idempotent), and since the column space of $X_1$ is a subspace of $X$, we have $P P_1 = P_1$ and $P - P_1$ is also a projection matrix.
-
-### Case 1: Underfitting
-
-**The Truth:** The full model is correct.
-$$ y = X_1\beta_1 + X_2\beta_2 + e, \quad \beta_2 \neq 0 $$
-The true mean is $\mu = X_1\beta_1 + X_2\beta_2$.
-
-We analyze the properties of the **Reduced Estimator** $\hat{y}_0$ (which "underfits" the data) compared to the correct Full Estimator $\hat{y}_1$.
-
-::: {#thm-underfitting name="Bias-Variance Tradeoff in Underfitting"}
-When the full model is true:
-
-1.  **Bias:** The reduced estimator $\hat{y}_0$ is **biased**, while $\hat{y}_1$ is unbiased.
-    $$ \text{Bias}(\hat{y}_0) = -(I - P_1)X_2\beta_2 $$
-2.  **Variance:** The reduced estimator $\hat{y}_0$ has **smaller variance** (element-wise or matrix difference).
-    $$ \text{Var}(\hat{y}_1) - \text{Var}(\hat{y}_0) = \sigma^2 (P - P_1) \ge 0 $$
-:::
-
-::: {.proof}
-**Part 1 (Bias):**
-$$
-\begin{aligned}
-E[\hat{y}_0] &= P_1 E[y] = P_1(X_1\beta_1 + X_2\beta_2) \\
-&= X_1\beta_1 + P_1 X_2 \beta_2
-\end{aligned}
-$$
-The bias is $E[\hat{y}_0] - \mu = (X_1\beta_1 + P_1 X_2 \beta_2) - (X_1\beta_1 + X_2\beta_2) = -(I - P_1)X_2\beta_2$.
-This is non-zero unless $X_2$ is already in the span of $X_1$ or orthogonal to the residual space.
-
-**Part 2 (Variance):**
-$$
-\text{Var}(\hat{y}_1) = \sigma^2 P, \quad \text{Var}(\hat{y}_0) = \sigma^2 P_1
-$$
-The difference is $\sigma^2(P - P_1)$. Since $\mathcal{C}(X_1) \subset \mathcal{C}(X)$, the difference $P - P_1$ is the projection matrix onto the subspace of $X$ orthogonal to $X_1$. Projection matrices are positive semidefinite.
-:::
-
-**Conclusion:** Underfitting introduces bias but reduces variance.
-
-### Case 2: Overfitting
-
-**The Truth:** The reduced model is correct.
-$$ y = X_1\beta_1 + e \quad (\text{i.e., } \beta_2 = 0) $$
-The true mean is $\mu = X_1\beta_1$.
-
-We analyze the properties of the **Full Estimator** $\hat{y}_1$ (which "overfits" the data) compared to the correct Reduced Estimator $\hat{y}_0$.
-
-::: {#thm-overfitting name="Variance Inflation in Overfitting"}
-When the reduced model is true:
-
-1.  **Bias:** Both estimators are **unbiased**.
-    $$ E[\hat{y}_1] = \mu \quad \text{and} \quad E[\hat{y}_0] = \mu $$
-2.  **Variance:** The full estimator $\hat{y}_1$ has **unnecessarily higher variance**.
-    $$ \text{Var}(\hat{y}_1) \ge \text{Var}(\hat{y}_0) $$
-:::
-
-::: {.proof}
-**Part 1 (Bias):**
-Since $\mu = X_1\beta_1$:
-$$ E[\hat{y}_1] = P X_1\beta_1 = X_1\beta_1 = \mu \quad (\text{Since } X_1 \in \mathcal{C}(X)) $$
-$$ E[\hat{y}_0] = P_1 X_1\beta_1 = X_1\beta_1 = \mu \quad (\text{Since } X_1 \in \mathcal{C}(X_1)) $$
-
-**Part 2 (Variance):**
-As shown in Case 1, $\text{Var}(\hat{y}_1) - \text{Var}(\hat{y}_0) = \sigma^2(P - P_1)$.
-This matrix is positive semidefinite.
-Specifically, the total variance (trace) increases by the number of extra parameters ($p_2$):
-$$ \text{tr}(\text{Var}(\hat{y}_1)) - \text{tr}(\text{Var}(\hat{y}_0)) = \sigma^2 (\text{tr}(P) - \text{tr}(P_1)) = \sigma^2 (p_{full} - p_{reduced}) = \sigma^2 p_2 $$
-:::
-
-**Conclusion:** Overfitting offers no benefit in bias but strictly increases estimation variance.
