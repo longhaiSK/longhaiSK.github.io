@@ -1,8 +1,7 @@
 ---
 format: 
   pdf: default
-  html:
-    code-fold: false
+  html: default
 ---
 
 # Inference in A Multiple Linear Regression Model
@@ -251,7 +250,7 @@ $$
 .
 :::
 
-#### Limitations: Restriction to Unbiased Estimators
+#### Limitations: Restriction to Unbiased Estimators {.unnumbered}
 
 It is crucial to recognize that the Gauss-Markov theorem only guarantees optimality within the class of **linear** and **unbiased** estimators.
 
@@ -1153,10 +1152,10 @@ We simulate a dataset with $n=30$ observations and consider a sequence of nested
 
 **Predictor Groups:**
 
-1.  **Step 1 ($k=1$):** Add $x_1$. (Signal under $H_1$).
-2.  **Step 2 ($k=6$):** Add $x_2, \dots, x_6$ (Noise).
-3.  **Step 3 ($k=11$):** Add $x_7, \dots, x_{11}$ (Noise).
-4.  **Step 4 ($k=20$):** Add $x_{12}, \dots, x_{20}$ (Noise).
+1.  **Group 1 ($k=1$):** Add $x_1$. (Signal under $H_1$).
+2.  **Group 2 ($k=6$):** Add $x_2, \dots, x_6$ (Noise).
+3.  **Group 3 ($k=11$):** Add $x_7, \dots, x_{11}$ (Noise).
+4.  **Group 4 ($k=20$):** Add $x_{12}, \dots, x_{20}$ (Noise).
 
 ```{r}
 #| label: generate-all-animations
@@ -1439,7 +1438,7 @@ if (knitr::is_html_output()) {
 
 We will solve for the coefficients $\hat{\beta}$ using three distinct methods.
 
-#### Method 1: Naive Matrix Formula
+#### Method 1: Naive Matrix Formula {.unnumbered}
 
 This method solves the normal equations directly on the raw data: $\hat{\beta} = (X^{\prime}X)^{-1}X^{\prime}y$.
 
@@ -1471,7 +1470,7 @@ cat("\nSolved Coefficients (Beta):\n")
 print(t(beta_naive))
 ```
 
-#### Method 2: Centralized Formula
+#### Method 2: Centralized Formula {.unnumbered}
 
 This method reduces multicollinearity issues. Formula: $\hat{\beta}_{\text{slope}} = (X_c^{\prime}X_c)^{-1}X_c^{\prime}y_c$.
 
@@ -1509,7 +1508,7 @@ cat("\nSolved Coefficients (Beta):\n")
 print(t(beta_central))
 ```
 
-#### Method 3: Using R's `lm` Function
+#### Method 3: Using R's `lm` Function {.unnumbered}
 
 This is the standard approach for practitioners.
 
@@ -1528,7 +1527,13 @@ print(coef(model_lm))
 
 We now evaluate the sources of variation to test the overall model significance.
 
-#### 1. Computing Sums of Squares
+#### 1. Computing Sums of Squares {.unnumbered}
+
+We calculate the following components:
+
+* Total Sum of Squares: $\text{SST} = \sum (y_i - \bar{y})^2$
+* Regression Sum of Squares: $\text{SSR} = \sum (\hat{y}_i - \bar{y})^2$
+* Sum of Squared Errors: $\text{SSE} = \sum (y_i - \hat{y}_i)^2$
 
 ```{r}
 #| label: ss-calc
@@ -1547,9 +1552,14 @@ SSE_naive <- sum((y_vec - y_hat)^2)
 cat("SST:", SST_naive, " SSR:", SSR_naive, " SSE:", SSE_naive, "\n")
 ```
 
-#### 2. Manual ANOVA Construction
+#### 2. Manual ANOVA Construction {.unnumbered}
 
-We build the table manually using the sums of squares and degrees of freedom.
+We build the table manually using the sums of squares and degrees of freedom. We calculate the Mean Squares and the F-statistic:
+
+* $\text{MSR} = \text{SSR} / k$
+* $\text{MSE} = \text{SSE} / (n - k - 1)$
+* $\text{MST} = \text{SST} / (n - 1)$
+* $F = \text{MSR} / \text{MSE}$
 
 ```{r}
 #| label: anova-manual
@@ -1583,7 +1593,7 @@ anova_manual <- data.frame(
 knitr::kable(anova_manual, digits = 4, caption = "Manual ANOVA Table")
 ```
 
-#### 3. Standard R Output (`summary` and `anova`)
+#### 3. Standard R Output (`summary` and `anova`) {.unnumbered}
 
 We display the standard `summary()` which provides the coefficients, t-tests, and the overall F-statistic found at the bottom. We also show `anova()` which gives the sequential sum of squares.
 
@@ -1601,7 +1611,12 @@ print(anova(model_lm))
 
 We calculate $R^2$ and Adjusted $R^2$, and then present them in a **Variance Decomposition Table**.
 
-#### 1. Calculation
+#### 1. Calculation {.unnumbered}
+
+We calculate the coefficients of determination:
+
+* Standard $R^2 = 1 - \frac{\text{SSE}}{\text{SST}}$
+* Adjusted $R^2_a = 1 - \frac{\text{MSE}}{\text{MST}}$
 
 ```{r}
 #| label: calc-r2
@@ -1617,9 +1632,13 @@ cat("Standard R^2:  ", round(R2, 4), "\n")
 cat("Adjusted R^2:  ", round(R2_adj, 4), "\n")
 ```
 
-#### 2. Variance Decomposition Table
+#### 2. Variance Decomposition Table {.unnumbered}
 
-This table extends standard ANOVA. While ANOVA focuses on **Mean Squares (MS)** for hypothesis testing (is $MSR > MSE$?), this table focuses on **Variance Components ($\hat{\sigma}^2$)** for estimation (how much variance is Signal vs. Noise?).
+This table extends standard ANOVA. While ANOVA focuses on **Mean Squares (MS)** for hypothesis testing (is $MSR > MSE$?), this table focuses on **Variance Components ($\hat{\sigma}^2$)** for estimation (how much variance is Signal vs. Noise?). We estimate the variance components as follows:
+
+* Signal Variance: $\hat{\sigma}^2_\mu = \text{MST} - \text{MSE}$
+* Noise Variance: $\hat{\sigma}^2 = \text{MSE}$
+* Total Variance: $\hat{\sigma}^2_Y = \text{MST}$
 
 * **Signal Variance ($\hat{\sigma}^2_\mu$):** Estimated by $MST - MSE$. (Note: $MSR$ is biased and overestimates signal).
 * **Noise Variance ($\hat{\sigma}^2$):** Estimated by $MSE$.
@@ -1658,7 +1677,7 @@ knitr::kable(decomp_table,
 
 We construct a 95% confidence interval for the population proportion of variance explained ($\rho^2$).
 
-#### 1. Manual Inversion Method
+#### 1. Manual Inversion Method {.unnumbered}
 
 We solve for the non-centrality parameters $\lambda_L$ and $\lambda_U$ such that our observed $F_{obs}$ corresponds to the appropriate quantiles.
 
@@ -1697,7 +1716,7 @@ cat("Manual Calculation:\n")
 cat("95% CI for Population Rho^2: [", round(rho2_Lower, 4), ", ", round(rho2_Upper, 4), "]\n")
 ```
 
-#### 2. Using R Package `MBESS`
+#### 2. Using R Package `MBESS` {.unnumbered}
 
 The `MBESS` package automates this procedure. We use `Random.Predictors = FALSE` to match the fixed-predictor assumption used in our manual calculation.
 
