@@ -1825,22 +1825,25 @@ $Prob.Greater.Upper
 <p>We compare the properties of two competing estimators for the mean response vector <span class="math inline">\(\mu = E[y]\)</span>.</p>
 <section id="notation-and-setup" class="level3" data-number="6.16.1">
 <h3 data-number="6.16.1" class="anchored" data-anchor-id="notation-and-setup"><span class="header-section-number">6.16.1</span> Notation and Setup</h3>
-<p>Consider the data partition <span class="math inline">\(X = [X_1 \ X_2]\)</span>. We define two competing models:</p>
-<p><strong>1. Reduced Model (<span class="math inline">\(M_0\)</span>)</strong></p>
-<p>Assumes <span class="math inline">\(y = X_1\beta_1 + e\)</span>. <span class="math display">\[
+<p>We consider the general linear model: <span class="math display">\[
+y = X\beta + e = X_1\beta_1 + X_2\beta_2 + e
+\]</span> where <span class="math inline">\(X_1\)</span> is <span class="math inline">\(n \times p_1\)</span>, <span class="math inline">\(X_2\)</span> is <span class="math inline">\(n \times p_2\)</span>, and <span class="math inline">\(\text{Var}(e) = \sigma^2 I\)</span>.</p>
+<p>We distinguish between two estimation approaches based on this model:</p>
+<p><strong>1. Full Model (<span class="math inline">\(M_1\)</span>)</strong> We estimate <span class="math inline">\(\beta\)</span> without restrictions. The estimator projects <span class="math inline">\(y\)</span> onto the full column space <span class="math inline">\(\text{Col}(X)\)</span>. <span class="math display">\[
 \begin{aligned}
-P_0 &amp;= X_1(X_1^T X_1)^{-1}X_1^T &amp; (\text{Projection for } M_0) \\
-\hat{y}_0 &amp;= P_0 y &amp; (\text{Estimator for } M_0)
+P_1 &amp;= X(X^T X)^{-1}X^T &amp; (\text{Projection onto } \text{Col}(X)) \\
+\hat{y}_1 &amp;= P_1 y &amp; (\text{Unrestricted Estimator})
 \end{aligned}
 \]</span></p>
-<p><strong>2. Full Model (<span class="math inline">\(M_1\)</span>)</strong></p>
-<p>Assumes <span class="math inline">\(y = X_1\beta_1 + X_2\beta_2 + e\)</span>. <span class="math display">\[
+<p><strong>2. Reduced Model (<span class="math inline">\(M_0\)</span>)</strong> We estimate <span class="math inline">\(\beta\)</span> subject to the constraint: <span class="math display">\[
+M_0: \beta_2 = 0
+\]</span> This effectively reduces the model to <span class="math inline">\(y = X_1\beta_1 + e\)</span>, projecting <span class="math inline">\(y\)</span> onto the subspace <span class="math inline">\(\text{Col}(X_1)\)</span>. <span class="math display">\[
 \begin{aligned}
-P_1 &amp;= X(X^T X)^{-1}X^T &amp; (\text{Projection for } M_1) \\
-\hat{y}_1 &amp;= P_1 y &amp; (\text{Estimator for } M_1)
+P_0 &amp;= X_1(X_1^T X_1)^{-1}X_1^T &amp; (\text{Projection onto } \text{Col}(X_1)) \\
+\hat{y}_0 &amp;= P_0 y &amp; (\text{Restricted Estimator})
 \end{aligned}
 \]</span></p>
-<p><strong>Key Geometric Property:</strong> Since the column space of <span class="math inline">\(X_1\)</span> is a subspace of <span class="math inline">\(X\)</span> (<span class="math inline">\(\mathcal{C}(X_1) \subset \mathcal{C}(X)\)</span>), we have the nesting property: <span class="math display">\[
+<p><strong>Key Geometric Property:</strong> Since the constraint <span class="math inline">\(\beta_2=0\)</span> restricts the estimation to a subspace (<span class="math inline">\(\text{Col}(X_1) \subset \text{Col}(X)\)</span>), we have the nesting property: <span class="math display">\[
 P_1 P_0 = P_0 \quad \text{and} \quad P_1 - P_0 \text{ is a projection matrix.}
 \]</span></p>
 </section>
@@ -1868,7 +1871,7 @@ E[\hat{y}_0] &amp;= P_0 E[y] = P_0(X_1\beta_1 + X_2\beta_2) \\
 \]</span></p>
 <p><strong>Part 2 (Variance):</strong> <span class="math display">\[
 \text{Var}(\hat{y}_1) = \sigma^2 P_1, \quad \text{Var}(\hat{y}_0) = \sigma^2 P_0
-\]</span> The difference is <span class="math inline">\(\sigma^2(P_1 - P_0)\)</span>. Since <span class="math inline">\(\mathcal{C}(X_1) \subset \mathcal{C}(X)\)</span>, the difference <span class="math inline">\(P_1 - P_0\)</span> projects onto the orthogonal complement of <span class="math inline">\(\mathcal{C}(X_1)\)</span> within <span class="math inline">\(\mathcal{C}(X)\)</span>. It is idempotent and positive semidefinite.</p>
+\]</span> The difference is <span class="math inline">\(\sigma^2(P_1 - P_0)\)</span>. Since <span class="math inline">\(\text{Col}(X_1) \subset \text{Col}(X)\)</span>, the difference <span class="math inline">\(P_1 - P_0\)</span> projects onto the orthogonal complement of <span class="math inline">\(\text{Col}(X_1)\)</span> within <span class="math inline">\(\text{Col}(X)\)</span>. It is idempotent and positive semidefinite.</p>
 </div>
 <p><strong>Remark: Scalar Variance and Coefficients</strong></p>
 <p>From the matrix inequality above, we can state that for any arbitrary vector <span class="math inline">\(a\)</span>, the scalar variance of the linear combination <span class="math inline">\(a^T \hat{y}\)</span> is always smaller in the reduced model: <span class="math display">\[
@@ -1902,9 +1905,9 @@ y = X_1\beta_1 + e \quad (\text{i.e., } \beta_2 = 0)
 </div>
 <div class="proof">
 <p><span class="proof-title"><em>Proof</em>. </span><strong>Part 1 (Bias):</strong> Since <span class="math inline">\(\mu = X_1\beta_1\)</span>: <span class="math display">\[
-E[\hat{y}_1] = P_1 X_1\beta_1 = X_1\beta_1 = \mu \quad (\text{Since } X_1 \in \mathcal{C}(X))
+E[\hat{y}_1] = P_1 X_1\beta_1 = X_1\beta_1 = \mu \quad (\text{Since } X_1 \in \text{Col}(X))
 \]</span> <span class="math display">\[
-E[\hat{y}_0] = P_0 X_1\beta_1 = X_1\beta_1 = \mu \quad (\text{Since } X_1 \in \mathcal{C}(X_1))
+E[\hat{y}_0] = P_0 X_1\beta_1 = X_1\beta_1 = \mu \quad (\text{Since } X_1 \in \text{Col}(X_1))
 \]</span></p>
 <p><strong>Part 2 (Variance):</strong> As shown in Case 1, the difference is <span class="math inline">\(\sigma^2(P_1 - P_0)\)</span>. The cost of overfitting is purely variance inflation. The total variance (trace) increases by the number of unnecessary parameters (<span class="math inline">\(p_2\)</span>): <span class="math display">\[
 \text{tr}(\text{Var}(\hat{y}_1)) - \text{tr}(\text{Var}(\hat{y}_0)) = \sigma^2 (\text{tr}(P_1) - \text{tr}(P_0)) = \sigma^2 (p_{full} - p_{reduced}) = \sigma^2 p_2

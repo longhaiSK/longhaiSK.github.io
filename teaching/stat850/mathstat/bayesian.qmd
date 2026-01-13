@@ -1,295 +1,417 @@
----
-title: "Bayesian Inference"
-format: 
-  html: default
-  pdf: default
----
+# Bayesian Methods
 
+## Fundamental Elements of Bayesian Inference
 
-## Bayes Theorem
-Suppose $\theta \sim \pi(\theta)$ and $X \sim f(x; \theta)$. The posterior density of $\theta$ given $X$ is:
+The foundation of Bayesian inference relies on the relationship between the prior distribution, the likelihood of the data, and the posterior distribution. This relationship is governed by Bayes' Theorem (or Law).
+
+::: {#thm-bayes}
+### Posterior Distribution
+
+Suppose we have a parameter $\theta$ with a prior distribution denoted by $\pi(\theta)$. If we observe data $x$ drawn from a distribution with probability density function (pdf) $f(x; \theta)$, then the **posterior density** of $\theta$ given the data $x$ is defined as:
 
 $$
-\pi(\theta|x) = \frac{\pi(\theta) f(x;\theta)}{\int_{\Theta} \pi(\theta) f(x;\theta) d\theta} \propto \pi(\theta) \cdot L(\theta; x)
+\pi(\theta|x) = \frac{\pi(\theta) f(x;\theta)}{\int_{\Theta} \pi(\theta) f(x;\theta) d\theta}
 $$
 
-where $L(\theta; x)$ is the likelihood.
+In this equation:
 
-## Examples
+* $\pi(\theta)$ is the **prior**.
+* $f(x;\theta)$ is the **likelihood**.
+* The denominator is the marginal distribution of $x$, often represented as a normalizing constant $c(x)$ which is free of $\theta$.
 
-### 1. Binomial-Beta
+Thus, we can state the proportional relationship:
 
-* $X|\theta \sim \text{Bin}(n, \theta) \Rightarrow f(x|\theta) = \binom{n}{x} \theta^x (1-\theta)^{n-x}$
-* Prior $\theta \sim \text{Beta}(a, b) \Rightarrow \pi(\theta) \propto \theta^{a-1}(1-\theta)^{b-1}$
-
-**Posterior:**
 $$
-\pi(\theta|x) \propto \theta^{a-1}(1-\theta)^{b-1} \cdot \theta^x (1-\theta)^{n-x} = \theta^{a+x-1} (1-\theta)^{b+n-x-1}
+\pi(\theta|x) \propto \pi(\theta) f(x;\theta)
 $$
+:::
 
-So, $\theta|x \sim \text{Beta}(a+x, b+n-x)$.
+::: {#exm-binomial-beta}
+### Binomial-Beta Conjugacy
 
-**Moments:**
+Consider an experiment where $x|\theta \sim \text{Bin}(n, \theta)$. The likelihood function is:
 
-* Mean: $E(\theta|x) = \frac{a+x}{a+b+n} \approx \frac{x}{n}$ (for small $n$)
-* Variance: $\text{Var}(\theta|x) = \frac{(a+x)(b+n-x)}{(a+b+n)^2(a+b+n+1)}$
-
-### 2. Normal-Normal (Known Variance)
-
-* $X_1, \dots, X_n \sim N(\mu, \sigma^2)$ where $\sigma^2$ is known.
-* Prior $\mu \sim N(\mu_0, \sigma_0^2)$.
-
-Let $\tau_0 = 1/\sigma_0^2$ (prior precision), $\tau = 1/\sigma^2$ (data precision).
-The posterior precision is $\tau_1 = \tau_0 + n\tau$.
-
-**Posterior:**
 $$
-\mu|x \sim N\left( \frac{\tau_0 \mu_0 + n\tau \bar{x}}{\tau_0 + n\tau}, \frac{1}{\tau_0 + n\tau} \right)
+f(x|\theta) = \binom{n}{x} \theta^x (1-\theta)^{n-x}
 $$
 
-This shows the posterior mean is a weighted average of the prior mean and the sample mean.
+Suppose we choose a Beta distribution as the prior for $\theta$, such that $\theta \sim \text{Beta}(a, b)$. The prior density is:
 
----
-
-# Part 3: Bayes Estimators and Loss Functions
-
-To find a Bayes rule $d(x)$, we minimize the posterior expected loss:
 $$
-\min_d \int_{\Theta} L(\theta, d) \pi(\theta|x) d\theta
+\pi(\theta) = \frac{\theta^{a-1}(1-\theta)^{b-1}}{B(a,b)}
 $$
 
-## 1. Squared Error Loss: $L(\theta, a) = (\theta - a)^2$
-Minimizing $E_{\theta|x}[(\theta - d)^2]$ leads to:
+where $B(a,b)$ is the Beta function defined as $\int_{0}^{1} \theta^{a-1}(1-\theta)^{b-1} d\theta$.
+
+To find the posterior, we multiply the prior and the likelihood:
+
 $$
-d(x) = E(\theta|x) \quad \text{(Posterior Mean)}
+\pi(\theta|x) \propto \theta^{a-1}(1-\theta)^{b-1} \cdot \theta^x (1-\theta)^{n-x}
 $$
 
-## 2. Absolute Error Loss: $L(\theta, a) = |\theta - a|$
-Minimizing $E_{\theta|x}[|\theta - d|]$ leads to:
+Combining terms with the same base:
+
 $$
-\int_{-\infty}^d \pi(\theta|x) d\theta = \int_{d}^{\infty} \pi(\theta|x) d\theta = 0.5
+\pi(\theta|x) \propto \theta^{a+x-1} (1-\theta)^{b+n-x-1}
 $$
-So, $d(x) = \text{Median of } \pi(\theta|x)$.
 
-## 3. 0-1 Loss (Hypothesis Testing)
+We can recognize this kernel as a Beta distribution. Therefore, we conclude that the posterior distribution is:
 
-* Loss is 1 if error, 0 if correct.
-* Testing $\Theta_0$ vs $\Theta_1$.
-* Bayes Rule: Choose class with highest posterior probability.
-    * Reject $H_0$ if $P(\theta \in \Theta_1 | x) > P(\theta \in \Theta_0 | x)$.
-
-## 4. Interval Estimation
-We want an interval $A = (d-\delta, d+\delta)$ minimizing risk (maximizing coverage probability $1-\alpha$).
-
-**Highest Posterior Density (HPD) Interval:**
-The set $C = \{ \theta : \pi(\theta|x) \ge k \}$ where $P(\theta \in C|x) = 1-\alpha$.
-This is the shortest interval for a given confidence level if the posterior is unimodal.
-
-```{r}
-#| label: fig-hpd
-#| fig-cap: "Illustration of Highest Posterior Density (HPD) Interval vs Equi-tailed Interval on a skewed posterior."
-#| warning: false
-library(ggplot2)
-
-x <- seq(0, 15, length.out = 1000)
-y <- dgamma(x, shape = 3, rate = 0.5)
-df <- data.frame(x = x, y = y)
-
-# Approximate HPD cutoff (visual)
-hpd_level <- 0.05
-cutoff <- 0.08 # Chosen for visual representation of the cut
-
-ggplot(df, aes(x, y)) +
-  geom_line(size = 1) +
-  geom_area(data = subset(df, y > cutoff), fill = "skyblue", alpha = 0.5) +
-  geom_hline(yintercept = cutoff, linetype = "dashed", color = "red") +
-  annotate("text", x = 10, y = cutoff + 0.02, label = "HPD Cutoff line", color = "red") +
-  labs(title = "Highest Posterior Density (HPD) Interval", 
-       subtitle = "Points with density higher than the red line form the HPD set",
-       x = "Theta", y = "Posterior Density") +
-  theme_minimal()
-```
-
----
-
-# Part 4: Minimax Rules via Bayes
-
-**Goal:** Find a minimax estimator for $\theta$ where $X \sim \text{Bin}(n, \theta)$.
-**Loss:** Squared Error $L(\theta, d) = (\theta - d)^2$.
-
-Strategy: Find a prior $\text{Beta}(a, b)$ such that the Bayes risk $R(\theta, d_{\text{Bayes}})$ is constant for all $\theta$. By Theorem 2.2 (Equalizer Rule), if an extended Bayes rule has constant risk, it is Minimax.
-
-The Bayes estimator is $d(x) = \frac{a+x}{a+b+n}$.
-The risk is:
 $$
-R(\theta, d) = E\left[ \left( \theta - \frac{a+X}{a+b+n} \right)^2 \right]
+\theta|x \sim \text{Beta}(a+x, b+n-x)
 $$
+
+**Properties of the Posterior:**
+
+* The posterior mean is:
+    $$E(\theta|x) = \frac{a+x}{a+b+n}$$
+    As $n \to \infty$, this approximates the maximum likelihood estimate $\frac{x}{n}$.
+
+* The posterior variance is:
+    $$\text{Var}(\theta|x) = \frac{(a+x)(n+b-x)}{(a+b+n)^2(a+b+n+1)}$$
+    For large $n$, this approximates $\frac{x(n-x)}{n^3} = \frac{\hat{p}(1-\hat{p})}{n}$.
+:::
+
+::: {#exm-normal-normal}
+### Normal-Normal Conjugacy (Known Variance)
+
+Let $X_1, X_2, \dots, X_n$ be independent and identically distributed (i.i.d.) variables such that $X_i \sim N(\mu, \sigma^2)$, where $\sigma^2$ is known.
+
+We assign a Normal prior to the mean $\mu$: $\mu \sim N(\mu_0, \sigma_0^2)$.
+
+To find the posterior $\pi(\mu|x_1, \dots, x_n)$, let $x = (x_1, \dots, x_n)$. The posterior is proportional to:
+
+$$
+\pi(\mu|x) \propto \pi(\mu) \cdot f(x|\mu)
+$$
+
+$$
+\propto \exp\left\{-\frac{(\mu-\mu_0)^2}{2\sigma_0^2}\right\} \cdot \exp\left\{-\sum_{i=1}^n \frac{(x_i-\mu)^2}{2\sigma^2}\right\}
+$$
+
+Expanding the squares and collecting terms involving $\mu$ (completing the square), we find that the posterior is also a Normal distribution $\mu|x \sim N(\mu_1, \sigma_1^2)$.
+
+**Posterior Precision:**
+
+It is often more convenient to work with **precision** (the inverse of variance). Let:
+
+* $\tau_0 = 1/\sigma_0^2$ (Prior precision)
+* $\tau = 1/\sigma^2$ (Data precision)
+* $\tau_1 = 1/\sigma_1^2$ (Posterior precision)
+
+The relationship is additive:
+
+$$
+\tau_1 = \tau_0 + n\tau
+$$
+
+$$
+\text{Posterior Precision} = \text{Prior Precision} + \text{Precision of Data}
+$$
+
+The posterior mean $\mu_1$ is a weighted average of the prior mean and the sample mean:
+
+$$
+\mu_1 = \frac{\mu_0 \tau_0 + n\bar{x}\tau}{\tau_0 + n\tau}
+$$
+
+So, the posterior distribution is:
+
+$$
+\mu|x_1, \dots, x_n \sim N\left( \frac{\mu_0 \tau_0 + n\bar{x}\tau}{\tau_0 + n\tau}, \frac{1}{\tau_0 + n\tau} \right)
+$$
+:::
+
+
+::: {#exm-discrete-posterior}
+### Discrete Posterior Calculation
+
+Consider the following table where we calculate the posterior probabilities for a discrete parameter space.
+
+Let the parameter $\theta$ take values $\{1, 2, 3\}$ with prior probabilities $\pi(\theta)$. Let the data $x$ take values $\{0, 1, 2, \dots\}$.
+
+Given:
+
+* Prior $\pi(\theta)$: $\pi(1)=1/3, \pi(2)=1/3, \pi(3)=1/3$.
+* Likelihood $\pi(x|\theta)$:
+    * If $\theta=1$, $x \sim \text{Uniform on } \{0, 1\}$ (Prob = 1/2).
+    * If $\theta=2$, $x \sim \text{Uniform on } \{0, 1, 2\}$ (Prob = 1/3).
+    * If $\theta=3$, $x \sim \text{Uniform on } \{0, 1, 2, 3\}$ (Prob = 1/4).
+
+Suppose we observe $x=2$. We calculate the posterior $\pi(\theta|x=2)$:
+
+$$
+\pi(\theta|x) = \frac{\pi(\theta)\pi(x|\theta)}{\sum \pi(\theta)\pi(x|\theta)}
+$$
+
+* For $\theta=1$: $\pi(x=2|1) = 0$. Product = 0.
+* For $\theta=2$: $\pi(x=2|2) = 1/3$. Product = $1/3 \times 1/3 = 1/9$.
+* For $\theta=3$: $\pi(x=2|3) = 1/4$. Product = $1/3 \times 1/4 = 1/12$.
+
+The marginal sum is $0 + 1/9 + 1/12 = 7/36$.
+The posterior probabilities are:
+
+* $\pi(1|x=2) = 0$
+* $\pi(2|x=2) = (1/9) / (7/36) = 4/7$
+* $\pi(3|x=2) = (1/12) / (7/36) = 3/7$
+:::
+
+::: {#exm-Normal-with-Unknown-Mean-and-Variance}
+### Normal with Unknown Mean and Variance
+
+Consider $X_1, \dots, X_n \sim N(\mu, 1/\tau)$, where both $\mu$ and the precision $\tau$ are unknown.
+
+We use a **Normal-Gamma** conjugate prior:
+
+1.  $\tau \sim \text{Gamma}(\alpha, \beta)$
+    $$\pi(\tau) \propto \tau^{\alpha-1} e^{-\beta\tau}$$
+2.  $\mu|\tau \sim N(\nu, 1/(k\tau))$
+    $$\pi(\mu|\tau) \propto \tau^{1/2} e^{-\frac{k\tau}{2}(\mu-\nu)^2}$$
+
+The joint prior is:
+
+$$
+\pi(\mu, \tau) \propto \tau^{\alpha - 1/2} \exp\left\{ -\tau \left( \beta + \frac{k}{2}(\mu - \nu)^2 \right) \right\}
+$$
+
+Multiplying by the likelihood leads to a posterior of the same form (Conjugate), with updated parameters:
+
+* $\alpha' = \alpha + n/2$
+* $k' = k + n$
+* $\nu' = \frac{k\nu + n\bar{x}}{k+n}$
+* $\beta' = \beta + \frac{1}{2} \frac{nk}{n+k}(\bar{x}-\nu)^2 + \frac{1}{2}\sum (x_i - \bar{x})^2$
+:::
+
+## Decision Theory and Bayes Rules
+
+The general form of Bayes rule is derived by minimizing risk.
+
+::: {#def-risk}
+### Risk Function and Bayes Risk
+
+* **Risk Function:** $R(\theta, d) = \int_{X} L(\theta, d(x)) f(x;\theta) dx$
+* **Bayes Risk:** The expected risk with respect to the prior.
+    $$r(\pi, d) = \int_{\Theta} R(\theta, d) \pi(\theta) d\theta$$
+:::
+
+Minimizing the Bayes Risk is equivalent to minimizing the expected loss for each $x$. The quantity to minimize is the **Posterior Expected Loss**:
+
+$$
+\int_{\Theta} L(\theta, d(x)) \pi(\theta|x) d\theta = E_{\theta|x} [ L(\theta, d(x)) ]
+$$
+
+### Common Loss Functions and Estimators
+
+::: {#ex-squared-loss}
+### Squared Error Loss (Point Estimate)
+    
+$$L(\theta, a) = (\theta - a)^2$$
+    
+To find the optimal estimator $d(x)$, we minimize $E_{\theta|x}[(\theta - d(x))^2]$. Taking the derivative with respect to $d$ and setting to 0:
+    
+$$-2 E_{\theta|x}(\theta - d) = 0 \implies d(x) = E(\theta|x)$$
+    
+**Result:** The Bayes rule is the **posterior mean**.
+:::
+
+::: {#ex-absolute-loss}
+### Absolute Error Loss
+    
+$$L(\theta, d) = |\theta - d|$$
+    
+Minimizing $E_{\theta|x}[|\theta - d|]$ requires solving:
+    
+$$\int_{-\infty}^{d} \pi(\theta|x) d\theta = \int_{d}^{\infty} \pi(\theta|x) d\theta = \frac{1}{2}$$
+    
+**Result:** The Bayes rule is the **posterior median**.
+:::
+
+::: {#ex-hypothesis-testing}
+### Hypothesis Testing (0-1 Loss)
+    
+Testing $H_0: \theta \in \Theta_0$ vs $H_1: \theta \in \Theta_1$.
+    
+$$L(\theta, a) = \begin{cases} 1 & \text{if error} \\ 0 & \text{if correct} \end{cases}$$
+    
+The Bayes rule selects the hypothesis with the higher posterior probability.
+    
+$$d(x) = 1 \iff P(\theta \in \Theta_1 | x) \ge P(\theta \in \Theta_0 | x)$$
+:::
+
+::: {#def-hpd}
+### Highest Posterior Density (HPD) Interval
+    
+In interval estimation, we prescribe a set $A = (d-\delta, d+\delta)$ and minimize the loss associated with $\theta$ falling outside this interval.
+    
+The Bayes rule $d(x)$ is the center of the interval with the highest probability coverage. This leads to the **Highest Posterior Density (HPD)** interval.
+    
+In practice, if the posterior is unimodal and symmetric (like the Normal distribution), the HPD interval coincides with the **Equal-Tailed Interval**, where we cut off $\alpha/2$ probability from each tail.
+:::
+
+## Minimax Estimation
+
+A decision rule $d(x)$ is **minimax** if it minimizes the maximum possible risk: $\sup_\theta R(\theta, d)$.
+
+::: {#thm-minimax-constant}
+### Constant Risk Theorem
+If a Bayes rule $d^\pi$ has constant risk (i.e., $R(\theta, d^\pi) = c$ for all $\theta$), then $d^\pi$ is a minimax estimator.
+:::
+
+::: {#ex-binomial-minimax}
+### Binomial Minimax Estimator
+
+Let $X \sim \text{Bin}(n, \theta)$ and $\theta \sim \text{Beta}(a, b)$.
+The squared error loss is $L(\theta, d) = (\theta - d)^2$.
+The Bayes estimator is the posterior mean:
+$$d(x) = \frac{a+x}{a+b+n}$$
+
+We calculate the risk $R(\theta, d)$:
+
+$$
+R(\theta, d) = E_x \left[ \left( \theta - \frac{a+x}{a+b+n} \right)^2 \right]
+$$
+
 Let $c = a+b+n$.
-$$
-R(\theta, d) = \frac{1}{c^2} \left[ (c\theta - a)^2 - 2(c\theta - a)n\theta + n\theta(1-\theta) + n^2\theta^2 \right]
-$$
+$$R(\theta, d) = \frac{1}{c^2} E \left[ (c\theta - a - x)^2 \right]$$
 
-To make this constant (independent of $\theta$), the coefficients of $\theta$ and $\theta^2$ must vanish or balance out.
-Solving the resulting system yields:
-$$
-a = b = \frac{\sqrt{n}}{2}
-$$
+Using the bias-variance decomposition and knowing $E(x) = n\theta$ and $E(x^2) = (n\theta)^2 + n\theta(1-\theta)$, we expand the risk function. To make the risk constant (independent of $\theta$), we set the coefficients of $\theta$ and $\theta^2$ to zero.
 
-**Minimax Estimator:**
-$$
-d_{\text{minimax}}(x) = \frac{x + \sqrt{n}/2}{n + \sqrt{n}}
-$$
+Solving the resulting system of equations yields:
+$$a = b = \frac{\sqrt{n}}{2}$$
 
-```{r}
-#| label: fig-minimax-risk
-#| fig-cap: "Risk Functions: MLE vs Minimax for Binomial(n=10)."
-n <- 10
-theta <- seq(0, 1, length.out = 100)
+Thus, the minimax estimator is:
+$$d(x) = \frac{x + \sqrt{n}/2}{n + \sqrt{n}}$$
 
-# MLE Risk: theta(1-theta)/n
-risk_mle <- theta * (1 - theta) / n
+This differs from the standard MLE $\hat{p} = x/n$ and the uniform prior Bayes estimator ($a=b=1$).
+:::
 
-# Minimax Risk: Constant 1 / (4 * (sqrt(n) + 1)^2) ? No, calculation is slightly different
-# Actually, Risk is constant = 1 / (4 * (sqrt(n) + n)^2) * n ??? 
-# Let's just use the formula derived: 1 / (2*sqrt(n) + 2)^2 approx. 
-# For standard minimax: Risk = 1 / (4 * (sqrt(n) + 1)^2) if we view it as sample size equivalent.
-# Correct constant risk calculation:
-risk_minimax_val <- 1 / (4 * (sqrt(n) + 1)^2) # Standard result check
-# Actually let's compute it numerically to be safe
-a <- sqrt(n)/2
-b <- sqrt(n)/2
-denom <- n + sqrt(n)
-risk_minimax <- numeric(length(theta))
-for(i in 1:length(theta)) {
-  risk_minimax[i] <- sum(dbinom(0:n, n, theta[i]) * ((0:n + a)/denom - theta[i])^2)
-}
+## Stein Estimation and Shrinkage
 
-df_risk <- data.frame(
-  theta = rep(theta, 2),
-  Risk = c(risk_mle, risk_minimax),
-  Estimator = rep(c("MLE (x/n)", "Minimax"), each = 100)
-)
+Consider estimating a multivariate mean vector $\mu = (\mu_1, \dots, \mu_p)$ given independent observations $X_i \sim N(\mu_i, 1)$ for $i=1, \dots, p$.
 
-ggplot(df_risk, aes(x = theta, y = Risk, color = Estimator)) +
-  geom_line(size = 1.2) +
-  theme_minimal() +
-  labs(title = "Comparison of Risk Functions (n=10)", 
-       y = "Risk (MSE)", x = "Theta")
-```
+The standard estimator is the MLE: $d^0(X) = X$.
+The loss function is the sum of squared errors: $L(\mu, d) = ||\mu - d||^2 = \sum (\mu_i - d_i)^2$.
 
----
+::: {#thm-stein-inadmissibility}
+### Stein's Result
 
-# Part 5: Stein Estimation
+When $p \ge 3$, the estimator $d^0(X)$ is **inadmissible**. There exists an estimator that strictly dominates it (has lower risk everywhere).
+:::
 
-**Context:** Estimating a multivariate normal mean $\mu = (\mu_1, \dots, \mu_p)^T$ where $X \sim N_p(\mu, I)$.
-**Loss:** Sum of squared errors $L(\mu, d) = ||\mu - d||^2$.
+Consider the class of shrinkage estimators:
+$$d^a(X) = \left( 1 - \frac{a}{||X||^2} \right) X$$
+where $X = (X_1, \dots, X_p)^T$.
 
-**Stein's Lemma:**
-If $Y \sim N(\mu, 1)$ and $h(y)$ is differentiable:
-$$
-E[(Y-\mu)h(Y)] = E[h'(Y)]
-$$
+When $a > 0$, this estimator "shrinks" the data vector toward the origin $(0, \dots, 0)$.
 
-**James-Stein Estimator:**
-$$
-d^{JS}(X) = \left( 1 - \frac{p-2}{||X||^2} \right) X
-$$
-This estimator shrinks the observation vector $X$ towards the origin (or a grand mean).
+::: {#lem-stein}
+### Stein's Lemma
 
-**Result:**
-If $p \ge 3$, the James-Stein estimator dominates the MLE ($d^0(X) = X$).
-$$
-R(\mu, d^{JS}) < R(\mu, d^0) = p \quad \text{for all } \mu
-$$
+If $X \sim N(\mu, 1)$, then for a differentiable function $h$:
+$$E[(X-\mu)h(X)] = E[h'(X)]$$
+:::
 
-## Baseball Example (Efron & Morris)
-We observe batting averages for $p=18$ players.
+::: {.proof}
+Using this lemma and integration by parts, we can evaluate the risk of the shrinkage estimator $d^a$.
 
-* MLE: Individual batting averages.
-* JS: Shrinks individual averages toward the global average.
+$$R(\mu, d^a) = E || \mu - d^a(X) ||^2$$
 
-```{r}
-#| label: fig-shrinkage
-#| fig-cap: "Visualizing James-Stein Shrinkage (Mock Data based on Baseball Example). The arrows show MLEs being pulled toward the Grand Mean."
+After expanding and applying Stein's Lemma, the risk becomes:
+$$R(\mu, d^a) = p - [2a(p-2) - a^2] E \left( \frac{1}{||X||^2} \right)$$
 
-# Creating mock data similar to the baseball example
-player <- 1:10
-MLE <- c(0.400, 0.370, 0.350, 0.300, 0.280, 0.250, 0.220, 0.200, 0.150, 0.100)
-GrandMean <- mean(MLE)
-shrinkage_factor <- 0.6 # c = 1 - (p-2)/S
-JS <- GrandMean + shrinkage_factor * (MLE - GrandMean)
+For $d^a$ to possess lower risk than $d^0$ (where risk = $p$), we need the term in the brackets to be positive:
+$$2a(p-2) - a^2 > 0 \implies 0 < a < 2(p-2)$$
 
-df_base <- data.frame(player, MLE, JS)
-
-ggplot(df_base) +
-  geom_point(aes(x = MLE, y = 1), color = "red", size = 3) +
-  geom_point(aes(x = JS, y = 1), color = "blue", size = 3) +
-  geom_segment(aes(x = MLE, y = 1, xend = JS, yend = 1), arrow = arrow(length = unit(0.2, "cm"))) +
-  geom_vline(xintercept = GrandMean, linetype = "dashed") +
-  annotate("text", x = GrandMean, y = 1.1, label = "Grand Mean") +
-  ylim(0.9, 1.2) +
-  labs(title = "James-Stein Shrinkage Effect", 
-       subtitle = "Red: MLE, Blue: JS Estimator",
-       x = "Batting Average") +
-  theme_void() +
-  theme(axis.title.x = element_text(), axis.text.x = element_text())
-```
-
----
-
-# Part 6: Empirical Bayes & Hierarchical Models
+The optimal choice (minimizing risk) is $a = p-2$.
+This yields the **James-Stein Estimator**:
+$$\delta^{JS}(X) = \left( 1 - \frac{p-2}{||X||^2} \right) X$$
+:::
 
 ## Empirical Bayes
-Instead of fixing hyperparameters $(\mu_0, \sigma_0^2)$, we estimate them from the marginal distribution of the data.
-$$
-m(x) = \int f(x|\theta) \pi(\theta|\eta) d\theta
-$$
-We estimate $\eta$ by maximizing $m(x)$ (Type-II MLE) or method of moments.
 
-**Example:**
-If $X_i \sim N(\mu_i, 1)$ and $\mu_i \sim N(0, \tau^2)$, then marginally $X_i \sim N(0, 1+\tau^2)$. We can use $S = \sum X_i^2$ to estimate $\tau^2$.
+The James-Stein estimator can be motivated via an Empirical Bayes approach.
 
-## Hierarchical Models
-We assume a multistage structure:
+**Model:**
 
-1.  Data model: $X|\theta \sim f(x|\theta)$
-2.  Parameter model: $\theta|\lambda \sim \pi(\theta|\lambda)$
-3.  Hyperparameter model: $\lambda \sim h(\lambda)$
+1.  $X_i | \mu_i \sim N(\mu_i, 1)$
+2.  Prior: $\mu_i \sim N(0, \tau^2)$
 
-**Computation:**
-Since analytical solutions are often impossible, we use **Markov Chain Monte Carlo (MCMC)**.
+The posterior mean for $\mu_i$ (if $\tau^2$ were known) is:
+$$E(\mu_i|x_i) = \frac{\tau^2}{1+\tau^2} x_i = \left( 1 - \frac{1}{1+\tau^2} \right) x_i$$
 
-### Gibbs Sampling
-To sample from the joint posterior $f(\theta, \lambda | x)$, we sample iteratively from the full conditional distributions:
+The marginal distribution of $X_i$ is $N(0, 1+\tau^2)$.
+Consequently, $S = \sum X_i^2 \sim (1+\tau^2) \chi^2_p$.
 
-1.  Draw $\theta^{(k+1)} \sim f(\theta | \lambda^{(k)}, x)$
-2.  Draw $\lambda^{(k+1)} \sim f(\lambda | \theta^{(k+1)}, x)$
+We can estimate the unknown shrinkage factor $B = \frac{1}{1+\tau^2}$ using the data.
+Since $E[ \frac{p-2}{S} ] = \frac{1}{1+\tau^2}$, we replace the theoretical shrinkage factor with its unbiased estimate:
+$$\hat{B} = \frac{p-2}{||X||^2}$$
 
-### Metropolis-Hastings
-If a conditional distribution is hard to sample from directly:
+This recovers the James-Stein rule:
+$$\delta^{EB}(X) = \left( 1 - \frac{p-2}{||X||^2} \right) X$$
 
-1.  Propose $\theta^*$ from a proposal density $q(\theta^* | \theta^{(t)})$.
-2.  Calculate acceptance ratio $\alpha = \min \left( 1, \frac{f(\theta^*|x)q(\theta^{(t)}|\theta^*)}{f(\theta^{(t)}|x)q(\theta^*|\theta^{(t)})} \right)$.
-3.  Accept $\theta^*$ with probability $\alpha$.
+::: {#ex-baseball}
+### Baseball Example (Efron & Morris)
 
----
+We illustrate Stein estimation using baseball batting averages.
+Let $y_i$ be the number of hits for player $i$ in their first $n=45$ at-bats.
+Let $\hat{p}_i = y_i/n$ be the observed average.
 
-# Part 7: Predictive Distributions
+To apply the Normal model, we use a variance-stabilizing transformation:
+$$X_i = \sqrt{n} \arcsin(2\hat{p}_i - 1)$$
+Under this transformation, $X_i \approx N(\mu_i, 1)$.
 
-We want to predict a new observation $Y^*$.
-$$
-f(y^* | y) = \int f(y^* | \theta) \pi(\theta | y) d\theta
-$$
+Using the James-Stein estimator on the transformed data shrinks the individual averages toward the grand mean (or a specific value $\mu_0$).
+Result: The James-Stein estimator provides a lower total prediction error for the rest of the season compared to the individual averages $\hat{p}_i$.
+:::
 
-**Numerical Methods:**
-If we have posterior samples $\theta^{(1)}, \dots, \theta^{(N)}$ from MCMC:
+## Predictive Distributions
 
-**Method 1: Density Averaging**
-$$
-\hat{f}(y^* | y) \approx \frac{1}{N} \sum_{i=1}^N f(y^* | \theta^{(i)})
-$$
-This is a Rao-Blackwellized estimator and usually has lower variance.
+A key feature of Bayesian analysis is the predictive distribution for a future observation $x^*$.
 
-**Method 2: Direct Sampling**
-For each $\theta^{(i)}$, draw $Y^{*(i)} \sim f(y^* | \theta^{(i)})$.
-The histogram of $Y^{*(i)}$ approximates the predictive density.
+$$f(x^*|x) = \int f(x^*|\theta) \pi(\theta|x) d\theta$$
+
+::: {#ex-predictive-normal}
+### Normal-Normal Predictive Distribution
+
+If $x_1, \dots, x_n \sim N(\mu, \sigma^2)$ (with $\sigma^2$ known) and $\mu \sim N(\mu_0, \sigma_0^2)$, the predictive distribution for a new observation $x^*$ is:
+
+$$x^*|x \sim N(\mu_1, \sigma^2 + \sigma_1^2)$$
+
+where $\mu_1$ and $\sigma_1^2$ are the posterior mean and variance of $\mu$. The predictive variance includes both the inherent sampling uncertainty ($\sigma^2$) and the uncertainty about the parameter ($\sigma_1^2$).
+:::
+
+## Hierarchical Modeling and MCMC
+
+When analytic solutions are unavailable, we use Hierarchical Models and Markov Chain Monte Carlo (MCMC).
+
+**Hierarchical Structure:**
+
+1.  **Data:** $X_i | \mu_i \sim f(x_i|\mu_i)$
+2.  **Parameters:** $\mu_i | \theta \sim \pi(\mu_i|\theta)$
+3.  **Hyperparameters:** $\theta \sim \pi(\theta)$
+
+**Gibbs Sampling:**
+To estimate the posterior $f(\mu, \theta | x)$, we sample iteratively from the **full conditional distributions**:
+
+1.  Sample $\mu_i$ from $f(\mu_i | x, \theta)$.
+2.  Sample $\theta$ from $f(\theta | \mu, x)$.
+
+::: {#ex-hierarchical-baseball}
+### Baseball Example with Hierarchical Model
+
+* $Y_i \sim \text{Bin}(n_i, p_i)$
+* Logit transform: $\mu_i = \text{logit}(p_i)$
+* $\mu_i \sim N(\theta, \tau^2)$
+* Priors on $\theta$ and $\tau^2$.
+
+Since the full conditionals for the Binomial-Normal hierarchy are not closed-form, we use **Metropolis-Hastings** steps within the Gibbs sampler.
+
+**Algorithm:**
+
+1.  Initialize parameters $\mu^{(0)}, \theta^{(0)}, \tau^{(0)}$.
+2.  Propose new values based on a candidate distribution.
+3.  Accept or reject based on the acceptance probability ratio (Likelihood $\times$ Prior ratio).
+4.  Repeat until convergence.
+
+The marginal posterior density for a specific parameter (e.g., $f(\mu_j|x)$) can be estimated using Kernel Density Estimation on the MCMC samples or via Rao-Blackwellization.
+:::

@@ -821,7 +821,7 @@ $$ \lambda = \frac{\|X_c \beta_1\|^2}{\sigma^2} $$
     $$ F \sim F(k, n-k-1) $$
 :::
 
-::: proof
+::: {.proof}
 We identify the components from @def-noncentral-f:
 
 1.  **Numerator ($X_1$):** Let $X_1 = \text{SSR}/\sigma^2$. From @thm-distribution-ss-v2, $X_1 \sim \chi^2(k, \lambda)$.
@@ -1892,35 +1892,41 @@ We compare the properties of two competing estimators for the mean response vect
 
 ### Notation and Setup
 
-Consider the data partition $X = [X_1 \ X_2]$. We define two competing models:
+We consider the general linear model:
+$$
+y = X\beta + e = X_1\beta_1 + X_2\beta_2 + e
+$$
+where $X_1$ is $n \times p_1$, $X_2$ is $n \times p_2$, and $\text{Var}(e) = \sigma^2 I$.
 
-**1. Reduced Model ($M_0$)**
+We distinguish between two estimation approaches based on this model:
 
-Assumes $y = X_1\beta_1 + e$.
+**1. Full Model ($M_1$)**
+We estimate $\beta$ without restrictions. The estimator projects $y$ onto the full column space $\text{Col}(X)$.
 $$
 \begin{aligned}
-P_0 &= X_1(X_1^T X_1)^{-1}X_1^T & (\text{Projection for } M_0) \\
-\hat{y}_0 &= P_0 y & (\text{Estimator for } M_0)
+P_1 &= X(X^T X)^{-1}X^T & (\text{Projection onto } \text{Col}(X)) \\
+\hat{y}_1 &= P_1 y & (\text{Unrestricted Estimator})
 \end{aligned}
 $$
 
-**2. Full Model ($M_1$)**
-
-Assumes $y = X_1\beta_1 + X_2\beta_2 + e$.
+**2. Reduced Model ($M_0$)**
+We estimate $\beta$ subject to the constraint:
+$$
+M_0: \beta_2 = 0
+$$
+This effectively reduces the model to $y = X_1\beta_1 + e$, projecting $y$ onto the subspace $\text{Col}(X_1)$.
 $$
 \begin{aligned}
-P_1 &= X(X^T X)^{-1}X^T & (\text{Projection for } M_1) \\
-\hat{y}_1 &= P_1 y & (\text{Estimator for } M_1)
+P_0 &= X_1(X_1^T X_1)^{-1}X_1^T & (\text{Projection onto } \text{Col}(X_1)) \\
+\hat{y}_0 &= P_0 y & (\text{Restricted Estimator})
 \end{aligned}
 $$
 
 **Key Geometric Property:**
-Since the column space of $X_1$ is a subspace of $X$ ($\mathcal{C}(X_1) \subset \mathcal{C}(X)$), we have the nesting property:
+Since the constraint $\beta_2=0$ restricts the estimation to a subspace ($\text{Col}(X_1) \subset \text{Col}(X)$), we have the nesting property:
 $$
 P_1 P_0 = P_0 \quad \text{and} \quad P_1 - P_0 \text{ is a projection matrix.}
 $$
-
-
 
 ### Case 1: Underfitting
 
@@ -1958,7 +1964,7 @@ $$
 $$
 \text{Var}(\hat{y}_1) = \sigma^2 P_1, \quad \text{Var}(\hat{y}_0) = \sigma^2 P_0
 $$
-The difference is $\sigma^2(P_1 - P_0)$. Since $\mathcal{C}(X_1) \subset \mathcal{C}(X)$, the difference $P_1 - P_0$ projects onto the orthogonal complement of $\mathcal{C}(X_1)$ within $\mathcal{C}(X)$. It is idempotent and positive semidefinite.
+The difference is $\sigma^2(P_1 - P_0)$. Since $\text{Col}(X_1) \subset \text{Col}(X)$, the difference $P_1 - P_0$ projects onto the orthogonal complement of $\text{Col}(X_1)$ within $\text{Col}(X)$. It is idempotent and positive semidefinite.
 :::
 
 **Remark: Scalar Variance and Coefficients**
@@ -2009,10 +2015,10 @@ When $M_0$ is true:
 **Part 1 (Bias):**
 Since $\mu = X_1\beta_1$:
 $$
-E[\hat{y}_1] = P_1 X_1\beta_1 = X_1\beta_1 = \mu \quad (\text{Since } X_1 \in \mathcal{C}(X))
+E[\hat{y}_1] = P_1 X_1\beta_1 = X_1\beta_1 = \mu \quad (\text{Since } X_1 \in \text{Col}(X))
 $$
 $$
-E[\hat{y}_0] = P_0 X_1\beta_1 = X_1\beta_1 = \mu \quad (\text{Since } X_1 \in \mathcal{C}(X_1))
+E[\hat{y}_0] = P_0 X_1\beta_1 = X_1\beta_1 = \mu \quad (\text{Since } X_1 \in \text{Col}(X_1))
 $$
 
 **Part 2 (Variance):**
@@ -2024,4 +2030,5 @@ $$
 :::
 
 **Conclusion:** Using $M_1$ when $M_0$ is true offers no benefit in bias but strictly increases estimation variance.
+
 
