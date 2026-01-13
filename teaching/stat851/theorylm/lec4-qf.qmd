@@ -745,7 +745,7 @@ $$
 :::
 
 
-### Non-central $\chi^2$ of Quadratic Forms
+### Distribution of the Sum Squares of Projected Spherical Normal
 
 
 
@@ -830,12 +830,12 @@ E(\|P_V y\|^2) = \sigma^2 \left(r + \frac{\|P_V \mu\|^2}{\sigma^2}\right) = r\si
 $$
 :::
 
-
-```{r plot-projection-3d-refined}
+```{r plot-projection-3d-fixed}
 #| warning: false
 #| message: false
 #| fig-cap: "Visualization of Projected Trivariate Normal Cloud"
-#| webshot2: !expr list(vwidth = 900, vheight = 600, zoom = 2)
+#| fig-width: 8
+#| fig-height: 4.5
 #| out-width: "100%"
 
 library(plotly)
@@ -860,18 +860,22 @@ colnames(df_proj) <- c("px", "py", "pz")
 # 3. Setup Axis Styles
 ax_style <- list(
   title = "",
-  showgrid = TRUE,        # Keep the coordinate plane grids
+  showgrid = TRUE,        
   gridcolor = "gray",
   gridwidth = 0.5,
-  zeroline = FALSE,       # REMOVED: The static "crosshair" lines at 0
-  showline = FALSE,       # REMOVED: The front bounding box
+  zeroline = FALSE,       
+  showline = FALSE,       
   showticklabels = FALSE,
   showbackground = FALSE,
   showspikes = FALSE
 )
 
-# 4. Create the Plot
-plot_ly() %>%
+# 4. Create the Plot with EXPLICIT DIMENSIONS
+plot_ly(
+    # --- FIX IS HERE: Force the pixel dimensions ---
+    width = 800, 
+    height = 450 
+  ) %>%
   # --- Optional: Floor Plane ---
   add_trace(
     x = c(-2, 8, 8, -2), y = c(-2, -2, 8, 8), z = c(0, 0, 0, 0),
@@ -883,7 +887,6 @@ plot_ly() %>%
     data = df, x = ~x, y = ~y, z = ~z,
     type = 'scatter3d', mode = 'markers',
     marker = list(size = 3, color = 'blue', opacity = 0.6),
-    # Legend with Math (Italic y)
     name = '<i>y</i>' 
   ) %>%
   # --- Projected Shadow (P_V y) ---
@@ -891,7 +894,6 @@ plot_ly() %>%
     data = df_proj, x = ~px, y = ~py, z = ~pz,
     type = 'scatter3d', mode = 'markers',
     marker = list(size = 3, color = 'red', opacity = 0.8),
-    # Legend with Math (P_sub_V y)
     name = "<i>P</i><sub>V</sub><i>y</i>"
   ) %>%
   # --- Residual Lines ---
@@ -905,7 +907,6 @@ plot_ly() %>%
   # --- Manual Labels ---
   add_text(
     x = c(8.5, 0, 0), y = c(0, 8.5, 0), z = c(0, 0, 8.5),
-    # Used Unicode \u22A5 for perpendicular symbol
     text = c("<i>q</i><sub>1</sub>", "<i>q</i><sub>2</sub>", "<i>V</i><sup>\u22A5</sup>"),
     textfont = list(size = 15, color = "black"),
     showlegend = FALSE
@@ -919,7 +920,9 @@ plot_ly() %>%
       camera = list(eye = list(x = 1.6, y = 1.6, z = 1.3))
     ),
     title = "Projection of Trivariate Normal onto 2D Subspace",
-    margin = list(l=0, r=0, b=0, t=30)
+    margin = list(l=0, r=0, b=0, t=30),
+    # Ensure layout autosize is off so it respects the width/height above
+    autosize = FALSE 
   )
 ```
 
