@@ -1520,8 +1520,143 @@ model_lm <- lm(Price ~ ., data = df)
 y_hat_lm <- fitted(model_lm)
 
 # Extract Coefficients
-print(coef(model_lm))
+print(summary(model_lm))
 ```
+
+### Visualization of Fitted Values vs Mean
+
+We define $\hat{y}_0$ as the vector of the mean of $y$ ($\bar{y}$). We plot the actual $y$ against our fitted model $\hat{y}$, using a green line to represent the "Null Model" ($\hat{y}_0$).
+
+*Note: Axes have been set so that X = Predicted Value and Y = Actual Value.*
+
+```{r}
+#| label: plot-y-vs-yhat
+
+# Define y_hat_0 (The Null Model) - for conceptual clarity
+y_hat_0 <- rep(mean(y), length(y))
+
+# Scatterplot (Axes reversed: x=fitted, y=actual)
+plot(y_hat_lm, y,
+     main = "Actual vs Fitted Prices",
+     xlab = "Fitted Price (y_hat)",
+     ylab = "Actual Price (y)",
+     pch = 19, col = "blue")
+
+# Add 1:1 line (Perfect fit area, remains y=x)
+abline(0, 1, col = "gray", lty = 2)
+
+# Add Mean line representing the null model
+# Since y-axis is 'actual y', a horizontal line at mean(y) represents y_bar
+abline(v=mean (y), h = mean(y), col = "green", lwd = 2)
+
+legend("topleft", legend = c("Data", "Mean (y_bar)"),
+       col = c("blue", "green"), pch = c(19, NA), lty = c(NA, 1))
+```
+
+**Question:**
+
+$$ \bar y = \bar{\hat{y}} ?$$
+
+### Computing Sums of Squares (SSE, SST, SSR)
+
+We compare different methods to calculate the sources of variation.
+
+#### 1. Naive Sum of Squared Errors
+This uses the standard summation definitions: $\sum (Difference)^2$.
+
+* **SST (Total):** Variation of $y$ around $\hat{y}_0$ (Mean).
+* **SSR (Regression):** Variation of $\hat{y}$ around $\hat{y}_0$ (Mean).
+* **SSE (Error):** Variation of $y$ around $\hat{y}$ (Model).
+
+```{r}
+#| label: ss-naive
+
+# Vectors
+y_vec <- as.vector(y)
+y_hat <- as.vector(y_hat_lm)
+y_bar_vec <- rep(mean(y), length(y))
+
+# Calculations
+SST_naive <- sum((y_vec - y_bar_vec)^2)
+SSR_naive <- sum((y_hat - y_bar_vec)^2)
+SSE_naive <- sum((y_vec - y_hat)^2)
+
+cat("Naive Calculation:\n")
+cat("SST:", SST_naive, " SSR:", SSR_naive, " SSE:", SSE_naive, "\n")
+```
+
+#### 2. Pythagorean Shortcut (Vector Lengths)
+Based on the geometry of least squares, we can treat the variables as vectors. Because the vectors are orthogonal, we can use squared lengths (dot products with themselves).
+
+Formula: $SSR = ||\hat{y}||^2 - ||\hat{y}_0||^2$
+
+```{r}
+#| label: ss-pythagorean
+
+# Function for squared Euclidean norm (length squared)
+len_sq <- function(v) sum(v^2)
+
+# SST = ||y||^2 - ||y_0||^2
+SST_pyth <- len_sq(y_vec) - len_sq(y_bar_vec)
+
+# SSR = ||y_hat||^2 - ||y_0||^2
+SSR_pyth <- len_sq(y_hat) - len_sq(y_bar_vec)
+
+# SSE = ||y||^2 - ||y_hat||^2
+SSE_pyth <- len_sq(y_vec) - len_sq(y_hat)
+
+cat("Pythagorean Calculation:\n")
+cat("SST:", SST_pyth, " SSR:", SSR_pyth, " SSE:", SSE_pyth, "\n")
+```
+
+#### Matrix Algebra Shortcuts
+
+These formulas use the $\beta$ and $X$ matrices directly. This is computationally efficient for large datasets.
+
+* Formula A (Centered with $y_c$): $SSR = \hat{\beta}_c^{\prime} X_c^{\prime} y_c$
+* Formula B (Alternative with $y$): $SSR = \hat{\beta}_c^{\prime} X_c^{\prime} y$
+* Formula C (Uncentered): $SSR = \hat{\beta}^{\prime} X^{\prime} y - n\bar{y}^2$
+
+```{r}
+#| label: ss-matrix-equivalence
+
+n <- length(y)
+term_correction <- n * mean(y)^2 
+
+# --- SSR Calculations ---
+
+# 1. SSR Formula A (Centered, using y_c)
+SSR_centered_yc <- t(beta_slope) %*% t(X_c) %*% y_c
+
+# 2. SSR Formula A (Alternative, using raw y)
+# Since X_c is centered, X_c' * 1 = 0, so X_c'y_c is equivalent to X_c'y
+SSR_centered_y <- t(beta_slope) %*% t(X_c) %*% y
+
+# 3. SSR Formula B (Uncentered Matrix)
+# beta_naive includes intercept, X_naive includes column of 1s
+term_beta_X_y <- t(beta_naive) %*% t(X_naive) %*% y
+SSR_uncentered <- term_beta_X_y - term_correction
+
+# --- Equivalence Check Table ---
+
+results_table <- data.frame(
+  Metric = c("SSR (Centered $X_c,y_c$)", 
+             "SSR (Centered $X_c$)", 
+             "SSR (Uncentered)"),
+  Formula = c("$\\hat{\\beta}_c' X_c' y_c$", 
+              "$\\hat{\\beta}_c' X_c' y$", 
+              "$\\hat{\\beta}' X' y - n\\bar{y}^2$"),
+  Value = c(as.numeric(SSR_centered_yc), 
+            as.numeric(SSR_centered_y), 
+            as.numeric(SSR_uncentered))
+)
+
+# Render the table
+knitr::kable(results_table, 
+             digits = 4, 
+             caption = "Demonstration of SSR Formula Equivalence")
+```
+
 
 ### Analysis of Variance (ANOVA)
 
@@ -1593,17 +1728,19 @@ anova_manual <- data.frame(
 knitr::kable(anova_manual, digits = 4, caption = "Manual ANOVA Table")
 ```
 
-#### 3. Standard R Output (`summary` and `anova`) {.unnumbered}
+#### 3. Standard R Output (`anova`) {.unnumbered}
 
 We display the standard `summary()` which provides the coefficients, t-tests, and the overall F-statistic found at the bottom. We also show `anova()` which gives the sequential sum of squares.
 
 ```{r}
 #| label: r-summary-output
 
-# Summary shows Coefficients and Overall F-test
-summary(model_lm)
+# Fit an intercept-only (null) model and compare to the fitted model
+model_null <- lm(Price ~ 1, data = df)
+cat("\nANOVA comparing intercept-only model to fitted model:\n")
+print(anova(model_null, model_lm))
 
-# Anova shows sequential breakdown
+# One can call anova directly to model_lm
 print(anova(model_lm))
 ```
 
@@ -1661,7 +1798,7 @@ decomp_table <- data.frame(
   Component = c("Signal (Model)", "Noise (Error)", "Total (Y)"),
   DF = c(k, df_e, df_t),
   SS = c(SSR_naive, SSE_naive, SST_naive),
-  MS = c(MSR, MSE, MST),
+  MS = c(NA, MSE, MST),
   Estimator_Sigma2 = c(sigma2_signal_est, sigma2_noise_est, sigma2_total_est),
   Proportion = c(prop_signal, prop_noise, 1.0)
 )
@@ -1681,7 +1818,6 @@ We construct a 95% confidence interval for the population proportion of variance
 
 We solve for the non-centrality parameters $\lambda_L$ and $\lambda_U$ such that our observed $F_{obs}$ corresponds to the appropriate quantiles.
 
-* **Correction Note:** R's `ncp` parameter represents the *full* sum of squares. Therefore, the conversion to $\rho^2$ for fixed predictors is $\rho^2 = \frac{\lambda}{\lambda + n}$.
 
 ```{r}
 #| label: ci-rho2-manual
@@ -1744,31 +1880,200 @@ if (requireNamespace("MBESS", quietly = TRUE)) {
 
 
 
-## Overfitting
 
-Suppose the reduced model $y = X_1\beta_1^* + e$ is true (i.e., $\beta_2 = 0$), but we fit the full model $(\dagger)$.
-Since the full model includes the true model as a special case, the estimator $\hat{\beta}$ from the full model remains unbiased.
+## Underfitting and Overfitting
 
-However, fitting the extraneous variables affects the variance.
+We compare the properties of two competing estimators for the mean response vector $\mu = E[y]$.
 
-::: {#thm-overfitting name="Variance Comparison"}
-Let $\hat{\beta}_1$ be the estimator from the full model and $\hat{\beta}_1^*$ be the estimator from the reduced model. Then:
-$$ \text{Var}(\hat{\beta}_1) - \text{Var}(\hat{\beta}_1^*) = \sigma^2 A B^{-1} A^T $$
-where $A = (X_1^T X_1)^{-1}X_1^T X_2$ and $B = X_2^T X_2 - X_2^T X_1 A$.
-Since $A B^{-1} A^T$ is positive semidefinite, $\text{Var}(\hat{\beta}_1) \ge \text{Var}(\hat{\beta}_1^*)$.
+### Notation and Setup
+
+Consider the data partition $X = [X_1 \ X_2]$, where $X_1$ is $n \times p_1$ and $X_2$ is $n \times p_2$.
+
+**1. Reduced Model (Index 0)**
+Uses only $X_1$.
+$$
+\begin{aligned}
+P_0 &= X_1(X_1^T X_1)^{-1}X_1^T & (\text{Projection Matrix}) \\
+M_0 &= I - P_0 & (\text{Annihilator Matrix}) \\
+\hat{y}_0 &= P_0 y & (\text{Reduced Estimator})
+\end{aligned}
+$$
+
+**2. Full Model (Index 1)**
+Uses the full matrix $X = [X_1 \ X_2]$.
+$$
+\begin{aligned}
+P_1 &= X(X^T X)^{-1}X^T & (\text{Projection Matrix}) \\
+M_1 &= I - P_1 & (\text{Annihilator Matrix}) \\
+\hat{y}_1 &= P_1 y & (\text{Full Estimator})
+\end{aligned}
+$$
+
+**Key Geometric Property:**
+Since the column space of $X_1$ is a subspace of $X$ ($\mathcal{C}(X_1) \subset \mathcal{C}(X)$), we have the nesting property:
+$$
+P_1 P_0 = P_0 \quad \text{and} \quad P_1 - P_0 \text{ is a projection matrix.}
+$$
+
+---
+
+### Case 1: Underfitting
+
+**The Truth:** The full model is correct.
+$$
+y = X_1\beta_1 + X_2\beta_2 + e, \quad \beta_2 \neq 0
+$$
+The true mean is $\mu = X_1\beta_1 + X_2\beta_2$.
+
+We analyze the properties of the **Reduced Estimator** $\hat{y}_0$ (which "underfits" the data) compared to the Full Estimator $\hat{y}_1$.
+
+::: {#thm-underfitting name="Bias-Variance Tradeoff in Underfitting"}
+When the full model is true:
+
+1.  **Bias:** The reduced estimator $\hat{y}_0$ is **biased**, while $\hat{y}_1$ is unbiased.
+    $$ \text{Bias}(\hat{y}_0) = -M_0 X_2 \beta_2 $$
+2.  **Variance:** The reduced estimator $\hat{y}_0$ has **smaller variance** (matrix difference is positive semidefinite).
+    $$ \text{Var}(\hat{y}_1) - \text{Var}(\hat{y}_0) = \sigma^2 (P_1 - P_0) \ge 0 $$
 :::
 
 ::: {.proof}
-Using the inverse of a partitioned matrix, the top-left block of $(X^T X)^{-1}$ corresponding to $\beta_1$ is:
-$$ H^{11} = (X_1^T X_1)^{-1} + (X_1^T X_1)^{-1} X_1^T X_2 B^{-1} X_2^T X_1 (X_1^T X_1)^{-1} $$
-Since $\text{Var}(\hat{\beta}_1) = \sigma^2 H^{11}$ and $\text{Var}(\hat{\beta}_1^*) = \sigma^2 (X_1^T X_1)^{-1}$, the difference is the second term:
-$$ \text{Var}(\hat{\beta}_1) - \text{Var}(\hat{\beta}_1^*) = \sigma^2 A B^{-1} A^T $$
-.
+**Part 1 (Bias):**
+$$
+\begin{aligned}
+E[\hat{y}_0] &= P_0 E[y] = P_0(X_1\beta_1 + X_2\beta_2) \\
+&= X_1\beta_1 + P_0 X_2 \beta_2 \quad (\text{Since } P_0 X_1 = X_1)
+\end{aligned}
+$$
+The bias is:
+$$
+\text{Bias} = E[\hat{y}_0] - \mu = (X_1\beta_1 + P_0 X_2 \beta_2) - (X_1\beta_1 + X_2\beta_2) = -(I - P_0)X_2\beta_2 = -M_0 X_2 \beta_2
+$$
+
+**Part 2 (Variance):**
+$$
+\text{Var}(\hat{y}_1) = \sigma^2 P_1, \quad \text{Var}(\hat{y}_0) = \sigma^2 P_0
+$$
+The difference is $\sigma^2(P_1 - P_0)$. Since $\mathcal{C}(X_1) \subset \mathcal{C}(X)$, the difference $P_1 - P_0$ projects onto the orthogonal complement of $\mathcal{C}(X_1)$ within $\mathcal{C}(X)$. It is idempotent and positive semidefinite.
 :::
 
+**Conclusion:** Underfitting introduces bias (proportional to $M_0 X_2$) but reduces variance.
 
+### Case 2: Overfitting
 
-### Summary
+**The Truth:** The reduced model is correct.
+$$
+y = X_1\beta_1 + e \quad (\text{i.e., } \beta_2 = 0)
+$$
+The true mean is $\mu = X_1\beta_1$.
 
-1.  **Underfitting:** Reduces variance but introduces bias (unless variables are orthogonal).
-2.  **Overfitting:** Keeps estimators unbiased but increases variance.
+We analyze the properties of the **Full Estimator** $\hat{y}_1$ (which "overfits" the data) compared to the Reduced Estimator $\hat{y}_0$.
+
+::: {#thm-overfitting name="Variance Inflation in Overfitting"}
+When the reduced model is true:
+
+1.  **Bias:** Both estimators are **unbiased**.
+    $$ E[\hat{y}_1] = \mu \quad \text{and} \quad E[\hat{y}_0] = \mu $$
+2.  **Variance:** The full estimator $\hat{y}_1$ has **unnecessarily higher variance**.
+    $$ \text{Var}(\hat{y}_1) \ge \text{Var}(\hat{y}_0) $$
+:::
+
+::: {.proof}
+**Part 1 (Bias):**
+Since $\mu = X_1\beta_1$:
+$$
+E[\hat{y}_1] = P_1 X_1\beta_1 = X_1\beta_1 = \mu \quad (\text{Since } X_1 \in \mathcal{C}(X))
+$$
+$$
+E[\hat{y}_0] = P_0 X_1\beta_1 = X_1\beta_1 = \mu \quad (\text{Since } X_1 \in \mathcal{C}(X_1))
+$$
+
+**Part 2 (Variance):**
+As shown in Case 1, the difference is $\sigma^2(P_1 - P_0)$.
+The cost of overfitting is purely variance inflation. The total variance (trace) increases by the number of unnecessary parameters ($p_2$):
+$$
+\text{tr}(\text{Var}(\hat{y}_1)) - \text{tr}(\text{Var}(\hat{y}_0)) = \sigma^2 (\text{tr}(P_1) - \text{tr}(P_0)) = \sigma^2 (p_{full} - p_{reduced}) = \sigma^2 p_2
+$$
+:::
+
+**Conclusion:** Overfitting offers no benefit in bias but strictly increases estimation variance.
+
+We compare the properties of two competing estimators for the mean response vector $\mu = E[y]$.
+
+Consider the **Full Model** matrix $X = [X_1 \ X_2]$.
+We define two estimators for the fitted values:
+
+1.  **Reduced Estimator ($\hat{y}_0$):** Based on $X_1$ only.
+    $$ \hat{y}_0 = P_1 y \quad \text{where} \quad P_1 = X_1(X_1^T X_1)^{-1}X_1^T $$
+2.  **Full Estimator ($\hat{y}_1$):** Based on the full $X$.
+    $$ \hat{y}_1 = P y \quad \text{where} \quad P = X(X^T X)^{-1}X^T $$
+
+Note that $P_1$ and $P$ are symmetric projection matrices (idempotent), and since the column space of $X_1$ is a subspace of $X$, we have $P P_1 = P_1$ and $P - P_1$ is also a projection matrix.
+
+### Case 1: Underfitting
+
+**The Truth:** The full model is correct.
+$$ y = X_1\beta_1 + X_2\beta_2 + e, \quad \beta_2 \neq 0 $$
+The true mean is $\mu = X_1\beta_1 + X_2\beta_2$.
+
+We analyze the properties of the **Reduced Estimator** $\hat{y}_0$ (which "underfits" the data) compared to the correct Full Estimator $\hat{y}_1$.
+
+::: {#thm-underfitting name="Bias-Variance Tradeoff in Underfitting"}
+When the full model is true:
+
+1.  **Bias:** The reduced estimator $\hat{y}_0$ is **biased**, while $\hat{y}_1$ is unbiased.
+    $$ \text{Bias}(\hat{y}_0) = -(I - P_1)X_2\beta_2 $$
+2.  **Variance:** The reduced estimator $\hat{y}_0$ has **smaller variance** (element-wise or matrix difference).
+    $$ \text{Var}(\hat{y}_1) - \text{Var}(\hat{y}_0) = \sigma^2 (P - P_1) \ge 0 $$
+:::
+
+::: {.proof}
+**Part 1 (Bias):**
+$$
+\begin{aligned}
+E[\hat{y}_0] &= P_1 E[y] = P_1(X_1\beta_1 + X_2\beta_2) \\
+&= X_1\beta_1 + P_1 X_2 \beta_2
+\end{aligned}
+$$
+The bias is $E[\hat{y}_0] - \mu = (X_1\beta_1 + P_1 X_2 \beta_2) - (X_1\beta_1 + X_2\beta_2) = -(I - P_1)X_2\beta_2$.
+This is non-zero unless $X_2$ is already in the span of $X_1$ or orthogonal to the residual space.
+
+**Part 2 (Variance):**
+$$
+\text{Var}(\hat{y}_1) = \sigma^2 P, \quad \text{Var}(\hat{y}_0) = \sigma^2 P_1
+$$
+The difference is $\sigma^2(P - P_1)$. Since $\mathcal{C}(X_1) \subset \mathcal{C}(X)$, the difference $P - P_1$ is the projection matrix onto the subspace of $X$ orthogonal to $X_1$. Projection matrices are positive semidefinite.
+:::
+
+**Conclusion:** Underfitting introduces bias but reduces variance.
+
+### Case 2: Overfitting
+
+**The Truth:** The reduced model is correct.
+$$ y = X_1\beta_1 + e \quad (\text{i.e., } \beta_2 = 0) $$
+The true mean is $\mu = X_1\beta_1$.
+
+We analyze the properties of the **Full Estimator** $\hat{y}_1$ (which "overfits" the data) compared to the correct Reduced Estimator $\hat{y}_0$.
+
+::: {#thm-overfitting name="Variance Inflation in Overfitting"}
+When the reduced model is true:
+
+1.  **Bias:** Both estimators are **unbiased**.
+    $$ E[\hat{y}_1] = \mu \quad \text{and} \quad E[\hat{y}_0] = \mu $$
+2.  **Variance:** The full estimator $\hat{y}_1$ has **unnecessarily higher variance**.
+    $$ \text{Var}(\hat{y}_1) \ge \text{Var}(\hat{y}_0) $$
+:::
+
+::: {.proof}
+**Part 1 (Bias):**
+Since $\mu = X_1\beta_1$:
+$$ E[\hat{y}_1] = P X_1\beta_1 = X_1\beta_1 = \mu \quad (\text{Since } X_1 \in \mathcal{C}(X)) $$
+$$ E[\hat{y}_0] = P_1 X_1\beta_1 = X_1\beta_1 = \mu \quad (\text{Since } X_1 \in \mathcal{C}(X_1)) $$
+
+**Part 2 (Variance):**
+As shown in Case 1, $\text{Var}(\hat{y}_1) - \text{Var}(\hat{y}_0) = \sigma^2(P - P_1)$.
+This matrix is positive semidefinite.
+Specifically, the total variance (trace) increases by the number of extra parameters ($p_2$):
+$$ \text{tr}(\text{Var}(\hat{y}_1)) - \text{tr}(\text{Var}(\hat{y}_0)) = \sigma^2 (\text{tr}(P) - \text{tr}(P_1)) = \sigma^2 (p_{full} - p_{reduced}) = \sigma^2 p_2 $$
+:::
+
+**Conclusion:** Overfitting offers no benefit in bias but strictly increases estimation variance.
