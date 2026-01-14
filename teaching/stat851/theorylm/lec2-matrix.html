@@ -246,6 +246,7 @@ window.Quarto = {
   <li><a href="#matrix-representation-of-the-algorithm" id="toc-matrix-representation-of-the-algorithm" class="nav-link" data-scroll-target="#matrix-representation-of-the-algorithm"><span class="header-section-number">3.4.1</span> Matrix Representation of the Algorithm</a></li>
   <li><a href="#the-algorithm" id="toc-the-algorithm" class="nav-link" data-scroll-target="#the-algorithm"><span class="header-section-number">3.4.2</span> The Algorithm</a></li>
   <li><a href="#numerical-example-1" id="toc-numerical-example-1" class="nav-link" data-scroll-target="#numerical-example-1"><span class="header-section-number">3.4.3</span> Numerical Example</a></li>
+  <li><a href="#applications-in-statistics" id="toc-applications-in-statistics" class="nav-link" data-scroll-target="#applications-in-statistics"><span class="header-section-number">3.4.4</span> Applications in Statistics</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -700,6 +701,9 @@ b_{13}b_{11} &amp; b_{13}b_{12} + b_{23}b_{22} &amp; \mathbf{b_{13}^2 + b_{23}^2
 <li><span class="math inline">\(b_{33} = \sqrt{a_{33} - b_{13}^2 - b_{23}^2}\)</span></li>
 </ul></li>
 </ol>
+<p><strong>Remark: Handling the Singular Case</strong></p>
+<p>If <span class="math inline">\(A\)</span> is positive semi-definite (singular), a diagonal element <span class="math inline">\(b_{ii}\)</span> may evaluate to 0 (or a very small number close to 0 due to floating-point error). Standard algorithms often crash here because calculating off-diagonal terms involves division by <span class="math inline">\(b_{ii}\)</span>.</p>
+<p>To handle this robustly without pivoting: * If <span class="math inline">\(b_{ii} \approx 0\)</span>, it implies that the entire remaining row <span class="math inline">\(b_{i, i:n}\)</span> must be 0 for the matrix to remain consistent with being positive semi-definite. * The algorithm should explicitly set <span class="math inline">\(b_{ij} = 0\)</span> for all <span class="math inline">\(j \ge i\)</span> and proceed to the next row, rather than attempting division.</p>
 </section>
 <section id="numerical-example-1" class="level3" data-number="3.4.3">
 <h3 data-number="3.4.3" class="anchored" data-anchor-id="numerical-example-1"><span class="header-section-number">3.4.3</span> Numerical Example</h3>
@@ -735,6 +739,19 @@ B = \begin{pmatrix}
 0 &amp; 0 &amp; 2
 \end{pmatrix}
 \]</span></p>
+</section>
+<section id="applications-in-statistics" class="level3" data-number="3.4.4">
+<h3 data-number="3.4.4" class="anchored" data-anchor-id="applications-in-statistics"><span class="header-section-number">3.4.4</span> Applications in Statistics</h3>
+<p>Cholesky decomposition is preferred over other methods (like LU or SVD) for symmetric positive-definite matrices because it is numerically stable and roughly twice as fast.</p>
+<p><strong>1. Solving Linear Equations</strong> In linear regression, we solve the normal equations <span class="math inline">\((X'X)\beta = X'y\)</span>. Since <span class="math inline">\(X'X\)</span> is symmetric and positive definite, we can decompose it as <span class="math inline">\(B'B\)</span>. The system becomes: <span class="math display">\[
+B'B\beta = X'y
+\]</span> This allows us to solve for <span class="math inline">\(\beta\)</span> using two efficient triangular substitutions (first solving <span class="math inline">\(B'z = X'y\)</span> for <span class="math inline">\(z\)</span>, then <span class="math inline">\(B\beta = z\)</span> for <span class="math inline">\(\beta\)</span>) without explicitly inverting the matrix, which is computationally expensive and unstable.</p>
+<p><strong>2. Computing the Determinant</strong> The determinant of a triangular matrix is simply the product of its diagonal entries. Therefore, the determinant of <span class="math inline">\(A\)</span> can be computed instantly from <span class="math inline">\(B\)</span>: <span class="math display">\[
+\det(A) = \det(B'B) = \det(B')\det(B) = \left(\prod_{i=1}^n b_{ii}\right)^2
+\]</span> This is widely used in Maximum Likelihood Estimation (e.g., REML in mixed models) where log-determinants of large covariance matrices are required.</p>
+<p><strong>3. Generating Multivariate Normal Random Variables</strong> To generate a random vector <span class="math inline">\(Y \sim N(\mu, \Sigma)\)</span>, we first generate a vector of independent standard normal variables <span class="math inline">\(Z \sim N(0, I)\)</span>. Using the Cholesky decomposition <span class="math inline">\(\Sigma = B'B\)</span>: <span class="math display">\[
+Y = \mu + B'Z
+\]</span> The covariance of <span class="math inline">\(Y\)</span> is confirmed by <span class="math inline">\(\text{Cov}(Y) = B' \text{Cov}(Z) B = B' I B = B'B = \Sigma\)</span>. This is the standard method used by functions like <code>mvrnorm</code> in R.</p>
 
 
 </section>

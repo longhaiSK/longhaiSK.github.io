@@ -456,6 +456,14 @@ By solving for the bolded diagonal terms and substituting known values from prev
 3.  **Row 3:** Solve for $b_{33}$ using $a_{33}$ and the known $b_{13}, b_{23}$.
     * $b_{33} = \sqrt{a_{33} - b_{13}^2 - b_{23}^2}$
 
+**Remark: Handling the Singular Case**
+
+If $A$ is positive semi-definite (singular), a diagonal element $b_{ii}$ may evaluate to 0 (or a very small number close to 0 due to floating-point error). Standard algorithms often crash here because calculating off-diagonal terms involves division by $b_{ii}$.
+
+To handle this robustly without pivoting:
+* If $b_{ii} \approx 0$, it implies that the entire remaining row $b_{i, i:n}$ must be 0 for the matrix to remain consistent with being positive semi-definite.
+* The algorithm should explicitly set $b_{ij} = 0$ for all $j \ge i$ and proceed to the next row, rather than attempting division.
+
 ### Numerical Example
 
 Consider the positive definite matrix $A$:
@@ -490,9 +498,27 @@ B = \begin{pmatrix}
 \end{pmatrix}
 $$
 
+### Applications in Statistics
 
+Cholesky decomposition is preferred over other methods (like LU or SVD) for symmetric positive-definite matrices because it is numerically stable and roughly twice as fast.
 
+**1. Solving Linear Equations**
+In linear regression, we solve the normal equations $(X'X)\beta = X'y$. Since $X'X$ is symmetric and positive definite, we can decompose it as $B'B$. The system becomes:
+$$
+B'B\beta = X'y
+$$
+This allows us to solve for $\beta$ using two efficient triangular substitutions (first solving $B'z = X'y$ for $z$, then $B\beta = z$ for $\beta$) without explicitly inverting the matrix, which is computationally expensive and unstable.
 
+**2. Computing the Determinant**
+The determinant of a triangular matrix is simply the product of its diagonal entries. Therefore, the determinant of $A$ can be computed instantly from $B$:
+$$
+\det(A) = \det(B'B) = \det(B')\det(B) = \left(\prod_{i=1}^n b_{ii}\right)^2
+$$
+This is widely used in Maximum Likelihood Estimation (e.g., REML in mixed models) where log-determinants of large covariance matrices are required.
 
-
-
+**3. Generating Multivariate Normal Random Variables**
+To generate a random vector $Y \sim N(\mu, \Sigma)$, we first generate a vector of independent standard normal variables $Z \sim N(0, I)$. Using the Cholesky decomposition $\Sigma = B'B$:
+$$
+Y = \mu + B'Z
+$$
+The covariance of $Y$ is confirmed by $\text{Cov}(Y) = B' \text{Cov}(Z) B = B' I B = B'B = \Sigma$. This is the standard method used by functions like `mvrnorm` in R.
