@@ -1147,28 +1147,7 @@ plot(mx, my, type="l", col="red", main="Metropolis-Hastings (Random Walk)", xlab
 contour(t_seq, t_seq, z, add=TRUE, col="gray")
 ```
 
----
-title: "Bayesian Analysis of MLB Home Run Rates"
-format:
-  html:
-    theme: cosmo
-    self-contained: false
-    toc: true
-    toc-depth: 4
-    toc-expand: 2
-    format-links: true
-    page-layout: full
-    toc-location: left
-    echo: true
-    code-fold: true
-    number-sections: true
-    df-print: paged
-    highlight-style: tango
-    include-in-header:
-      text: |
-        <link rel="stylesheet" href="resources/bookstyles.css">
-        <script src="resources/num_eq.js"></script>
----
+
 
 ## Case Study: 1998 Major League Baseball Home Run Race
 
@@ -1243,7 +1222,7 @@ knitr::kable(baseball_data,
              caption = "1998 MLB Statistics: Raw Counts, Probabilities, and Transformed Data")
 ```
 
-In this analysis, we model the home run strike rates of 17 Major League Baseball players using pre-season exhibition data from 1998. We apply four statistical methods ranging from simple independent estimation to hierarchical Bayesian modeling.
+In this analysis, we model the home run strike rates of 17 Major League Baseball players using pre-season exhibition data from 1998. We apply five statistical methods ranging from simple independent estimation to advanced Bayesian decision theory.
 
 ### Methods for Estimating $\mu_i$ (Transformed Scale)
 
@@ -1404,80 +1383,129 @@ legend("topleft",
        lty = c(2, 1, 1))
 ```
 
-### Method 4: Beta-Binomial Bayesian Model
+### Methods for Estimating $p_i$ directly
 
-The previous methods relied on transforming the count data to approximate a normal distribution. In this fourth method, we model the counts directly using the natural distributions for this process.
+#### Method 1-3: Converting $\hat \mu_i$ back to $p_i$
 
-We assume the number of home runs $y_i$ for each player follows a **Binomial** distribution with success rate $p_i$. These rates are assumed to be drawn from a common **Beta** population distribution.
+The first three methods (MLE, James-Stein, and Normal-Normal Bayes) estimated the parameter $\mu_i$ on the transformed scale. To obtain the probability estimates $\hat{p}_i$, we apply the inverse of the variance-stabilizing transformation:
+
+$$ \hat{p}_i = \frac{1}{2} \left( \sin\left( \frac{\hat{\mu}_i}{\sqrt{n_i}} \right) + 1 \right) $$
+
+where $\hat{\mu}_i$ corresponds to the estimate derived from Method 1, 2, or 3, and $n_i$ is the number of pre-season at-bats for player $i$.
+
+#### Method 4: Hierarchical Logistic Regression (Logit-Normal)
+
+In this fourth method, we model the probability $p_i$ directly using a hierarchical structure on the log-odds scale, rather than transforming the data.
+
+We assume the count $y_i$ follows a Binomial distribution. The log-odds (logit) of the success rate $p_i$ are drawn from a common Normal distribution with unknown mean $\mu_0$ and standard deviation $\tau_0$.
 
 $$
 \begin{aligned}
 y_i | p_i &\sim \text{Binomial}(n_i, p_i) \\
-p_i &\sim \text{Beta}(\alpha, \beta)
+\text{logit}(p_i) &\sim N(\mu_0, \tau_0^2) \\
+\mu_0 &\sim N(0, 10) \\
+\tau_0 &\sim \text{Cauchy}(0, 2)
 \end{aligned}
 $$
 
-We implement this in `brms` using the `beta_binomial` family, which integrates out $p_i$ to estimate the hyperparameters. We parametrize the Beta distribution with mean $\mu$ and precision $\phi$, where $\alpha = \mu \phi$ and $\beta = (1-\mu)\phi$. The individual estimate $\hat{p}_i$ is the **posterior mean**, which is a weighted average of the observed rate and the population prior mean:
-
-$$ \hat{p}_i^{BB} = \frac{y_i + \alpha}{n_i + \alpha + \beta} = \frac{y_i + \mu \phi}{n_i + \phi} $$
+We implement this in `brms` using the `binomial` family with a logit link. The individual point estimate $\hat{p}_i$ is the **posterior mean** of $p_i$. Note that because the inverse-logit function is non-linear, the posterior mean of $p_i$ is not simply the inverse-logit of the posterior mean of the random effect; `brms` handles this integration automatically via the `fitted()` function.
 
 ```{r}
-#| label: method-beta-binomial
+#| label: method-logit-normal
 #| echo: true
 #| results: hide
 #| message: false
 #| warning: false
 
-# 1. Fit Beta-Binomial Model
-# We model the aggregate counts directly. 
-fit_bb <- brm(
-  formula = Pre_HR | trials(Pre_AtBats) ~ 1,
+# 1. Fit Hierarchical Logistic Regression
+# Formula: y | trials(n) ~ 1 + (1 | Player)
+# This estimates a global intercept (mu_0) and random intercepts for each player (logit(p_i))
+fit_logit <- brm(
+  formula = Pre_HR | trials(Pre_AtBats) ~ 1 + (1 | Player),
   data = baseball_data,
-  family = beta_binomial(link = "logit", link_phi = "log"),
+  family = binomial(link = "logit"),
   prior = c(
     prior(normal(0, 5), class = "Intercept"),
-    prior(normal(0, 5), class = "phi")
+    prior(cauchy(0, 2), class = "sd")
   ),
   chains = 2, iter = 4000, warmup = 1000, seed = 123,
   refresh = 0
 )
 
-# 2. Extract Hyperparameters (mu and phi)
-# Fixef gives the Intercept on logit scale
-mu_global_logit <- fixef(fit_bb)["Intercept", "Estimate"]
-mu_global <- plogis(mu_global_logit) # Convert to probability scale
-
-# Phi is on the log scale in the family definition
-phi_log <- summary(fit_bb)$spec_pars["phi", "Estimate"]
-phi_global <- exp(phi_log)
-
-# 3. Calculate Posterior Mean for each Player
-# Formula: (y + mu*phi) / (n + phi)
-p_hat_bb <- (baseball_data$Pre_HR + mu_global * phi_global) / 
-            (baseball_data$Pre_AtBats + phi_global)
+# 2. Extract Posterior Means of p_i
+# fitted() returns the posterior expectations of the response (Expected Count). 
+fitted_counts <- fitted(fit_logit) 
+p_hat_logit <- fitted_counts[, "Estimate"] / baseball_data$Pre_AtBats
 ```
 
-### Comparison of All Four Estimates (Probability Scale)
+#### Method 5: Optimal Bayes Estimator (Weighted Median)
 
-We now compare all four methods: MLE, James-Stein (transformed), Bayes Normal-Normal (transformed), and Bayes Beta-Binomial (natural scale).
+While the posterior mean (Method 4) minimizes the Mean Squared Error (MSE), it is not necessarily optimal for the **Relative Standardized Error** metric we defined earlier:
+$$L(p, \hat{p}) = \frac{|p - \hat{p}|}{\min(p, 1-p)}$$
+
+This is a form of weighted absolute error loss, where the weight is $w(p) = \frac{1}{\min(p, 1-p)}$. Theoretical derivation shows that the estimator minimizing the expected posterior loss for this function is the **Weighted Posterior Median**.
+
+We compute this by extracting the full posterior samples from the Logit-Normal model (Method 4) and calculating the weighted median for each player.
+
+```{r}
+#| label: method-optimal
+#| echo: true
+
+# 1. Extract Posterior Samples (N_samples x 17 players)
+# posterior_epred gives samples of the expected count (N * p)
+post_counts <- posterior_epred(fit_logit) 
+
+# Convert to probability scale by dividing by trials
+p_samples <- sweep(post_counts, 2, baseball_data$Pre_AtBats, "/")
+
+# 2. Define Function for Weighted Median
+# Finds the value 'q' such that sum(weights where x <= q) >= 0.5 * total_weight
+get_weighted_median <- function(samples) {
+  # Calculate weights based on the loss function denominator
+  # Avoid division by exact zero (unlikely but safer)
+  denom <- pmin(samples, 1 - samples)
+  denom[denom < 1e-6] <- 1e-6 
+  weights <- 1 / denom
+  
+  # Normalize weights
+  weights_norm <- weights / sum(weights)
+  
+  # Sort samples and weights
+  ord <- order(samples)
+  samp_sorted <- samples[ord]
+  w_sorted <- weights_norm[ord]
+  
+  # Find cutoff
+  cum_w <- cumsum(w_sorted)
+  idx <- which(cum_w >= 0.5)[1]
+  
+  return(samp_sorted[idx])
+}
+
+# 3. Apply to all players
+p_hat_optimal <- apply(p_samples, 2, get_weighted_median)
+```
+
+#### Comparison of All Five Estimates (Probability Scale)
+
+We now compare all five methods: MLE, James-Stein (transformed), Bayes Normal-Normal (transformed), Hierarchical Logit-Normal (Posterior Mean), and Optimal Bayes (Weighted Median).
 
 **1. MSE Comparison**
 
 ```{r}
-#| label: compare-four-methods
+#| label: compare-five-methods
 #| echo: true
 #| warning: false
 #| message: false
 
 # 1. Prepare Estimates from Previous Steps
-# Inverse Transformation Function
 inv_trans <- function(mu, n) { 0.5 * (sin(mu / sqrt(n)) + 1) }
 
 # Convert transformed estimates back to probability scale
 p_mle    <- inv_trans(baseball_data$x, baseball_data$Pre_AtBats)
 p_js     <- inv_trans(mu_js, baseball_data$Pre_AtBats)
-p_normal <- inv_trans(mu_brms, baseball_data$Pre_AtBats) # Method 3 (Plug-in)
-# p_hat_bb is already calculated in Method 4
+p_normal <- inv_trans(mu_brms, baseball_data$Pre_AtBats) 
+# p_hat_logit (Method 4) and p_hat_optimal (Method 5) are already calculated
 
 # 2. Combine into DataFrame
 df_compare <- data.frame(
@@ -1487,17 +1515,19 @@ df_compare <- data.frame(
   p_mle  = p_mle,
   p_js   = p_js,
   p_norm = p_normal,
-  p_bb   = p_hat_bb
+  p_logit = p_hat_logit,
+  p_opt   = p_hat_optimal
 )
 
 # Sort by initial performance
 df_compare_sorted <- df_compare[order(df_compare$x_i), ]
 
 # 3. Calculate MSE
-mse_p_mle  <- mean((df_compare_sorted$p_mle - df_compare_sorted$p_true)^2)
-mse_p_js   <- mean((df_compare_sorted$p_js - df_compare_sorted$p_true)^2)
-mse_p_norm <- mean((df_compare_sorted$p_norm - df_compare_sorted$p_true)^2)
-mse_p_bb   <- mean((df_compare_sorted$p_bb - df_compare_sorted$p_true)^2)
+mse_p_mle   <- mean((df_compare_sorted$p_mle - df_compare_sorted$p_true)^2)
+mse_p_js    <- mean((df_compare_sorted$p_js - df_compare_sorted$p_true)^2)
+mse_p_norm  <- mean((df_compare_sorted$p_norm - df_compare_sorted$p_true)^2)
+mse_p_logit <- mean((df_compare_sorted$p_logit - df_compare_sorted$p_true)^2)
+mse_p_opt   <- mean((df_compare_sorted$p_opt - df_compare_sorted$p_true)^2)
 
 # 4. Plot MSE
 y_max <- max((df_compare_sorted$p_mle - df_compare_sorted$p_true)^2)
@@ -1511,28 +1541,31 @@ plot(1:17, (df_compare_sorted$p_mle - df_compare_sorted$p_true)^2,
 
 lines(1:17, (df_compare_sorted$p_js - df_compare_sorted$p_true)^2, type = "b", pch = 19, col = "blue")
 lines(1:17, (df_compare_sorted$p_norm - df_compare_sorted$p_true)^2, type = "b", pch = 17, col = "red")
-lines(1:17, (df_compare_sorted$p_bb - df_compare_sorted$p_true)^2, type = "b", pch = 15, col = "darkgreen")
+lines(1:17, (df_compare_sorted$p_logit - df_compare_sorted$p_true)^2, type = "b", pch = 15, col = "darkgreen")
+lines(1:17, (df_compare_sorted$p_opt - df_compare_sorted$p_true)^2, type = "b", pch = 18, col = "purple")
 
 grid()
 legend("topleft",
        legend = c(paste0("MLE [MSE: ", round(mse_p_mle, 4), "]"),
                   paste0("JS [MSE: ", round(mse_p_js, 4), "]"),
                   paste0("Normal-Bayes [MSE: ", round(mse_p_norm, 4), "]"),
-                  paste0("Beta-Binomial [MSE: ", round(mse_p_bb, 4), "]")),
-       col = c("black", "blue", "red", "darkgreen"),
-       pch = c(1, 19, 17, 15),
-       lty = c(2, 1, 1, 1),
-       cex = 0.8)
+                  paste0("Logit-Normal [MSE: ", round(mse_p_logit, 4), "]"),
+                  paste0("Optimal-Bayes [MSE: ", round(mse_p_opt, 4), "]")),
+       col = c("black", "blue", "red", "darkgreen", "purple"),
+       pch = c(1, 19, 17, 15, 18),
+       lty = c(2, 1, 1, 1, 1),
+       cex = 0.75,
+       bg = "white")
 ```
 
 **2. Relative Standardized Error**
 
-We also evaluate the methods using a relative error metric that penalizes deviations based on the rarity of the event:
+We also evaluate the methods using the relative error metric that penalizes deviations based on the rarity of the event:
 $$ \text{Metric}_i = \frac{|p_i^{\text{true}} - \hat{p}_i|}{\min(p_i^{\text{true}}, 1 - p_i^{\text{true}})} $$
 
 ```{r}
 #| label: fig-error-relative-final
-#| fig-cap: "Relative Error Assessment: Four Methods"
+#| fig-cap: "Relative Error Assessment: Five Methods"
 #| echo: true
 #| fig-height: 6
 
@@ -1543,19 +1576,21 @@ calc_metric <- function(p_hat, p_true) {
 }
 
 # 2. Calculate Metric
-rel_mle  <- calc_metric(df_compare_sorted$p_mle, df_compare_sorted$p_true)
-rel_js   <- calc_metric(df_compare_sorted$p_js, df_compare_sorted$p_true)
-rel_norm <- calc_metric(df_compare_sorted$p_norm, df_compare_sorted$p_true)
-rel_bb   <- calc_metric(df_compare_sorted$p_bb, df_compare_sorted$p_true)
+rel_mle   <- calc_metric(df_compare_sorted$p_mle, df_compare_sorted$p_true)
+rel_js    <- calc_metric(df_compare_sorted$p_js, df_compare_sorted$p_true)
+rel_norm  <- calc_metric(df_compare_sorted$p_norm, df_compare_sorted$p_true)
+rel_logit <- calc_metric(df_compare_sorted$p_logit, df_compare_sorted$p_true)
+rel_opt   <- calc_metric(df_compare_sorted$p_opt, df_compare_sorted$p_true)
 
 # 3. Sum of Errors
-sum_rel_mle  <- sum(rel_mle)
-sum_rel_js   <- sum(rel_js)
-sum_rel_norm <- sum(rel_norm)
-sum_rel_bb   <- sum(rel_bb)
+sum_rel_mle   <- sum(rel_mle)
+sum_rel_js    <- sum(rel_js)
+sum_rel_norm  <- sum(rel_norm)
+sum_rel_logit <- sum(rel_logit)
+sum_rel_opt   <- sum(rel_opt)
 
 # 4. Plot
-y_max_rel <- max(c(rel_mle, rel_js, rel_norm, rel_bb)) * 1.1
+y_max_rel <- max(c(rel_mle, rel_js, rel_norm, rel_logit, rel_opt)) * 1.1
 
 plot(1:17, rel_mle, type = "b", pch = 1, col = "black", lty = 2,
      xlab = "Player Index (Sorted by Pre-season)", 
@@ -1565,7 +1600,8 @@ plot(1:17, rel_mle, type = "b", pch = 1, col = "black", lty = 2,
 
 lines(1:17, rel_js, type = "b", pch = 19, col = "blue")
 lines(1:17, rel_norm, type = "b", pch = 17, col = "red")
-lines(1:17, rel_bb, type = "b", pch = 15, col = "darkgreen")
+lines(1:17, rel_logit, type = "b", pch = 15, col = "darkgreen")
+lines(1:17, rel_opt, type = "b", pch = 18, col = "purple")
 
 grid()
 
@@ -1574,11 +1610,12 @@ legend("topleft",
        legend = c(paste0("MLE [", round(sum_rel_mle, 3), "]"), 
                   paste0("James-Stein [", round(sum_rel_js, 3), "]"), 
                   paste0("Normal-Bayes [", round(sum_rel_norm, 3), "]"),
-                  paste0("Beta-Binomial [", round(sum_rel_bb, 3), "]")),
-       col = c("black", "blue", "red", "darkgreen"), 
-       pch = c(1, 19, 17, 15), 
-       lty = c(2, 1, 1, 1),
-       cex = 0.8, 
+                  paste0("Logit-Normal [", round(sum_rel_logit, 3), "]"),
+                  paste0("Optimal-Bayes [", round(sum_rel_opt, 3), "]")),
+       col = c("black", "blue", "red", "darkgreen", "purple"), 
+       pch = c(1, 19, 17, 15, 18), 
+       lty = c(2, 1, 1, 1, 1),
+       cex = 0.75, 
        bg = "white")
 ```
 
