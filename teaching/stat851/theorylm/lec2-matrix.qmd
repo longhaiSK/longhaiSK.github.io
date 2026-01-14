@@ -10,9 +10,9 @@ format:
 
 This chapter covers a review of matrix algebra concepts essential for linear models, including eigenvalues, spectral decomposition, singular value decomposition.
 
-## Spectral Theory
 
-### Eigenvalues and Eigenvectors
+
+## Eigenvalues and Eigenvectors
 
 ::: {#def-eigen name="Eigenvalues and Eigenvectors"}
 
@@ -27,6 +27,9 @@ $$
 |A - \lambda I_n| = 0
 $$
 :::
+
+## Spectral Theory for Symmetric Matrices
+
 
 ### Spectral Decomposition
 
@@ -68,6 +71,120 @@ $$
 q_i' q_j = \begin{cases} 1 & \text{if } i=j \\ 0 & \text{if } i \ne j \end{cases}
 $$
 And $Q$ is an orthogonal matrix: $Q'Q = Q Q' = I_n$.
+
+```{r}
+library(ggplot2)
+library(gridExtra) # For arranging plots side-by-side
+
+# --- 1. SETUP ---
+
+# Define a symmetric matrix that stretches and rotates
+# A = [ 3  1 ]
+#     [ 1  2 ]
+A <- matrix(c(3, 1, 1, 2), nrow = 2)
+
+# Get eigen decomposition
+eig <- eigen(A)
+Q <- eig$vectors
+vals <- eig$values
+
+# --- 2. CREATE VECTORS (The "Before" state) ---
+
+# a. Specific vectors of interest
+v_e1 <- c(1, 0)
+v_e2 <- c(0, 1)
+v_q1 <- Q[,1] # Major eigenvector (associated with largest eigenvalue)
+v_q2 <- Q[,2] # Minor eigenvector
+
+# b. Filler vectors on the unit circle
+# Using angles that likely won't exactly overlap with the specific ones above
+angles_filler <- seq(pi/6, 2*pi, length.out = 7)[1:6]
+fillers <- lapply(angles_filler, function(th) c(cos(th), sin(th)))
+
+# c. Combine into a data frame
+# We label the types for coloring later
+df_vecs <- data.frame(
+  x_orig = c(v_e1[1], v_e2[1], v_q1[1], v_q2[1], sapply(fillers, `[`, 1)),
+  y_orig = c(v_e1[2], v_e2[2], v_q1[2], v_q2[2], sapply(fillers, `[`, 2)),
+  type = c("Standard Axis", "Standard Axis", "Eigenvector", "Eigenvector", 
+           rep("Filler", 6))
+)
+
+# --- 3. CALCULATE TRANSFORMATION (The "After" state) ---
+
+# Apply A to the original vectors: b = Ax
+orig_matrix <- as.matrix(df_vecs[, c("x_orig", "y_orig")])
+trans_matrix <- t(A %*% t(orig_matrix))
+
+df_vecs$x_trans <- trans_matrix[,1]
+df_vecs$y_trans <- trans_matrix[,2]
+
+# Calculate slopes for eigenvector guidelines in Plot 2
+slope_q1 <- Q[2,1] / Q[1,1]
+slope_q2 <- Q[2,2] / Q[1,2]
+
+# Define colors for consistency
+my_colors <- c("Standard Axis" = "#00ba38", # Green
+               "Eigenvector" = "#f8766d",   # Red
+               "Filler" = "#619cff")        # Blue
+
+# --- 4. PLOTTING ---
+
+# Common theme settings
+common_theme <- theme_minimal() +
+  theme(
+    panel.grid.major = element_line(color = "gray90"),
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom",
+    plot.title = element_text(hjust = 0.5, face="bold")
+  )
+
+# Determine plot limits to keep scales identical
+max_lim <- max(abs(c(df_vecs$x_trans, df_vecs$y_trans))) * 1.1
+xlims <- c(-max_lim, max_lim)
+ylims <- c(-max_lim, max_lim)
+
+
+# ---- Plot 1: Before Transformation (Unit Circle) ----
+p1 <- ggplot(df_vecs) +
+  # Background unit circle
+  annotate("path",
+           x = cos(seq(0, 2*pi, length.out=100)),
+           y = sin(seq(0, 2*pi, length.out=100)),
+           color = "gray70", linetype = "dotted") +
+  # The vectors
+  geom_segment(aes(x=0, y=0, xend=x_orig, yend=y_orig, color=type), 
+               arrow = arrow(length = unit(0.3, "cm")), size=1) +
+  scale_color_manual(values = my_colors) +
+  coord_fixed(xlim = xlims, ylim = ylims) +
+  labs(title = "1. Before Transformation (x)", 
+       x = "x1", y = "x2") +
+  common_theme
+
+# ---- Plot 2: After Transformation (Oval) ----
+p2 <- ggplot(df_vecs) +
+  # Background oval (transforming the dense circle path from p1)
+  annotate("path",
+           x = (A %*% rbind(cos(seq(0,2*pi,100)), sin(seq(0,2*pi,100))))[1,],
+           y = (A %*% rbind(cos(seq(0,2*pi,100)), sin(seq(0,2*pi,100))))[2,],
+           color = "gray70", linetype = "dotted") +
+  
+  # Add INVARIANT LINES (dashed lines along original eigenvector directions)
+  geom_abline(intercept = 0, slope = slope_q1, linetype="dashed", color="gray50") +
+  geom_abline(intercept = 0, slope = slope_q2, linetype="dashed", color="gray50") +
+  
+  # The transformed vectors
+  geom_segment(aes(x=0, y=0, xend=x_trans, yend=y_trans, color=type), 
+               arrow = arrow(length = unit(0.3, "cm")), size=1.2) +
+  scale_color_manual(values = my_colors) +
+  coord_fixed(xlim = xlims, ylim = ylims) +
+  labs(title = "2. After Transformation (b = Ax)", 
+       x = "b1", y = "b2") +
+  common_theme
+
+# Arrange side-by-side
+grid.arrange(p1, p2, ncol=2)
+```
 
 ### Quadratic Form
 :::{#def-quadratic-form}
