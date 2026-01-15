@@ -64,7 +64,7 @@ We want to estimate a range for the parameter.
 
 * **Action Space:** $\mathcal{A} = \{(l, u) : l \in \mathbb{R}, u \in \mathbb{R}, l \le u\}$.
 
-### Example 4: The Duchess and the Emerald Necklace {#sec-necklace}
+### Example 4: the Duchess and the Emerald Necklace {#sec-necklace}
 
 **Scenario:**
 You are the Duchess of Omnium. You have two necklaces: a priceless **Real** one and a valueless **Imitation**. They are indistinguishable to you. One is in the **Left Drawer (Box 1)**, the other is in the **Right Drawer (Box 2)**.
@@ -379,7 +379,7 @@ legend("bottomright", legend = c("Arbitrary Estimator", "Constant Risk Bayes Est
 Sometimes the Minimax rule corresponds to an "improper" prior (a prior that does not integrate to 1, like a uniform distribution on the real line). We approach these via a limiting sequence.
 
 ::: {#thm-limits}
-#### Minimaxity of Limit-Attaining Rules
+#### Minimaxity of Limit-attaining Rules
 
 Let $\{\delta_n\}$ be a sequence of Bayes rules with respect to priors $\{\pi_n\}$. Let $r(\pi_n, \delta_n)$ be the associated Bayes risks. If there exists a rule $\delta_0$ such that:
 $$\sup_{\theta} R(\theta, \delta_0) \le \lim_{n \to \infty} r(\pi_n, \delta_n)$$
@@ -424,7 +424,7 @@ theta <- seq(-3, 3, length.out = 300)
 V <- 2.0
 epsilon <- 0.4
 
-# Risk Functions (Curves) for context
+# Risk Functions (curves) for Context
 risk_delta_0 <- V - 0.1 * (theta)^2 
 risk_delta_0[risk_delta_0 < 0] <- 0 
 risk_delta_star <- (V - epsilon) - 0.2 * (theta - 0.5)^2
@@ -435,16 +435,16 @@ df_curves <- tibble(
   R_delta_star = risk_delta_star
 )
 
-# --- 2. Bayes Risk Pairs (Discrete Instances) ---
-# We pick two arbitrary x-locations to display the scalar values
+# --- 2. Bayes Risk Pairs (discrete Instances) ---
+# We Pick Two Arbitrary X-locations to Display the Scalar Values
 x_locs <- c(-1.5, 1.5) 
 
-# Define Risk Levels for the pairs
-# Pair j (Lower)
+# Define Risk Levels for the Pairs
+# Pair J (lower)
 risk_star_j <- (V - epsilon) - 0.8
 risk_n_j    <- risk_star_j - 0.4
 
-# Pair j+1 (Higher, closer to the limit, but still trapped)
+# Pair J+1 (higher, Closer to the Limit, but Still Trapped)
 risk_star_j1 <- (V - epsilon) - 0.4
 risk_n_j1    <- risk_star_j1 - 0.4
 
@@ -524,12 +524,128 @@ ggplot() +
   )
 ```
 
-### Admissibility of Bayes Rules
+
+### Procedure: Verifying Minimaxity
+
+The theorem above provides a practical recipe for identifying Minimax rules, particularly in unbounded parameter spaces (where a standard Least Favorable Prior often does not exist). The procedure is often used "backwards"—we guess a rule and then construct a sequence to prove it is Minimax.
+
+1.  **Propose a Candidate Rule ($\delta_0$):**
+    Identify a rule that intuitively seems robust. Typically, we look for an **Equalizer Rule**, which is a rule with constant risk ($R(\theta, \delta_0) = C$ for all $\theta$). If the risk is constant, then $\sup_\theta R(\theta, \delta_0) = C$.
+
+2.  **Construct a Sequence of Priors ($\pi_n$):**
+    Choose a sequence of priors that becomes increasingly "diffuse" or "flat" as $n \to \infty$ (e.g., Uniform on $[-n, n]$ or Normal with variance $n$). These approximate the "improper" prior corresponding to the candidate rule.
+
+3.  **Compute Bayes Risks ($r_n$):**
+    Calculate the Bayes risk $r(\pi_n, \delta_n)$ for each prior in the sequence. Note that you do not necessarily need the formula for the Bayes rule $\delta_n$ itself, only its associated risk.
+
+4.  **Verify the Condition:**
+    Check if the limit of the Bayes risks approaches the maximum risk of your candidate:
+    $$ \lim_{n \to \infty} r(\pi_n, \delta_n) = \sup_{\theta} R(\theta, \delta_0) $$
+    If this holds, $\delta_0$ is Minimax.
+
+::: {#exm-normal-mean}
+**Example: The Normal Mean**
+
+Consider a single observation $X \sim N(\theta, 1)$ with squared error loss $L(\theta, \delta) = (\theta - \delta)^2$. We suspect the sample mean (in this case, just $X$ itself) is the Minimax estimator.
+
+**Step 1: Candidate Rule**
+
+Let $\delta_0(X) = X$. The risk is the variance of the estimator:
+$$ R(\theta, \delta_0) = E[(\theta - X)^2] = \text{Var}(X) = 1 $$
+Since the risk is constant (1) for all $\theta$, $\sup_\theta R(\theta, \delta_0) = 1$.
+
+**Step 2: Sequence of Priors**
+
+We choose a sequence of Normal priors $\pi_n \sim N(0, n)$. As $n$ increases, the variance increases, making the prior flatter over the real line.
+
+**Step 3: Bayes Risks**
+
+For a Normal prior $\theta \sim N(0, \tau^2)$ and data $X \sim N(\theta, \sigma^2)$, the Bayes risk is known to be:
+$$ r(\pi, \delta_\pi) = \frac{\sigma^2 \tau^2}{\sigma^2 + \tau^2} $$
+Substituting our values ($\sigma^2=1, \tau^2=n$):
+$$ r(\pi_n, \delta_n) = \frac{1 \cdot n}{1 + n} = \frac{n}{n+1} $$
+
+**Step 4: Verification**
+
+We take the limit of the sequence of Bayes risks:
+$$ \lim_{n \to \infty} r(\pi_n, \delta_n) = \lim_{n \to \infty} \frac{n}{n+1} = 1 $$
+Comparing this to our candidate:
+$$ \sup_{\theta} R(\theta, \delta_0) = 1 \le 1 $$
+The condition holds. Therefore, $\delta_0(X) = X$ is the Minimax estimator for $\theta$.
+:::
+
+
+### The Minimax Theorem (saddle Point)
+
+This theorem connects the search for a Minimax rule to the search for a Least Favorable Prior. It justifies the strategy of "finding the worst prior and solving it."
+
+::: {#thm-minimax}
+#### The Minimax Theorem
+
+Let $\mathcal{D}$ be the set of all decision rules and $\Pi$ be the set of all prior distributions. Let $r(\pi, \delta)$ denote the Bayes risk.
+
+The Minimax value equals the Maximin Bayes value:
+$$ \inf_{\delta \in \mathcal{D}} \sup_{\pi \in \Pi} r(\pi, \delta) = \sup_{\pi \in \Pi} \inf_{\delta \in \mathcal{D}} r(\pi, \delta) $$
+
+Furthermore, a pair $(\delta_0, \pi_0)$ is a **Saddle Point** if for all $\delta \in \mathcal{D}$ and $\pi \in \Pi$:
+$$ r(\pi_0, \delta) \ge r(\pi_0, \delta_0) \ge r(\pi, \delta_0) $$
+If such a saddle point exists, then:
+
+1.  $\delta_0$ is a **Minimax rule**.
+2.  $\pi_0$ is a **Least Favorable Prior**.
+:::
+
+::: {.proof}
+
+**Goal:** We wish to show that if $(\delta_0, \pi_0)$ is a saddle point, then $\sup_{\theta} R(\theta, \delta_0) \le \sup_{\theta} R(\theta, \delta)$ for any other rule $\delta$.
+
+**1. Interpret the Saddle Point Inequalities:**
+The condition is given as two simultaneous inequalities:
+$$
+\begin{aligned}
+(A) \quad & r(\pi_0, \delta_0) \le r(\pi_0, \delta) \quad \text{for all } \delta \\
+(B) \quad & r(\pi, \delta_0) \le r(\pi_0, \delta_0) \quad \text{for all } \pi
+\end{aligned}
+$$
+
+**2. Analyze Inequality (A):**
+Since $r(\pi_0, \delta_0) \le r(\pi_0, \delta)$ for all $\delta$, $\delta_0$ minimizes the Bayes risk with respect to $\pi_0$.
+
+* Therefore, **$\delta_0$ is the Bayes rule** for $\pi_0$.
+
+**3. Analyze Inequality (B):**
+Since $r(\pi, \delta_0) \le r(\pi_0, \delta_0)$ for all $\pi$, the prior $\pi_0$ maximizes the average risk of $\delta_0$.
+
+* Since the supremum over all priors includes point-mass priors (which yield the risk at a single $\theta$), maximizing over $\pi$ is equivalent to maximizing over $\theta$:
+    $$ \sup_{\pi} r(\pi, \delta_0) = \sup_{\theta} R(\theta, \delta_0) $$
+
+* Therefore, Inequality (B) implies:
+    $$ \sup_{\theta} R(\theta, \delta_0) = r(\pi_0, \delta_0) $$
+
+**4. Combine to Prove Minimaxity:**
+Let $\delta^*$ be any arbitrary decision rule. We compute its worst-case risk:
+$$
+\begin{aligned}
+\sup_{\theta} R(\theta, \delta^*) &= \sup_{\pi} r(\pi, \delta^*) & \text{(Max risk = Max average risk)} \\
+&\ge r(\pi_0, \delta^*) & \text{(Supremum $\ge$ specific value)} \\
+&\ge r(\pi_0, \delta_0) & \text{(From Inequality A: $\delta_0$ is Bayes for $\pi_0$)} \\
+&= \sup_{\theta} R(\theta, \delta_0) & \text{(From Step 3)}
+\end{aligned}
+$$
+
+**5. Conclusion:**
+We have shown that for any $\delta^*$:
+$$ \sup_{\theta} R(\theta, \delta^*) \ge \sup_{\theta} R(\theta, \delta_0) $$
+Thus, $\delta_0$ minimizes the maximum risk. $\delta_0$ is Minimax. $\blacksquare$
+:::
+
+
+## Admissibility of Bayes Rules
 
 Bayes rules are generally good candidates for admissibility. If a rule is Bayes, it is likely efficient, provided the prior doesn't ignore parts of the parameter space.
 
 ::: {#thm-admissibility-finite}
-## Admissibility of Bayes Rules (Finite Support)
+### Admissibility of Bayes Rules (finite Support)
 
 If the parameter space $\Theta$ is finite (or countable) and the prior $\pi$ assigns positive probability to every $\theta \in \Theta$ (i.e., $\pi(\theta) > 0$ for all $\theta$), then any Bayes rule $\delta_\pi$ is admissible.
 :::
