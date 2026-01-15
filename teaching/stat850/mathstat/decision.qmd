@@ -373,12 +373,13 @@ legend("bottomright", legend = c("Arbitrary Estimator", "Constant Risk Bayes Est
        col = c("blue", "red"), lwd = 2, lty = 1)
 ```
 
-### Limits of Bayes Rules
+
+### Minimaxity via Limiting Bayes Risks
 
 Sometimes the Minimax rule corresponds to an "improper" prior (a prior that does not integrate to 1, like a uniform distribution on the real line). We approach these via a limiting sequence.
 
 ::: {#thm-limits}
-#### Limits of Bayes Rules
+#### Minimaxity of Limit-Attaining Rules
 
 Let $\{\delta_n\}$ be a sequence of Bayes rules with respect to priors $\{\pi_n\}$. Let $r(\pi_n, \delta_n)$ be the associated Bayes risks. If there exists a rule $\delta_0$ such that:
 $$\sup_{\theta} R(\theta, \delta_0) \le \lim_{n \to \infty} r(\pi_n, \delta_n)$$
@@ -393,46 +394,39 @@ Then $\delta_0$ is Minimax.
     $$\sup_{\theta} R(\theta, \delta^*) < \sup_{\theta} R(\theta, \delta_0) \le V$$
     Let $\sup_{\theta} R(\theta, \delta^*) = V - \epsilon$ for some $\epsilon > 0$.
 
-3.  **Bayes Risk Bound:** For any prior $\pi_n$, the Bayes risk of $\delta^*$ cannot exceed its maximum risk:
-    $$r(\pi_n, \delta^*) = \int R(\theta, \delta^*) \pi_n(\theta) d\theta \le \int (V - \epsilon) \pi_n(\theta) d\theta = V - \epsilon$$
 
-4.  **Optimality of $\delta_n$:** Since $\delta_n$ is the Bayes rule for $\pi_n$, it minimizes Bayes risk. Thus:
+3.  **Bounded Risk of $\delta^*$:** The Bayes risk of $\delta^*$ is bounded by its maximum risk:
+    $$r(\pi_n, \delta^*) = \int R(\theta, \delta^*) \pi_n(\theta) d\theta \le V - \epsilon$$
+    Therefore, $\lim_{n \to \infty} r(\pi_n, \delta^*) \le V - \epsilon$.
+
+4.  **Optimality of $\delta_n$:** Since $\delta_n$ is the Bayes rule for $\pi_n$, it minimizes Bayes risk. This creates the inequality pair shown in the figure (Orange $\le$ Blue):
     $$r(\pi_n, \delta_n) \le r(\pi_n, \delta^*)$$
 
-5.  **Combining Inequalities:** Combining steps 3 and 4:
-    $$r(\pi_n, \delta_n) \le V - \epsilon$$
-
-6.  **Taking Limits:** Taking the limit as $n \to \infty$:
-    $$\lim_{n \to \infty} r(\pi_n, \delta_n) \le V - \epsilon$$
-    $$V \le V - \epsilon$$
-    This is a contradiction since $\epsilon > 0$. Therefore, $\delta_0$ must be Minimax. $\blacksquare$
+5.  **The Contradiction:** Combining the inequalities, we get:
+    $$\lim_{n \to \infty} r(\pi_n, \delta_n) \le \lim_{n \to \infty} r(\pi_n, \delta^*) \le V - \epsilon$$
+    This implies $V \le V - \epsilon$, which is impossible. Thus $\delta_0$ must be Minimax. $\blacksquare$
 :::
-
-
 
 ```{r fig-visualize-limit-bayes}
 #| echo: false
 #| warning: false
 #| message: false
-#| fig-cap: "Visual Proof by Contradiction: The 'Gap' that proves $\\delta_0$ is Minimax"
+#| fig-cap: "Visual Proof: We examine the Bayes risks at two steps, $n=j$ (squares) and $n=j+1$ (circles). In both steps, the optimal risk $r(\\pi_n, \\delta_n)$ (orange) must be lower than the hypothetical risk $r(\\pi_n, \\delta^*)$ (blue). Even as the sequence rises (j+1 is higher than j), the blue points are capped by the bound $V-\\epsilon$. This 'traps' the orange points, making it impossible for them to ever reach the Limit V."
 #| fig-width: 8
 #| fig-height: 5
-
+#| fig-align: "center"
 
 library(ggplot2)
 library(tibble)
 
-# Define the scenario
+# --- 1. Define Data and Functions ---
 theta <- seq(-3, 3, length.out = 300)
 V <- 2.0
 epsilon <- 0.4
 
-# Create Risk Functions
-# Delta_0: A rule whose max risk touches V
+# Risk Functions (Curves) for context
 risk_delta_0 <- V - 0.1 * (theta)^2 
 risk_delta_0[risk_delta_0 < 0] <- 0 
-
-# Delta_star: The hypothetical "better" rule
 risk_delta_star <- (V - epsilon) - 0.2 * (theta - 0.5)^2
 
 df_curves <- tibble(
@@ -441,63 +435,94 @@ df_curves <- tibble(
   R_delta_star = risk_delta_star
 )
 
-# Sequence of Bayes Risks
-n_seq <- 1:5
-bayes_risks <- V - (1 / n_seq) * 0.8
-df_bayes <- tibble(
-  n = n_seq,
-  x_pos = seq(-2.5, -0.5, length.out = 5), 
-  risk_val = bayes_risks
+# --- 2. Bayes Risk Pairs (Discrete Instances) ---
+# We pick two arbitrary x-locations to display the scalar values
+x_locs <- c(-1.5, 1.5) 
+
+# Define Risk Levels for the pairs
+# Pair j (Lower)
+risk_star_j <- (V - epsilon) - 0.8
+risk_n_j    <- risk_star_j - 0.4
+
+# Pair j+1 (Higher, closer to the limit, but still trapped)
+risk_star_j1 <- (V - epsilon) - 0.4
+risk_n_j1    <- risk_star_j1 - 0.4
+
+df_bayes_pairs <- tibble(
+  step = factor(c("n=j", "n=j", "n=j+1", "n=j+1"), levels=c("n=j", "n=j+1")),
+  type = c("star", "n", "star", "n"),
+  x_pos = c(x_locs[1], x_locs[1], x_locs[2], x_locs[2]),
+  risk = c(risk_star_j, risk_n_j, risk_star_j1, risk_n_j1)
 )
 
 ggplot() +
-  # 1. The Contradiction Gap Shading
+  # A. The Forbidden Gap (Shading)
   annotate("rect", xmin = -Inf, xmax = Inf, ymin = V - epsilon, ymax = V, 
            alpha = 0.1, fill = "red") +
-  # Use parse=TRUE for math notation in annotations
-  annotate("text", x = 2.5, y = V - epsilon/2, 
-           label = "'The Impossible Gap (' * epsilon * ')'", 
-           parse = TRUE, color = "red", size = 3.5) +
+  annotate("text", x = 0, y = V - epsilon/2, 
+           label = "'Impossible Gap (' * epsilon * ')'", 
+           parse = TRUE, color = "red", size = 4) +
 
-  # 2. Reference Lines
-  geom_hline(yintercept = V, linetype = "dashed", color = "#D55E00", linewidth = 1) +
-  annotate("text", x = -3, y = V + 0.1, 
-           label = "'Limit' ~ V", 
-           parse = TRUE, color = "#D55E00", hjust = 0, fontface = "bold") +
+  # B. Reference Lines
+  geom_hline(aes(yintercept = V, linetype = "Limit"), color = "#D55E00", linewidth = 1) +
+  geom_hline(aes(yintercept = V - epsilon, linetype = "Bound"), color = "#0072B2", linewidth = 1) +
   
-  geom_hline(yintercept = V - epsilon, linetype = "dotted", color = "#0072B2", linewidth = 1) +
-  annotate("text", x = -3, y = (V - epsilon) - 0.15, 
-           label = "'Max Risk of hypothetical ' ~ delta^'*' ~ (V - epsilon)", 
-           parse = TRUE, color = "#0072B2", hjust = 0, vjust = 1) +
+  # C. Risk Curves (Faded slightly to emphasize the points)
+  geom_line(data = df_curves, aes(x = theta, y = R_delta_0), color = "#D55E00", linewidth = 1, alpha=0.4) +
+  geom_line(data = df_curves, aes(x = theta, y = R_delta_star), color = "#0072B2", linewidth = 1, alpha=0.4) +
 
-  # 3. Risk Curves
-  geom_line(data = df_curves, aes(x = theta, y = R_delta_0), color = "#D55E00", linewidth = 1.2) +
-  geom_line(data = df_curves, aes(x = theta, y = R_delta_star), color = "#0072B2", linewidth = 1.2) +
+  # D. Vertical Connectors for the Pairs
+  geom_segment(aes(x = x_locs[1], xend = x_locs[1], y = risk_n_j, yend = risk_star_j), 
+               color = "grey40", linewidth = 0.8) +
+  geom_segment(aes(x = x_locs[2], xend = x_locs[2], y = risk_n_j1, yend = risk_star_j1), 
+               color = "grey40", linewidth = 0.8) +
 
-  # 4. Sequence of Bayes Risks
-  geom_point(data = df_bayes, aes(x = x_pos, y = risk_val), size = 3) +
-  geom_segment(data = df_bayes, aes(x = x_pos, xend = x_pos, y = 0, yend = risk_val), 
-               linetype="dotted", alpha=0.5) +
-  annotate("text", x = -1.5, y = 1.0, 
-           label = "'Sequence of Bayes Risks: ' ~ r(pi[n], delta[n]) %->% V", 
-           parse = TRUE, size = 3.5, hjust = 0.5) +
+  # E. The Points 
+  # Shape maps to Step (j vs j+1), Color maps to Rule Type
+  geom_point(data = df_bayes_pairs, aes(x = x_pos, y = risk, color = type, shape = step), size = 5, stroke = 1.5) +
+
+  # F. Annotations helping identify the pairs
+  annotate("text", x = x_locs[1], y = 0.2, label = "Step n = j", fontface="italic", color="grey30") +
+  annotate("text", x = x_locs[2], y = 0.2, label = "Step n = j + 1", fontface="italic", color="grey30") +
   
-  # Labels with expression()
+  # Arrow emphasizing the rise
+  geom_segment(aes(x = x_locs[1] + 0.3, xend = x_locs[2] - 0.3, 
+                   y = (risk_star_j + risk_n_j)/2, yend = (risk_star_j1 + risk_n_j1)/2),
+               arrow = arrow(length = unit(0.2, "cm")), color = "grey60", linetype = "dashed") +
+  annotate("text", x = 0, y = (risk_star_j + risk_n_j)/2 - 0.1, label = "Sequence Rising", size = 3, color = "grey60") +
+
+  # G. Scales
+  scale_color_manual(
+    name = "Risk Type",
+    values = c("n" = "#D55E00", "star" = "#0072B2"),
+    labels = c("n" = expression(r(pi[n], delta[n]) ~ "(Optimal)"), 
+               "star" = expression(r(pi[n], delta^"*") ~ "(Hypothetical)"))
+  ) +
+  scale_shape_manual(
+    name = "Sequence Step",
+    values = c("n=j" = 15, "n=j+1" = 19), # 15=Square, 19=Circle
+    labels = c("n=j" = "Step j", "n=j+1" = "Step j+1")
+  ) +
+  scale_linetype_manual(
+    name = "Bounds",
+    values = c("Limit" = "dashed", "Bound" = "dotted"),
+    labels = c("Limit" = expression("Limit " ~ V), 
+               "Bound" = expression("Bound " ~ V - epsilon))
+  ) +
+
+  # H. Labels
   labs(
-    title = expression(paste("Limits of Bayes Rules: Proof regarding ", delta[0])),
-    subtitle = expression(paste("If ", delta^"*", " existed, ", r(pi[n], delta[n]), " would be trapped below ", V - epsilon)),
-    x = expression("Parameter " ~ theta),
-    y = expression("Risk " ~ R(theta, delta))
+    x = "Parameter Theta (Curves) / Arbitrary Position (Bayes Risks)",
+    y = "Risk Value"
   ) +
   theme_minimal() +
   theme(
-    plot.title = element_text(face = "bold"),
+    legend.position = "bottom",
+    legend.box = "vertical",
+    legend.margin = margin(t = -5),
     panel.grid.minor = element_blank()
   )
 ```
-
-
-
 
 ### Admissibility of Bayes Rules
 
