@@ -64,7 +64,7 @@ We want to estimate a range for the parameter.
 
 * **Action Space:** $\mathcal{A} = \{(l, u) : l \in \mathbb{R}, u \in \mathbb{R}, l \le u\}$.
 
-### Example 4: the Duchess and the Emerald Necklace {#sec-necklace}
+### Example 4: The Duchess and the Emerald Necklace {#sec-necklace}
 
 **Scenario:**
 You are the Duchess of Omnium. You have two necklaces: a priceless **Real** one and a valueless **Imitation**. They are indistinguishable to you. One is in the **Left Drawer (Box 1)**, the other is in the **Right Drawer (Box 2)**.
@@ -379,7 +379,7 @@ legend("bottomright", legend = c("Arbitrary Estimator", "Constant Risk Bayes Est
 Sometimes the Minimax rule corresponds to an "improper" prior (a prior that does not integrate to 1, like a uniform distribution on the real line). We approach these via a limiting sequence.
 
 ::: {#thm-limits}
-#### Minimaxity of Limit-attaining Rules
+#### Minimaxity of Limit-Attaining Rules
 
 Let $\{\delta_n\}$ be a sequence of Bayes rules with respect to priors $\{\pi_n\}$. Let $r(\pi_n, \delta_n)$ be the associated Bayes risks. If there exists a rule $\delta_0$ such that:
 $$\sup_{\theta} R(\theta, \delta_0) \le \lim_{n \to \infty} r(\pi_n, \delta_n)$$
@@ -424,7 +424,7 @@ theta <- seq(-3, 3, length.out = 300)
 V <- 2.0
 epsilon <- 0.4
 
-# Risk Functions (curves) for Context
+# Risk Functions (Curves) for context
 risk_delta_0 <- V - 0.1 * (theta)^2 
 risk_delta_0[risk_delta_0 < 0] <- 0 
 risk_delta_star <- (V - epsilon) - 0.2 * (theta - 0.5)^2
@@ -435,16 +435,16 @@ df_curves <- tibble(
   R_delta_star = risk_delta_star
 )
 
-# --- 2. Bayes Risk Pairs (discrete Instances) ---
-# We Pick Two Arbitrary X-locations to Display the Scalar Values
+# --- 2. Bayes Risk Pairs (Discrete Instances) ---
+# We pick two arbitrary x-locations to display the scalar values
 x_locs <- c(-1.5, 1.5) 
 
-# Define Risk Levels for the Pairs
-# Pair J (lower)
+# Define Risk Levels for the pairs
+# Pair j (Lower)
 risk_star_j <- (V - epsilon) - 0.8
 risk_n_j    <- risk_star_j - 0.4
 
-# Pair J+1 (higher, Closer to the Limit, but Still Trapped)
+# Pair j+1 (Higher, closer to the limit, but still trapped)
 risk_star_j1 <- (V - epsilon) - 0.4
 risk_n_j1    <- risk_star_j1 - 0.4
 
@@ -574,8 +574,9 @@ $$ \sup_{\theta} R(\theta, \delta_0) = 1 \le 1 $$
 The condition holds. Therefore, $\delta_0(X) = X$ is the Minimax estimator for $\theta$.
 :::
 
+### Bayes Rule as a Working Horse to Find a Minimax Rule
 
-### The Minimax Theorem (saddle Point)
+#### The Minimax Theorem (Saddle Point)
 
 This theorem connects the search for a Minimax rule to the search for a Least Favorable Prior. It justifies the strategy of "finding the worst prior and solving it."
 
@@ -640,12 +641,127 @@ Thus, $\delta_0$ minimizes the maximum risk. $\delta_0$ is Minimax. $\blacksquar
 :::
 
 
+#### Alternating Optimization on the Risk Surface
+
+The Minimax solution can be found computationally by iteratively optimizing one variable while holding the other fixed.
+
+1.  **Fix Prior $\pi$, Minimize Risk:** We search the valley bottom for the current $\pi$.
+2.  **Fix Rule $\delta$, Maximize Risk:**  We search the hill top for the current $\delta$.
+
+This creates a "zigzag" path on the surface that converges to the saddle point.
+
+```{r}
+#| label: fig-saddle-path
+#| echo: false
+#| warning: false
+#| message: false
+#| fig-cap: "The 'Wiggle Mountain' of Risk. The surface represents Bayes Risk $r(\\pi, \\delta)$. The white zigzag line shows the iterative algorithm: starting from an arbitrary prior, we alternate between finding the best $\\delta$ (moving along the valley) and the worst $\\pi$ (climbing the hill). This path spirals inward, converging to the red Saddle Point (Minimax solution) in the center."
+#| fig-height: 7
+
+library(plotly)
+
+# 1. Define the Surface Function
+# Z = (delta^2) - (pi^2) + interaction + wiggles
+# The term '0.5 * x * y' creates the dependence that forces iterations
+risk_function <- function(x, y) {
+  (0.8 * x^2 + 0.1 * sin(4 * x)) -     # Convex part (Delta)
+  (0.8 * y^2 + 0.1 * cos(4 * y)) +     # Concave part (Pi)
+  (0.6 * x * y)                        # Interaction (creates the spiral)
+}
+
+# Grid for the surface
+x_seq <- seq(-2, 2, length.out = 80) # Delta
+y_seq <- seq(-2, 2, length.out = 80) # Pi
+grid <- expand.grid(x = x_seq, y = y_seq)
+grid$z <- risk_function(grid$x, grid$y)
+z_matrix <- matrix(grid$z, nrow = 80, ncol = 80)
+
+# 2. Compute the Iteration Path (Min-Max Zigzag)
+# We manually simulate a few steps of coordinate descent/ascent
+path_x <- c()
+path_y <- c()
+path_z <- c()
+
+# Start at an arbitrary point
+cur_x <- -1.5
+cur_y <- -1.8
+
+# 5 Iterations
+for (i in 1:5) {
+  # Record Start of step
+  path_x <- c(path_x, cur_x)
+  path_y <- c(path_y, cur_y)
+  path_z <- c(path_z, risk_function(cur_x, cur_y))
+  
+  # Step 1: Minimize Delta (x) given current Pi (y)
+  # Roughly: dZ/dx = 1.6x + 0.6y + ... => x approx -0.375y
+  # We use optimize() for precision with the wiggle
+  opt_x <- optimize(function(x) risk_function(x, cur_y), interval = c(-2, 2))$minimum
+  cur_x <- opt_x
+  
+  # Record after Delta move
+  path_x <- c(path_x, cur_x)
+  path_y <- c(path_y, cur_y)
+  path_z <- c(path_z, risk_function(cur_x, cur_y))
+  
+  # Step 2: Maximize Pi (y) given current Delta (x)
+  # Roughly: dZ/dy = -1.6y + 0.6x + ... => y approx 0.375x
+  opt_y <- optimize(function(y) risk_function(cur_x, y), interval = c(-2, 2), maximum = TRUE)$maximum
+  cur_y <- opt_y
+  
+  # Record after Pi move
+  path_x <- c(path_x, cur_x)
+  path_y <- c(path_y, cur_y)
+  path_z <- c(path_z, risk_function(cur_x, cur_y))
+}
+
+# 3. Plot
+plot_ly() %>%
+  # The Surface
+  add_surface(
+    x = ~x_seq, 
+    y = ~y_seq, 
+    z = ~z_matrix,
+    colorscale = list(c(0, 0.5, 1), c("blue", "yellow", "red")),
+    opacity = 0.8,
+    showscale = FALSE,
+    contours = list(
+      z = list(show = TRUE, usecolormap = TRUE, project = list(z = TRUE))
+    )
+  ) %>%
+  # The Iteration Path
+  add_trace(
+    type = "scatter3d",
+    mode = "lines+markers",
+    x = path_x, y = path_y, z = path_z,
+    line = list(color = "white", width = 5),
+    marker = list(color = "white", size = 3),
+    name = "Optimization Path"
+  ) %>%
+  # The Saddle Point (Center)
+  add_markers(
+    x = 0, y = 0, z = risk_function(0,0),
+    marker = list(color = "black", size = 8, symbol = "x"),
+    name = "Saddle Point"
+  ) %>%
+  layout(
+    scene = list(
+      xaxis = list(title = "Decision Rule (δ)"),
+      yaxis = list(title = "Prior (π)"),
+      zaxis = list(title = "Risk"),
+      camera = list(eye = list(x = 1.6, y = 1.6, z = 1.4))
+    ),
+    legend = list(x = 0, y = 0.9),
+    margin = list(b = 60)
+  )
+```
+
 ## Admissibility of Bayes Rules
 
 Bayes rules are generally good candidates for admissibility. If a rule is Bayes, it is likely efficient, provided the prior doesn't ignore parts of the parameter space.
 
 ::: {#thm-admissibility-finite}
-### Admissibility of Bayes Rules (finite Support)
+### Admissibility of Bayes Rules (Finite Support)
 
 If the parameter space $\Theta$ is finite (or countable) and the prior $\pi$ assigns positive probability to every $\theta \in \Theta$ (i.e., $\pi(\theta) > 0$ for all $\theta$), then any Bayes rule $\delta_\pi$ is admissible.
 :::
