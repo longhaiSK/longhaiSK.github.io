@@ -295,37 +295,83 @@ ggplot(risk_points, aes(x = R1, y = R2)) +
 
 In practice, finding a Minimax rule directly is mathematically difficult. A standard strategy is to "guess" a Least Favorable Prior $\pi$—defined as the prior distribution that maximizes the minimum Bayes risk (i.e., the prior against which it is hardest to defend)—find the corresponding Bayes rule, and then check if it satisfies specific conditions to confirm it is Minimax.
 
-### Equalizer Rules
+### Constant Risk Bayes Rule Is Minimax
 
-::: {#thm-equalizer}
-## The Equalizer Rule Strategy
+::: {#thm-minimax-constant}
+#### Constant Risk Bayes Rule Is Minimax
 
-If $\delta^*$ is a Bayes rule with respect to some prior $\pi$, and if $\delta^*$ is an **equalizer** rule (meaning $R(\theta, \delta^*) = C$ for some constant $C$ for all $\theta \in \Theta$), then $\delta^*$ is Minimax.
+Let $\delta^\pi$ be a Bayes estimator with respect to a prior $\pi$. If the risk function of $\delta^\pi$ is constant on the parameter space $\Theta$, such that $R(\theta, \delta^\pi) = c$ for all $\theta \in \Theta$, then $\delta^\pi$ is a minimax estimator.
 :::
 
 ::: {.proof}
+Let $\delta^\pi$ be the Bayes estimator with constant risk $c$. First, we compute its Bayes risk $r(\pi, \delta^\pi)$. Since the risk is constant:
 
-1.  **Bayes Risk Definition:** Since $\delta^*$ is an equalizer rule with risk $C$, its Bayes risk with respect to $\pi$ is:
-    $$r(\pi, \delta^*) = \int_\Theta R(\theta, \delta^*) \pi(\theta) d\theta = \int_\Theta C \pi(\theta) d\theta = C \cdot 1 = C$$
+$$
+r(\pi, \delta^\pi) = \int_\Theta R(\theta, \delta^\pi) \pi(\theta) d\theta = \int_\Theta c \, \pi(\theta) d\theta = c
+$$
 
-2.  **Minimax Contradiction:** Suppose, for the sake of contradiction, that $\delta^*$ is *not* Minimax.
-    This implies there exists another rule $\delta'$ such that:
-    $$\sup_{\theta} R(\theta, \delta') < \sup_{\theta} R(\theta, \delta^*)$$
-    Since $R(\theta, \delta^*) = C$ for all $\theta$, the supremum is $C$. Thus:
-    $$\sup_{\theta} R(\theta, \delta') < C$$
+Now, let $\delta'$ be any arbitrary estimator. By the definition of a Bayes estimator, $\delta^\pi$ minimizes the Bayes risk among all estimators:
 
-3.  **Inequality:** This implies that for all $\theta$, $R(\theta, \delta') < C$.
+$$
+r(\pi, \delta^\pi) \le r(\pi, \delta')
+$$
 
-4.  **Bayes Risk Comparison:** Now, consider the Bayes risk of this alternative rule $\delta'$:
-    $$r(\pi, \delta') = \int_\Theta R(\theta, \delta') \pi(\theta) d\theta$$
-    Since $R(\theta, \delta') < C$ for all $\theta$, it follows that:
-    $$r(\pi, \delta') < \int_\Theta C \pi(\theta) d\theta = C$$
+Next, we observe that the Bayes risk of $\delta'$ is the expectation of its risk function with respect to the prior $\pi$. An average cannot exceed the maximum value of the function being averaged (the supremum):
 
-5.  **Conclusion:** We have established that $r(\pi, \delta') < C$. However, we established in step 1 that $r(\pi, \delta^*) = C$.
-    This yields $r(\pi, \delta') < r(\pi, \delta^*)$.
-    This contradicts the assumption that $\delta^*$ is a Bayes rule (since a Bayes rule must minimize the Bayes risk).
-    Therefore, no such $\delta'$ exists, and $\delta^*$ is Minimax. $\blacksquare$
+$$
+r(\pi, \delta') = \int_\Theta R(\theta, \delta') \pi(\theta) d\theta \le \sup_{\theta \in \Theta} R(\theta, \delta') \cdot \int_\Theta \pi(\theta) d\theta = \sup_{\theta \in \Theta} R(\theta, \delta')
+$$
+
+Combining these inequalities, we have:
+
+$$
+\sup_{\theta \in \Theta} R(\theta, \delta^\pi) = c = r(\pi, \delta^\pi) \le r(\pi, \delta') \le \sup_{\theta \in \Theta} R(\theta, \delta')
+$$
+
+Since $\sup_\theta R(\theta, \delta^\pi) \le \sup_\theta R(\theta, \delta')$ holds for any estimator $\delta'$, $\delta^\pi$ minimizes the maximum risk. Therefore, it is minimax.
 :::
+
+The plot below visualizes the logic of the proof. The red line represents the **Constant Risk Bayes Estimator** ($\delta^\pi$), which has a constant height $c$. The blue curve represents an **Arbitrary Estimator** ($\delta'$).
+
+Because $\delta^\pi$ minimizes the *weighted average* risk (Bayes risk), the average height of the blue curve cannot be lower than the red line (with respect to the prior). Consequently, the blue curve must rise above the red line at some point, making its maximum risk ($\sup R$) strictly greater than or equal to $c$. Thus, the constant risk estimator has the lowest possible maximum.
+
+```{r}
+#| label: fig-minimax-proof
+#| fig-cap: "Visual Proof: Any alternative estimator (Blue) with Bayes risk comparable to the Constant Risk estimator (Red) must have a higher maximum risk."
+#| echo: true
+
+# Define Parameter Space Theta
+theta <- seq(0, 1, length.out = 200)
+
+# 1. Constant Risk Bayes Estimator (risk = C)
+c_val <- 0.5
+risk_bayes <- rep(c_val, length(theta))
+
+# 2. Arbitrary Alternative Estimator
+# This Function Is Chosen Such That It Dips Below C but Rises Above It Elsewhere
+risk_alt <- c_val + 0.2 * sin(2 * pi * theta) - 0.05
+
+# Plotting
+plot(theta, risk_alt, type = 'l', lwd = 2, col = "blue",
+     ylim = c(0, 1), ylab = "Risk R(theta, d)", xlab = expression(theta),
+     main = "Geometry of the Minimax Theorem")
+
+# Add Constant Risk Line
+lines(theta, risk_bayes, col = "red", lwd = 2)
+
+# Mark the Maximum of the Alternative
+max_alt <- max(risk_alt)
+max_theta <- theta[which.max(risk_alt)]
+points(max_theta, max_alt, pch = 19, col = "blue")
+text(max_theta, max_alt, labels = expression(sup~R(theta, delta^"'")), pos = 3, col = "blue")
+
+# Label the Constant Risk
+text(0.1, c_val, labels = expression(R(theta, delta^pi) == c), pos = 3, col = "red")
+
+# Add Legend
+legend("bottomright", legend = c("Arbitrary Estimator", "Constant Risk Bayes Est."),
+       col = c("blue", "red"), lwd = 2, lty = 1)
+```
 
 ### Limits of Bayes Rules
 
@@ -361,6 +407,97 @@ Then $\delta_0$ is Minimax.
     $$V \le V - \epsilon$$
     This is a contradiction since $\epsilon > 0$. Therefore, $\delta_0$ must be Minimax. $\blacksquare$
 :::
+
+
+
+```{r fig-visualize-limit-bayes}
+#| echo: false
+#| warning: false
+#| message: false
+#| fig-cap: "Visual Proof by Contradiction: The 'Gap' that proves $\\delta_0$ is Minimax"
+#| fig-width: 8
+#| fig-height: 5
+
+
+library(ggplot2)
+library(tibble)
+
+# Define the scenario
+theta <- seq(-3, 3, length.out = 300)
+V <- 2.0
+epsilon <- 0.4
+
+# Create Risk Functions
+# Delta_0: A rule whose max risk touches V
+risk_delta_0 <- V - 0.1 * (theta)^2 
+risk_delta_0[risk_delta_0 < 0] <- 0 
+
+# Delta_star: The hypothetical "better" rule
+risk_delta_star <- (V - epsilon) - 0.2 * (theta - 0.5)^2
+
+df_curves <- tibble(
+  theta = theta,
+  R_delta_0 = risk_delta_0,
+  R_delta_star = risk_delta_star
+)
+
+# Sequence of Bayes Risks
+n_seq <- 1:5
+bayes_risks <- V - (1 / n_seq) * 0.8
+df_bayes <- tibble(
+  n = n_seq,
+  x_pos = seq(-2.5, -0.5, length.out = 5), 
+  risk_val = bayes_risks
+)
+
+ggplot() +
+  # 1. The Contradiction Gap Shading
+  annotate("rect", xmin = -Inf, xmax = Inf, ymin = V - epsilon, ymax = V, 
+           alpha = 0.1, fill = "red") +
+  # Use parse=TRUE for math notation in annotations
+  annotate("text", x = 2.5, y = V - epsilon/2, 
+           label = "'The Impossible Gap (' * epsilon * ')'", 
+           parse = TRUE, color = "red", size = 3.5) +
+
+  # 2. Reference Lines
+  geom_hline(yintercept = V, linetype = "dashed", color = "#D55E00", linewidth = 1) +
+  annotate("text", x = -3, y = V + 0.1, 
+           label = "'Limit' ~ V", 
+           parse = TRUE, color = "#D55E00", hjust = 0, fontface = "bold") +
+  
+  geom_hline(yintercept = V - epsilon, linetype = "dotted", color = "#0072B2", linewidth = 1) +
+  annotate("text", x = -3, y = (V - epsilon) - 0.15, 
+           label = "'Max Risk of hypothetical ' ~ delta^'*' ~ (V - epsilon)", 
+           parse = TRUE, color = "#0072B2", hjust = 0, vjust = 1) +
+
+  # 3. Risk Curves
+  geom_line(data = df_curves, aes(x = theta, y = R_delta_0), color = "#D55E00", linewidth = 1.2) +
+  geom_line(data = df_curves, aes(x = theta, y = R_delta_star), color = "#0072B2", linewidth = 1.2) +
+
+  # 4. Sequence of Bayes Risks
+  geom_point(data = df_bayes, aes(x = x_pos, y = risk_val), size = 3) +
+  geom_segment(data = df_bayes, aes(x = x_pos, xend = x_pos, y = 0, yend = risk_val), 
+               linetype="dotted", alpha=0.5) +
+  annotate("text", x = -1.5, y = 1.0, 
+           label = "'Sequence of Bayes Risks: ' ~ r(pi[n], delta[n]) %->% V", 
+           parse = TRUE, size = 3.5, hjust = 0.5) +
+  
+  # Labels with expression()
+  labs(
+    title = expression(paste("Limits of Bayes Rules: Proof regarding ", delta[0])),
+    subtitle = expression(paste("If ", delta^"*", " existed, ", r(pi[n], delta[n]), " would be trapped below ", V - epsilon)),
+    x = expression("Parameter " ~ theta),
+    y = expression("Risk " ~ R(theta, delta))
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold"),
+    panel.grid.minor = element_blank()
+  )
+```
+
+
+
 
 ### Admissibility of Bayes Rules
 
