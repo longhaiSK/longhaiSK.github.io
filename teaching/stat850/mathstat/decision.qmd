@@ -295,7 +295,7 @@ ggplot(risk_points, aes(x = R1, y = R2)) +
 
 In practice, finding a Minimax rule directly is mathematically difficult. A standard strategy is to "guess" a Least Favorable Prior $\pi$—defined as the prior distribution that maximizes the minimum Bayes risk (i.e., the prior against which it is hardest to defend)—find the corresponding Bayes rule, and then check if it satisfies specific conditions to confirm it is Minimax.
 
-### Constant Risk Bayes Rule Is Minimax
+### Constant Risk Bayes Rule Is Minimax (Proof by Contradiction)
 
 ::: {#thm-minimax-constant}
 #### Constant Risk Bayes Rule Is Minimax
@@ -304,73 +304,83 @@ Let $\delta^\pi$ be a Bayes estimator with respect to a prior $\pi$. If the risk
 :::
 
 ::: {.proof}
-Let $\delta^\pi$ be the Bayes estimator with constant risk $c$. First, we compute its Bayes risk $r(\pi, \delta^\pi)$. Since the risk is constant:
+Assume, for the sake of contradiction, that $\delta^\pi$ is **not** a minimax estimator. 
+
+By definition, if $\delta^\pi$ is not minimax, there must exist some other estimator $\delta'$ that has a strictly smaller maximum risk. That is:
 
 $$
-r(\pi, \delta^\pi) = \int_\Theta R(\theta, \delta^\pi) \pi(\theta) d\theta = \int_\Theta c \, \pi(\theta) d\theta = c
+\sup_{\theta \in \Theta} R(\theta, \delta') < \sup_{\theta \in \Theta} R(\theta, \delta^\pi)
 $$
 
-Now, let $\delta'$ be any arbitrary estimator. By the definition of a Bayes estimator, $\delta^\pi$ minimizes the Bayes risk among all estimators:
+Since we are given that $R(\theta, \delta^\pi) = c$ for all $\theta \in \Theta$, its supremum is simply $c$. Therefore, our assumption implies:
 
 $$
-r(\pi, \delta^\pi) \le r(\pi, \delta')
+\sup_{\theta \in \Theta} R(\theta, \delta') < c
 $$
 
-Next, we observe that the Bayes risk of $\delta'$ is the expectation of its risk function with respect to the prior $\pi$. An average cannot exceed the maximum value of the function being averaged (the supremum):
+Now, consider the Bayes risk of $\delta'$ with respect to the prior $\pi$. The Bayes risk is the weighted average of the risk function:
 
 $$
-r(\pi, \delta') = \int_\Theta R(\theta, \delta') \pi(\theta) d\theta \le \sup_{\theta \in \Theta} R(\theta, \delta') \cdot \int_\Theta \pi(\theta) d\theta = \sup_{\theta \in \Theta} R(\theta, \delta')
+r(\pi, \delta') = \int_\Theta R(\theta, \delta') \pi(\theta) d\theta
 $$
 
-Combining these inequalities, we have:
+Since $R(\theta, \delta') \le \sup_{\theta} R(\theta, \delta')$ for all $\theta$, and we assumed this supremum is strictly less than $c$, it follows that:
 
 $$
-\sup_{\theta \in \Theta} R(\theta, \delta^\pi) = c = r(\pi, \delta^\pi) \le r(\pi, \delta') \le \sup_{\theta \in \Theta} R(\theta, \delta')
+r(\pi, \delta') \le \sup_{\theta \in \Theta} R(\theta, \delta') < c
 $$
 
-Since $\sup_\theta R(\theta, \delta^\pi) \le \sup_\theta R(\theta, \delta')$ holds for any estimator $\delta'$, $\delta^\pi$ minimizes the maximum risk. Therefore, it is minimax.
+However, we know that $c$ is the Bayes risk of $\delta^\pi$:
+
+$$
+r(\pi, \delta^\pi) = \int_\Theta c \, \pi(\theta) d\theta = c
+$$
+
+Substituting this into our inequality, we get:
+
+$$
+r(\pi, \delta') < r(\pi, \delta^\pi)
+$$
+
+This result contradicts the fact that $\delta^\pi$ is a **Bayes estimator**. By definition, a Bayes estimator must minimize the Bayes risk, meaning $r(\pi, \delta^\pi) \le r(\pi, \delta)$ for any estimator $\delta$. 
+
+Because our assumption that $\delta^\pi$ is not minimax leads to a contradiction of the Bayes optimality of $\delta^\pi$, the assumption must be false. Thus, $\delta^\pi$ must be minimax.
 :::
 
-The plot below visualizes the logic of the proof. The red line represents the **Constant Risk Bayes Estimator** ($\delta^\pi$), which has a constant height $c$. The blue curve represents an **Arbitrary Estimator** ($\delta'$).
-
-Because $\delta^\pi$ minimizes the *weighted average* risk (Bayes risk), the average height of the blue curve cannot be lower than the red line (with respect to the prior). Consequently, the blue curve must rise above the red line at some point, making its maximum risk ($\sup R$) strictly greater than or equal to $c$. Thus, the constant risk estimator has the lowest possible maximum.
+The plot below visualizes this logic. If an estimator $\delta'$ (Blue) were to be "better" in a minimax sense than $\delta^\pi$ (Red), its entire curve would have to stay below the maximum value $c$. However, if it stays below $c$ everywhere, its average (Bayes risk) would necessarily be lower than $c$, which is impossible if $\delta^\pi$ is the Bayes estimator.
 
 ```{r}
-#| label: fig-minimax-proof
-#| fig-cap: "Visual Proof: Any alternative estimator (Blue) with Bayes risk comparable to the Constant Risk estimator (Red) must have a higher maximum risk."
+#| label: fig-minimax-contradiction
+#| fig-cap: "Visualizing the Contradiction: If the blue curve's maximum were below the red line, its average risk would be lower than the Bayes risk of the red estimator."
 #| echo: true
 
 # Define Parameter Space Theta
 theta <- seq(0, 1, length.out = 200)
 
 # 1. Constant Risk Bayes Estimator (risk = C)
-c_val <- 0.5
+c_val <- 0.6
 risk_bayes <- rep(c_val, length(theta))
 
-# 2. Arbitrary Alternative Estimator
-# This Function Is Chosen Such That It Dips Below C but Rises Above It Elsewhere
-risk_alt <- c_val + 0.2 * sin(2 * pi * theta) - 0.05
+# 2. An estimator that would contradict Bayes optimality 
+# (Always below the constant risk line)
+risk_contradiction <- 0.5 + 0.05 * cos(2 * pi * theta)
 
 # Plotting
-plot(theta, risk_alt, type = 'l', lwd = 2, col = "blue",
+plot(theta, risk_bayes, type = 'l', lwd = 3, col = "red",
      ylim = c(0, 1), ylab = "Risk R(theta, d)", xlab = expression(theta),
-     main = "Geometry of the Minimax Theorem")
+     main = "Proof by Contradiction Geometry")
 
-# Add Constant Risk Line
-lines(theta, risk_bayes, col = "red", lwd = 2)
+# Add the "Better" Estimator (which is impossible)
+lines(theta, risk_contradiction, col = "blue", lwd = 2, lty = 2)
 
-# Mark the Maximum of the Alternative
-max_alt <- max(risk_alt)
-max_theta <- theta[which.max(risk_alt)]
-points(max_theta, max_alt, pch = 19, col = "blue")
-text(max_theta, max_alt, labels = expression(sup~R(theta, delta^"'")), pos = 3, col = "blue")
-
-# Label the Constant Risk
-text(0.1, c_val, labels = expression(R(theta, delta^pi) == c), pos = 3, col = "red")
+# Shaded area showing the "Impossible" Bayes Risk improvement
+polygon(c(theta, rev(theta)), c(risk_contradiction, rev(risk_bayes)), 
+        col = rgb(0, 0, 1, 0.1), border = NA)
 
 # Add Legend
-legend("bottomright", legend = c("Arbitrary Estimator", "Constant Risk Bayes Est."),
-       col = c("blue", "red"), lwd = 2, lty = 1)
+legend("topright", 
+       legend = c("Constant Risk Bayes (c)", "Hypothetical 'Better' Est."),
+       col = c("red", "blue"), lwd = 2, lty = c(1, 2))
 ```
 
 
