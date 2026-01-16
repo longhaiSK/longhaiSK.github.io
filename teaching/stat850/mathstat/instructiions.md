@@ -37,6 +37,6 @@ Content of Theorem/Definition/Corollary
 %|   extra.preamble: "\\usepackage{amssymb}"
 
 \begin{tikzpicture}
-
+plotting commands here
 \end{tikzpicture}
 ```
