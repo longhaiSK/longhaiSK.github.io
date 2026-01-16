@@ -612,85 +612,15 @@ legend("topright",
 ```
 
 
-### Constant Risk Bayes Estimator Is Minimax
+### Finding Minimax Rules with Bayes Rules
 
-A decision rule $d(x)$ is **minimax** if it minimizes the maximum possible risk: $\sup_\theta R(\theta, d)$.
+@thm-minimax-constant states that if a Bayes estimator $\delta^\pi$ (derived from a prior $\pi$) yields a constant risk $R(\theta, \delta^\pi) = c$ across the entire parameter space $\Theta$, then that estimator is necessarily minimax. 
 
-::: {#thm-minimax-constant}
-#### Constant Risk Bayes Estimator Is Minimax
 
-Let $\delta^\pi$ be a Bayes estimator with respect to a prior $\pi$. If the risk function of $\delta^\pi$ is constant on the parameter space $\Theta$, such that $R(\theta, \delta^\pi) = c$ for all $\theta \in \Theta$, then $\delta^\pi$ is a minimax estimator.
-:::
 
-::: {.proof}
-Let $\delta^\pi$ be the Bayes estimator with constant risk $c$. First, we compute its Bayes risk $r(\pi, \delta^\pi)$. Since the risk is constant:
+This result is a cornerstone of decision theory because it provides a sufficient condition for minimaxity. While the minimax criterion focuses on the "worst-case scenario" by minimizing the maximum possible risk, the Bayes criterion focuses on the "average-case scenario" relative to a prior. When the risk is constant, these two perspectives align: the average risk equals the maximum risk, and no other estimator can achieve a lower maximum without also having a lower Bayes risk, which would contradict the optimality of the Bayes rule.
 
-$$
-r(\pi, \delta^\pi) = \int_\Theta R(\theta, \delta^\pi) \pi(\theta) d\theta = \int_\Theta c \, \pi(\theta) d\theta = c
-$$
-
-Now, let $\delta'$ be any arbitrary estimator. By the definition of a Bayes estimator, $\delta^\pi$ minimizes the Bayes risk among all estimators:
-
-$$
-r(\pi, \delta^\pi) \le r(\pi, \delta')
-$$
-
-Next, we observe that the Bayes risk of $\delta'$ is the expectation of its risk function with respect to the prior $\pi$. An average cannot exceed the maximum value of the function being averaged (the supremum):
-
-$$
-r(\pi, \delta') = \int_\Theta R(\theta, \delta') \pi(\theta) d\theta \le \sup_{\theta \in \Theta} R(\theta, \delta') \cdot \int_\Theta \pi(\theta) d\theta = \sup_{\theta \in \Theta} R(\theta, \delta')
-$$
-
-Combining these inequalities, we have:
-
-$$
-\sup_{\theta \in \Theta} R(\theta, \delta^\pi) = c = r(\pi, \delta^\pi) \le r(\pi, \delta') \le \sup_{\theta \in \Theta} R(\theta, \delta')
-$$
-
-Since $\sup_\theta R(\theta, \delta^\pi) \le \sup_\theta R(\theta, \delta')$ holds for any estimator $\delta'$, $\delta^\pi$ minimizes the maximum risk. Therefore, it is minimax.
-:::
-
-The plot below visualizes the logic of the proof. The red line represents the **Constant Risk Bayes Estimator** ($\delta^\pi$), which has a constant height $c$. The blue curve represents an **Arbitrary Estimator** ($\delta'$).
-
-Because $\delta^\pi$ minimizes the *weighted average* risk (Bayes risk), the average height of the blue curve cannot be lower than the red line (with respect to the prior). Consequently, the blue curve must rise above the red line at some point, making its maximum risk ($\sup R$) strictly greater than or equal to $c$. Thus, the constant risk estimator has the lowest possible maximum.
-
-```{r}
-#| label: fig-minimax-proof
-#| fig-cap: "Visual Proof: Any alternative estimator (Blue) with Bayes risk comparable to the Constant Risk estimator (Red) must have a higher maximum risk."
-#| echo: true
-
-# Define Parameter Space Theta
-theta <- seq(0, 1, length.out = 200)
-
-# 1. Constant Risk Bayes Estimator (risk = C)
-c_val <- 0.5
-risk_bayes <- rep(c_val, length(theta))
-
-# 2. Arbitrary Alternative Estimator
-# This Function Is Chosen Such That It Dips Below C but Rises Above It Elsewhere
-risk_alt <- c_val + 0.2 * sin(2 * pi * theta) - 0.05
-
-# Plotting
-plot(theta, risk_alt, type = 'l', lwd = 2, col = "blue",
-     ylim = c(0, 1), ylab = "Risk R(theta, d)", xlab = expression(theta),
-     main = "Geometry of the Minimax Theorem")
-
-# Add Constant Risk Line
-lines(theta, risk_bayes, col = "red", lwd = 2)
-
-# Mark the Maximum of the Alternative
-max_alt <- max(risk_alt)
-max_theta <- theta[which.max(risk_alt)]
-points(max_theta, max_alt, pch = 19, col = "blue")
-text(max_theta, max_alt, labels = expression(sup~R(theta, delta^"'")), pos = 3, col = "blue")
-
-# Label the Constant Risk
-text(0.1, c_val, labels = expression(R(theta, delta^pi) == c), pos = 3, col = "red")
-
-# Add Legend
-legend("bottomright", legend = c("Arbitrary Estimator", "Constant Risk Bayes Est."),
-       col = c("blue", "red"), lwd = 2, lty = 1)
-```
+In practice, this means that to find a minimax estimator, one can often search for a "least favorable prior" that results in a Bayes estimator with a flat risk profile.
 
 ::: {#exm-binomial-minimax}
 #### Binomial Minimax Estimator
