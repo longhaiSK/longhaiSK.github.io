@@ -40,3 +40,11 @@ Content of Theorem/Definition/Corollary
 plotting commands here
 \end{tikzpicture}
 ```
+
+* Specific instructions for making assignments:
+    - The solutions should be put in this format:
+    ```{asis}
+    ::: {.sol}
+    Content of solution
+    :::
+    ```
