@@ -209,7 +209,7 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#squared-error-loss-point-estimate" id="toc-squared-error-loss-point-estimate" class="nav-link" data-scroll-target="#squared-error-loss-point-estimate"><span class="header-section-number">3.2.1.1</span> Squared Error Loss (point Estimate)</a></li>
   <li><a href="#absolute-error-loss" id="toc-absolute-error-loss" class="nav-link" data-scroll-target="#absolute-error-loss"><span class="header-section-number">3.2.1.2</span> Absolute Error Loss</a></li>
-  <li><a href="#relative-absolute-error-loss" id="toc-relative-absolute-error-loss" class="nav-link" data-scroll-target="#relative-absolute-error-loss"><span class="header-section-number">3.2.1.3</span> Relative Absolute Error Loss</a></li>
+  <li><a href="#weighted-absolute-error-loss-min-normalization" id="toc-weighted-absolute-error-loss-min-normalization" class="nav-link" data-scroll-target="#weighted-absolute-error-loss-min-normalization"><span class="header-section-number">3.2.1.3</span> Weighted Absolute Error Loss (Min-Normalization)</a></li>
   <li><a href="#hypothesis-testing-0-1-loss" id="toc-hypothesis-testing-0-1-loss" class="nav-link" data-scroll-target="#hypothesis-testing-0-1-loss"><span class="header-section-number">3.2.1.4</span> Hypothesis Testing (0-1 Loss)</a></li>
   <li><a href="#classification-prediction-categorical-parameter" id="toc-classification-prediction-categorical-parameter" class="nav-link" data-scroll-target="#classification-prediction-categorical-parameter"><span class="header-section-number">3.2.1.5</span> Classification Prediction (categorical Parameter)</a></li>
   <li><a href="#interval-estimation-and-highest-posterior-density-hpd" id="toc-interval-estimation-and-highest-posterior-density-hpd" class="nav-link" data-scroll-target="#interval-estimation-and-highest-posterior-density-hpd"><span class="header-section-number">3.2.1.6</span> Interval Estimation and Highest Posterior Density (HPD)</a></li>
@@ -568,7 +568,7 @@ Important
 <p>The following diagram summarizes the general workflow for deriving a Bayes estimator:</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-bayes-workflow" class="quarto-float quarto-figure quarto-figure-center anchored" style="width: 80% !important;" data-fig-align="center">
+<div id="fig-bayes-workflow" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" style="width: 80% !important;">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-bayes-workflow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="bayesian_files/figure-html/fig-bayes-workflow-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width: 80% !important;" width="576">
@@ -618,62 +618,153 @@ P(\theta \le d|x) = P(\theta &gt; d|x)
 </ul>
 <p><strong>Result:</strong> The Bayes rule under absolute error loss is the <strong>posterior median</strong>.</p>
 </section>
-<section id="relative-absolute-error-loss" class="level4" data-number="3.2.1.3">
-<h4 data-number="3.2.1.3" class="anchored" data-anchor-id="relative-absolute-error-loss"><span class="header-section-number">3.2.1.3</span> Relative Absolute Error Loss</h4>
-<p><span class="math display">\[L(\theta, d) = \frac{|\theta - d|}{\theta}\]</span></p>
-<p>This loss function penalizes errors relative to the magnitude of the true parameter <span class="math inline">\(\theta\)</span>. It is particularly relevant when the scale of <span class="math inline">\(\theta\)</span> varies significantly, making a fixed absolute error (e.g., off by 5) negligible for large <span class="math inline">\(\theta\)</span> but disastrous for small <span class="math inline">\(\theta\)</span>.</p>
+<section id="weighted-absolute-error-loss-min-normalization" class="level4" data-number="3.2.1.3">
+<h4 data-number="3.2.1.3" class="anchored" data-anchor-id="weighted-absolute-error-loss-min-normalization"><span class="header-section-number">3.2.1.3</span> Weighted Absolute Error Loss (Min-Normalization)</h4>
+<p><span class="math display">\[L(\theta, d) = \frac{|\theta - d|}{\min(\theta, 1-\theta)}\]</span></p>
+<p>This loss function penalizes errors extremely heavily when the true parameter <span class="math inline">\(\theta\)</span> is near the boundaries (0 or 1). Because the denominator approaches zero at the boundaries, the “cost” of an error becomes infinite, forcing the estimator to be very cautious (conservative) if the posterior has significant mass near 0 or 1.</p>
 <p>To find the Bayes rule, we minimize the posterior expected loss. Let <span class="math inline">\(\pi(\theta|x)\)</span> denote the posterior density.</p>
 <p><span class="math display">\[
-\psi(d) = E_{\theta|x} \left[ \frac{|\theta - d|}{\theta} \right] = \int \frac{|\theta - d|}{\theta} \pi(\theta|x) \, d\theta
+\psi(d) = E_{\theta|x} \left[ \frac{|\theta - d|}{\min(\theta, 1-\theta)} \right] = \int \frac{|\theta - d|}{\min(\theta, 1-\theta)} \pi(\theta|x) \, d\theta
 \]</span></p>
-<p>Let <span class="math inline">\(w(\theta) = 1/\theta\)</span>. We can view this integral as an expectation with respect to a <strong>weighted posterior density</strong> <span class="math inline">\(\pi^*(\theta|x)\)</span>:</p>
+<p>Let <span class="math inline">\(w(\theta) = \frac{1}{\min(\theta, 1-\theta)}\)</span>. We can view this integral as an expectation with respect to a <strong>weighted posterior density</strong> <span class="math inline">\(\pi^*(\theta|x)\)</span>:</p>
 <p><span class="math display">\[
-\pi^*(\theta|x) \propto w(\theta) \pi(\theta|x) = \frac{1}{\theta} \pi(\theta|x)
+\pi^*(\theta|x) \propto w(\theta) \pi(\theta|x) = \frac{\pi(\theta|x)}{\min(\theta, 1-\theta)}
 \]</span></p>
-<p>Minimizing the original expected loss is equivalent to minimizing <span class="math inline">\(E_{\theta|x^*} [ |\theta - d| ]\)</span>, where the expectation is taken over the weighted density <span class="math inline">\(\pi^*\)</span>.</p>
-<p><strong>Result:</strong> By analogy to the absolute error case, the Bayes rule under relative absolute error loss is the <strong>median</strong> of the weighted posterior distribution <span class="math inline">\(\pi^*(\theta|x)\)</span>.</p>
-<p><strong>General Case (Weighted Median)</strong></p>
-<p>For a general weight function <span class="math inline">\(w(\theta)\)</span> (where loss is <span class="math inline">\(L(\theta, d) = w(\theta)|\theta - d|\)</span>), the Bayes rule is the median of the distribution with density proportional to <span class="math inline">\(w(\theta)\pi(\theta|x)\)</span>.</p>
-<p>Computational estimation of this median using samples from the standard posterior <span class="math inline">\(\pi(\theta|x)\)</span> is straightforward via <strong>Importance Sampling</strong>:</p>
-<p><strong>Algorithm:</strong></p>
+<p><strong>Result:</strong> The Bayes rule is the <strong>median</strong> of the weighted posterior distribution <span class="math inline">\(\pi^*(\theta|x)\)</span>.</p>
+<div id="alg-weighted-median">
+<section id="importance-sampling-for-weighted-median" class="level5" data-number="3.2.1.3.1">
+<h5 data-number="3.2.1.3.1" class="anchored" data-anchor-id="importance-sampling-for-weighted-median"><span class="header-section-number">3.2.1.3.1</span> Importance Sampling for Weighted Median</h5>
+<p><strong>Goal:</strong> Estimate the median of <span class="math inline">\(\pi^*(\theta|x) \propto w(\theta)\pi(\theta|x)\)</span> using samples from <span class="math inline">\(\pi(\theta|x)\)</span>.</p>
 <ol type="1">
-<li><strong>Sample</strong>: Draw <span class="math inline">\(M\)</span> independent samples <span class="math inline">\(\theta_1, \dots, \theta_M\)</span> from the standard posterior <span class="math inline">\(\pi(\theta | x)\)</span>.</li>
-<li><strong>Weight</strong>: Compute the importance weight for each sample: <span class="math display">\[ W_i = w(\theta_i) \]</span> <em>(For relative error, <span class="math inline">\(W_i = 1/\theta_i\)</span>.)</em></li>
-<li><strong>Sort</strong>: Reorder the samples such that <span class="math inline">\(\theta_{(1)} \le \theta_{(2)} \le \dots \le \theta_{(M)}\)</span>. Arrange the corresponding weights <span class="math inline">\(W_{(1)}, \dots, W_{(M)}\)</span> to match this order.</li>
-<li><strong>Accumulate</strong>: Compute the cumulative weights <span class="math inline">\(S_k = \sum_{j=1}^k W_{(j)}\)</span>.</li>
-<li><strong>Select</strong>: The estimated weighted median is the value <span class="math inline">\(\theta_{(k)}\)</span> where the cumulative weight reaches half of the total weight: <span class="math display">\[ \min \{ k : S_k \ge 0.5 \times S_M \} \]</span></li>
+<li><p><strong>Sample:</strong> Generate <span class="math inline">\(M\)</span> independent draws <span class="math inline">\(\theta_1, \dots, \theta_M\)</span> from the standard posterior <span class="math inline">\(\pi(\theta|x)\)</span>.</p></li>
+<li><p><strong>Weight:</strong> For each <span class="math inline">\(i = 1, \dots, M\)</span>, compute the importance weight: <span class="math display">\[ W_i = w(\theta_i) = \frac{1}{\min(\theta_i, 1-\theta_i)} \]</span></p></li>
+<li><p><strong>Sort:</strong> Reorder the samples such that <span class="math inline">\(\theta_{(1)} \le \theta_{(2)} \le \dots \le \theta_{(M)}\)</span>. Permute the weights <span class="math inline">\(W_{(1)}, \dots, W_{(M)}\)</span> to match this ordering.</p></li>
+<li><p><strong>Accumulate:</strong> Compute the cumulative weights: <span class="math display">\[ S_k = \sum_{j=1}^k W_{(j)} \quad \text{for } k=1, \dots, M \]</span></p></li>
+<li><p><strong>Select:</strong> Find the smallest index <span class="math inline">\(k^*\)</span> such that the cumulative weight exceeds half the total weight: <span class="math display">\[ k^* = \min \{ k : S_k \ge 0.5 \times S_M \} \]</span></p></li>
+<li><p><strong>Output:</strong> Return the estimator <span class="math inline">\(\hat{\delta} = \theta_{(k^*)}\)</span>.</p></li>
 </ol>
-<p><strong>R Implementation:</strong></p>
+</section>
+</div>
+<p><strong>Numerical Example: Beta(2, 10)</strong></p>
+<p>We compare the “exact” weighted median (found by numerical integration) with the Monte Carlo estimate for a skewed distribution.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Assume 'theta_samples' are drawn from the standard posterior</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the weight function (e.g., relative error)</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>weight_func <span class="ot">&lt;-</span> <span class="cf">function</span>(theta) { <span class="dv">1</span> <span class="sc">/</span> theta }</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Compute Weights</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>W <span class="ot">&lt;-</span> <span class="fu">weight_func</span>(theta_samples)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Sort samples and weights simultaneously</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>ord <span class="ot">&lt;-</span> <span class="fu">order</span>(theta_samples)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>theta_sorted <span class="ot">&lt;-</span> theta_samples[ord]</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>W_sorted     <span class="ot">&lt;-</span> W[ord]</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Find the Weighted Median</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>W_cumsum <span class="ot">&lt;-</span> <span class="fu">cumsum</span>(W_sorted)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>W_total  <span class="ot">&lt;-</span> <span class="fu">sum</span>(W_sorted)</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Find the first index where cumulative sum exceeds 50%</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>idx <span class="ot">&lt;-</span> <span class="fu">which</span>(W_cumsum <span class="sc">&gt;=</span> <span class="fl">0.5</span> <span class="sc">*</span> W_total)[<span class="dv">1</span>]</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>weighted_median <span class="ot">&lt;-</span> theta_sorted[idx]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Setup Parameters</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>beta <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Standard Posterior Density: dbeta(x, 2, 10)</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Define the Weight Function (Using MIN)</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>w <span class="ot">&lt;-</span> <span class="cf">function</span>(theta) { <span class="dv">1</span> <span class="sc">/</span> <span class="fu">pmin</span>(theta, <span class="dv">1</span> <span class="sc">-</span> theta) }</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Calculate "Theoretical" Weighted Median (via Numerical Integration)</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Unnormalized weighted density</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>weighted_dens_unnorm <span class="ot">&lt;-</span> <span class="cf">function</span>(theta) {</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">w</span>(theta) <span class="sc">*</span> <span class="fu">dbeta</span>(theta, alpha, beta)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Find Normalization Constant C</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>C <span class="ot">&lt;-</span> <span class="fu">integrate</span>(weighted_dens_unnorm, <span class="dv">0</span>, <span class="dv">1</span>)<span class="sc">$</span>value</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Define CDF of the weighted distribution</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>weighted_cdf <span class="ot">&lt;-</span> <span class="cf">function</span>(q) {</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">integrate</span>(weighted_dens_unnorm, <span class="dv">0</span>, q)<span class="sc">$</span>value <span class="sc">/</span> C</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Find root of CDF(m) - 0.5 = 0</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Note: Expanded search interval because median might shift near boundaries</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>theo_median <span class="ot">&lt;-</span> <span class="fu">uniroot</span>(<span class="cf">function</span>(x) <span class="fu">weighted_cdf</span>(x) <span class="sc">-</span> <span class="fl">0.5</span>, <span class="fu">c</span>(<span class="fl">0.001</span>, <span class="fl">0.999</span>))<span class="sc">$</span>root</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Calculate Monte Carlo Weighted Median</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>M <span class="ot">&lt;-</span> <span class="dv">100000</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>theta_samples <span class="ot">&lt;-</span> <span class="fu">rbeta</span>(M, alpha, beta)</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute weights</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>weights <span class="ot">&lt;-</span> <span class="fu">w</span>(theta_samples)</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Sort samples and weights</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>ord <span class="ot">&lt;-</span> <span class="fu">order</span>(theta_samples)</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>sorted_theta <span class="ot">&lt;-</span> theta_samples[ord]</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>sorted_weights <span class="ot">&lt;-</span> weights[ord]</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="co"># Find index where cumulative weight crosses 50%</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>cum_weights <span class="ot">&lt;-</span> <span class="fu">cumsum</span>(sorted_weights)</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>total_weight <span class="ot">&lt;-</span> <span class="fu">sum</span>(sorted_weights)</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>idx <span class="ot">&lt;-</span> <span class="fu">which</span>(cum_weights <span class="sc">&gt;=</span> <span class="fl">0.5</span> <span class="sc">*</span> total_weight)[<span class="dv">1</span>]</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>mc_median <span class="ot">&lt;-</span> sorted_theta[idx]</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Comparison Table</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>comparison_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Theoretical Weighted"</span> <span class="ot">=</span> theo_median,</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Monte Carlo Weighted"</span> <span class="ot">=</span> mc_median,</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Standard Posterior"</span>   <span class="ot">=</span> <span class="fu">qbeta</span>(<span class="fl">0.5</span>, alpha, beta),</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(comparison_df, <span class="at">digits =</span> <span class="dv">3</span>, <span class="at">align =</span> <span class="st">"c"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: center;">Theoretical Weighted</th>
+<th style="text-align: center;">Monte Carlo Weighted</th>
+<th style="text-align: center;">Standard Posterior</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">0.067</td>
+<td style="text-align: center;">0.067</td>
+<td style="text-align: center;">0.148</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </section>
 <section id="hypothesis-testing-0-1-loss" class="level4" data-number="3.2.1.4">
 <h4 data-number="3.2.1.4" class="anchored" data-anchor-id="hypothesis-testing-0-1-loss"><span class="header-section-number">3.2.1.4</span> Hypothesis Testing (0-1 Loss)</h4>
 <p>Consider the hypothesis test <span class="math inline">\(H_0: \theta \in \Theta_0\)</span> versus <span class="math inline">\(H_1: \theta \in \Theta_1\)</span>. We define the decision space as <span class="math inline">\(\mathcal{A} = \{0, 1\}\)</span>, where <span class="math inline">\(a=0\)</span> means accepting <span class="math inline">\(H_0\)</span> and <span class="math inline">\(a=1\)</span> means rejecting <span class="math inline">\(H_0\)</span> (accepting <span class="math inline">\(H_1\)</span>).</p>
 <p><strong>Case 1: 0-1 Loss</strong></p>
-<p>The standard 0-1 loss function assigns a penalty of 1 for an incorrect decision and 0 for a correct one: <span class="math display">\[L(\theta, a) = \begin{cases} 0 &amp; \text{if } \theta \in \Theta_0, a=0 \ (\text{Correct } H_0) \\ 1 &amp; \text{if } \theta \in \Theta_0, a=1 \ (\text{Type I Error}) \\ 1 &amp; \text{if } \theta \in \Theta_1, a=0 \ (\text{Type II Error}) \\ 0 &amp; \text{if } \theta \in \Theta_1, a=1 \ (\text{Correct } H_1) \end{cases}\]</span></p>
+<p>The standard 0-1 loss function assigns a penalty of 1 for an incorrect decision and 0 for a correct one:</p>
+<div id="tbl-loss-std" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-loss-std-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3.1: Standard 0-1 Loss Function
+</figcaption>
+<div aria-describedby="tbl-loss-std-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 35%">
+<col style="width: 35%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">State of Nature (<span class="math inline">\(\theta\)</span>)</th>
+<th style="text-align: center;">Action <span class="math inline">\(a=0\)</span> (Accept <span class="math inline">\(H_0\)</span>)</th>
+<th style="text-align: center;">Action <span class="math inline">\(a=1\)</span> (Reject <span class="math inline">\(H_0\)</span>)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong><span class="math inline">\(\theta \in \Theta_0\)</span> (<span class="math inline">\(H_0\)</span> True)</strong></td>
+<td style="text-align: center;"><span class="math inline">\(0\)</span> (Correct)</td>
+<td style="text-align: center;"><span class="math inline">\(1\)</span> (Type I Error)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong><span class="math inline">\(\theta \in \Theta_1\)</span> (<span class="math inline">\(H_1\)</span> True)</strong></td>
+<td style="text-align: center;"><span class="math inline">\(1\)</span> (Type II Error)</td>
+<td style="text-align: center;"><span class="math inline">\(0\)</span> (Correct)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
 <p>To find the Bayes rule, we minimize the <strong>posterior expected loss</strong> for a given <span class="math inline">\(x\)</span>, denoted as <span class="math inline">\(E_{\theta|x}[L(\theta, a)]\)</span>.</p>
 <ul>
 <li><p><strong>Expected Loss for choosing <span class="math inline">\(a=0\)</span> (Accept <span class="math inline">\(H_0\)</span>):</strong> <span class="math display">\[
@@ -688,7 +779,41 @@ P(\theta \in \Theta_0|x) \le P(\theta \in \Theta_1|x)
 \]</span> This confirms that under 0-1 loss, the Bayes rule simply selects the hypothesis with the higher posterior probability.</p>
 <p><strong>Case 2: General Loss (Asymmetric Costs)</strong></p>
 <p>In many practical applications, the cost of errors is not symmetric. For example, a Type I error (false rejection) might be more costly than a Type II error. Let <span class="math inline">\(c_1\)</span> be the cost of a Type I error and <span class="math inline">\(c_2\)</span> be the cost of a Type II error. Usually, we normalize one cost to 1.</p>
-<p>Suppose the loss function is: <span class="math display">\[L(\theta, a) = \begin{cases} 0 &amp; \text{if } \theta \in \Theta_0, a=0 \\ c &amp; \text{if } \theta \in \Theta_0, a=1 \ (\text{Cost of Type I Error}) \\ 1 &amp; \text{if } \theta \in \Theta_1, a=0 \ (\text{Cost of Type II Error}) \\ 0 &amp; \text{if } \theta \in \Theta_1, a=1 \end{cases}\]</span></p>
+<div id="tbl-loss-cost" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-loss-cost-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3.2: Loss Function with Type I Error Cost <span class="math inline">\(c\)</span>
+</figcaption>
+<div aria-describedby="tbl-loss-cost-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 35%">
+<col style="width: 35%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">State of Nature (<span class="math inline">\(\theta\)</span>)</th>
+<th style="text-align: center;">Action <span class="math inline">\(a=0\)</span> (Accept <span class="math inline">\(H_0\)</span>)</th>
+<th style="text-align: center;">Action <span class="math inline">\(a=1\)</span> (Reject <span class="math inline">\(H_0\)</span>)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong><span class="math inline">\(\theta \in \Theta_0\)</span> (<span class="math inline">\(H_0\)</span> True)</strong></td>
+<td style="text-align: center;"><span class="math inline">\(0\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(c\)</span> (Type I Error)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong><span class="math inline">\(\theta \in \Theta_1\)</span> (<span class="math inline">\(H_1\)</span> True)</strong></td>
+<td style="text-align: center;"><span class="math inline">\(1\)</span> (Type II Error)</td>
+<td style="text-align: center;"><span class="math inline">\(0\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
 <p>We again calculate the posterior expected loss:</p>
 <ul>
 <li><p><strong>Expected Loss for <span class="math inline">\(a=0\)</span>:</strong> <span class="math display">\[E[L(\theta, 0)|x] = 0 \cdot P(\Theta_0|x) + 1 \cdot P(\Theta_1|x) = P(\Theta_1|x)\]</span></p></li>
@@ -973,7 +1098,7 @@ p(\boldsymbol{\mu}, \theta, \tau^2 | X) \propto \left[ \prod_{i=1}^n f(x_i | \mu
 <p>The following tree diagram illustrates the conditional dependencies. Note that the parameters <span class="math inline">\(\mu_i\)</span> are conditionally independent given the hyperparameter <span class="math inline">\(\theta\)</span>, which facilitates “borrowing strength” across groups.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-hierarchical-tree" class="quarto-float quarto-figure quarto-figure-center anchored" style="width: 80% !important;" data-fig-align="center">
+<div id="fig-hierarchical-tree" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" style="width: 80% !important;">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-hierarchical-tree-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="bayesian_files/figure-html/fig-hierarchical-tree-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width: 80% !important;" width="576">
@@ -1345,7 +1470,7 @@ X_i &amp;\sim N(\mu_i, 1) \\
 <div id="tbl-estimates-sorted" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-estimates-sorted-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;3.1: Comparison of Estimates (Sorted by Pre-season <span class="math inline">\(x_i\)</span>)
+Table&nbsp;3.3: Comparison of Estimates (Sorted by Pre-season <span class="math inline">\(x_i\)</span>)
 </figcaption>
 <div aria-describedby="tbl-estimates-sorted-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
