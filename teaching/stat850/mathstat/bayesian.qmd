@@ -433,7 +433,7 @@ A median is formally defined as any value $m$ that satisfies the following two c
 
 **Result:** The Bayes rule under absolute error loss is the **posterior median**.
 
-#### Weighted Absolute Error Loss (Min-Normalization)
+#### Weighted Absolute Error Loss (min-normalization)
 
 $$L(\theta, d) = \frac{|\theta - d|}{\min(\theta, 1-\theta)}$$
 
@@ -486,13 +486,13 @@ We compare the "exact" weighted median (found by numerical integration) with the
 # 1. Setup Parameters
 alpha <- 2
 beta <- 10
-# Standard Posterior Density: dbeta(x, 2, 10)
+# Standard Posterior Density: Dbeta(x, 2, 10)
 
-# 2. Define the Weight Function (Using MIN)
+# 2. Define the Weight Function (using MIN)
 w <- function(theta) { 1 / pmin(theta, 1 - theta) }
 
-# 3. Calculate "Theoretical" Weighted Median (via Numerical Integration)
-# Unnormalized weighted density
+# 3. Calculate "theoretical" Weighted Median (via Numerical Integration)
+# Unnormalized Weighted Density
 weighted_dens_unnorm <- function(theta) {
   w(theta) * dbeta(theta, alpha, beta)
 }
@@ -500,13 +500,13 @@ weighted_dens_unnorm <- function(theta) {
 # Find Normalization Constant C
 C <- integrate(weighted_dens_unnorm, 0, 1)$value
 
-# Define CDF of the weighted distribution
+# Define CDF of the Weighted Distribution
 weighted_cdf <- function(q) {
   integrate(weighted_dens_unnorm, 0, q)$value / C
 }
 
-# Find root of CDF(m) - 0.5 = 0
-# Note: Expanded search interval because median might shift near boundaries
+# Find Root of Cdf(m) - 0.5 = 0
+# Note: Expanded Search Interval Because Median Might Shift Near Boundaries
 theo_median <- uniroot(function(x) weighted_cdf(x) - 0.5, c(0.001, 0.999))$root
 
 
@@ -515,15 +515,15 @@ set.seed(123)
 M <- 100000
 theta_samples <- rbeta(M, alpha, beta)
 
-# Compute weights
+# Compute Weights
 weights <- w(theta_samples)
 
-# Sort samples and weights
+# Sort Samples and Weights
 ord <- order(theta_samples)
 sorted_theta <- theta_samples[ord]
 sorted_weights <- weights[ord]
 
-# Find index where cumulative weight crosses 50%
+# Find Index Where Cumulative Weight Crosses 50%
 cum_weights <- cumsum(sorted_weights)
 total_weight <- sum(sorted_weights)
 idx <- which(cum_weights >= 0.5 * total_weight)[1]
@@ -857,6 +857,111 @@ Consider the setting:
 * Prior: $\theta \sim N_p(0, \tau^2 I)$
 * Estimator: $d^{JS}(x) = \left( 1 - \frac{p-2}{||x||^2} \right) x$
 
+
+::: {#thm-mle-inadmissible}
+### Inadmissibility of the MLE in High Dimensions (stein's Phenomenon)
+
+Let $X \sim N_p(\theta, I)$ be a $p$-dimensional random vector with $p \ge 3$. Under the squared error loss function $L(\theta, d) = ||\theta - d||^2$, the standard Maximum Likelihood Estimator $d^0(X) = X$ is **inadmissible**.
+:::
+
+::: {.proof}
+To show that $d^0(X) = X$ is inadmissible, we must find another estimator that dominates it (i.e., has equal or lower risk for all $\theta$, and strictly lower risk for at least one $\theta$).
+
+First, consider the risk of the standard estimator $d^0$. Since $X_i \sim N(\theta_i, 1)$ are independent:
+
+$$
+R(\theta, d^0) = E_\theta [ ||X - \theta||^2 ] = \sum_{i=1}^p E [ (X_i - \theta_i)^2 ] = \sum_{i=1}^p \text{Var}(X_i) = p
+$$
+
+Now consider the James-Stein estimator $d^{JS}(X) = \left( 1 - \frac{p-2}{||X||^2} \right) X$. As established in the derivation of the Bayes Risk in @thm-js-bayes-risk, the frequentist risk function of $d^{JS}$ is:
+
+$$
+R(\theta, d^{JS}) = p - (p-2)^2 E_\theta \left[ \frac{1}{||X||^2} \right]
+$$
+
+Since the random variable $||X||^2$ is non-negative and not identically infinity, the expectation $E_\theta [ 1/||X||^2 ]$ is strictly positive for all $\theta$. Therefore:
+
+$$
+R(\theta, d^{JS}) < p = R(\theta, d^0) \quad \text{for all } \theta \in \mathbb{R}^p
+$$
+
+Because $d^{JS}$ achieves a strictly lower risk than $d^0$ everywhere in the parameter space, $d^0$ is dominated by $d^{JS}$ and is thus inadmissible.
+:::
+
+### Practical Application: One-way ANOVA and "Borrowing Strength"
+
+::: {#exm-anova-js}
+
+Consider a One-Way ANOVA setting where we wish to estimate the means of $p$ different independent groups (e.g., the true batting averages of $p=10$ baseball players, or the efficacy of $p=5$ different hospital treatments).
+
+* **Model:** Let $X_i \sim N(\theta_i, \sigma^2)$ be the observed sample mean for group $i$, for $i = 1, \dots, p$.
+* **Goal:** Estimate the vector of true means $\boldsymbol{\theta} = (\theta_1, \dots, \theta_p)$ simultaneously. The loss is the sum of squared errors: $L(\boldsymbol{\theta}, \hat{\boldsymbol{\theta}}) = \sum (\theta_i - \hat{\theta}_i)^2$.
+
+**The MLE Approach (Total Separation):**
+The standard estimator is $\hat{\theta}_i^{\text{MLE}} = X_i$. This estimates each group entirely independently, using only data from that specific group. If a specific player has a lucky streak, their estimate is very high; if they are unlucky, it is very low.
+
+**The James-Stein Approach (Shrinkage / Pooling):**
+In this context, the James-Stein estimator (specifically the variation shrinking toward the grand mean $\bar{X}$) is:
+$$
+\hat{\theta}_i^{JS} = \bar{X} + \left( 1 - \frac{(p-3)\sigma^2}{\sum (X_i - \bar{X})^2} \right) (X_i - \bar{X})
+$$
+
+**Why is this better?**
+Even though the groups might be physically independent (e.g., distinct hospitals), the James-Stein estimator **"borrows strength"** from the ensemble.
+
+1.  **Noise Reduction:** Extreme observations $X_i$ are likely to contain more positive noise than signal. Shrinking them toward the global average $\bar{X}$ reduces this variance.
+2.  **Stein's Paradox:** While $\hat{\theta}_i^{JS}$ introduces bias (estimates are pulled toward the center), the reduction in variance is so significant that the **Total Risk** (sum of squared errors over all groups) is strictly lower than that of the MLE, provided $p \ge 3$.
+
+Thus, estimating the groups *together* yields a more accurate global picture than estimating them *separately*, even if the groups are independent.
+:::
+
+### Why Is This Paradoxical?
+
+The result that $d^{JS}$ dominates $d^0$ is called **Stein's Paradox** because it defies intuition in several ways:
+
+1.  **Independence Irrelevance:** The result holds even if the components $X_i$ are completely unrelated (e.g., $X_1$ is the price of tea in China, $X_2$ is the temperature in Saskatoon, and $X_3$ is the weight of a local cat). It seems absurd that combining unrelated data improves the estimate of each, but the combined risk is indeed lower.
+2.  **No "Free Lunch":** The James-Stein estimator does not improve every individual component $\theta_i$ simultaneously for every realization. Instead, it minimizes the **total** risk $\sum E(\hat{\theta}_i - \theta_i)^2$. It sacrifices accuracy on outliers (by biasing them) to gain significant stability on the bulk of the data.
+3.  **Destruction of Symmetry:** The MLE is invariant under translation and rotation. The James-Stein estimator breaks this symmetry by shrinking toward an arbitrary point (usually the origin or the grand mean), yet it yields a better objective performance.
+
+### What We Learned
+
+1.  **Bias-Variance Tradeoff:** This is the most famous example where introducing **bias** (shrinkage) leads to a massive reduction in **variance**, thereby reducing the overall Mean Squared Error (MSE). Unbiasedness is not always a virtue in estimation.
+2.  **Inadmissibility in High Dimensions:** Intuitions formed in 1D or 2D (where MLE is admissible) fail in higher dimensions ($p \ge 3$). The volume of space grows so fast that "standard" diffuse priors or MLEs become inefficient.
+3.  **Hierarchical Modeling:** Stein's result provides the theoretical foundation for **Hierarchical Bayesian Models**. When we assume parameters come from a common distribution (e.g., $\theta_i \sim N(\mu, \tau^2)$), we naturally derive shrinkage estimators that "borrow strength" across groups, formalized as Empirical Bayes or fully Bayesian methods.
+
+## Empirical Bayes Rules
+
+The James-Stein estimator provides a natural entry point into the concept of **Empirical Bayes (EB)**. While the Stein estimator was originally derived using frequentist risk arguments, it can be intuitively understood as a Bayesian estimator where the parameters of the prior distribution are estimated from the data itself.
+
+### The General Empirical Bayes Framework
+
+In a standard Bayesian analysis, the hyperparameters of the prior are fixed based on subjective belief or external information. In contrast, Empirical Bayes uses the observed data to "learn" the prior.
+
+The workflow typically follows these steps:
+
+1.  **Hierarchical Model:**
+    We assume the data $X$ comes from a distribution $f(x|\theta)$, and the parameter $\theta$ comes from a prior $\pi(\theta|\eta)$ controlled by hyperparameters $\eta$.
+
+2.  **Marginal Likelihood (Evidence):**
+    We integrate out the parameter $\theta$ to obtain the marginal distribution of the data given the hyperparameters:
+    $$m(x|\eta) = \int f(x|\theta) \pi(\theta|\eta) d\theta$$
+
+3.  **Estimation of Hyperparameters:**
+    Instead of fixing $\eta$, we estimate it by maximizing the marginal likelihood (Type-II Maximum Likelihood) or using method-of-moments:
+    $$\hat{\eta} = \underset{\eta}{\arg\max} \ m(x|\eta)$$
+
+4.  **Posterior Inference:**
+    We proceed with standard Bayesian inference, but we substitute the estimated estimate $\hat{\eta}$ into the posterior:
+    $$\pi(\theta|x, \hat{\eta}) \propto f(x|\theta) \pi(\theta|\hat{\eta})$$
+
+**Discussion:**
+
+* **"Borrowing Strength":** EB allows us to pool information across independent groups to estimate the common structure (the prior) governing them.
+* **The Critique:** A purist Bayesian might object that using the data twice (once to estimate the prior, once to estimate $\theta$) underestimates the uncertainty. A fully Bayesian Hierarchical model would instead place a "hyperprior" on $\eta$ and integrate it out.
+
+### Deriving James-stein as Empirical Bayes
+
+
 We can derive the Bayes Risk $r(\pi, d^{JS})$ of this estimator using two equivalent methods: minimizing the expected frequentist risk, or minimizing the expected posterior loss.
 
 ::: {#thm-js-bayes-risk}
@@ -962,109 +1067,6 @@ $$
 Both methods yield the same result.
 :::
 
-::: {#thm-mle-inadmissible}
-### Inadmissibility of the MLE in High Dimensions (stein's Phenomenon)
-
-Let $X \sim N_p(\theta, I)$ be a $p$-dimensional random vector with $p \ge 3$. Under the squared error loss function $L(\theta, d) = ||\theta - d||^2$, the standard Maximum Likelihood Estimator $d^0(X) = X$ is **inadmissible**.
-:::
-
-::: {.proof}
-To show that $d^0(X) = X$ is inadmissible, we must find another estimator that dominates it (i.e., has equal or lower risk for all $\theta$, and strictly lower risk for at least one $\theta$).
-
-First, consider the risk of the standard estimator $d^0$. Since $X_i \sim N(\theta_i, 1)$ are independent:
-
-$$
-R(\theta, d^0) = E_\theta [ ||X - \theta||^2 ] = \sum_{i=1}^p E [ (X_i - \theta_i)^2 ] = \sum_{i=1}^p \text{Var}(X_i) = p
-$$
-
-Now consider the James-Stein estimator $d^{JS}(X) = \left( 1 - \frac{p-2}{||X||^2} \right) X$. As established in the derivation of the Bayes Risk in @thm-js-bayes-risk, the frequentist risk function of $d^{JS}$ is:
-
-$$
-R(\theta, d^{JS}) = p - (p-2)^2 E_\theta \left[ \frac{1}{||X||^2} \right]
-$$
-
-Since the random variable $||X||^2$ is non-negative and not identically infinity, the expectation $E_\theta [ 1/||X||^2 ]$ is strictly positive for all $\theta$. Therefore:
-
-$$
-R(\theta, d^{JS}) < p = R(\theta, d^0) \quad \text{for all } \theta \in \mathbb{R}^p
-$$
-
-Because $d^{JS}$ achieves a strictly lower risk than $d^0$ everywhere in the parameter space, $d^0$ is dominated by $d^{JS}$ and is thus inadmissible.
-:::
-
-### Practical Application: One-way ANOVA and "borrowing Strength"
-
-::: {#exm-anova-js}
-
-Consider a One-Way ANOVA setting where we wish to estimate the means of $p$ different independent groups (e.g., the true batting averages of $p=10$ baseball players, or the efficacy of $p=5$ different hospital treatments).
-
-* **Model:** Let $X_i \sim N(\theta_i, \sigma^2)$ be the observed sample mean for group $i$, for $i = 1, \dots, p$.
-* **Goal:** Estimate the vector of true means $\boldsymbol{\theta} = (\theta_1, \dots, \theta_p)$ simultaneously. The loss is the sum of squared errors: $L(\boldsymbol{\theta}, \hat{\boldsymbol{\theta}}) = \sum (\theta_i - \hat{\theta}_i)^2$.
-
-**The MLE Approach (Total Separation):**
-The standard estimator is $\hat{\theta}_i^{\text{MLE}} = X_i$. This estimates each group entirely independently, using only data from that specific group. If a specific player has a lucky streak, their estimate is very high; if they are unlucky, it is very low.
-
-**The James-Stein Approach (Shrinkage / Pooling):**
-In this context, the James-Stein estimator (specifically the variation shrinking toward the grand mean $\bar{X}$) is:
-$$
-\hat{\theta}_i^{JS} = \bar{X} + \left( 1 - \frac{(p-3)\sigma^2}{\sum (X_i - \bar{X})^2} \right) (X_i - \bar{X})
-$$
-
-**Why is this better?**
-Even though the groups might be physically independent (e.g., distinct hospitals), the James-Stein estimator **"borrows strength"** from the ensemble.
-
-1.  **Noise Reduction:** Extreme observations $X_i$ are likely to contain more positive noise than signal. Shrinking them toward the global average $\bar{X}$ reduces this variance.
-2.  **Stein's Paradox:** While $\hat{\theta}_i^{JS}$ introduces bias (estimates are pulled toward the center), the reduction in variance is so significant that the **Total Risk** (sum of squared errors over all groups) is strictly lower than that of the MLE, provided $p \ge 3$.
-
-Thus, estimating the groups *together* yields a more accurate global picture than estimating them *separately*, even if the groups are independent.
-:::
-
-### Why is this Paradoxical?
-
-The result that $d^{JS}$ dominates $d^0$ is called **Stein's Paradox** because it defies intuition in several ways:
-
-1.  **Independence Irrelevance:** The result holds even if the components $X_i$ are completely unrelated (e.g., $X_1$ is the price of tea in China, $X_2$ is the temperature in Saskatoon, and $X_3$ is the weight of a local cat). It seems absurd that combining unrelated data improves the estimate of each, but the combined risk is indeed lower.
-2.  **No "Free Lunch":** The James-Stein estimator does not improve every individual component $\theta_i$ simultaneously for every realization. Instead, it minimizes the **total** risk $\sum E(\hat{\theta}_i - \theta_i)^2$. It sacrifices accuracy on outliers (by biasing them) to gain significant stability on the bulk of the data.
-3.  **Destruction of Symmetry:** The MLE is invariant under translation and rotation. The James-Stein estimator breaks this symmetry by shrinking toward an arbitrary point (usually the origin or the grand mean), yet it yields a better objective performance.
-
-### What We Learned
-
-1.  **Bias-Variance Tradeoff:** This is the most famous example where introducing **bias** (shrinkage) leads to a massive reduction in **variance**, thereby reducing the overall Mean Squared Error (MSE). Unbiasedness is not always a virtue in estimation.
-2.  **Inadmissibility in High Dimensions:** Intuitions formed in 1D or 2D (where MLE is admissible) fail in higher dimensions ($p \ge 3$). The volume of space grows so fast that "standard" diffuse priors or MLEs become inefficient.
-3.  **Hierarchical Modeling:** Stein's result provides the theoretical foundation for **Hierarchical Bayesian Models**. When we assume parameters come from a common distribution (e.g., $\theta_i \sim N(\mu, \tau^2)$), we naturally derive shrinkage estimators that "borrow strength" across groups, formalized as Empirical Bayes or fully Bayesian methods.
-
-## Empirical Bayes Rules
-
-The James-Stein estimator provides a natural entry point into the concept of **Empirical Bayes (EB)**. While the Stein estimator was originally derived using frequentist risk arguments, it can be intuitively understood as a Bayesian estimator where the parameters of the prior distribution are estimated from the data itself.
-
-### The General Empirical Bayes Framework
-
-In a standard Bayesian analysis, the hyperparameters of the prior are fixed based on subjective belief or external information. In contrast, Empirical Bayes uses the observed data to "learn" the prior.
-
-The workflow typically follows these steps:
-
-1.  **Hierarchical Model:**
-    We assume the data $X$ comes from a distribution $f(x|\theta)$, and the parameter $\theta$ comes from a prior $\pi(\theta|\eta)$ controlled by hyperparameters $\eta$.
-
-2.  **Marginal Likelihood (Evidence):**
-    We integrate out the parameter $\theta$ to obtain the marginal distribution of the data given the hyperparameters:
-    $$m(x|\eta) = \int f(x|\theta) \pi(\theta|\eta) d\theta$$
-
-3.  **Estimation of Hyperparameters:**
-    Instead of fixing $\eta$, we estimate it by maximizing the marginal likelihood (Type-II Maximum Likelihood) or using method-of-moments:
-    $$\hat{\eta} = \underset{\eta}{\arg\max} \ m(x|\eta)$$
-
-4.  **Posterior Inference:**
-    We proceed with standard Bayesian inference, but we substitute the estimated estimate $\hat{\eta}$ into the posterior:
-    $$\pi(\theta|x, \hat{\eta}) \propto f(x|\theta) \pi(\theta|\hat{\eta})$$
-
-**Discussion:**
-
-* **"Borrowing Strength":** EB allows us to pool information across independent groups to estimate the common structure (the prior) governing them.
-* **The Critique:** A purist Bayesian might object that using the data twice (once to estimate the prior, once to estimate $\theta$) underestimates the uncertainty. A fully Bayesian Hierarchical model would instead place a "hyperprior" on $\eta$ and integrate it out.
-
-### Deriving James-Stein as Empirical Bayes
-
 We can derive the James-Stein rule explicitly using this framework.
 
 **Model:**
@@ -1123,7 +1125,7 @@ p(\boldsymbol{\mu}, \theta, \tau^2 | X) \propto \left[ \prod_{i=1}^n f(x_i | \mu
 $$
 
 
-### Graphical Model Representation (Tree Structure)
+### Graphical Model Representation (tree Structure)
 
 The following tree diagram illustrates the conditional dependencies. Note that the parameters $\mu_i$ are conditionally independent given the hyperparameter $\theta$, which facilitates "borrowing strength" across groups.
 
@@ -1221,7 +1223,7 @@ $$
 **Visual Characteristic:** Gibbs sampling moves along the coordinate axes because it updates one parameter at a time while holding others constant.
 
 
-#### Metropolis-Hastings (MH) Sampling
+#### Metropolis-hastings (MH) Sampling
 
 When the full conditional distributions are not easy to sample from, we use the Metropolis-Hastings algorithm. At each step $t$:
 
@@ -1245,7 +1247,7 @@ set.seed(123)
 rho <- 0.8
 log_target <- function(x, y) { -0.5 * (x^2 - 2*rho*x*y + y^2) / (1 - rho^2) }
 
-# Gibbs Path (Step-wise update)
+# Gibbs Path (step-wise Update)
 gx <- -2; gy <- -2
 gx_path <- gx; gy_path <- gy
 for(i in 1:25) {
@@ -1255,7 +1257,7 @@ for(i in 1:25) {
   gx_path <- c(gx_path, gx); gy_path <- c(gy_path, gy) # Vertical move
 }
 
-# MH Path (Random Walk)
+# MH Path (random Walk)
 mx <- numeric(50); my <- numeric(50)
 mx[1] <- -2; my[1] <- -2
 for(i in 2:50) {
@@ -1290,7 +1292,7 @@ $$
 
 The goal is to estimate the latent parameter $\mu_i$ for each player and compare it to the "true" regular season performance.
 
-### True Season Parameter ($\mu_i$ or $p_i^{Season}$)
+### True Season Parameter ($\mu_i$ or $p_i^{season}$)
 
 To validate our estimates, we define the "true" parameter value $\mu_i$ using the player's performance over the full competitive season. Let $Y_i$ be the total home runs and $N_i$ be the total at-bats in the regular season. The true transformed rate is calculated as:
 
@@ -1349,7 +1351,7 @@ knitr::kable(baseball_data,
 
 In this analysis, we model the home run strike rates of 17 Major League Baseball players using pre-season exhibition data from 1998. We apply five statistical methods ranging from simple independent estimation to advanced Bayesian decision theory.
 
-### Methods for Estimating $\mu_i$ (Transformed Scale)
+### Methods for Estimating $\mu_i$ (transformed Scale)
 
 #### Method 1: Simple Estimation (MLE)
 
@@ -1361,14 +1363,14 @@ $$ \hat{\mu}_i^{MLE} = X_i $$
 #| label: method-mle
 #| echo: false
 
-# Simple Estimate is just the data itself
+# Simple Estimate Is Just the Data Itself
 mu_mle <- baseball_data$x
 
-# MSE Calculation (Transformed Scale)
+# MSE Calculation (transformed Scale)
 mse_mle <- mean((mu_mle - baseball_data$true_mu)^2)
 ```
 
-#### Method 2: Empirical Bayes (James-Stein)
+#### Method 2: Empirical Bayes (james-stein)
 
 The James-Stein estimator introduces a global mean $\bar{X}$ and shrinks individual estimates toward it. This assumes the players come from a common population distribution.
 
@@ -1386,7 +1388,7 @@ shrinkage_factor <- 1 - (14 / S)
 
 mu_js <- theta_hat + shrinkage_factor * (baseball_data$x - theta_hat)
 
-# MSE Calculation (Transformed Scale)
+# MSE Calculation (transformed Scale)
 mse_js <- mean((mu_js - baseball_data$true_mu)^2)
 ```
 
@@ -1410,7 +1412,7 @@ $$
 #| message: false
 #| warning: false
 
-# Fit Random Intercept Model: x | se(1) ~ 1 + (1|Player)
+# Fit Random Intercept Model: X | Se(1) ~ 1 + (1|player)
 fit_brms <- brm(
   formula = x | se(sei, sigma = TRUE) ~ 1 + (1 | Player),
   data = baseball_data,
@@ -1422,11 +1424,11 @@ fit_brms <- brm(
   refresh = 0
 )
 
-# Extract Point Estimates (Posterior Means)
+# Extract Point Estimates (posterior Means)
 post_means <- fitted(fit_brms)[, "Estimate"]
 mu_brms <- post_means
 
-# MSE Calculation (Transformed Scale)
+# MSE Calculation (transformed Scale)
 mse_brms <- mean((mu_brms - baseball_data$true_mu)^2)
 ```
 
@@ -1440,7 +1442,7 @@ The following table presents the transformed data ($x_i$) and the true season pa
 #| label: tbl-estimates-sorted
 #| echo: false
 
-# 1. Compile all estimates into a single data frame
+# 1. Compile All Estimates into a Single Data Frame
 df_estimates <- data.frame(
   Player = 1:17,
   ni = baseball_data$Pre_AtBats,       
@@ -1450,10 +1452,10 @@ df_estimates <- data.frame(
   mu_true = baseball_data$true_mu      # True Season Parameter
 )
 
-# 2. Sort by x_i (ascending)
+# 2. Sort by X_i (ascending)
 df_sorted <- df_estimates[order(df_estimates$x_i), ]
 
-# 3. Display the table
+# 3. Display the Table
 df_display_mu <- df_sorted
 df_display_mu[, 3:6] <- round(df_display_mu[, 3:6], 3)
 
@@ -1475,22 +1477,22 @@ This plot displays the Squared Error for each player. The x-axis represents the 
 #| echo: false
 #| fig-height: 5
 
-# Calculate Squared Errors using the SORTED dataframe
+# Calculate Squared Errors Using the SORTED Dataframe
 err_mle  <- (df_sorted$x_i - df_sorted$mu_true)^2
 err_js   <- (df_sorted$mu_js - df_sorted$mu_true)^2
 err_brms <- (df_sorted$mu_bayes - df_sorted$mu_true)^2
 
-# Determine Y-axis range
+# Determine Y-axis Range
 y_max <- max(c(err_mle, err_js, err_brms))
 
-# Plot MLE Errors (Baseline)
+# Plot MLE Errors (baseline)
 plot(1:17, err_mle, type = "b", pch = 1, col = "black", lty = 2,
      xlab = "Player Index (Sorted by Pre-season Performance)", 
      ylab = expression(Squared~Error~~(hat(mu) - mu[true])^2),
      main = "Estimation Error Comparison (Sorted)",
      ylim = c(0, y_max))
 
-# Add James-Stein Errors
+# Add James-stein Errors
 lines(1:17, err_js, type = "b", pch = 19, col = "blue")
 
 # Add Bayesian (brms) Errors
@@ -1508,9 +1510,9 @@ legend("topleft",
        lty = c(2, 1, 1))
 ```
 
-### Methods for Estimating $p_i$ directly
+### Methods for Estimating $p_i$ Directly
 
-#### Method 1-3: Converting $\hat \mu_i$ back to $p_i$
+#### Method 1-3: Converting $\hat \mu_i$ Back to $p_i$
 
 The first three methods (MLE, James-Stein, and Normal-Normal Bayes) estimated the parameter $\mu_i$ on the transformed scale. To obtain the probability estimates $\hat{p}_i$, we apply the inverse of the variance-stabilizing transformation:
 
@@ -1518,7 +1520,7 @@ $$ \hat{p}_i = \frac{1}{2} \left( \sin\left( \frac{\hat{\mu}_i}{\sqrt{n_i}} \rig
 
 where $\hat{\mu}_i$ corresponds to the estimate derived from Method 1, 2, or 3, and $n_i$ is the number of pre-season at-bats for player $i$.
 
-#### Method 4: Hierarchical Logistic Regression (Logit-Normal)
+#### Method 4: Hierarchical Logistic Regression (logit-normal)
 
 In this fourth method, we model the probability $p_i$ directly using a hierarchical structure on the log-odds scale, rather than transforming the data.
 
@@ -1543,8 +1545,8 @@ We implement this in `brms` using the `binomial` family with a logit link. The i
 #| warning: false
 
 # 1. Fit Hierarchical Logistic Regression
-# Formula: y | trials(n) ~ 1 + (1 | Player)
-# This estimates a global intercept (mu_0) and random intercepts for each player (logit(p_i))
+# Formula: Y | Trials(n) ~ 1 + (1 | Player)
+# This Estimates a Global Intercept (mu_0) and Random Intercepts for Each Player (logit(p_i))
 fit_logit <- brm(
   formula = Pre_HR | trials(Pre_AtBats) ~ 1 + (1 | Player),
   data = baseball_data,
@@ -1557,13 +1559,13 @@ fit_logit <- brm(
   refresh = 0
 )
 
-# 2. Extract Posterior Means of p_i
-# fitted() returns the posterior expectations of the response (Expected Count). 
+# 2. Extract Posterior Means of P_i
+# Fitted() Returns the Posterior Expectations of the Response (expected Count).
 fitted_counts <- fitted(fit_logit) 
 p_hat_logit <- fitted_counts[, "Estimate"] / baseball_data$Pre_AtBats
 ```
 
-#### Method 5: Optimal Bayes Estimator (Weighted Median)
+#### Method 5: Optimal Bayes Estimator (weighted Median)
 
 While the posterior mean (Method 4) minimizes the Mean Squared Error (MSE), it is not necessarily optimal for the **Relative Standardized Error** metric we defined earlier:
 $$L(p, \hat{p}) = \frac{|p - \hat{p}|}{\min(p, 1-p)}$$
@@ -1576,15 +1578,15 @@ We compute this by extracting the full posterior samples from the Logit-Normal m
 #| label: method-optimal
 #| echo: false
 
-# 1. Extract Posterior Samples (N_samples x 17 players)
-# posterior_epred gives samples of the expected count (N * p)
+# 1. Extract Posterior Samples (n_samples X 17 Players)
+# Posterior_epred Gives Samples of the Expected Count (N * P)
 post_counts <- posterior_epred(fit_logit) 
 
-# Convert to probability scale by dividing by trials
+# Convert to Probability Scale by Dividing by Trials
 p_samples <- sweep(post_counts, 2, baseball_data$Pre_AtBats, "/")
 
 # 2. Define Function for Weighted Median
-# Finds the value 'q' such that sum(weights where x <= q) >= 0.5 * total_weight
+# Finds the Value 'q' Such That Sum(weights Where X <= Q) >= 0.5 * Total_weight
 get_weighted_median <- function(samples) {
   # Calculate weights based on the loss function denominator
   # Avoid division by exact zero (unlikely but safer)
@@ -1607,11 +1609,11 @@ get_weighted_median <- function(samples) {
   return(samp_sorted[idx])
 }
 
-# 3. Apply to all players
+# 3. Apply to All Players
 p_hat_optimal <- apply(p_samples, 2, get_weighted_median)
 ```
 
-#### Comparison of All Five Estimates (Probability Scale)
+#### Comparison of All Five Estimates (probability Scale)
 
 We now compare all five methods: MLE, James-Stein (transformed), Bayes Normal-Normal (transformed), Hierarchical Logit-Normal (Posterior Mean), and Optimal Bayes (Weighted Median).
 
@@ -1626,13 +1628,13 @@ We now compare all five methods: MLE, James-Stein (transformed), Bayes Normal-No
 # 1. Prepare Estimates from Previous Steps
 inv_trans <- function(mu, n) { 0.5 * (sin(mu / sqrt(n)) + 1) }
 
-# Convert transformed estimates back to probability scale
+# Convert Transformed Estimates Back to Probability Scale
 p_mle    <- inv_trans(baseball_data$x, baseball_data$Pre_AtBats)
 p_js     <- inv_trans(mu_js, baseball_data$Pre_AtBats)
 p_normal <- inv_trans(mu_brms, baseball_data$Pre_AtBats) 
-# p_hat_logit (Method 4) and p_hat_optimal (Method 5) are already calculated
+# P_hat_logit (method 4) and P_hat_optimal (method 5) Are Already Calculated
 
-# 2. Combine into DataFrame
+# 2. Combine into Dataframe
 df_compare <- data.frame(
   Player = baseball_data$Player,
   x_i    = baseball_data$x, # For sorting
@@ -1644,7 +1646,7 @@ df_compare <- data.frame(
   p_opt   = p_hat_optimal
 )
 
-# Sort by initial performance
+# Sort by Initial Performance
 df_compare_sorted <- df_compare[order(df_compare$x_i), ]
 
 # 3. Calculate MSE
@@ -1770,7 +1772,7 @@ As sample size $n \to \infty$, the parameter uncertainty vanishes (the posterior
 
 
 ::: {#exm-predictive-normal}
-### Normal-Normal Predictive Distribution
+### Normal-normal Predictive Distribution
 Consider a case where the data $y_1, \dots, y_n$ are independent and normally distributed with unknown mean $\mu$ and known variance $\sigma^2$:
 
 $$
