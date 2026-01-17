@@ -572,7 +572,7 @@ Important
 <p>The following diagram summarizes the general workflow for deriving a Bayes estimator:</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-bayes-workflow" class="quarto-float quarto-figure quarto-figure-center anchored" style="width: 80% !important;" data-fig-align="center">
+<div id="fig-bayes-workflow" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" style="width: 80% !important;">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-bayes-workflow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="bayesian_files/figure-html/fig-bayes-workflow-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width: 80% !important;" width="576">
@@ -1006,8 +1006,41 @@ u = g_i(x) \quad \text{and} \quad dv = - \frac{\partial}{\partial x_i} \phi(x_i 
 Assuming <span class="math inline">\(g(x)\)</span> does not grow exponentially fast, the boundary term vanishes. The remaining integral is the expectation of the partial derivative. Summing over all <span class="math inline">\(i=1 \dots p\)</span> gives the divergence <span class="math inline">\(\nabla \cdot g(X)\)</span>.
 </details>
 </div>
+<p>In high-dimensional statistics, Stein’s Lemma is often expressed using the inner product of the random vector and the function vector field, which highlights the alignment between the data and the transformation.</p>
+<div id="lem-stein-vector" class="theorem lemma">
+<p><span class="theorem-title"><strong>Lemma 3.2 (Stein’s Lemma (Vector Form))</strong></span> Let <span class="math inline">\(X \sim N_p(\theta, I)\)</span> and <span class="math inline">\(g: \mathbb{R}^p \to \mathbb{R}^p\)</span> be a weakly differentiable function. Then:</p>
+<p><span class="math display">\[
+E_\theta [ (X - \theta)^T g(X) ] = E_\theta [ \nabla \cdot g(X) ]
+\]</span></p>
+<p>Equivalently, the expectation of the inner product <span class="math inline">\(X^T g(X)\)</span> can be written as:</p>
+<p><span class="math display">\[
+E_\theta [ X^T g(X) ] = \theta^T E_\theta [ g(X) ] + E_\theta [ \nabla \cdot g(X) ]
+\]</span></p>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Remark: Connection to Non-Central <span class="math inline">\(\chi^2\)</span> Moments
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This identity provides an elegant way to derive the mean of a non-central chi-square distribution without performing complex integration.</p>
+<p>Consider the case where <span class="math inline">\(g(X) = X\)</span>. Here, <span class="math inline">\(\nabla \cdot X = p\)</span>. Plugging this into the vector form:</p>
+<p><span class="math display">\[
+E_\theta [ X^T X ] = \theta^T E_\theta [ X ] + E_\theta [ p ]
+\]</span></p>
+<p>Since <span class="math inline">\(E_\theta [ X ] = \theta\)</span>, we immediately obtain:</p>
+<p><span class="math display">\[
+E_\theta [ \|X\|^2 ] = \|\theta\|^2 + p
+\]</span></p>
+<p>This is precisely the mean of a <span class="math inline">\(\chi^2_p(\lambda)\)</span> distribution with non-centrality parameter <span class="math inline">\(\lambda = \|\theta\|^2\)</span>. Essentially, Stein’s Lemma decomposes the second moment into the <strong>signal component</strong> (<span class="math inline">\(\|\theta\|^2\)</span>) and the <strong>geometric noise component</strong> (<span class="math inline">\(p\)</span>).</p>
+</div>
+</div>
 <div id="lem-stein-radial" class="theorem lemma">
-<p><span class="theorem-title"><strong>Lemma 3.2 (Stein’s Lemma for Radial Fields)</strong></span> Let <span class="math inline">\(X \sim N_p(\theta, I)\)</span> and consider a radial vector field of the form <span class="math inline">\(g(X) = c(\|X\|^2)X\)</span>, where <span class="math inline">\(c: \mathbb{R} \to \mathbb{R}\)</span> is a differentiable scalar function. Then:</p>
+<p><span class="theorem-title"><strong>Lemma 3.3 (Stein’s Lemma for Radial Fields)</strong></span> Let <span class="math inline">\(X \sim N_p(\theta, I)\)</span> and consider a radial vector field of the form <span class="math inline">\(g(X) = c(\|X\|^2)X\)</span>, where <span class="math inline">\(c: \mathbb{R} \to \mathbb{R}\)</span> is a differentiable scalar function. Then:</p>
 <p><span class="math display">\[
 E_\theta \left[ (X - \theta)^T g(X) \right] = E_\theta \left[ p \cdot c(\|X\|^2) + 2 \|X\|^2 \cdot c'(\|X\|^2) \right]
 \]</span></p>
@@ -1118,8 +1151,8 @@ R(\theta, d^{JS}) &amp;= E_\theta \left[ || (X - \theta) - g(X) ||^2 \right] \\
 \end{aligned}
 \]</span></p>
 <p>The first term is the risk of the MLE, which is <span class="math inline">\(p\)</span>.</p>
-<p>For the second term, we apply <strong>Stein’s Lemma for Radial Fields</strong> (<a href="#lem-stein-radial" class="quarto-xref">Lemma&nbsp;<span>3.2</span></a>). We first compute the scalar function and its derivative: <span class="math display">\[c(z) = \frac{p-2}{z} \implies c'(z) = -\frac{p-2}{z^2}\]</span></p>
-<p>Substituting these into the radial divergence formula from <a href="#lem-stein-radial" class="quarto-xref">Lemma&nbsp;<span>3.2</span></a>: <span class="math display">\[
+<p>For the second term, we apply <strong>Stein’s Lemma for Radial Fields</strong> (<a href="#lem-stein-radial" class="quarto-xref">Lemma&nbsp;<span>3.3</span></a>). We first compute the scalar function and its derivative: <span class="math display">\[c(z) = \frac{p-2}{z} \implies c'(z) = -\frac{p-2}{z^2}\]</span></p>
+<p>Substituting these into the radial divergence formula from <a href="#lem-stein-radial" class="quarto-xref">Lemma&nbsp;<span>3.3</span></a>: <span class="math display">\[
 \begin{aligned}
 \nabla \cdot g(X) &amp;= p \cdot c(\|X\|^2) + 2 \|X\|^2 \cdot c'(\|X\|^2) \\
 &amp;= p \left( \frac{p-2}{\|X\|^2} \right) + 2 \|X\|^2 \left( -\frac{p-2}{\|X\|^4} \right) \\
@@ -1364,7 +1397,7 @@ p(\boldsymbol{\mu}, \theta, \tau^2 | X) \propto \left[ \prod_{i=1}^n f(x_i | \mu
 <p>The following tree diagram illustrates the conditional dependencies. Note that the parameters <span class="math inline">\(\mu_i\)</span> are conditionally independent given the hyperparameter <span class="math inline">\(\theta\)</span>, which facilitates “borrowing strength” across groups.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-hierarchical-tree" class="quarto-float quarto-figure quarto-figure-center anchored" style="width: 80% !important;" data-fig-align="center">
+<div id="fig-hierarchical-tree" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" style="width: 80% !important;">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-hierarchical-tree-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="bayesian_files/figure-html/fig-hierarchical-tree-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width: 80% !important;" width="576">
