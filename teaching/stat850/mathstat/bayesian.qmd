@@ -282,7 +282,7 @@ By inspecting the factored equation above, we identify the updated parameters:
     where $k' = k + n$ and $\nu' = \frac{k\nu + n\bar{x}}{k+n}$.
 :::
 
-## Bayes Rules
+## Finding Bayes Rules via Minimizing Posterior Expected Loss
 
 The general form of Bayes rule is derived by minimizing risk.
 
@@ -380,9 +380,9 @@ The following diagram summarizes the general workflow for deriving a Bayes estim
 ```
 
 
-### Common Loss Functions and Bayes Estimators
+## Special Bayes Rules
 
-#### Squared Error Loss (point Estimate)
+### Squared Error Loss (point Estimate)
 
 $$L(\theta, a) = (\theta - a)^2$$
 
@@ -392,7 +392,7 @@ $$-2 E_{\theta|x}(\theta - d) = 0 \implies d(x) = E(\theta|x)$$
 
 **Result:** The Bayes rule under squared error loss is the **posterior mean**.
 
-#### Absolute Error Loss
+### Absolute Error Loss
 
 $$L(\theta, d) = |\theta - d|$$
 
@@ -433,7 +433,7 @@ A median is formally defined as any value $m$ that satisfies the following two c
 
 **Result:** The Bayes rule under absolute error loss is the **posterior median**.
 
-#### Weighted Absolute Error Loss (min-normalization)
+### Weighted Absolute Error Loss (min-normalization)
 
 $$L(\theta, d) = \frac{|\theta - d|}{\min(\theta, 1-\theta)}$$
 
@@ -540,7 +540,7 @@ knitr::kable(comparison_df, digits = 3, align = "c")
 
 ```
 
-#### Hypothesis Testing (0-1 Loss)
+### Hypothesis Testing (0-1 Loss)
 
 Consider the hypothesis test $H_0: \theta \in \Theta_0$ versus $H_1: \theta \in \Theta_1$. We define the decision space as $\mathcal{A} = \{0, 1\}$, where $a=0$ means accepting $H_0$ and $a=1$ means rejecting $H_0$ (accepting $H_1$).
 
@@ -607,7 +607,7 @@ $$
 
 **Result:** With asymmetric costs, we accept $H_1$ only if the posterior probability of the null hypothesis is sufficiently small (below the threshold $\frac{1}{1+c}$). If the cost of false rejection $c$ is high, we require stronger evidence against $H_0$.
 
-#### Classification Prediction (categorical Parameter)
+### Classification Prediction (categorical Parameter)
 
 In classification problems, the parameter of interest is a discrete class label $\theta$ (often denoted as $y$) taking values in a set of categories $\{1, 2, \dots, K\}$. The goal is to predict the true class label based on observed features $x$.
 
@@ -637,7 +637,7 @@ $$
 
 
 
-#### Interval Estimation and Highest Posterior Density (HPD)
+### Interval Estimation and Highest Posterior Density (HPD)
 
 We can motivate the choice of a Credible Interval by defining a specific loss function for interval estimation. Suppose we seek an estimate $d$ and specify a tolerance $\delta > 0$. We define the loss function as:
 
@@ -734,7 +734,7 @@ legend("topright",
 ```
 
 
-### Finding Minimax Rules with Bayes Rules
+## Finding Minimax Rules with Bayes Rules
 
 @thm-minimax-constant states that if a Bayes estimator $\delta^\pi$ (derived from a prior $\pi$) yields a constant risk $R(\theta, \delta^\pi) = c$ across the entire parameter space $\Theta$, then that estimator is necessarily minimax. 
 
@@ -853,7 +853,12 @@ Consider the setting:
 
 * Data: $X \sim N_p(\theta, I)$
 * Prior: $\theta \sim N_p(0, \tau^2 I)$
-* Estimator: $d^{JS}(x) = \left( 1 - \frac{p-2}{||x||^2} \right) x$
+* Jame-Stein Estimator: 
+
+$$ d^{JS}(x) = \left( 1 - \frac{p-2}{||x||^2} \right) x $$
+
+### Stein's Lemma
+
 
 ::: {.callout-note}
 ### Notation: The Divergence Operator
@@ -867,7 +872,7 @@ It represents the total "outward flow" of the vector field $g$ from a local poin
 :::
 
 ::: {#lem-stein}
-### Stein's Lemma
+#### Stein's Lemma
 
 Let $X \sim N_p(\theta, I)$ be a multivariate normal random vector, and let $g: \mathbb{R}^p \to \mathbb{R}^p$ be a continuously differentiable function such that $E[| \partial g_i / \partial X_i |] < \infty$. Then:
 
@@ -879,6 +884,7 @@ The term $\nabla \cdot g(X)$ represents the **divergence** of the vector field $
 :::
 
 ::: {.proof}
+
 <details>
 It suffices to show the result for a single component in 1 dimension, as the multivariate case follows by summation due to independence. Let $X_i \sim N(\theta_i, 1)$ and let $\phi(t)$ be the standard normal density function. The joint density is $f(x) = \prod \phi(x_j - \theta_j)$.
 
@@ -904,10 +910,12 @@ $$
 
 Assuming $g(x)$ does not grow exponentially fast, the boundary term vanishes. The remaining integral is the expectation of the partial derivative. Summing over all $i=1 \dots p$ gives the divergence $\nabla \cdot g(X)$.
 </details>
+
 :::
 
 ::: {#lem-stein-radial}
-### Stein's Lemma for Radial Fields
+
+#### Stein's Lemma for Radial Fields
 
 Let $X \sim N_p(\theta, I)$ and consider a radial vector field of the form $g(X) = c(\|X\|^2)X$, where $c: \mathbb{R} \to \mathbb{R}$ is a differentiable scalar function. Then:
 
@@ -953,8 +961,6 @@ $$
 
 
 Taking the expectation of both sides completes the proof.
-</details>
-:::
 
 **Connection to the $\chi^2$ Distribution**
 
@@ -966,11 +972,15 @@ This version of the lemma is particularly useful because when $\theta = 0$, the 
     \nabla \cdot g(X) = \frac{p}{\|X\|^2} + 2 \|X\|^2 \left( -\frac{1}{\|X\|^4} \right) = \frac{p-2}{\|X\|^2}
     $$
     This explains why the $p-2$ constant appears in the James-Stein estimator—it is the net result of $p$ dimensions of "spreading" minus 2 dimensions of "radial thinning."
+ 
+</details>
+:::
+
 
 ::: {#exm-stein-polynomial}
 ### An Example for Verifying Stein's Lemma
 
-**Scenario**
+
 Let $X \sim N(\theta, 1)$ be a univariate normal random variable with unit variance.
 Let $g(x) = x^2$.
 Stein's Lemma states that:
@@ -1022,8 +1032,9 @@ $$
 Thus, Stein's Lemma holds for this specific case.
 :::
 
-::: {#exm-stein-polynomial}
-### Another Example Verifying Stein's Lemma
+::: {#exm-stein-radial}
+
+### A Radial Field Example Verifying Stein's Lemma
 
 
 Let $X \sim N_p(\theta, I)$ and $g(X) = \|X\|^2 X$. We verify the Radial Field Lemma:
@@ -1041,7 +1052,6 @@ $$
 $$
 The expectation is $(p+2)E_\theta[\|X\|^2]$. Since $\|X\|^2$ is a non-central $\chi^2_p$ with non-centrality parameter $\|\theta\|^2$, we know $E_\theta[\|X\|^2] = p + \|\theta\|^2$.
 Thus, $\text{RHS} = (p+2)(p + \|\theta\|^2)$.
-
 
 
 **LHS (Alignment):**
@@ -1067,11 +1077,14 @@ $$
 $$
 
 **Conclusion**
+
 The results match exactly. The alignment of the cubic radial field with the noise is perfectly predicted by the sum of its geometric expansion ($p \|X\|^2$) and its radial stretch ($2 \|X\|^2$).
 :::
 
+### Inadmissibility of the MLE in High Dimensions (Stein's Phenomenon)
+
+
 ::: {#thm-mle-inadmissible}
-### Inadmissibility of the MLE in High Dimensions (stein's Phenomenon)
 
 Let $X \sim N_p(\theta, I)$ be a $p$-dimensional random vector with $p \ge 3$. Under the squared error loss function $L(\theta, d) = ||\theta - d||^2$, the standard Maximum Likelihood Estimator $d^0(X) = X$ is **inadmissible**.
 :::
@@ -1135,7 +1148,6 @@ Thus, $d^{JS}$ dominates the MLE, proving the MLE is inadmissible.
 We can derive the Bayes Risk $r(\pi, d^{JS})$ of this estimator using two equivalent methods: minimizing the expected frequentist risk, or minimizing the expected posterior loss.
 
 ::: {#thm-js-bayes-risk}
-
 #### Bayes Risk of James-stein Estimator
 
 For $p \ge 3$, the Bayes risk of the James-Stein estimator $d^{JS}$ with respect to the prior $\theta \sim N(0, \sigma^2 I)$ is:
@@ -1143,21 +1155,23 @@ For $p \ge 3$, the Bayes risk of the James-Stein estimator $d^{JS}$ with respect
 $$
 r(\pi, d^{JS}) = \frac{p\sigma^2 + 2}{\sigma^2 + 1}
 $$
-
 :::
 
 ::: {.proof}
+
 <details>
 <summary>Method 1: Integration over the Prior (Frequentist Risk approach)</summary>
 
 The Bayes risk is defined as $r(\pi, d) = E_\pi [ R(\theta, d) ]$.
 
 First, recall the frequentist risk of the James-Stein estimator for a fixed $\theta$. Using Stein's Lemma, the risk is given by:
+
 $$
 R(\theta, d^{JS}) = p - (p-2)^2 E_\theta \left[ \frac{1}{||X||^2} \right]
 $$
 
 To find the Bayes risk, we take the expectation of this risk with respect to the prior $\pi(\theta)$:
+
 $$
 r(\pi, d^{JS}) = \int R(\theta, d^{JS}) \pi(\theta) d\theta = p - (p-2)^2 E_\pi \left[ E_\theta \left( \frac{1}{||X||^2} \right) \right]
 $$
@@ -1166,11 +1180,13 @@ By the law of iterated expectations, $E_\pi [ E_\theta (\cdot) ]$ is equivalent 
 Under the conjugate prior, the marginal distribution is $X \sim N(0, (1+\sigma^2)I)$.
 
 Consequently, the quantity $\frac{||X||^2}{1+\sigma^2}$ follows a Chi-squared distribution with $p$ degrees of freedom ($\chi^2_p$). The expectation of the inverse chi-square is:
+
 $$
 E \left[ \frac{1}{||X||^2} \right] = \frac{1}{1+\sigma^2} E \left[ \frac{1}{\chi^2_p} \right] = \frac{1}{1+\sigma^2} \cdot \frac{1}{p-2}
 $$
 
 Substituting this back into the risk equation:
+
 $$
 \begin{aligned}
 r(\pi, d^{JS}) &= p - (p-2)^2 \cdot \frac{1}{(p-2)(1+\sigma^2)} \\
@@ -1181,6 +1197,7 @@ r(\pi, d^{JS}) &= p - (p-2)^2 \cdot \frac{1}{(p-2)(1+\sigma^2)} \\
 $$
 
 </details>
+
 :::
 
 ::: {.proof}
@@ -1189,6 +1206,7 @@ $$
 <summary>Method 2: Integration over the Marginal (Posterior Loss approach)</summary>
 
 Alternatively, we can compute the Bayes risk by first finding the posterior expected loss for a given $x$, and then averaging over the marginal distribution of $x$:
+
 $$
 r(\pi, d) = E_m [ E_{\theta|x} [ L(\theta, d(x)) ] ]
 $$
@@ -1196,11 +1214,13 @@ $$
 **Step 1: Posterior Expected Loss**
 
 The posterior distribution of $\theta$ given $x$ is:
+
 $$
 \theta | x \sim N \left( \frac{\sigma^2}{1+\sigma^2}x, \frac{\sigma^2}{1+\sigma^2}I \right)
 $$
 
 The expected squared error loss can be decomposed into the variance (trace) and the squared bias:
+
 $$
 E_{\theta|x} [ ||\theta - d^{JS}(x)||^2 ] = \text{tr}(\text{Var}(\theta|x)) + || E[\theta|x] - d^{JS}(x) ||^2
 $$
@@ -1212,18 +1232,24 @@ $$
     Let $B = \frac{1}{1+\sigma^2}$. Then $E[\theta|x] = (1-B)x$.
     The estimator is $d^{JS}(x) = (1 - \frac{p-2}{||x||^2})x$.
     The difference is:
+
     $$
     E[\theta|x] - d^{JS}(x) = \left( (1-B) - \left( 1 - \frac{p-2}{||x||^2} \right) \right) x = \left( \frac{p-2}{||x||^2} - B \right) x
     $$
+
     Squaring the norm gives:
+
     $$
     \left( \frac{p-2}{||x||^2} - B \right)^2 ||x||^2 = \frac{(p-2)^2}{||x||^2} - 2B(p-2) + B^2 ||x||^2
     $$
 
-**Step 2: Expectation with respect to Marginal $X$** We now take the expectation $E_m[\cdot]$ of the posterior loss. Recall $X \sim N(0, (1+\sigma^2)I)$, so $E[||X||^2] = p(1+\sigma^2)$ and $E[1/||X||^2] = \frac{1}{(p-2)(1+\sigma^2)}$.
+**Step 2: Expectation with respect to Marginal $X$**
+
+We now take the expectation $E_m[\cdot]$ of the posterior loss. Recall $X \sim N(0, (1+\sigma^2)I)$, so $E[||X||^2] = p(1+\sigma^2)$ and $E[1/||X||^2] = \frac{1}{(p-2)(1+\sigma^2)}$.
 
 * **Expectation of Trace term:** Constant, remains $\frac{p\sigma^2}{1+\sigma^2}$.
 * **Expectation of Bias term:**
+
     $$
     \begin{aligned}
     E_m \left[ \frac{(p-2)^2}{||X||^2} - \frac{2(p-2)}{1+\sigma^2} + \frac{||X||^2}{(1+\sigma^2)^2} \right] &= (p-2)^2 \frac{1}{(p-2)(1+\sigma^2)} - \frac{2(p-2)}{1+\sigma^2} + \frac{p(1+\sigma^2)}{(1+\sigma^2)^2} \\
@@ -1233,7 +1259,9 @@ $$
     \end{aligned}
     $$
 
-**Step 3: Combine Terms** $$
+**Step 3: Combine Terms**
+
+$$
 r(\pi, d^{JS}) = \underbrace{\frac{p\sigma^2}{1+\sigma^2}}_{\text{Variance Part}} + \underbrace{\frac{2}{1+\sigma^2}}_{\text{Bias Part}} = \frac{p\sigma^2 + 2}{\sigma^2 + 1}
 $$
 
@@ -1242,7 +1270,6 @@ Both methods yield the same result.
 </details>
 
 :::
-
 
 
 ### Minimaxity of the MLE
@@ -1285,6 +1312,7 @@ By the property that the maximum risk of an estimator is always at least the Bay
 
 
 Stein's Paradox arises because the James-Stein estimator $d^{JS}$ is also a minimax rule (its risk is always less than $p$), but it dominates $d^0$. This confirms that while $d^0$ is minimax, it is **inadmissible** for $p \ge 3$.
+
 
 ### Practical Application: One-way ANOVA and "Borrowing Strength"
 
@@ -1357,42 +1385,49 @@ The workflow typically follows these steps:
 * **"Borrowing Strength":** EB allows us to pool information across independent groups to estimate the common structure (the prior) governing them.
 * **The Critique:** A purist Bayesian might object that using the data twice (once to estimate the prior, once to estimate $\theta$) underestimates the uncertainty. A fully Bayesian Hierarchical model would instead place a "hyperprior" on $\eta$ and integrate it out.
 
-### Deriving James-stein as Empirical Bayes
+### Deriving James-Stein as Empirical Bayes
 
-
-
-We can derive the James-Stein rule explicitly using this framework.
+The James-Stein estimator can be viewed as an **Empirical Bayes** procedure, where the hyperparameters of the prior are estimated directly from the data rather than being specified *a priori*.
 
 **Model:**
 
-1.  Likelihood: $X_i | \mu_i \sim N(\mu_i, 1)$ for $i=1, \dots, p$.
-2.  Prior: $\mu_i \sim N(0, \tau^2)$. Here, $\tau^2$ is the unknown hyperparameter.
+* **Likelihood:** $X_i | \mu_i \sim N(\mu_i, 1)$ for $i=1, \dots, p$.
+* **Prior:** $\mu_i \sim N(0, \sigma^2)$, where $\sigma^2$ is an unknown hyperparameter.
+
+
 
 **Step 1: The Ideal Bayes Estimator**
 
-If we knew $\tau^2$, the posterior distribution of $\mu_i$ would be Normal with mean:
-$$E(\mu_i|x_i, \tau^2) = \frac{\tau^2}{1+\tau^2} x_i = \left( 1 - \frac{1}{1+\tau^2} \right) x_i$$
-We define the shrinkage factor $B = \frac{1}{1+\tau^2}$.
+If $\sigma^2$ were known, the posterior distribution of $\mu_i$ would be Normal. The optimal estimator under squared error loss is the posterior mean:
+$$E(\mu_i|x_i, \sigma^2) = \frac{\sigma^2}{1+\sigma^2} x_i = \left( 1 - \frac{1}{1+\sigma^2} \right) x_i$$
+We define the shrinkage factor $B = \frac{1}{1+\sigma^2}$.
 
 **Step 2: Marginal Estimation**
 
-Since $\mu_i$ and $X_i-\mu_i$ are independent normals, the marginal distribution of the data is:
-$$X_i \sim N(0, 1+\tau^2)$$
+The marginal distribution of the data (integrating out $\mu_i$) is:
+$$X_i \sim N(0, 1+\sigma^2)$$
 Consequently, the sum of squares $S = ||X||^2 = \sum X_i^2$ follows a scaled Chi-squared distribution:
-$$S \sim (1+\tau^2) \chi^2_p$$
+$$S \sim (1+\sigma^2) \chi^2_p$$
+
+
 
 **Step 3: Estimating the Shrinkage Factor**
 
-We need to estimate $B = \frac{1}{1+\tau^2}$. Note that the expected value of an inverse Chi-square variable is $E[1/\chi^2_p] = \frac{1}{p-2}$. Therefore:
-$$E \left[ \frac{p-2}{S} \right] = \frac{p-2}{1+\tau^2} E\left[\frac{1}{\chi^2_p}\right] = \frac{p-2}{1+\tau^2} \cdot \frac{1}{p-2} = \frac{1}{1+\tau^2} = B$$
+We need an estimator for $B = \frac{1}{1+\sigma^2}$. From the properties of the inverse Chi-square distribution, we know $E[1/\chi^2_p] = \frac{1}{p-2}$ for $p > 2$. Therefore:
+$$E \left[ \frac{p-2}{S} \right] = \frac{p-2}{1+\sigma^2} E\left[\frac{1}{\chi^2_p}\right] = \frac{p-2}{1+\sigma^2} \cdot \frac{1}{p-2} = \frac{1}{1+\sigma^2} = B$$
 
-Thus, $\hat{B} = \frac{p-2}{||X||^2}$ is an unbiased estimator of the optimal shrinkage factor.
+Thus, $\hat{B} = \frac{p-2}{||X||^2}$ is an unbiased estimator of the optimal shrinkage factor $B$.
 
 **Step 4: The Empirical Bayes Rule**
 
 Plugging $\hat{B}$ into the ideal Bayes estimator recovers the James-Stein rule:
 $$\delta^{EB}(X) = \left( 1 - \hat{B} \right) X = \left( 1 - \frac{p-2}{||X||^2} \right) X$$
 
+
+**What We Learned**
+
+* **Adaptive Shrinkage:** The James-Stein estimator automatically adjusts the amount of shrinkage based on the observed total magnitude $\|X\|^2$. If the data suggests the true means are spread far from zero, $\|X\|^2$ will be large, $\hat{B}$ will be small, and we shrink less.
+* **Unbiasedness of B:** Interestingly, while $\hat{B}$ is an unbiased estimator of the shrinkage factor, the resulting James-Stein estimator itself is biased toward the origin. This is a classic example of sacrificing unbiasedness to minimize total risk.
 
 
 ## Hierarchical Modeling via MCMC
