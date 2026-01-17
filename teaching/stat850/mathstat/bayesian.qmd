@@ -739,10 +739,8 @@ legend("topright",
 @thm-minimax-constant states that if a Bayes estimator $\delta^\pi$ (derived from a prior $\pi$) yields a constant risk $R(\theta, \delta^\pi) = c$ across the entire parameter space $\Theta$, then that estimator is necessarily minimax. 
 
 
-
 This result is a cornerstone of decision theory because it provides a sufficient condition for minimaxity. While the minimax criterion focuses on the "worst-case scenario" by minimizing the maximum possible risk, the Bayes criterion focuses on the "average-case scenario" relative to a prior. When the risk is constant, these two perspectives align: the average risk equals the maximum risk, and no other estimator can achieve a lower maximum without also having a lower Bayes risk, which would contradict the optimality of the Bayes rule.
 
-In practice, this means that to find a minimax estimator, one can often search for a "least favorable prior" that results in a Bayes estimator with a flat risk profile.
 
 ::: {#exm-binomial-minimax}
 #### Binomial Minimax Estimator
@@ -770,6 +768,81 @@ Thus, the minimax estimator is:
 $$d(x) = \frac{x + \sqrt{n}/2}{n + \sqrt{n}}$$
 
 This differs from the standard MLE $\hat{p} = x/n$ and the uniform prior Bayes estimator ($a=b=1$).
+:::
+
+According to @thm-limits, let $\{\delta_n\}$ be a sequence of Bayes rules with respect to priors $\{\pi_n\}$, and let $r(\pi_n, \delta_n)$ be the associated Bayes risks. If there exists a rule $\delta_0$ such that
+$$
+\sup_{\theta} R(\theta, \delta_0) \le \lim_{n \to \infty} r(\pi_n, \delta_n)
+$$
+then $\delta_0$ is a minimax estimator.
+
+
+::: {#exm-exponential-minimax}
+#### Exponential Minimax Estimation
+
+Let $X_1, \dots, X_n \overset{iid}{\sim} \text{Exp}(\theta)$ with mean $\theta$. We consider the **Scale-Invariant Loss Function**:
+
+$$
+L(\theta, \delta) = \left( \frac{\delta}{\theta} - 1 \right)^2
+$$
+
+We propose the estimator $\delta_0(X) = \frac{\sum X_i}{n+1}$. Consider a sequence of priors $\pi_k \sim \text{Inverse-Gamma}(\alpha_k, \beta_k)$ for $\theta$, where the density is given by $\pi(\theta) \propto \theta^{-\alpha_k - 1} e^{-\beta_k / \theta}$.
+
+We will show that $\delta_0$ is a minimax estimator by deriving the Bayes estimator for this sequence and comparing the risks.
+
+**Posterior Analysis and Moments**
+
+Let $T = \sum X_i$. The likelihood is $L(\theta|X) = \theta^{-n} e^{-T/\theta}$. Multiplying by the prior $\pi_k(\theta)$, the posterior density is:
+
+$$
+\pi(\theta | X) \propto \theta^{-(n + \alpha_k) - 1} e^{-(T + \beta_k)/\theta}
+$$
+
+This is an **Inverse-Gamma** distribution with parameters $\alpha^* = n + \alpha_k$ and $\beta^* = T + \beta_k$. Using the properties of the Inverse-Gamma distribution, the required posterior moments are:
+
+$$
+E[\theta^{-1} | X] = \frac{n + \alpha_k}{T + \beta_k}, \quad E[\theta^{-2} | X] = \frac{(n + \alpha_k)(n + \alpha_k + 1)}{(T + \beta_k)^2}
+$$
+
+The posterior expected loss is $E[ L(\theta, \delta) | X ] = \delta^2 E[\theta^{-2} | X] - 2\delta E[\theta^{-1} | X] + 1$.
+
+**Derivation of the Bayes Estimator**
+
+Minimizing the posterior expected loss with respect to $\delta$ yields $\delta_{\pi_k} = \frac{E[\theta^{-1} | X]}{E[\theta^{-2} | X]}$. Substituting the moments derived above:
+
+$$
+\delta_{\pi_k}(X) = \frac{ \frac{n + \alpha_k}{T + \beta_k} }{ \frac{(n + \alpha_k)(n + \alpha_k + 1)}{(T + \beta_k)^2} } = \frac{T + \beta_k}{n + \alpha_k + 1}
+$$
+
+**Bayes Risk Limit**
+
+The Bayes risk $r(\pi_k)$ is the expected value of the minimum posterior loss. Substituting $\delta_{\pi_k}$ back into the loss equation:
+
+$$
+r(\pi_k | X) = 1 - \frac{(E[\theta^{-1}|X])^2}{E[\theta^{-2}|X]} = 1 - \frac{n + \alpha_k}{n + \alpha_k + 1} = \frac{1}{n + \alpha_k + 1}
+$$
+
+Since this does not depend on $X$, the integrated Bayes risk is $r(\pi_k) = \frac{1}{n + \alpha_k + 1}$. Taking the limit as the prior parameters approach zero ($\alpha_k \to 0$):
+
+$$
+\lim_{k \to \infty} r(\pi_k) = \frac{1}{n+1}
+$$
+
+**Minimax Verification**
+
+Finally, we calculate the frequentist risk for the candidate estimator $\delta_0(X) = \frac{T}{n+1}$. Let $Y = T/\theta \sim \text{Gamma}(n, 1)$.
+
+$$
+R(\theta, \delta_0) = E \left[ \left( \frac{Y}{n+1} - 1 \right)^2 \right] = \text{Var}\left(\frac{Y}{n+1}\right) + \left(E\left[\frac{Y}{n+1}\right]-1\right)^2
+$$
+
+With $E[Y]=n$ and $\text{Var}(Y)=n$, the risk is:
+
+$$
+R(\theta, \delta_0) = \frac{n}{(n+1)^2} + \left( \frac{n}{n+1} - 1 \right)^2 = \frac{1}{n+1}
+$$
+
+Since the risk of $\delta_0$ is constant and equals the limit of the Bayes risks ($\frac{1}{n+1}$), $\delta_0$ is a **minimax estimator**.
 :::
 
 ## Stein's Paradox and the James-stein Estimator

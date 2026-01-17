@@ -570,7 +570,7 @@ Important
 <p>The following diagram summarizes the general workflow for deriving a Bayes estimator:</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-bayes-workflow" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" style="width: 80% !important;">
+<div id="fig-bayes-workflow" class="quarto-float quarto-figure quarto-figure-center anchored" style="width: 80% !important;" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-bayes-workflow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="bayesian_files/figure-html/fig-bayes-workflow-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width: 80% !important;" width="576">
@@ -890,7 +890,6 @@ Figure&nbsp;3.4: Comparison of HPD and Equal-Tailed Intervals for a Skewed Distr
 <h3 data-number="3.2.2" class="anchored" data-anchor-id="finding-minimax-rules-with-bayes-rules"><span class="header-section-number">3.2.2</span> Finding Minimax Rules with Bayes Rules</h3>
 <p><a href="decision.html#thm-minimax-constant" class="quarto-xref">Theorem&nbsp;<span>2.1</span></a> states that if a Bayes estimator <span class="math inline">\(\delta^\pi\)</span> (derived from a prior <span class="math inline">\(\pi\)</span>) yields a constant risk <span class="math inline">\(R(\theta, \delta^\pi) = c\)</span> across the entire parameter space <span class="math inline">\(\Theta\)</span>, then that estimator is necessarily minimax.</p>
 <p>This result is a cornerstone of decision theory because it provides a sufficient condition for minimaxity. While the minimax criterion focuses on the “worst-case scenario” by minimizing the maximum possible risk, the Bayes criterion focuses on the “average-case scenario” relative to a prior. When the risk is constant, these two perspectives align: the average risk equals the maximum risk, and no other estimator can achieve a lower maximum without also having a lower Bayes risk, which would contradict the optimality of the Bayes rule.</p>
-<p>In practice, this means that to find a minimax estimator, one can often search for a “least favorable prior” that results in a Bayes estimator with a flat risk profile.</p>
 <div id="exm-binomial-minimax" class="theorem example">
 <p><span class="theorem-title"><strong>Example 3.5 (Binomial Minimax Estimator)</strong></span> Let <span class="math inline">\(X \sim \text{Bin}(n, \theta)\)</span> and <span class="math inline">\(\theta \sim \text{Beta}(a, b)\)</span>. The squared error loss is <span class="math inline">\(L(\theta, d) = (\theta - d)^2\)</span>. The Bayes estimator is the posterior mean: <span class="math display">\[d(x) = \frac{a+x}{a+b+n}\]</span></p>
 <p>We calculate the risk <span class="math inline">\(R(\theta, d)\)</span>:</p>
@@ -902,6 +901,51 @@ R(\theta, d) = E_x \left[ \left( \theta - \frac{a+x}{a+b+n} \right)^2 \right]
 <p>Solving the resulting system of equations yields: <span class="math display">\[a = b = \frac{\sqrt{n}}{2}\]</span></p>
 <p>Thus, the minimax estimator is: <span class="math display">\[d(x) = \frac{x + \sqrt{n}/2}{n + \sqrt{n}}\]</span></p>
 <p>This differs from the standard MLE <span class="math inline">\(\hat{p} = x/n\)</span> and the uniform prior Bayes estimator (<span class="math inline">\(a=b=1\)</span>).</p>
+</div>
+<p>According to <a href="decision.html#thm-limits" class="quarto-xref">Theorem&nbsp;<span>2.2</span></a>, let <span class="math inline">\(\{\delta_n\}\)</span> be a sequence of Bayes rules with respect to priors <span class="math inline">\(\{\pi_n\}\)</span>, and let <span class="math inline">\(r(\pi_n, \delta_n)\)</span> be the associated Bayes risks. If there exists a rule <span class="math inline">\(\delta_0\)</span> such that <span class="math display">\[
+\sup_{\theta} R(\theta, \delta_0) \le \lim_{n \to \infty} r(\pi_n, \delta_n)
+\]</span> then <span class="math inline">\(\delta_0\)</span> is a minimax estimator.</p>
+<div id="exm-exponential-minimax" class="theorem example">
+<p><span class="theorem-title"><strong>Example 3.6 (Exponential Minimax Estimation)</strong></span> Let <span class="math inline">\(X_1, \dots, X_n \overset{iid}{\sim} \text{Exp}(\theta)\)</span> with mean <span class="math inline">\(\theta\)</span>. We consider the <strong>Scale-Invariant Loss Function</strong>:</p>
+<p><span class="math display">\[
+L(\theta, \delta) = \left( \frac{\delta}{\theta} - 1 \right)^2
+\]</span></p>
+<p>We propose the estimator <span class="math inline">\(\delta_0(X) = \frac{\sum X_i}{n+1}\)</span>. Consider a sequence of priors <span class="math inline">\(\pi_k \sim \text{Inverse-Gamma}(\alpha_k, \beta_k)\)</span> for <span class="math inline">\(\theta\)</span>, where the density is given by <span class="math inline">\(\pi(\theta) \propto \theta^{-\alpha_k - 1} e^{-\beta_k / \theta}\)</span>.</p>
+<p>We will show that <span class="math inline">\(\delta_0\)</span> is a minimax estimator by deriving the Bayes estimator for this sequence and comparing the risks.</p>
+<p><strong>Posterior Analysis and Moments</strong></p>
+<p>Let <span class="math inline">\(T = \sum X_i\)</span>. The likelihood is <span class="math inline">\(L(\theta|X) = \theta^{-n} e^{-T/\theta}\)</span>. Multiplying by the prior <span class="math inline">\(\pi_k(\theta)\)</span>, the posterior density is:</p>
+<p><span class="math display">\[
+\pi(\theta | X) \propto \theta^{-(n + \alpha_k) - 1} e^{-(T + \beta_k)/\theta}
+\]</span></p>
+<p>This is an <strong>Inverse-Gamma</strong> distribution with parameters <span class="math inline">\(\alpha^* = n + \alpha_k\)</span> and <span class="math inline">\(\beta^* = T + \beta_k\)</span>. Using the properties of the Inverse-Gamma distribution, the required posterior moments are:</p>
+<p><span class="math display">\[
+E[\theta^{-1} | X] = \frac{n + \alpha_k}{T + \beta_k}, \quad E[\theta^{-2} | X] = \frac{(n + \alpha_k)(n + \alpha_k + 1)}{(T + \beta_k)^2}
+\]</span></p>
+<p>The posterior expected loss is <span class="math inline">\(E[ L(\theta, \delta) | X ] = \delta^2 E[\theta^{-2} | X] - 2\delta E[\theta^{-1} | X] + 1\)</span>.</p>
+<p><strong>Derivation of the Bayes Estimator</strong></p>
+<p>Minimizing the posterior expected loss with respect to <span class="math inline">\(\delta\)</span> yields <span class="math inline">\(\delta_{\pi_k} = \frac{E[\theta^{-1} | X]}{E[\theta^{-2} | X]}\)</span>. Substituting the moments derived above:</p>
+<p><span class="math display">\[
+\delta_{\pi_k}(X) = \frac{ \frac{n + \alpha_k}{T + \beta_k} }{ \frac{(n + \alpha_k)(n + \alpha_k + 1)}{(T + \beta_k)^2} } = \frac{T + \beta_k}{n + \alpha_k + 1}
+\]</span></p>
+<p><strong>Bayes Risk Limit</strong></p>
+<p>The Bayes risk <span class="math inline">\(r(\pi_k)\)</span> is the expected value of the minimum posterior loss. Substituting <span class="math inline">\(\delta_{\pi_k}\)</span> back into the loss equation:</p>
+<p><span class="math display">\[
+r(\pi_k | X) = 1 - \frac{(E[\theta^{-1}|X])^2}{E[\theta^{-2}|X]} = 1 - \frac{n + \alpha_k}{n + \alpha_k + 1} = \frac{1}{n + \alpha_k + 1}
+\]</span></p>
+<p>Since this does not depend on <span class="math inline">\(X\)</span>, the integrated Bayes risk is <span class="math inline">\(r(\pi_k) = \frac{1}{n + \alpha_k + 1}\)</span>. Taking the limit as the prior parameters approach zero (<span class="math inline">\(\alpha_k \to 0\)</span>):</p>
+<p><span class="math display">\[
+\lim_{k \to \infty} r(\pi_k) = \frac{1}{n+1}
+\]</span></p>
+<p><strong>Minimax Verification</strong></p>
+<p>Finally, we calculate the frequentist risk for the candidate estimator <span class="math inline">\(\delta_0(X) = \frac{T}{n+1}\)</span>. Let <span class="math inline">\(Y = T/\theta \sim \text{Gamma}(n, 1)\)</span>.</p>
+<p><span class="math display">\[
+R(\theta, \delta_0) = E \left[ \left( \frac{Y}{n+1} - 1 \right)^2 \right] = \text{Var}\left(\frac{Y}{n+1}\right) + \left(E\left[\frac{Y}{n+1}\right]-1\right)^2
+\]</span></p>
+<p>With <span class="math inline">\(E[Y]=n\)</span> and <span class="math inline">\(\text{Var}(Y)=n\)</span>, the risk is:</p>
+<p><span class="math display">\[
+R(\theta, \delta_0) = \frac{n}{(n+1)^2} + \left( \frac{n}{n+1} - 1 \right)^2 = \frac{1}{n+1}
+\]</span></p>
+<p>Since the risk of <span class="math inline">\(\delta_0\)</span> is constant and equals the limit of the Bayes risks ($ $), <span class="math inline">\(\delta_0\)</span> is a <strong>minimax estimator</strong>.</p>
 </div>
 </section>
 </section>
@@ -1004,7 +1048,7 @@ R(\theta, d^{JS}) &lt; p = R(\theta, d^0) \quad \text{for all } \theta \in \math
 <section id="practical-application-one-way-anova-and-borrowing-strength" class="level3" data-number="3.3.1">
 <h3 data-number="3.3.1" class="anchored" data-anchor-id="practical-application-one-way-anova-and-borrowing-strength"><span class="header-section-number">3.3.1</span> Practical Application: One-way ANOVA and “borrowing Strength”</h3>
 <div id="exm-anova-js" class="theorem example">
-<p><span class="theorem-title"><strong>Example 3.6</strong></span> Consider a One-Way ANOVA setting where we wish to estimate the means of <span class="math inline">\(p\)</span> different independent groups (e.g., the true batting averages of <span class="math inline">\(p=10\)</span> baseball players, or the efficacy of <span class="math inline">\(p=5\)</span> different hospital treatments).</p>
+<p><span class="theorem-title"><strong>Example 3.7</strong></span> Consider a One-Way ANOVA setting where we wish to estimate the means of <span class="math inline">\(p\)</span> different independent groups (e.g., the true batting averages of <span class="math inline">\(p=10\)</span> baseball players, or the efficacy of <span class="math inline">\(p=5\)</span> different hospital treatments).</p>
 <ul>
 <li><strong>Model:</strong> Let <span class="math inline">\(X_i \sim N(\theta_i, \sigma^2)\)</span> be the observed sample mean for group <span class="math inline">\(i\)</span>, for <span class="math inline">\(i = 1, \dots, p\)</span>.</li>
 <li><strong>Goal:</strong> Estimate the vector of true means <span class="math inline">\(\boldsymbol{\theta} = (\theta_1, \dots, \theta_p)\)</span> simultaneously. The loss is the sum of squared errors: <span class="math inline">\(L(\boldsymbol{\theta}, \hat{\boldsymbol{\theta}}) = \sum (\theta_i - \hat{\theta}_i)^2\)</span>.</li>
@@ -1100,7 +1144,7 @@ p(\boldsymbol{\mu}, \theta, \tau^2 | X) \propto \left[ \prod_{i=1}^n f(x_i | \mu
 <p>The following tree diagram illustrates the conditional dependencies. Note that the parameters <span class="math inline">\(\mu_i\)</span> are conditionally independent given the hyperparameter <span class="math inline">\(\theta\)</span>, which facilitates “borrowing strength” across groups.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-hierarchical-tree" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" style="width: 80% !important;">
+<div id="fig-hierarchical-tree" class="quarto-float quarto-figure quarto-figure-center anchored" style="width: 80% !important;" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-hierarchical-tree-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="bayesian_files/figure-html/fig-hierarchical-tree-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width: 80% !important;" width="576">
@@ -1130,7 +1174,7 @@ Figure&nbsp;3.5: Hierarchical Tree Structure
 \]</span></p>
 </div>
 <div id="exm-hierarchical-gibbs" class="theorem example">
-<p><span class="theorem-title"><strong>Example 3.7 (Gibbs Sampling for Groups of Normal Data)</strong></span> <strong>The Model</strong></p>
+<p><span class="theorem-title"><strong>Example 3.8 (Gibbs Sampling for Groups of Normal Data)</strong></span> <strong>The Model</strong></p>
 <p>To apply the general Gibbs sampling framework <span class="math inline">\(\theta_1, \theta_2, \dots, \theta_k\)</span> to our specific hierarchical model, we identify the variables as follows:</p>
 <ul>
 <li><p><strong>Data Observations (<span class="math inline">\(X_i\)</span>):</strong> These are the known, measured values at the lowest level of the hierarchy (e.g., test scores of students in school <span class="math inline">\(i\)</span>). In the Gibbs sampler, these remain fixed and condition the updates of the parameters.</p></li>
@@ -1714,7 +1758,7 @@ f(y^*|y) = \int_\Theta f(y^*|\theta) \pi(\theta|y) \, d\theta
 </ul>
 <p>As sample size <span class="math inline">\(n \to \infty\)</span>, the parameter uncertainty vanishes (the posterior approaches a point mass), and the predictive distribution converges to the true data-generating distribution.</p>
 <div id="exm-predictive-normal" class="theorem example">
-<p><span class="theorem-title"><strong>Example 3.8 (Normal-Normal Predictive Distribution)</strong></span> Consider a case where the data <span class="math inline">\(y_1, \dots, y_n\)</span> are independent and normally distributed with unknown mean <span class="math inline">\(\mu\)</span> and known variance <span class="math inline">\(\sigma^2\)</span>:</p>
+<p><span class="theorem-title"><strong>Example 3.9 (Normal-Normal Predictive Distribution)</strong></span> Consider a case where the data <span class="math inline">\(y_1, \dots, y_n\)</span> are independent and normally distributed with unknown mean <span class="math inline">\(\mu\)</span> and known variance <span class="math inline">\(\sigma^2\)</span>:</p>
 <p><span class="math display">\[
 Y_i | \mu \sim N(\mu, \sigma^2)
 \]</span></p>
