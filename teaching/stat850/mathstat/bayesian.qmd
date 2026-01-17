@@ -879,7 +879,7 @@ The term $\nabla \cdot g(X)$ represents the **divergence** of the vector field $
 :::
 
 ::: {.proof}
-
+<details>
 It suffices to show the result for a single component in 1 dimension, as the multivariate case follows by summation due to independence. Let $X_i \sim N(\theta_i, 1)$ and let $\phi(t)$ be the standard normal density function. The joint density is $f(x) = \prod \phi(x_j - \theta_j)$.
 
 Consider the expectation of the $i$-th term:
@@ -903,11 +903,72 @@ $$
 $$
 
 Assuming $g(x)$ does not grow exponentially fast, the boundary term vanishes. The remaining integral is the expectation of the partial derivative. Summing over all $i=1 \dots p$ gives the divergence $\nabla \cdot g(X)$.
+</details>
 :::
 
+::: {#lem-stein-radial}
+### Stein's Lemma for Radial Fields
+
+Let $X \sim N_p(\theta, I)$ and consider a radial vector field of the form $g(X) = c(\|X\|^2)X$, where $c: \mathbb{R} \to \mathbb{R}$ is a differentiable scalar function. Then:
+
+$$
+E_\theta \left[ (X - \theta)^T g(X) \right] = E_\theta \left[ p \cdot c(\|X\|^2) + 2 \|X\|^2 \cdot c'(\|X\|^2) \right]
+$$
+
+where $c'(z) = \frac{d}{dz}c(z)$.
+:::
+
+::: {.proof}
+<details>
+
+
+We apply the general Stein's Lemma by calculating the divergence of the radial field $g(X) = c(\|X\|^2)X$. Using the product rule for divergence:
+
+$$
+\nabla \cdot (c(\|X\|^2)X) = c(\|X\|^2) (\nabla \cdot X) + X^T (\nabla c(\|X\|^2))
+$$
+
+
+
+**Step 1: The geometric spread.**
+The divergence of the identity map $X$ in $p$ dimensions is simply the sum of the partial derivatives of each component with respect to itself:
+$$
+\nabla \cdot X = \sum_{i=1}^p \frac{\partial X_i}{\partial X_i} = p
+$$
+
+**Step 2: The radial stretch.**
+To find $\nabla c(\|X\|^2)$, we use the chain rule. Let $h(X) = \|X\|^2 = \sum X_i^2$. Then $\nabla h(X) = 2X$.
+$$
+\nabla c(\|X\|^2) = c'(\|X\|^2) \nabla (\|X\|^2) = 2 c'(\|X\|^2) X
+$$
+
+Substituting this back into the divergence formula:
+$$
+\begin{aligned}
+\nabla \cdot g(X) &= p \cdot c(\|X\|^2) + X^T (2 c'(\|X\|^2) X) \\
+&= p \cdot c(\|X\|^2) + 2 c'(\|X\|^2) \|X\|^2
+\end{aligned}
+$$
+
+
+
+Taking the expectation of both sides completes the proof.
+</details>
+:::
+
+**Connection to the $\chi^2$ Distribution**
+
+This version of the lemma is particularly useful because when $\theta = 0$, the quantity $\|X\|^2$ follows a central $\chi^2_p$ distribution.
+
+* **Verifying the Mean:** If we set $c(\|X\|^2) = 1$, then $g(X) = X$. The lemma gives $E_0[\|X\|^2] = p + 2\|X\|^2(0) = p$, which is the expected value of a $\chi^2_p$ variable.
+* **The James-Stein Weight:** If we set $c(\|X\|^2) = \frac{1}{\|X\|^2}$, then $c'(z) = -\frac{1}{z^2}$.
+    $$
+    \nabla \cdot g(X) = \frac{p}{\|X\|^2} + 2 \|X\|^2 \left( -\frac{1}{\|X\|^4} \right) = \frac{p-2}{\|X\|^2}
+    $$
+    This explains why the $p-2$ constant appears in the James-Stein estimator—it is the net result of $p$ dimensions of "spreading" minus 2 dimensions of "radial thinning."
 
 ::: {#exm-stein-polynomial}
-### An Example for Verifying Stein's Lemma with a Polynomial
+### An Example for Verifying Stein's Lemma
 
 **Scenario**
 Let $X \sim N(\theta, 1)$ be a univariate normal random variable with unit variance.
@@ -961,6 +1022,54 @@ $$
 Thus, Stein's Lemma holds for this specific case.
 :::
 
+::: {#exm-stein-polynomial}
+### Another Example Verifying Stein's Lemma
+
+
+Let $X \sim N_p(\theta, I)$ and $g(X) = \|X\|^2 X$. We verify the Radial Field Lemma:
+$$E_\theta \left[ (X - \theta)^T g(X) \right] = E_\theta \left[ p \cdot c(\|X\|^2) + 2 \|X\|^2 \cdot c'(\|X\|^2) \right]$$
+
+Here, $c(z) = z$, which implies $c'(z) = 1$.
+
+**RHS (Divergence):**
+Using the radial formula:
+$$
+\begin{aligned}
+\nabla \cdot g(X) &= p(\|X\|^2) + 2\|X\|^2(1) \\
+&= (p+2)\|X\|^2
+\end{aligned}
+$$
+The expectation is $(p+2)E_\theta[\|X\|^2]$. Since $\|X\|^2$ is a non-central $\chi^2_p$ with non-centrality parameter $\|\theta\|^2$, we know $E_\theta[\|X\|^2] = p + \|\theta\|^2$.
+Thus, $\text{RHS} = (p+2)(p + \|\theta\|^2)$.
+
+
+
+**LHS (Alignment):**
+$$
+\begin{aligned}
+E_\theta \left[ (X-\theta)^T (\|X\|^2 X) \right] &= E_\theta \left[ \|X\|^2 (X^T X - \theta^T X) \right] \\
+&= E_\theta \left[ \|X\|^4 - \theta^T X \|X\|^2 \right]
+\end{aligned}
+$$
+
+To simplify, let $X = \theta + Z$ where $Z \sim N_p(0, I)$.
+Recall the moments of the non-central chi-square distribution or expand the terms:
+$E[\|X\|^4] = p(p+2) + 2(p+2)\|\theta\|^2 + \|\theta\|^4$.
+For the cross term $E[\theta^T X \|X\|^2]$, we find it equals $\|\theta\|^4 + (p+2)\|\theta\|^2$.
+
+Subtracting these:
+$$
+\begin{aligned}
+\text{LHS} &= [p(p+2) + 2(p+2)\|\theta\|^2 + \|\theta\|^4] - [\|\theta\|^4 + (p+2)\|\theta\|^2] \\
+&= p(p+2) + (p+2)\|\theta\|^2 \\
+&= (p+2)(p + \|\theta\|^2)
+\end{aligned}
+$$
+
+**Conclusion**
+The results match exactly. The alignment of the cubic radial field with the noise is perfectly predicted by the sum of its geometric expansion ($p \|X\|^2$) and its radial stretch ($2 \|X\|^2$).
+:::
+
 ::: {#thm-mle-inadmissible}
 ### Inadmissibility of the MLE in High Dimensions (stein's Phenomenon)
 
@@ -970,7 +1079,7 @@ Let $X \sim N_p(\theta, I)$ be a $p$-dimensional random vector with $p \ge 3$. U
 ::: {.proof name="Proof of Inadmissibility"}
 To show that $d^0(X) = X$ is inadmissible, we compare its risk to that of the James-Stein estimator $d^{JS}(X)$.
 
-Let $g(X) = \frac{p-2}{||X||^2}X$. We can write the James-Stein estimator as $d^{JS}(X) = X - g(X)$.
+Let $g(X) = c(\|X\|^2)X$ where $c(\|X\|^2) = \frac{p-2}{\|X\|^2}$. We can write the James-Stein estimator as $d^{JS}(X) = X - g(X)$.
 
 The risk is the expected squared error loss:
 
@@ -981,46 +1090,201 @@ R(\theta, d^{JS}) &= E_\theta \left[ || (X - \theta) - g(X) ||^2 \right] \\
 \end{aligned}
 $$
 
-The first term is the risk of the MLE, which is $p$. For the second term, we apply **Stein's Lemma** (@lem-stein). We first compute the divergence of $g(X)$:
+The first term is the risk of the MLE, which is $p$. 
 
-$$
-\frac{\partial}{\partial X_i} \left( \frac{(p-2)X_i}{||X||^2} \right) = (p-2) \left( \frac{1}{||X||^2} - \frac{2X_i^2}{||X||^4} \right)
-$$
 
-Summing over all $i$:
 
-$$
-\nabla \cdot g(X) = (p-2) \left( \frac{p}{||X||^2} - \frac{2 \sum X_i^2}{||X||^4} \right) = \frac{(p-2)^2}{||X||^2}
-$$
+For the second term, we apply **Stein's Lemma for Radial Fields** (@lem-stein-radial). We first compute the scalar function and its derivative:
+$$c(z) = \frac{p-2}{z} \implies c'(z) = -\frac{p-2}{z^2}$$
 
-Applying Stein's Lemma:
-
-$$
-2 E_\theta \left[ (X-\theta)^T g(X) \right] = 2 E_\theta [ \nabla \cdot g(X) ] = 2(p-2)^2 E_\theta \left[ \frac{1}{||X||^2} \right]
-$$
-
-The third term in the risk expansion is:
-
-$$
-||g(X)||^2 = \sum \left( \frac{(p-2)X_i}{||X||^2} \right)^2 = (p-2)^2 \frac{||X||^2}{||X||^4} = (p-2)^2 \frac{1}{||X||^2}
-$$
-
-Substituting these back into the risk equation:
-
+Substituting these into the radial divergence formula from @lem-stein-radial:
 $$
 \begin{aligned}
-R(\theta, d^{JS}) &= p - 2(p-2)^2 E_\theta \left[ \frac{1}{||X||^2} \right] + (p-2)^2 E_\theta \left[ \frac{1}{||X||^2} \right] \\
-&= p - (p-2)^2 E_\theta \left[ \frac{1}{||X||^2} \right]
+\nabla \cdot g(X) &= p \cdot c(\|X\|^2) + 2 \|X\|^2 \cdot c'(\|X\|^2) \\
+&= p \left( \frac{p-2}{\|X\|^2} \right) + 2 \|X\|^2 \left( -\frac{p-2}{\|X\|^4} \right) \\
+&= \frac{p(p-2)}{\|X\|^2} - \frac{2(p-2)}{\|X\|^2} \\
+&= \frac{(p-2)^2}{\|X\|^2}
 \end{aligned}
 $$
 
-Since $p \ge 3$, $(p-2)^2 > 0$, and $1/||X||^2$ is a strictly positive random variable. Therefore:
+
+
+Applying the lemma to the cross-term:
+$$2 E_\theta \left[ (X-\theta)^T g(X) \right] = 2 E_\theta [ \nabla \cdot g(X) ] = 2(p-2)^2 E_\theta \left[ \frac{1}{\|X\|^2} \right]$$
+
+The third term in the risk expansion is the squared magnitude of the shrinkage:
+$$\|g(X)\|^2 = \left\| \frac{p-2}{\|X\|^2} X \right\|^2 = \frac{(p-2)^2}{\|X\|^4} \|X\|^2 = \frac{(p-2)^2}{\|X\|^2}$$
+
+
+
+Substituting these results back into the risk equation:
 $$
-R(\theta, d^{JS}) < p = R(\theta, d^0) \quad \text{for all } \theta \in \mathbb{R}^p
+\begin{aligned}
+R(\theta, d^{JS}) &= p - 2(p-2)^2 E_\theta \left[ \frac{1}{\|X\|^2} \right] + (p-2)^2 E_\theta \left[ \frac{1}{\|X\|^2} \right] \\
+&= p - (p-2)^2 E_\theta \left[ \frac{1}{\|X\|^2} \right]
+\end{aligned}
 $$
 
-Thus, the MLE is strictly dominated by the James-Stein estimator.
+Since $p \ge 3$, the constant $(p-2)^2$ is strictly positive. Because $1/\|X\|^2 > 0$ with probability 1, the risk of the James-Stein estimator is strictly less than $p$ for all $\theta \in \mathbb{R}^p$.
+
+Thus, $d^{JS}$ dominates the MLE, proving the MLE is inadmissible.
 :::
+
+### Bayes Risk of James-stein Estimator
+
+We can derive the Bayes Risk $r(\pi, d^{JS})$ of this estimator using two equivalent methods: minimizing the expected frequentist risk, or minimizing the expected posterior loss.
+
+::: {#thm-js-bayes-risk}
+
+#### Bayes Risk of James-stein Estimator
+
+For $p \ge 3$, the Bayes risk of the James-Stein estimator $d^{JS}$ with respect to the prior $\theta \sim N(0, \sigma^2 I)$ is:
+
+$$
+r(\pi, d^{JS}) = \frac{p\sigma^2 + 2}{\sigma^2 + 1}
+$$
+
+:::
+
+::: {.proof}
+<details>
+<summary>Method 1: Integration over the Prior (Frequentist Risk approach)</summary>
+
+The Bayes risk is defined as $r(\pi, d) = E_\pi [ R(\theta, d) ]$.
+
+First, recall the frequentist risk of the James-Stein estimator for a fixed $\theta$. Using Stein's Lemma, the risk is given by:
+$$
+R(\theta, d^{JS}) = p - (p-2)^2 E_\theta \left[ \frac{1}{||X||^2} \right]
+$$
+
+To find the Bayes risk, we take the expectation of this risk with respect to the prior $\pi(\theta)$:
+$$
+r(\pi, d^{JS}) = \int R(\theta, d^{JS}) \pi(\theta) d\theta = p - (p-2)^2 E_\pi \left[ E_\theta \left( \frac{1}{||X||^2} \right) \right]
+$$
+
+By the law of iterated expectations, $E_\pi [ E_\theta (\cdot) ]$ is equivalent to the expectation with respect to the marginal distribution of $X$, denoted as $m(x)$.
+Under the conjugate prior, the marginal distribution is $X \sim N(0, (1+\sigma^2)I)$.
+
+Consequently, the quantity $\frac{||X||^2}{1+\sigma^2}$ follows a Chi-squared distribution with $p$ degrees of freedom ($\chi^2_p$). The expectation of the inverse chi-square is:
+$$
+E \left[ \frac{1}{||X||^2} \right] = \frac{1}{1+\sigma^2} E \left[ \frac{1}{\chi^2_p} \right] = \frac{1}{1+\sigma^2} \cdot \frac{1}{p-2}
+$$
+
+Substituting this back into the risk equation:
+$$
+\begin{aligned}
+r(\pi, d^{JS}) &= p - (p-2)^2 \cdot \frac{1}{(p-2)(1+\sigma^2)} \\
+&= p - \frac{p-2}{1+\sigma^2} \\
+&= \frac{p(1+\sigma^2) - (p-2)}{1+\sigma^2} \\
+&= \frac{p\sigma^2 + p - p + 2}{1+\sigma^2} = \frac{p\sigma^2 + 2}{\sigma^2 + 1}
+\end{aligned}
+$$
+
+</details>
+:::
+
+::: {.proof}
+
+<details>
+<summary>Method 2: Integration over the Marginal (Posterior Loss approach)</summary>
+
+Alternatively, we can compute the Bayes risk by first finding the posterior expected loss for a given $x$, and then averaging over the marginal distribution of $x$:
+$$
+r(\pi, d) = E_m [ E_{\theta|x} [ L(\theta, d(x)) ] ]
+$$
+
+**Step 1: Posterior Expected Loss**
+
+The posterior distribution of $\theta$ given $x$ is:
+$$
+\theta | x \sim N \left( \frac{\sigma^2}{1+\sigma^2}x, \frac{\sigma^2}{1+\sigma^2}I \right)
+$$
+
+The expected squared error loss can be decomposed into the variance (trace) and the squared bias:
+$$
+E_{\theta|x} [ ||\theta - d^{JS}(x)||^2 ] = \text{tr}(\text{Var}(\theta|x)) + || E[\theta|x] - d^{JS}(x) ||^2
+$$
+
+* **Trace term:**
+    $$\text{tr} \left( \frac{\sigma^2}{1+\sigma^2} I_p \right) = \frac{p\sigma^2}{1+\sigma^2}$$
+
+* **Squared Bias term:**
+    Let $B = \frac{1}{1+\sigma^2}$. Then $E[\theta|x] = (1-B)x$.
+    The estimator is $d^{JS}(x) = (1 - \frac{p-2}{||x||^2})x$.
+    The difference is:
+    $$
+    E[\theta|x] - d^{JS}(x) = \left( (1-B) - \left( 1 - \frac{p-2}{||x||^2} \right) \right) x = \left( \frac{p-2}{||x||^2} - B \right) x
+    $$
+    Squaring the norm gives:
+    $$
+    \left( \frac{p-2}{||x||^2} - B \right)^2 ||x||^2 = \frac{(p-2)^2}{||x||^2} - 2B(p-2) + B^2 ||x||^2
+    $$
+
+**Step 2: Expectation with respect to Marginal $X$** We now take the expectation $E_m[\cdot]$ of the posterior loss. Recall $X \sim N(0, (1+\sigma^2)I)$, so $E[||X||^2] = p(1+\sigma^2)$ and $E[1/||X||^2] = \frac{1}{(p-2)(1+\sigma^2)}$.
+
+* **Expectation of Trace term:** Constant, remains $\frac{p\sigma^2}{1+\sigma^2}$.
+* **Expectation of Bias term:**
+    $$
+    \begin{aligned}
+    E_m \left[ \frac{(p-2)^2}{||X||^2} - \frac{2(p-2)}{1+\sigma^2} + \frac{||X||^2}{(1+\sigma^2)^2} \right] &= (p-2)^2 \frac{1}{(p-2)(1+\sigma^2)} - \frac{2(p-2)}{1+\sigma^2} + \frac{p(1+\sigma^2)}{(1+\sigma^2)^2} \\
+    &= \frac{p-2}{1+\sigma^2} - \frac{2p-4}{1+\sigma^2} + \frac{p}{1+\sigma^2} \\
+    &= \frac{p - 2 - 2p + 4 + p}{1+\sigma^2} \\
+    &= \frac{2}{1+\sigma^2}
+    \end{aligned}
+    $$
+
+**Step 3: Combine Terms** $$
+r(\pi, d^{JS}) = \underbrace{\frac{p\sigma^2}{1+\sigma^2}}_{\text{Variance Part}} + \underbrace{\frac{2}{1+\sigma^2}}_{\text{Bias Part}} = \frac{p\sigma^2 + 2}{\sigma^2 + 1}
+$$
+
+Both methods yield the same result.
+
+</details>
+
+:::
+
+
+
+### Minimaxity of the MLE
+
+The James-Stein result is particularly striking when compared to the performance of the standard estimator.
+
+::: {#thm-mle-minimax}
+### Minimaxity of the Maximum Likelihood Estimator
+
+Let $X \sim N_p(\theta, I)$. Under the squared error loss function $L(\theta, d) = ||\theta - d||^2$, the standard Maximum Likelihood Estimator $d^0(X) = X$ is a **minimax rule**. That is, it minimizes the maximum possible risk over the parameter space:
+
+$$
+\sup_{\theta \in \mathbb{R}^p} R(\theta, d^0) = \inf_{d} \sup_{\theta \in \mathbb{R}^p} R(\theta, d) = p
+$$
+:::
+
+::: {.proof}
+<details>
+<summary>Click to view proof by least favorable prior</summary>
+
+The risk of the MLE is $R(\theta, d^0) = p$ for all $\theta$. Since it is a constant risk estimator, its maximum risk is simply $p$. 
+
+To prove it is minimax, we show that $p$ is the limit of the Bayes risks for a sequence of conjugate priors $\theta \sim N(0, \sigma^2 I)$. The Bayes risk for the optimal Bayes estimator $d_{\sigma^2}$ is:
+
+$$
+r(\pi_{\sigma^2}, d_{\sigma^2}) = \frac{p\sigma^2}{\sigma^2 + 1}
+$$
+
+As $\sigma^2 \to \infty$ (the prior becomes "flat"), the Bayes risk approaches $p$:
+
+$$
+\lim_{\sigma^2 \to \infty} \frac{p\sigma^2}{\sigma^2 + 1} = p
+$$
+
+By the property that the maximum risk of an estimator is always at least the Bayes risk of any prior, and specifically greater than or equal to the limit of Bayes risks for a sequence of priors, we establish that no estimator can have a maximum risk lower than $p$. Since $d^0$ achieves this maximum risk, it is minimax.
+
+</details>
+:::
+
+
+
+Stein's Paradox arises because the James-Stein estimator $d^{JS}$ is also a minimax rule (its risk is always less than $p$), but it dominates $d^0$. This confirms that while $d^0$ is minimax, it is **inadmissible** for $p \ge 3$.
 
 ### Practical Application: One-way ANOVA and "Borrowing Strength"
 
@@ -1096,110 +1360,6 @@ The workflow typically follows these steps:
 ### Deriving James-stein as Empirical Bayes
 
 
-We can derive the Bayes Risk $r(\pi, d^{JS})$ of this estimator using two equivalent methods: minimizing the expected frequentist risk, or minimizing the expected posterior loss.
-
-::: {#thm-js-bayes-risk}
-### Bayes Risk of James-stein Estimator
-
-For $p \ge 3$, the Bayes risk of the James-Stein estimator $d^{JS}$ with respect to the prior $\theta \sim N(0, \tau^2 I)$ is:
-
-$$
-r(\pi, d^{JS}) = \frac{p\tau^2 + 2}{\tau^2 + 1}
-$$
-:::
-
-::: {.proof}
-**Method 1: Integration over the Prior (Frequentist Risk approach)** 
-
-The Bayes risk is defined as $r(\pi, d) = E_\pi [ R(\theta, d) ]$.
-
-First, recall the frequentist risk of the James-Stein estimator for a fixed $\theta$. Using Stein's Lemma, the risk is given by:
-$$
-R(\theta, d^{JS}) = p - (p-2)^2 E_\theta \left[ \frac{1}{||X||^2} \right]
-$$
-
-To find the Bayes risk, we take the expectation of this risk with respect to the prior $\pi(\theta)$:
-$$
-r(\pi, d^{JS}) = \int R(\theta, d^{JS}) \pi(\theta) d\theta = p - (p-2)^2 E_\pi \left[ E_\theta \left( \frac{1}{||X||^2} \right) \right]
-$$
-
-By the law of iterated expectations, $E_\pi [ E_\theta (\cdot) ]$ is equivalent to the expectation with respect to the marginal distribution of $X$, denoted as $m(x)$.
-Under the conjugate prior, the marginal distribution is $X \sim N(0, (1+\tau^2)I)$.
-
-Consequently, the quantity $\frac{||X||^2}{1+\tau^2}$ follows a Chi-squared distribution with $p$ degrees of freedom ($\chi^2_p$). The expectation of the inverse chi-square is:
-$$
-E \left[ \frac{1}{||X||^2} \right] = \frac{1}{1+\tau^2} E \left[ \frac{1}{\chi^2_p} \right] = \frac{1}{1+\tau^2} \cdot \frac{1}{p-2}
-$$
-
-Substituting this back into the risk equation:
-$$
-\begin{aligned}
-r(\pi, d^{JS}) &= p - (p-2)^2 \cdot \frac{1}{(p-2)(1+\tau^2)} \\
-&= p - \frac{p-2}{1+\tau^2} \\
-&= \frac{p(1+\tau^2) - (p-2)}{1+\tau^2} \\
-&= \frac{p\tau^2 + p - p + 2}{1+\tau^2} = \frac{p\tau^2 + 2}{\tau^2 + 1}
-\end{aligned}
-$$
-:::
-
-::: {.proof}
-**Method 2: Integration over the Marginal (Posterior Loss approach)** 
-
-Alternatively, we can compute the Bayes risk by first finding the posterior expected loss for a given $x$, and then averaging over the marginal distribution of $x$:
-$$
-r(\pi, d) = E_m [ E_{\theta|x} [ L(\theta, d(x)) ] ]
-$$
-
-**Step 1: Posterior Expected Loss**
-
-The posterior distribution of $\theta$ given $x$ is:
-$$
-\theta | x \sim N \left( \frac{\tau^2}{1+\tau^2}x, \frac{\tau^2}{1+\tau^2}I \right)
-$$
-
-The expected squared error loss can be decomposed into the variance (trace) and the squared bias:
-$$
-E_{\theta|x} [ ||\theta - d^{JS}(x)||^2 ] = \text{tr}(\text{Var}(\theta|x)) + || E[\theta|x] - d^{JS}(x) ||^2
-$$
-
-* **Trace term:**
-    $$\text{tr} \left( \frac{\tau^2}{1+\tau^2} I_p \right) = \frac{p\tau^2}{1+\tau^2}$$
-
-* **Squared Bias term:**
-    Let $B = \frac{1}{1+\tau^2}$. Then $E[\theta|x] = (1-B)x$.
-    The estimator is $d^{JS}(x) = (1 - \frac{p-2}{||x||^2})x$.
-    The difference is:
-    $$
-    E[\theta|x] - d^{JS}(x) = \left( (1-B) - \left( 1 - \frac{p-2}{||x||^2} \right) \right) x = \left( \frac{p-2}{||x||^2} - B \right) x
-    $$
-    Squaring the norm gives:
-    $$
-    \left( \frac{p-2}{||x||^2} - B \right)^2 ||x||^2 = \frac{(p-2)^2}{||x||^2} - 2B(p-2) + B^2 ||x||^2
-    $$
-
-**Step 2: Expectation with respect to Marginal $X$** 
-
-We now take the expectation $E_m[\cdot]$ of the posterior loss. Recall $X \sim N(0, (1+\tau^2)I)$, so $E[||X||^2] = p(1+\tau^2)$ and $E[1/||X||^2] = \frac{1}{(p-2)(1+\tau^2)}$.
-
-* **Expectation of Trace term:** Constant, remains $\frac{p\tau^2}{1+\tau^2}$.
-* **Expectation of Bias term:**
-    $$
-    \begin{aligned}
-    E_m \left[ \frac{(p-2)^2}{||X||^2} - \frac{2(p-2)}{1+\tau^2} + \frac{||X||^2}{(1+\tau^2)^2} \right] &= (p-2)^2 \frac{1}{(p-2)(1+\tau^2)} - \frac{2(p-2)}{1+\tau^2} + \frac{p(1+\tau^2)}{(1+\tau^2)^2} \\
-    &= \frac{p-2}{1+\tau^2} - \frac{2p-4}{1+\tau^2} + \frac{p}{1+\tau^2} \\
-    &= \frac{p - 2 - 2p + 4 + p}{1+\tau^2} \\
-    &= \frac{2}{1+\tau^2}
-    \end{aligned}
-    $$
-
-**Step 3: Combine Terms** 
-
-$$
-r(\pi, d^{JS}) = \underbrace{\frac{p\tau^2}{1+\tau^2}}_{\text{Variance Part}} + \underbrace{\frac{2}{1+\tau^2}}_{\text{Bias Part}} = \frac{p\tau^2 + 2}{\tau^2 + 1}
-$$
-
-Both methods yield the same result.
-:::
 
 We can derive the James-Stein rule explicitly using this framework.
 
