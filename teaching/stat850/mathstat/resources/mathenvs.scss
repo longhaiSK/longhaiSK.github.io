@@ -1,47 +1,70 @@
 /*-- scss:rules --*/
 
+/* 1. Define the Color Palette */
+/* I added your 'Solution' colors (Red/Pink) to this list */
 $themes: (
   "theorem":    (bg: #f0f7ff, border: #cfe2ff, header-bg: #cfe2ff, text: #084298),
   "definition": (bg: #f0fff4, border: #badbcc, header-bg: #badbcc, text: #0f5132),
   "example":    (bg: #fffbf0, border: #ffeebb, header-bg: #ffeebb, text: #664d03),
-  "proof":      (bg: #fcfcfc, border: #e2e3e5, header-bg: #e2e3e5, text: #41464b)
+  "proof":      (bg: #e5dfdf, border: #e2e3e5, header-bg: #bcbfc4, text: #41464b),
+  "sol":        (bg: #f9f2f4, border: #d9534f, header-bg: #d9534f, text: #ffffff) 
 );
 
-/* Base styling */
-div.theorem, div.definition, div.example, div.proof {
+/* 2. Create a "Mixin" (A reusable styling recipe) */
+/* This contains the logic that makes the bar look good */
+@mixin title-bar-style {
+  display: block;
+  font-weight: bold;
+  
+  /* The Magic Negative Margins */
+  margin: -1em -1em 1em -1em;
+  
+  /* Padding INSIDE the colored bar */
+  padding: 0.6em 1em;
+  
+  /* Border to separate header from body */
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+/* 3. Base Container Styling */
+div.theorem, div.definition, div.example, div.proof, div.sol {
+  padding: 1em; /* Gives breathing room to the body text */
   margin-bottom: 2em;
-  padding: 0;
-  border: 1px solid;
+  border: 2px solid; /* Matches your 'sol' thickness */
   border-radius: 5px;
+  overflow: hidden; /* Clips the header corners */
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  overflow: hidden;
-
-  /* Look for the title ANYWHERE inside the div */
-  span.theorem-title, span.proof-title {
-    display: block;
-    /* Top Right Bottom Left */
-    padding: 0.6em 1em 0.6em 0; 
-    font-weight: bold;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
-  }
-
-  > p {
-    padding: 0.5em 1em;
-    margin-bottom: 0;
+  
+  /* Remove top margin from the first paragraph so it sits snug under the bar */
+  > p:first-child {
+    margin-top: 0;
   }
 }
 
-/* Color Loop */
+/* 4. Apply Colors and Header Logic */
 @each $name, $colors in $themes {
   div.#{$name} {
     background-color: map-get($colors, "bg");
     border-color:     map-get($colors, "border");
 
-    /* REMOVED the '>' symbol here so it finds the grandchild span */
+    /* CASE A: Dynamic Titles (Theorems, Definitions) */
+    /* Quarto puts these in a span, so we style the span */
     span.theorem-title, 
     span.proof-title {
+      @include title-bar-style; /* Apply the recipe */
       background-color: map-get($colors, "header-bg");
       color:            map-get($colors, "text");
+    }
+
+    /* CASE B: Static Titles (Solutions) */
+    /* If the class is 'sol', we use ::before to auto-generate the text */
+    @if $name == "sol" {
+      &::before {
+        content: "Solution"; /* Force the text */
+        @include title-bar-style; /* Apply the same recipe */
+        background-color: map-get($colors, "header-bg");
+        color:            map-get($colors, "text");
+      }
     }
   }
 }
