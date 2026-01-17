@@ -849,14 +849,116 @@ Since the risk of $\delta_0$ is constant and equals the limit of the Bayes risks
 
 In high-dimensional estimation ($p \ge 3$), the Maximum Likelihood Estimator (MLE) is inadmissible under squared error loss. The **James-Stein Estimator** dominates the MLE, meaning it achieves lower risk for all values of $\theta$.
 
-
-
 Consider the setting:
 
 * Data: $X \sim N_p(\theta, I)$
 * Prior: $\theta \sim N_p(0, \tau^2 I)$
 * Estimator: $d^{JS}(x) = \left( 1 - \frac{p-2}{||x||^2} \right) x$
 
+::: {.callout-note}
+### Notation: The Divergence Operator
+The symbol $\nabla \cdot g(X)$ (read as "divergence of $g$") is simply a shorthand notation for the sum of the partial derivatives:
+
+$$
+\nabla \cdot g(X) \equiv \sum_{i=1}^p \frac{\partial g_i(X)}{\partial X_i}
+$$
+
+It represents the total "outward flow" of the vector field $g$ from a local point.
+:::
+
+::: {#lem-stein}
+### Stein's Lemma (Integration by Parts)
+
+Let $X \sim N_p(\theta, I)$ be a multivariate normal random vector, and let $g: \mathbb{R}^p \to \mathbb{R}^p$ be a continuously differentiable function such that $E[| \partial g_i / \partial X_i |] < \infty$. Then:
+
+$$
+E_\theta \left[ (X - \theta)^T g(X) \right] = E_\theta \left[ \nabla \cdot g(X) \right] = E_\theta \left[ \sum_{i=1}^p \frac{\partial g_i(X)}{\partial X_i} \right]
+$$
+
+The term $\nabla \cdot g(X)$ represents the **divergence** of the vector field $g$, which intuitively measures the local rate of expansion or outward flux of the function $g$ at the point $X$; in this statistical context, it quantifies the aggregate sensitivity of the function components to changes in the data.
+:::
+
+::: {.proof name="Proof of Stein's Lemma" .collapse}
+It suffices to show the result for a single component in 1 dimension, as the multivariate case follows by summation due to independence. Let $X_i \sim N(\theta_i, 1)$ and let $\phi(t)$ be the standard normal density function. The joint density is $f(x) = \prod \phi(x_j - \theta_j)$.
+
+Consider the expectation of the $i$-th term:
+$$
+E_\theta [ (X_i - \theta_i) g_i(X) ] = \int_{\mathbb{R}^p} (x_i - \theta_i) g_i(x) \left( \prod_{j=1}^p \phi(x_j - \theta_j) \right) dx
+$$
+
+Focusing on the integral with respect to $x_i$:
+$$
+\int_{-\infty}^{\infty} (x_i - \theta_i) \phi(x_i - \theta_i) g_i(x) dx_i
+$$
+
+Recall that $\phi'(z) = -z \phi(z)$. Therefore, $(x_i - \theta_i) \phi(x_i - \theta_i) = - \frac{\partial}{\partial x_i} \phi(x_i - \theta_i)$. We use integration by parts with:
+$$
+u = g_i(x) \quad \text{and} \quad dv = - \frac{\partial}{\partial x_i} \phi(x_i - \theta_i) dx_i
+$$
+
+Thus:
+$$
+\int_{-\infty}^{\infty} g_i(x) (x_i - \theta_i) \phi(x_i - \theta_i) dx_i = \left[ -g_i(x) \phi(x_i - \theta_i) \right]_{-\infty}^{\infty} + \int_{-\infty}^{\infty} \frac{\partial g_i(x)}{\partial x_i} \phi(x_i - \theta_i) dx_i
+$$
+
+Assuming $g(x)$ does not grow exponentially fast, the boundary term vanishes. The remaining integral is the expectation of the partial derivative. Summing over all $i=1 \dots p$ gives the divergence $\nabla \cdot g(X)$.
+:::
+
+
+::: {#exm-stein-polynomial}
+### An Example for Verifying Stein's Lemma with a Polynomial
+
+**Scenario**
+Let $X \sim N(\theta, 1)$ be a univariate normal random variable with unit variance.
+Let $g(x) = x^2$.
+Stein's Lemma states that:
+$$
+E_\theta \left[ (X-\theta) g(X) \right] = E_\theta \left[ g'(X) \right]
+$$
+
+**Step 1: Calculate the Right-Hand Side (RHS)**
+First, we find the derivative of $g(x)$:
+$$
+g'(x) = \frac{d}{dx} (x^2) = 2x
+$$
+
+Now, compute the expectation of the derivative:
+$$
+\text{RHS} = E_\theta [g'(X)] = E_\theta [2X] = 2 E_\theta [X] = 2\theta
+$$
+
+**Step 2: Calculate the Left-Hand Side (LHS)**
+We evaluate the expectation of the cross-product term.
+Substitute $X = Z + \theta$, where $Z \sim N(0, 1)$ is a standard normal variable.
+Then $X - \theta = Z$.
+
+$$
+\begin{aligned}
+\text{LHS} &= E_\theta \left[ (X-\theta) X^2 \right] \\
+&= E \left[ Z (Z + \theta)^2 \right] \quad \text{where } Z \sim N(0,1) \\
+&= E \left[ Z (Z^2 + 2\theta Z + \theta^2) \right] \\
+&= E [Z^3] + 2\theta E [Z^2] + \theta^2 E [Z]
+\end{aligned}
+$$
+
+We use the known moments of the standard normal distribution $Z$:
+
+* $E[Z] = 0$ (mean)
+* $E[Z^2] = 1$ (variance)
+* $E[Z^3] = 0$ (skewness of symmetric distribution)
+
+Substituting these values back:
+$$
+\text{LHS} = 0 + 2\theta(1) + \theta^2(0) = 2\theta
+$$
+
+**Conclusion**
+We observe that:
+$$
+\text{LHS} = 2\theta \quad \text{and} \quad \text{RHS} = 2\theta
+$$
+Thus, Stein's Lemma holds for this specific case.
+:::
 
 ::: {#thm-mle-inadmissible}
 ### Inadmissibility of the MLE in High Dimensions (stein's Phenomenon)
@@ -864,28 +966,59 @@ Consider the setting:
 Let $X \sim N_p(\theta, I)$ be a $p$-dimensional random vector with $p \ge 3$. Under the squared error loss function $L(\theta, d) = ||\theta - d||^2$, the standard Maximum Likelihood Estimator $d^0(X) = X$ is **inadmissible**.
 :::
 
-::: {.proof}
-To show that $d^0(X) = X$ is inadmissible, we must find another estimator that dominates it (i.e., has equal or lower risk for all $\theta$, and strictly lower risk for at least one $\theta$).
+::: {.proof name="Proof of Inadmissibility"}
+To show that $d^0(X) = X$ is inadmissible, we compare its risk to that of the James-Stein estimator $d^{JS}(X)$.
 
-First, consider the risk of the standard estimator $d^0$. Since $X_i \sim N(\theta_i, 1)$ are independent:
+Let $g(X) = \frac{p-2}{||X||^2}X$. We can write the James-Stein estimator as $d^{JS}(X) = X - g(X)$.
 
-$$
-R(\theta, d^0) = E_\theta [ ||X - \theta||^2 ] = \sum_{i=1}^p E [ (X_i - \theta_i)^2 ] = \sum_{i=1}^p \text{Var}(X_i) = p
-$$
-
-Now consider the James-Stein estimator $d^{JS}(X) = \left( 1 - \frac{p-2}{||X||^2} \right) X$. As established in the derivation of the Bayes Risk in @thm-js-bayes-risk, the frequentist risk function of $d^{JS}$ is:
+The risk is the expected squared error loss:
 
 $$
-R(\theta, d^{JS}) = p - (p-2)^2 E_\theta \left[ \frac{1}{||X||^2} \right]
+\begin{aligned}
+R(\theta, d^{JS}) &= E_\theta \left[ || (X - \theta) - g(X) ||^2 \right] \\
+&= E_\theta \left[ ||X - \theta||^2 \right] - 2 E_\theta \left[ (X-\theta)^T g(X) \right] + E_\theta \left[ ||g(X)||^2 \right]
+\end{aligned}
 $$
 
-Since the random variable $||X||^2$ is non-negative and not identically infinity, the expectation $E_\theta [ 1/||X||^2 ]$ is strictly positive for all $\theta$. Therefore:
+The first term is the risk of the MLE, which is $p$. For the second term, we apply **Stein's Lemma** (@lem-stein). We first compute the divergence of $g(X)$:
 
+$$
+\frac{\partial}{\partial X_i} \left( \frac{(p-2)X_i}{||X||^2} \right) = (p-2) \left( \frac{1}{||X||^2} - \frac{2X_i^2}{||X||^4} \right)
+$$
+
+Summing over all $i$:
+
+$$
+\nabla \cdot g(X) = (p-2) \left( \frac{p}{||X||^2} - \frac{2 \sum X_i^2}{||X||^4} \right) = \frac{(p-2)^2}{||X||^2}
+$$
+
+Applying Stein's Lemma:
+
+$$
+2 E_\theta \left[ (X-\theta)^T g(X) \right] = 2 E_\theta [ \nabla \cdot g(X) ] = 2(p-2)^2 E_\theta \left[ \frac{1}{||X||^2} \right]
+$$
+
+The third term in the risk expansion is:
+
+$$
+||g(X)||^2 = \sum \left( \frac{(p-2)X_i}{||X||^2} \right)^2 = (p-2)^2 \frac{||X||^2}{||X||^4} = (p-2)^2 \frac{1}{||X||^2}
+$$
+
+Substituting these back into the risk equation:
+
+$$
+\begin{aligned}
+R(\theta, d^{JS}) &= p - 2(p-2)^2 E_\theta \left[ \frac{1}{||X||^2} \right] + (p-2)^2 E_\theta \left[ \frac{1}{||X||^2} \right] \\
+&= p - (p-2)^2 E_\theta \left[ \frac{1}{||X||^2} \right]
+\end{aligned}
+$$
+
+Since $p \ge 3$, $(p-2)^2 > 0$, and $1/||X||^2$ is a strictly positive random variable. Therefore:
 $$
 R(\theta, d^{JS}) < p = R(\theta, d^0) \quad \text{for all } \theta \in \mathbb{R}^p
 $$
 
-Because $d^{JS}$ achieves a strictly lower risk than $d^0$ everywhere in the parameter space, $d^0$ is dominated by $d^{JS}$ and is thus inadmissible.
+Thus, the MLE is strictly dominated by the James-Stein estimator.
 :::
 
 ### Practical Application: One-way ANOVA and "Borrowing Strength"
@@ -909,8 +1042,8 @@ $$
 **Why is this better?**
 Even though the groups might be physically independent (e.g., distinct hospitals), the James-Stein estimator **"borrows strength"** from the ensemble.
 
-1.  **Noise Reduction:** Extreme observations $X_i$ are likely to contain more positive noise than signal. Shrinking them toward the global average $\bar{X}$ reduces this variance.
-2.  **Stein's Paradox:** While $\hat{\theta}_i^{JS}$ introduces bias (estimates are pulled toward the center), the reduction in variance is so significant that the **Total Risk** (sum of squared errors over all groups) is strictly lower than that of the MLE, provided $p \ge 3$.
+* **Noise Reduction:** Extreme observations $X_i$ are likely to contain more positive noise than signal. Shrinking them toward the global average $\bar{X}$ reduces this variance.
+* **Stein's Paradox:** While $\hat{\theta}_i^{JS}$ introduces bias (estimates are pulled toward the center), the reduction in variance is so significant that the **Total Risk** (sum of squared errors over all groups) is strictly lower than that of the MLE, provided $p \ge 3$.
 
 Thus, estimating the groups *together* yields a more accurate global picture than estimating them *separately*, even if the groups are independent.
 :::
@@ -919,15 +1052,15 @@ Thus, estimating the groups *together* yields a more accurate global picture tha
 
 The result that $d^{JS}$ dominates $d^0$ is called **Stein's Paradox** because it defies intuition in several ways:
 
-1.  **Independence Irrelevance:** The result holds even if the components $X_i$ are completely unrelated (e.g., $X_1$ is the price of tea in China, $X_2$ is the temperature in Saskatoon, and $X_3$ is the weight of a local cat). It seems absurd that combining unrelated data improves the estimate of each, but the combined risk is indeed lower.
-2.  **No "Free Lunch":** The James-Stein estimator does not improve every individual component $\theta_i$ simultaneously for every realization. Instead, it minimizes the **total** risk $\sum E(\hat{\theta}_i - \theta_i)^2$. It sacrifices accuracy on outliers (by biasing them) to gain significant stability on the bulk of the data.
-3.  **Destruction of Symmetry:** The MLE is invariant under translation and rotation. The James-Stein estimator breaks this symmetry by shrinking toward an arbitrary point (usually the origin or the grand mean), yet it yields a better objective performance.
+* **Independence Irrelevance:** The result holds even if the components $X_i$ are completely unrelated (e.g., $X_1$ is the price of tea in China, $X_2$ is the temperature in Saskatoon, and $X_3$ is the weight of a local cat). It seems absurd that combining unrelated data improves the estimate of each, but the combined risk is indeed lower.
+* **No "Free Lunch":** The James-Stein estimator does not improve every individual component $\theta_i$ simultaneously for every realization. Instead, it minimizes the **total** risk $\sum E(\hat{\theta}_i - \theta_i)^2$. It sacrifices accuracy on outliers (by biasing them) to gain significant stability on the bulk of the data.
+* **Destruction of Symmetry:** The MLE is invariant under translation and rotation. The James-Stein estimator breaks this symmetry by shrinking toward an arbitrary point (usually the origin or the grand mean), yet it yields a better objective performance.
 
 ### What We Learned
 
-1.  **Bias-Variance Tradeoff:** This is the most famous example where introducing **bias** (shrinkage) leads to a massive reduction in **variance**, thereby reducing the overall Mean Squared Error (MSE). Unbiasedness is not always a virtue in estimation.
-2.  **Inadmissibility in High Dimensions:** Intuitions formed in 1D or 2D (where MLE is admissible) fail in higher dimensions ($p \ge 3$). The volume of space grows so fast that "standard" diffuse priors or MLEs become inefficient.
-3.  **Hierarchical Modeling:** Stein's result provides the theoretical foundation for **Hierarchical Bayesian Models**. When we assume parameters come from a common distribution (e.g., $\theta_i \sim N(\mu, \tau^2)$), we naturally derive shrinkage estimators that "borrow strength" across groups, formalized as Empirical Bayes or fully Bayesian methods.
+* **Bias-Variance Tradeoff:** This is the most famous example where introducing **bias** (shrinkage) leads to a massive reduction in **variance**, thereby reducing the overall Mean Squared Error (MSE). Unbiasedness is not always a virtue in estimation.
+* **Inadmissibility in High Dimensions:** Intuitions formed in 1D or 2D (where MLE is admissible) fail in higher dimensions ($p \ge 3$). The volume of space grows so fast that "standard" diffuse priors or MLEs become inefficient.
+* **Hierarchical Modeling:** Stein's result provides the theoretical foundation for **Hierarchical Bayesian Models**. When we assume parameters come from a common distribution (e.g., $\theta_i \sim N(\mu, \tau^2)$), we naturally derive shrinkage estimators that "borrow strength" across groups, formalized as Empirical Bayes or fully Bayesian methods.
 
 ## Empirical Bayes Rules
 
