@@ -866,15 +866,107 @@ Since the risk of $\delta_0$ is constant and equals the limit of the Bayes risks
 
 ## Stein's Paradox and the James-stein Estimator
 
+### The Problem of Estimating Normal Mean
 In high-dimensional estimation ($p \ge 3$), the Maximum Likelihood Estimator (MLE) is inadmissible under squared error loss. The **James-Stein Estimator** dominates the MLE, meaning it achieves lower risk for all values of $\theta$.
 
 Consider the setting:
 
 * Data: $X \sim N_p(\theta, I)$
-* Prior: $\theta \sim N_p(0, \tau^2 I)$
+* Prior: $\theta \sim N_p(0, \sigma^2 I)$
 * Jame-Stein Estimator: 
 
 $$ d^{JS}(x) = \left( 1 - \frac{p-2}{||x||^2} \right) x $$
+
+
+### A Bayes Rule 
+
+We first derive the Bayes rule with respect to a specific conjugate prior. Consider the standard multivariate normal model:
+
+$$
+X | \theta \sim N_p(\theta, I)
+$$
+
+We place a centered normal prior on the unknown parameter $\theta$:
+
+$$
+\pi(\theta) \sim N_p(0, \sigma^2 I)
+$$
+
+Under the squared error loss function $L(\theta, d) = ||\theta - d||^2$, the Bayes rule $d^{Bayes}(X)$ is the expected value of the posterior distribution, $E[\theta | X]$.
+
+To find the posterior, we examine the kernel of the posterior density $p(\theta | x) \propto f(x | \theta)\pi(\theta)$:
+
+$$
+\begin{aligned}
+p(\theta | x) &\propto \exp \left\{ -\frac{1}{2} ||x - \theta||^2 \right\} \exp \left\{ -\frac{1}{2\sigma^2} ||\theta||^2 \right\} \\
+&= \exp \left\{ -\frac{1}{2} \left( (x - \theta)^T(x - \theta) + \frac{1}{\sigma^2}\theta^T\theta \right) \right\}
+\end{aligned}
+$$
+
+Expanding the terms in the exponent (ignoring terms not involving $\theta$):
+
+$$
+\begin{aligned}
+-\frac{1}{2} \left( \theta^T \theta - 2x^T \theta + \frac{1}{\sigma^2}\theta^T \theta \right) &= -\frac{1}{2} \left( \left(1 + \frac{1}{\sigma^2}\right)\theta^T \theta - 2x^T \theta \right) \\
+&= -\frac{1}{2} \left( \frac{\sigma^2 + 1}{\sigma^2} \right) \left( ||\theta||^2 - \frac{2\sigma^2}{\sigma^2 + 1} x^T \theta \right)
+\end{aligned}
+$$
+
+Completing the square with respect to $\theta$, we identify this as the kernel of a normal distribution $N_p(\mu_{post}, \Sigma_{post})$ where:
+
+$$
+\mu_{post} = \frac{\sigma^2}{\sigma^2 + 1} X
+$$
+
+Thus, the Bayes rule is the posterior mean:
+
+$$
+d^{Bayes}(X) = \frac{\sigma^2}{\sigma^2 + 1} X = \left( 1 - \frac{1}{\sigma^2 + 1} \right) X
+$$
+
+This estimator shrinks the observation $X$ toward the prior mean (zero) by a factor determined by the signal-to-noise ratio.
+
+### Minimaxity of the MLE
+
+The James-Stein result is particularly striking when compared to the performance of the standard estimator.
+
+::: {#thm-mle-minimax}
+#### Minimaxity of the Maximum Likelihood Estimator
+
+Let $X \sim N_p(\theta, I)$. Under the squared error loss function $L(\theta, d) = ||\theta - d||^2$, the standard Maximum Likelihood Estimator $d^0(X) = X$ is a **minimax rule**. That is, it minimizes the maximum possible risk over the parameter space:
+
+$$
+\sup_{\theta \in \mathbb{R}^p} R(\theta, d^0) = \inf_{d} \sup_{\theta \in \mathbb{R}^p} R(\theta, d) = p
+$$
+:::
+
+::: {.proof}
+
+<details>
+<summary>Click to view proof by least favorable prior</summary>
+
+The risk of the MLE is $R(\theta, d^0) = p$ for all $\theta$. Since it is a constant risk estimator, its maximum risk is simply $p$.
+
+To prove it is minimax, we show that $p$ is the limit of the Bayes risks for a sequence of conjugate priors $\theta \sim N(0, \sigma^2 I)$. The Bayes risk for the optimal Bayes estimator $d^{Bayes}$ is:
+
+$$
+r(\pi_{\sigma^2}, d^{Bayes}) = \frac{p\sigma^2}{\sigma^2 + 1}
+$$
+
+As $\sigma^2 \to \infty$ (the prior becomes "flat"), the Bayes risk approaches $p$:
+
+$$
+\lim_{\sigma^2 \to \infty} \frac{p\sigma^2}{\sigma^2 + 1} = p
+$$
+
+By the property that the maximum risk of an estimator is always at least the Bayes risk of any prior, and specifically greater than or equal to the limit of Bayes risks for a sequence of priors, we establish that no estimator can have a maximum risk lower than $p$. Since $d^0$ achieves this maximum risk, it is minimax.
+
+</details>
+
+:::
+
+Stein's Paradox arises because the James-Stein estimator $d^{JS}$ is also a minimax rule (its risk is always less than $p$), but it dominates $d^0$. This confirms that while $d^0$ is minimax, it is **inadmissible** for $p \ge 3$.
+
 
 ### Stein's Lemma
 
@@ -1326,48 +1418,6 @@ Both methods yield the same result.
 </details>
 
 :::
-
-
-### Minimaxity of the MLE
-
-The James-Stein result is particularly striking when compared to the performance of the standard estimator.
-
-::: {#thm-mle-minimax}
-### Minimaxity of the Maximum Likelihood Estimator
-
-Let $X \sim N_p(\theta, I)$. Under the squared error loss function $L(\theta, d) = ||\theta - d||^2$, the standard Maximum Likelihood Estimator $d^0(X) = X$ is a **minimax rule**. That is, it minimizes the maximum possible risk over the parameter space:
-
-$$
-\sup_{\theta \in \mathbb{R}^p} R(\theta, d^0) = \inf_{d} \sup_{\theta \in \mathbb{R}^p} R(\theta, d) = p
-$$
-:::
-
-::: {.proof}
-<details>
-<summary>Click to view proof by least favorable prior</summary>
-
-The risk of the MLE is $R(\theta, d^0) = p$ for all $\theta$. Since it is a constant risk estimator, its maximum risk is simply $p$. 
-
-To prove it is minimax, we show that $p$ is the limit of the Bayes risks for a sequence of conjugate priors $\theta \sim N(0, \sigma^2 I)$. The Bayes risk for the optimal Bayes estimator $d_{\sigma^2}$ is:
-
-$$
-r(\pi_{\sigma^2}, d_{\sigma^2}) = \frac{p\sigma^2}{\sigma^2 + 1}
-$$
-
-As $\sigma^2 \to \infty$ (the prior becomes "flat"), the Bayes risk approaches $p$:
-
-$$
-\lim_{\sigma^2 \to \infty} \frac{p\sigma^2}{\sigma^2 + 1} = p
-$$
-
-By the property that the maximum risk of an estimator is always at least the Bayes risk of any prior, and specifically greater than or equal to the limit of Bayes risks for a sequence of priors, we establish that no estimator can have a maximum risk lower than $p$. Since $d^0$ achieves this maximum risk, it is minimax.
-
-</details>
-:::
-
-
-
-Stein's Paradox arises because the James-Stein estimator $d^{JS}$ is also a minimax rule (its risk is always less than $p$), but it dominates $d^0$. This confirms that while $d^0$ is minimax, it is **inadmissible** for $p \ge 3$.
 
 
 ### Practical Application: One-way ANOVA and "Borrowing Strength"
