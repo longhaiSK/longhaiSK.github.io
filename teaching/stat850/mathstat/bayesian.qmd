@@ -878,55 +878,67 @@ Consider the setting:
 $$ d^{JS}(x) = \left( 1 - \frac{p-2}{||x||^2} \right) x $$
 
 
-### A Bayes Rule 
+### A Bayes Rule
 
-We first derive the Bayes rule with respect to a specific conjugate prior. Consider the standard multivariate normal model:
+We first derive the Bayes rule with respect to a specific conjugate prior. Instead of using matrix notation, we can look at the problem component-wise, as the observations are independent.
 
-$$
-X | \theta \sim N_p(\theta, I)
-$$
-
-We place a centered normal prior on the unknown parameter $\theta$:
+Consider the model where we observe $p$ independent components:
 
 $$
-\pi(\theta) \sim N_p(0, \sigma^2 I)
+X_i | \theta_i \sim N(\theta_i, 1), \quad \text{for } i = 1, \ldots, p
 $$
 
-Under the squared error loss function $L(\theta, d) = ||\theta - d||^2$, the Bayes rule $d^{Bayes}(X)$ is the expected value of the posterior distribution, $E[\theta | X]$.
-
-To find the posterior, we examine the kernel of the posterior density $p(\theta | x) \propto f(x | \theta)\pi(\theta)$:
+We place independent centered normal priors on each unknown parameter $\theta_i$:
 
 $$
-\begin{aligned}
-p(\theta | x) &\propto \exp \left\{ -\frac{1}{2} ||x - \theta||^2 \right\} \exp \left\{ -\frac{1}{2\sigma^2} ||\theta||^2 \right\} \\
-&= \exp \left\{ -\frac{1}{2} \left( (x - \theta)^T(x - \theta) + \frac{1}{\sigma^2}\theta^T\theta \right) \right\}
-\end{aligned}
+\theta_i \sim N(0, \sigma^2), \quad \text{for } i = 1, \ldots, p
 $$
 
-Expanding the terms in the exponent (ignoring terms not involving $\theta$):
+Since the components are independent, we can derive the Bayes rule for a single scalar component $X_i$ estimating $\theta_i$. The total risk will simply be the sum of the component risks.
+
+For a single component, the posterior distribution of $\theta_i$ given $X_i$ is Normal, with parameters determined by the standard conjugate formulas:
+
+* **Posterior Precision (inverse variance):**
+    The posterior precision is the sum of the prior precision and the data precision.
+    $$
+    \frac{1}{v_{post}} = \frac{1}{\sigma^2} + \frac{1}{1} = \frac{1 + \sigma^2}{\sigma^2}
+    $$
+    Therefore, the posterior variance is:
+    $$
+    v_{post} = \frac{\sigma^2}{1 + \sigma^2}
+    $$
+
+* **Posterior Mean (Bayes Estimator):**
+    The posterior mean is the precision-weighted average of the prior mean (0) and the data mean ($X_i$).
+    $$
+    \begin{aligned}
+    E[\theta_i | X_i] &= v_{post} \left( \frac{0}{\sigma^2} + \frac{X_i}{1} \right) \\
+    &= \frac{\sigma^2}{1 + \sigma^2} X_i \\
+    &= \left( 1 - \frac{1}{1 + \sigma^2} \right) X_i
+    \end{aligned}
+    $$
+
+Since this holds for all $i$, the Bayes rule for the vector $\theta$ is applying this shrinkage factor to each component:
 
 $$
-\begin{aligned}
--\frac{1}{2} \left( \theta^T \theta - 2x^T \theta + \frac{1}{\sigma^2}\theta^T \theta \right) &= -\frac{1}{2} \left( \left(1 + \frac{1}{\sigma^2}\right)\theta^T \theta - 2x^T \theta \right) \\
-&= -\frac{1}{2} \left( \frac{\sigma^2 + 1}{\sigma^2} \right) \left( ||\theta||^2 - \frac{2\sigma^2}{\sigma^2 + 1} x^T \theta \right)
-\end{aligned}
+d^{Bayes}(X) = \left( 1 - \frac{1}{1 + \sigma^2} \right) X
 $$
 
-Completing the square with respect to $\theta$, we identify this as the kernel of a normal distribution $N_p(\mu_{post}, \Sigma_{post})$ where:
+#### Bayes Risk of the Bayes Rule
+
+To compute the Bayes risk, we sum the risks of the individual components. For squared error loss, the posterior expected loss for one component is simply the posterior variance derived above:
 
 $$
-\mu_{post} = \frac{\sigma^2}{\sigma^2 + 1} X
+E [ (\theta_i - d^{Bayes}(X_i))^2 | X_i ] = v_{post} = \frac{\sigma^2}{1 + \sigma^2}
 $$
 
-Thus, the Bayes rule is the posterior mean:
+The total Bayes risk is the sum of these variances over $p$ components:
 
 $$
-d^{Bayes}(X) = \frac{\sigma^2}{\sigma^2 + 1} X = \left( 1 - \frac{1}{\sigma^2 + 1} \right) X
+r(\pi, d^{Bayes}) = \sum_{i=1}^p \frac{\sigma^2}{1 + \sigma^2} = \frac{p\sigma^2}{1 + \sigma^2}
 $$
 
-This estimator shrinks the observation $X$ toward the prior mean (zero) by a factor determined by the signal-to-noise ratio.
-
-### Minimaxity of the MLE
+#### Minimaxity of the MLE
 
 The James-Stein result is particularly striking when compared to the performance of the standard estimator.
 
@@ -947,16 +959,16 @@ $$
 
 The risk of the MLE is $R(\theta, d^0) = p$ for all $\theta$. Since it is a constant risk estimator, its maximum risk is simply $p$.
 
-To prove it is minimax, we show that $p$ is the limit of the Bayes risks for a sequence of conjugate priors $\theta \sim N(0, \sigma^2 I)$. The Bayes risk for the optimal Bayes estimator $d^{Bayes}$ is:
+To prove it is minimax, we show that $p$ is the limit of the Bayes risks for a sequence of conjugate priors $\theta_i \sim N(0, \sigma^2)$. As derived above, the Bayes risk for the optimal Bayes estimator $d^{Bayes}$ is:
 
 $$
-r(\pi_{\sigma^2}, d^{Bayes}) = \frac{p\sigma^2}{\sigma^2 + 1}
+r(\pi_{\sigma^2}, d^{Bayes}) = \frac{p\sigma^2}{1 + \sigma^2}
 $$
 
 As $\sigma^2 \to \infty$ (the prior becomes "flat"), the Bayes risk approaches $p$:
 
 $$
-\lim_{\sigma^2 \to \infty} \frac{p\sigma^2}{\sigma^2 + 1} = p
+\lim_{\sigma^2 \to \infty} \frac{p\sigma^2}{1 + \sigma^2} = p
 $$
 
 By the property that the maximum risk of an estimator is always at least the Bayes risk of any prior, and specifically greater than or equal to the limit of Bayes risks for a sequence of priors, we establish that no estimator can have a maximum risk lower than $p$. Since $d^0$ achieves this maximum risk, it is minimax.
@@ -964,8 +976,6 @@ By the property that the maximum risk of an estimator is always at least the Bay
 </details>
 
 :::
-
-Stein's Paradox arises because the James-Stein estimator $d^{JS}$ is also a minimax rule (its risk is always less than $p$), but it dominates $d^0$. This confirms that while $d^0$ is minimax, it is **inadmissible** for $p \ge 3$.
 
 
 ### Stein's Lemma
