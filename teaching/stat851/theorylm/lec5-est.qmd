@@ -78,13 +78,13 @@ Taken together, all five assumptions can be stated more succinctly as:
 $$y\sim N_{n}(X\beta,\sigma^{2}I)$$
 with the mean vector $\mu_{y}=X\beta\in \text{Col}(X)$.
 
-:::{.callout }
-### A Note on Coefficients
-The effect of a parameter depends upon what other explanatory variables are present in the model. For example, $\beta_{0}$ and $\beta_{1}$ in the model:
-$$y=\beta_{0}j_{n}+\beta_{1}x_{1}+\beta_{2}x_{2}+e$$
-will typically be different than $\beta_{0}^{*}$ and $\beta_{1}^{*}$ in the model:
-$$y=\beta_{0}^{*}j_{n}+\beta_{1}^{*}x_{1}+e^{*}$$
-In this context, $\beta_0^*$ and $\beta_1^*$ are the population-projected coefficients of the full model, that is,  $\beta_0^*$ and $\beta_1^*$ are the parameters that can best approximate the full model. 
+:::{.callout-important}
+### Coefficients and Variance of Reduced Models
+The effect of a parameter and the magnitude of the error variance depend upon what other explanatory variables are present in the model. For example, the coefficients $\beta_{0}, \beta_{1}$ and error standard deviation $\sigma$ in the model:
+$$y=\beta_{0}j_{n}+\beta_{1}x_{1}+\beta_{2}x_{2}+e, \quad \text{Var}(e) = \sigma^2 I$$
+will typically be different than $\beta_{0}^{*}, \beta_{1}^{*}$ and $\sigma^*$ in the model:
+$$y=\beta_{0}^{*}j_{n}+\beta_{1}^{*}x_{1}+e^*, \quad \text{Var}(e^*) = (\sigma^*)^2 I$$
+In this context, $\beta_0^*$ and $\beta_1^*$ are the population-projected coefficients of the full model. Furthermore, $\sigma^*$ will typically be larger than $\sigma$, as the error term $e^*$ absorbs the variation previously explained by $x_2$.
 :::
 
 ::: {.callout-important}
@@ -100,38 +100,45 @@ Q(\beta) = \sum_{i=1}^n (y_i - x_i^T \beta)^2 = (y - X\beta)'(y - X\beta)
 $$
 :::
 
-We can derive the closed-form solution for $\hat{\beta}$ using the geometry of projections discussed in previous chapters.
+::: {#thm-leastsquare}
+### Least Squares Estimator
 
-#### 1. Obtaining $\hat Y$ {.unnumbered}
+Consider the linear model $y = X\beta + e$, where $X$ is of full column rank. The Ordinary Least Squares (OLS) estimator $\hat{\beta}$ is given by the closed-form solution:
 
-In the linear model $y = X\beta + e$, the systematic component (the mean $E[y]$) is constrained to lie in the column space of $X$, denoted as $\text{Col}(X)$. We seek the vector in $\text{Col}(X)$ that is "closest" to the observed data vector $y$. As established in the theory of projections, this closest vector is the **orthogonal projection** of $y$ onto $\text{Col}(X)$. Let $\hat{y}$ denote this fitted value vector. Using the explicit formula for the projection matrix $$H = X(X'X)^{-1}X',$$ we have:
-$$ \hat{y} = Hy = X(X'X)^{-1}X' y.$$
+$$\hat{\beta} = (X'X)^{-1}X'y$$
 
-#### 2. Obtaining $\hat{\beta}$ by Solving $x\beta = \hat{y}$ {.unnumbered}
+Consequently, the vector of fitted values $\hat{y}$ is the orthogonal projection of $y$ onto $\text{Col}(X)$:
 
-Since the fitted vector $\hat{y}$ is a projection onto $\text{Col}(X)$, it must lie entirely within that column space. This guarantees that the linear system for the coefficients $\hat{\beta}$ is consistent (has an exact solution):
-$$ X\hat{\beta} = \hat{y} $$
+$$\hat{y} = X\hat{\beta} = Hy$$
 
-To isolate $\hat{\beta}$, we pre-multiply both sides by the left pseudo-inverse of $X$, which is $(X'X)^{-1}X'$:
+where $H = X(X'X)^{-1}X'$ is the orthogonal projection matrix (hat matrix).
+:::
+
+::: {.proof}
+The derivation relies on the geometry of orthogonal projections.
+
+**1. Obtaining the Fitted Values $\hat{y}$**
+
+In the linear model, the systematic component $E[y]$ is constrained to lie in the column space of $X$, denoted as $\text{Col}(X)$. We seek the vector in $\text{Col}(X)$ that is "closest" to the observed data $y$. This vector is the **orthogonal projection** of $y$ onto $\text{Col}(X)$, denoted as $\hat{y}$. Using the projection matrix $H = X(X'X)^{-1}X'$, we have:
+
+$$\hat{y} = Hy = X(X'X)^{-1}X' y$$
+
+**2. Obtaining $\hat{\beta}$ by Solving $X\beta = \hat{y}$**
+
+Since $\hat{y}$ is a projection onto $\text{Col}(X)$, the system $X\hat{\beta} = \hat{y}$ is consistent. To isolate $\hat{\beta}$, we pre-multiply both sides by $(X'X)^{-1}X'$:
 
 $$
 \begin{aligned}
 (X'X)^{-1}X' (X\hat{\beta}) &= (X'X)^{-1}X' \hat{y} \\
-\underbrace{(X'X)^{-1}(X'X)}_{I} \hat{\beta} &= (X'X)^{-1}X' \hat{y}
+\underbrace{(X'X)^{-1}(X'X)}_{I} \hat{\beta} &= (X'X)^{-1}X' \hat{y} \\
+\hat{\beta} &= (X'X)^{-1}X' \hat{y}
 \end{aligned}
 $$
 
-This gives us the estimator expressed in terms of the fitted values:
+Finally, we express the estimator in terms of the observed $y$. Because $\hat{y}$ is an orthogonal projection, the residual $y - \hat{y}$ is orthogonal to the columns of $X$, implying $X'\hat{y} = X'y$. Substituting this into the equation above yields the result:
 
-$$
-\boxed{\hat{\beta} = (X'X)^{-1}X' \hat{y}}
-$$
-
-However, we typically calculate the estimator from the observed data $y$. Recall that because $\hat{y}$ is an orthogonal projection, the difference $y - \hat{y}$ is orthogonal to $X$. This implies $X'\hat{y} = X'y$. Substituting this into the equation above yields the standard closed-form solution:
-
-$$
-\boxed{\hat{\beta} = (X'X)^{-1}X'y}
-$$
+$$\hat{\beta} = (X'X)^{-1}X'y$$
+:::
 
 
 ### Properties of the Estimator $\hat \beta$
@@ -204,11 +211,15 @@ Thus, the minimum variance estimator is:
 $$Ay = (X'X)^{-1}X'y = \hat{\beta}$$
 :::
 
+
 ### Notes on Gauss-markov
 
 1.  **Distributional Generality:** The remarkable feature of the Gauss-Markov theorem is that it holds for *any* distribution of $y$; normality is not required. The only assumptions used are linearity ($E(y)=X\beta$) and homoscedasticity ($\text{Var}(y)=\sigma^2 I$).
 
 2.  **Extension to All Linear Combinations:** The theorem extends beyond just the parameter vector $\beta$ to any linear combination of the parameters.
+
+3.  **Scaling Invariance:** The predictions made by the model are invariant to the scaling of the explanatory variables.
+
 
 ::: {#cor-linear-combo name="BLUE for All Linear Combinations"}
 If $E(y)=X\beta$ and $\text{Var}(y)=\sigma^{2}I$, the best linear unbiased estimator of the scalar $a'\beta$ is $a'\hat{\beta}$, where $\hat{\beta}$ is the least-squares estimator.
@@ -230,7 +241,7 @@ $$
 The variance is minimized when $A=\hat{A}$ (specifically when the first term is zero), proving that $a'\hat{\beta}$ has the minimum variance among all linear unbiased estimators.
 :::
 
-3.  **Scaling Invariance:** The predictions made by the model are invariant to the scaling of the explanatory variables.
+
 
 ::: {#thm-scaling name="Scaling Explanatory Variables"}
 If $x=(1,x_{1},...,x_{k})'$ and $z=(1,c_{1}x_{1},...,c_{k}x_{k})'$, then the fitted values are identical: $\hat{y} = \hat{\beta}'x = \hat{\beta}_{z}'z$.
@@ -252,7 +263,7 @@ $$
 .
 :::
 
-#### Limitations: Restriction to Unbiased Estimators {.unnumbered}
+### Limitations: Restriction to Unbiased Estimators 
 
 It is crucial to recognize that the Gauss-Markov theorem only guarantees optimality within the class of **linear** and **unbiased** estimators.
 
