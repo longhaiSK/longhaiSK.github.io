@@ -49,3 +49,5 @@ plotting commands here
     :::
     ```
     - Each question should be header level 2 (##).
+
+* Using \lVert \rVert to write || ||
