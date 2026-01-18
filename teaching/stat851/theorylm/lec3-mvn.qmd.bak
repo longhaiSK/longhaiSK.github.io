@@ -1,49 +1,12 @@
 ---
-title: "Multivariate Normal Distribution"
 editor_options: 
   chunk_output_type: inline
 format: 
-  html: 
-    keep-md: true
   pdf: default
+  html: default
 ---
 
-```{r}
-#| label: setup-images-lec30
-#| include: false
-#| warning: false
-
-library(pdftools)
-library(magick)
-library(ggplot2)
-library(mvtnorm)
-
-# Define path to PDF
-pdf_path <- "Lec30-multivariate normal.pdf"
-img_dir <- "lec30_images"
-
-# Create image directory
-if (!dir.exists(img_dir)) {
-  dir.create(img_dir)
-}
-
-# Helper function to extract and crop a specific page
-extract_page_image <- function(page_num, filename, geometry = "1200x800+0+200", force = FALSE) {
-  target_file <- file.path(img_dir, filename)
-  
-  if (file.exists(pdf_path) && (force || !file.exists(target_file))) {
-    tryCatch({
-      bitmap <- pdf_render_page(pdf_path, page = page_num, dpi = 150)
-      img <- image_read(bitmap)
-      img_cropped <- image_crop(img, geometry)
-      image_write(img_cropped, target_file)
-    }, error = function(e) {
-      warning(paste("Failed to extract page", page_num, ":", e$message))
-    })
-  }
-}
-```
-
+# Multivariate Normal Distribution
 
 ## Motivation
 
@@ -177,7 +140,8 @@ We can derive several key algebraic properties for operations on random vectors.
 9.  $\text{Var}(x_1 + x_2) = \text{Var}(x_1) + \text{Cov}(x_1, x_2) + \text{Cov}(x_2, x_1) + \text{Var}(x_2)$
 10. $\text{Var}(\sum x_i) = \sum \text{Var}(x_i)$ if independent.
 
-::: {.callout-note collapse="true" icon="false" title="Proof of Property 5 (Covariance of Linear Transformation)"}
+::: {.proof} 
+**Property 5 (Covariance of Linear Transformation):**
 $$
 \begin{aligned}
 \text{Cov}(Ax, By) &= E[(Ax - A\mu_x)(By - B\mu_y)^T] \\
@@ -185,9 +149,8 @@ $$
 &= A \text{Cov}(x, y) B^T
 \end{aligned}
 $$
-:::
+**Property 2 (Expectation of Linear Transformation)**:
 
-::: {.callout-note collapse="true" icon="false" title="Proof of Property 2 (Expectation of Linear Transformation)"}
 To prove $E(AXB) = A E(X) B$:
 First consider $E(Ax_j)$ where $x_j$ is a column of $X$.
 $$
@@ -202,9 +165,9 @@ $$
 E(AX) = [E(Ax_1), \dots, E(Ax_m)] = [AE(x_1), \dots, AE(x_m)] = A E(X)
 $$
 Similarly, $E(XB) = E(X)B$.
-:::
 
-::: {.callout-note collapse="true" icon="false" title="Proof of Property 9 (Variance of Sum)"}
+**Proof of Property 9 (Variance of Sum):**
+
 $$
 \text{Var}(x_1 + x_2) = E[(x_1 + x_2 - \mu_1 - \mu_2)(x_1 + x_2 - \mu_1 - \mu_2)^T]
 $$
@@ -458,11 +421,11 @@ Key Properties:
 ## Construction and Linear Transformations
 
 ::: {#thm-construction name="Constructing MVN Random Vector"}
-Let $\mu \in \mathbb{R}^n$ and $\Sigma$ be an $n \times n$ symmetric positive semi-definite (p.s.d.) matrix. Then there exists a multivariate normal distribution with mean $\mu$ and covariance $\Sigma$.
+Let $\mu \in \mathbb{R}^n$ and $\Sigma$ be an $n \times n$ symmetric non-negative definitive (n.n.d) matrix. Then there exists a multivariate normal distribution with mean $\mu$ and covariance $\Sigma$.
 :::
 
-::: {.callout-note collapse="true" icon="false" title="Proof"}
-Since $\Sigma$ is p.s.d., there exists $B$ such that $\Sigma = BB^T$ (e.g., via Cholesky). Let $z \sim N_n(0, I)$ and define $x = Bz + \mu$.
+:::{.proof}
+Since $\Sigma$ is n.n.d., there exists $B$ such that $\Sigma = BB^T$ (e.g., via Cholesky or Spetral Decomposition). Let $z \sim N_n(0, I)$ and define $x = Bz + \mu$.
 :::
 
 ::: {#thm-linear-transform name="Linear Transformation Theorem"}
@@ -473,7 +436,7 @@ y \sim N_r(C\mu + d, C \Sigma C^T)
 $$
 :::
 
-::: {.callout-note collapse="true" icon="false" title="Proof"}
+:::{.proof}
 $x = Az + \mu$ where $AA^T = \Sigma$.
 $$
 y = C(Az + \mu) + d = (CA)z + (C\mu + d)
@@ -481,13 +444,13 @@ $$
 This fits the definition of MVN with mean $C\mu + d$ and variance $C \Sigma C^T$.
 :::
 
-### Corollaries
+### Important Corollaries of @thm-linear-transform
 
 ::: {#cor-marginals name="Marginals"}
 Any subvector of a multivariate normal vector is also multivariate normal. 
 :::
 
-::: {.callout-note collapse="true" icon="false" title="Proof"}
+:::{.proof}
 If we partition $x = (x_1', x_2')'$, we can use $C = (I_r, 0)$ to show $x_1 \sim N(\mu_1, \Sigma_{11})$.
 :::
 
@@ -509,7 +472,7 @@ $$
 $$
 :::
 
-::: {.callout-note collapse="true" icon="false" title="Proof"}
+:::{.proof}
 Let $z = \Sigma^{-1/2}(y - \mu)$. Then $\text{Var}(z) = \Sigma^{-1/2} \Sigma \Sigma^{-1/2} = I_n$.
 :::
 
@@ -524,7 +487,7 @@ $$
 Then $y_1$ and $y_2$ are independent if and only if $\Sigma_{12} = 0$ (zero covariance).
 :::
 
-::: {.callout-note collapse="true" icon="false" title="Proof"}
+:::{.proof}
 **1. Independence $\implies$ Covariance is 0:**
 This holds generally for any distribution.
 $$
@@ -598,7 +561,7 @@ $$
     $$
 :::
 
-::: {.callout-note collapse="false" icon="false" title="Proof (Linear Transformation Approach)"}
+::: {.proof}
 We define a transformation from the input vector $V = \begin{pmatrix} y \\ x \end{pmatrix}$ to the target vector $W = \begin{pmatrix} m(x) \\ e \end{pmatrix}$.
 
 Using the linear transformation $W = CV + d$:

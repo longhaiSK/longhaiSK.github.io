@@ -1,49 +1,19 @@
 ---
-title: "Spectral Theory and Generalized Inverse"
+format: 
+  html: default
+  pdf: default
 ---
 
-```{r}
-#| label: setup-images-lec20-p1-10
-#| include: false
-#| warning: false
-
-library(pdftools)
-library(magick)
-
-# Define path to PDF
-pdf_path <- "../Lec20-matrix.pdf"
-img_dir <- "lec20_images"
-
-# Create image directory
-if (!dir.exists(img_dir)) {
-  dir.create(img_dir)
-}
-
-# Helper function to extract and crop a specific page
-extract_page_image <- function(page_num, filename, geometry = "1200x800+0+200", force = FALSE) {
-  target_file <- file.path(img_dir, filename)
-  
-  if (file.exists(pdf_path) && (force || !file.exists(target_file))) {
-    tryCatch({
-      bitmap <- pdf_render_page(pdf_path, page = page_num, dpi = 150)
-      img <- image_read(bitmap)
-      img_cropped <- image_crop(img, geometry)
-      image_write(img_cropped, target_file)
-    }, error = function(e) {
-      warning(paste("Failed to extract page", page_num, ":", e$message))
-    })
-  }
-}
-```
+# Matrix Algebra
 
 
-This chapter covers a review of matrix algebra concepts essential for linear models, including eigenvalues, spectral decomposition, and generalized inverses.
+This chapter covers a review of matrix algebra concepts essential for linear models, including eigenvalues, spectral decomposition, singular value decomposition.  
 
-## Spectral Theory
 
-### Eigenvalues and Eigenvectors
 
-::: {#def-eigen name="Eigenvalues and Eigenvectors"}
+## Eigenvalues and Eigenvectors
+
+::: {#def-eigen name="Eigenvalues and Eigenvectors"} 
 
 For a square matrix $A$ ($n \times n$), a scalar $\lambda$ is an **eigenvalue** and a non-zero vector $x$ is the corresponding **eigenvector** if:
 
@@ -56,6 +26,9 @@ $$
 |A - \lambda I_n| = 0
 $$
 :::
+
+## Spectral Theory for Symmetric Matrices
+
 
 ### Spectral Decomposition
 
@@ -98,7 +71,133 @@ q_i' q_j = \begin{cases} 1 & \text{if } i=j \\ 0 & \text{if } i \ne j \end{cases
 $$
 And $Q$ is an orthogonal matrix: $Q'Q = Q Q' = I_n$.
 
+```{r fig-eigen}
+library(ggplot2)
+library(gridExtra)
+
+# --- 1. MATRIX SETUP ---
+# Symmetric Matrix where eigenvectors are tilted
+A <- matrix(c(1.5, 0.8, 0.8, 1.5), nrow = 2)
+
+# Decomposition A = QDQ'
+eig <- eigen(A)
+Q <- eig$vectors
+D_mat <- diag(eig$values)
+
+# --- 2. DEFINE THE 6 VECTORS ---
+
+# 1 & 2: Standard Axes (We will label these x1, x2)
+v1 <- c(1, 0)
+v2 <- c(0, 1)
+# 3 & 4: Eigenvectors
+v3 <- Q[,1]
+v4 <- Q[,2]
+# 5 & 6: Filler vectors at random angles
+v5 <- c(cos(pi/3), sin(pi/3))
+v6 <- c(cos(4*pi/3), sin(4*pi/3))
+
+# Combine into starting matrix V_start
+V_start <- cbind(v1, v2, v3, v4, v5, v6)
+
+# Define 6 Distinct Colors
+my_colors <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#A65628")
+names(my_colors) <- 1:6
+
+# Background Circle Points used for reference path in all plots
+theta_c <- seq(0, 2*pi, length.out = 150)
+C_start <- rbind(cos(theta_c), sin(theta_c))
+
+# --- 3. DATA PROCESSING HELPER FUNCTION ---
+
+# This function prepares the data frames for ggplot for a given stage
+prepare_data <- function(V_mat, C_mat, stage_title, label_text_pair) {
+  # Prepare Vectors data frame
+  df_v <- data.frame(t(V_mat))
+  colnames(df_v) <- c("x", "y")
+  df_v$vec_id <- factor(1:6) # Unique ID for coloring
+  
+  # Add labels only for vector 1 and 2
+  df_v$label <- ""
+  df_v$label[1] <- label_text_pair[1]
+  df_v$label[2] <- label_text_pair[2]
+  
+  # Calculate nudge for labels based on vector direction so they don't overlap arrow tip
+  df_v$nudge_x <- sign(df_v$x) * 0.25
+  df_v$nudge_y <- sign(df_v$y) * 0.25
+  # Don't nudge unlabelled vectors
+  df_v$nudge_x[3:6] <- 0
+  df_v$nudge_y[3:6] <- 0
+
+  # Prepare Background Path data frame
+  df_c <- data.frame(t(C_mat))
+  colnames(df_c) <- c("px", "py")
+  
+  list(vecs = df_v, path = df_c, title = stage_title)
+}
+
+
+# --- 4. PERFORM TRANSFORMATIONS ---
+
+# Stage 1: Start (x)
+d1 <- prepare_data(V_start, C_start, 
+                   "1. Start (x)", c("x[1]", "x[2]"))
+
+# Stage 2: Rotate (Q'x)
+V2 <- t(Q) %*% V_start
+C2 <- t(Q) %*% C_start
+d2 <- prepare_data(V2, C2, 
+                   "2. Rotate (Q'x)", c("z[1]", "z[2]"))
+
+# Stage 3: Stretch (DQ'x)
+V3 <- D_mat %*% V2
+C3 <- D_mat %*% C2
+d3 <- prepare_data(V3, C3, 
+                   "3. Stretch (DQ'x)", c("y[1]", "y[2]"))
+
+# Stage 4: Rotate Back (QDQ'x)
+V4 <- Q %*% V3
+C4 <- Q %*% C3
+d4 <- prepare_data(V4, C4, 
+                   "4. Final (QDQ'x)", c("w[1]", "w[2]"))
+
+
+# --- 5. PLOTTING FUNCTION ---
+
+plot_stage_final <- function(data_list) {
+  ggplot() +
+    # Background path (gray dashed)
+    geom_path(data = data_list$path, aes(x=px, y=py), 
+              color="gray70", linetype="dashed") +
+    # The 6 vectors
+    geom_segment(data = data_list$vecs, aes(x=0, y=0, xend=x, yend=y, color=vec_id), 
+                 arrow = arrow(length = unit(0.3, "cm")), size=1.1) +
+    # The labels for v1 and v2 using parsed expressions for subscripts
+    geom_text(data = data_list$vecs, aes(x=x, y=y, label=label, color=vec_id),
+              parse = TRUE, fontface="bold", size=5,
+              nudge_x = data_list$vecs$nudge_x,
+              nudge_y = data_list$vecs$nudge_y) +
+    scale_color_manual(values = my_colors) +
+    # Fixed coordinates to ensure realistic rotation/stretching view
+    coord_fixed(xlim = c(-2.5, 2.5), ylim = c(-2.5, 2.5)) +
+    theme_bw() +
+    theme(legend.position = "none",
+          panel.grid.minor = element_blank(),
+          plot.title = element_text(face="bold", hjust=0.5),
+          axis.title = element_blank()) +
+    labs(title = data_list$title)
+}
+
+# Generate the 4 plots
+p1 <- plot_stage_final(d1)
+p2 <- plot_stage_final(d2)
+p3 <- plot_stage_final(d3)
+p4 <- plot_stage_final(d4)
+
+# Arrange them in a grid
+grid.arrange(p1, p2, p3, p4, nrow = 2)
+```
 ### Quadratic Form
+
 :::{#def-quadratic-form}
 
 A **quadratic form** in $n$ variables $x_1, x_2, \dots, x_n$ is a scalar function defined by a symmetric matrix $A$:
@@ -141,6 +240,7 @@ Let $A$ be a symmetric $n \times n$ matrix with eigenvalues $\lambda_1, \dots, \
 :::
 
 ### Properties of Symmetric Matrices
+
 :::{#thm-symmetric-properties name="Properties of Symmetric Matrices"}
 Let $A$ be a symmetric matrix with spectral decomposition $A = Q \Lambda Q'$. The following properties hold:
 
@@ -181,7 +281,7 @@ For $P = \frac{1}{n} J_n J_n'$, the rank is $\text{tr}(P) = 1$.
 :::
 
 
-### Singular Value Decomposition (SVD)
+## Singular Value Decomposition (SVD)
 
 :::{#thm-svd name="Singular Value Decomposition (SVD)"}
 
@@ -356,6 +456,15 @@ By solving for the bolded diagonal terms and substituting known values from prev
 3.  **Row 3:** Solve for $b_{33}$ using $a_{33}$ and the known $b_{13}, b_{23}$.
     * $b_{33} = \sqrt{a_{33} - b_{13}^2 - b_{23}^2}$
 
+**Remark: Handling the Singular Case**
+
+If $A$ is positive semi-definite (singular), a diagonal element $b_{ii}$ may evaluate to 0 (or a very small number close to 0 due to floating-point error). Standard algorithms often crash here because calculating off-diagonal terms involves division by $b_{ii}$.
+
+To handle this robustly without pivoting:
+
+* If $b_{ii} \approx 0$, it implies that the entire remaining row $b_{i, i:n}$ must be 0 for the matrix to remain consistent with being positive semi-definite.
+* The algorithm should explicitly set $b_{ij} = 0$ for all $j \ge i$ and proceed to the next row, rather than attempting division.
+
 ### Numerical Example
 
 Consider the positive definite matrix $A$:
@@ -390,521 +499,27 @@ B = \begin{pmatrix}
 \end{pmatrix}
 $$
 
-## Generalized Inverses
+### Applications in Statistics
 
-### Motivation
+Cholesky decomposition is preferred over other methods (like LU or SVD) for symmetric positive-definite matrices because it is numerically stable and roughly twice as fast.
 
-Consider the linear system $X\beta = y$.
-In $\mathbb{R}^2$, if $X = [x_1, x_2]$ is invertible, the solution is unique: $\beta = X^{-1}y$. This satisfies $X(X^{-1}y) = y$.However, if $X$ is not square or not invertible (e.g., $X$ is $2 \times 3$), $X\beta = y$ does not have a unique solution. We seek a matrix $G$ such that $\beta = Gy$ provides a solution whenever $y \in C(X)$ (the column space of X). Substituting $\beta = Gy$ into the equation $X\beta = y$:
+**1. Solving Linear Equations**
+In linear regression, we solve the normal equations $(X'X)\beta = X'y$. Since $X'X$ is symmetric and positive definite, we can decompose it as $B'B$. The system becomes:
 $$
-X(Gy) = y \quad \forall y \in C(X)
+B'B\beta = X'y
 $$
-Since any $y \in C(X)$ can be written as $Xw$ for some vector $w$:
-$$
-XGXw = Xw \quad \forall w
-$$
-This implies the defining condition:
-$$
-XGX = X
-$$
-
-
-### Definition of Generalized Inverse
-
-::: {#def-gen-inverse name="Generalized Inverse"}
-Let $X$ be an $n \times p$ matrix. A matrix $X^-$ of size $p \times n$ is called a **generalized inverse** of $X$ if it satisfies:
-$$
-XX^-X = X
-$$
-:::
-
-
-
-:::{#exm-ginverse name="Examples of Generalized Inverse"}
-
-* **Example 1: Diagonal Matrix**
-    If $X = \text{diag}(\lambda_1, \lambda_2, 0, 0)$, we can write it in matrix form as:
-    $$
-    X = \begin{pmatrix}
-    \lambda_1 & 0 & 0 & 0 \\
-    0 & \lambda_2 & 0 & 0 \\
-    0 & 0 & 0 & 0 \\
-    0 & 0 & 0 & 0
-    \end{pmatrix}
-    $$
-    A generalized inverse is obtained by inverting the non-zero elements:
-    $$
-    X^- = \begin{pmatrix}
-    \lambda_1^{-1} & 0 & 0 & 0 \\
-    0 & \lambda_2^{-1} & 0 & 0 \\
-    0 & 0 & 0 & 0 \\
-    0 & 0 & 0 & 0
-    \end{pmatrix}
-    $$
-
-* **Example 2: Row Vector**
-    Let $X = (1, 2, 3)$.
-    One possible generalized inverse is a column vector where the first element is the reciprocal of the first non-zero element of $X$ (which is $1$), and others are zero:
-    $$
-    X^- = \begin{pmatrix} 1 \\ 0 \\ 0 \end{pmatrix}
-    $$
-    **Verification:**
-    $$
-    XX^-X = (1, 2, 3) \begin{pmatrix} 1 \\ 0 \\ 0 \end{pmatrix} (1, 2, 3) = (1) \cdot (1, 2, 3) = (1, 2, 3) = X
-    $$
-    Other valid generalized inverses include $\begin{pmatrix} 0 \\ 1/2 \\ 0 \end{pmatrix}$ or $\begin{pmatrix} 0 \\ 0 \\ 1/3 \end{pmatrix}$.
-
-* **Example 3: Rank Deficient Matrix**
-    Let $A = \begin{pmatrix} 2 & 2 & 3 \\ 1 & 0 & 1 \\ 3 & 2 & 4 \end{pmatrix}$.
-    Note that Row 3 = Row 1 + Row 2, so Rank$(A) = 2$.
-
-    **Solution:**
-    A generalized inverse can be found by locating a non-singular $2 \times 2$ submatrix, inverting it, and padding the rest with zeros.
-    Let's take the top-left minor $M = \begin{pmatrix} 2 & 2 \\ 1 & 0 \end{pmatrix}$.
-    The inverse is $M^{-1} = \frac{1}{-2}\begin{pmatrix} 0 & -2 \\ -1 & 2 \end{pmatrix} = \begin{pmatrix} 0 & 1 \\ 0.5 & -1 \end{pmatrix}$.
-
-    Placing this in the corresponding position in $A^-$ and setting the rest to 0:
-    $$
-    A^- = \begin{pmatrix} 0 & 1 & 0 \\ 0.5 & -1 & 0 \\ 0 & 0 & 0 \end{pmatrix}
-    $$
-
-    **Verification ($AA^-A = A$):**
-    First, compute $AA^-$:
-    $$
-    AA^- = \begin{pmatrix} 2 & 2 & 3 \\ 1 & 0 & 1 \\ 3 & 2 & 4 \end{pmatrix} \begin{pmatrix} 0 & 1 & 0 \\ 0.5 & -1 & 0 \\ 0 & 0 & 0 \end{pmatrix} = \begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 1 & 1 & 0 \end{pmatrix}
-    $$
-    Then multiply by $A$:
-    $$
-    (AA^-)A = \begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 1 & 1 & 0 \end{pmatrix} \begin{pmatrix} 2 & 2 & 3 \\ 1 & 0 & 1 \\ 3 & 2 & 4 \end{pmatrix} = \begin{pmatrix} 2 & 2 & 3 \\ 1 & 0 & 1 \\ 3 & 2 & 4 \end{pmatrix} = A
-    $$
-:::
-
-### A Procedure to Find a Generalized Inverse
-
-If we can partition $X$ (possibly after permuting rows/columns) such that $R_{11}$ is a non-singular rank $r$ submatrix:
-
-$$
-X = \begin{pmatrix} R_{11} & R_{12} \\ R_{21} & R_{22} \end{pmatrix}
-$$
-
-Then a generalized inverse is:
-
-$$
-X^- = \begin{pmatrix} R_{11}^{-1} & 0 \\ 0 & 0 \end{pmatrix}
-$$
-
-**Verification:**
-
-$$
-\begin{aligned}
-XX^-X &= \begin{pmatrix} R_{11} & R_{12} \\ R_{21} & R_{22} \end{pmatrix} \begin{pmatrix} R_{11}^{-1} & 0 \\ 0 & 0 \end{pmatrix} \begin{pmatrix} R_{11} & R_{12} \\ R_{21} & R_{22} \end{pmatrix} \\
-&= \begin{pmatrix} I_r & 0 \\ R_{21}R_{11}^{-1} & 0 \end{pmatrix} \begin{pmatrix} R_{11} & R_{12} \\ R_{21} & R_{22} \end{pmatrix} \\
-&= \begin{pmatrix} R_{11} & R_{12} \\ R_{21} & R_{21}R_{11}^{-1}R_{12} \end{pmatrix}
-\end{aligned}
-$$
-Note that since rank$(X) = \text{rank}(R_{11})$, the rows of $[R_{21}, R_{22}]$ are linear combinations of $[R_{11}, R_{12}]$, implying $R_{22} = R_{21}R_{11}^{-1}R_{12}$. Thus, $XX^-X = X$.
-
-**An Algorithm for Finding a Generalized Inverse**
-
-A systematic procedure to find a generalized inverse $A^-$ for any matrix $A$:
-
-1.  Find any non-singular $r \times r$ submatrix $C$, where $r$ is the rank of $A$. It is not necessary for the elements of $C$ to occupy adjacent rows and columns in $A$.
-2.  Find $C^{-1}$ and $(C^{-1})'$.
-3.  Replace the elements of $C$ in $A$ with the elements of $(C^{-1})'$.
-4.  Replace all other elements in $A$ with zeros.
-5.  Transpose the resulting matrix.
-
-**Matrix Visual Representation**
-$$
-\underset{\text{Original } A}{\begin{pmatrix}
-\times & \otimes & \times & \otimes \\
-\times & \otimes & \times & \otimes \\
-\times & \times & \times & \times
-\end{pmatrix}}
-\xrightarrow[\text{with } (C^{-1})']{\text{Replace } C}
-\underset{\text{Intermediate}}{\begin{pmatrix}
-\times & \triangle & \times & \triangle \\
-\times & \triangle & \times & \triangle \\
-\times & \times & \times & \times
-\end{pmatrix}}
-\xrightarrow[\text{Result}]{\text{Transpose}}
-\underset{\text{Final } A^-}{\begin{pmatrix}
-\times & \times & \times \\
-\square & \square & \times \\
-\times & \times & \times \\
-\square & \square & \times
-\end{pmatrix}}
-$$
-
-**Legend:**
-
-* $\otimes$: Elements of submatrix $C$
-* $\triangle$: Elements of $(C^{-1})'$
-* $\square$: Elements of $C^{-1}$ (after transposition)
-* $\times$: Other elements (replaced by 0 in the final calculation)
-
-### Moore-Penrose Inverse
-
-The Moore-Penrose inverse (denoted $X^+$) is a unique generalized inverse defined via Singular Value Decomposition (SVD).
-
-If $X$ has SVD:
-$$
-X = U \begin{pmatrix} \Lambda_r & 0 \\ 0 & 0 \end{pmatrix} V'
-$$
-
-Then the Moore-Penrose inverse is:
-$$
-X^+ = V \begin{pmatrix} \Lambda_r^{-1} & 0 \\ 0 & 0 \end{pmatrix} U'
-$$
-
-where $\Lambda_r = \text{diag}(\lambda_1, \dots, \lambda_r)$ contains the singular values. Unlike standard generalized inverses, $X^+$ is unique.
-
-**Verification:**
-
-We verify that $X^+$ satisfies the condition $XX^+X = X$.
-
-1.  **Substitute definitions:**
-    $$
-    XX^+X = \left[ U \begin{pmatrix} \Lambda_r & 0 \\ 0 & 0 \end{pmatrix} V' \right] \left[ V \begin{pmatrix} \Lambda_r^{-1} & 0 \\ 0 & 0 \end{pmatrix} U' \right] \left[ U \begin{pmatrix} \Lambda_r & 0 \\ 0 & 0 \end{pmatrix} V' \right]
-    $$
-
-2.  **Apply orthogonality:**
-    Recall that $V'V = I$ and $U'U = I$.
-    $$
-    = U \begin{pmatrix} \Lambda_r & 0 \\ 0 & 0 \end{pmatrix} \underbrace{(V'V)}_{I} \begin{pmatrix} \Lambda_r^{-1} & 0 \\ 0 & 0 \end{pmatrix} \underbrace{(U'U)}_{I} \begin{pmatrix} \Lambda_r & 0 \\ 0 & 0 \end{pmatrix} V'
-    $$
-
-3.  **Multiply diagonal matrices:**
-    $$
-    = U \left[ \begin{pmatrix} \Lambda_r & 0 \\ 0 & 0 \end{pmatrix} \begin{pmatrix} \Lambda_r^{-1} & 0 \\ 0 & 0 \end{pmatrix} \begin{pmatrix} \Lambda_r & 0 \\ 0 & 0 \end{pmatrix} \right] V'
-    $$
-    Since $\Lambda_r \Lambda_r^{-1} \Lambda_r = I \cdot \Lambda_r = \Lambda_r$:
-    $$
-    = U \begin{pmatrix} \Lambda_r & 0 \\ 0 & 0 \end{pmatrix} V' = X
-    $$
-
-### Solving Linear Systems with Generalized Inverse
-
-We apply generalized inverses to solve systems of linear equations $X\beta = c$ where $X$ is $n \times p$.
-
-::: {#def-consistency name="Consistency and Solution"}
-The system $X\beta = c$ is consistent if and only if $c \in \mathcal{C}(X)$ (the column space of $X$). If consistent, $\beta = X^- c$ is a solution.
-:::
-
-**Proof:**
-If the system is consistent, there exists some $b$ such that $Xb = c$.
-Using the definition $XX^-X = X$:
-$$
-X(X^- c) = X(X^- X b) = (XX^-X)b = Xb = c
-$$
-Thus, $X^-c$ is a solution. Note that the solution is not unique if $X$ is not full rank.
-
-
-:::{#exm-gi-sol-ls name="Examples of Solutions of Linear System with Generalized Inverse"}
-
-* **Example 1: Underdetermined System**
-
-  Let $X = \begin{pmatrix} 1 & 2 & 3 \end{pmatrix}$ and we want to solve $X\beta = 4$.
-  
-  **Solution 1:**
-  Using the generalized inverse $X^- = \begin{pmatrix} 1 \\ 0 \\ 0 \end{pmatrix}$:
-  $$
-  \beta = X^- \cdot 4 = \begin{pmatrix} 1 \\ 0 \\ 0 \end{pmatrix} 4 = \begin{pmatrix} 4 \\ 0 \\ 0 \end{pmatrix}
-  $$
-  **Verification:**
-  $$
-  X\beta = \begin{pmatrix} 1 & 2 & 3 \end{pmatrix} \begin{pmatrix} 4 \\ 0 \\ 0 \end{pmatrix} = 1(4) + 2(0) + 3(0) = 4 \quad \checkmark
-  $$
-  
-  **Solution 2:**
-  Using another generalized inverse $X^- = \begin{pmatrix} 0 \\ 0 \\ 1/3 \end{pmatrix}$:
-  $$
-  \beta = X^- \cdot 4 = \begin{pmatrix} 0 \\ 0 \\ 1/3 \end{pmatrix} 4 = \begin{pmatrix} 0 \\ 0 \\ 4/3 \end{pmatrix}
-  $$
-  **Verification:**
-  $$
-  X\beta = \begin{pmatrix} 1 & 2 & 3 \end{pmatrix} \begin{pmatrix} 0 \\ 0 \\ 4/3 \end{pmatrix} = 0 + 0 + 3(4/3) = 4 \quad \checkmark
-  $$
-  
-* **Example 2: Overdetermined System**
-
-  Let $X = \begin{pmatrix} 1 \\ 2 \\ 3 \end{pmatrix}$. Solve $X\beta = \begin{pmatrix} 2 \\ 4 \\ 6 \end{pmatrix} = c$.
-  Here $c = 2X$, so the system is consistent. Since $X$ is a column vector, $\beta$ is a scalar.
-  
-  **Solution:**
-  Using the generalized inverse $X^- = \begin{pmatrix} 1 & 0 & 0 \end{pmatrix}$:
-  $$
-  \beta = X^- c = \begin{pmatrix} 1 & 0 & 0 \end{pmatrix} \begin{pmatrix} 2 \\ 4 \\ 6 \end{pmatrix} = 1(2) + 0(4) + 0(6) = 2
-  $$
-  **Verification:**
-  $$
-  X\beta = \begin{pmatrix} 1 \\ 2 \\ 3 \end{pmatrix} (2) = \begin{pmatrix} 2 \\ 4 \\ 6 \end{pmatrix} = c \quad \checkmark
-  $$
-:::
-
-
-
-## Least Squares for Non-full-rank $X$ with Generalized Inverse
-
-### Projection Matrix with Generalized Inverse of $X'X$
-
-For the normal equations $(X'X)\beta = X'y$, a solution is given by:
-$$
-\hat{\beta} = (X'X)^- X'y
-$$
-The fitted values are $$\hat{y} = X\hat{\beta} = X(X'X)^- X'y.$$
-This $\hat{y}$ represents the unique orthogonal projection of $y$ onto $\text{Col}(X)$.
-
-
-
-### Invariance and Uniqueness of "the" Projection Matrix
-
-
-
-:::{#thm-transpose name="Transpose Property of Generalized Inverses"}
-$(X^-)'$ is a version of $(X')^-$. That is, $(X^-)'$ is a generalized inverse of $X'$.
-:::
-
-::: {.callout-note collapse="true" icon="false" title="Proof"}
-
-By definition, a generalized inverse $X^-$ satisfies the property:
-$$
-X X^- X = X
-$$
-
-To verify that $(X^-)'$ is a generalized inverse of $X'$, we need to show that it satisfies the condition $A G A = A$ where $A = X'$ and $G = (X^-)'$.
-
-1.  Start with the fundamental definition:
-    $$
-    X X^- X = X
-    $$
-
-2.  Take the transpose of both sides of the equation:
-    $$
-    (X X^- X)' = X'
-    $$
-
-3.  Apply the reverse order law for transposes, $(ABC)' = C' B' A'$:
-    $$
-    X' (X^-)' X' = X'
-    $$
-
-Since substituting $(X^-)'$ into the generalized inverse equation for $X'$ yields $X'$, $(X^-)'$ is a valid generalized inverse of $X'$.
-:::
-:::{#lem-invariance name="Invariance of Generalized Least Squares"}
-For any version of the generalized inverse $(X'X)^-$, the matrix $X'(X'X)^- X'$ is invariant and equals $X'$.
-$$
-X'X(X'X)^- X' = X'
-$$
-:::
-
-**Proof (using Projection):**
-Let $P = X(X'X)^- X'$. This is the projection matrix onto $\mathcal{C}(X)$.
-By definition of projection, $Px = x$ for any $x \in \text{Col}(X)$.
-Since columns of $X$ are in $\text{Col}(X)$, $PX = X$.
-Taking the transpose: $(PX)' = X' \implies X'P' = X'$.
-Since projection matrices are symmetric ($P=P'$), $X'P = X'$.
-Substituting $P$: $X' X (X'X)^- X' = X'$.
-
-**Proof (Direct Matrix Manipulation):**
-Decompose $y = X\beta + e$ where $e \perp \text{Col}(X)$ (i.e., $X'e = 0$).
-$$
-\begin{aligned}
-X'X(X'X)^- X' y &= X'X(X'X)^- X' (X\beta + e) \\
-&= X'X(X'X)^- X'X\beta + X'X(X'X)^- X'e
-\end{aligned}
-$$
-Using the property $A A^- A = A$ (where $A=X'X$), the first term becomes $X'X\beta$.
-The second term is 0 because $X'e = 0$.
-Thus, the expression simplifies to $X'X\beta = X'(X\beta) = X'\hat{y}_{\text{proj}}$.
-This implies the operator acts as $X'$.
-
-:::{#thm-proj-properties name="Properties of Projection Matrix $P$"}
-Let $P = X(X'X)^- X'$. This matrix has the following properties:
-
-1.  **Symmetry:** $P = P'$.
-2.  **Idempotence:** $P^2 = P$.
-    $$
-    P^2 = X(X'X)^- X' X(X'X)^- X' = X(X'X)^- (X'X (X'X)^- X')
-    $$
-    Using the identity from @lem-invariance ($X'X(X'X)^- X' = X'$), this simplifies to:
-    $$
-    X(X'X)^- X' = P
-    $$
+This allows us to solve for $\beta$ using two efficient triangular substitutions (first solving $B'z = X'y$ for $z$, then $B\beta = z$ for $\beta$) without explicitly inverting the matrix, which is computationally expensive and unstable.
 
-3.  **Uniqueness:** $P$ is unique and invariant to the choice of the generalized inverse $(X'X)^-$.
-:::
-
-::: {.callout-note collapse="true" icon="false" title="Proof"}
-**Proof of Uniqueness:**
-
-Let $A$ and $B$ be two different generalized inverses of $X'X$. Define $P_A = X A X'$ and $P_B = X B X'$.
-From @lem-invariance, we know that $X' P_A = X'$ and $X' P_B = X'$.
-
-Subtracting these two equations:
-$$
-X' (P_A - P_B) = 0
-$$
-Taking the transpose, we get $(P_A - P_B) X = 0$. This implies that the columns of the difference matrix $D = P_A - P_B$ are orthogonal to the columns of $X$ (i.e., $D \perp \text{Col}(X)$).
-
-However, by definition, the columns of $P_A$ and $P_B$ (and thus $D$) are linear combinations of the columns of $X$ (i.e., $D \in \text{Col}(X)$).
-
-The only matrix that lies *in* the column space of $X$ but is also *orthogonal* to the column space of $X$ is the zero matrix.
-Therefore:
-$$
-P_A - P_B = 0 \implies P_A = P_B
-$$
-:::
-
-## The Left Inverse View: Recovering $\hat{\beta}$ from $\hat{y}$
-
-While the geometric properties of the linear model are most naturally established via the unique orthogonal projection $\hat{y}$, we require a functional mapping—a statistical "bridge"—to translate the distribution of these fitted values back into the parameter space of $\hat{\beta}$. This bridge is provided by the generalized left inverse.
-
-### The Generalized Left Inverse
-
-To recover the parameter estimates directly from the fitted values, we define the generalized left inverse, denoted as $X_{\text{left}}^-$, such that:
-
-$$
-\hat{\beta} = X_{\text{left}}^- \hat{y}
-$$
-
-A standard choice for this operator, derived from the normal equations, is:
-
-$$
-X_{\text{left}}^- = (X' X)^- X'
-$$
-
-When $X$ is full-rank, the $X_{\text{left}}^-$ is unique, which is given by 
-
-$$
-X_{\text{left}}^- = (X' X)^{-1} X'
-$$
-
-### Verification of the Inverse Property
-
-To verify that $X_{\text{left}}^-$ acts as a valid generalized inverse of $X$, it must satisfy the condition $X X_{\text{left}}^- X = X$. Substituting our definition:
-
-$$
-X \underbrace{\left[ (X' X)^- X' \right]}_{X_{\text{left}}^-} X = X (X' X)^- (X' X)
-$$
-
-Using the property of generalized inverses for symmetric matrices where $(X' X)(X' X)^- X' = X'$, the transpose of this identity gives $X (X' X)^- (X' X) = X$. Thus, the condition holds:
-
-$$
-X X_{\text{left}}^- X = X
-$$
-
-### Recovering the Estimator
-
-We can now demonstrate that applying this left inverse to the fitted values $\hat{y}$ yields the standard solution to the normal equations.
-
-Substituting the projection formula $\hat{y} = X(X' X)^- X' y$:
-
-$$
-\begin{aligned}
-X_{\text{left}}^- \hat{y} &= \left[ (X' X)^- X' \right] \left[ X(X' X)^- X' y \right] \\
-&= (X' X)^- \underbrace{(X' X) (X' X)^- (X' X)}_{\text{Property } A A^- A = A} (X' X)^- X' y
-\end{aligned}
-$$
-
-Simplifying using the generalized inverse property $A^- A A^- = A^-$ (where $A = X' X$):
-
-$$
-\begin{aligned}
-X_{\text{left}}^- \hat{y} &= \underbrace{(X' X)^- (X' X) (X' X)^-}_{(X' X)^-} X' y \\
-&= (X' X)^- X' y
-\end{aligned}
-$$
-
-Thus, we recover the standard estimator used in the normal equations:
-
-$$
-\mathbf{\hat{\beta} = (X' X)^- X' y}
-$$
-
-
-## Non-full-rank Least Squares with QR Decomposition
-
-When $X$ has rank $r < p$ (where $X$ is $n \times p$), we can derive the least squares estimator using partitioned matrices.
-
-Assume the first $r$ columns of $X$ are linearly independent. We can partition $X$ as:
-$$
-X = Q (R_1, R_2)
-$$
-where $Q$ is an $n \times r$ matrix with orthogonal columns ($Q'Q = I_r$), $R_1$ is an $r \times r$ non-singular matrix, and $R_2$ is $r \times (p-r)$.
-
-The normal equations are:
-$$
-X'X\beta = X'y \implies \begin{pmatrix} R_1' \\ R_2' \end{pmatrix} Q' Q (R_1, R_2) \beta = \begin{pmatrix} R_1' \\ R_2' \end{pmatrix} Q'y
-$$
-Simplifying ($Q'Q = I_r$):
-$$
-\begin{pmatrix} R_1'R_1 & R_1'R_2 \\ R_2'R_1 & R_2'R_2 \end{pmatrix} \beta = \begin{pmatrix} R_1'Q'y \\ R_2'Q'y \end{pmatrix}
-$$
-
-### Constructing a Solution by Solving Normal Equations
-
-
-One specific generalized inverse of $X'X$ can be found by focusing on the non-singular block $R_1'R_1$:
-$$
-(X'X)^- = \begin{pmatrix} (R_1'R_1)^{-1} & 0 \\ 0 & 0 \end{pmatrix}
-$$
-
-Using this generalized inverse, the estimator $\hat{\beta}$ becomes:
-$$
-\hat{\beta} = (X'X)^- X'y = \begin{pmatrix} (R_1'R_1)^{-1} & 0 \\ 0 & 0 \end{pmatrix} \begin{pmatrix} R_1'Q'y \\ R_2'Q'y \end{pmatrix}
-$$
-$$
-\hat{\beta} = \begin{pmatrix} (R_1'R_1)^{-1} R_1' Q'y \\ 0 \end{pmatrix} = \begin{pmatrix} R_1^{-1} Q'y \\ 0 \end{pmatrix}
-$$
-
-The fitted values are:
-$$
-\hat{y} = X\hat{\beta} = Q(R_1, R_2) \begin{pmatrix} R_1^{-1} Q'y \\ 0 \end{pmatrix} = Q R_1 R_1^{-1} Q'y = QQ'y
+**2. Computing the Determinant**
+The determinant of a triangular matrix is simply the product of its diagonal entries. Therefore, the determinant of $A$ can be computed instantly from $B$:
 $$
-This confirms that $\hat{y}$ is the projection of $y$ onto the column space of $Q$ (which is the same as the column space of $X$).
-
-
-### Constructing a Solution by Solving Reparametrized $\beta$
-
-We can view the model as:
-$$
-y = Q(R_1, R_2)\beta + \epsilon = Qb + \epsilon
-$$
-where $b = R_1\beta_1 + R_2\beta_2$.
-
-Since the columns of $Q$ are orthogonal, the least squares estimate for $b$ is simply:
-$$
-\hat{b} = (Q'Q)^{-1}Q'y = Q'y
-$$
-
-To find $\beta$, we solve the underdetermined system:
-$$
-R_1\beta_1 + R_2\beta_2 = \hat{b} = Q'y
-$$
-
-
-**Solution 1:**
-Set $\beta_2 = 0$. Then:
+\det(A) = \det(B'B) = \det(B')\det(B) = \left(\prod_{i=1}^n b_{ii}\right)^2
 $$
-R_1\beta_1 = Q'y \implies \hat{\beta}_1 = R_1^{-1}Q'y
-$$
-This yields the same result as the generalized inverse method above: $\hat{\beta} = \begin{pmatrix} R_1^{-1}Q'y \\ 0 \end{pmatrix}$.
+This is widely used in Maximum Likelihood Estimation (e.g., REML in mixed models) where log-determinants of large covariance matrices are required.
 
-**Solution 2:**
-Using the generalized inverse of $R = (R_1, R_2)$:
-$$
-R^- = \begin{pmatrix} R_1^{-1} \\ 0 \end{pmatrix}
+**3. Generating Multivariate Normal Random Variables**
+To generate a random vector $Y \sim N(\mu, \Sigma)$, we first generate a vector of independent standard normal variables $Z \sim N(0, I)$. Using the Cholesky decomposition $\Sigma = B'B$:
 $$
+Y = \mu + B'Z
 $$
-\hat{\beta} = R^- Q'y = \begin{pmatrix} R_1^{-1}Q'y \\ 0 \end{pmatrix}
-$$
-This demonstrates that finding a solution to the normal equations using $(X'X)^-$ is equivalent to solving the reparameterized system $b = R\beta$.
-
-
-
-
-
-
-
-
+The covariance of $Y$ is confirmed by $\text{Cov}(Y) = B' \text{Cov}(Z) B = B' I B = B'B = \Sigma$. This is the standard method used by functions like `mvrnorm` in R.
