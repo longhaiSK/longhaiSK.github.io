@@ -509,34 +509,53 @@ Figure&nbsp;3.2: Prior vs Posterior for Normal-Normal Example
 <div id="exm-Normal-with-Unknown-Mean-and-Variance" class="theorem example">
 <p><span class="theorem-title"><strong>Example 3.4 (Normal with Unknown Mean and Variance)</strong></span> Consider <span class="math inline">\(X_1, \dots, X_n \sim N(\mu, 1/\tau)\)</span>, where both <span class="math inline">\(\mu\)</span> and the precision <span class="math inline">\(\tau\)</span> are unknown.</p>
 <p>We use a <strong>Normal-Gamma</strong> conjugate prior:</p>
-<ol type="1">
+<ul>
 <li><p><span class="math inline">\(\tau \sim \text{Gamma}(\alpha, \beta)\)</span> <span class="math display">\[\pi(\tau) \propto \tau^{\alpha-1} e^{-\beta\tau}\]</span></p></li>
-<li><p><span class="math inline">\(\mu|\tau \sim N(\nu, 1/(k\tau))\)</span> <span class="math display">\[\pi(\mu|\tau) \propto \tau^{1/2} e^{-\frac{k\tau}{2}(\mu-\nu)^2}\]</span></p></li>
-</ol>
-<p>The joint prior is the product of the conditional and the marginal: <span class="math display">\[
-\pi(\mu, \tau) \propto \tau^{\alpha - 1/2} \exp\left\{ -\tau \left( \beta + \frac{k}{2}(\mu - \nu)^2 \right) \right\}
+<li><p><span class="math inline">\(\mu|\tau \sim N(\mu_0, 1/(\tau_0\tau))\)</span> <span class="math display">\[\pi(\mu|\tau) \propto \tau^{1/2} e^{-\frac{\tau_0\tau}{2}(\mu-\mu_0)^2}\]</span></p></li>
+</ul>
+<p>The joint prior is: <span class="math display">\[
+\pi(\mu, \tau) \propto \tau^{\alpha - 1/2} \exp\left\{ -\tau \left( \beta + \frac{\tau_0}{2}(\mu - \mu_0)^2 \right) \right\}
 \]</span></p>
-<p><strong>Derivation of the Posterior:</strong></p>
-<p>First, we write the likelihood in terms of the sufficient statistics <span class="math inline">\(\bar{x}\)</span> and <span class="math inline">\(S_{xx} = \sum (x_i - \bar{x})^2\)</span>: <span class="math display">\[
-L(\mu, \tau|x) \propto \tau^{n/2} \exp\left\{ -\frac{\tau}{2} \left[ S_{xx} + n(\bar{x}-\mu)^2 \right] \right\}
-\]</span></p>
-<p>Multiplying the prior by the likelihood gives the joint posterior: <span class="math display">\[
+<p><strong>Derivation of the Likelihood:</strong></p>
+<p>The likelihood is the product of the individual densities: <span class="math display">\[
 \begin{aligned}
-\pi(\mu, \tau | x) &amp;\propto \tau^{\alpha - 1/2} e^{-\beta\tau} e^{-\frac{k\tau}{2}(\mu-\nu)^2} \cdot \tau^{n/2} e^{-\frac{\tau}{2}S_{xx}} e^{-\frac{n\tau}{2}(\mu-\bar{x})^2} \\
-&amp;\propto \tau^{\alpha + n/2 - 1/2} \exp\left\{ -\tau \left[ \beta + \frac{S_{xx}}{2} + \frac{1}{2}\left( k(\mu-\nu)^2 + n(\mu-\bar{x})^2 \right) \right] \right\}
+L(\mu, \tau) &amp;= \prod_{i=1}^n \frac{\tau^{1/2}}{\sqrt{2\pi}} \exp\left\{ -\frac{\tau}{2}(x_i - \mu)^2 \right\} \\
+&amp;\propto \tau^{n/2} \exp\left\{ -\frac{\tau}{2} \sum_{i=1}^n (x_i - \mu)^2 \right\}
 \end{aligned}
 \]</span></p>
-<p>Next, we complete the square for the terms involving <span class="math inline">\(\mu\)</span> inside the brackets. It can be shown that: <span class="math display">\[
-k(\mu-\nu)^2 + n(\mu-\bar{x})^2 = (k+n)\left(\mu - \frac{k\nu+n\bar{x}}{k+n}\right)^2 + \frac{nk}{n+k}(\bar{x}-\nu)^2
+<p>Using the identity <span class="math inline">\(\sum (x_i - \mu)^2 = S_{xx} + n(\bar{x}-\mu)^2\)</span>, where <span class="math inline">\(S_{xx} = \sum (x_i - \bar{x})^2\)</span>: <span class="math display">\[
+L(\mu, \tau) \propto \tau^{n/2} \exp\left\{ -\frac{\tau}{2} \left[ S_{xx} + n(\bar{x}-\mu)^2 \right] \right\}
 \]</span></p>
-<p>Substituting this back into the joint density and grouping terms that do not depend on <span class="math inline">\(\mu\)</span>: <span class="math display">\[
-\pi(\mu, \tau | x) \propto \underbrace{\tau^{\alpha + n/2 - 1} \exp\left\{ -\tau \left[ \beta + \frac{S_{xx}}{2} + \frac{nk}{2(n+k)}(\bar{x}-\nu)^2 \right] \right\}}_{\text{Marginal of } \tau} \cdot \underbrace{\tau^{1/2} \exp\left\{ -\frac{(k+n)\tau}{2} \left( \mu - \frac{k\nu+n\bar{x}}{k+n} \right)^2 \right\}}_{\text{Conditional of } \mu|\tau}
+<p><strong>Derivation of the Posterior:</strong></p>
+<p>Multiplying the prior by the likelihood gives the joint posterior density. We organize the terms to separate the marginal distribution of <span class="math inline">\(\tau\)</span> from the conditional distribution of <span class="math inline">\(\mu\)</span>: <span class="math display">\[
+\begin{aligned}
+\pi(\mu, \tau | x) &amp;\propto \underbrace{\tau^{\alpha + n/2 - 1} \exp\left\{ -\tau \left[ \beta + \frac{S_{xx}}{2} + \frac{n\tau_0}{2(n+\tau_0)}(\bar{x}-\mu_0)^2 \right] \right\}}_{\text{Marginal of } \tau} \\
+&amp;\quad \times \underbrace{\tau^{1/2} \exp\left\{ -\frac{(n+\tau_0)\tau}{2} \left( \mu - \frac{\tau_0\mu_0+n\bar{x}}{n+\tau_0} \right)^2 \right\}}_{\text{Conditional of } \mu|\tau}
+\end{aligned}
 \]</span></p>
 <p><strong>Results:</strong></p>
-<p>By inspecting the factored equation above, we identify the updated parameters:</p>
+<p>We define the posterior parameters <span class="math inline">\(\tau' = \tau_0 + n\)</span> and <span class="math inline">\(\mu' = \frac{\tau_0\mu_0 + n\bar{x}}{\tau_0 + n}\)</span>.</p>
 <ul>
-<li><p><strong>Marginal Posterior of <span class="math inline">\(\tau\)</span>:</strong> The first part corresponds to a Gamma kernel <span class="math inline">\(\tau^{\alpha' - 1} e^{-\beta'\tau}\)</span>. <span class="math display">\[\tau|x \sim \text{Gamma}(\alpha', \beta')\]</span> where <span class="math inline">\(\alpha' = \alpha + n/2\)</span> and <span class="math inline">\(\beta' = \beta + \frac{1}{2}\sum(x_i-\bar{x})^2 + \frac{nk}{2(n+k)}(\bar{x}-\nu)^2\)</span>.</p></li>
-<li><p><strong>Conditional Posterior of <span class="math inline">\(\mu\)</span>:</strong> The second part corresponds to a Normal kernel with precision <span class="math inline">\(k'\tau\)</span>. <span class="math display">\[\mu|\tau, x \sim N(\nu', 1/(k'\tau))\]</span> where <span class="math inline">\(k' = k + n\)</span> and <span class="math inline">\(\nu' = \frac{k\nu + n\bar{x}}{k+n}\)</span>.</p></li>
+<li><p><strong>Conditional Posterior of <span class="math inline">\(\mu|\tau, x\)</span></strong>: <span class="math display">\[\mu|\tau, x \sim N(\mu', 1/(\tau'\tau))\]</span> <span class="math display">\[E[\mu|\tau, x] = \mu' = \frac{\tau_0\mu_0 + n\bar{x}}{\tau_0 + n}\]</span></p></li>
+<li><p><strong>Marginal Posterior of <span class="math inline">\(\tau\)</span></strong>: We introduce the prior parameters <span class="math inline">\(\alpha=\alpha_0/2\)</span> and <span class="math inline">\(\beta = \alpha_0 w_0/2\)</span>, and the MLE variance <span class="math inline">\(\hat{\sigma}^2_{MLE} = S_{xx}/n\)</span>. The posterior is <span class="math inline">\(\tau|x \sim \text{Gamma}(\alpha', \beta')\)</span> where:</p>
+<p><span class="math display">\[
+  \begin{aligned}
+  \alpha' &amp;= \frac{\alpha_0 + n}{2} \\
+  \beta' &amp;= \frac{\alpha_0 w_0 + n\hat{\sigma}^2_{MLE} + \frac{n\tau_0}{n+\tau_0}(\bar{x}-\mu_0)^2}{2}
+  \end{aligned}
+  \]</span></p>
+<ul>
+<li><p><strong>Approximate Expectation of <span class="math inline">\(\sigma^2\)</span></strong>: Using the approximation <span class="math inline">\(E[\sigma^2|x] \approx 1/E[\tau|x] = \beta'/\alpha'\)</span>:</p>
+<p><span class="math display">\[
+  E[\sigma^2|x] \approx \frac{\alpha_0 w_0 + n\hat{\sigma}^2_{MLE} + \frac{n\tau_0}{n+\tau_0}(\bar{x}-\mu_0)^2}{\alpha_0 + n}
+  \]</span></p></li>
+</ul></li>
+<li><p><strong>Conditional Posterior of <span class="math inline">\(\tau|\mu, x\)</span></strong>: If <span class="math inline">\(\mu\)</span> is considered known (or conditioned upon), we combine the terms involving <span class="math inline">\(\tau\)</span> from the joint prior and likelihood, treating <span class="math inline">\(\mu\)</span> as a fixed parameter. Note that the prior term <span class="math inline">\(\pi(\mu|\tau)\)</span> contributes an extra <span class="math inline">\(\tau^{1/2}\)</span>. <span class="math display">\[
+  \pi(\tau|\mu, x) \propto \tau^{\alpha + \frac{n+1}{2} - 1} \exp\left\{ -\tau \left[ \beta + \frac{1}{2}\sum_{i=1}^n (x_i-\mu)^2 + \frac{\tau_0}{2}(\mu-\mu_0)^2 \right] \right\}
+  \]</span> Thus, <span class="math inline">\(\tau|\mu, x \sim \text{Gamma}(\alpha'', \beta'')\)</span> with shape <span class="math inline">\(\alpha'' = \frac{\alpha_0 + n + 1}{2}\)</span> and rate <span class="math inline">\(\beta'' = \frac{\alpha_0 w_0 + \sum(x_i-\mu)^2 + \tau_0(\mu-\mu_0)^2}{2}\)</span>.</p>
+<p>The approximate expectation of the variance is: <span class="math display">\[
+  E[\sigma^2|\mu, x] \approx \frac{\beta''}{\alpha''} = \frac{\alpha_0 w_0 + \sum_{i=1}^n (x_i-\mu)^2 + \tau_0(\mu-\mu_0)^2}{\alpha_0 + n + 1}
+  \]</span></p></li>
 </ul>
 </div>
 </section>
