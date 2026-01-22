@@ -235,57 +235,80 @@ Consider $X_1, \dots, X_n \sim N(\mu, 1/\tau)$, where both $\mu$ and the precisi
 
 We use a **Normal-Gamma** conjugate prior:
 
-1.  $\tau \sim \text{Gamma}(\alpha, \beta)$
+* $\tau \sim \text{Gamma}(\alpha, \beta)$
     $$\pi(\tau) \propto \tau^{\alpha-1} e^{-\beta\tau}$$
 
-2.  $\mu|\tau \sim N(\nu, 1/(k\tau))$
-    $$\pi(\mu|\tau) \propto \tau^{1/2} e^{-\frac{k\tau}{2}(\mu-\nu)^2}$$
+* $\mu|\tau \sim N(\mu_0, 1/(\tau_0\tau))$
+    $$\pi(\mu|\tau) \propto \tau^{1/2} e^{-\frac{\tau_0\tau}{2}(\mu-\mu_0)^2}$$
 
-The joint prior is the product of the conditional and the marginal:
+The joint prior is:
 $$
-\pi(\mu, \tau) \propto \tau^{\alpha - 1/2} \exp\left\{ -\tau \left( \beta + \frac{k}{2}(\mu - \nu)^2 \right) \right\}
+\pi(\mu, \tau) \propto \tau^{\alpha - 1/2} \exp\left\{ -\tau \left( \beta + \frac{\tau_0}{2}(\mu - \mu_0)^2 \right) \right\}
+$$
+
+**Derivation of the Likelihood:**
+
+The likelihood is the product of the individual densities:
+$$
+\begin{aligned}
+L(\mu, \tau) &= \prod_{i=1}^n \frac{\tau^{1/2}}{\sqrt{2\pi}} \exp\left\{ -\frac{\tau}{2}(x_i - \mu)^2 \right\} \\
+&\propto \tau^{n/2} \exp\left\{ -\frac{\tau}{2} \sum_{i=1}^n (x_i - \mu)^2 \right\}
+\end{aligned}
+$$
+
+Using the identity $\sum (x_i - \mu)^2 = S_{xx} + n(\bar{x}-\mu)^2$, where $S_{xx} = \sum (x_i - \bar{x})^2$:
+$$
+L(\mu, \tau) \propto \tau^{n/2} \exp\left\{ -\frac{\tau}{2} \left[ S_{xx} + n(\bar{x}-\mu)^2 \right] \right\}
 $$
 
 **Derivation of the Posterior:**
 
-First, we write the likelihood in terms of the sufficient statistics $\bar{x}$ and $S_{xx} = \sum (x_i - \bar{x})^2$:
-$$
-L(\mu, \tau|x) \propto \tau^{n/2} \exp\left\{ -\frac{\tau}{2} \left[ S_{xx} + n(\bar{x}-\mu)^2 \right] \right\}
-$$
-
-Multiplying the prior by the likelihood gives the joint posterior:
+Multiplying the prior by the likelihood gives the joint posterior density. We organize the terms to separate the marginal distribution of $\tau$ from the conditional distribution of $\mu$:
 $$
 \begin{aligned}
-\pi(\mu, \tau | x) &\propto \tau^{\alpha - 1/2} e^{-\beta\tau} e^{-\frac{k\tau}{2}(\mu-\nu)^2} \cdot \tau^{n/2} e^{-\frac{\tau}{2}S_{xx}} e^{-\frac{n\tau}{2}(\mu-\bar{x})^2} \\
-&\propto \tau^{\alpha + n/2 - 1/2} \exp\left\{ -\tau \left[ \beta + \frac{S_{xx}}{2} + \frac{1}{2}\left( k(\mu-\nu)^2 + n(\mu-\bar{x})^2 \right) \right] \right\}
+\pi(\mu, \tau | x) &\propto \underbrace{\tau^{\alpha + n/2 - 1} \exp\left\{ -\tau \left[ \beta + \frac{S_{xx}}{2} + \frac{n\tau_0}{2(n+\tau_0)}(\bar{x}-\mu_0)^2 \right] \right\}}_{\text{Marginal of } \tau} \\
+&\quad \times \underbrace{\tau^{1/2} \exp\left\{ -\frac{(n+\tau_0)\tau}{2} \left( \mu - \frac{\tau_0\mu_0+n\bar{x}}{n+\tau_0} \right)^2 \right\}}_{\text{Conditional of } \mu|\tau}
 \end{aligned}
-$$
-
-Next, we complete the square for the terms involving $\mu$ inside the brackets. It can be shown that:
-$$
-k(\mu-\nu)^2 + n(\mu-\bar{x})^2 = (k+n)\left(\mu - \frac{k\nu+n\bar{x}}{k+n}\right)^2 + \frac{nk}{n+k}(\bar{x}-\nu)^2
-$$
-
-Substituting this back into the joint density and grouping terms that do not depend on $\mu$:
-$$
-\pi(\mu, \tau | x) \propto \underbrace{\tau^{\alpha + n/2 - 1} \exp\left\{ -\tau \left[ \beta + \frac{S_{xx}}{2} + \frac{nk}{2(n+k)}(\bar{x}-\nu)^2 \right] \right\}}_{\text{Marginal of } \tau} \cdot \underbrace{\tau^{1/2} \exp\left\{ -\frac{(k+n)\tau}{2} \left( \mu - \frac{k\nu+n\bar{x}}{k+n} \right)^2 \right\}}_{\text{Conditional of } \mu|\tau}
 $$
 
 **Results:**
 
-By inspecting the factored equation above, we identify the updated parameters:
+We define the posterior parameters $\tau' = \tau_0 + n$ and $\mu' = \frac{\tau_0\mu_0 + n\bar{x}}{\tau_0 + n}$.
 
-* **Marginal Posterior of $\tau$:**
-    The first part corresponds to a Gamma kernel $\tau^{\alpha' - 1} e^{-\beta'\tau}$.
-    $$\tau|x \sim \text{Gamma}(\alpha', \beta')$$
-    where $\alpha' = \alpha + n/2$ and $\beta' = \beta + \frac{1}{2}\sum(x_i-\bar{x})^2 + \frac{nk}{2(n+k)}(\bar{x}-\nu)^2$.
+* **Conditional Posterior of $\mu|\tau, x$**:
+    $$\mu|\tau, x \sim N(\mu', 1/(\tau'\tau))$$
+    $$E[\mu|\tau, x] = \mu' = \frac{\tau_0\mu_0 + n\bar{x}}{\tau_0 + n}$$
 
-* **Conditional Posterior of $\mu$:**
-    The second part corresponds to a Normal kernel with precision $k'\tau$.
-    $$\mu|\tau, x \sim N(\nu', 1/(k'\tau))$$
-    where $k' = k + n$ and $\nu' = \frac{k\nu + n\bar{x}}{k+n}$.
+* **Marginal Posterior of $\tau$**:
+    We introduce the prior parameters $\alpha=\alpha_0/2$ and $\beta = \alpha_0 w_0/2$, and the MLE variance $\hat{\sigma}^2_{MLE} = S_{xx}/n$.
+    The posterior is $\tau|x \sim \text{Gamma}(\alpha', \beta')$ where:
+
+    $$
+    \begin{aligned}
+    \alpha' &= \frac{\alpha_0 + n}{2} \\
+    \beta' &= \frac{\alpha_0 w_0 + n\hat{\sigma}^2_{MLE} + \frac{n\tau_0}{n+\tau_0}(\bar{x}-\mu_0)^2}{2}
+    \end{aligned}
+    $$
+
+    - **Approximate Expectation of $\sigma^2$**:
+        Using the approximation $E[\sigma^2|x] \approx 1/E[\tau|x] = \beta'/\alpha'$:
+
+        $$
+        E[\sigma^2|x] \approx \frac{\alpha_0 w_0 + n\hat{\sigma}^2_{MLE} + \frac{n\tau_0}{n+\tau_0}(\bar{x}-\mu_0)^2}{\alpha_0 + n}
+        $$
+
+* **Conditional Posterior of $\tau|\mu, x$**:
+    If $\mu$ is considered known (or conditioned upon), we combine the terms involving $\tau$ from the joint prior and likelihood, treating $\mu$ as a fixed parameter. Note that the prior term $\pi(\mu|\tau)$ contributes an extra $\tau^{1/2}$.
+    $$
+    \pi(\tau|\mu, x) \propto \tau^{\alpha + \frac{n+1}{2} - 1} \exp\left\{ -\tau \left[ \beta + \frac{1}{2}\sum_{i=1}^n (x_i-\mu)^2 + \frac{\tau_0}{2}(\mu-\mu_0)^2 \right] \right\}
+    $$
+    Thus, $\tau|\mu, x \sim \text{Gamma}(\alpha'', \beta'')$ with shape $\alpha'' = \frac{\alpha_0 + n + 1}{2}$ and rate $\beta'' = \frac{\alpha_0 w_0 + \sum(x_i-\mu)^2 + \tau_0(\mu-\mu_0)^2}{2}$.
+
+    The approximate expectation of the variance is:
+    $$
+    E[\sigma^2|\mu, x] \approx \frac{\beta''}{\alpha''} = \frac{\alpha_0 w_0 + \sum_{i=1}^n (x_i-\mu)^2 + \tau_0(\mu-\mu_0)^2}{\alpha_0 + n + 1}
+    $$
 :::
-
 ## Finding Bayes Rules via Minimizing Posterior Expected Loss
 
 The general form of Bayes rule is derived by minimizing risk.
