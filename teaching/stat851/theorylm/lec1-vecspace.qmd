@@ -1321,129 +1321,204 @@ A square matrix $P$ is called an **orthogonal projection matrix** if it satisfie
 :::
 
 ::: {#thm-proj-col name="Projection onto Column Space"}
-If a matrix $P$ is symmetric and idempotent, then $P$ represents the orthogonal projection onto its column space, $\text{Col}(P)$.
+Let $P$ be a $p \times p$ symmetric ($P^\top = P$) and idempotent ($P^2 = P$) matrix in $\mathbb{R}^p$. Then $P$ represents the orthogonal projection onto its column space, $\text{Col}(P)$.
 
-Specifically, for any vector $y$, the vector $\hat{y} = Py$ is the unique vector in $\text{Col}(P)$ such that the residual $e = y - \hat{y}$ is orthogonal to $\text{Col}(P)$.
+Specifically, for any vector $y \in \mathbb{R}^p$, the vector $\hat{y} = Py$ satisfies the definition of orthogonal projection:
+
+1.  $\hat{y} \in \text{Col}(P)$
+2.  $y - \hat{y} \perp \text{Col}(P)$
 :::
 
 ::: proof
-Let $y \in \mathbb{R}^n$. We decompose $y$ as $y = Py + (I - P)y$. We must show that the residual term $(I-P)y$ is orthogonal to any vector $z \in \text{Col}(P)$.
+To prove that $P$ is the orthogonal projector onto $\text{Col}(P)$, we verify the two conditions for an arbitrary vector $y \in \mathbb{R}^p$.
 
-Since $z \in \text{Col}(P)$, there exists a vector $x$ such that $z = Px$. The inner product between $z$ and the residual is: $$
-\langle z, (I - P)y \rangle = z^\top (I - P)y = (Px)^\top (I - P)y
-$$ {#eq-inner-prod}
+**1. Condition:** $\hat{y} \in \text{Col}(P)$
 
-Using the matrix transpose property $(AB)^\top = B^\top A^\top$, we rewrite @eq-inner-prod as: $$
-\langle z, (I - P)y \rangle = x^\top P^\top (I - P)y
-$$ {#eq-transpose-step}
+By the definition of matrix-vector multiplication, $\hat{y} = Py$ is a linear combination of the columns of $P$. Therefore, $\hat{y}$ is, by definition, an element of $\text{Col}(P)$.
 
-Since $P$ is symmetric ($P^\top = P$), we can substitute $P$ for $P^\top$ in @eq-transpose-step: $$
-\langle z, (I - P)y \rangle = x^\top P (I - P)y = x^\top (P - P^2)y
-$$ {#eq-sym-step}
+**2. Condition:** $y - \hat{y} \perp \text{Col}(P)$
 
-Finally, utilizing the idempotency of $P$ (where $P^2 = P$), the expression in @eq-sym-step simplifies to 0: $$
-x^\top (P - P)y = x^\top (0)y = 0
-$$ {#eq-final-step}
+Let $e = y - \hat{y} = (I_p - P)y$. To verify that $e$ is orthogonal to $\text{Col}(P)$, it suffices to show that $e$ is orthogonal to every column of $P$. In matrix notation, this is equivalent to showing $e^\top P = 0$. We compute this directly:
 
-Since the inner product is 0, the residual is orthogonal to every vector in $\text{Col}(P)$. Thus, $P$ is the orthogonal projector.
+$$
+\begin{aligned}
+e^\top P &= [(I_p - P)y]^\top P \\
+&= y^\top (I_p - P)^\top P \\
+&= y^\top (I_p - P) P & (\text{Symmetry: } P^\top = P) \\
+&= y^\top (P - P^2) \\
+&= y^\top (P - P) & (\text{Idempotency: } P^2 = P) \\
+&= 0
+\end{aligned}
+$$
+
+Since $e^\top P = 0$, the residual $e$ is orthogonal to every column of $P$. Consequently, $e$ is orthogonal to the space spanned by those columns, $\text{Col}(P)$.
+:::
+
+
+::: {#lem-projection-props name="0-1 Projection"}
+Let $P$ be a $p \times p$ matrix. $P$ is the orthogonal projection matrix onto $\text{Col}(P)$ if and only if:
+
+  1) $Pv = v$ for all $v \in \text{Col}(P)$.
+  2) $Pv = 0$ for all $v \perp \text{Col}(P)$.
+
+:::
+
+::: proof
+**Forward Implication ($\implies$):** Given $P$ is an orthogonal projection ($P^2=P, P^\top=P$).
+
+* **Proof of (1):** Let $v \in \text{Col}(P)$. Then $v = Px$ for some $x$.
+    $$
+    Pv = P(Px) = P^2 x = Px = v
+    $$
+
+* **Proof of (2):** Let $v \perp \text{Col}(P)$. Then $v$ is orthogonal to every column of $P$, so $v^\top P = 0$. Since $P$ is symmetric:
+    $$
+    Pv = (v^\top P^\top)^\top = (v^\top P)^\top = 0^\top = 0
+    $$
+
+**Reverse Implication ($\impliedby$):** Given conditions (1) and (2) hold.
+
+We must show that $P$ is idempotent ($P^2=P$) and symmetric ($P^\top=P$).
+
+* **Proof of Idempotence ($P^2 = P$):**
+
+    For any vector $x \in \mathbb{R}^p$, let $y = Px$. By definition, $y \in \text{Col}(P)$.
+    Applying condition (1) to the vector $y$:
+    $$
+    Py = y \implies P(Px) = Px \implies P^2 x = Px
+    $$
+    Since this holds for all $x$, $P^2 = P$.
+
+* **Proof of Symmetry ($P^\top = P$):**
+
+    We decompose any two vectors $x, y \in \mathbb{R}^p$ into components inside and orthogonal to $\text{Col}(P)$.
+    Let $x = x_1 + x_2$ and $y = y_1 + y_2$, where $x_1, y_1 \in \text{Col}(P)$ and $x_2, y_2 \perp \text{Col}(P)$.
+
+    Using conditions (1) and (2):
+    $$
+    Px = P(x_1 + x_2) = Px_1 + Px_2 \stackrel{(1),(2)}{=} x_1 + 0 = x_1
+    $$
+    $$
+    Py = P(y_1 + y_2) = Py_1 + Py_2 \stackrel{(1),(2)}{=} y_1 + 0 = y_1
+    $$
+
+    Now we compare the inner products $\langle Px, y \rangle$ and $\langle x, Py \rangle$:
+    $$
+    \langle Px, y \rangle = \langle x_1, y_1 + y_2 \rangle = \langle x_1, y_1 \rangle + \underbrace{\langle x_1, y_2 \rangle}_{0} = \langle x_1, y_1 \rangle
+    $$
+    $$
+    \langle x, Py \rangle = \langle x_1 + x_2, y_1 \rangle = \langle x_1, y_1 \rangle + \underbrace{\langle x_2, y_1 \rangle}_{0} = \langle x_1, y_1 \rangle
+    $$
+
+    Since $\langle Px, y \rangle = \langle x, Py \rangle$ implies $x^\top P^\top y = x^\top P y$ for all $x, y$, we conclude $P^\top = P$.
+
+Since $P$ is symmetric and idempotent, it is the orthogonal projection matrix.
 :::
 
 ### Projection onto Complement Space
 
 ::: {#thm-complement-proj name="Projection onto Orthogonal Complement"}
-Let $P$ be an orthogonal projection matrix. The matrix $M$ defined as: $$
-M = I - P
-$$ is the orthogonal projection matrix onto the orthogonal complement of the column space of $P$, denoted $\text{Col}(P)^\perp$.
+Let $P$ be a $p \times p$ orthogonal projection matrix operating in the space $\mathbb{R}^p$. The matrix $M$ defined as:
+$$
+M = I_p - P
+$$
+is the orthogonal projection matrix onto the orthogonal complement of the column space of $P$, denoted $\text{Col}(P)^\perp \subseteq \mathbb{R}^p$.
 :::
 
 ::: proof
-**1. Symmetry and Idempotency** Since $P$ is a projection matrix, $P^\top = P$ and $P^2 = P$. We verify these properties for $M$: $$
-M^\top = (I - P)^\top = I - P^\top = I - P = M
-$$ {#eq-m-sym} $$
-M^2 = (I - P)(I - P) = I - 2P + P^2 = I - 2P + P = I - P = M
-$$ {#eq-m-idemp} By @eq-m-sym and @eq-m-idemp, $M$ is symmetric and idempotent, so it is an orthogonal projection matrix.
+**Symmetry and Idempotency**
 
-**2. Identifying the Subspace** By @thm-proj-col, $M$ projects onto its own column space, $\text{Col}(M)$. A vector $v$ is in $\text{Col}(M)$ if and only if it is fixed by the projection ($Mv = v$). $$
-Mv = v
-$$ {#eq-fixed-point}
-
-Substituting $M = I - P$ into @eq-fixed-point gives: $$
-(I - P)v = v
-$$ {#eq-sub-m}
-
-Rearranging @eq-sub-m, we find the condition for $v$: $$
-v - Pv = v \implies Pv = 0
-$$ {#eq-nullspace}
-
-The condition $Pv = 0$ in @eq-nullspace implies that $v$ belongs to the null space of $P$, denoted $\text{Null}(P)$. By the Fundamental Theorem of Linear Algebra for symmetric matrices, the null space is the orthogonal complement of the column space: $$
-\text{Null}(P) = \text{Col}(P^\top)^\perp = \text{Col}(P)^\perp
-$$ Thus, the image of $M$ is exactly $\text{Col}(P)^\perp$.
-:::
-
-::: {#exr-col-spaces name="Column Space of the Hat Matrix"}
-Let $H = X(X^\top X)^{-1}X^\top$ be the hat matrix.
-
-1.  Prove that the column space of $H$ is identical to the column space of $X$: $$ \text{Col}(H) = \text{Col}(X) $$
-2.  Using the result above, show that the column space of the residual maker matrix $M = I - H$ is the orthogonal complement of $\text{Col}(X)$: $$ \text{Col}(M) = \text{Col}(X)^\perp $$
-:::
-
-::: {.callout-note collapse="true" icon="false" title="Solutions"}
-**1. Equivalence of Column Spaces** To prove $\text{Col}(H) = \text{Col}(X)$, we show inclusion in both directions.
-
--   **Forward (**$\text{Col}(H) \subseteq \text{Col}(X)$): By definition, $H = X [(X^\top X)^{-1}X^\top]$. Any column of $H$ is a linear combination of the columns of $X$ (weighted by the matrix in brackets). Therefore, any vector in the image of $H$ must lie in $\text{Col}(X)$.
-
--   **Reverse (**$\text{Col}(X) \subseteq \text{Col}(H)$): Take any vector $v \in \text{Col}(X)$. By definition, $v = Xb$ for some vector $b$. Apply $H$ to $v$: $$
-      Hv = X(X^\top X)^{-1}X^\top (Xb) = X(X^\top X)^{-1}(X^\top X)b = X(I)b = Xb = v
-      $$ Since $Hv = v$, the vector $v$ lies in the column space of $H$ (specifically, it is an eigenvector with eigenvalue 1).
-
-Since both inclusions hold, $\text{Col}(H) = \text{Col}(X)$.
-
-**2. Orthogonal Complements** From part 1, we know the subspaces are identical. Therefore, their orthogonal complements must also be identical: $$
-\text{Col}(H)^\perp = \text{Col}(X)^\perp
-$$ We previously established in @thm-complement-proj that for any projection matrix $P$, the complement projection $M = I - P$ projects onto $\text{Col}(P)^\perp$. Substituting $H$ for $P$: $$
-\text{Col}(M) = \text{Col}(H)^\perp
-$$ Combining these results gives the required equality: $$
-\text{Col}(M) = \text{Col}(X)^\perp
+Since $P$ is a projection matrix, $P^\top = P$ and $P^2 = P$. We verify these properties for $M$:
 $$
-:::
-
-## Projection onto Nested Subspaces
-
-### Nested Models and Subspaces
-
-In hypothesis testing (like comparing a null model to an alternative model), we often deal with nested subspaces.
-
-::: {#def-nested-models name="Nested Models"}
-Consider two models:
-
-1.  **Reduced Model (**$M_0$): $y \in \text{Col}(X_0)$
-2.  **Full Model (**$M_1$): $y \in \text{Col}(X_1)$
-
-We say the models are nested if the column space of the reduced model is contained entirely within the column space of the full model: $$
-\text{Col}(X_0) \subseteq \text{Col}(X_1)
+M^\top = (I_p - P)^\top = I_p - P^\top = I_p - P = M
+$$ {#eq-m-sym}
 $$
-:::
+M^2 = (I_p - P)(I_p - P) = I_p - 2P + P^2 = I_p - 2P + P = I_p - P = M
+$$ {#eq-m-idemp}
+By @eq-m-sym and @eq-m-idemp, $M$ is symmetric and idempotent, so it is an orthogonal projection matrix.
 
-Usually, $X_1$ is constructed by adding columns to $X_0$: $X_1 = [X_0, X_{\text{new}}]$.
+**Identifying the Subspace**
+
+We now show that $\text{Col}(M) = \text{Col}(P)^\perp$ by mutual inclusion.
+
+* **Direction 1**: $\text{Col}(M) \subseteq \text{Col}(P)^\perp$
+
+    Let $v \in \text{Col}(M)$. Then $v = Mx$ for some vector $x$. Multiplying by $P$:
+    $$
+    Pv = P(I_p - P)x = (P - P^2)x = 0
+    $$
+    Since $P$ is symmetric ($P = P'$), taking the transpose of $Pv=0$ gives $v'P = 0$. This means $v$ is orthogonal to every column of $P$. Therefore, $v \in \text{Col}(P)^\perp$.
+
+* **Direction 2**: $\text{Col}(P)^\perp \subseteq \text{Col}(M)$
+
+    Let $v \in \text{Col}(P)^\perp$. By definition, $v$ is orthogonal to the columns of $P$, so $v'P = 0$. Taking the transpose and using symmetry ($P' = P$), we get $Pv = 0$.
+    
+    Now applying $M$ to $v$:
+    $$
+    Mv = (I_p - P)v = v - Pv = v
+    $$
+    Since $Mv = v$, $v$ lies in the column space of $M$. Therefore, $v \in \text{Col}(M)$.
+
+Since both inclusions hold, $\text{Col}(M) = \text{Col}(P)^\perp$.
+:::
 
 ### Projections onto Nested Subspaces
 
-Let $P_0$ be the projection matrix onto $\text{Col}(X_0)$ and $P_1$ be the projection matrix onto $\text{Col}(X_1)$. Since $\text{Col}(X_0) \subseteq \text{Col}(X_1)$, we have important relationships between these matrices.
+**Nested Projections**
 
-::: {#thm-nested-projections name="Composition of Projections"}
-If $\text{Col}(P_0) \subseteq \text{Col}(P_1)$, then:
 
-1.  $P_1 P_0 = P_0$ (Projecting onto the small space, then the large space, keeps you in the small space).
-2.  $P_0 P_1 = P_0$ (Projecting onto the large space, then the small space, is the same as just projecting onto the small space).
+
+::: {#thm-nested-projections name="Iterative Projections"}
+Let $P_0$ and $P_1$ be $p \times p$ orthogonal projection matrices such that $\text{Col}(P_0) \subseteq \text{Col}(P_1)$. Then:
+
+* $P_1 P_0 = P_0$
+* $P_0 P_1 = P_0$
 :::
 
 ::: proof
-**1. Proof of** $P_1 P_0 = P_0$: For any vector $y \in \mathbb{R}^n$, the vector $v = P_0 y$ lies in $\text{Col}(X_0)$. Since $\text{Col}(X_0) \subseteq \text{Col}(X_1)$, the vector $v$ also lies in $\text{Col}(X_1)$. A projection matrix $P_1$ acts as the identity operator for any vector already in its column space. Therefore, $P_1 v = v$. Substituting $v = P_0 y$, we get $P_1 P_0 y = P_0 y$ for all $y$. Thus, $P_1 P_0 = P_0$.
+**1. Proof of** $P_1 P_0 = P_0$:
 
-**2. Proof of** $P_0 P_1 = P_0$: Take the transpose of the previous result ($P_1 P_0 = P_0$). $$
-(P_1 P_0)' = P_0'
-$$ Using the property that projection matrices are symmetric ($P' = P$): $$
-P_0' P_1' = P_0' \implies P_0 P_1 = P_0
+Let $y \in \mathbb{R}^p$ be an arbitrary vector. By definition, the vector $v = P_0 y$ lies in $\text{Col}(P_0)$. Given $\text{Col}(P_0) \subseteq \text{Col}(P_1)$, it follows that $v \in \text{Col}(P_1)$.
+
+Using **Lemma @lem-projection-props**, since $v \in \text{Col}(P_1)$, $P_1$ acts as the identity on $v$, so $P_1 v = v$. Substituting $v = P_0 y$:
+$$
+P_1 (P_0 y) = P_0 y
+$$
+
+Since $P_1 P_0 y = P_0 y$ holds for all $y \in \mathbb{R}^p$, we conclude $P_1 P_0 = P_0$.
+
+**2. Proof of** $P_0 P_1 = P_0$:
+
+Taking the transpose of the result from part 1 and applying the symmetry property ($P' = P$):
+$$
+(P_1 P_0)' = P_0' \implies P_0' P_1' = P_0' \implies P_0 P_1 = P_0
+$$
+:::
+
+::: {#thm-nested-projections name="Composition of Projections"}
+Let $P_0$ and $P_1$ be $p \times p$ orthogonal projection matrices. Let $\text{Col}(P_0)$ and $\text{Col}(P_1)$ denote the column spaces (images) of $P_0$ and $P_1$ respectively. We assume that the column space of $P_0$ is a subspace of the column space of $P_1$, i.e., $\text{Col}(P_0) \subseteq \text{Col}(P_1)$.
+
+* $P_1 P_0 = P_0$ (Projecting onto the small space, then the large space, keeps you in the small space).
+* $P_0 P_1 = P_0$ (Projecting onto the large space, then the small space, is the same as just projecting onto the small space).
+:::
+
+::: proof
+**1. Proof of** $P_1 P_0 = P_0$:
+
+Let $y \in \mathbb{R}^p$ be an arbitrary vector. By the definition of a projection matrix, the vector $v = P_0 y$ must lie in the column space $\text{Col}(P_0)$. Given the condition $\text{Col}(P_0) \subseteq \text{Col}(P_1)$, it follows that $v$ is also an element of $\text{Col}(P_1)$.
+
+A fundamental property of any projection matrix is that it acts as the identity operator for any vector already residing in its column space. Therefore, since $v \in \text{Col}(P_1)$, we have $P_1 v = v$. Substituting $v = P_0 y$, we obtain:
+$$
+P_1 (P_0 y) = P_0 y
+$$
+
+To establish equality between the matrices themselves, we rely on the principle that if $Ay = By$ for all $y \in \mathbb{R}^p$, then $A = B$. Since the equation holds for all arbitrary $y$, we conclude $P_1 P_0 = P_0$.
+
+**2. Proof of** $P_0 P_1 = P_0$:
+
+Taking the transpose of the result from part 1 ($P_1 P_0 = P_0$) and applying the symmetry property of orthogonal projection matrices ($P' = P$):
+$$
+(P_1 P_0)' = P_0' \implies P_0' P_1' = P_0' \implies P_0 P_1 = P_0
 $$
 :::
 

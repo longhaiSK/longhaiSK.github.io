@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.9.16">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -69,14 +69,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="./introlm.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-1b3e43c72e8be34557c75123b0b69e0d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-792aea850e7e5573310f85939a37799b.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-99235044687d1d3b855b6f7bf689f2cf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-d8f30693d8b61db55eaf208e56e337dd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -132,7 +133,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -287,14 +288,10 @@ window.Quarto = {
   <ul>
   <li><a href="#orthogonal-projection-matrix" id="toc-orthogonal-projection-matrix" class="nav-link" data-scroll-target="#orthogonal-projection-matrix"><span class="header-section-number">2.7.1</span> Orthogonal Projection Matrix</a></li>
   <li><a href="#projection-onto-complement-space" id="toc-projection-onto-complement-space" class="nav-link" data-scroll-target="#projection-onto-complement-space"><span class="header-section-number">2.7.2</span> Projection onto Complement Space</a></li>
+  <li><a href="#projections-onto-nested-subspaces" id="toc-projections-onto-nested-subspaces" class="nav-link" data-scroll-target="#projections-onto-nested-subspaces"><span class="header-section-number">2.7.3</span> Projections onto Nested Subspaces</a></li>
+  <li><a href="#decomposition-of-projections-and-their-sum-squares" id="toc-decomposition-of-projections-and-their-sum-squares" class="nav-link" data-scroll-target="#decomposition-of-projections-and-their-sum-squares"><span class="header-section-number">2.7.4</span> Decomposition of Projections and their Sum Squares</a></li>
   </ul></li>
-  <li><a href="#projection-onto-nested-subspaces" id="toc-projection-onto-nested-subspaces" class="nav-link" data-scroll-target="#projection-onto-nested-subspaces"><span class="header-section-number">2.8</span> Projection onto Nested Subspaces</a>
-  <ul>
-  <li><a href="#nested-models-and-subspaces" id="toc-nested-models-and-subspaces" class="nav-link" data-scroll-target="#nested-models-and-subspaces"><span class="header-section-number">2.8.1</span> Nested Models and Subspaces</a></li>
-  <li><a href="#projections-onto-nested-subspaces" id="toc-projections-onto-nested-subspaces" class="nav-link" data-scroll-target="#projections-onto-nested-subspaces"><span class="header-section-number">2.8.2</span> Projections onto Nested Subspaces</a></li>
-  <li><a href="#decomposition-of-projections-and-their-sum-squares" id="toc-decomposition-of-projections-and-their-sum-squares" class="nav-link" data-scroll-target="#decomposition-of-projections-and-their-sum-squares"><span class="header-section-number">2.8.3</span> Decomposition of Projections and their Sum Squares</a></li>
-  </ul></li>
-  <li><a href="#projections-onto-orthogonal-subspaces" id="toc-projections-onto-orthogonal-subspaces" class="nav-link" data-scroll-target="#projections-onto-orthogonal-subspaces"><span class="header-section-number">2.9</span> Projections onto Orthogonal Subspaces</a></li>
+  <li><a href="#projections-onto-orthogonal-subspaces" id="toc-projections-onto-orthogonal-subspaces" class="nav-link" data-scroll-target="#projections-onto-orthogonal-subspaces"><span class="header-section-number">2.8</span> Projections onto Orthogonal Subspaces</a></li>
   </ul>
 </nav>
 </nav>
@@ -1220,130 +1217,147 @@ H &amp;= QR((QR)'(QR))^{-1}(QR)' \\
 </ol>
 </div>
 <div id="thm-proj-col" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 2.18 (Projection onto Column Space)</strong></span> If a matrix <span class="math inline">\(P\)</span> is symmetric and idempotent, then <span class="math inline">\(P\)</span> represents the orthogonal projection onto its column space, <span class="math inline">\(\text{Col}(P)\)</span>.</p>
-<p>Specifically, for any vector <span class="math inline">\(y\)</span>, the vector <span class="math inline">\(\hat{y} = Py\)</span> is the unique vector in <span class="math inline">\(\text{Col}(P)\)</span> such that the residual <span class="math inline">\(e = y - \hat{y}\)</span> is orthogonal to <span class="math inline">\(\text{Col}(P)\)</span>.</p>
+<p><span class="theorem-title"><strong>Theorem 2.18 (Projection onto Column Space)</strong></span> Let <span class="math inline">\(P\)</span> be a <span class="math inline">\(p \times p\)</span> symmetric (<span class="math inline">\(P^\top = P\)</span>) and idempotent (<span class="math inline">\(P^2 = P\)</span>) matrix in <span class="math inline">\(\mathbb{R}^p\)</span>. Then <span class="math inline">\(P\)</span> represents the orthogonal projection onto its column space, <span class="math inline">\(\text{Col}(P)\)</span>.</p>
+<p>Specifically, for any vector <span class="math inline">\(y \in \mathbb{R}^p\)</span>, the vector <span class="math inline">\(\hat{y} = Py\)</span> satisfies the definition of orthogonal projection:</p>
+<ol type="1">
+<li><span class="math inline">\(\hat{y} \in \text{Col}(P)\)</span></li>
+<li><span class="math inline">\(y - \hat{y} \perp \text{Col}(P)\)</span></li>
+</ol>
 </div>
 <div class="proof">
-<p><span class="proof-title"><em>Proof</em>. </span>Let <span class="math inline">\(y \in \mathbb{R}^n\)</span>. We decompose <span class="math inline">\(y\)</span> as <span class="math inline">\(y = Py + (I - P)y\)</span>. We must show that the residual term <span class="math inline">\((I-P)y\)</span> is orthogonal to any vector <span class="math inline">\(z \in \text{Col}(P)\)</span>.</p>
-<p>Since <span class="math inline">\(z \in \text{Col}(P)\)</span>, there exists a vector <span class="math inline">\(x\)</span> such that <span class="math inline">\(z = Px\)</span>. The inner product between <span class="math inline">\(z\)</span> and the residual is: <span id="eq-inner-prod"><span class="math display">\[
-\langle z, (I - P)y \rangle = z^\top (I - P)y = (Px)^\top (I - P)y
-\tag{2.1}\]</span></span></p>
-<p>Using the matrix transpose property <span class="math inline">\((AB)^\top = B^\top A^\top\)</span>, we rewrite <a href="#eq-inner-prod" class="quarto-xref">Equation&nbsp;<span>2.1</span></a> as: <span id="eq-transpose-step"><span class="math display">\[
-\langle z, (I - P)y \rangle = x^\top P^\top (I - P)y
-\tag{2.2}\]</span></span></p>
-<p>Since <span class="math inline">\(P\)</span> is symmetric (<span class="math inline">\(P^\top = P\)</span>), we can substitute <span class="math inline">\(P\)</span> for <span class="math inline">\(P^\top\)</span> in <a href="#eq-transpose-step" class="quarto-xref">Equation&nbsp;<span>2.2</span></a>: <span id="eq-sym-step"><span class="math display">\[
-\langle z, (I - P)y \rangle = x^\top P (I - P)y = x^\top (P - P^2)y
-\tag{2.3}\]</span></span></p>
-<p>Finally, utilizing the idempotency of <span class="math inline">\(P\)</span> (where <span class="math inline">\(P^2 = P\)</span>), the expression in <a href="#eq-sym-step" class="quarto-xref">Equation&nbsp;<span>2.3</span></a> simplifies to 0: <span id="eq-final-step"><span class="math display">\[
-x^\top (P - P)y = x^\top (0)y = 0
-\tag{2.4}\]</span></span></p>
-<p>Since the inner product is 0, the residual is orthogonal to every vector in <span class="math inline">\(\text{Col}(P)\)</span>. Thus, <span class="math inline">\(P\)</span> is the orthogonal projector.</p>
+<p><span class="proof-title"><em>Proof</em>. </span>To prove that <span class="math inline">\(P\)</span> is the orthogonal projector onto <span class="math inline">\(\text{Col}(P)\)</span>, we verify the two conditions for an arbitrary vector <span class="math inline">\(y \in \mathbb{R}^p\)</span>.</p>
+<p><strong>1. Condition:</strong> <span class="math inline">\(\hat{y} \in \text{Col}(P)\)</span></p>
+<p>By the definition of matrix-vector multiplication, <span class="math inline">\(\hat{y} = Py\)</span> is a linear combination of the columns of <span class="math inline">\(P\)</span>. Therefore, <span class="math inline">\(\hat{y}\)</span> is, by definition, an element of <span class="math inline">\(\text{Col}(P)\)</span>.</p>
+<p><strong>2. Condition:</strong> <span class="math inline">\(y - \hat{y} \perp \text{Col}(P)\)</span></p>
+<p>Let <span class="math inline">\(e = y - \hat{y} = (I_p - P)y\)</span>. To verify that <span class="math inline">\(e\)</span> is orthogonal to <span class="math inline">\(\text{Col}(P)\)</span>, it suffices to show that <span class="math inline">\(e\)</span> is orthogonal to every column of <span class="math inline">\(P\)</span>. In matrix notation, this is equivalent to showing <span class="math inline">\(e^\top P = 0\)</span>. We compute this directly:</p>
+<p><span class="math display">\[
+\begin{aligned}
+e^\top P &amp;= [(I_p - P)y]^\top P \\
+&amp;= y^\top (I_p - P)^\top P \\
+&amp;= y^\top (I_p - P) P &amp; (\text{Symmetry: } P^\top = P) \\
+&amp;= y^\top (P - P^2) \\
+&amp;= y^\top (P - P) &amp; (\text{Idempotency: } P^2 = P) \\
+&amp;= 0
+\end{aligned}
+\]</span></p>
+<p>Since <span class="math inline">\(e^\top P = 0\)</span>, the residual <span class="math inline">\(e\)</span> is orthogonal to every column of <span class="math inline">\(P\)</span>. Consequently, <span class="math inline">\(e\)</span> is orthogonal to the space spanned by those columns, <span class="math inline">\(\text{Col}(P)\)</span>.</p>
+</div>
+<div id="lem-projection-props" class="theorem lemma">
+<p><span class="theorem-title"><strong>Lemma 2.1 (0-1 Projection)</strong></span> Let <span class="math inline">\(P\)</span> be a <span class="math inline">\(p \times p\)</span> matrix. <span class="math inline">\(P\)</span> is the orthogonal projection matrix onto <span class="math inline">\(\text{Col}(P)\)</span> if and only if:</p>
+<ol type="1">
+<li><span class="math inline">\(Pv = v\)</span> for all <span class="math inline">\(v \in \text{Col}(P)\)</span>.</li>
+<li><span class="math inline">\(Pv = 0\)</span> for all <span class="math inline">\(v \perp \text{Col}(P)\)</span>.</li>
+</ol>
+</div>
+<div class="proof">
+<p><span class="proof-title"><em>Proof</em>. </span><strong>Forward Implication (<span class="math inline">\(\implies\)</span>):</strong> Given <span class="math inline">\(P\)</span> is an orthogonal projection (<span class="math inline">\(P^2=P, P^\top=P\)</span>).</p>
+<ul>
+<li><p><strong>Proof of (1):</strong> Let <span class="math inline">\(v \in \text{Col}(P)\)</span>. Then <span class="math inline">\(v = Px\)</span> for some <span class="math inline">\(x\)</span>. <span class="math display">\[
+  Pv = P(Px) = P^2 x = Px = v
+  \]</span></p></li>
+<li><p><strong>Proof of (2):</strong> Let <span class="math inline">\(v \perp \text{Col}(P)\)</span>. Then <span class="math inline">\(v\)</span> is orthogonal to every column of <span class="math inline">\(P\)</span>, so <span class="math inline">\(v^\top P = 0\)</span>. Since <span class="math inline">\(P\)</span> is symmetric: <span class="math display">\[
+  Pv = (v^\top P^\top)^\top = (v^\top P)^\top = 0^\top = 0
+  \]</span></p></li>
+</ul>
+<p><strong>Reverse Implication (<span class="math inline">\(\impliedby\)</span>):</strong> Given conditions (1) and (2) hold.</p>
+<p>We must show that <span class="math inline">\(P\)</span> is idempotent (<span class="math inline">\(P^2=P\)</span>) and symmetric (<span class="math inline">\(P^\top=P\)</span>).</p>
+<ul>
+<li><p><strong>Proof of Idempotence (<span class="math inline">\(P^2 = P\)</span>):</strong></p>
+<p>For any vector <span class="math inline">\(x \in \mathbb{R}^p\)</span>, let <span class="math inline">\(y = Px\)</span>. By definition, <span class="math inline">\(y \in \text{Col}(P)\)</span>. Applying condition (1) to the vector <span class="math inline">\(y\)</span>: <span class="math display">\[
+  Py = y \implies P(Px) = Px \implies P^2 x = Px
+  \]</span> Since this holds for all <span class="math inline">\(x\)</span>, <span class="math inline">\(P^2 = P\)</span>.</p></li>
+<li><p><strong>Proof of Symmetry (<span class="math inline">\(P^\top = P\)</span>):</strong></p>
+<p>We decompose any two vectors <span class="math inline">\(x, y \in \mathbb{R}^p\)</span> into components inside and orthogonal to <span class="math inline">\(\text{Col}(P)\)</span>. Let <span class="math inline">\(x = x_1 + x_2\)</span> and <span class="math inline">\(y = y_1 + y_2\)</span>, where <span class="math inline">\(x_1, y_1 \in \text{Col}(P)\)</span> and <span class="math inline">\(x_2, y_2 \perp \text{Col}(P)\)</span>.</p>
+<p>Using conditions (1) and (2): <span class="math display">\[
+  Px = P(x_1 + x_2) = Px_1 + Px_2 \stackrel{(1),(2)}{=} x_1 + 0 = x_1
+  \]</span> <span class="math display">\[
+  Py = P(y_1 + y_2) = Py_1 + Py_2 \stackrel{(1),(2)}{=} y_1 + 0 = y_1
+  \]</span></p>
+<p>Now we compare the inner products <span class="math inline">\(\langle Px, y \rangle\)</span> and <span class="math inline">\(\langle x, Py \rangle\)</span>: <span class="math display">\[
+  \langle Px, y \rangle = \langle x_1, y_1 + y_2 \rangle = \langle x_1, y_1 \rangle + \underbrace{\langle x_1, y_2 \rangle}_{0} = \langle x_1, y_1 \rangle
+  \]</span> <span class="math display">\[
+  \langle x, Py \rangle = \langle x_1 + x_2, y_1 \rangle = \langle x_1, y_1 \rangle + \underbrace{\langle x_2, y_1 \rangle}_{0} = \langle x_1, y_1 \rangle
+  \]</span></p>
+<p>Since <span class="math inline">\(\langle Px, y \rangle = \langle x, Py \rangle\)</span> implies <span class="math inline">\(x^\top P^\top y = x^\top P y\)</span> for all <span class="math inline">\(x, y\)</span>, we conclude <span class="math inline">\(P^\top = P\)</span>.</p></li>
+</ul>
+<p>Since <span class="math inline">\(P\)</span> is symmetric and idempotent, it is the orthogonal projection matrix.</p>
 </div>
 </section>
 <section id="projection-onto-complement-space" class="level3" data-number="2.7.2">
 <h3 data-number="2.7.2" class="anchored" data-anchor-id="projection-onto-complement-space"><span class="header-section-number">2.7.2</span> Projection onto Complement Space</h3>
 <div id="thm-complement-proj" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 2.19 (Projection onto Orthogonal Complement)</strong></span> Let <span class="math inline">\(P\)</span> be an orthogonal projection matrix. The matrix <span class="math inline">\(M\)</span> defined as: <span class="math display">\[
-M = I - P
-\]</span> is the orthogonal projection matrix onto the orthogonal complement of the column space of <span class="math inline">\(P\)</span>, denoted <span class="math inline">\(\text{Col}(P)^\perp\)</span>.</p>
+<p><span class="theorem-title"><strong>Theorem 2.19 (Projection onto Orthogonal Complement)</strong></span> Let <span class="math inline">\(P\)</span> be a <span class="math inline">\(p \times p\)</span> orthogonal projection matrix operating in the space <span class="math inline">\(\mathbb{R}^p\)</span>. The matrix <span class="math inline">\(M\)</span> defined as: <span class="math display">\[
+M = I_p - P
+\]</span> is the orthogonal projection matrix onto the orthogonal complement of the column space of <span class="math inline">\(P\)</span>, denoted <span class="math inline">\(\text{Col}(P)^\perp \subseteq \mathbb{R}^p\)</span>.</p>
 </div>
 <div class="proof">
-<p><span class="proof-title"><em>Proof</em>. </span><strong>1. Symmetry and Idempotency</strong> Since <span class="math inline">\(P\)</span> is a projection matrix, <span class="math inline">\(P^\top = P\)</span> and <span class="math inline">\(P^2 = P\)</span>. We verify these properties for <span class="math inline">\(M\)</span>: <span id="eq-m-sym"><span class="math display">\[
-M^\top = (I - P)^\top = I - P^\top = I - P = M
-\tag{2.5}\]</span></span> <span id="eq-m-idemp"><span class="math display">\[
-M^2 = (I - P)(I - P) = I - 2P + P^2 = I - 2P + P = I - P = M
-\tag{2.6}\]</span></span> By <a href="#eq-m-sym" class="quarto-xref">Equation&nbsp;<span>2.5</span></a> and <a href="#eq-m-idemp" class="quarto-xref">Equation&nbsp;<span>2.6</span></a>, <span class="math inline">\(M\)</span> is symmetric and idempotent, so it is an orthogonal projection matrix.</p>
-<p><strong>2. Identifying the Subspace</strong> By <a href="#thm-proj-col" class="quarto-xref">Theorem&nbsp;<span>2.18</span></a>, <span class="math inline">\(M\)</span> projects onto its own column space, <span class="math inline">\(\text{Col}(M)\)</span>. A vector <span class="math inline">\(v\)</span> is in <span class="math inline">\(\text{Col}(M)\)</span> if and only if it is fixed by the projection (<span class="math inline">\(Mv = v\)</span>). <span id="eq-fixed-point"><span class="math display">\[
-Mv = v
-\tag{2.7}\]</span></span></p>
-<p>Substituting <span class="math inline">\(M = I - P\)</span> into <a href="#eq-fixed-point" class="quarto-xref">Equation&nbsp;<span>2.7</span></a> gives: <span id="eq-sub-m"><span class="math display">\[
-(I - P)v = v
-\tag{2.8}\]</span></span></p>
-<p>Rearranging <a href="#eq-sub-m" class="quarto-xref">Equation&nbsp;<span>2.8</span></a>, we find the condition for <span class="math inline">\(v\)</span>: <span id="eq-nullspace"><span class="math display">\[
-v - Pv = v \implies Pv = 0
-\tag{2.9}\]</span></span></p>
-<p>The condition <span class="math inline">\(Pv = 0\)</span> in <a href="#eq-nullspace" class="quarto-xref">Equation&nbsp;<span>2.9</span></a> implies that <span class="math inline">\(v\)</span> belongs to the null space of <span class="math inline">\(P\)</span>, denoted <span class="math inline">\(\text{Null}(P)\)</span>. By the Fundamental Theorem of Linear Algebra for symmetric matrices, the null space is the orthogonal complement of the column space: <span class="math display">\[
-\text{Null}(P) = \text{Col}(P^\top)^\perp = \text{Col}(P)^\perp
-\]</span> Thus, the image of <span class="math inline">\(M\)</span> is exactly <span class="math inline">\(\text{Col}(P)^\perp\)</span>.</p>
-</div>
-<div id="exr-col-spaces" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 2.1 (Column Space of the Hat Matrix)</strong></span> Let <span class="math inline">\(H = X(X^\top X)^{-1}X^\top\)</span> be the hat matrix.</p>
-<ol type="1">
-<li>Prove that the column space of <span class="math inline">\(H\)</span> is identical to the column space of <span class="math inline">\(X\)</span>: <span class="math display">\[ \text{Col}(H) = \text{Col}(X) \]</span></li>
-<li>Using the result above, show that the column space of the residual maker matrix <span class="math inline">\(M = I - H\)</span> is the orthogonal complement of <span class="math inline">\(\text{Col}(X)\)</span>: <span class="math display">\[ \text{Col}(M) = \text{Col}(X)^\perp \]</span></li>
-</ol>
-</div>
-<div class="callout callout-style-default callout-note no-icon callout-titled" title="Solutions">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Solutions
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-1" class="callout-1-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p><strong>1. Equivalence of Column Spaces</strong> To prove <span class="math inline">\(\text{Col}(H) = \text{Col}(X)\)</span>, we show inclusion in both directions.</p>
+<p><span class="proof-title"><em>Proof</em>. </span><strong>Symmetry and Idempotency</strong></p>
+<p>Since <span class="math inline">\(P\)</span> is a projection matrix, <span class="math inline">\(P^\top = P\)</span> and <span class="math inline">\(P^2 = P\)</span>. We verify these properties for <span class="math inline">\(M\)</span>: <span id="eq-m-sym"><span class="math display">\[
+M^\top = (I_p - P)^\top = I_p - P^\top = I_p - P = M
+\tag{2.1}\]</span></span> <span id="eq-m-idemp"><span class="math display">\[
+M^2 = (I_p - P)(I_p - P) = I_p - 2P + P^2 = I_p - 2P + P = I_p - P = M
+\tag{2.2}\]</span></span> By <a href="#eq-m-sym" class="quarto-xref">Equation&nbsp;<span>2.1</span></a> and <a href="#eq-m-idemp" class="quarto-xref">Equation&nbsp;<span>2.2</span></a>, <span class="math inline">\(M\)</span> is symmetric and idempotent, so it is an orthogonal projection matrix.</p>
+<p><strong>Identifying the Subspace</strong></p>
+<p>We now show that <span class="math inline">\(\text{Col}(M) = \text{Col}(P)^\perp\)</span> by mutual inclusion.</p>
 <ul>
-<li><p><strong>Forward (</strong><span class="math inline">\(\text{Col}(H) \subseteq \text{Col}(X)\)</span>): By definition, <span class="math inline">\(H = X [(X^\top X)^{-1}X^\top]\)</span>. Any column of <span class="math inline">\(H\)</span> is a linear combination of the columns of <span class="math inline">\(X\)</span> (weighted by the matrix in brackets). Therefore, any vector in the image of <span class="math inline">\(H\)</span> must lie in <span class="math inline">\(\text{Col}(X)\)</span>.</p></li>
-<li><p><strong>Reverse (</strong><span class="math inline">\(\text{Col}(X) \subseteq \text{Col}(H)\)</span>): Take any vector <span class="math inline">\(v \in \text{Col}(X)\)</span>. By definition, <span class="math inline">\(v = Xb\)</span> for some vector <span class="math inline">\(b\)</span>. Apply <span class="math inline">\(H\)</span> to <span class="math inline">\(v\)</span>: <span class="math display">\[
-  Hv = X(X^\top X)^{-1}X^\top (Xb) = X(X^\top X)^{-1}(X^\top X)b = X(I)b = Xb = v
-  \]</span> Since <span class="math inline">\(Hv = v\)</span>, the vector <span class="math inline">\(v\)</span> lies in the column space of <span class="math inline">\(H\)</span> (specifically, it is an eigenvector with eigenvalue 1).</p></li>
+<li><p><strong>Direction 1</strong>: <span class="math inline">\(\text{Col}(M) \subseteq \text{Col}(P)^\perp\)</span></p>
+<p>Let <span class="math inline">\(v \in \text{Col}(M)\)</span>. Then <span class="math inline">\(v = Mx\)</span> for some vector <span class="math inline">\(x\)</span>. Multiplying by <span class="math inline">\(P\)</span>: <span class="math display">\[
+  Pv = P(I_p - P)x = (P - P^2)x = 0
+  \]</span> Since <span class="math inline">\(P\)</span> is symmetric (<span class="math inline">\(P = P'\)</span>), taking the transpose of <span class="math inline">\(Pv=0\)</span> gives <span class="math inline">\(v'P = 0\)</span>. This means <span class="math inline">\(v\)</span> is orthogonal to every column of <span class="math inline">\(P\)</span>. Therefore, <span class="math inline">\(v \in \text{Col}(P)^\perp\)</span>.</p></li>
+<li><p><strong>Direction 2</strong>: <span class="math inline">\(\text{Col}(P)^\perp \subseteq \text{Col}(M)\)</span></p>
+<p>Let <span class="math inline">\(v \in \text{Col}(P)^\perp\)</span>. By definition, <span class="math inline">\(v\)</span> is orthogonal to the columns of <span class="math inline">\(P\)</span>, so <span class="math inline">\(v'P = 0\)</span>. Taking the transpose and using symmetry (<span class="math inline">\(P' = P\)</span>), we get <span class="math inline">\(Pv = 0\)</span>.</p>
+<p>Now applying <span class="math inline">\(M\)</span> to <span class="math inline">\(v\)</span>: <span class="math display">\[
+  Mv = (I_p - P)v = v - Pv = v
+  \]</span> Since <span class="math inline">\(Mv = v\)</span>, <span class="math inline">\(v\)</span> lies in the column space of <span class="math inline">\(M\)</span>. Therefore, <span class="math inline">\(v \in \text{Col}(M)\)</span>.</p></li>
 </ul>
-<p>Since both inclusions hold, <span class="math inline">\(\text{Col}(H) = \text{Col}(X)\)</span>.</p>
-<p><strong>2. Orthogonal Complements</strong> From part 1, we know the subspaces are identical. Therefore, their orthogonal complements must also be identical: <span class="math display">\[
-\text{Col}(H)^\perp = \text{Col}(X)^\perp
-\]</span> We previously established in <a href="#thm-complement-proj" class="quarto-xref">Theorem&nbsp;<span>2.19</span></a> that for any projection matrix <span class="math inline">\(P\)</span>, the complement projection <span class="math inline">\(M = I - P\)</span> projects onto <span class="math inline">\(\text{Col}(P)^\perp\)</span>. Substituting <span class="math inline">\(H\)</span> for <span class="math inline">\(P\)</span>: <span class="math display">\[
-\text{Col}(M) = \text{Col}(H)^\perp
-\]</span> Combining these results gives the required equality: <span class="math display">\[
-\text{Col}(M) = \text{Col}(X)^\perp
-\]</span></p>
-</div>
-</div>
+<p>Since both inclusions hold, <span class="math inline">\(\text{Col}(M) = \text{Col}(P)^\perp\)</span>.</p>
 </div>
 </section>
-</section>
-<section id="projection-onto-nested-subspaces" class="level2" data-number="2.8">
-<h2 data-number="2.8" class="anchored" data-anchor-id="projection-onto-nested-subspaces"><span class="header-section-number">2.8</span> Projection onto Nested Subspaces</h2>
-<section id="nested-models-and-subspaces" class="level3" data-number="2.8.1">
-<h3 data-number="2.8.1" class="anchored" data-anchor-id="nested-models-and-subspaces"><span class="header-section-number">2.8.1</span> Nested Models and Subspaces</h3>
-<p>In hypothesis testing (like comparing a null model to an alternative model), we often deal with nested subspaces.</p>
-<div id="def-nested-models" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 2.28 (Nested Models)</strong></span> Consider two models:</p>
-<ol type="1">
-<li><strong>Reduced Model (</strong><span class="math inline">\(M_0\)</span>): <span class="math inline">\(y \in \text{Col}(X_0)\)</span></li>
-<li><strong>Full Model (</strong><span class="math inline">\(M_1\)</span>): <span class="math inline">\(y \in \text{Col}(X_1)\)</span></li>
-</ol>
-<p>We say the models are nested if the column space of the reduced model is contained entirely within the column space of the full model: <span class="math display">\[
-\text{Col}(X_0) \subseteq \text{Col}(X_1)
-\]</span></p>
-</div>
-<p>Usually, <span class="math inline">\(X_1\)</span> is constructed by adding columns to <span class="math inline">\(X_0\)</span>: <span class="math inline">\(X_1 = [X_0, X_{\text{new}}]\)</span>.</p>
-</section>
-<section id="projections-onto-nested-subspaces" class="level3" data-number="2.8.2">
-<h3 data-number="2.8.2" class="anchored" data-anchor-id="projections-onto-nested-subspaces"><span class="header-section-number">2.8.2</span> Projections onto Nested Subspaces</h3>
-<p>Let <span class="math inline">\(P_0\)</span> be the projection matrix onto <span class="math inline">\(\text{Col}(X_0)\)</span> and <span class="math inline">\(P_1\)</span> be the projection matrix onto <span class="math inline">\(\text{Col}(X_1)\)</span>. Since <span class="math inline">\(\text{Col}(X_0) \subseteq \text{Col}(X_1)\)</span>, we have important relationships between these matrices.</p>
+<section id="projections-onto-nested-subspaces" class="level3" data-number="2.7.3">
+<h3 data-number="2.7.3" class="anchored" data-anchor-id="projections-onto-nested-subspaces"><span class="header-section-number">2.7.3</span> Projections onto Nested Subspaces</h3>
+<p><strong>Nested Projections</strong></p>
 <div id="thm-nested-projections" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 2.20 (Composition of Projections)</strong></span> If <span class="math inline">\(\text{Col}(P_0) \subseteq \text{Col}(P_1)\)</span>, then:</p>
-<ol type="1">
+<p><span class="theorem-title"><strong>Theorem 2.20 (Iterative Projections)</strong></span> Let <span class="math inline">\(P_0\)</span> and <span class="math inline">\(P_1\)</span> be <span class="math inline">\(p \times p\)</span> orthogonal projection matrices such that <span class="math inline">\(\text{Col}(P_0) \subseteq \text{Col}(P_1)\)</span>. Then:</p>
+<ul>
+<li><span class="math inline">\(P_1 P_0 = P_0\)</span></li>
+<li><span class="math inline">\(P_0 P_1 = P_0\)</span></li>
+</ul>
+</div>
+<div class="proof">
+<p><span class="proof-title"><em>Proof</em>. </span><strong>1. Proof of</strong> <span class="math inline">\(P_1 P_0 = P_0\)</span>:</p>
+<p>Let <span class="math inline">\(y \in \mathbb{R}^p\)</span> be an arbitrary vector. By definition, the vector <span class="math inline">\(v = P_0 y\)</span> lies in <span class="math inline">\(\text{Col}(P_0)\)</span>. Given <span class="math inline">\(\text{Col}(P_0) \subseteq \text{Col}(P_1)\)</span>, it follows that <span class="math inline">\(v \in \text{Col}(P_1)\)</span>.</p>
+<p>Using <strong>Lemma <a href="#lem-projection-props" class="quarto-xref">Lemma&nbsp;<span>2.1</span></a></strong>, since <span class="math inline">\(v \in \text{Col}(P_1)\)</span>, <span class="math inline">\(P_1\)</span> acts as the identity on <span class="math inline">\(v\)</span>, so <span class="math inline">\(P_1 v = v\)</span>. Substituting <span class="math inline">\(v = P_0 y\)</span>: <span class="math display">\[
+P_1 (P_0 y) = P_0 y
+\]</span></p>
+<p>Since <span class="math inline">\(P_1 P_0 y = P_0 y\)</span> holds for all <span class="math inline">\(y \in \mathbb{R}^p\)</span>, we conclude <span class="math inline">\(P_1 P_0 = P_0\)</span>.</p>
+<p><strong>2. Proof of</strong> <span class="math inline">\(P_0 P_1 = P_0\)</span>:</p>
+<p>Taking the transpose of the result from part 1 and applying the symmetry property (<span class="math inline">\(P' = P\)</span>): <span class="math display">\[
+(P_1 P_0)' = P_0' \implies P_0' P_1' = P_0' \implies P_0 P_1 = P_0
+\]</span></p>
+</div>
+<div id="thm-nested-projections" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 2.21 (Composition of Projections)</strong></span> Let <span class="math inline">\(P_0\)</span> and <span class="math inline">\(P_1\)</span> be <span class="math inline">\(p \times p\)</span> orthogonal projection matrices. Let <span class="math inline">\(\text{Col}(P_0)\)</span> and <span class="math inline">\(\text{Col}(P_1)\)</span> denote the column spaces (images) of <span class="math inline">\(P_0\)</span> and <span class="math inline">\(P_1\)</span> respectively. We assume that the column space of <span class="math inline">\(P_0\)</span> is a subspace of the column space of <span class="math inline">\(P_1\)</span>, i.e., <span class="math inline">\(\text{Col}(P_0) \subseteq \text{Col}(P_1)\)</span>.</p>
+<ul>
 <li><span class="math inline">\(P_1 P_0 = P_0\)</span> (Projecting onto the small space, then the large space, keeps you in the small space).</li>
 <li><span class="math inline">\(P_0 P_1 = P_0\)</span> (Projecting onto the large space, then the small space, is the same as just projecting onto the small space).</li>
-</ol>
+</ul>
 </div>
 <div class="proof">
-<p><span class="proof-title"><em>Proof</em>. </span><strong>1. Proof of</strong> <span class="math inline">\(P_1 P_0 = P_0\)</span>: For any vector <span class="math inline">\(y \in \mathbb{R}^n\)</span>, the vector <span class="math inline">\(v = P_0 y\)</span> lies in <span class="math inline">\(\text{Col}(X_0)\)</span>. Since <span class="math inline">\(\text{Col}(X_0) \subseteq \text{Col}(X_1)\)</span>, the vector <span class="math inline">\(v\)</span> also lies in <span class="math inline">\(\text{Col}(X_1)\)</span>. A projection matrix <span class="math inline">\(P_1\)</span> acts as the identity operator for any vector already in its column space. Therefore, <span class="math inline">\(P_1 v = v\)</span>. Substituting <span class="math inline">\(v = P_0 y\)</span>, we get <span class="math inline">\(P_1 P_0 y = P_0 y\)</span> for all <span class="math inline">\(y\)</span>. Thus, <span class="math inline">\(P_1 P_0 = P_0\)</span>.</p>
-<p><strong>2. Proof of</strong> <span class="math inline">\(P_0 P_1 = P_0\)</span>: Take the transpose of the previous result (<span class="math inline">\(P_1 P_0 = P_0\)</span>). <span class="math display">\[
-(P_1 P_0)' = P_0'
-\]</span> Using the property that projection matrices are symmetric (<span class="math inline">\(P' = P\)</span>): <span class="math display">\[
-P_0' P_1' = P_0' \implies P_0 P_1 = P_0
+<p><span class="proof-title"><em>Proof</em>. </span><strong>1. Proof of</strong> <span class="math inline">\(P_1 P_0 = P_0\)</span>:</p>
+<p>Let <span class="math inline">\(y \in \mathbb{R}^p\)</span> be an arbitrary vector. By the definition of a projection matrix, the vector <span class="math inline">\(v = P_0 y\)</span> must lie in the column space <span class="math inline">\(\text{Col}(P_0)\)</span>. Given the condition <span class="math inline">\(\text{Col}(P_0) \subseteq \text{Col}(P_1)\)</span>, it follows that <span class="math inline">\(v\)</span> is also an element of <span class="math inline">\(\text{Col}(P_1)\)</span>.</p>
+<p>A fundamental property of any projection matrix is that it acts as the identity operator for any vector already residing in its column space. Therefore, since <span class="math inline">\(v \in \text{Col}(P_1)\)</span>, we have <span class="math inline">\(P_1 v = v\)</span>. Substituting <span class="math inline">\(v = P_0 y\)</span>, we obtain: <span class="math display">\[
+P_1 (P_0 y) = P_0 y
+\]</span></p>
+<p>To establish equality between the matrices themselves, we rely on the principle that if <span class="math inline">\(Ay = By\)</span> for all <span class="math inline">\(y \in \mathbb{R}^p\)</span>, then <span class="math inline">\(A = B\)</span>. Since the equation holds for all arbitrary <span class="math inline">\(y\)</span>, we conclude <span class="math inline">\(P_1 P_0 = P_0\)</span>.</p>
+<p><strong>2. Proof of</strong> <span class="math inline">\(P_0 P_1 = P_0\)</span>:</p>
+<p>Taking the transpose of the result from part 1 (<span class="math inline">\(P_1 P_0 = P_0\)</span>) and applying the symmetry property of orthogonal projection matrices (<span class="math inline">\(P' = P\)</span>): <span class="math display">\[
+(P_1 P_0)' = P_0' \implies P_0' P_1' = P_0' \implies P_0 P_1 = P_0
 \]</span></p>
 </div>
 <p><strong>Difference of Projections</strong></p>
 <p>The difference between the two projection matrices, <span class="math inline">\(P_1 - P_0\)</span>, is itself a projection matrix.</p>
 <div id="thm-diff-projection" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 2.21 (Difference Projection)</strong></span> The matrix <span class="math inline">\(P_{\Delta} = P_1 - P_0\)</span> is an orthogonal projection matrix onto the subspace <span class="math inline">\(\text{Col}(X_1) \cap \text{Col}(X_0)^\perp\)</span>. This subspace represents the “extra” information in the full model that is orthogonal to the reduced model.</p>
+<p><span class="theorem-title"><strong>Theorem 2.22 (Difference Projection)</strong></span> The matrix <span class="math inline">\(P_{\Delta} = P_1 - P_0\)</span> is an orthogonal projection matrix onto the subspace <span class="math inline">\(\text{Col}(X_1) \cap \text{Col}(X_0)^\perp\)</span>. This subspace represents the “extra” information in the full model that is orthogonal to the reduced model.</p>
 <p><strong>Properties:</strong></p>
 <ol type="1">
 <li><strong>Symmetric:</strong> <span class="math inline">\((P_1 - P_0)' = P_1 - P_0\)</span>.</li>
@@ -1366,10 +1380,10 @@ P_0' P_1' = P_0' \implies P_0 P_1 = P_0
 \]</span> Since <span class="math inline">\((P_1 - P_0)\)</span> is symmetric and idempotent, it is an orthogonal projection matrix. Since it is orthogonal to <span class="math inline">\(P_0\)</span> (the space of <span class="math inline">\(M_0\)</span>) but is derived from <span class="math inline">\(P_1\)</span>, it projects onto the subspace of <span class="math inline">\(M_1\)</span> that is orthogonal to <span class="math inline">\(M_0\)</span>.</p>
 </div>
 </section>
-<section id="decomposition-of-projections-and-their-sum-squares" class="level3" data-number="2.8.3">
-<h3 data-number="2.8.3" class="anchored" data-anchor-id="decomposition-of-projections-and-their-sum-squares"><span class="header-section-number">2.8.3</span> Decomposition of Projections and their Sum Squares</h3>
+<section id="decomposition-of-projections-and-their-sum-squares" class="level3" data-number="2.7.4">
+<h3 data-number="2.7.4" class="anchored" data-anchor-id="decomposition-of-projections-and-their-sum-squares"><span class="header-section-number">2.7.4</span> Decomposition of Projections and their Sum Squares</h3>
 <div id="thm-nested-decomposition" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 2.22 (Orthogonal Decomposition)</strong></span> Let <span class="math inline">\(M_0 \subset M_1\)</span> be two nested linear models with corresponding design matrices <span class="math inline">\(X_0\)</span> and <span class="math inline">\(X_1\)</span> such that <span class="math inline">\(\text{Col}(X_0) \subset \text{Col}(X_1)\)</span>. Let <span class="math inline">\(P_0\)</span> and <span class="math inline">\(P_1\)</span> be the orthogonal projection matrices onto <span class="math inline">\(\text{Col}(X_0)\)</span> and <span class="math inline">\(\text{Col}(X_1)\)</span> respectively.</p>
+<p><span class="theorem-title"><strong>Theorem 2.23 (Orthogonal Decomposition)</strong></span> Let <span class="math inline">\(M_0 \subset M_1\)</span> be two nested linear models with corresponding design matrices <span class="math inline">\(X_0\)</span> and <span class="math inline">\(X_1\)</span> such that <span class="math inline">\(\text{Col}(X_0) \subset \text{Col}(X_1)\)</span>. Let <span class="math inline">\(P_0\)</span> and <span class="math inline">\(P_1\)</span> be the orthogonal projection matrices onto <span class="math inline">\(\text{Col}(X_0)\)</span> and <span class="math inline">\(\text{Col}(X_1)\)</span> respectively.</p>
 <p>For any observation vector <span class="math inline">\(y\)</span>, we have the decomposition: <span class="math display">\[
 y = \underbrace{P_0 y}_{\hat{y}_0} + \underbrace{(P_1 - P_0) y}_{\hat{y}_1 - \hat{y}_0} + \underbrace{(I - P_1) y}_{y - \hat{y}_1}
 \]</span></p>
@@ -1512,7 +1526,7 @@ Table&nbsp;2.1: ANOVA Vectors: Data, Null Model, and Full Model
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Generate Data</span></span>
@@ -1578,11 +1592,11 @@ Table&nbsp;2.1: ANOVA Vectors: Data, Null Model, and Full Model
 <span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Value ($y_</span><span class="sc">{ij}</span><span class="st">$)"</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
 <span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a><span class="co"># Set x-ticks at the center of each group</span></span>
 <span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>plt.xticks(np.array(group_boundaries[:<span class="op">-</span><span class="dv">1</span>]) <span class="op">+</span> np.array(n_i)<span class="op">/</span><span class="dv">2</span> <span class="op">-</span> <span class="fl">0.5</span>, </span>
-<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>           [<span class="ss">f"Group </span><span class="sc">{</span>g<span class="sc">}</span><span class="ch">\n</span><span class="ss">($n_</span><span class="ch">{{</span><span class="sc">{</span>g<span class="sc">.</span>lower()<span class="sc">}</span><span class="ch">}}</span><span class="ss">=</span><span class="sc">{</span>n<span class="sc">}</span><span class="ss">$)"</span> <span class="cf">for</span> g, n <span class="kw">in</span> <span class="bu">zip</span>(group_names, n_i)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>           [<span class="ss">f"Group </span><span class="sc">{</span>g<span class="sc">}</span><span class="ch">\n</span><span class="ss">($n_</span><span class="ch">{{</span><span class="sc">{</span>g<span class="sc">.</span>lower()<span class="sc">}</span><span class="ch">}}</span><span class="ss">=</span><span class="sc">{</span>n<span class="sc">}</span><span class="ss">$)"</span> <span class="cf">for</span> g, n <span class="kw">in</span> <span class="bu">zip</span>(group_names, n_i)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>plt.grid(axis<span class="op">=</span><span class="st">'y'</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>plt.grid(axis<span class="op">=</span><span class="st">'y'</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Adjust legend to show group markers and the grand mean line</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>handles, labels <span class="op">=</span> plt.gca().get_legend_handles_labels()</span>
@@ -1592,7 +1606,7 @@ Table&nbsp;2.1: ANOVA Vectors: Data, Null Model, and Full Model
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>           bbox_to_anchor<span class="op">=</span>(<span class="fl">1.02</span>, <span class="dv">1</span>), loc<span class="op">=</span><span class="st">'upper left'</span>, borderaxespad<span class="op">=</span><span class="fl">0.</span>)</span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div id="fig-anova-data-space-colored" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -1610,11 +1624,11 @@ Figure&nbsp;2.5: Visualization of Group Means vs.&nbsp;Grand Mean
 </div>
 </section>
 </section>
-<section id="projections-onto-orthogonal-subspaces" class="level2" data-number="2.9">
-<h2 data-number="2.9" class="anchored" data-anchor-id="projections-onto-orthogonal-subspaces"><span class="header-section-number">2.9</span> Projections onto Orthogonal Subspaces</h2>
+<section id="projections-onto-orthogonal-subspaces" class="level2" data-number="2.8">
+<h2 data-number="2.8" class="anchored" data-anchor-id="projections-onto-orthogonal-subspaces"><span class="header-section-number">2.8</span> Projections onto Orthogonal Subspaces</h2>
 <p>Finally, we consider the case where the entire space <span class="math inline">\(\mathbb{R}^n\)</span> is decomposed into mutually orthogonal subspaces.</p>
 <div id="thm-orth-decomposition" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 2.23 (General Orthogonal Projections)</strong></span> If <span class="math inline">\(\mathbb{R}^n\)</span> is the direct sum of orthogonal subspaces <span class="math inline">\(V_1, V_2, \dots, V_k\)</span>:</p>
+<p><span class="theorem-title"><strong>Theorem 2.24 (General Orthogonal Projections)</strong></span> If <span class="math inline">\(\mathbb{R}^n\)</span> is the direct sum of orthogonal subspaces <span class="math inline">\(V_1, V_2, \dots, V_k\)</span>:</p>
 <p><span class="math display">\[
 \mathbb{R}^n = V_1 \oplus V_2 \oplus \dots \oplus V_k
 \]</span> where <span class="math inline">\(V_i \perp V_j\)</span> for all <span class="math inline">\(i \ne j\)</span>.</p>
@@ -1654,7 +1668,7 @@ Figure&nbsp;2.6: Orthogonal decomposition of vector y into subspaces
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plotly)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plotly)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Define Vectors ---</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>y_vec <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>)</span>
@@ -1765,7 +1779,7 @@ Figure&nbsp;2.6: Orthogonal decomposition of vector y into subspaces
 <span id="cb3-109"><a href="#cb3-109" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend =</span> <span class="fu">list</span>(<span class="at">x =</span> <span class="fl">0.75</span>, <span class="at">y =</span> <span class="fl">0.9</span>)</span>
 <span id="cb3-110"><a href="#cb3-110" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb3-111"><a href="#cb3-111" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-112"><a href="#cb3-112" aria-hidden="true" tabindex="-1"></a>fig</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-112"><a href="#cb3-112" aria-hidden="true" tabindex="-1"></a>fig</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div id="fig-orthogonal-decomp-r" class="cell-output-display quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -1780,7 +1794,7 @@ Figure&nbsp;2.7: Orthogonal decomposition geometry (R Plotly)
 </div>
 </div>
 <div id="thm-complete-decomposition" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 2.24 (Complete Orthogonal Decomposition of <span class="math inline">\(\mathbb{R}^n\)</span>)</strong></span> Let <span class="math inline">\(P_0, P_1, \dots, P_k\)</span> be a sequence of orthogonal projection matrices with nested column spaces: <span class="math display">\[
+<p><span class="theorem-title"><strong>Theorem 2.25 (Complete Orthogonal Decomposition of <span class="math inline">\(\mathbb{R}^n\)</span>)</strong></span> Let <span class="math inline">\(P_0, P_1, \dots, P_k\)</span> be a sequence of orthogonal projection matrices with nested column spaces: <span class="math display">\[
 \text{Col}(P_0) \subseteq \text{Col}(P_1) \subseteq \dots \subseteq \text{Col}(P_k)
 \]</span></p>
 <p>Define the sequence of difference matrices <span class="math inline">\(\Delta P_i\)</span> and their column spaces <span class="math inline">\(V_i\)</span> as follows:</p>
@@ -1888,13 +1902,14 @@ Figure&nbsp;2.8: Venn Diagram of Nested Projections with Colored Increments
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
