@@ -1418,6 +1418,86 @@ Because $R(\theta, d^{JS}) < p$ for all $\theta$ and $\lim_{\|\theta\| \to \inft
 :::
 
 
+```{r}
+#| label: fig-js-risk-ggplot
+#| fig-cap: "Risk comparison of James-Stein vs MLE (p=10) with approximation."
+#| warning: false
+
+library(ggplot2)
+library(latex2exp)
+
+# Parameters
+p <- 10
+theta_sq <- seq(0, 50, length.out = 300)
+
+# Create Data Frame
+df <- data.frame(
+  theta_sq = theta_sq,
+  risk_mle = p,
+  # JS Risk Approximation formula
+  risk_js = p - (p - 2)^2 / (p - 2 + theta_sq)
+)
+
+# Calculate Ratio
+df$ratio <- df$risk_js / p
+
+# Scale Factor for Dual Axis (Ratio 0-1 needs to stretch to Risk 0-10)
+scale_factor <- p
+
+# Define Legend Labels using latex2exp::TeX
+# We use raw strings r'(...)' to avoid escaping backslashes
+labels_map <- c(
+  "MLE" = TeX(r'($R(\theta, d^{MLE}) = p$)'),
+  "JS" = TeX(r'($R(\theta, d^{JS}) \approx p - \frac{(p-2)^2}{p-2 + \|\theta\|^2}$)'),
+  "Ratio" = TeX(r'(Ratio $\frac{R(\theta, d^{JS})}{R(\theta, d^{MLE})}$)')
+)
+
+ggplot(df, aes(x = theta_sq)) +
+  # 1. MLE Risk Line (Red Dashed)
+  geom_line(aes(y = risk_mle, color = "MLE", linetype = "MLE"), size = 1) +
+  
+  # 2. JS Risk Line (Blue Solid)
+  geom_line(aes(y = risk_js, color = "JS", linetype = "JS"), size = 1) +
+  
+  # 3. Ratio Line (Green Dot-Dash) - Scaled up
+  geom_line(aes(y = ratio * scale_factor, color = "Ratio", linetype = "Ratio"), size = 1) +
+  
+  # Axes Configuration
+  scale_y_continuous(
+    name = "Risk",
+    limits = c(0, p + 2),
+    # Secondary Axis definition
+    sec.axis = sec_axis(~ . / scale_factor, name = "Risk Ratio")
+  ) +
+  
+  # Manual Scale for Colors and Linetypes
+  scale_color_manual(
+    name = NULL,
+    values = c("MLE" = "firebrick", "JS" = "dodgerblue", "Ratio" = "forestgreen"),
+    labels = labels_map
+  ) +
+  scale_linetype_manual(
+    name = NULL,
+    values = c("MLE" = "dashed", "JS" = "solid", "Ratio" = "dotdash"),
+    labels = labels_map
+  ) +
+  
+  # Theming
+  labs(
+    title = TeX(r'(Risk Comparison of Estimators ($p=10$))'),
+    x = TeX(r'($\|\theta\|^2$ (Signal Strength))')
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = c(0.95, 0.5),
+    legend.justification = c(1, 0.5),
+    legend.background = element_rect(fill = "white", color = "gray80"),
+    # Color the secondary axis text to match the line
+    axis.title.y.right = element_text(color = "forestgreen"),
+    axis.text.y.right = element_text(color = "forestgreen")
+  )
+```
+
 ### Risk Comparison under Normalized Loss (Optional)
 
 We consider the **Normalized Squared Error Loss** function, which penalizes errors relative to the magnitude of the true parameter vector:
