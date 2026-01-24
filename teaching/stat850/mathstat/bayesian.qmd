@@ -2032,7 +2032,6 @@ baseball_data <- data.frame(
   Pre_AtBats = ni,
   p_pre = round(p_pre, 3),
   x = x,
-  sei = 1, # Known standard error for transformed data
   Season_HR = Yi,
   Season_AtBats = Ni,
   p_season = p_season,
@@ -2041,7 +2040,7 @@ baseball_data <- data.frame(
 
 # 4. Display the Data
 knitr::kable(baseball_data, 
-             col.names = c("Player", "$y_i$", "$n_i$", "$p_i^{\\text{pre}}$", "$x_i$", "SE", 
+             col.names = c("Player", "$y_i$", "$n_i$", "$p_i^{\\text{pre}}$", "$x_i$", 
                            "$Y_i$", "$N_i$", "$p_i^{\\text{seas}}$", "$\\mu_i$"),
              align = "c",
              digits = 3,
@@ -2316,13 +2315,13 @@ p_hat_optimal <- apply(p_samples, 2, get_weighted_median)
 
 We now compare all five methods: MLE, James-Stein (transformed), Bayes Normal-Normal (transformed), Hierarchical Logit-Normal (Posterior Mean), and Optimal Bayes (Weighted Median).
 
-**1. MSE Comparison**
 
 ```{r}
-#| label: compare-five-methods
 #| echo: false
 #| warning: false
 #| message: false
+#| label: tbl-p-comparison
+#| tbl-cap: "Comparison of Estimated Probabilities ($p_i$) across Five Methods"
 
 # 1. Prepare Estimates from Previous Steps
 inv_trans <- function(mu, n) { 0.5 * (sin(mu / sqrt(n)) + 1) }
@@ -2345,8 +2344,44 @@ df_compare <- data.frame(
   p_opt   = p_hat_optimal
 )
 
+
+
+library(knitr)
 # Sort by Initial Performance
-df_compare_sorted <- df_compare[order(df_compare$x_i), ]
+df_compare_sorted <- df_compare[order(df_compare$p_mle), ]
+
+# Prepare the display table from the sorted comparison data
+p_table <- data.frame(
+  Player = df_compare_sorted$Player,
+  Truth  = round(df_compare_sorted$p_true, 3),
+  MLE    = round(df_compare_sorted$p_mle, 3),
+  JS     = round(df_compare_sorted$p_js, 3),
+  Normal = round(df_compare_sorted$p_norm, 3),
+  Logit  = round(df_compare_sorted$p_logit, 3),
+  Optimal = round(df_compare_sorted$p_opt, 3)
+)
+
+# Render the table with informative headers
+kable(
+  p_table,
+  col.names = c(
+    "Player", 
+    "Season Avg ($p_i$)", 
+    "MLE", 
+    "James-Stein", 
+    "Normal-Bayes", 
+    "Logit-Normal", 
+    "Optimal-Bayes"
+  ),
+  align = "lcccccc",
+  booktabs = TRUE
+)
+```
+
+**1. MSE Comparison**
+
+```{r}
+#| label: compare-mse-p
 
 # 3. Calculate MSE
 mse_p_mle   <- mean((df_compare_sorted$p_mle - df_compare_sorted$p_true)^2)
@@ -2390,7 +2425,7 @@ We also evaluate the methods using the relative error metric that penalizes devi
 $$ \text{Metric}_i = \frac{|p_i^{\text{true}} - \hat{p}_i|}{\min(p_i^{\text{true}}, 1 - p_i^{\text{true}})} $$
 
 ```{r}
-#| label: fig-error-relative-final
+#| label: fig-error-relative
 #| fig-cap: "Relative Error Assessment: Five Methods"
 #| echo: false
 #| fig-height: 6
