@@ -618,7 +618,14 @@ The Bayes rule selects the action with the smaller expected loss. Thus, we choos
 $$
 P(\theta \in \Theta_0|x) \le P(\theta \in \Theta_1|x)
 $$
-This confirms that under 0-1 loss, the Bayes rule simply selects the hypothesis with the higher posterior probability.
+This confirms that under 0-1 loss, the Bayes rule simply selects the hypothesis with the higher posterior probability. The optimal Bayes decision rule $d(x)$ is given by:
+
+$$
+d(x) = \begin{cases} 
+1 & \text{if } P(\Theta_0|x) \le \frac{1}{2} \quad (\text{Reject } H_0) \\ 
+0 & \text{if } P(\Theta_0|x) > \frac{1}{2} \quad (\text{Accept } H_0) 
+\end{cases}
+$$
 
 **Case 2: General Loss (Asymmetric Costs)**
 
@@ -652,66 +659,81 @@ $$
 P(\Theta_0|x) \le \frac{1}{1+c}
 $$
 
-**Result:** With asymmetric costs, we accept $H_1$ only if the posterior probability of the null hypothesis is sufficiently small (below the threshold $\frac{1}{1+c}$). If the cost of false rejection $c$ is high, we require stronger evidence against $H_0$.
+**Result:** 
 
-### Classification Prediction (categorical Parameter)
+With asymmetric costs, we accept $H_1$ only if the posterior probability of the null hypothesis is sufficiently small (below the threshold $\frac{1}{1+c}$). If the cost of false rejection $c$ is high, we require stronger evidence against $H_0$. The optimal Bayes decision rule $d(x)$ is given by:
 
-In classification problems, the parameter of interest is a discrete class label $\theta$ (often denoted as $y$) taking values in a set of categories $\{1, 2, \dots, K\}$. The goal is to predict the true class label based on observed features $x$.
+$$
+d(x) = \begin{cases} 
+1 & \text{if } P(\Theta_0|x) \le \frac{1}{1+c} \quad (\text{Reject } H_0) \\ 
+0 & \text{if } P(\Theta_0|x) > \frac{1}{1+c} \quad (\text{Accept } H_0) 
+\end{cases}
+$$
+
+### Classification Prediction
+
+In classification problems, the parameter of interest is a discrete class label $y$ taking values in a set of categories $\{1, 2, \dots, K\}$. The goal is to predict the true class label based on observed features $x$.
 
 We typically employ the **0-1 loss function**, which assigns a penalty of 1 for a misclassification and 0 for a correct prediction:
 
-$$L(\theta, \hat{\theta}) = \begin{cases} 0 & \text{if } \hat{\theta} = \theta \ (\text{Correct Classification}) \\ 1 & \text{if } \hat{\theta} \neq \theta \ (\text{Misclassification}) \end{cases}$$
+$$L(y, \hat{y}) = \begin{cases} 0 & \text{if } \hat{y} = y \ (\text{Correct Classification}) \\ 1 & \text{if } \hat{y} \neq y \ (\text{Misclassification}) \end{cases}$$
 
 To find the optimal classification rule (the Bayes Classifier), we minimize the posterior expected loss, which is equivalent to minimizing the probability of misclassification.
 
 $$
-E_{\theta|x}[L(\theta, \hat{\theta})] = \sum_{\theta} L(\theta, \hat{\theta}) \pi(\theta|x)
+E_{y|x}[L(y, \hat{y})] = \sum_{y} L(y, \hat{y}) P(y|x)
 $$
 
-Since the loss is 1 only when the predicted class $\hat{\theta}$ differs from the true class $\theta$, this sum simplifies to:
+Since the loss is 1 only when the predicted class $\hat{y}$ differs from the true class $y$, this sum simplifies to:
 
 $$
-E_{\theta|x}[L(\theta, \hat{\theta})] = \sum_{\theta \neq \hat{\theta}} 1 \cdot \pi(\theta|x) = P(\theta \neq \hat{\theta} | x) = 1 - P(\theta = \hat{\theta} | x)
+E_{y|x}[L(y, \hat{y})] = \sum_{y \neq \hat{y}} 1 \cdot P(y|x) = P(y \neq \hat{y} | x) = 1 - P(y = \hat{y} | x)
 $$
 
-Minimizing the misclassification rate $1 - P(\theta = \hat{\theta} | x)$ is mathematically equivalent to maximizing the probability of being correct, $P(\theta = \hat{\theta} | x)$.
+Minimizing the misclassification rate $1 - P(y = \hat{y} | x)$ is mathematically equivalent to maximizing the probability of being correct, $P(y = \hat{y} | x)$.
 
-**Result:** The Bayes rule for classification is to predict the class with the highest posterior probability. While this is technically the **Maximum A Posteriori (MAP)** estimator, in the context of machine learning and pattern recognition, this decision rule is known as the **Bayes Optimal Classifier**.
+**Result:**
+
+The Bayes rule for classification is to predict the class with the highest posterior probability. While this is technically the **Maximum A Posteriori (MAP)** estimator, in the context of machine learning and pattern recognition, this decision rule is known as the **Bayes Optimal Classifier**.
 
 $$
-\hat{\theta}_{\text{Bayes}}(x) = \underset{k \in \{1, \dots, K\}}{\arg\max} \ P(\theta = k | x)
+\hat{y}_{\text{Bayes}}(x) = \underset{k \in \{1, \dots, K\}}{\arg\max} \ P(y = k | x)
 $$
 
 
+### Interval Estimation as a Decision Problem
 
-### Interval Estimation and Highest Posterior Density (HPD)
+We can motivate the choice of a Credible Interval by defining a specific loss function for interval estimation. We define the **action space** $\mathcal{A}$ as the set of all intervals of fixed radius $\delta > 0$ centered at $d$, i.e., $\mathcal{A} = \{ [d - \delta, d + \delta] \mid d \in \mathbb{R} \}$.
 
-We can motivate the choice of a Credible Interval by defining a specific loss function for interval estimation. Suppose we seek an estimate $d$ and specify a tolerance $\delta > 0$. We define the loss function as:
-
+The loss function is defined as:
 $$
 L(\theta, d) = \begin{cases} 
-0 & \text{if } |\theta - d| \le \delta \\
-1 & \text{if } |\theta - d| > \delta
+0 & \text{if } |\theta - d| \le \delta \quad (\theta \in [d-\delta, d+\delta]) \\
+1 & \text{if } |\theta - d| > \delta \quad (\theta \notin [d-\delta, d+\delta])
 \end{cases}
 $$
 
-The **Expected Posterior Loss** is the posterior probability that $\theta$ lies outside the interval $(d - \delta, d + \delta)$. Therefore, minimizing the loss is equivalent to finding the interval of fixed length $2\delta$ that **maximizes the posterior probability**:
+**Derivation of the Bayes Rule**
 
-$$ P(d - \delta \le \theta \le d + \delta \mid x) $$
+We minimize the **Expected Posterior Loss**, which is simply the probability that $\theta$ falls outside the interval:
+$$
+E[L(\theta, d)|x] = 1 \cdot P(|\theta - d| > \delta | x) = 1 - P(d - \delta \le \theta \le d + \delta | x)
+$$
 
-In practice, we typically reverse this formulation: instead of fixing the length $2\delta$, we fix the coverage probability $1-\alpha$ (e.g., 0.95) and seek the interval with the **shortest possible length**. This results in the **Highest Posterior Density (HPD)** interval, defined as the region where the posterior density exceeds a certain threshold $c$:
+Minimizing this loss is equivalent to maximizing the posterior probability mass contained within the interval. Thus, the Bayes estimator $d$ is:
+$$
+d_{\text{Bayes}} = \underset{d}{\arg\max} \int_{d-\delta}^{d+\delta} \pi(\theta|x) \, d\theta
+$$
 
-$$ C_{HPD} = \{ \theta : \pi(\theta \mid x) \ge c \} $$
+To find the optimal $d$, we differentiate the integral with respect to $d$ and set it to zero:
+$$
+\frac{d}{dd} \left( \int_{d-\delta}^{d+\delta} \pi(\theta|x) \, d\theta \right) = \pi(d+\delta|x) - \pi(d-\delta|x) = 0
+$$
 
-This HPD interval is optimal because it includes the "most likely" values of $\theta$ and, for a unimodal distribution, provides the narrowest interval for a given confidence level.
+This yields the condition **$\pi(d+\delta|x) = \pi(d-\delta|x)$**.
 
+The optimal $d$ centers the interval such that the posterior density heights at the two endpoints are equal. This is the defining characteristic of a **Highest Posterior Density (HPD)** interval.
 
-**Comparison with Equal-Tailed Intervals:**
-
-* **Equal-Tailed Interval:** We simply cut off $\alpha/2$ probability from each tail of the distribution. This is easy to compute but may not be the shortest interval if the distribution is skewed.
-* **HPD Interval:** This is the shortest possible interval for the given coverage. For unimodal distributions, the probability density at the two endpoints of the HPD interval is identical.
-
-The plot below illustrates a skewed posterior distribution (Gamma). Notice how the **HPD Interval (Blue)** is shifted toward the mode (the peak) to capture the highest density values, resulting in a shorter interval length compared to the **Equal-Tailed Interval (Red)**.
 
 ```{r}
 #| label: fig-hpd-vs-equal
@@ -781,6 +803,13 @@ legend("topright",
 ```
 
 
+**Comparison with Equal-Tailed Intervals:**
+
+* **Equal-Tailed Interval:** We simply cut off $\alpha/2$ probability from each tail of the distribution. This is easy to compute but may not be the shortest interval if the distribution is skewed.
+* **HPD Interval:** This is the shortest possible interval for the given coverage. For unimodal distributions, the probability density at the two endpoints of the HPD interval is identical.
+
+The plot below illustrates a skewed posterior distribution (Gamma). Notice how the **HPD Interval (Blue)** is shifted toward the mode (the peak) to capture the highest density values, resulting in a shorter interval length compared to the **Equal-Tailed Interval (Red)**.
+
 ## Finding Minimax Rules with Bayes Rules
 
 @thm-minimax-constant states that if a Bayes estimator $\delta^\pi$ (derived from a prior $\pi$) yields a constant risk $R(\theta, \delta^\pi) = c$ across the entire parameter space $\Theta$, then that estimator is necessarily minimax. 
@@ -815,7 +844,7 @@ Thus, the minimax estimator is:
 $$d(x) = \frac{x + \sqrt{n}/2}{n + \sqrt{n}}$$
 
 This differs from the standard MLE $\hat{p} = x/n$ and the uniform prior Bayes estimator ($a=b=1$).
-:::
+
 
 According to @thm-limits, let $\{\delta_n\}$ be a sequence of Bayes rules with respect to priors $\{\pi_n\}$, and let $r(\pi_n, \delta_n)$ be the associated Bayes risks. If there exists a rule $\delta_0$ such that
 $$
@@ -823,6 +852,22 @@ $$
 $$
 then $\delta_0$ is a minimax estimator.
 
+We can rewrite the Minimax estimator $d(x)$ as a linear combination of the sample proportion (MLE) $\hat{p} = x/n$ and the prior mean $p_0 = 1/2$:
+
+$$
+d(x) = \underbrace{\left( \frac{n}{n + \sqrt{n}} \right)}_{w} \underbrace{\left( \frac{x}{n} \right)}_{\hat{p}} + \underbrace{\left( \frac{\sqrt{n}}{n + \sqrt{n}} \right)}_{1-w} \underbrace{\left( \frac{1}{2} \right)}_{p_0}
+$$
+
+$$
+d(x) = w \hat{p} + (1-w) p_0
+$$
+
+**Interpretation:**
+
+* **$p_0 = 0.5$**: The estimator shrinks the data toward a neutral prior mean of $0.5$ (representing maximum uncertainty).
+* **$w = \frac{n}{n+\sqrt{n}}$**: The weight assigned to the data. As the sample size $n$ increases, $w \to 1$, and the minimax estimator converges to the MLE.
+
+:::
 
 ::: {#exm-exponential-minimax}
 #### Exponential Minimax Estimation
