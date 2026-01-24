@@ -213,8 +213,8 @@ window.Quarto = {
   <li><a href="#absolute-error-loss" id="toc-absolute-error-loss" class="nav-link" data-scroll-target="#absolute-error-loss"><span class="header-section-number">3.3.2</span> Absolute Error Loss</a></li>
   <li><a href="#weighted-absolute-error-loss-min-normalization" id="toc-weighted-absolute-error-loss-min-normalization" class="nav-link" data-scroll-target="#weighted-absolute-error-loss-min-normalization"><span class="header-section-number">3.3.3</span> Weighted Absolute Error Loss (min-normalization)</a></li>
   <li><a href="#hypothesis-testing-0-1-loss" id="toc-hypothesis-testing-0-1-loss" class="nav-link" data-scroll-target="#hypothesis-testing-0-1-loss"><span class="header-section-number">3.3.4</span> Hypothesis Testing (0-1 Loss)</a></li>
-  <li><a href="#classification-prediction-categorical-parameter" id="toc-classification-prediction-categorical-parameter" class="nav-link" data-scroll-target="#classification-prediction-categorical-parameter"><span class="header-section-number">3.3.5</span> Classification Prediction (categorical Parameter)</a></li>
-  <li><a href="#interval-estimation-and-highest-posterior-density-hpd" id="toc-interval-estimation-and-highest-posterior-density-hpd" class="nav-link" data-scroll-target="#interval-estimation-and-highest-posterior-density-hpd"><span class="header-section-number">3.3.6</span> Interval Estimation and Highest Posterior Density (HPD)</a></li>
+  <li><a href="#classification-prediction" id="toc-classification-prediction" class="nav-link" data-scroll-target="#classification-prediction"><span class="header-section-number">3.3.5</span> Classification Prediction</a></li>
+  <li><a href="#interval-estimation-as-a-decision-problem" id="toc-interval-estimation-as-a-decision-problem" class="nav-link" data-scroll-target="#interval-estimation-as-a-decision-problem"><span class="header-section-number">3.3.6</span> Interval Estimation as a Decision Problem</a></li>
   </ul></li>
   <li><a href="#finding-minimax-rules-with-bayes-rules" id="toc-finding-minimax-rules-with-bayes-rules" class="nav-link" data-scroll-target="#finding-minimax-rules-with-bayes-rules"><span class="header-section-number">3.4</span> Finding Minimax Rules with Bayes Rules</a></li>
   <li><a href="#steins-paradox-and-the-james-stein-estimator" id="toc-steins-paradox-and-the-james-stein-estimator" class="nav-link" data-scroll-target="#steins-paradox-and-the-james-stein-estimator"><span class="header-section-number">3.5</span> Stein’s Paradox and the James-stein Estimator</a>
@@ -619,7 +619,7 @@ Important
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Therefore, to minimize the Bayes risk, one just need to choose <span class="math inline">\(d(x)\)</span> to minimize the posterior expected loss for each <span class="math inline">\(x\)</span>.</p>
+<p>Therefore, to minimize the Bayes risk, one just need to choose <span class="math inline">\(d(x)\)</span> to minimize the <strong>posterior expected loss</strong> for each data set <span class="math inline">\(x\)</span>.</p>
 </div>
 </div>
 <p>The following diagram summarizes the general workflow for deriving a Bayes estimator:</p>
@@ -831,7 +831,13 @@ Table&nbsp;3.1: Standard 0-1 Loss Function
 </ul>
 <p>The Bayes rule selects the action with the smaller expected loss. Thus, we choose <span class="math inline">\(a=1\)</span> if: <span class="math display">\[
 P(\theta \in \Theta_0|x) \le P(\theta \in \Theta_1|x)
-\]</span> This confirms that under 0-1 loss, the Bayes rule simply selects the hypothesis with the higher posterior probability.</p>
+\]</span> This confirms that under 0-1 loss, the Bayes rule simply selects the hypothesis with the higher posterior probability. The optimal Bayes decision rule <span class="math inline">\(d(x)\)</span> is given by:</p>
+<p><span class="math display">\[
+d(x) = \begin{cases}
+1 &amp; \text{if } P(\Theta_0|x) \le \frac{1}{2} \quad (\text{Reject } H_0) \\
+0 &amp; \text{if } P(\Theta_0|x) &gt; \frac{1}{2} \quad (\text{Accept } H_0)
+\end{cases}
+\]</span></p>
 <p><strong>Case 2: General Loss (Asymmetric Costs)</strong></p>
 <p>In many practical applications, the cost of errors is not symmetric. For example, a Type I error (false rejection) might be more costly than a Type II error. Let <span class="math inline">\(c_1\)</span> be the cost of a Type I error and <span class="math inline">\(c_2\)</span> be the cost of a Type II error. Usually, we normalize one cost to 1.</p>
 <div id="tbl-loss-cost" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -882,47 +888,56 @@ c P(\Theta_0|x) \le 1 - P(\Theta_0|x) \implies (1+c) P(\Theta_0|x) \le 1
 \]</span> <span class="math display">\[
 P(\Theta_0|x) \le \frac{1}{1+c}
 \]</span></p>
-<p><strong>Result:</strong> With asymmetric costs, we accept <span class="math inline">\(H_1\)</span> only if the posterior probability of the null hypothesis is sufficiently small (below the threshold <span class="math inline">\(\frac{1}{1+c}\)</span>). If the cost of false rejection <span class="math inline">\(c\)</span> is high, we require stronger evidence against <span class="math inline">\(H_0\)</span>.</p>
-</section>
-<section id="classification-prediction-categorical-parameter" class="level3" data-number="3.3.5">
-<h3 data-number="3.3.5" class="anchored" data-anchor-id="classification-prediction-categorical-parameter"><span class="header-section-number">3.3.5</span> Classification Prediction (categorical Parameter)</h3>
-<p>In classification problems, the parameter of interest is a discrete class label <span class="math inline">\(\theta\)</span> (often denoted as <span class="math inline">\(y\)</span>) taking values in a set of categories <span class="math inline">\(\{1, 2, \dots, K\}\)</span>. The goal is to predict the true class label based on observed features <span class="math inline">\(x\)</span>.</p>
-<p>We typically employ the <strong>0-1 loss function</strong>, which assigns a penalty of 1 for a misclassification and 0 for a correct prediction:</p>
-<p><span class="math display">\[L(\theta, \hat{\theta}) = \begin{cases} 0 &amp; \text{if } \hat{\theta} = \theta \ (\text{Correct Classification}) \\ 1 &amp; \text{if } \hat{\theta} \neq \theta \ (\text{Misclassification}) \end{cases}\]</span></p>
-<p>To find the optimal classification rule (the Bayes Classifier), we minimize the posterior expected loss, which is equivalent to minimizing the probability of misclassification.</p>
+<p><strong>Result:</strong></p>
+<p>With asymmetric costs, we accept <span class="math inline">\(H_1\)</span> only if the posterior probability of the null hypothesis is sufficiently small (below the threshold <span class="math inline">\(\frac{1}{1+c}\)</span>). If the cost of false rejection <span class="math inline">\(c\)</span> is high, we require stronger evidence against <span class="math inline">\(H_0\)</span>. The optimal Bayes decision rule <span class="math inline">\(d(x)\)</span> is given by:</p>
 <p><span class="math display">\[
-E_{\theta|x}[L(\theta, \hat{\theta})] = \sum_{\theta} L(\theta, \hat{\theta}) \pi(\theta|x)
-\]</span></p>
-<p>Since the loss is 1 only when the predicted class <span class="math inline">\(\hat{\theta}\)</span> differs from the true class <span class="math inline">\(\theta\)</span>, this sum simplifies to:</p>
-<p><span class="math display">\[
-E_{\theta|x}[L(\theta, \hat{\theta})] = \sum_{\theta \neq \hat{\theta}} 1 \cdot \pi(\theta|x) = P(\theta \neq \hat{\theta} | x) = 1 - P(\theta = \hat{\theta} | x)
-\]</span></p>
-<p>Minimizing the misclassification rate <span class="math inline">\(1 - P(\theta = \hat{\theta} | x)\)</span> is mathematically equivalent to maximizing the probability of being correct, <span class="math inline">\(P(\theta = \hat{\theta} | x)\)</span>.</p>
-<p><strong>Result:</strong> The Bayes rule for classification is to predict the class with the highest posterior probability. While this is technically the <strong>Maximum A Posteriori (MAP)</strong> estimator, in the context of machine learning and pattern recognition, this decision rule is known as the <strong>Bayes Optimal Classifier</strong>.</p>
-<p><span class="math display">\[
-\hat{\theta}_{\text{Bayes}}(x) = \underset{k \in \{1, \dots, K\}}{\arg\max} \ P(\theta = k | x)
-\]</span></p>
-</section>
-<section id="interval-estimation-and-highest-posterior-density-hpd" class="level3" data-number="3.3.6">
-<h3 data-number="3.3.6" class="anchored" data-anchor-id="interval-estimation-and-highest-posterior-density-hpd"><span class="header-section-number">3.3.6</span> Interval Estimation and Highest Posterior Density (HPD)</h3>
-<p>We can motivate the choice of a Credible Interval by defining a specific loss function for interval estimation. Suppose we seek an estimate <span class="math inline">\(d\)</span> and specify a tolerance <span class="math inline">\(\delta &gt; 0\)</span>. We define the loss function as:</p>
-<p><span class="math display">\[
-L(\theta, d) = \begin{cases}
-0 &amp; \text{if } |\theta - d| \le \delta \\
-1 &amp; \text{if } |\theta - d| &gt; \delta
+d(x) = \begin{cases}
+1 &amp; \text{if } P(\Theta_0|x) \le \frac{1}{1+c} \quad (\text{Reject } H_0) \\
+0 &amp; \text{if } P(\Theta_0|x) &gt; \frac{1}{1+c} \quad (\text{Accept } H_0)
 \end{cases}
 \]</span></p>
-<p>The <strong>Expected Posterior Loss</strong> is the posterior probability that <span class="math inline">\(\theta\)</span> lies outside the interval <span class="math inline">\((d - \delta, d + \delta)\)</span>. Therefore, minimizing the loss is equivalent to finding the interval of fixed length <span class="math inline">\(2\delta\)</span> that <strong>maximizes the posterior probability</strong>:</p>
-<p><span class="math display">\[ P(d - \delta \le \theta \le d + \delta \mid x) \]</span></p>
-<p>In practice, we typically reverse this formulation: instead of fixing the length <span class="math inline">\(2\delta\)</span>, we fix the coverage probability <span class="math inline">\(1-\alpha\)</span> (e.g., 0.95) and seek the interval with the <strong>shortest possible length</strong>. This results in the <strong>Highest Posterior Density (HPD)</strong> interval, defined as the region where the posterior density exceeds a certain threshold <span class="math inline">\(c\)</span>:</p>
-<p><span class="math display">\[ C_{HPD} = \{ \theta : \pi(\theta \mid x) \ge c \} \]</span></p>
-<p>This HPD interval is optimal because it includes the “most likely” values of <span class="math inline">\(\theta\)</span> and, for a unimodal distribution, provides the narrowest interval for a given confidence level.</p>
-<p><strong>Comparison with Equal-Tailed Intervals:</strong></p>
-<ul>
-<li><strong>Equal-Tailed Interval:</strong> We simply cut off <span class="math inline">\(\alpha/2\)</span> probability from each tail of the distribution. This is easy to compute but may not be the shortest interval if the distribution is skewed.</li>
-<li><strong>HPD Interval:</strong> This is the shortest possible interval for the given coverage. For unimodal distributions, the probability density at the two endpoints of the HPD interval is identical.</li>
-</ul>
-<p>The plot below illustrates a skewed posterior distribution (Gamma). Notice how the <strong>HPD Interval (Blue)</strong> is shifted toward the mode (the peak) to capture the highest density values, resulting in a shorter interval length compared to the <strong>Equal-Tailed Interval (Red)</strong>.</p>
+</section>
+<section id="classification-prediction" class="level3" data-number="3.3.5">
+<h3 data-number="3.3.5" class="anchored" data-anchor-id="classification-prediction"><span class="header-section-number">3.3.5</span> Classification Prediction</h3>
+<p>In classification problems, the parameter of interest is a discrete class label <span class="math inline">\(y\)</span> taking values in a set of categories <span class="math inline">\(\{1, 2, \dots, K\}\)</span>. The goal is to predict the true class label based on observed features <span class="math inline">\(x\)</span>.</p>
+<p>We typically employ the <strong>0-1 loss function</strong>, which assigns a penalty of 1 for a misclassification and 0 for a correct prediction:</p>
+<p><span class="math display">\[L(y, \hat{y}) = \begin{cases} 0 &amp; \text{if } \hat{y} = y \ (\text{Correct Classification}) \\ 1 &amp; \text{if } \hat{y} \neq y \ (\text{Misclassification}) \end{cases}\]</span></p>
+<p>To find the optimal classification rule (the Bayes Classifier), we minimize the posterior expected loss, which is equivalent to minimizing the probability of misclassification.</p>
+<p><span class="math display">\[
+E_{y|x}[L(y, \hat{y})] = \sum_{y} L(y, \hat{y}) P(y|x)
+\]</span></p>
+<p>Since the loss is 1 only when the predicted class <span class="math inline">\(\hat{y}\)</span> differs from the true class <span class="math inline">\(y\)</span>, this sum simplifies to:</p>
+<p><span class="math display">\[
+E_{y|x}[L(y, \hat{y})] = \sum_{y \neq \hat{y}} 1 \cdot P(y|x) = P(y \neq \hat{y} | x) = 1 - P(y = \hat{y} | x)
+\]</span></p>
+<p>Minimizing the misclassification rate <span class="math inline">\(1 - P(y = \hat{y} | x)\)</span> is mathematically equivalent to maximizing the probability of being correct, <span class="math inline">\(P(y = \hat{y} | x)\)</span>.</p>
+<p><strong>Result:</strong></p>
+<p>The Bayes rule for classification is to predict the class with the highest posterior probability. While this is technically the <strong>Maximum A Posteriori (MAP)</strong> estimator, in the context of machine learning and pattern recognition, this decision rule is known as the <strong>Bayes Optimal Classifier</strong>.</p>
+<p><span class="math display">\[
+\hat{y}_{\text{Bayes}}(x) = \underset{k \in \{1, \dots, K\}}{\arg\max} \ P(y = k | x)
+\]</span></p>
+</section>
+<section id="interval-estimation-as-a-decision-problem" class="level3" data-number="3.3.6">
+<h3 data-number="3.3.6" class="anchored" data-anchor-id="interval-estimation-as-a-decision-problem"><span class="header-section-number">3.3.6</span> Interval Estimation as a Decision Problem</h3>
+<p>We can motivate the choice of a Credible Interval by defining a specific loss function for interval estimation. We define the <strong>action space</strong> <span class="math inline">\(\mathcal{A}\)</span> as the set of all intervals of fixed radius <span class="math inline">\(\delta &gt; 0\)</span> centered at <span class="math inline">\(d\)</span>, i.e., <span class="math inline">\(\mathcal{A} = \{ [d - \delta, d + \delta] \mid d \in \mathbb{R} \}\)</span>.</p>
+<p>The loss function is defined as: <span class="math display">\[
+L(\theta, d) = \begin{cases}
+0 &amp; \text{if } |\theta - d| \le \delta \quad (\theta \in [d-\delta, d+\delta]) \\
+1 &amp; \text{if } |\theta - d| &gt; \delta \quad (\theta \notin [d-\delta, d+\delta])
+\end{cases}
+\]</span></p>
+<p><strong>Derivation of the Bayes Rule</strong></p>
+<p>We minimize the <strong>Expected Posterior Loss</strong>, which is simply the probability that <span class="math inline">\(\theta\)</span> falls outside the interval: <span class="math display">\[
+E[L(\theta, d)|x] = 1 \cdot P(|\theta - d| &gt; \delta | x) = 1 - P(d - \delta \le \theta \le d + \delta | x)
+\]</span></p>
+<p>Minimizing this loss is equivalent to maximizing the posterior probability mass contained within the interval. Thus, the Bayes estimator <span class="math inline">\(d\)</span> is: <span class="math display">\[
+d_{\text{Bayes}} = \underset{d}{\arg\max} \int_{d-\delta}^{d+\delta} \pi(\theta|x) \, d\theta
+\]</span></p>
+<p>To find the optimal <span class="math inline">\(d\)</span>, we differentiate the integral with respect to <span class="math inline">\(d\)</span> and set it to zero: <span class="math display">\[
+\frac{d}{dd} \left( \int_{d-\delta}^{d+\delta} \pi(\theta|x) \, d\theta \right) = \pi(d+\delta|x) - \pi(d-\delta|x) = 0
+\]</span></p>
+<p>This yields the condition <strong><span class="math inline">\(\pi(d+\delta|x) = \pi(d-\delta|x)\)</span></strong>.</p>
+<p>The optimal <span class="math inline">\(d\)</span> centers the interval such that the posterior density heights at the two endpoints are equal. This is the defining characteristic of a <strong>Highest Posterior Density (HPD)</strong> interval.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div id="fig-hpd-vs-equal" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -937,6 +952,12 @@ Figure&nbsp;3.4: Comparison of HPD and Equal-Tailed Intervals for a Skewed Distr
 </div>
 </div>
 </div>
+<p><strong>Comparison with Equal-Tailed Intervals:</strong></p>
+<ul>
+<li><strong>Equal-Tailed Interval:</strong> We simply cut off <span class="math inline">\(\alpha/2\)</span> probability from each tail of the distribution. This is easy to compute but may not be the shortest interval if the distribution is skewed.</li>
+<li><strong>HPD Interval:</strong> This is the shortest possible interval for the given coverage. For unimodal distributions, the probability density at the two endpoints of the HPD interval is identical.</li>
+</ul>
+<p>The plot below illustrates a skewed posterior distribution (Gamma). Notice how the <strong>HPD Interval (Blue)</strong> is shifted toward the mode (the peak) to capture the highest density values, resulting in a shorter interval length compared to the <strong>Equal-Tailed Interval (Red)</strong>.</p>
 </section>
 </section>
 <section id="finding-minimax-rules-with-bayes-rules" class="level2" data-number="3.4">
@@ -958,6 +979,18 @@ R(\theta, d) = E_x \left[ \left( \theta - \frac{a+x}{a+b+n} \right)^2 \right]
 <p>According to <a href="decision.html#thm-limits" class="quarto-xref">Theorem&nbsp;<span>2.2</span></a>, let <span class="math inline">\(\{\delta_n\}\)</span> be a sequence of Bayes rules with respect to priors <span class="math inline">\(\{\pi_n\}\)</span>, and let <span class="math inline">\(r(\pi_n, \delta_n)\)</span> be the associated Bayes risks. If there exists a rule <span class="math inline">\(\delta_0\)</span> such that <span class="math display">\[
 \sup_{\theta} R(\theta, \delta_0) \le \lim_{n \to \infty} r(\pi_n, \delta_n)
 \]</span> then <span class="math inline">\(\delta_0\)</span> is a minimax estimator.</p>
+<p>We can rewrite the Minimax estimator <span class="math inline">\(d(x)\)</span> as a linear combination of the sample proportion (MLE) <span class="math inline">\(\hat{p} = x/n\)</span> and the prior mean <span class="math inline">\(p_0 = 1/2\)</span>:</p>
+<p><span class="math display">\[
+d(x) = \underbrace{\left( \frac{n}{n + \sqrt{n}} \right)}_{w} \underbrace{\left( \frac{x}{n} \right)}_{\hat{p}} + \underbrace{\left( \frac{\sqrt{n}}{n + \sqrt{n}} \right)}_{1-w} \underbrace{\left( \frac{1}{2} \right)}_{p_0}
+\]</span></p>
+<p><span class="math display">\[
+d(x) = w \hat{p} + (1-w) p_0
+\]</span></p>
+<p><strong>Interpretation:</strong></p>
+<ul>
+<li><strong><span class="math inline">\(p_0 = 0.5\)</span></strong>: The estimator shrinks the data toward a neutral prior mean of <span class="math inline">\(0.5\)</span> (representing maximum uncertainty).</li>
+<li><strong><span class="math inline">\(w = \frac{n}{n+\sqrt{n}}\)</span></strong>: The weight assigned to the data. As the sample size <span class="math inline">\(n\)</span> increases, <span class="math inline">\(w \to 1\)</span>, and the minimax estimator converges to the MLE.</li>
+</ul>
 <div id="exm-exponential-minimax" class="theorem example">
 <p><span class="theorem-title"><strong>Example 3.6 (Exponential Minimax Estimation)</strong></span> Let <span class="math inline">\(X_1, \dots, X_n \overset{iid}{\sim} \text{Exp}(\theta)\)</span> with mean <span class="math inline">\(\theta\)</span>. We consider the <strong>Scale-Invariant Loss Function</strong>:</p>
 <p><span class="math display">\[
