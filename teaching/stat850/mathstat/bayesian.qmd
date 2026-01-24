@@ -328,12 +328,12 @@ The general form of Bayes rule is derived by minimizing risk.
 - $\pi(\theta)$: prior probability distribution over the parameter space
 - $f(x;\theta)$: likelihood or sampling distribution of the data given the parameter
 - $d: X \to A$: decision rule mapping observed data to an action/decision
-- $L(\theta, a)$: loss function measuring the loss incurred when the true parameter is $\theta$ and action $a$ is taken
+- $\mathcal{L}(\theta, a)$: loss function measuring the loss incurred when the true parameter is $\theta$ and action $a$ is taken
 
 **Definition:**
 
 * **Risk Function:** For a given decision rule $d$ and parameter value $\theta$,
-$$R(\theta, d) = \int_{X} L(\theta, d(x)) f(x;\theta) dx$$
+$$R(\theta, d) = \int_{X} \mathcal{L}(\theta, d(x)) f(x;\theta) dx$$
 is the expected loss with respect to the sampling distribution when the true parameter is $\theta$.
 
 * **Bayes Risk:** For a decision rule $d$ and prior distribution $\pi$,
@@ -346,7 +346,7 @@ is the expected risk averaging over both the parameter uncertainty (prior) and t
 
 Minimizing the Bayes risk $r(\pi, d)$ is equivalent to minimizing the posterior expected loss for each observed $x$. That is, the Bayes rule $d(x)$ satisfies:
 $$
-d(x) = \underset{a}{\arg\min} \ E_{\theta|x} [ L(\theta, a) ]
+d(x) = \underset{a}{\arg\min} \ E_{\theta|x} [ \mathcal{L}(\theta, a) ]
 $$
 :::
 
@@ -356,22 +356,22 @@ We start by writing the Bayes risk essentially as a double integral over the par
 $$
 \begin{aligned}
 r(\pi, d) &= \int_{\Theta} R(\theta, d) \pi(\theta) d\theta \\
-&= \int_{\Theta} \left[ \int_{X} L(\theta, d(x)) f(x|\theta) dx \right] \pi(\theta) d\theta
+&= \int_{\Theta} \left[ \int_{X} \mathcal{L}(\theta, d(x)) f(x|\theta) dx \right] \pi(\theta) d\theta
 \end{aligned}
 $$
 
 Assuming the conditions for Fubini's Theorem are met, we switch the order of integration:
 
 $$
-r(\pi, d) = \int_{X} \left[ \int_{\Theta} L(\theta, d(x)) f(x|\theta) \pi(\theta) d\theta \right] dx
+r(\pi, d) = \int_{X} \left[ \int_{\Theta} \mathcal{L}(\theta, d(x)) f(x|\theta) \pi(\theta) d\theta \right] dx
 $$
 
 Recall that the joint density can be factored as $f(x, \theta) = f(x|\theta)\pi(\theta) = \pi(\theta|x)m(x)$, where $m(x)$ is the marginal density of the data. Substituting this into the inner integral:
 
 $$
 \begin{aligned}
-r(\pi, d) &= \int_{X} \left[ \int_{\Theta} L(\theta, d(x)) \pi(\theta|x) m(x) d\theta \right] dx \\
-&= \int_{X} m(x) \left[ \int_{\Theta} L(\theta, d(x)) \pi(\theta|x) d\theta \right] dx
+r(\pi, d) &= \int_{X} \left[ \int_{\Theta} \mathcal{L}(\theta, d(x)) \pi(\theta|x) m(x) d\theta \right] dx \\
+&= \int_{X} m(x) \left[ \int_{\Theta} \mathcal{L}(\theta, d(x)) \pi(\theta|x) d\theta \right] dx
 \end{aligned}
 $$
 
@@ -380,7 +380,7 @@ Since the marginal density $m(x)$ is non-negative, minimizing the total integral
 The term inside the brackets is the **Posterior Expected Loss**:
 
 $$
-\int_{\Theta} L(\theta, d(x)) \pi(\theta|x) d\theta = E_{\theta|x} [ L(\theta, d(x)) ]
+\int_{\Theta} \mathcal{L}(\theta, d(x)) \pi(\theta|x) d\theta = E_{\theta|x} [ \mathcal{L}(\theta, d(x)) ]
 $$
 
 
@@ -411,8 +411,8 @@ The following diagram summarizes the general workflow for deriving a Bayes estim
     % Nodes
     \node [input] (inputs) {Prior $\pi(\theta)$ \\ Likelihood $f(x|\theta)$ \\ Data $x$};
     \node [block, below of=inputs, node distance=3cm] (posterior) {Compute Posterior \\ $\pi(\theta|x)$};
-    \node [input, right of=posterior, node distance=5cm] (loss) {Loss Function \\ $L(\theta, d)$};
-    \node [block, below of=posterior, node distance=3cm] (exp_loss) {Compute Posterior Expected Loss \\ $E_{\theta|x}[L(\theta, d)]$};
+    \node [input, right of=posterior, node distance=5cm] (loss) {Loss Function \\ $\mathcal{L}(\theta, d)$};
+    \node [block, below of=posterior, node distance=3cm] (exp_loss) {Compute Posterior Expected Loss \\ $E_{\theta|x}[\mathcal{L}(\theta, d)]$};
     \node [block, below of=exp_loss, node distance=3cm] (minimize) {Minimize w.r.t $d$ \\ $\arg\min_d E[L]$};
     \node [block, below of=minimize, node distance=3cm, fill=red!10] (bayesrule) {Bayes Rule \\ $d(x)$};
 
@@ -431,7 +431,7 @@ The following diagram summarizes the general workflow for deriving a Bayes estim
 
 ### Squared Error Loss (point Estimate)
 
-$$L(\theta, a) = (\theta - a)^2$$
+$$\mathcal{L}(\theta, a) = (\theta - a)^2$$
 
 To find the optimal estimator $d(x)$, we minimize the posterior expected loss $E_{\theta|x}[(\theta - d(x))^2]$. Taking the derivative with respect to $d$ and setting it to 0:
 
@@ -441,7 +441,7 @@ $$-2 E_{\theta|x}(\theta - d) = 0 \implies d(x) = E(\theta|x)$$
 
 ### Absolute Error Loss
 
-$$L(\theta, d) = |\theta - d|$$
+$$\mathcal{L}(\theta, d) = |\theta - d|$$
 
 To find the Bayes rule, we minimize the posterior expected loss:
 
@@ -482,7 +482,7 @@ A median is formally defined as any value $m$ that satisfies the following two c
 
 ### Weighted Absolute Error Loss (min-normalization)
 
-$$L(\theta, d) = \frac{|\theta - d|}{\min(\theta, 1-\theta)}$$
+$$\mathcal{L}(\theta, d) = \frac{|\theta - d|}{\min(\theta, 1-\theta)}$$
 
 This loss function penalizes errors extremely heavily when the true parameter $\theta$ is near the boundaries (0 or 1). Because the denominator approaches zero at the boundaries, the "cost" of an error becomes infinite, forcing the estimator to be very cautious (conservative) if the posterior has significant mass near 0 or 1.
 
@@ -602,16 +602,16 @@ The standard 0-1 loss function assigns a penalty of 1 for an incorrect decision 
 
 : Standard 0-1 Loss Function {#tbl-loss-std}
 
-To find the Bayes rule, we minimize the **posterior expected loss** for a given $x$, denoted as $E_{\theta|x}[L(\theta, a)]$.
+To find the Bayes rule, we minimize the **posterior expected loss** for a given $x$, denoted as $E_{\theta|x}[\mathcal{L}(\theta, a)]$.
 
 * **Expected Loss for choosing $a=0$ (Accept $H_0$):**
     $$
-    E_{\theta|x}[L(\theta, 0)] = 0 \cdot P(\theta \in \Theta_0|x) + 1 \cdot P(\theta \in \Theta_1|x) = P(\theta \in \Theta_1|x)
+    E_{\theta|x}[\mathcal{L}(\theta, 0)] = 0 \cdot P(\theta \in \Theta_0|x) + 1 \cdot P(\theta \in \Theta_1|x) = P(\theta \in \Theta_1|x)
     $$
 
 * **Expected Loss for choosing $a=1$ (Reject $H_0$):**
     $$
-    E_{\theta|x}[L(\theta, 1)] = 1 \cdot P(\theta \in \Theta_0|x) + 0 \cdot P(\theta \in \Theta_1|x) = P(\theta \in \Theta_0|x)
+    E_{\theta|x}[\mathcal{L}(\theta, 1)] = 1 \cdot P(\theta \in \Theta_0|x) + 0 \cdot P(\theta \in \Theta_1|x) = P(\theta \in \Theta_0|x)
     $$
 
 The Bayes rule selects the action with the smaller expected loss. Thus, we choose $a=1$ if:
@@ -641,10 +641,10 @@ In many practical applications, the cost of errors is not symmetric. For example
 We again calculate the posterior expected loss:
 
 * **Expected Loss for $a=0$:**
-    $$E[L(\theta, 0)|x] = 0 \cdot P(\Theta_0|x) + 1 \cdot P(\Theta_1|x) = P(\Theta_1|x)$$
+    $$E[\mathcal{L}(\theta, 0)|x] = 0 \cdot P(\Theta_0|x) + 1 \cdot P(\Theta_1|x) = P(\Theta_1|x)$$
 
 * **Expected Loss for $a=1$:**
-    $$E[L(\theta, 1)|x] = c \cdot P(\Theta_0|x) + 0 \cdot P(\Theta_1|x) = c P(\Theta_0|x)$$
+    $$E[\mathcal{L}(\theta, 1)|x] = c \cdot P(\Theta_0|x) + 0 \cdot P(\Theta_1|x) = c P(\Theta_0|x)$$
 
 We reject $H_0$ ($a=1$) if the expected loss of doing so is lower:
 $$
@@ -707,7 +707,7 @@ We can motivate the choice of a Credible Interval by defining a specific loss fu
 
 The loss function is defined as:
 $$
-L(\theta, d) = \begin{cases} 
+\mathcal{L}(\theta, d) = \begin{cases} 
 0 & \text{if } |\theta - d| \le \delta \quad (\theta \in [d-\delta, d+\delta]) \\
 1 & \text{if } |\theta - d| > \delta \quad (\theta \notin [d-\delta, d+\delta])
 \end{cases}
@@ -717,7 +717,7 @@ $$
 
 We minimize the **Expected Posterior Loss**, which is simply the probability that $\theta$ falls outside the interval:
 $$
-E[L(\theta, d)|x] = 1 \cdot P(|\theta - d| > \delta | x) = 1 - P(d - \delta \le \theta \le d + \delta | x)
+E[\mathcal{L}(\theta, d)|x] = 1 \cdot P(|\theta - d| > \delta | x) = 1 - P(d - \delta \le \theta \le d + \delta | x)
 $$
 
 Minimizing this loss is equivalent to maximizing the posterior probability mass contained within the interval. Thus, the Bayes estimator $d$ is:
@@ -817,12 +817,12 @@ The plot below illustrates a skewed posterior distribution (Gamma). Notice how t
 
 This result is a cornerstone of decision theory because it provides a sufficient condition for minimaxity. While the minimax criterion focuses on the "worst-case scenario" by minimizing the maximum possible risk, the Bayes criterion focuses on the "average-case scenario" relative to a prior. When the risk is constant, these two perspectives align: the average risk equals the maximum risk, and no other estimator can achieve a lower maximum without also having a lower Bayes risk, which would contradict the optimality of the Bayes rule.
 
+### Binomial Minimax Estimator
 
 ::: {#exm-binomial-minimax}
-#### Binomial Minimax Estimator
 
 Let $X \sim \text{Bin}(n, \theta)$ and $\theta \sim \text{Beta}(a, b)$.
-The squared error loss is $L(\theta, d) = (\theta - d)^2$.
+The squared error loss is $\mathcal{L}(\theta, d) = (\theta - d)^2$.
 The Bayes estimator is the posterior mean:
 $$d(x) = \frac{a+x}{a+b+n}$$
 
@@ -872,49 +872,66 @@ $$
 ::: {#exm-exponential-minimax}
 #### Exponential Minimax Estimation
 
-Let $X_1, \dots, X_n \overset{iid}{\sim} \text{Exp}(\theta)$ with mean $\theta$. We consider the **Scale-Invariant Loss Function**:
+Let $x_1, \dots, x_n$ be a sample from an $\text{Exp}(\theta)$ distribution with mean $\theta$. We consider the **Scale-Invariant Loss Function**:
 
 $$
-L(\theta, \delta) = \left( \frac{\delta}{\theta} - 1 \right)^2
+\mathcal{L}(\theta, d) = \left( \frac{d}{\theta} - 1 \right)^2
 $$
 
-We propose the estimator $\delta_0(X) = \frac{\sum X_i}{n+1}$. Consider a sequence of priors $\pi_k \sim \text{Inverse-Gamma}(\alpha_k, \beta_k)$ for $\theta$, where the density is given by $\pi(\theta) \propto \theta^{-\alpha_k - 1} e^{-\beta_k / \theta}$.
+**Derivation of the MLE**
 
-We will show that $\delta_0$ is a minimax estimator by deriving the Bayes estimator for this sequence and comparing the risks.
+The likelihood function is given by:
+$$
+L(\theta|x) = \prod_{i=1}^n \frac{1}{\theta} e^{-x_i/\theta} = \theta^{-n} e^{-\frac{1}{\theta}\sum x_i}
+$$
+The log-likelihood is:
+$$
+\ell(\theta) = -n \ln \theta - \frac{1}{\theta} \sum_{i=1}^n x_i
+$$
+Differentiating with respect to $\theta$ and setting to zero:
+$$
+\frac{\partial \ell}{\partial \theta} = -\frac{n}{\theta} + \frac{\sum x_i}{\theta^2} = 0 \implies \hat{\theta}_{MLE} = \frac{\sum x_i}{n} = \bar{x}
+$$
+
+**Minimax Estimation**
+
+We propose the estimator $d_0(x) = \frac{\sum x_i}{n+1}$. Note that this shrinks the MLE slightly. Consider a sequence of priors $\pi_k \sim \text{Inverse-Gamma}(\alpha_k, \beta_k)$ for $\theta$, where the density is given by $\pi(\theta) \propto \theta^{-\alpha_k - 1} e^{-\beta_k / \theta}$.
+
+We will show that $d_0$ is a minimax estimator by deriving the Bayes estimator for this sequence and comparing the risks.
 
 **Posterior Analysis and Moments**
 
-Let $T = \sum X_i$. The likelihood is $L(\theta|X) = \theta^{-n} e^{-T/\theta}$. Multiplying by the prior $\pi_k(\theta)$, the posterior density is:
+Let $T = \sum x_i$. The likelihood is $L(\theta|x) = \theta^{-n} e^{-T/\theta}$. Multiplying by the prior $\pi_k(\theta)$, the posterior density is:
 
 $$
-\pi(\theta | X) \propto \theta^{-(n + \alpha_k) - 1} e^{-(T + \beta_k)/\theta}
+\pi(\theta | x) \propto \theta^{-(n + \alpha_k) - 1} e^{-(T + \beta_k)/\theta}
 $$
 
 This is an **Inverse-Gamma** distribution with parameters $\alpha^* = n + \alpha_k$ and $\beta^* = T + \beta_k$. Using the properties of the Inverse-Gamma distribution, the required posterior moments are:
 
 $$
-E[\theta^{-1} | X] = \frac{n + \alpha_k}{T + \beta_k}, \quad E[\theta^{-2} | X] = \frac{(n + \alpha_k)(n + \alpha_k + 1)}{(T + \beta_k)^2}
+E[\theta^{-1} | x] = \frac{n + \alpha_k}{T + \beta_k}, \quad E[\theta^{-2} | x] = \frac{(n + \alpha_k)(n + \alpha_k + 1)}{(T + \beta_k)^2}
 $$
 
-The posterior expected loss is $E[ L(\theta, \delta) | X ] = \delta^2 E[\theta^{-2} | X] - 2\delta E[\theta^{-1} | X] + 1$.
+The posterior expected loss is $E[ \mathcal{L}(\theta, d) | x ] = d^2 E[\theta^{-2} | x] - 2d E[\theta^{-1} | x] + 1$.
 
 **Derivation of the Bayes Estimator**
 
-Minimizing the posterior expected loss with respect to $\delta$ yields $\delta_{\pi_k} = \frac{E[\theta^{-1} | X]}{E[\theta^{-2} | X]}$. Substituting the moments derived above:
+Minimizing the posterior expected loss with respect to $d$ yields $d_{\pi_k} = \frac{E[\theta^{-1} | x]}{E[\theta^{-2} | x]}$. Substituting the moments derived above:
 
 $$
-\delta_{\pi_k}(X) = \frac{ \frac{n + \alpha_k}{T + \beta_k} }{ \frac{(n + \alpha_k)(n + \alpha_k + 1)}{(T + \beta_k)^2} } = \frac{T + \beta_k}{n + \alpha_k + 1}
+d_{\pi_k}(x) = \frac{ \frac{n + \alpha_k}{T + \beta_k} }{ \frac{(n + \alpha_k)(n + \alpha_k + 1)}{(T + \beta_k)^2} } = \frac{T + \beta_k}{n + \alpha_k + 1}
 $$
 
 **Bayes Risk Limit**
 
-The Bayes risk $r(\pi_k)$ is the expected value of the minimum posterior loss. Substituting $\delta_{\pi_k}$ back into the loss equation:
+The Bayes risk $r(\pi_k)$ is the expected value of the minimum posterior loss. Substituting $d_{\pi_k}$ back into the loss equation:
 
 $$
-r(\pi_k | X) = 1 - \frac{(E[\theta^{-1}|X])^2}{E[\theta^{-2}|X]} = 1 - \frac{n + \alpha_k}{n + \alpha_k + 1} = \frac{1}{n + \alpha_k + 1}
+r(\pi_k | x) = 1 - \frac{(E[\theta^{-1}|x])^2}{E[\theta^{-2}|x]} = 1 - \frac{n + \alpha_k}{n + \alpha_k + 1} = \frac{1}{n + \alpha_k + 1}
 $$
 
-Since this does not depend on $X$, the integrated Bayes risk is $r(\pi_k) = \frac{1}{n + \alpha_k + 1}$. Taking the limit as the prior parameters approach zero ($\alpha_k \to 0$):
+Since this does not depend on $x$, the integrated Bayes risk is $r(\pi_k) = \frac{1}{n + \alpha_k + 1}$. Taking the limit as the prior parameters approach zero ($\alpha_k \to 0$):
 
 $$
 \lim_{k \to \infty} r(\pi_k) = \frac{1}{n+1}
@@ -922,19 +939,19 @@ $$
 
 **Minimax Verification**
 
-Finally, we calculate the frequentist risk for the candidate estimator $\delta_0(X) = \frac{T}{n+1}$. Let $Y = T/\theta \sim \text{Gamma}(n, 1)$.
+Finally, we calculate the frequentist risk for the candidate estimator $d_0(x) = \frac{T}{n+1}$. Let $Y = T/\theta \sim \text{Gamma}(n, 1)$.
 
 $$
-R(\theta, \delta_0) = E \left[ \left( \frac{Y}{n+1} - 1 \right)^2 \right] = \text{Var}\left(\frac{Y}{n+1}\right) + \left(E\left[\frac{Y}{n+1}\right]-1\right)^2
+R(\theta, d_0) = E \left[ \left( \frac{Y}{n+1} - 1 \right)^2 \right] = \text{Var}\left(\frac{Y}{n+1}\right) + \left(E\left[\frac{Y}{n+1}\right]-1\right)^2
 $$
 
 With $E[Y]=n$ and $\text{Var}(Y)=n$, the risk is:
 
 $$
-R(\theta, \delta_0) = \frac{n}{(n+1)^2} + \left( \frac{n}{n+1} - 1 \right)^2 = \frac{1}{n+1}
+R(\theta, d_0) = \frac{n}{(n+1)^2} + \left( \frac{n}{n+1} - 1 \right)^2 = \frac{1}{n+1}
 $$
 
-Since the risk of $\delta_0$ is constant and equals the limit of the Bayes risks ($\frac{1}{n+1}$), $\delta_0$ is a **minimax estimator**.
+Since the risk of $d_0$ is constant and equals the limit of the Bayes risks ($\frac{1}{n+1}$), $d_0$ is a **minimax estimator**.
 :::
 
 ## Stein's Paradox and the James-stein Estimator
@@ -1018,7 +1035,7 @@ The James-Stein result is particularly striking when compared to the performance
 ::: {#thm-mle-minimax}
 #### Minimaxity of the Maximum Likelihood Estimator
 
-Let $X \sim N_p(\theta, I)$. Under the squared error loss function $L(\theta, d) = ||\theta - d||^2$, the standard Maximum Likelihood Estimator $d^0(X) = X$ is a **minimax rule**. That is, it minimizes the maximum possible risk over the parameter space:
+Let $X \sim N_p(\theta, I)$. Under the squared error loss function $\mathcal{L}(\theta, d) = ||\theta - d||^2$, the standard Maximum Likelihood Estimator $d^0(X) = X$ is a **minimax rule**. That is, it minimizes the maximum possible risk over the parameter space:
 
 $$
 \sup_{\theta \in \mathbb{R}^p} R(\theta, d^0) = \inf_{d} \sup_{\theta \in \mathbb{R}^p} R(\theta, d) = p
@@ -1317,7 +1334,7 @@ The results match exactly. The alignment of the cubic radial field with the nois
 
 ::: {#thm-mle-inadmissible}
 
-Let $X \sim N_p(\theta, I)$ be a $p$-dimensional random vector with $p \ge 3$. Under the squared error loss function $L(\theta, d) = ||\theta - d||^2$, the standard Maximum Likelihood Estimator $d^0(X) = X$ is **inadmissible**.
+Let $X \sim N_p(\theta, I)$ be a $p$-dimensional random vector with $p \ge 3$. Under the squared error loss function $\mathcal{L}(\theta, d) = ||\theta - d||^2$, the standard Maximum Likelihood Estimator $d^0(X) = X$ is **inadmissible**.
 :::
 
 ::: {.proof name="Proof of Inadmissibility"}
@@ -1374,7 +1391,90 @@ Since $p \ge 3$, the constant $(p-2)^2$ is strictly positive. Because $1/\|X\|^2
 Thus, $d^{JS}$ dominates the MLE, proving the MLE is inadmissible.
 :::
 
-### Bayes Risk of James-stein Estimator
+**Interpretation:**
+
+The term $(p-2)^2 E_\theta \left[ \frac{1}{\|X\|^2} \right]$ represents the reduction in risk provided by the James-Stein estimator.
+
+* When the observed signal $\|X\|^2$ is large (implying $\|\theta\|^2$ is likely large), the term $1/\|X\|^2$ is small. Consequently, the risk of the James-Stein estimator approaches that of the MLE ($p$), and the improvement is negligible.
+
+* When the observed signal $\|X\|^2$ is small (implying $\|\theta\|^2$ is likely near zero), the term $1/\|X\|^2$ is large. In this scenario, the James-Stein estimator shrinks the estimate aggressively toward zero, resulting in a risk substantially lower than $p$.
+
+   **Risk Ratio near the Origin**:
+   As the true parameter vector shrinks to zero ($\|\theta\| \to 0$), the ratio of the risks converges to a constant fraction. We substitute the expectation $E[1/\|X\|^2] = 1/(p-2)$ directly into the numerator:
+   
+   $$
+   \lim_{\|\theta\| \to 0} \frac{R(\theta, d^{JS})}{R(\theta, d^{MLE})} = \frac{p - (p-2)^2 \left( \frac{1}{p-2} \right)}{p} = \frac{p - (p-2)}{p} = \frac{2}{p}
+   $$
+
+   For a dimension like $p=10$, the James-Stein estimator incurs only $20\%$ of the risk of the MLE near the origin.
+
+ 
+::: {.callout-note collapse="true"}
+#### Is $d^{JS}$ Minimax?
+
+Yes. Since the MLE is minimax with constant risk $p$, the minimax risk value for this problem is $p$.
+
+Because $R(\theta, d^{JS}) < p$ for all $\theta$ and $\lim_{\|\theta\| \to \infty} R(\theta, d^{JS}) = p$, the maximum risk of the James-Stein estimator is exactly $p$. Therefore, $d^{JS}$ achieves the minimax risk level and is a minimax estimator.
+:::
+
+
+### Risk Comparison under Normalized Loss (Optional)
+
+We consider the **Normalized Squared Error Loss** function, which penalizes errors relative to the magnitude of the true parameter vector:
+$$
+\mathcal{L}(\theta, d) = \frac{\|d - \theta\|^2}{\|\theta\|^2}, \quad \theta \neq 0
+$$
+
+**1. Risk of the MLE ($d^{MLE} = X$)**
+
+The risk of the Maximum Likelihood Estimator is straightforward because the standard Mean Squared Error (MSE) of $X$ is constant ($p$):
+$$
+R(\theta, d^{MLE}) = E_\theta \left[ \frac{\|X - \theta\|^2}{\|\theta\|^2} \right] = \frac{1}{\|\theta\|^2} E_\theta \left[ \|X - \theta\|^2 \right]
+$$
+Since $X \sim N_p(\theta, I)$, we have $E[\|X - \theta\|^2] = p$.
+$$
+R(\theta, d^{MLE}) = \frac{p}{\|\theta\|^2}
+$$
+
+**2. Risk of the James-Stein Estimator ($d^{JS}$)**
+
+For the James-Stein estimator $d^{JS} = \left( 1 - \frac{p-2}{\|X\|^2} \right)X$, we utilize the known result for its standard MSE risk:
+$$
+E_\theta [\|d^{JS} - \theta\|^2] = p - (p-2)^2 E_\theta \left[ \frac{1}{\|X\|^2} \right]
+$$
+The risk under the normalized loss is simply this term scaled by $1/\|\theta\|^2$:
+$$
+R(\theta, d^{JS}) = \frac{1}{\|\theta\|^2} \left( p - (p-2)^2 E_\theta \left[ \frac{1}{\|X\|^2} \right] \right)
+$$
+
+**3. Comparison and Dominance**
+
+We compare the risks by taking the difference:
+$$
+R(\theta, d^{MLE}) - R(\theta, d^{JS}) = \frac{1}{\|\theta\|^2} (p-2)^2 E_\theta \left[ \frac{1}{\|X\|^2} \right]
+$$
+Since $(p-2)^2 > 0$ (for $p \ge 3$) and the expectation of a positive random variable is positive, this difference is strictly positive for all $\theta \neq 0$.
+$$
+R(\theta, d^{JS}) < R(\theta, d^{MLE})
+$$
+
+* **Global Dominance:** The James-Stein estimator dominates the MLE under this loss function as well, achieving lower risk everywhere in the parameter space.
+* **Behavior near $\theta \approx 0$:**
+    As $\|\theta\| \to 0$, both risks diverge to infinity. We analyze their relative performance by examining the ratio of the risks:
+    
+    $$
+    \frac{R(\theta, d^{JS})}{R(\theta, d^{MLE})} = \frac{p - (p-2)^2 E_\theta [1/\|X\|^2]}{p} = 1 - \frac{(p-2)^2}{p} E_\theta \left[ \frac{1}{\|X\|^2} \right]
+    $$
+
+    At $\theta = 0$, $\|X\|^2 \sim \chi^2_p$, and the expectation is $E[1/\|X\|^2] = 1/(p-2)$. Substituting this into the ratio:
+
+    $$
+    \lim_{\|\theta\| \to 0} \frac{R(\theta, d^{JS})}{R(\theta, d^{MLE})} = 1 - \frac{(p-2)^2}{p(p-2)} = 1 - \frac{p-2}{p} = \frac{2}{p}
+    $$
+
+    Thus, near the origin, the James-Stein estimator reduces the risk by a factor of $p/2$. For large dimensions (e.g., $p=10$), the JS estimator has only $20\%$ of the risk of the MLE.
+
+### Bayes Risk of James-stein Estimator (Optional)
 
 We can derive the Bayes Risk $r(\pi, d^{JS})$ of this estimator using two equivalent methods: minimizing the expected frequentist risk, or minimizing the expected posterior loss.
 
@@ -1439,7 +1539,7 @@ $$
 Alternatively, we can compute the Bayes risk by first finding the posterior expected loss for a given $x$, and then averaging over the marginal distribution of $x$:
 
 $$
-r(\pi, d) = E_m [ E_{\theta|x} [ L(\theta, d(x)) ] ]
+r(\pi, d) = E_m [ E_{\theta|x} [ \mathcal{L}(\theta, d(x)) ] ]
 $$
 
 **Step 1: Posterior Expected Loss**
