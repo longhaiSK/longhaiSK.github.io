@@ -1419,36 +1419,37 @@ Because $R(\theta, d^{JS}) < p$ for all $\theta$ and $\lim_{\|\theta\| \to \inft
 
 
 ```{r}
-#| label: fig-js-risk-ggplot
-#| fig-cap: "Risk comparison of James-Stein vs MLE (p=10) with approximation."
+#| label: fig-js-risk-ggplot-fixed
+#| fig-cap: "Risk comparison of James-Stein vs MLE (p=10). Note: Ratio uses the right axis."
 #| warning: false
 
 library(ggplot2)
 library(latex2exp)
 
 # Parameters
-p <- 10
+p <- 17
 theta_sq <- seq(0, 50, length.out = 300)
 
 # Create Data Frame
 df <- data.frame(
   theta_sq = theta_sq,
   risk_mle = p,
-  # JS Risk Approximation formula
   risk_js = p - (p - 2)^2 / (p - 2 + theta_sq)
 )
 
 # Calculate Ratio
 df$ratio <- df$risk_js / p
 
-# Scale Factor for Dual Axis (Ratio 0-1 needs to stretch to Risk 0-10)
-scale_factor <- p
+# --- FIX: ADJUST SCALING FACTOR ---
+# We scale the Ratio so 1.0 sits at y = 12 (top of plot), 
+# rather than y = 10, to separate it from the Risk curve.
+y_max_limit <- p+1
+scale_factor <- y_max_limit 
 
-# Define Legend Labels using latex2exp::TeX
-# We use raw strings r'(...)' to avoid escaping backslashes
+# Define Legend Labels
 labels_map <- c(
   "MLE" = TeX(r'($R(\theta, d^{MLE}) = p$)'),
-  "JS" = TeX(r'($R(\theta, d^{JS}) \approx p - \frac{(p-2)^2}{p-2 + \|\theta\|^2}$)'),
+  "JS" = TeX(r'($R(\theta, d^{JS})$)'),
   "Ratio" = TeX(r'(Ratio $\frac{R(\theta, d^{JS})}{R(\theta, d^{MLE})}$)')
 )
 
@@ -1457,20 +1458,21 @@ ggplot(df, aes(x = theta_sq)) +
   geom_line(aes(y = risk_mle, color = "MLE", linetype = "MLE"), size = 1) +
   
   # 2. JS Risk Line (Blue Solid)
-  geom_line(aes(y = risk_js, color = "JS", linetype = "JS"), size = 1) +
+  geom_line(aes(y = risk_js, color = "JS", linetype = "JS"), size = 1.2) +
   
-  # 3. Ratio Line (Green Dot-Dash) - Scaled up
+  # 3. Ratio Line (Green Dot-Dash) 
+  # We scale it up to occupy the full plot height
   geom_line(aes(y = ratio * scale_factor, color = "Ratio", linetype = "Ratio"), size = 1) +
   
   # Axes Configuration
   scale_y_continuous(
     name = "Risk",
-    limits = c(0, p + 2),
-    # Secondary Axis definition
+    limits = c(0, y_max_limit),
+    # Secondary Axis: Divide back by the NEW scale factor
     sec.axis = sec_axis(~ . / scale_factor, name = "Risk Ratio")
   ) +
   
-  # Manual Scale for Colors and Linetypes
+  # Manual Colors and Linetypes
   scale_color_manual(
     name = NULL,
     values = c("MLE" = "firebrick", "JS" = "dodgerblue", "Ratio" = "forestgreen"),
@@ -1484,15 +1486,14 @@ ggplot(df, aes(x = theta_sq)) +
   
   # Theming
   labs(
-    title = TeX(r'(Risk Comparison of Estimators ($p=10$))'),
-    x = TeX(r'($\|\theta\|^2$ (Signal Strength))')
+      title = TeX(sprintf(r'(Risk Comparison of Estimators ($p=%d$))', p)),    
+      x = TeX(r'($\|\theta\|^2$ (Signal Strength))')
   ) +
   theme_minimal() +
   theme(
     legend.position = c(0.95, 0.5),
     legend.justification = c(1, 0.5),
     legend.background = element_rect(fill = "white", color = "gray80"),
-    # Color the secondary axis text to match the line
     axis.title.y.right = element_text(color = "forestgreen"),
     axis.text.y.right = element_text(color = "forestgreen")
   )
