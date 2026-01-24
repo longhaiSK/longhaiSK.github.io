@@ -279,36 +279,41 @@ We define the posterior parameters $\tau' = \tau_0 + n$ and $\mu' = \frac{\tau_0
     $$\mu|\tau, x \sim N(\mu', 1/(\tau'\tau))$$
     $$E[\mu|\tau, x] = \mu' = \frac{\tau_0\mu_0 + n\bar{x}}{\tau_0 + n}$$
 
-* **Marginal Posterior of $\tau$**:
-    We introduce the prior parameters $\alpha=\alpha_0/2$ and $\beta = \alpha_0 w_0/2$, and the MLE variance $\hat{\sigma}^2_{MLE} = S_{xx}/n$.
-    The posterior is $\tau|x \sim \text{Gamma}(\alpha', \beta')$ where:
+* The marginal posterior of the precision is $\tau|x \sim \text{Gamma}(\alpha', \beta')$. While the shape parameter is always $\alpha' = \frac{\alpha_0 + n}{2}$, the rate parameter $\beta'$ can be expressed in this form:
+   $$
+   \beta' = \frac{1}{2} \left[ \alpha_0 w_0 + \sum_{i=1}^n (x_i - \mu_0)^2 - \frac{n^2}{n+\tau_0}(\bar{x}-\mu_0)^2 \right]
+   $$
+   
+   We introduce the prior parameters $\alpha=\alpha_0/2$ and $\beta = \alpha_0 w_0/2$, and the MLE variance $\hat{\sigma}^2_{MLE} = S_{xx}/n$.
+   The posterior is $\tau|x \sim \text{Gamma}(\alpha', \beta')$ where:
 
-    $$
-    \begin{aligned}
-    \alpha' &= \frac{\alpha_0 + n}{2} \\
-    \beta' &= \frac{\alpha_0 w_0 + n\hat{\sigma}^2_{MLE} + \frac{n\tau_0}{n+\tau_0}(\bar{x}-\mu_0)^2}{2}
-    \end{aligned}
-    $$
+   $$
+   \begin{aligned}
+   \alpha' &= \frac{\alpha_0 + n}{2} \\
+   \beta' &= \frac{\alpha_0 w_0 + n\hat{\sigma}^2_{MLE} + \frac{n\tau_0}{n+\tau_0}(\bar{x}-\mu_0)^2}{2}
+   \end{aligned}
+   $$
 
-    - **Approximate Expectation of $\sigma^2$**:
-        Using the approximation $E[\sigma^2|x] \approx 1/E[\tau|x] = \beta'/\alpha'$:
+   **Approximate Expectation of $\sigma^2$**:
+   Using the approximation $E[\sigma^2|x] \approx 1/E[\tau|x] = \beta'/\alpha'$:
 
-        $$
-        E[\sigma^2|x] \approx \frac{\alpha_0 w_0 + n\hat{\sigma}^2_{MLE} + \frac{n\tau_0}{n+\tau_0}(\bar{x}-\mu_0)^2}{\alpha_0 + n}
-        $$
+   $$
+   E[\sigma^2|x] \approx \frac{\alpha_0 w_0 + n\hat{\sigma}^2_{MLE} + \frac{n\tau_0}{n+\tau_0}(\bar{x}-\mu_0)^2}{\alpha_0 + n}
+   $$
 
 * **Conditional Posterior of $\tau|\mu, x$**:
-    If $\mu$ is considered known (or conditioned upon), we combine the terms involving $\tau$ from the joint prior and likelihood, treating $\mu$ as a fixed parameter. Note that the prior term $\pi(\mu|\tau)$ contributes an extra $\tau^{1/2}$.
-    $$
-    \pi(\tau|\mu, x) \propto \tau^{\alpha + \frac{n+1}{2} - 1} \exp\left\{ -\tau \left[ \beta + \frac{1}{2}\sum_{i=1}^n (x_i-\mu)^2 + \frac{\tau_0}{2}(\mu-\mu_0)^2 \right] \right\}
-    $$
-    Thus, $\tau|\mu, x \sim \text{Gamma}(\alpha'', \beta'')$ with shape $\alpha'' = \frac{\alpha_0 + n + 1}{2}$ and rate $\beta'' = \frac{\alpha_0 w_0 + \sum(x_i-\mu)^2 + \tau_0(\mu-\mu_0)^2}{2}$.
+   If $\mu$ is considered known (or conditioned upon), we combine the terms involving $\tau$ from the joint prior and likelihood, treating $\mu$ as a fixed parameter. Note that the prior term $\pi(\mu|\tau)$ contributes an extra $\tau^{1/2}$.
+   $$
+   \pi(\tau|\mu, x) \propto \tau^{\alpha + \frac{n+1}{2} - 1} \exp\left\{ -\tau \left[ \beta + \frac{1}{2}\sum_{i=1}^n (x_i-\mu)^2 + \frac{\tau_0}{2}(\mu-\mu_0)^2 \right] \right\}
+   $$
+   Thus, $\tau|\mu, x \sim \text{Gamma}(\alpha'', \beta'')$ with shape $\alpha'' = \frac{\alpha_0 + n + 1}{2}$ and rate $\beta'' = \frac{\alpha_0 w_0 + \sum(x_i-\mu)^2 + \tau_0(\mu-\mu_0)^2}{2}$.
 
-    The approximate expectation of the variance is:
-    $$
-    E[\sigma^2|\mu, x] \approx \frac{\beta''}{\alpha''} = \frac{\alpha_0 w_0 + \sum_{i=1}^n (x_i-\mu)^2 + \tau_0(\mu-\mu_0)^2}{\alpha_0 + n + 1}
-    $$
+   The approximate expectation of the variance is:
+   $$
+   E[\sigma^2|\mu, x] \approx \frac{\beta''}{\alpha''} = \frac{\alpha_0 w_0 + \sum_{i=1}^n (x_i-\mu)^2 + \tau_0(\mu-\mu_0)^2}{\alpha_0 + n + 1}
+   $$
 :::
+
 ## Finding Bayes Rules via Minimizing Posterior Expected Loss
 
 The general form of Bayes rule is derived by minimizing risk.
@@ -384,7 +389,7 @@ $$
 
 
 :::{.callout-important}
-Therefore, to minimize the Bayes risk, one just need to  choose $d(x)$ to minimize the posterior expected loss for each $x$.
+Therefore, to minimize the Bayes risk, one just need to  choose $d(x)$ to minimize the **posterior expected loss** for each data set $x$.
 :::
 
 The following diagram summarizes the general workflow for deriving a Bayes estimator:
