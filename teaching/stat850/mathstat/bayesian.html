@@ -216,7 +216,10 @@ window.Quarto = {
   <li><a href="#classification-prediction" id="toc-classification-prediction" class="nav-link" data-scroll-target="#classification-prediction"><span class="header-section-number">3.3.5</span> Classification Prediction</a></li>
   <li><a href="#interval-estimation-as-a-decision-problem" id="toc-interval-estimation-as-a-decision-problem" class="nav-link" data-scroll-target="#interval-estimation-as-a-decision-problem"><span class="header-section-number">3.3.6</span> Interval Estimation as a Decision Problem</a></li>
   </ul></li>
-  <li><a href="#finding-minimax-rules-with-bayes-rules" id="toc-finding-minimax-rules-with-bayes-rules" class="nav-link" data-scroll-target="#finding-minimax-rules-with-bayes-rules"><span class="header-section-number">3.4</span> Finding Minimax Rules with Bayes Rules</a></li>
+  <li><a href="#finding-minimax-rules-with-bayes-rules" id="toc-finding-minimax-rules-with-bayes-rules" class="nav-link" data-scroll-target="#finding-minimax-rules-with-bayes-rules"><span class="header-section-number">3.4</span> Finding Minimax Rules with Bayes Rules</a>
+  <ul>
+  <li><a href="#binomial-minimax-estimator" id="toc-binomial-minimax-estimator" class="nav-link" data-scroll-target="#binomial-minimax-estimator"><span class="header-section-number">3.4.1</span> Binomial Minimax Estimator</a></li>
+  </ul></li>
   <li><a href="#steins-paradox-and-the-james-stein-estimator" id="toc-steins-paradox-and-the-james-stein-estimator" class="nav-link" data-scroll-target="#steins-paradox-and-the-james-stein-estimator"><span class="header-section-number">3.5</span> Stein’s Paradox and the James-stein Estimator</a>
   <ul>
   <li><a href="#the-problem-of-estimating-normal-mean" id="toc-the-problem-of-estimating-normal-mean" class="nav-link" data-scroll-target="#the-problem-of-estimating-normal-mean"><span class="header-section-number">3.5.1</span> The Problem of Estimating Normal Mean</a></li>
@@ -227,10 +230,11 @@ window.Quarto = {
   </ul></li>
   <li><a href="#steins-lemma" id="toc-steins-lemma" class="nav-link" data-scroll-target="#steins-lemma"><span class="header-section-number">3.5.3</span> Stein’s Lemma</a></li>
   <li><a href="#inadmissibility-of-the-mle-in-high-dimensions-steins-phenomenon" id="toc-inadmissibility-of-the-mle-in-high-dimensions-steins-phenomenon" class="nav-link" data-scroll-target="#inadmissibility-of-the-mle-in-high-dimensions-steins-phenomenon"><span class="header-section-number">3.5.4</span> Inadmissibility of the MLE in High Dimensions (Stein’s Phenomenon)</a></li>
-  <li><a href="#bayes-risk-of-james-stein-estimator" id="toc-bayes-risk-of-james-stein-estimator" class="nav-link" data-scroll-target="#bayes-risk-of-james-stein-estimator"><span class="header-section-number">3.5.5</span> Bayes Risk of James-stein Estimator</a></li>
-  <li><a href="#practical-application-one-way-anova-and-borrowing-strength" id="toc-practical-application-one-way-anova-and-borrowing-strength" class="nav-link" data-scroll-target="#practical-application-one-way-anova-and-borrowing-strength"><span class="header-section-number">3.5.6</span> Practical Application: One-way ANOVA and “Borrowing Strength”</a></li>
-  <li><a href="#why-is-this-paradoxical" id="toc-why-is-this-paradoxical" class="nav-link" data-scroll-target="#why-is-this-paradoxical"><span class="header-section-number">3.5.7</span> Why Is This Paradoxical?</a></li>
-  <li><a href="#what-we-learned" id="toc-what-we-learned" class="nav-link" data-scroll-target="#what-we-learned"><span class="header-section-number">3.5.8</span> What We Learned</a></li>
+  <li><a href="#risk-comparison-under-normalized-loss-optional" id="toc-risk-comparison-under-normalized-loss-optional" class="nav-link" data-scroll-target="#risk-comparison-under-normalized-loss-optional"><span class="header-section-number">3.5.5</span> Risk Comparison under Normalized Loss (Optional)</a></li>
+  <li><a href="#bayes-risk-of-james-stein-estimator-optional" id="toc-bayes-risk-of-james-stein-estimator-optional" class="nav-link" data-scroll-target="#bayes-risk-of-james-stein-estimator-optional"><span class="header-section-number">3.5.6</span> Bayes Risk of James-stein Estimator (Optional)</a></li>
+  <li><a href="#practical-application-one-way-anova-and-borrowing-strength" id="toc-practical-application-one-way-anova-and-borrowing-strength" class="nav-link" data-scroll-target="#practical-application-one-way-anova-and-borrowing-strength"><span class="header-section-number">3.5.7</span> Practical Application: One-way ANOVA and “Borrowing Strength”</a></li>
+  <li><a href="#why-is-this-paradoxical" id="toc-why-is-this-paradoxical" class="nav-link" data-scroll-target="#why-is-this-paradoxical"><span class="header-section-number">3.5.8</span> Why Is This Paradoxical?</a></li>
+  <li><a href="#what-we-learned" id="toc-what-we-learned" class="nav-link" data-scroll-target="#what-we-learned"><span class="header-section-number">3.5.9</span> What We Learned</a></li>
   </ul></li>
   <li><a href="#empirical-bayes-rules" id="toc-empirical-bayes-rules" class="nav-link" data-scroll-target="#empirical-bayes-rules"><span class="header-section-number">3.6</span> Empirical Bayes Rules</a>
   <ul>
@@ -571,17 +575,17 @@ E[\sigma^2|\mu, x] \approx \frac{\beta''}{\alpha''} = \frac{\alpha_0 w_0 + \sum_
 <li><span class="math inline">\(\pi(\theta)\)</span>: prior probability distribution over the parameter space</li>
 <li><span class="math inline">\(f(x;\theta)\)</span>: likelihood or sampling distribution of the data given the parameter</li>
 <li><span class="math inline">\(d: X \to A\)</span>: decision rule mapping observed data to an action/decision</li>
-<li><span class="math inline">\(L(\theta, a)\)</span>: loss function measuring the loss incurred when the true parameter is <span class="math inline">\(\theta\)</span> and action <span class="math inline">\(a\)</span> is taken</li>
+<li><span class="math inline">\(\mathcal{L}(\theta, a)\)</span>: loss function measuring the loss incurred when the true parameter is <span class="math inline">\(\theta\)</span> and action <span class="math inline">\(a\)</span> is taken</li>
 </ul>
 <p><strong>Definition:</strong></p>
 <ul>
-<li><p><strong>Risk Function:</strong> For a given decision rule <span class="math inline">\(d\)</span> and parameter value <span class="math inline">\(\theta\)</span>, <span class="math display">\[R(\theta, d) = \int_{X} L(\theta, d(x)) f(x;\theta) dx\]</span> is the expected loss with respect to the sampling distribution when the true parameter is <span class="math inline">\(\theta\)</span>.</p></li>
+<li><p><strong>Risk Function:</strong> For a given decision rule <span class="math inline">\(d\)</span> and parameter value <span class="math inline">\(\theta\)</span>, <span class="math display">\[R(\theta, d) = \int_{X} \mathcal{L}(\theta, d(x)) f(x;\theta) dx\]</span> is the expected loss with respect to the sampling distribution when the true parameter is <span class="math inline">\(\theta\)</span>.</p></li>
 <li><p><strong>Bayes Risk:</strong> For a decision rule <span class="math inline">\(d\)</span> and prior distribution <span class="math inline">\(\pi\)</span>, <span class="math display">\[r(\pi, d) = \int_{\Theta} R(\theta, d) \pi(\theta) d\theta\]</span> is the expected risk averaging over both the parameter uncertainty (prior) and the data variability (likelihood).</p></li>
 </ul>
 </div>
 <div id="thm-bayes-rule-minimization" class="theorem">
 <p><span class="theorem-title"><strong>Theorem 3.1 (Minimization of Bayes Risk)</strong></span> Minimizing the Bayes risk <span class="math inline">\(r(\pi, d)\)</span> is equivalent to minimizing the posterior expected loss for each observed <span class="math inline">\(x\)</span>. That is, the Bayes rule <span class="math inline">\(d(x)\)</span> satisfies: <span class="math display">\[
-d(x) = \underset{a}{\arg\min} \ E_{\theta|x} [ L(\theta, a) ]
+d(x) = \underset{a}{\arg\min} \ E_{\theta|x} [ \mathcal{L}(\theta, a) ]
 \]</span></p>
 </div>
 <div class="proof">
@@ -589,24 +593,24 @@ d(x) = \underset{a}{\arg\min} \ E_{\theta|x} [ L(\theta, a) ]
 <p><span class="math display">\[
 \begin{aligned}
 r(\pi, d) &amp;= \int_{\Theta} R(\theta, d) \pi(\theta) d\theta \\
-&amp;= \int_{\Theta} \left[ \int_{X} L(\theta, d(x)) f(x|\theta) dx \right] \pi(\theta) d\theta
+&amp;= \int_{\Theta} \left[ \int_{X} \mathcal{L}(\theta, d(x)) f(x|\theta) dx \right] \pi(\theta) d\theta
 \end{aligned}
 \]</span></p>
 <p>Assuming the conditions for Fubini’s Theorem are met, we switch the order of integration:</p>
 <p><span class="math display">\[
-r(\pi, d) = \int_{X} \left[ \int_{\Theta} L(\theta, d(x)) f(x|\theta) \pi(\theta) d\theta \right] dx
+r(\pi, d) = \int_{X} \left[ \int_{\Theta} \mathcal{L}(\theta, d(x)) f(x|\theta) \pi(\theta) d\theta \right] dx
 \]</span></p>
 <p>Recall that the joint density can be factored as <span class="math inline">\(f(x, \theta) = f(x|\theta)\pi(\theta) = \pi(\theta|x)m(x)\)</span>, where <span class="math inline">\(m(x)\)</span> is the marginal density of the data. Substituting this into the inner integral:</p>
 <p><span class="math display">\[
 \begin{aligned}
-r(\pi, d) &amp;= \int_{X} \left[ \int_{\Theta} L(\theta, d(x)) \pi(\theta|x) m(x) d\theta \right] dx \\
-&amp;= \int_{X} m(x) \left[ \int_{\Theta} L(\theta, d(x)) \pi(\theta|x) d\theta \right] dx
+r(\pi, d) &amp;= \int_{X} \left[ \int_{\Theta} \mathcal{L}(\theta, d(x)) \pi(\theta|x) m(x) d\theta \right] dx \\
+&amp;= \int_{X} m(x) \left[ \int_{\Theta} \mathcal{L}(\theta, d(x)) \pi(\theta|x) d\theta \right] dx
 \end{aligned}
 \]</span></p>
 <p>Since the marginal density <span class="math inline">\(m(x)\)</span> is non-negative, minimizing the total integral <span class="math inline">\(r(\pi, d)\)</span> with respect to the decision rule <span class="math inline">\(d(\cdot)\)</span> is equivalent to minimizing the term inside the brackets for every <span class="math inline">\(x\)</span> (specifically where <span class="math inline">\(m(x) &gt; 0\)</span>).</p>
 <p>The term inside the brackets is the <strong>Posterior Expected Loss</strong>:</p>
 <p><span class="math display">\[
-\int_{\Theta} L(\theta, d(x)) \pi(\theta|x) d\theta = E_{\theta|x} [ L(\theta, d(x)) ]
+\int_{\Theta} \mathcal{L}(\theta, d(x)) \pi(\theta|x) d\theta = E_{\theta|x} [ \mathcal{L}(\theta, d(x)) ]
 \]</span></p>
 </div>
 <div class="callout callout-style-default callout-important callout-titled">
@@ -642,14 +646,14 @@ Figure&nbsp;3.3: Workflow for Finding the Bayes Rule
 <h2 data-number="3.3" class="anchored" data-anchor-id="special-bayes-rules"><span class="header-section-number">3.3</span> Special Bayes Rules</h2>
 <section id="squared-error-loss-point-estimate" class="level3" data-number="3.3.1">
 <h3 data-number="3.3.1" class="anchored" data-anchor-id="squared-error-loss-point-estimate"><span class="header-section-number">3.3.1</span> Squared Error Loss (point Estimate)</h3>
-<p><span class="math display">\[L(\theta, a) = (\theta - a)^2\]</span></p>
+<p><span class="math display">\[\mathcal{L}(\theta, a) = (\theta - a)^2\]</span></p>
 <p>To find the optimal estimator <span class="math inline">\(d(x)\)</span>, we minimize the posterior expected loss <span class="math inline">\(E_{\theta|x}[(\theta - d(x))^2]\)</span>. Taking the derivative with respect to <span class="math inline">\(d\)</span> and setting it to 0:</p>
 <p><span class="math display">\[-2 E_{\theta|x}(\theta - d) = 0 \implies d(x) = E(\theta|x)\]</span></p>
 <p><strong>Result:</strong> The Bayes rule under squared error loss is the <strong>posterior mean</strong>.</p>
 </section>
 <section id="absolute-error-loss" class="level3" data-number="3.3.2">
 <h3 data-number="3.3.2" class="anchored" data-anchor-id="absolute-error-loss"><span class="header-section-number">3.3.2</span> Absolute Error Loss</h3>
-<p><span class="math display">\[L(\theta, d) = |\theta - d|\]</span></p>
+<p><span class="math display">\[\mathcal{L}(\theta, d) = |\theta - d|\]</span></p>
 <p>To find the Bayes rule, we minimize the posterior expected loss:</p>
 <p><span class="math display">\[
 \psi(d) = E_{\theta|x} [ |\theta - d| ] = \int_{-\infty}^{\infty} |\theta - d| \, dF(\theta|x)
@@ -678,7 +682,7 @@ P(\theta \le d|x) = P(\theta &gt; d|x)
 </section>
 <section id="weighted-absolute-error-loss-min-normalization" class="level3" data-number="3.3.3">
 <h3 data-number="3.3.3" class="anchored" data-anchor-id="weighted-absolute-error-loss-min-normalization"><span class="header-section-number">3.3.3</span> Weighted Absolute Error Loss (min-normalization)</h3>
-<p><span class="math display">\[L(\theta, d) = \frac{|\theta - d|}{\min(\theta, 1-\theta)}\]</span></p>
+<p><span class="math display">\[\mathcal{L}(\theta, d) = \frac{|\theta - d|}{\min(\theta, 1-\theta)}\]</span></p>
 <p>This loss function penalizes errors extremely heavily when the true parameter <span class="math inline">\(\theta\)</span> is near the boundaries (0 or 1). Because the denominator approaches zero at the boundaries, the “cost” of an error becomes infinite, forcing the estimator to be very cautious (conservative) if the posterior has significant mass near 0 or 1.</p>
 <p>To find the Bayes rule, we minimize the posterior expected loss. Let <span class="math inline">\(\pi(\theta|x)\)</span> denote the posterior density.</p>
 <p><span class="math display">\[
@@ -820,13 +824,13 @@ Table&nbsp;3.1: Standard 0-1 Loss Function
 </div>
 </figure>
 </div>
-<p>To find the Bayes rule, we minimize the <strong>posterior expected loss</strong> for a given <span class="math inline">\(x\)</span>, denoted as <span class="math inline">\(E_{\theta|x}[L(\theta, a)]\)</span>.</p>
+<p>To find the Bayes rule, we minimize the <strong>posterior expected loss</strong> for a given <span class="math inline">\(x\)</span>, denoted as <span class="math inline">\(E_{\theta|x}[\mathcal{L}(\theta, a)]\)</span>.</p>
 <ul>
 <li><p><strong>Expected Loss for choosing <span class="math inline">\(a=0\)</span> (Accept <span class="math inline">\(H_0\)</span>):</strong> <span class="math display">\[
-  E_{\theta|x}[L(\theta, 0)] = 0 \cdot P(\theta \in \Theta_0|x) + 1 \cdot P(\theta \in \Theta_1|x) = P(\theta \in \Theta_1|x)
+  E_{\theta|x}[\mathcal{L}(\theta, 0)] = 0 \cdot P(\theta \in \Theta_0|x) + 1 \cdot P(\theta \in \Theta_1|x) = P(\theta \in \Theta_1|x)
   \]</span></p></li>
 <li><p><strong>Expected Loss for choosing <span class="math inline">\(a=1\)</span> (Reject <span class="math inline">\(H_0\)</span>):</strong> <span class="math display">\[
-  E_{\theta|x}[L(\theta, 1)] = 1 \cdot P(\theta \in \Theta_0|x) + 0 \cdot P(\theta \in \Theta_1|x) = P(\theta \in \Theta_0|x)
+  E_{\theta|x}[\mathcal{L}(\theta, 1)] = 1 \cdot P(\theta \in \Theta_0|x) + 0 \cdot P(\theta \in \Theta_1|x) = P(\theta \in \Theta_0|x)
   \]</span></p></li>
 </ul>
 <p>The Bayes rule selects the action with the smaller expected loss. Thus, we choose <span class="math inline">\(a=1\)</span> if: <span class="math display">\[
@@ -877,8 +881,8 @@ Table&nbsp;3.2: Loss Function with Type I Error Cost <span class="math inline">\
 </div>
 <p>We again calculate the posterior expected loss:</p>
 <ul>
-<li><p><strong>Expected Loss for <span class="math inline">\(a=0\)</span>:</strong> <span class="math display">\[E[L(\theta, 0)|x] = 0 \cdot P(\Theta_0|x) + 1 \cdot P(\Theta_1|x) = P(\Theta_1|x)\]</span></p></li>
-<li><p><strong>Expected Loss for <span class="math inline">\(a=1\)</span>:</strong> <span class="math display">\[E[L(\theta, 1)|x] = c \cdot P(\Theta_0|x) + 0 \cdot P(\Theta_1|x) = c P(\Theta_0|x)\]</span></p></li>
+<li><p><strong>Expected Loss for <span class="math inline">\(a=0\)</span>:</strong> <span class="math display">\[E[\mathcal{L}(\theta, 0)|x] = 0 \cdot P(\Theta_0|x) + 1 \cdot P(\Theta_1|x) = P(\Theta_1|x)\]</span></p></li>
+<li><p><strong>Expected Loss for <span class="math inline">\(a=1\)</span>:</strong> <span class="math display">\[E[\mathcal{L}(\theta, 1)|x] = c \cdot P(\Theta_0|x) + 0 \cdot P(\Theta_1|x) = c P(\Theta_0|x)\]</span></p></li>
 </ul>
 <p>We reject <span class="math inline">\(H_0\)</span> (<span class="math inline">\(a=1\)</span>) if the expected loss of doing so is lower: <span class="math display">\[
 c P(\Theta_0|x) \le P(\Theta_1|x)
@@ -921,14 +925,14 @@ E_{y|x}[L(y, \hat{y})] = \sum_{y \neq \hat{y}} 1 \cdot P(y|x) = P(y \neq \hat{y}
 <h3 data-number="3.3.6" class="anchored" data-anchor-id="interval-estimation-as-a-decision-problem"><span class="header-section-number">3.3.6</span> Interval Estimation as a Decision Problem</h3>
 <p>We can motivate the choice of a Credible Interval by defining a specific loss function for interval estimation. We define the <strong>action space</strong> <span class="math inline">\(\mathcal{A}\)</span> as the set of all intervals of fixed radius <span class="math inline">\(\delta &gt; 0\)</span> centered at <span class="math inline">\(d\)</span>, i.e., <span class="math inline">\(\mathcal{A} = \{ [d - \delta, d + \delta] \mid d \in \mathbb{R} \}\)</span>.</p>
 <p>The loss function is defined as: <span class="math display">\[
-L(\theta, d) = \begin{cases}
+\mathcal{L}(\theta, d) = \begin{cases}
 0 &amp; \text{if } |\theta - d| \le \delta \quad (\theta \in [d-\delta, d+\delta]) \\
 1 &amp; \text{if } |\theta - d| &gt; \delta \quad (\theta \notin [d-\delta, d+\delta])
 \end{cases}
 \]</span></p>
 <p><strong>Derivation of the Bayes Rule</strong></p>
 <p>We minimize the <strong>Expected Posterior Loss</strong>, which is simply the probability that <span class="math inline">\(\theta\)</span> falls outside the interval: <span class="math display">\[
-E[L(\theta, d)|x] = 1 \cdot P(|\theta - d| &gt; \delta | x) = 1 - P(d - \delta \le \theta \le d + \delta | x)
+E[\mathcal{L}(\theta, d)|x] = 1 \cdot P(|\theta - d| &gt; \delta | x) = 1 - P(d - \delta \le \theta \le d + \delta | x)
 \]</span></p>
 <p>Minimizing this loss is equivalent to maximizing the posterior probability mass contained within the interval. Thus, the Bayes estimator <span class="math inline">\(d\)</span> is: <span class="math display">\[
 d_{\text{Bayes}} = \underset{d}{\arg\max} \int_{d-\delta}^{d+\delta} \pi(\theta|x) \, d\theta
@@ -964,8 +968,10 @@ Figure&nbsp;3.4: Comparison of HPD and Equal-Tailed Intervals for a Skewed Distr
 <h2 data-number="3.4" class="anchored" data-anchor-id="finding-minimax-rules-with-bayes-rules"><span class="header-section-number">3.4</span> Finding Minimax Rules with Bayes Rules</h2>
 <p><a href="decision.html#thm-minimax-constant" class="quarto-xref">Theorem&nbsp;<span>2.1</span></a> states that if a Bayes estimator <span class="math inline">\(\delta^\pi\)</span> (derived from a prior <span class="math inline">\(\pi\)</span>) yields a constant risk <span class="math inline">\(R(\theta, \delta^\pi) = c\)</span> across the entire parameter space <span class="math inline">\(\Theta\)</span>, then that estimator is necessarily minimax.</p>
 <p>This result is a cornerstone of decision theory because it provides a sufficient condition for minimaxity. While the minimax criterion focuses on the “worst-case scenario” by minimizing the maximum possible risk, the Bayes criterion focuses on the “average-case scenario” relative to a prior. When the risk is constant, these two perspectives align: the average risk equals the maximum risk, and no other estimator can achieve a lower maximum without also having a lower Bayes risk, which would contradict the optimality of the Bayes rule.</p>
+<section id="binomial-minimax-estimator" class="level3" data-number="3.4.1">
+<h3 data-number="3.4.1" class="anchored" data-anchor-id="binomial-minimax-estimator"><span class="header-section-number">3.4.1</span> Binomial Minimax Estimator</h3>
 <div id="exm-binomial-minimax" class="theorem example">
-<p><span class="theorem-title"><strong>Example 3.5 (Binomial Minimax Estimator)</strong></span> Let <span class="math inline">\(X \sim \text{Bin}(n, \theta)\)</span> and <span class="math inline">\(\theta \sim \text{Beta}(a, b)\)</span>. The squared error loss is <span class="math inline">\(L(\theta, d) = (\theta - d)^2\)</span>. The Bayes estimator is the posterior mean: <span class="math display">\[d(x) = \frac{a+x}{a+b+n}\]</span></p>
+<p><span class="theorem-title"><strong>Example 3.5</strong></span> Let <span class="math inline">\(X \sim \text{Bin}(n, \theta)\)</span> and <span class="math inline">\(\theta \sim \text{Beta}(a, b)\)</span>. The squared error loss is <span class="math inline">\(\mathcal{L}(\theta, d) = (\theta - d)^2\)</span>. The Bayes estimator is the posterior mean: <span class="math display">\[d(x) = \frac{a+x}{a+b+n}\]</span></p>
 <p>We calculate the risk <span class="math inline">\(R(\theta, d)\)</span>:</p>
 <p><span class="math display">\[
 R(\theta, d) = E_x \left[ \left( \theta - \frac{a+x}{a+b+n} \right)^2 \right]
@@ -975,7 +981,6 @@ R(\theta, d) = E_x \left[ \left( \theta - \frac{a+x}{a+b+n} \right)^2 \right]
 <p>Solving the resulting system of equations yields: <span class="math display">\[a = b = \frac{\sqrt{n}}{2}\]</span></p>
 <p>Thus, the minimax estimator is: <span class="math display">\[d(x) = \frac{x + \sqrt{n}/2}{n + \sqrt{n}}\]</span></p>
 <p>This differs from the standard MLE <span class="math inline">\(\hat{p} = x/n\)</span> and the uniform prior Bayes estimator (<span class="math inline">\(a=b=1\)</span>).</p>
-</div>
 <p>According to <a href="decision.html#thm-limits" class="quarto-xref">Theorem&nbsp;<span>2.2</span></a>, let <span class="math inline">\(\{\delta_n\}\)</span> be a sequence of Bayes rules with respect to priors <span class="math inline">\(\{\pi_n\}\)</span>, and let <span class="math inline">\(r(\pi_n, \delta_n)\)</span> be the associated Bayes risks. If there exists a rule <span class="math inline">\(\delta_0\)</span> such that <span class="math display">\[
 \sup_{\theta} R(\theta, \delta_0) \le \lim_{n \to \infty} r(\pi_n, \delta_n)
 \]</span> then <span class="math inline">\(\delta_0\)</span> is a minimax estimator.</p>
@@ -991,48 +996,59 @@ d(x) = w \hat{p} + (1-w) p_0
 <li><strong><span class="math inline">\(p_0 = 0.5\)</span></strong>: The estimator shrinks the data toward a neutral prior mean of <span class="math inline">\(0.5\)</span> (representing maximum uncertainty).</li>
 <li><strong><span class="math inline">\(w = \frac{n}{n+\sqrt{n}}\)</span></strong>: The weight assigned to the data. As the sample size <span class="math inline">\(n\)</span> increases, <span class="math inline">\(w \to 1\)</span>, and the minimax estimator converges to the MLE.</li>
 </ul>
+</div>
 <div id="exm-exponential-minimax" class="theorem example">
-<p><span class="theorem-title"><strong>Example 3.6 (Exponential Minimax Estimation)</strong></span> Let <span class="math inline">\(X_1, \dots, X_n \overset{iid}{\sim} \text{Exp}(\theta)\)</span> with mean <span class="math inline">\(\theta\)</span>. We consider the <strong>Scale-Invariant Loss Function</strong>:</p>
+<p><span class="theorem-title"><strong>Example 3.6 (Exponential Minimax Estimation)</strong></span> Let <span class="math inline">\(x_1, \dots, x_n\)</span> be a sample from an <span class="math inline">\(\text{Exp}(\theta)\)</span> distribution with mean <span class="math inline">\(\theta\)</span>. We consider the <strong>Scale-Invariant Loss Function</strong>:</p>
 <p><span class="math display">\[
-L(\theta, \delta) = \left( \frac{\delta}{\theta} - 1 \right)^2
+\mathcal{L}(\theta, d) = \left( \frac{d}{\theta} - 1 \right)^2
 \]</span></p>
-<p>We propose the estimator <span class="math inline">\(\delta_0(X) = \frac{\sum X_i}{n+1}\)</span>. Consider a sequence of priors <span class="math inline">\(\pi_k \sim \text{Inverse-Gamma}(\alpha_k, \beta_k)\)</span> for <span class="math inline">\(\theta\)</span>, where the density is given by <span class="math inline">\(\pi(\theta) \propto \theta^{-\alpha_k - 1} e^{-\beta_k / \theta}\)</span>.</p>
-<p>We will show that <span class="math inline">\(\delta_0\)</span> is a minimax estimator by deriving the Bayes estimator for this sequence and comparing the risks.</p>
+<p><strong>Derivation of the MLE</strong></p>
+<p>The likelihood function is given by: <span class="math display">\[
+L(\theta|x) = \prod_{i=1}^n \frac{1}{\theta} e^{-x_i/\theta} = \theta^{-n} e^{-\frac{1}{\theta}\sum x_i}
+\]</span> The log-likelihood is: <span class="math display">\[
+\ell(\theta) = -n \ln \theta - \frac{1}{\theta} \sum_{i=1}^n x_i
+\]</span> Differentiating with respect to <span class="math inline">\(\theta\)</span> and setting to zero: <span class="math display">\[
+\frac{\partial \ell}{\partial \theta} = -\frac{n}{\theta} + \frac{\sum x_i}{\theta^2} = 0 \implies \hat{\theta}_{MLE} = \frac{\sum x_i}{n} = \bar{x}
+\]</span></p>
+<p><strong>Minimax Estimation</strong></p>
+<p>We propose the estimator <span class="math inline">\(d_0(x) = \frac{\sum x_i}{n+1}\)</span>. Note that this shrinks the MLE slightly. Consider a sequence of priors <span class="math inline">\(\pi_k \sim \text{Inverse-Gamma}(\alpha_k, \beta_k)\)</span> for <span class="math inline">\(\theta\)</span>, where the density is given by <span class="math inline">\(\pi(\theta) \propto \theta^{-\alpha_k - 1} e^{-\beta_k / \theta}\)</span>.</p>
+<p>We will show that <span class="math inline">\(d_0\)</span> is a minimax estimator by deriving the Bayes estimator for this sequence and comparing the risks.</p>
 <p><strong>Posterior Analysis and Moments</strong></p>
-<p>Let <span class="math inline">\(T = \sum X_i\)</span>. The likelihood is <span class="math inline">\(L(\theta|X) = \theta^{-n} e^{-T/\theta}\)</span>. Multiplying by the prior <span class="math inline">\(\pi_k(\theta)\)</span>, the posterior density is:</p>
+<p>Let <span class="math inline">\(T = \sum x_i\)</span>. The likelihood is <span class="math inline">\(L(\theta|x) = \theta^{-n} e^{-T/\theta}\)</span>. Multiplying by the prior <span class="math inline">\(\pi_k(\theta)\)</span>, the posterior density is:</p>
 <p><span class="math display">\[
-\pi(\theta | X) \propto \theta^{-(n + \alpha_k) - 1} e^{-(T + \beta_k)/\theta}
+\pi(\theta | x) \propto \theta^{-(n + \alpha_k) - 1} e^{-(T + \beta_k)/\theta}
 \]</span></p>
 <p>This is an <strong>Inverse-Gamma</strong> distribution with parameters <span class="math inline">\(\alpha^* = n + \alpha_k\)</span> and <span class="math inline">\(\beta^* = T + \beta_k\)</span>. Using the properties of the Inverse-Gamma distribution, the required posterior moments are:</p>
 <p><span class="math display">\[
-E[\theta^{-1} | X] = \frac{n + \alpha_k}{T + \beta_k}, \quad E[\theta^{-2} | X] = \frac{(n + \alpha_k)(n + \alpha_k + 1)}{(T + \beta_k)^2}
+E[\theta^{-1} | x] = \frac{n + \alpha_k}{T + \beta_k}, \quad E[\theta^{-2} | x] = \frac{(n + \alpha_k)(n + \alpha_k + 1)}{(T + \beta_k)^2}
 \]</span></p>
-<p>The posterior expected loss is <span class="math inline">\(E[ L(\theta, \delta) | X ] = \delta^2 E[\theta^{-2} | X] - 2\delta E[\theta^{-1} | X] + 1\)</span>.</p>
+<p>The posterior expected loss is <span class="math inline">\(E[ \mathcal{L}(\theta, d) | x ] = d^2 E[\theta^{-2} | x] - 2d E[\theta^{-1} | x] + 1\)</span>.</p>
 <p><strong>Derivation of the Bayes Estimator</strong></p>
-<p>Minimizing the posterior expected loss with respect to <span class="math inline">\(\delta\)</span> yields <span class="math inline">\(\delta_{\pi_k} = \frac{E[\theta^{-1} | X]}{E[\theta^{-2} | X]}\)</span>. Substituting the moments derived above:</p>
+<p>Minimizing the posterior expected loss with respect to <span class="math inline">\(d\)</span> yields <span class="math inline">\(d_{\pi_k} = \frac{E[\theta^{-1} | x]}{E[\theta^{-2} | x]}\)</span>. Substituting the moments derived above:</p>
 <p><span class="math display">\[
-\delta_{\pi_k}(X) = \frac{ \frac{n + \alpha_k}{T + \beta_k} }{ \frac{(n + \alpha_k)(n + \alpha_k + 1)}{(T + \beta_k)^2} } = \frac{T + \beta_k}{n + \alpha_k + 1}
+d_{\pi_k}(x) = \frac{ \frac{n + \alpha_k}{T + \beta_k} }{ \frac{(n + \alpha_k)(n + \alpha_k + 1)}{(T + \beta_k)^2} } = \frac{T + \beta_k}{n + \alpha_k + 1}
 \]</span></p>
 <p><strong>Bayes Risk Limit</strong></p>
-<p>The Bayes risk <span class="math inline">\(r(\pi_k)\)</span> is the expected value of the minimum posterior loss. Substituting <span class="math inline">\(\delta_{\pi_k}\)</span> back into the loss equation:</p>
+<p>The Bayes risk <span class="math inline">\(r(\pi_k)\)</span> is the expected value of the minimum posterior loss. Substituting <span class="math inline">\(d_{\pi_k}\)</span> back into the loss equation:</p>
 <p><span class="math display">\[
-r(\pi_k | X) = 1 - \frac{(E[\theta^{-1}|X])^2}{E[\theta^{-2}|X]} = 1 - \frac{n + \alpha_k}{n + \alpha_k + 1} = \frac{1}{n + \alpha_k + 1}
+r(\pi_k | x) = 1 - \frac{(E[\theta^{-1}|x])^2}{E[\theta^{-2}|x]} = 1 - \frac{n + \alpha_k}{n + \alpha_k + 1} = \frac{1}{n + \alpha_k + 1}
 \]</span></p>
-<p>Since this does not depend on <span class="math inline">\(X\)</span>, the integrated Bayes risk is <span class="math inline">\(r(\pi_k) = \frac{1}{n + \alpha_k + 1}\)</span>. Taking the limit as the prior parameters approach zero (<span class="math inline">\(\alpha_k \to 0\)</span>):</p>
+<p>Since this does not depend on <span class="math inline">\(x\)</span>, the integrated Bayes risk is <span class="math inline">\(r(\pi_k) = \frac{1}{n + \alpha_k + 1}\)</span>. Taking the limit as the prior parameters approach zero (<span class="math inline">\(\alpha_k \to 0\)</span>):</p>
 <p><span class="math display">\[
 \lim_{k \to \infty} r(\pi_k) = \frac{1}{n+1}
 \]</span></p>
 <p><strong>Minimax Verification</strong></p>
-<p>Finally, we calculate the frequentist risk for the candidate estimator <span class="math inline">\(\delta_0(X) = \frac{T}{n+1}\)</span>. Let <span class="math inline">\(Y = T/\theta \sim \text{Gamma}(n, 1)\)</span>.</p>
+<p>Finally, we calculate the frequentist risk for the candidate estimator <span class="math inline">\(d_0(x) = \frac{T}{n+1}\)</span>. Let <span class="math inline">\(Y = T/\theta \sim \text{Gamma}(n, 1)\)</span>.</p>
 <p><span class="math display">\[
-R(\theta, \delta_0) = E \left[ \left( \frac{Y}{n+1} - 1 \right)^2 \right] = \text{Var}\left(\frac{Y}{n+1}\right) + \left(E\left[\frac{Y}{n+1}\right]-1\right)^2
+R(\theta, d_0) = E \left[ \left( \frac{Y}{n+1} - 1 \right)^2 \right] = \text{Var}\left(\frac{Y}{n+1}\right) + \left(E\left[\frac{Y}{n+1}\right]-1\right)^2
 \]</span></p>
 <p>With <span class="math inline">\(E[Y]=n\)</span> and <span class="math inline">\(\text{Var}(Y)=n\)</span>, the risk is:</p>
 <p><span class="math display">\[
-R(\theta, \delta_0) = \frac{n}{(n+1)^2} + \left( \frac{n}{n+1} - 1 \right)^2 = \frac{1}{n+1}
+R(\theta, d_0) = \frac{n}{(n+1)^2} + \left( \frac{n}{n+1} - 1 \right)^2 = \frac{1}{n+1}
 \]</span></p>
-<p>Since the risk of <span class="math inline">\(\delta_0\)</span> is constant and equals the limit of the Bayes risks (<span class="math inline">\(\frac{1}{n+1}\)</span>), <span class="math inline">\(\delta_0\)</span> is a <strong>minimax estimator</strong>.</p>
+<p>Since the risk of <span class="math inline">\(d_0\)</span> is constant and equals the limit of the Bayes risks (<span class="math inline">\(\frac{1}{n+1}\)</span>), <span class="math inline">\(d_0\)</span> is a <strong>minimax estimator</strong>.</p>
 </div>
+</section>
 </section>
 <section id="steins-paradox-and-the-james-stein-estimator" class="level2" data-number="3.5">
 <h2 data-number="3.5" class="anchored" data-anchor-id="steins-paradox-and-the-james-stein-estimator"><span class="header-section-number">3.5</span> Stein’s Paradox and the James-stein Estimator</h2>
@@ -1093,7 +1109,7 @@ r(\pi, d^{Bayes}) = \sum_{i=1}^p \frac{\sigma^2}{1 + \sigma^2} = \frac{p\sigma^2
 <h4 data-number="3.5.2.2" class="anchored" data-anchor-id="minimaxity-of-the-mle"><span class="header-section-number">3.5.2.2</span> Minimaxity of the MLE</h4>
 <p>The James-Stein result is particularly striking when compared to the performance of the standard estimator.</p>
 <div id="thm-mle-minimax" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 3.2 (Minimaxity of the Maximum Likelihood Estimator)</strong></span> Let <span class="math inline">\(X \sim N_p(\theta, I)\)</span>. Under the squared error loss function <span class="math inline">\(L(\theta, d) = ||\theta - d||^2\)</span>, the standard Maximum Likelihood Estimator <span class="math inline">\(d^0(X) = X\)</span> is a <strong>minimax rule</strong>. That is, it minimizes the maximum possible risk over the parameter space:</p>
+<p><span class="theorem-title"><strong>Theorem 3.2 (Minimaxity of the Maximum Likelihood Estimator)</strong></span> Let <span class="math inline">\(X \sim N_p(\theta, I)\)</span>. Under the squared error loss function <span class="math inline">\(\mathcal{L}(\theta, d) = ||\theta - d||^2\)</span>, the standard Maximum Likelihood Estimator <span class="math inline">\(d^0(X) = X\)</span> is a <strong>minimax rule</strong>. That is, it minimizes the maximum possible risk over the parameter space:</p>
 <p><span class="math display">\[
 \sup_{\theta \in \mathbb{R}^p} R(\theta, d^0) = \inf_{d} \sup_{\theta \in \mathbb{R}^p} R(\theta, d) = p
 \]</span></p>
@@ -1291,7 +1307,7 @@ E_\theta \left[ (X-\theta)^T (\|X\|^2 X) \right] &amp;= E_\theta \left[ \|X\|^2 
 <section id="inadmissibility-of-the-mle-in-high-dimensions-steins-phenomenon" class="level3" data-number="3.5.4">
 <h3 data-number="3.5.4" class="anchored" data-anchor-id="inadmissibility-of-the-mle-in-high-dimensions-steins-phenomenon"><span class="header-section-number">3.5.4</span> Inadmissibility of the MLE in High Dimensions (Stein’s Phenomenon)</h3>
 <div id="thm-mle-inadmissible" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 3.3</strong></span> Let <span class="math inline">\(X \sim N_p(\theta, I)\)</span> be a <span class="math inline">\(p\)</span>-dimensional random vector with <span class="math inline">\(p \ge 3\)</span>. Under the squared error loss function <span class="math inline">\(L(\theta, d) = ||\theta - d||^2\)</span>, the standard Maximum Likelihood Estimator <span class="math inline">\(d^0(X) = X\)</span> is <strong>inadmissible</strong>.</p>
+<p><span class="theorem-title"><strong>Theorem 3.3</strong></span> Let <span class="math inline">\(X \sim N_p(\theta, I)\)</span> be a <span class="math inline">\(p\)</span>-dimensional random vector with <span class="math inline">\(p \ge 3\)</span>. Under the squared error loss function <span class="math inline">\(\mathcal{L}(\theta, d) = ||\theta - d||^2\)</span>, the standard Maximum Likelihood Estimator <span class="math inline">\(d^0(X) = X\)</span> is <strong>inadmissible</strong>.</p>
 </div>
 <div class="proof">
 <p><span class="proof-title"><em>Proof</em> (Proof of Inadmissibility). </span>To show that <span class="math inline">\(d^0(X) = X\)</span> is inadmissible, we compare its risk to that of the James-Stein estimator <span class="math inline">\(d^{JS}(X)\)</span>.</p>
@@ -1324,9 +1340,73 @@ R(\theta, d^{JS}) &amp;= p - 2(p-2)^2 E_\theta \left[ \frac{1}{\|X\|^2} \right] 
 <p>Since <span class="math inline">\(p \ge 3\)</span>, the constant <span class="math inline">\((p-2)^2\)</span> is strictly positive. Because <span class="math inline">\(1/\|X\|^2 &gt; 0\)</span> with probability 1, the risk of the James-Stein estimator is strictly less than <span class="math inline">\(p\)</span> for all <span class="math inline">\(\theta \in \mathbb{R}^p\)</span>.</p>
 <p>Thus, <span class="math inline">\(d^{JS}\)</span> dominates the MLE, proving the MLE is inadmissible.</p>
 </div>
+<p><strong>Interpretation:</strong></p>
+<p>The term <span class="math inline">\((p-2)^2 E_\theta \left[ \frac{1}{\|X\|^2} \right]\)</span> represents the reduction in risk provided by the James-Stein estimator.</p>
+<ul>
+<li><p>When the observed signal <span class="math inline">\(\|X\|^2\)</span> is large (implying <span class="math inline">\(\|\theta\|^2\)</span> is likely large), the term <span class="math inline">\(1/\|X\|^2\)</span> is small. Consequently, the risk of the James-Stein estimator approaches that of the MLE (<span class="math inline">\(p\)</span>), and the improvement is negligible.</p></li>
+<li><p>When the observed signal <span class="math inline">\(\|X\|^2\)</span> is small (implying <span class="math inline">\(\|\theta\|^2\)</span> is likely near zero), the term <span class="math inline">\(1/\|X\|^2\)</span> is large. In this scenario, the James-Stein estimator shrinks the estimate aggressively toward zero, resulting in a risk substantially lower than <span class="math inline">\(p\)</span>.</p>
+<p><strong>Risk Ratio near the Origin</strong>: As the true parameter vector shrinks to zero (<span class="math inline">\(\|\theta\| \to 0\)</span>), the ratio of the risks converges to a constant fraction. We substitute the expectation <span class="math inline">\(E[1/\|X\|^2] = 1/(p-2)\)</span> directly into the numerator:</p>
+<p><span class="math display">\[
+\lim_{\|\theta\| \to 0} \frac{R(\theta, d^{JS})}{R(\theta, d^{MLE})} = \frac{p - (p-2)^2 \left( \frac{1}{p-2} \right)}{p} = \frac{p - (p-2)}{p} = \frac{2}{p}
+\]</span></p>
+<p>For a dimension like <span class="math inline">\(p=10\)</span>, the James-Stein estimator incurs only <span class="math inline">\(20\%\)</span> of the risk of the MLE near the origin.</p></li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Is <span class="math inline">\(d^{JS}\)</span> Minimax?
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Yes. Since the MLE is minimax with constant risk <span class="math inline">\(p\)</span>, the minimax risk value for this problem is <span class="math inline">\(p\)</span>.</p>
+<p>Because <span class="math inline">\(R(\theta, d^{JS}) &lt; p\)</span> for all <span class="math inline">\(\theta\)</span> and <span class="math inline">\(\lim_{\|\theta\| \to \infty} R(\theta, d^{JS}) = p\)</span>, the maximum risk of the James-Stein estimator is exactly <span class="math inline">\(p\)</span>. Therefore, <span class="math inline">\(d^{JS}\)</span> achieves the minimax risk level and is a minimax estimator.</p>
+</div>
+</div>
+</div>
 </section>
-<section id="bayes-risk-of-james-stein-estimator" class="level3" data-number="3.5.5">
-<h3 data-number="3.5.5" class="anchored" data-anchor-id="bayes-risk-of-james-stein-estimator"><span class="header-section-number">3.5.5</span> Bayes Risk of James-stein Estimator</h3>
+<section id="risk-comparison-under-normalized-loss-optional" class="level3" data-number="3.5.5">
+<h3 data-number="3.5.5" class="anchored" data-anchor-id="risk-comparison-under-normalized-loss-optional"><span class="header-section-number">3.5.5</span> Risk Comparison under Normalized Loss (Optional)</h3>
+<p>We consider the <strong>Normalized Squared Error Loss</strong> function, which penalizes errors relative to the magnitude of the true parameter vector: <span class="math display">\[
+\mathcal{L}(\theta, d) = \frac{\|d - \theta\|^2}{\|\theta\|^2}, \quad \theta \neq 0
+\]</span></p>
+<p><strong>1. Risk of the MLE (<span class="math inline">\(d^{MLE} = X\)</span>)</strong></p>
+<p>The risk of the Maximum Likelihood Estimator is straightforward because the standard Mean Squared Error (MSE) of <span class="math inline">\(X\)</span> is constant (<span class="math inline">\(p\)</span>): <span class="math display">\[
+R(\theta, d^{MLE}) = E_\theta \left[ \frac{\|X - \theta\|^2}{\|\theta\|^2} \right] = \frac{1}{\|\theta\|^2} E_\theta \left[ \|X - \theta\|^2 \right]
+\]</span> Since <span class="math inline">\(X \sim N_p(\theta, I)\)</span>, we have <span class="math inline">\(E[\|X - \theta\|^2] = p\)</span>. <span class="math display">\[
+R(\theta, d^{MLE}) = \frac{p}{\|\theta\|^2}
+\]</span></p>
+<p><strong>2. Risk of the James-Stein Estimator (<span class="math inline">\(d^{JS}\)</span>)</strong></p>
+<p>For the James-Stein estimator <span class="math inline">\(d^{JS} = \left( 1 - \frac{p-2}{\|X\|^2} \right)X\)</span>, we utilize the known result for its standard MSE risk: <span class="math display">\[
+E_\theta [\|d^{JS} - \theta\|^2] = p - (p-2)^2 E_\theta \left[ \frac{1}{\|X\|^2} \right]
+\]</span> The risk under the normalized loss is simply this term scaled by <span class="math inline">\(1/\|\theta\|^2\)</span>: <span class="math display">\[
+R(\theta, d^{JS}) = \frac{1}{\|\theta\|^2} \left( p - (p-2)^2 E_\theta \left[ \frac{1}{\|X\|^2} \right] \right)
+\]</span></p>
+<p><strong>3. Comparison and Dominance</strong></p>
+<p>We compare the risks by taking the difference: <span class="math display">\[
+R(\theta, d^{MLE}) - R(\theta, d^{JS}) = \frac{1}{\|\theta\|^2} (p-2)^2 E_\theta \left[ \frac{1}{\|X\|^2} \right]
+\]</span> Since <span class="math inline">\((p-2)^2 &gt; 0\)</span> (for <span class="math inline">\(p \ge 3\)</span>) and the expectation of a positive random variable is positive, this difference is strictly positive for all <span class="math inline">\(\theta \neq 0\)</span>. <span class="math display">\[
+R(\theta, d^{JS}) &lt; R(\theta, d^{MLE})
+\]</span></p>
+<ul>
+<li><p><strong>Global Dominance:</strong> The James-Stein estimator dominates the MLE under this loss function as well, achieving lower risk everywhere in the parameter space.</p></li>
+<li><p><strong>Behavior near <span class="math inline">\(\theta \approx 0\)</span>:</strong> As <span class="math inline">\(\|\theta\| \to 0\)</span>, both risks diverge to infinity. We analyze their relative performance by examining the ratio of the risks:</p>
+<p><span class="math display">\[
+  \frac{R(\theta, d^{JS})}{R(\theta, d^{MLE})} = \frac{p - (p-2)^2 E_\theta [1/\|X\|^2]}{p} = 1 - \frac{(p-2)^2}{p} E_\theta \left[ \frac{1}{\|X\|^2} \right]
+  \]</span></p>
+<p>At <span class="math inline">\(\theta = 0\)</span>, <span class="math inline">\(\|X\|^2 \sim \chi^2_p\)</span>, and the expectation is <span class="math inline">\(E[1/\|X\|^2] = 1/(p-2)\)</span>. Substituting this into the ratio:</p>
+<p><span class="math display">\[
+  \lim_{\|\theta\| \to 0} \frac{R(\theta, d^{JS})}{R(\theta, d^{MLE})} = 1 - \frac{(p-2)^2}{p(p-2)} = 1 - \frac{p-2}{p} = \frac{2}{p}
+  \]</span></p>
+<p>Thus, near the origin, the James-Stein estimator reduces the risk by a factor of <span class="math inline">\(p/2\)</span>. For large dimensions (e.g., <span class="math inline">\(p=10\)</span>), the JS estimator has only <span class="math inline">\(20\%\)</span> of the risk of the MLE.</p></li>
+</ul>
+</section>
+<section id="bayes-risk-of-james-stein-estimator-optional" class="level3" data-number="3.5.6">
+<h3 data-number="3.5.6" class="anchored" data-anchor-id="bayes-risk-of-james-stein-estimator-optional"><span class="header-section-number">3.5.6</span> Bayes Risk of James-stein Estimator (Optional)</h3>
 <p>We can derive the Bayes Risk <span class="math inline">\(r(\pi, d^{JS})\)</span> of this estimator using two equivalent methods: minimizing the expected frequentist risk, or minimizing the expected posterior loss.</p>
 <div id="thm-js-bayes-risk" class="theorem">
 <p><span class="theorem-title"><strong>Theorem 3.4 (Bayes Risk of James-stein Estimator)</strong></span> For <span class="math inline">\(p \ge 3\)</span>, the Bayes risk of the James-Stein estimator <span class="math inline">\(d^{JS}\)</span> with respect to the prior <span class="math inline">\(\theta \sim N(0, \sigma^2 I)\)</span> is:</p>
@@ -1373,7 +1453,7 @@ Method 2: Integration over the Marginal (Posterior Loss approach)
 </summary>
 <p>Alternatively, we can compute the Bayes risk by first finding the posterior expected loss for a given <span class="math inline">\(x\)</span>, and then averaging over the marginal distribution of <span class="math inline">\(x\)</span>:</p>
 <p><span class="math display">\[
-r(\pi, d) = E_m [ E_{\theta|x} [ L(\theta, d(x)) ] ]
+r(\pi, d) = E_m [ E_{\theta|x} [ \mathcal{L}(\theta, d(x)) ] ]
 \]</span></p>
 <p><strong>Step 1: Posterior Expected Loss</strong></p>
 <p>The posterior distribution of <span class="math inline">\(\theta\)</span> given <span class="math inline">\(x\)</span> is:</p>
@@ -1417,8 +1497,8 @@ r(\pi, d^{JS}) = \underbrace{\frac{p\sigma^2}{1+\sigma^2}}_{\text{Variance Part}
 </details>
 </div>
 </section>
-<section id="practical-application-one-way-anova-and-borrowing-strength" class="level3" data-number="3.5.6">
-<h3 data-number="3.5.6" class="anchored" data-anchor-id="practical-application-one-way-anova-and-borrowing-strength"><span class="header-section-number">3.5.6</span> Practical Application: One-way ANOVA and “Borrowing Strength”</h3>
+<section id="practical-application-one-way-anova-and-borrowing-strength" class="level3" data-number="3.5.7">
+<h3 data-number="3.5.7" class="anchored" data-anchor-id="practical-application-one-way-anova-and-borrowing-strength"><span class="header-section-number">3.5.7</span> Practical Application: One-way ANOVA and “Borrowing Strength”</h3>
 <div id="exm-anova-js" class="theorem example">
 <p><span class="theorem-title"><strong>Example 3.9</strong></span> Consider a One-Way ANOVA setting where we wish to estimate the means of <span class="math inline">\(p\)</span> different independent groups (e.g., the true batting averages of <span class="math inline">\(p=10\)</span> baseball players, or the efficacy of <span class="math inline">\(p=5\)</span> different hospital treatments).</p>
 <ul>
@@ -1437,8 +1517,8 @@ r(\pi, d^{JS}) = \underbrace{\frac{p\sigma^2}{1+\sigma^2}}_{\text{Variance Part}
 <p>Thus, estimating the groups <em>together</em> yields a more accurate global picture than estimating them <em>separately</em>, even if the groups are independent.</p>
 </div>
 </section>
-<section id="why-is-this-paradoxical" class="level3" data-number="3.5.7">
-<h3 data-number="3.5.7" class="anchored" data-anchor-id="why-is-this-paradoxical"><span class="header-section-number">3.5.7</span> Why Is This Paradoxical?</h3>
+<section id="why-is-this-paradoxical" class="level3" data-number="3.5.8">
+<h3 data-number="3.5.8" class="anchored" data-anchor-id="why-is-this-paradoxical"><span class="header-section-number">3.5.8</span> Why Is This Paradoxical?</h3>
 <p>The result that <span class="math inline">\(d^{JS}\)</span> dominates <span class="math inline">\(d^0\)</span> is called <strong>Stein’s Paradox</strong> because it defies intuition in several ways:</p>
 <ul>
 <li><strong>Independence Irrelevance:</strong> The result holds even if the components <span class="math inline">\(X_i\)</span> are completely unrelated (e.g., <span class="math inline">\(X_1\)</span> is the price of tea in China, <span class="math inline">\(X_2\)</span> is the temperature in Saskatoon, and <span class="math inline">\(X_3\)</span> is the weight of a local cat). It seems absurd that combining unrelated data improves the estimate of each, but the combined risk is indeed lower.</li>
@@ -1446,8 +1526,8 @@ r(\pi, d^{JS}) = \underbrace{\frac{p\sigma^2}{1+\sigma^2}}_{\text{Variance Part}
 <li><strong>Destruction of Symmetry:</strong> The MLE is invariant under translation and rotation. The James-Stein estimator breaks this symmetry by shrinking toward an arbitrary point (usually the origin or the grand mean), yet it yields a better objective performance.</li>
 </ul>
 </section>
-<section id="what-we-learned" class="level3" data-number="3.5.8">
-<h3 data-number="3.5.8" class="anchored" data-anchor-id="what-we-learned"><span class="header-section-number">3.5.8</span> What We Learned</h3>
+<section id="what-we-learned" class="level3" data-number="3.5.9">
+<h3 data-number="3.5.9" class="anchored" data-anchor-id="what-we-learned"><span class="header-section-number">3.5.9</span> What We Learned</h3>
 <ul>
 <li><strong>Bias-Variance Tradeoff:</strong> This is the most famous example where introducing <strong>bias</strong> (shrinkage) leads to a massive reduction in <strong>variance</strong>, thereby reducing the overall Mean Squared Error (MSE). Unbiasedness is not always a virtue in estimation.</li>
 <li><strong>Inadmissibility in High Dimensions:</strong> Intuitions formed in 1D or 2D (where MLE is admissible) fail in higher dimensions (<span class="math inline">\(p \ge 3\)</span>). The volume of space grows so fast that “standard” diffuse priors or MLEs become inefficient.</li>
