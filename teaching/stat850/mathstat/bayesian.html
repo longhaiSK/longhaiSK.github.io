@@ -266,8 +266,8 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#method-1-3-converting-hat-mu_i-back-to-p_i" id="toc-method-1-3-converting-hat-mu_i-back-to-p_i" class="nav-link" data-scroll-target="#method-1-3-converting-hat-mu_i-back-to-p_i"><span class="header-section-number">3.8.5.1</span> Method 1-3: Converting <span class="math inline">\(\hat \mu_i\)</span> Back to <span class="math inline">\(p_i\)</span></a></li>
   <li><a href="#method-4-hierarchical-logistic-regression-logit-normal" id="toc-method-4-hierarchical-logistic-regression-logit-normal" class="nav-link" data-scroll-target="#method-4-hierarchical-logistic-regression-logit-normal"><span class="header-section-number">3.8.5.2</span> Method 4: Hierarchical Logistic Regression (logit-normal)</a></li>
-  <li><a href="#method-5-optimal-bayes-estimator-weighted-median" id="toc-method-5-optimal-bayes-estimator-weighted-median" class="nav-link" data-scroll-target="#method-5-optimal-bayes-estimator-weighted-median"><span class="header-section-number">3.8.5.3</span> Method 5: Optimal Bayes Estimator (weighted Median)</a></li>
-  <li><a href="#comparison-of-all-five-estimates-probability-scale" id="toc-comparison-of-all-five-estimates-probability-scale" class="nav-link" data-scroll-target="#comparison-of-all-five-estimates-probability-scale"><span class="header-section-number">3.8.5.4</span> Comparison of All Five Estimates (probability Scale)</a></li>
+  <li><a href="#method-5-optimal-bayes-estimator-w.r.t.-relative-absolute-error" id="toc-method-5-optimal-bayes-estimator-w.r.t.-relative-absolute-error" class="nav-link" data-scroll-target="#method-5-optimal-bayes-estimator-w.r.t.-relative-absolute-error"><span class="header-section-number">3.8.5.3</span> Method 5: Optimal Bayes Estimator w.r.t. Relative Absolute Error</a></li>
+  <li><a href="#comparison-of-all-five-estimates-of-p_i" id="toc-comparison-of-all-five-estimates-of-p_i" class="nav-link" data-scroll-target="#comparison-of-all-five-estimates-of-p_i"><span class="header-section-number">3.8.5.4</span> Comparison of All Five Estimates of <span class="math inline">\(p_i\)</span></a></li>
   </ul></li>
   </ul></li>
   <li><a href="#bayesian-predictive-distributions" id="toc-bayesian-predictive-distributions" class="nav-link" data-scroll-target="#bayesian-predictive-distributions"><span class="header-section-number">3.9</span> Bayesian Predictive Distributions</a></li>
@@ -629,7 +629,7 @@ Important
 <p>The following diagram summarizes the general workflow for deriving a Bayes estimator:</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-bayes-workflow" class="quarto-float quarto-figure quarto-figure-center anchored" style="width: 80% !important;" data-fig-align="center">
+<div id="fig-bayes-workflow" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" style="width: 80% !important;">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-bayes-workflow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="bayesian_files/figure-html/fig-bayes-workflow-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width: 80% !important;" width="576">
@@ -1692,7 +1692,7 @@ p(\boldsymbol{\mu}, \theta, \tau^2 | X) \propto \left[ \prod_{i=1}^n f(x_i | \mu
 <p>The following tree diagram illustrates the conditional dependencies. Note that the parameters <span class="math inline">\(\mu_i\)</span> are conditionally independent given the hyperparameter <span class="math inline">\(\theta\)</span>, which facilitates “borrowing strength” across groups.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-hierarchical-tree" class="quarto-float quarto-figure quarto-figure-center anchored" style="width: 80% !important;" data-fig-align="center">
+<div id="fig-hierarchical-tree" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" style="width: 80% !important;">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-hierarchical-tree-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="bayesian_files/figure-html/fig-hierarchical-tree-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width: 80% !important;" width="576">
@@ -2036,12 +2036,35 @@ x_i = \sqrt{n_i} \arcsin\left( 2 \frac{y_i}{n_i} - 1 \right)
 <h4 data-number="3.8.3.1" class="anchored" data-anchor-id="method-1-simple-estimation-mle"><span class="header-section-number">3.8.3.1</span> Method 1: Simple Estimation (MLE)</h4>
 <p>The Maximum Likelihood Estimator (MLE) assumes each player’s performance is independent. It relies solely on the observed pre-season data.</p>
 <p><span class="math display">\[ \hat{\mu}_i^{MLE} = X_i \]</span></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simple Estimate Is Just the Data Itself</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>mu_mle <span class="ot">&lt;-</span> baseball_data<span class="sc">$</span>x</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># MSE Calculation (transformed Scale)</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>mse_mle <span class="ot">&lt;-</span> <span class="fu">mean</span>((mu_mle <span class="sc">-</span> baseball_data<span class="sc">$</span>true_mu)<span class="sc">^</span><span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
 </section>
 <section id="method-2-empirical-bayes-james-stein" class="level4" data-number="3.8.3.2">
 <h4 data-number="3.8.3.2" class="anchored" data-anchor-id="method-2-empirical-bayes-james-stein"><span class="header-section-number">3.8.3.2</span> Method 2: Empirical Bayes (james-stein)</h4>
 <p>The James-Stein estimator introduces a global mean <span class="math inline">\(\bar{X}\)</span> and shrinks individual estimates toward it. This assumes the players come from a common population distribution.</p>
 <p><span class="math display">\[ \hat{\mu}_i^{JS} = \bar{X} + \left( 1 - \frac{k-3}{\sum (X_i - \bar{X})^2} \right) (X_i - \bar{X}) \]</span></p>
 <p>where <span class="math inline">\(k=17\)</span> is the number of players.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>theta_hat <span class="ot">&lt;-</span> <span class="fu">mean</span>(baseball_data<span class="sc">$</span>x)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>S <span class="ot">&lt;-</span> <span class="fu">sum</span>((baseball_data<span class="sc">$</span>x <span class="sc">-</span> theta_hat)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>shrinkage_factor <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> (<span class="dv">14</span> <span class="sc">/</span> S)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>mu_js <span class="ot">&lt;-</span> theta_hat <span class="sc">+</span> shrinkage_factor <span class="sc">*</span> (baseball_data<span class="sc">$</span>x <span class="sc">-</span> theta_hat)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># MSE Calculation (transformed Scale)</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>mse_js <span class="ot">&lt;-</span> <span class="fu">mean</span>((mu_js <span class="sc">-</span> baseball_data<span class="sc">$</span>true_mu)<span class="sc">^</span><span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
 </section>
 <section id="method-3-fully-bayesian-mcmc-brms" class="level4" data-number="3.8.3.3">
 <h4 data-number="3.8.3.3" class="anchored" data-anchor-id="method-3-fully-bayesian-mcmc-brms"><span class="header-section-number">3.8.3.3</span> Method 3: Fully Bayesian MCMC (brms)</h4>
@@ -2054,6 +2077,29 @@ X_i &amp;\sim N(\mu_i, 1) \\
 \tau &amp;\sim \text{Cauchy}(0, 2)
 \end{aligned}
 \]</span></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit Random Intercept Model: X | Se(1) ~ 1 + (1|player)</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>fit_brms <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> x <span class="sc">|</span> <span class="fu">se</span>(sei, <span class="at">sigma =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Player),</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> baseball_data,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">prior =</span> <span class="fu">c</span>(</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">10</span>), <span class="at">class =</span> <span class="st">"Intercept"</span>),</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">prior</span>(<span class="fu">cauchy</span>(<span class="dv">0</span>, <span class="dv">2</span>), <span class="at">class =</span> <span class="st">"sd"</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">chains =</span> <span class="dv">2</span>, <span class="at">iter =</span> <span class="dv">4000</span>, <span class="at">warmup =</span> <span class="dv">1000</span>, <span class="at">seed =</span> <span class="dv">123</span>,</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">refresh =</span> <span class="dv">0</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract Point Estimates (posterior Means)</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>post_means <span class="ot">&lt;-</span> <span class="fu">fitted</span>(fit_brms)[, <span class="st">"Estimate"</span>]</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>mu_brms <span class="ot">&lt;-</span> post_means</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="co"># MSE Calculation (transformed Scale)</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>mse_brms <span class="ot">&lt;-</span> <span class="fu">mean</span>((mu_brms <span class="sc">-</span> baseball_data<span class="sc">$</span>true_mu)<span class="sc">^</span><span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
 </section>
 </section>
 <section id="comparison-of-estimates-of-mu_i" class="level3" data-number="3.8.4">
@@ -2212,9 +2258,43 @@ Table&nbsp;3.3: Comparison of Estimates (Sorted by Pre-season <span class="math 
 </figure>
 </div>
 </div>
-<p><strong>Plots of Errors (Sorted by <span class="math inline">\(x_i\)</span>)</strong></p>
+<p><strong>Plots of Squared Errors (Sorted by <span class="math inline">\(x_i\)</span>)</strong></p>
 <p>This plot displays the Squared Error for each player. The x-axis represents the players sorted from lowest pre-season performance to highest.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate Squared Errors Using the SORTED Dataframe</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>err_mle  <span class="ot">&lt;-</span> (df_sorted<span class="sc">$</span>x_i <span class="sc">-</span> df_sorted<span class="sc">$</span>mu_true)<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>err_js   <span class="ot">&lt;-</span> (df_sorted<span class="sc">$</span>mu_js <span class="sc">-</span> df_sorted<span class="sc">$</span>mu_true)<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>err_brms <span class="ot">&lt;-</span> (df_sorted<span class="sc">$</span>mu_bayes <span class="sc">-</span> df_sorted<span class="sc">$</span>mu_true)<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Determine Y-axis Range</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>y_max <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">c</span>(err_mle, err_js, err_brms))</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot MLE Errors (baseline)</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">17</span>, err_mle, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">pch =</span> <span class="dv">1</span>, <span class="at">col =</span> <span class="st">"black"</span>, <span class="at">lty =</span> <span class="dv">2</span>,</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Player Index (Sorted by Pre-season Performance)"</span>, </span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="fu">expression</span>(Squared<span class="sc">~</span>Error<span class="sc">~</span><span class="er">~</span>(<span class="fu">hat</span>(mu) <span class="sc">-</span> mu[true])<span class="sc">^</span><span class="dv">2</span>),</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Estimation Error Comparison (Sorted)"</span>,</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, y_max))</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Add James-stein Errors</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">17</span>, err_js, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">col =</span> <span class="st">"blue"</span>)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Add Bayesian (brms) Errors</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">17</span>, err_brms, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">pch =</span> <span class="dv">17</span>, <span class="at">col =</span> <span class="st">"red"</span>)</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Add Grid and Legend</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="fu">grid</span>()</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topleft"</span>, </span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Mean Squared Error"</span>,</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>       <span class="at">legend =</span> <span class="fu">c</span>(<span class="fu">paste0</span>(<span class="st">"MLE: "</span>, <span class="fu">round</span>(mse_mle, <span class="dv">3</span>)), </span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">paste0</span>(<span class="st">"JS: "</span>, <span class="fu">round</span>(mse_js, <span class="dv">3</span>)), </span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">paste0</span>(<span class="st">"Bayes: "</span>, <span class="fu">round</span>(mse_brms, <span class="dv">3</span>))),</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>       <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"black"</span>, <span class="st">"blue"</span>, <span class="st">"red"</span>), </span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>       <span class="at">pch =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">19</span>, <span class="dv">17</span>), </span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>       <span class="at">lty =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-error-index-sorted" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -2250,15 +2330,77 @@ y_i | p_i &amp;\sim \text{Binomial}(n_i, p_i) \\
 \end{aligned}
 \]</span></p>
 <p>We implement this in <code>brms</code> using the <code>binomial</code> family with a logit link. The individual point estimate <span class="math inline">\(\hat{p}_i\)</span> is the <strong>posterior mean</strong> of <span class="math inline">\(p_i\)</span>. Note that because the inverse-logit function is non-linear, the posterior mean of <span class="math inline">\(p_i\)</span> is not simply the inverse-logit of the posterior mean of the random effect; <code>brms</code> handles this integration automatically via the <code>fitted()</code> function.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Fit Hierarchical Logistic Regression</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Formula: Y | Trials(n) ~ 1 + (1 | Player)</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># This Estimates a Global Intercept (mu_0) and Random Intercepts for Each Player (logit(p_i))</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>fit_logit <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> Pre_HR <span class="sc">|</span> <span class="fu">trials</span>(Pre_AtBats) <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Player),</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> baseball_data,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">"logit"</span>),</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">prior =</span> <span class="fu">c</span>(</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">5</span>), <span class="at">class =</span> <span class="st">"Intercept"</span>),</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">prior</span>(<span class="fu">cauchy</span>(<span class="dv">0</span>, <span class="dv">2</span>), <span class="at">class =</span> <span class="st">"sd"</span>)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">chains =</span> <span class="dv">2</span>, <span class="at">iter =</span> <span class="dv">4000</span>, <span class="at">warmup =</span> <span class="dv">1000</span>, <span class="at">seed =</span> <span class="dv">123</span>,</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">refresh =</span> <span class="dv">0</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Extract Posterior Means of P_i</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Fitted() Returns the Posterior Expectations of the Response (expected Count).</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>fitted_counts <span class="ot">&lt;-</span> <span class="fu">fitted</span>(fit_logit) </span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>p_hat_logit <span class="ot">&lt;-</span> fitted_counts[, <span class="st">"Estimate"</span>] <span class="sc">/</span> baseball_data<span class="sc">$</span>Pre_AtBats</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
 </section>
-<section id="method-5-optimal-bayes-estimator-weighted-median" class="level4" data-number="3.8.5.3">
-<h4 data-number="3.8.5.3" class="anchored" data-anchor-id="method-5-optimal-bayes-estimator-weighted-median"><span class="header-section-number">3.8.5.3</span> Method 5: Optimal Bayes Estimator (weighted Median)</h4>
+<section id="method-5-optimal-bayes-estimator-w.r.t.-relative-absolute-error" class="level4" data-number="3.8.5.3">
+<h4 data-number="3.8.5.3" class="anchored" data-anchor-id="method-5-optimal-bayes-estimator-w.r.t.-relative-absolute-error"><span class="header-section-number">3.8.5.3</span> Method 5: Optimal Bayes Estimator w.r.t. Relative Absolute Error</h4>
 <p>While the posterior mean (Method 4) minimizes the Mean Squared Error (MSE), it is not necessarily optimal for the <strong>Relative Standardized Error</strong> metric we defined earlier: <span class="math display">\[L(p, \hat{p}) = \frac{|p - \hat{p}|}{\min(p, 1-p)}\]</span></p>
 <p>This is a form of weighted absolute error loss, where the weight is <span class="math inline">\(w(p) = \frac{1}{\min(p, 1-p)}\)</span>. Theoretical derivation shows that the estimator minimizing the expected posterior loss for this function is the <strong>Weighted Posterior Median</strong>.</p>
 <p>We compute this by extracting the full posterior samples from the Logit-Normal model (Method 4) and calculating the weighted median for each player.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Extract Posterior Samples (n_samples X 17 Players)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Posterior_epred Gives Samples of the Expected Count (N * P)</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>post_counts <span class="ot">&lt;-</span> <span class="fu">posterior_epred</span>(fit_logit) </span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert to Probability Scale by Dividing by Trials</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>p_samples <span class="ot">&lt;-</span> <span class="fu">sweep</span>(post_counts, <span class="dv">2</span>, baseball_data<span class="sc">$</span>Pre_AtBats, <span class="st">"/"</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Define Function for Weighted Median</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Finds the Value 'q' Such That Sum(weights Where X &lt;= Q) &gt;= 0.5 * Total_weight</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>get_weighted_median <span class="ot">&lt;-</span> <span class="cf">function</span>(samples) {</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate weights based on the loss function denominator</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Avoid division by exact zero (unlikely but safer)</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  denom <span class="ot">&lt;-</span> <span class="fu">pmin</span>(samples, <span class="dv">1</span> <span class="sc">-</span> samples)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  denom[denom <span class="sc">&lt;</span> <span class="fl">1e-6</span>] <span class="ot">&lt;-</span> <span class="fl">1e-6</span> </span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  weights <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">/</span> denom</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Normalize weights</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  weights_norm <span class="ot">&lt;-</span> weights <span class="sc">/</span> <span class="fu">sum</span>(weights)</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Sort samples and weights</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  ord <span class="ot">&lt;-</span> <span class="fu">order</span>(samples)</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  samp_sorted <span class="ot">&lt;-</span> samples[ord]</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  w_sorted <span class="ot">&lt;-</span> weights_norm[ord]</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Find cutoff</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  cum_w <span class="ot">&lt;-</span> <span class="fu">cumsum</span>(w_sorted)</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>  idx <span class="ot">&lt;-</span> <span class="fu">which</span>(cum_w <span class="sc">&gt;=</span> <span class="fl">0.5</span>)[<span class="dv">1</span>]</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(samp_sorted[idx])</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Apply to All Players</span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>p_hat_optimal <span class="ot">&lt;-</span> <span class="fu">apply</span>(p_samples, <span class="dv">2</span>, get_weighted_median)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
 </section>
-<section id="comparison-of-all-five-estimates-probability-scale" class="level4" data-number="3.8.5.4">
-<h4 data-number="3.8.5.4" class="anchored" data-anchor-id="comparison-of-all-five-estimates-probability-scale"><span class="header-section-number">3.8.5.4</span> Comparison of All Five Estimates (probability Scale)</h4>
+<section id="comparison-of-all-five-estimates-of-p_i" class="level4" data-number="3.8.5.4">
+<h4 data-number="3.8.5.4" class="anchored" data-anchor-id="comparison-of-all-five-estimates-of-p_i"><span class="header-section-number">3.8.5.4</span> Comparison of All Five Estimates of <span class="math inline">\(p_i\)</span></h4>
 <p>We now compare all five methods: MLE, James-Stein (transformed), Bayes Normal-Normal (transformed), Hierarchical Logit-Normal (Posterior Mean), and Optimal Bayes (Weighted Median).</p>
 <p><strong>1. MSE Comparison</strong></p>
 <div class="cell">
@@ -2270,7 +2412,7 @@ y_i | p_i &amp;\sim \text{Binomial}(n_i, p_i) \\
 </div>
 </div>
 </div>
-<p><strong>2. Relative Standardized Error</strong></p>
+<p><strong>2. Comparison of Relative Absolute Error</strong></p>
 <p>We also evaluate the methods using the relative error metric that penalizes deviations based on the rarity of the event: <span class="math display">\[ \text{Metric}_i = \frac{|p_i^{\text{true}} - \hat{p}_i|}{\min(p_i^{\text{true}}, 1 - p_i^{\text{true}})} \]</span></p>
 <div class="cell">
 <div class="cell-output-display">

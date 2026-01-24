@@ -2060,7 +2060,7 @@ $$ \hat{\mu}_i^{MLE} = X_i $$
 
 ```{r}
 #| label: method-mle
-#| echo: false
+#| echo: true
 
 # Simple Estimate Is Just the Data Itself
 mu_mle <- baseball_data$x
@@ -2079,7 +2079,7 @@ where $k=17$ is the number of players.
 
 ```{r}
 #| label: method-js
-#| echo: false
+#| echo: true
 
 theta_hat <- mean(baseball_data$x)
 S <- sum((baseball_data$x - theta_hat)^2)
@@ -2106,7 +2106,7 @@ $$
 
 ```{r}
 #| label: method-brms
-#| echo: false
+#| echo: true
 #| results: hide
 #| message: false
 #| warning: false
@@ -2166,14 +2166,14 @@ knitr::kable(df_display_mu[, c("Player", "x_i", "mu_js", "mu_bayes", "mu_true")]
              caption = "Comparison of Estimates (Sorted by Pre-season $x_i$)")
 ```
 
-**Plots of Errors (Sorted by $x_i$)**
+**Plots of Squared Errors (Sorted by $x_i$)**
 
 This plot displays the Squared Error for each player. The x-axis represents the players sorted from lowest pre-season performance to highest.
 
 ```{r}
 #| label: fig-error-index-sorted
 #| fig-cap: "Squared Error by Sorted Player Index (Transformed Scale)"
-#| echo: false
+#| echo: true
 #| fig-height: 5
 
 # Calculate Squared Errors Using the SORTED Dataframe
@@ -2238,7 +2238,7 @@ We implement this in `brms` using the `binomial` family with a logit link. The i
 
 ```{r}
 #| label: method-logit-normal
-#| echo: false
+#| echo: true
 #| results: hide
 #| message: false
 #| warning: false
@@ -2264,7 +2264,7 @@ fitted_counts <- fitted(fit_logit)
 p_hat_logit <- fitted_counts[, "Estimate"] / baseball_data$Pre_AtBats
 ```
 
-#### Method 5: Optimal Bayes Estimator (weighted Median)
+#### Method 5: Optimal Bayes Estimator w.r.t. Relative Absolute Error
 
 While the posterior mean (Method 4) minimizes the Mean Squared Error (MSE), it is not necessarily optimal for the **Relative Standardized Error** metric we defined earlier:
 $$L(p, \hat{p}) = \frac{|p - \hat{p}|}{\min(p, 1-p)}$$
@@ -2275,7 +2275,7 @@ We compute this by extracting the full posterior samples from the Logit-Normal m
 
 ```{r}
 #| label: method-optimal
-#| echo: false
+#| echo: true
 
 # 1. Extract Posterior Samples (n_samples X 17 Players)
 # Posterior_epred Gives Samples of the Expected Count (N * P)
@@ -2312,7 +2312,7 @@ get_weighted_median <- function(samples) {
 p_hat_optimal <- apply(p_samples, 2, get_weighted_median)
 ```
 
-#### Comparison of All Five Estimates (probability Scale)
+#### Comparison of All Five Estimates of $p_i$
 
 We now compare all five methods: MLE, James-Stein (transformed), Bayes Normal-Normal (transformed), Hierarchical Logit-Normal (Posterior Mean), and Optimal Bayes (Weighted Median).
 
@@ -2384,7 +2384,7 @@ legend("topleft",
        bg = "white")
 ```
 
-**2. Relative Standardized Error**
+**2. Comparison of Relative Absolute Error**
 
 We also evaluate the methods using the relative error metric that penalizes deviations based on the rarity of the event:
 $$ \text{Metric}_i = \frac{|p_i^{\text{true}} - \hat{p}_i|}{\min(p_i^{\text{true}}, 1 - p_i^{\text{true}})} $$
@@ -2436,8 +2436,8 @@ legend("topleft",
        legend = c(paste0("MLE [", round(sum_rel_mle, 3), "]"), 
                   paste0("James-Stein [", round(sum_rel_js, 3), "]"), 
                   paste0("Normal-Bayes [", round(sum_rel_norm, 3), "]"),
-                  paste0("Logit-Normal [", round(sum_rel_logit, 3), "]"),
-                  paste0("Optimal-Bayes [", round(sum_rel_opt, 3), "]")),
+                  paste0("Logit-Normal-Bayes [", round(sum_rel_logit, 3), "]"),
+                  paste0("Optimal-Logit-Normal-Bayes [", round(sum_rel_opt, 3), "]")),
        col = c("black", "blue", "red", "darkgreen", "purple"), 
        pch = c(1, 19, 17, 15, 18), 
        lty = c(2, 1, 1, 1, 1),
