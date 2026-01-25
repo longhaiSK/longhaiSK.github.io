@@ -583,32 +583,29 @@ create_3d_plot <- function(data_list, title) {
 # --- 3. Output Logic Helper (HTML vs PDF) ---
 render_3d <- function(fig, filename) {
   if (knitr::is_html_output()) {
+    # --- HTML Output: Return Interactive Widget ---
     return(fig)
+    
   } else {
+    # --- PDF/Typst Output: Generate Static PNG ---
     dir.create("figs", showWarnings = FALSE)
     img_path <- file.path("figs", filename)
-    tmp_html <- tempfile(fileext = ".html")
     
-    htmlwidgets::saveWidget(as_widget(fig), tmp_html)
+    # Use plotly's native export (relies on python-kaleido)
+    # This avoids launching Chrome/Webshot
+    tryCatch({
+      plotly::save_image(fig, file = img_path, width = 1500, height = 1000)
+    }, error = function(e) {
+      warning("Plotly export failed. Ensure 'kaleido' is installed in your Python environment.\nError: ", e$message)
+    })
     
-    # Capture with webshot2
-    # Increased vwidth/vheight for higher resolution
-    webshot2::webshot(
-      url = tmp_html, 
-      file = img_path, 
-      delay = 2,
-      vwidth = 1500, 
-      vheight = 1000, 
-      cliprect = "viewport"
-    )
-    
-    if (file.exists(tmp_html)) unlink(tmp_html)
-    
+    # Check if the image was created successfully
     if (file.exists(img_path)) {
       knitr::include_graphics(img_path)
     } else {
+      # Fallback empty plot so the document build doesn't crash
       plot(1, 1, type="n", axes=FALSE, xlab="", ylab="")
-      text(1, 1, "Error: Screenshot failed.")
+      text(1, 1, "Error: Static image failed.\n(Missing kaleido?)")
     }
   }
 }
