@@ -1,5 +1,4 @@
-
-/* In resources/homework.typ */
+/* In resources/bookstyles.typ */
 
 /* --- Heading Formatting --- */
 /* Level 1: 12pt size + 1 line (1em) space below */
@@ -36,66 +35,104 @@
   remark:     (bg: rgb("#f3fcfc"), border: rgb("#cff4fc"), header-bg: rgb("#cff4fc"), text: rgb("#055160")),
 )
 
-// 2. The Master Environment Function
-// This mimics the SCSS mixin and container styling.
+// 2. The Master Environment Function (Upgraded)
+// This wraps the colored box in a figure to enable numbering and referencing.
 #let colored-env(type, title: none, body) = {
-  // Fallback to theorem colors if type is unknown
+  // A. Determine Theme
   let theme = if type in themes { themes.at(type) } else { themes.theorem }
   
-  // Logic for the Header Title
-  // SCSS Case B: If it's a solution, force the title "Solution" if none is provided.
-  let display-title = if title != none {
-    title
-  } else if type == "sol" or type == "solution" {
+  // B. Determine Supplement (e.g., "Theorem", "Definition")
+  let supplement = if type == "sol" or type == "solution" {
     "Solution"
   } else {
-    none
+    type.at(0).upper() + type.slice(1)
   }
 
-  // 3. Base Container Styling
-  block(
-    fill: theme.bg,
-    stroke: 2pt + theme.border,
-    radius: 5pt,
-    width: 100%,
-    inset: 0pt, // Internal padding is handled by children to allow header to touch edges
-    clip: true, // Ensures the header background doesn't bleed outside the rounded corners
-    breakable: true, // Allow breaking across pages (optional, remove if unwanted)
-    {
-      // 4. Header Logic (The "Mixin")
-      if display-title != none {
-        block(
-          fill: theme.header-bg,
-          width: 100%,
-          inset: (x: 1em, y: 0.6em),
-          stroke: (bottom: 1pt + black.transparentize(95%)), // mimicking rgba(0,0,0,0.05)
-          sticky: true,
-          [
-            #set text(fill: theme.text, weight: "bold")
-            #display-title
-          ]
-        )
-      }
+  // C. Create the Figure (This makes it referenceable!)
+  figure(
+    kind: type,            // Each type (theorem, lemma) gets its own counter
+    supplement: supplement,
+    numbering: "1.1",      // Auto-numbering style
+    outlined: false,       // Don't show in table of figures
+    caption: none,         // Hide standard caption (we draw it inside the box)
+    
+    // D. The Content (Context is needed to get the current number)
+    context {
+      // 1. Get the current number (e.g., "1.1")
+      let num = counter(figure.where(kind: type)).display(figure.numbering)
       
-      // The Body Content
+      // 2. Build the Header Title (e.g., "Theorem 1.1: Title")
+      let full-title = if title != none {
+        [#supplement #num: #title]
+      } else {
+        [#supplement #num]
+      }
+
+      // 3. Draw the Colored Box
       block(
+        fill: theme.bg,
+        stroke: 2pt + theme.border,
+        radius: 5pt,
         width: 100%,
-        inset: 1em, // Padding: 1em
-        body
+        inset: 0pt,
+        clip: true,
+        breakable: true, // Note: Figures often resist breaking across pages in Typst
+        {
+          // Header
+          block(
+            fill: theme.header-bg,
+            width: 100%,
+            inset: (x: 1em, y: 0.6em),
+            stroke: (bottom: 1pt + black.transparentize(95%)),
+            sticky: true,
+            [
+              #set text(fill: theme.text, weight: "bold")
+              #full-title
+            ]
+          )
+          
+          // Body
+          block(
+            width: 100%,
+            inset: 1em,
+            body
+          )
+        }
       )
     }
   )
 }
 
-// 5. User-Facing Wrappers
-// These allow you to use #theorem[Content] syntax
-#let theorem(title: none, body)    = colored-env("theorem", title: title, body)
-#let definition(title: none, body) = colored-env("definition", title: title, body)
-#let example(title: none, body)    = colored-env("example", title: title, body)
-#let proof(title: none, body)      = colored-env("proof", title: title, body)
-#let algorithm(title: none, body)  = colored-env("algorithm", title: title, body)
-#let remark(title: none, body)     = colored-env("remark", title: title, body)
+// 5. User-Facing Wrappers (Robust Version)
+// These handle arguments from both your Lua filter AND the Quarto extension styles.
+#let env-wrapper(type, ..args) = {
+  let pos = args.pos()
+  let named = args.named()
+  
+  // Default title to named arg 'title' or none
+  let title = named.at("title", default: none)
+  let body = none
 
-// Solutions usually don't need a manual title, but we allow it just in case
-#let sol(body)      = colored-env("sol", title: none, body)
-#let solution(body) = colored-env("solution", title: none, body)
+  if pos.len() == 2 {
+    // Case: #env("Title")[Body] (Extension style)
+    title = pos.at(0)
+    body = pos.at(1)
+  } else if pos.len() == 1 {
+    // Case: #env[Body] (Filter style)
+    body = pos.at(0)
+  } else {
+    panic("Invalid arguments passed to environment wrapper")
+  }
+
+  colored-env(type, title: title, body)
+}
+
+// Define the shortcuts using the wrapper
+#let theorem(..args)    = env-wrapper("theorem", ..args)
+#let definition(..args) = env-wrapper("definition", ..args)
+#let example(..args)    = env-wrapper("example", ..args)
+#let proof(..args)      = env-wrapper("proof", ..args)
+#let algorithm(..args)  = env-wrapper("algorithm", ..args)
+#let remark(..args)     = env-wrapper("remark", ..args)
+#let sol(..args)        = env-wrapper("sol", ..args)
+#let solution(..args)   = env-wrapper("solution", ..args)
