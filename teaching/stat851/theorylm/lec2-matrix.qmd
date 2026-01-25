@@ -196,6 +196,7 @@ p4 <- plot_stage_final(d4)
 # Arrange them in a grid
 grid.arrange(p1, p2, p3, p4, nrow = 2)
 ```
+
 ### Quadratic Form
 
 :::{#def-quadratic-form}
@@ -291,7 +292,7 @@ $$
 X = U \mathbf{D} V'
 $$
 
-**1. Partitioned Matrix Form**
+1. Partitioned Matrix Form
 
 $$
 X = \underset{n \times n}{(U_1, U_2)}
@@ -307,7 +308,7 @@ V_2'
 }
 $$
 
-**2. Detailed Matrix Form**
+2. Detailed Matrix Form
 
 Expanding the diagonal matrix explicitly:
 
@@ -332,7 +333,7 @@ v_p'
 }
 $$
 
-**3. Reduced Form**
+3. Reduced Form
 
 $$
 X = U_1 \Lambda_r V_1' = \sum_{i=1}^r \lambda_i u_i v_i'
@@ -447,6 +448,7 @@ By solving for the bolded diagonal terms and substituting known values from prev
 
 ::: {#alg-chosk-decomp}
 #### Choleski Decomposition
+
 1.  **Row 1:** Solve for $b_{11}$ using $a_{11}$, then solve the rest of the row ($b_{1j}$) by division.
     * $b_{11} = \sqrt{a_{11}}$
     * $b_{1j} = a_{1j}/b_{11}$
@@ -457,8 +459,10 @@ By solving for the bolded diagonal terms and substituting known values from prev
 
 3.  **Row 3:** Solve for $b_{33}$ using $a_{33}$ and the known $b_{13}, b_{23}$.
     * $b_{33} = \sqrt{a_{33} - b_{13}^2 - b_{23}^2}$
+:::
 
-**Remark: Handling the Singular Case**
+:::{.remark}
+**Handling the Singular Case**
 
 If $A$ is positive semi-definite (singular), a diagonal element $b_{ii}$ may evaluate to 0 (or a very small number close to 0 due to floating-point error). Standard algorithms often crash here because calculating off-diagonal terms involves division by $b_{ii}$.
 
@@ -508,23 +512,26 @@ $$
 
 Cholesky decomposition is preferred over other methods (like LU or SVD) for symmetric positive-definite matrices because it is numerically stable and roughly twice as fast.
 
-**1. Solving Linear Equations**
-In linear regression, we solve the normal equations $(X'X)\beta = X'y$. Since $X'X$ is symmetric and positive definite, we can decompose it as $B'B$. The system becomes:
-$$
-B'B\beta = X'y
-$$
-This allows us to solve for $\beta$ using two efficient triangular substitutions (first solving $B'z = X'y$ for $z$, then $B\beta = z$ for $\beta$) without explicitly inverting the matrix, which is computationally expensive and unstable.
+1. Solving Linear Equations
+   
+    In linear regression, we solve the normal equations $(X'X)\beta = X'y$. Since $X'X$ is symmetric and positive definite, we can decompose it as $B'B$. The system becomes:
+    $$
+    B'B\beta = X'y
+    $$
+    This allows us to solve for $\beta$ using two efficient triangular substitutions (first solving $B'z = X'y$ for $z$, then $B\beta = z$ for $\beta$) without explicitly inverting the matrix, which is computationally expensive and unstable.
 
-**2. Computing the Determinant**
-The determinant of a triangular matrix is simply the product of its diagonal entries. Therefore, the determinant of $A$ can be computed instantly from $B$:
-$$
-\det(A) = \det(B'B) = \det(B')\det(B) = \left(\prod_{i=1}^n b_{ii}\right)^2
-$$
-This is widely used in Maximum Likelihood Estimation (e.g., REML in mixed models) where log-determinants of large covariance matrices are required.
+1. Computing the Determinant
+   
+    The determinant of a triangular matrix is simply the product of its diagonal entries. Therefore, the determinant of $A$ can be computed instantly from $B$:
+    $$
+    \det(A) = \det(B'B) = \det(B')\det(B) = \left(\prod_{i=1}^n b_{ii}\right)^2
+    $$
+    This is widely used in Maximum Likelihood Estimation (e.g., REML in mixed models) where log-determinants of large covariance matrices are required.
 
-**3. Generating Multivariate Normal Random Variables**
-To generate a random vector $Y \sim N(\mu, \Sigma)$, we first generate a vector of independent standard normal variables $Z \sim N(0, I)$. Using the Cholesky decomposition $\Sigma = B'B$:
-$$
-Y = \mu + B'Z
-$$
-The covariance of $Y$ is confirmed by $\text{Cov}(Y) = B' \text{Cov}(Z) B = B' I B = B'B = \Sigma$. This is the standard method used by functions like `mvrnorm` in R.
+2. Generating Multivariate Normal Random Variables
+   
+    To generate a random vector $Y \sim N(\mu, \Sigma)$, we first generate a vector of independent standard normal variables $Z \sim N(0, I)$. Using the Cholesky decomposition $\Sigma = B'B$:
+    $$
+    Y = \mu + B'Z
+    $$
+    The covariance of $Y$ is confirmed by $\text{Cov}(Y) = B' \text{Cov}(Z) B = B' I B = B'B = \Sigma$. This is the standard method used by functions like `mvrnorm` in R.
