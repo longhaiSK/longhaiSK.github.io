@@ -527,64 +527,107 @@ $$
 We compare the "exact" weighted median (found by numerical integration) with the Monte Carlo estimate for a skewed distribution.
 
 ```{r}
+#| label: small-sample-selection-latex
 #| echo: true
 
-
-# 1. Setup Parameters
+# 1. Setup
+set.seed(2025) 
+M <- 10
 alpha <- 2
 beta <- 10
-# Standard Posterior Density: Dbeta(x, 2, 10)
 
-# 2. Define the Weight Function (using MIN)
+theta_samples <- rbeta(M, alpha, beta)
 w <- function(theta) { 1 / pmin(theta, 1 - theta) }
 
-# 3. Calculate "theoretical" Weighted Median (via Numerical Integration)
-# Unnormalized Weighted Density
-weighted_dens_unnorm <- function(theta) {
-  w(theta) * dbeta(theta, alpha, beta)
-}
+# 2. Process
+weights <- w(theta_samples)
+ord <- order(theta_samples)
+sorted_theta <- theta_samples[ord]
+sorted_weights <- weights[ord]
+cum_weights <- cumsum(sorted_weights)
+total_weight <- sum(sorted_weights)
+threshold <- 0.5 * total_weight
 
-# Find Normalization Constant C
-C <- integrate(weighted_dens_unnorm, 0, 1)$value
+# Find k
+k_idx <- which(cum_weights >= threshold)[1]
 
-# Define CDF of the Weighted Distribution
-weighted_cdf <- function(q) {
-  integrate(weighted_dens_unnorm, 0, q)$value / C
-}
+# 3. Create Data Frame
+selection_table <- data.frame(
+  idx = 1:M,
+  theta = sorted_theta,
+  weight = sorted_weights,
+  cum_weight = cum_weights,
+  check = ifelse(cum_weights >= threshold, "$\\ge$ Threshold", "$<$ Threshold"),
+  sel = ifelse(1:M == k_idx, "$\\leftarrow k$ (Median)", "")
+)
 
-# Find Root of Cdf(m) - 0.5 = 0
-# Note: Expanded Search Interval Because Median Might Shift Near Boundaries
-theo_median <- uniroot(function(x) weighted_cdf(x) - 0.5, c(0.001, 0.999))$root
+# 4. Set LaTeX Column Names
+# Note: We use double backslashes \\ for LaTeX commands inside R strings
+colnames(selection_table) <- c(
+  "$i$",
+  "$\\theta_{(i)}$",        # Sorted Theta
+  "$w_{(i)}$",              # Sorted Weight
+  "$\\sum_{j=1}^i w_{(j)}$",# Cumulative Sum
+  "Condition",
+  "Selection"
+)
 
+# Print Context
+cat("Total Weight ($\\sum w_i$):", total_weight, "\n")
+cat("Threshold ($0.5 \\times \\sum w_i$):", threshold, "\n\n")
 
-# 4. Calculate Monte Carlo Weighted Median
+# 5. Render Table with escape = FALSE
+# escape = FALSE is crucial; otherwise, it prints the dollar signs literally
+knitr::kable(selection_table, 
+             digits = 4, 
+             align = "c",
+             escape = FALSE)
+```
+
+Actual Weighted Median with 1000 draws of $\theta$
+```{r}
+#| label: large-sample-weighted-median
+#| echo: true
+
+# 1. Setup Parameters
 set.seed(123)
-M <- 100000
-theta_samples <- rbeta(M, alpha, beta)
+M <- 1000
+alpha <- 2
+beta <- 10
 
-# Compute Weights
+# 2. Generate Samples and Weights
+theta_samples <- rbeta(M, alpha, beta)
+# Weight function: w(theta) = 1 / min(theta, 1-theta)
+w <- function(theta) { 1 / pmin(theta, 1 - theta) }
 weights <- w(theta_samples)
 
-# Sort Samples and Weights
+# 3. Sort and Calculate Cumulative Weights
 ord <- order(theta_samples)
 sorted_theta <- theta_samples[ord]
 sorted_weights <- weights[ord]
 
-# Find Index Where Cumulative Weight Crosses 50%
 cum_weights <- cumsum(sorted_weights)
 total_weight <- sum(sorted_weights)
-idx <- which(cum_weights >= 0.5 * total_weight)[1]
-mc_median <- sorted_theta[idx]
-# 5. Comparison Table
-comparison_df <- data.frame(
-  "Theoretical Weighted" = theo_median,
-  "Monte Carlo Weighted" = mc_median,
-  "Standard Posterior"   = qbeta(0.5, alpha, beta),
-  check.names = FALSE
+threshold <- 0.5 * total_weight
+
+# 4. Find the Weighted Median Index k
+k_idx <- which(cum_weights >= threshold)[1]
+mc_weighted_median <- sorted_theta[k_idx]
+
+# 5. Compare with Theoretical Value (calculated previously)
+# Re-calculating theoretical for completeness of this chunk
+weighted_dens_unnorm <- function(theta) { w(theta) * dbeta(theta, alpha, beta) }
+C <- integrate(weighted_dens_unnorm, 0, 1)$value
+weighted_cdf <- function(q) { integrate(weighted_dens_unnorm, 0, q)$value / C }
+theo_median <- uniroot(function(x) weighted_cdf(x) - 0.5, c(0.001, 0.999))$root
+
+# 6. Display Results
+results <- data.frame(
+  "Method" = c("Theoretical (Integration)", "Monte Carlo (M=1000)", "Standard Median (Unweighted)"),
+  "Value" = c(theo_median, mc_weighted_median, qbeta(0.5, alpha, beta))
 )
 
-knitr::kable(comparison_df, digits = 3, align = "c")
-
+knitr::kable(results, digits = 4, align = "l", caption = "Weighted Median Estimation")
 ```
 
 ### Hypothesis Testing (0-1 Loss)
