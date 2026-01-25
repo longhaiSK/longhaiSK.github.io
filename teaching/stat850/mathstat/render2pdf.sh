@@ -1,0 +1,1 @@
+quarto render --to pdf -M freeze:false
