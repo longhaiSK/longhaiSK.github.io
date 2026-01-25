@@ -5,7 +5,7 @@ format:
   pdf: default
 ---
 
-## Fundamental Elements of Bayesian Inference
+## Posterior Distributions
 
 The foundation of Bayesian inference relies on the relationship between the prior distribution, the likelihood of the data, and the posterior distribution. This relationship is governed by Bayes' Theorem (or Law).
 
@@ -32,7 +32,36 @@ $$
 $$
 :::
 
+### Discrete Posterior Calculation
 
+::: {#exm-discrete-posterior}
+### Discrete Posterior Calculation
+
+Consider the following table where we calculate the posterior probabilities for a discrete parameter space.
+
+Let the parameter $\theta$ take values $\{1, 2, 3\}$ with prior probabilities $\pi(\theta)$. Let the data $x$ take values $\{0, 1, 2, \dots\}$.
+
+Given:
+
+* Prior $\pi(\theta)$: $\pi(1)=1/3, \pi(2)=1/3, \pi(3)=1/3$.
+* Likelihood $\pi(x|\theta)$:
+    * If $\theta=1$, $x \sim \text{Uniform on } \{0, 1\}$ (Prob = 1/2).
+    * If $\theta=2$, $x \sim \text{Uniform on } \{0, 1, 2\}$ (Prob = 1/3).
+    * If $\theta=3$, $x \sim \text{Uniform on } \{0, 1, 2, 3\}$ (Prob = 1/4).
+
+Suppose we observe $x=2$. The calculation of the posterior probabilities is summarized in the table below:
+
+| | $\theta=1$ | $\theta=2$ | $\theta=3$ | Sum |
+|:---|:---:|:---:|:---:|:---:|
+| **Prior** $\pi(\theta)$ | $1/3$ | $1/3$ | $1/3$ | $1$ |
+| **Likelihood** $\pi(x=2|\theta)$ | $0$ | $1/3$ | $1/4$ | - |
+| **Product** $\pi(\theta)\pi(x|\theta)$ | $0$ | $1/9$ | $1/12$ | $7/36$ |
+| **Posterior** $\pi(\theta|x)$ | $0$ | $4/7$ | $3/7$ | $1$ |
+
+The marginal sum (evidence) is calculated as $0 + 1/9 + 1/12 = 4/36 + 3/36 = 7/36$. The posterior values are obtained by dividing the product row by this sum.
+:::
+
+### Binomial-beta Conjugacy
 
 ::: {#exm-binomial-beta}
 ### Binomial-beta Conjugacy
@@ -111,6 +140,7 @@ legend("topleft", legend = c("Prior Beta(2,2)", "Posterior Beta(10,4)"),
        col = c("red", "blue"), lty = c(2, 1), lwd = 2)
 ```
 
+### Normal-normal Conjugacy (known Variance)
 
 ::: {#exm-normal-normal}
 ### Normal-normal Conjugacy (known Variance)
@@ -201,116 +231,102 @@ legend("topleft", legend = c("Prior N(175, 25)", "Posterior N(178.6, 7.14)"),
 ```
 
 
-::: {#exm-discrete-posterior}
-### Discrete Posterior Calculation
-
-Consider the following table where we calculate the posterior probabilities for a discrete parameter space.
-
-Let the parameter $\theta$ take values $\{1, 2, 3\}$ with prior probabilities $\pi(\theta)$. Let the data $x$ take values $\{0, 1, 2, \dots\}$.
-
-Given:
-
-* Prior $\pi(\theta)$: $\pi(1)=1/3, \pi(2)=1/3, \pi(3)=1/3$.
-* Likelihood $\pi(x|\theta)$:
-    * If $\theta=1$, $x \sim \text{Uniform on } \{0, 1\}$ (Prob = 1/2).
-    * If $\theta=2$, $x \sim \text{Uniform on } \{0, 1, 2\}$ (Prob = 1/3).
-    * If $\theta=3$, $x \sim \text{Uniform on } \{0, 1, 2, 3\}$ (Prob = 1/4).
-
-Suppose we observe $x=2$. The calculation of the posterior probabilities is summarized in the table below:
-
-| | $\theta=1$ | $\theta=2$ | $\theta=3$ | Sum |
-|:---|:---:|:---:|:---:|:---:|
-| **Prior** $\pi(\theta)$ | $1/3$ | $1/3$ | $1/3$ | $1$ |
-| **Likelihood** $\pi(x=2|\theta)$ | $0$ | $1/3$ | $1/4$ | - |
-| **Product** $\pi(\theta)\pi(x|\theta)$ | $0$ | $1/9$ | $1/12$ | $7/36$ |
-| **Posterior** $\pi(\theta|x)$ | $0$ | $4/7$ | $3/7$ | $1$ |
-
-The marginal sum (evidence) is calculated as $0 + 1/9 + 1/12 = 4/36 + 3/36 = 7/36$. The posterior values are obtained by dividing the product row by this sum.
-:::
+### Normal with Unknown Mean and Variance
 
 ::: {#exm-Normal-with-Unknown-Mean-and-Variance}
 ### Normal with Unknown Mean and Variance
 
 Consider $X_1, \dots, X_n \sim N(\mu, 1/\tau)$, where both $\mu$ and the precision $\tau$ are unknown.
 
-We use a **Normal-Gamma** conjugate prior:
+We use a **Normal-Gamma** conjugate prior with parameters $\mu_0, \tau_0, \alpha_0, w_0$:
 
-* $\tau \sim \text{Gamma}(\alpha, \beta)$
-    $$\pi(\tau) \propto \tau^{\alpha-1} e^{-\beta\tau}$$
+* $\tau \sim \text{Gamma}(\alpha_0/2, \alpha_0 w_0/2)$
+    $$ \pi(\tau) \propto \tau^{\alpha_0/2 - 1} \exp\left\{ -\frac{\alpha_0 w_0}{2} \tau \right\} $$
 
 * $\mu|\tau \sim N(\mu_0, 1/(\tau_0\tau))$
-    $$\pi(\mu|\tau) \propto \tau^{1/2} e^{-\frac{\tau_0\tau}{2}(\mu-\mu_0)^2}$$
+    $$ \pi(\mu|\tau) \propto \tau^{1/2} \exp\left\{ -\frac{\tau_0\tau}{2}(\mu-\mu_0)^2 \right\} $$
 
 The joint prior is:
 $$
-\pi(\mu, \tau) \propto \tau^{\alpha - 1/2} \exp\left\{ -\tau \left( \beta + \frac{\tau_0}{2}(\mu - \mu_0)^2 \right) \right\}
+\pi(\mu, \tau) \propto \tau^{(\alpha_0+1)/2 - 1} \exp\left\{ -\frac{\tau}{2} \left( \alpha_0 w_0 + \tau_0(\mu - \mu_0)^2 \right) \right\}
 $$
 
-**Derivation of the Likelihood:**
+**The Likelihood:**
 
-The likelihood is the product of the individual densities:
+To derive the Maximum Likelihood Estimators (MLEs), we work with the log-likelihood function $l(\mu, \tau) = \log L(\mu, \tau)$:
+
 $$
 \begin{aligned}
-L(\mu, \tau) &= \prod_{i=1}^n \frac{\tau^{1/2}}{\sqrt{2\pi}} \exp\left\{ -\frac{\tau}{2}(x_i - \mu)^2 \right\} \\
-&\propto \tau^{n/2} \exp\left\{ -\frac{\tau}{2} \sum_{i=1}^n (x_i - \mu)^2 \right\}
+l(\mu, \tau) &= \log \left( \tau^{n/2} \exp\left\{ -\frac{\tau}{2} [ S_{xx} + n(\bar{x}-\mu)^2 ] \right\} \right) \\
+&= \frac{n}{2} \log \tau - \frac{\tau}{2} \left[ S_{xx} + n(\bar{x}-\mu)^2 \right] + \text{const}
 \end{aligned}
 $$
 
-Using the identity $\sum (x_i - \mu)^2 = S_{xx} + n(\bar{x}-\mu)^2$, where $S_{xx} = \sum (x_i - \bar{x})^2$:
+**MLE for $\mu$**
+
+Differentiating $l(\mu, \tau)$ with respect to $\mu$ and setting to zero:
+
 $$
-L(\mu, \tau) \propto \tau^{n/2} \exp\left\{ -\frac{\tau}{2} \left[ S_{xx} + n(\bar{x}-\mu)^2 \right] \right\}
+\frac{\partial l}{\partial \mu} = n\tau(\bar{x} - \mu) = 0 \implies \hat{\mu}_{\text{MLE}} = \bar{x}
+$$
+
+**MLE for $\sigma^2$**
+
+Differentiating $l(\mu, \tau)$ with respect to $\tau$, setting to zero, and substituting $\mu = \bar{x}$:
+
+$$
+\frac{\partial l}{\partial \tau} = \frac{n}{2\tau} - \frac{S_{xx}}{2} = 0 \implies \hat{\tau}_{\text{MLE}} = \frac{n}{S_{xx}}
+$$
+
+Using the invariance property ($\sigma^2 = 1/\tau$):
+
+$$
+\hat{\sigma}^2_{\text{MLE}} = \frac{S_{xx}}{n} = \frac{\sum_{i=1}^n (x_i - \bar{x})^2}{n}
 $$
 
 **Derivation of the Posterior:**
 
 Multiplying the prior by the likelihood gives the joint posterior density. We organize the terms to separate the marginal distribution of $\tau$ from the conditional distribution of $\mu$:
+
 $$
 \begin{aligned}
-\pi(\mu, \tau | x) &\propto \underbrace{\tau^{\alpha + n/2 - 1} \exp\left\{ -\tau \left[ \beta + \frac{S_{xx}}{2} + \frac{n\tau_0}{2(n+\tau_0)}(\bar{x}-\mu_0)^2 \right] \right\}}_{\text{Marginal of } \tau} \\
+\pi(\mu, \tau | x) &\propto \underbrace{\tau^{(\alpha_0 + n)/2 - 1} \exp\left\{ -\frac{\tau}{2} \left[ \alpha_0 w_0 + S_{xx} + \frac{n\tau_0}{n+\tau_0}(\bar{x}-\mu_0)^2 \right] \right\}}_{\text{Marginal of } \tau} \\
 &\quad \times \underbrace{\tau^{1/2} \exp\left\{ -\frac{(n+\tau_0)\tau}{2} \left( \mu - \frac{\tau_0\mu_0+n\bar{x}}{n+\tau_0} \right)^2 \right\}}_{\text{Conditional of } \mu|\tau}
 \end{aligned}
 $$
 
 **Results:**
 
-We define the posterior parameters $\tau' = \tau_0 + n$ and $\mu' = \frac{\tau_0\mu_0 + n\bar{x}}{\tau_0 + n}$.
 
 * **Conditional Posterior of $\mu|\tau, x$**:
-    $$\mu|\tau, x \sim N(\mu', 1/(\tau'\tau))$$
-    $$E[\mu|\tau, x] = \mu' = \frac{\tau_0\mu_0 + n\bar{x}}{\tau_0 + n}$$
-
-* The marginal posterior of the precision is $\tau|x \sim \text{Gamma}(\alpha', \beta')$. While the shape parameter is always $\alpha' = \frac{\alpha_0 + n}{2}$, the rate parameter $\beta'$ can be expressed in this form:
-   $$
-   \beta' = \frac{1}{2} \left[ \alpha_0 w_0 + \sum_{i=1}^n (x_i - \mu_0)^2 - \frac{n^2}{n+\tau_0}(\bar{x}-\mu_0)^2 \right]
-   $$
-   
-   We introduce the prior parameters $\alpha=\alpha_0/2$ and $\beta = \alpha_0 w_0/2$, and the MLE variance $\hat{\sigma}^2_{MLE} = S_{xx}/n$.
-   The posterior is $\tau|x \sim \text{Gamma}(\alpha', \beta')$ where:
-
-   $$
-   \begin{aligned}
-   \alpha' &= \frac{\alpha_0 + n}{2} \\
-   \beta' &= \frac{\alpha_0 w_0 + n\hat{\sigma}^2_{MLE} + \frac{n\tau_0}{n+\tau_0}(\bar{x}-\mu_0)^2}{2}
-   \end{aligned}
-   $$
-
-   **Approximate Expectation of $\sigma^2$**:
-   Using the approximation $E[\sigma^2|x] \approx 1/E[\tau|x] = \beta'/\alpha'$:
-
-   $$
-   E[\sigma^2|x] \approx \frac{\alpha_0 w_0 + n\hat{\sigma}^2_{MLE} + \frac{n\tau_0}{n+\tau_0}(\bar{x}-\mu_0)^2}{\alpha_0 + n}
-   $$
+    $$ \mu|\tau, x \sim N(\mu', 1/(\tau'\tau)) $$
+    $$ E[\mu|\tau, x] = \frac{\tau_0\mu_0 + n\bar{x}}{\tau_0 + n} $$
+   where 
+      $$\tau' = \tau_0 + n$$ 
+      $$\mu' = \frac{\tau_0\mu_0 + n\bar{x}}{\tau_0 + n}$$
+* **Marginal Posterior of $\tau|x$**:
+    The marginal posterior is $\tau|x \sim \text{Gamma}(\alpha', \beta')$ with:
+    $$
+    \alpha' = \frac{\alpha_0 + n}{2}, \quad \beta' = \frac{\alpha_0 w_0 + n\hat{\sigma}^2_{\text{MLE}} + \frac{n\tau_0}{n+\tau_0}(\bar{x}-\mu_0)^2}{2}
+    $$
+    
+    Using the approximation $E[\sigma^2|x] \approx 1/E[\tau|x] = \beta'/\alpha'$, the posterior expectation of the variance is a weighted average of the prior variance, the data variance, and the discrepancy between the prior and data means:
+    
+    $$
+    E[\sigma^2|x] \approx \frac{\alpha_0 w_0 + n\hat{\sigma}^2_{\text{MLE}} + \frac{1}{1/n+1/\tau_0}(\bar{x}-\mu_0)^2}{\alpha_0 + n}
+    $$
 
 * **Conditional Posterior of $\tau|\mu, x$**:
-   If $\mu$ is considered known (or conditioned upon), we combine the terms involving $\tau$ from the joint prior and likelihood, treating $\mu$ as a fixed parameter. Note that the prior term $\pi(\mu|\tau)$ contributes an extra $\tau^{1/2}$.
-   $$
-   \pi(\tau|\mu, x) \propto \tau^{\alpha + \frac{n+1}{2} - 1} \exp\left\{ -\tau \left[ \beta + \frac{1}{2}\sum_{i=1}^n (x_i-\mu)^2 + \frac{\tau_0}{2}(\mu-\mu_0)^2 \right] \right\}
-   $$
-   Thus, $\tau|\mu, x \sim \text{Gamma}(\alpha'', \beta'')$ with shape $\alpha'' = \frac{\alpha_0 + n + 1}{2}$ and rate $\beta'' = \frac{\alpha_0 w_0 + \sum(x_i-\mu)^2 + \tau_0(\mu-\mu_0)^2}{2}$.
+   If $\mu$ is considered known, the posterior for $\tau$ combines the prior $\alpha_0, w_0$ with the deviations from $\mu$. Note that the prior term $\pi(\mu|\tau)$ contributes an extra factor of $\tau^{1/2}$ to the shape.
+   
+   $$ \tau|\mu, x \sim \text{Gamma}(\alpha'', \beta'') $$
+   
+   Where:
+   $$ \alpha'' = \frac{\alpha_0 + n + 1}{2}, \quad \beta'' = \frac{\alpha_0 w_0 + \sum_{i=1}^n (x_i-\mu)^2 + \tau_0(\mu-\mu_0)^2}{2} $$
 
    The approximate expectation of the variance is:
    $$
-   E[\sigma^2|\mu, x] \approx \frac{\beta''}{\alpha''} = \frac{\alpha_0 w_0 + \sum_{i=1}^n (x_i-\mu)^2 + \tau_0(\mu-\mu_0)^2}{\alpha_0 + n + 1}
+   E[\sigma^2|\mu, x] \approx \frac{\alpha_0 w_0 + \sum_{i=1}^n (x_i-\mu)^2 + \tau_0(\mu-\mu_0)^2}{\alpha_0 + n + 1}
    $$
 :::
 
