@@ -1,40 +1,11 @@
 ---
-title: "Distribution of Quadratic Forms"
+format: 
+  html: default
+  pdf: default
 ---
 
-```{r}
-#| label: setup-images-lec40-p1-10
-#| include: false
-#| warning: false
+# Distribution of Quadratic Forms
 
-library(pdftools)
-library(magick)
-
-# Define Path to PDF
-pdf_path <- "../Lec40-quadratic-form.pdf"
-img_dir <- "lec40_images"
-
-# Create Image Directory
-if (!dir.exists(img_dir)) {
-  dir.create(img_dir)
-}
-
-# Helper Function to Extract and Crop a Specific Page
-extract_page_image <- function(page_num, filename, geometry = "1200x800+0+200", force = FALSE) {
-  target_file <- file.path(img_dir, filename)
-  
-  if (file.exists(pdf_path) && (force || !file.exists(target_file))) {
-    tryCatch({
-      bitmap <- pdf_render_page(pdf_path, page = page_num, dpi = 150)
-      img <- image_read(bitmap)
-      img_cropped <- image_crop(img, geometry)
-      image_write(img_cropped, target_file)
-    }, error = function(e) {
-      warning(paste("Failed to extract page", page_num, ":", e$message))
-    })
-  }
-}
-```
 
 This chapter covers the distribution of quadratic forms (sums of squares), which is crucial for hypothesis testing in linear models.
 
@@ -68,6 +39,7 @@ $$
 :::
 
 ::: {.proof}
+
 Let us decompose $y$ into its mean and a stochastic component: $y = \mu + z$, where $E(z) = 0$ and $\text{Var}(z) = E(zz') = I_n$.
 Substituting this into the quadratic form:
 $$
@@ -86,6 +58,8 @@ E(y'y) &= \mu'\mu + 2\mu'E(z) + E(z'z) \\
 $$
 Since $\text{Var}(z_i) = E(z_i^2) - (E(z_i))^2 = 1 - 0 = 1$, we have $E(\sum z_i^2) = \sum 1 = n$.
 Thus, $E(y'y) = n + \mu'\mu$.
+
+
 :::
 
 
@@ -386,8 +360,7 @@ This shows that in regression, the SST estimates $(n-1)\sigma^2$ *plus* the vari
 
 
 
-```{r}
-#| label: fig-sst-comparison-sorted-v2
+```{r fig-sst-comparison-sorted-v2}
 #| fig-cap: "Comparison of SST components with increased variation in the true means. The vertical lines represent the deviations $(y_i - \\bar{y})$. With $\\text{sd}(\\mu_i) = 3$, the regression case (right) shows significantly larger deviations, illustrating how the systematic spread of the means dominates the Total Sum of Squares."
 #| warning: false
 #| message: false
@@ -473,19 +446,20 @@ To understand the distribution of quadratic forms under normality, we introduce 
 Let $y \sim N_n(\mu, I_n)$. The random variable $V = y'y = \sum y_i^2$ follows a **non-central chi-square distribution** with $n$ degrees of freedom and non-centrality parameter $\lambda$.
 
 $$
-V \sim \chi^2(n, \lambda) \quad \text{where } \lambda = \frac{1}{2} \mu'\mu = \frac{1}{2} ||\mu||^2
+V \sim \chi^2(n, \lambda) \quad \text{where } \lambda = \mu'\mu = ||\mu||^2
 $$
 :::
 
-**Note:** Some definitions of non-central $\chi^2$ use $\lambda = \mu'\mu$. In this course, we use $\lambda = \frac{1}{2}\mu'\mu$.
+::: {.callout-important}
+**Note on NCP Definition:** Some definitions of non-central $\chi^2$ use $\lambda = \frac{1}{2}\mu'\mu$. In this course, we use $\lambda = \mu'\mu$. With this convention, the Poisson-mixture representation below uses Poisson($\lambda/2$) weights.
+:::
 
 ### Visualizing $\chi^2$ Distributions
 
 Here is a plot visualizing the difference between central and non-central Chi-square distributions.
 
 
-```{r}
-#| label: fig-plot-chisq
+```{r fig-plot-chisq}
 #| echo: false
 #| fig-cap: "Central vs Non-central Chi-square Distribution"
 
@@ -526,19 +500,19 @@ We summarize the key properties of the non-central chi-square distribution.
 ::: {#thm-chisq-properties name="Properties of Non-central Chi-square"}
 Let $V \sim \chi^2(n, \lambda)$. Then:
 
-1.  **Mean:** $E(V) = n + 2\lambda$
-2.  **Variance:** $\text{Var}(V) = 2n + 8\lambda$
+1.  **Mean:** $E(V) = n + \lambda$
+2.  **Variance:** $\text{Var}(V) = 2n + 4\lambda$
 3.  **Moment Generating Function (MGF):**
     $$
-    m_V(t) = \frac{\exp[-\lambda \{1 - 1/(1-2t)\}]}{(1-2t)^{n/2}} \quad \text{for } t < 1/2
+    m_V(t) = \frac{\exp\left[ -\frac{\lambda}{2} \left\{1 - \frac{1}{1-2t}\right\} \right]}{(1-2t)^{n/2}} \quad \text{for } t < 1/2
     $$
 :::
 
 ::: {.proof name="Mean"}
-By definition, $V \sim \chi^2(n, \lambda)$ is the distribution of $y'y$ where $y \sim N_n(\mu, I_n)$ and the non-centrality parameter is $\lambda = \frac{1}{2}\mu'\mu$.
+By definition, $V \sim \chi^2(n, \lambda)$ is the distribution of $y'y$ where $y \sim N_n(\mu, I_n)$ and the non-centrality parameter is $\lambda = \mu'\mu = ||\mu||^2$.
 Applying @lem-simple-qf to the random vector $y$:
 $$
-E(V) = E(y'y) = n + \mu'\mu = n + 2\lambda
+E(V) = E(y'y) = n + \mu'\mu = n + \lambda
 $$
 :::
 
@@ -573,35 +547,35 @@ m_V(t) &= \prod_{i=1}^n (1-2t)^{-1/2} \exp\left( \frac{\mu_i^2 t}{1-2t} \right) 
 &= (1-2t)^{-n/2} \exp\left( \frac{t \sum \mu_i^2}{1-2t} \right)
 \end{aligned}
 $$
-Substituting $\lambda = \frac{1}{2} \sum \mu_i^2$ (so $\sum \mu_i^2 = 2\lambda$):
+Substituting $\lambda = \sum \mu_i^2$ (so $\sum \mu_i^2 = \lambda$):
 $$
-m_V(t) = (1-2t)^{-n/2} \exp\left( \frac{2\lambda t}{1-2t} \right)
+m_V(t) = (1-2t)^{-n/2} \exp\left( \frac{\lambda t}{1-2t} \right)
 $$
-This form matches the theorem statement, noting that $\frac{2\lambda t}{1-2t} = -\lambda (1 - \frac{1}{1-2t})$.
+Note that $\displaystyle \frac{\lambda t}{1-2t} = -\frac{\lambda}{2}\left(1 - \frac{1}{1-2t}\right)$, which leads to the Poisson-mixture representation with $J \sim \text{Poisson}(\lambda/2)$.
 :::
 
 ::: {.proof name="Variance"}
 We use the **Cumulant Generating Function**, $K_V(t) = \ln m_V(t)$, as its derivatives yield the mean and variance directly:
 $$
-K_V(t) = -\frac{n}{2} \ln(1-2t) + \frac{2\lambda t}{1-2t}
+K_V(t) = -\frac{n}{2} \ln(1-2t) + \frac{\lambda t}{1-2t}
 $$
 First derivative (Mean):
 $$
 \begin{aligned}
-K'_V(t) &= -\frac{n}{2} \left(\frac{-2}{1-2t}\right) + 2\lambda \left[ \frac{1(1-2t) - t(-2)}{(1-2t)^2} \right] \\
-&= \frac{n}{1-2t} + 2\lambda \frac{1}{(1-2t)^2}
+K'_V(t) &= -\frac{n}{2} \left(\frac{-2}{1-2t}\right) + \lambda \left[ \frac{1(1-2t) - t(-2)}{(1-2t)^2} \right] \\
+&= \frac{n}{1-2t} + \frac{\lambda}{(1-2t)^2}
 \end{aligned}
 $$
 Second derivative (Variance):
 $$
 \begin{aligned}
-K''_V(t) &= n(-1)(1-2t)^{-2}(-2) + 2\lambda(-2)(1-2t)^{-3}(-2) \\
-&= \frac{2n}{(1-2t)^2} + \frac{8\lambda}{(1-2t)^3}
+K''_V(t) &= n(-1)(1-2t)^{-2}(-2) + \lambda(-2)(1-2t)^{-3}(-2) \\
+&= \frac{2n}{(1-2t)^2} + \frac{4\lambda}{(1-2t)^3}
 \end{aligned}
 $$
 Evaluating at $t=0$:
 $$
-\text{Var}(V) = K''_V(0) = 2n + 8\lambda
+\text{Var}(V) = K''_V(0) = 2n + 4\lambda
 $$
 :::
 
@@ -620,7 +594,7 @@ $$
 
 The moment generating function of $v_i \sim \chi^2(n_i, \lambda_i)$ is:
 $$
-M_{v_i}(t) = \frac{\exp\left[-\lambda_i \left(1 - \frac{1}{1-2t}\right)\right]}{(1-2t)^{n_i/2}}
+M_{v_i}(t) = \frac{\exp\left[-\frac{\lambda_i}{2} \left(1 - \frac{1}{1-2t}\right)\right]}{(1-2t)^{n_i/2}}
 $$
 
 Since $v_1, \dots, v_k$ are independent, the MGF of their sum $V = \sum v_i$ is the product of their individual MGFs:
@@ -628,12 +602,12 @@ Since $v_1, \dots, v_k$ are independent, the MGF of their sum $V = \sum v_i$ is 
 $$
 \begin{aligned}
 M_V(t) &= \prod_{i=1}^k M_{v_i}(t) \\
-&= \prod_{i=1}^k \frac{\exp\left[-\lambda_i \left(1 - \frac{1}{1-2t}\right)\right]}{(1-2t)^{n_i/2}} \\
-&= \frac{\exp\left[-\sum \lambda_i \left(1 - \frac{1}{1-2t}\right)\right]}{(1-2t)^{\sum n_i/2}}
+&= \prod_{i=1}^k \frac{\exp\left[-\frac{\lambda_i}{2} \left(1 - \frac{1}{1-2t}\right)\right]}{(1-2t)^{n_i/2}} \\
+&= \frac{\exp\left[-\frac{\sum \lambda_i}{2} \left(1 - \frac{1}{1-2t}\right)\right]}{(1-2t)^{\sum n_i/2}}
 \end{aligned}
 $$
 
-This is the MGF of a non-central chi-square distribution with degrees of freedom $\sum n_i$ and non-centrality parameter $\sum \lambda_i$.
+This is the MGF of a non-central chi-square distribution with degrees of freedom $\sum n_i$ and non-centrality parameter $\sum \lambda_i$. 
 
 **Method 2: Geometric Interpretation**
 
@@ -648,10 +622,10 @@ $$
 \sum v_i = \sum ||y_i||^2 = ||y||^2
 $$
 
-By definition, $||y||^2$ follows a non-central chi-square distribution with degrees of freedom equal to the dimension of $y$ ($\sum n_i$) and non-centrality parameter $\lambda = \frac{1}{2} ||\mu||^2$.
+By definition, $||y||^2$ follows a non-central chi-square distribution with degrees of freedom equal to the dimension of $y$ ($\sum n_i$) and non-centrality parameter $\lambda = ||\mu||^2$.
 
 $$
-\lambda = \frac{1}{2} \sum_{i=1}^k ||\mu_i||^2 = \sum_{i=1}^k \lambda_i
+\lambda = \sum_{i=1}^k ||\mu_i||^2 = \sum_{i=1}^k \lambda_i
 $$
 :::
 
@@ -661,7 +635,7 @@ $$
 Let $v \sim \chi^2(n, \lambda)$ be a non-central chi-square random variable. Its probability density function can be represented as a Poisson-weighted sum of central chi-square density functions:
 
 $$
-f(v; n, \lambda) = \sum_{j=0}^{\infty} \left( \frac{e^{-\lambda} \lambda^j}{j!} \right) f(v; n+2j, 0)
+f(v; n, \lambda) = \sum_{j=0}^{\infty} \left( \frac{e^{-\lambda/2} (\lambda/2)^j}{j!} \right) f(v; n+2j, 0)
 $$
 
 where $f(v; \nu, 0)$ is the density of a central chi-square distribution with $\nu$ degrees of freedom.
@@ -670,21 +644,21 @@ where $f(v; \nu, 0)$ is the density of a central chi-square distribution with $\
 ::: {.proof}
 We use the Moment Generating Function (MGF) approach. The MGF of a non-central chi-square distribution $v \sim \chi^2(n, \lambda)$ is:
 $$
-M_v(t) = (1-2t)^{-n/2} \exp\left( \lambda \left[ \frac{1}{1-2t} - 1 \right] \right)
+M_v(t) = (1-2t)^{-n/2} \exp\left( \frac{\lambda}{2} \left[ \frac{1}{1-2t} - 1 \right] \right)
 $$
 
 We can expand the exponential term using the power series $e^x = \sum_{j=0}^\infty \frac{x^j}{j!}$:
 $$
 \begin{aligned}
-M_v(t) &= (1-2t)^{-n/2} e^{-\lambda} \exp\left( \frac{\lambda}{1-2t} \right) \\
-&= e^{-\lambda} (1-2t)^{-n/2} \sum_{j=0}^{\infty} \frac{1}{j!} \left( \frac{\lambda}{1-2t} \right)^j \\
-&= \sum_{j=0}^{\infty} \left( \frac{e^{-\lambda} \lambda^j}{j!} \right) (1-2t)^{-(n+2j)/2}
+M_v(t) &= (1-2t)^{-n/2} e^{-\lambda/2} \exp\left( \frac{\lambda/2}{1-2t} \right) \\
+&= e^{-\lambda/2} (1-2t)^{-n/2} \sum_{j=0}^{\infty} \frac{1}{j!} \left( \frac{\lambda/2}{1-2t} \right)^j \\
+&= \sum_{j=0}^{\infty} \left( \frac{e^{-\lambda/2} (\lambda/2)^j}{j!} \right) (1-2t)^{-(n+2j)/2}
 \end{aligned}
 $$
 
 Recognizing the terms:
 
-1.  The term in parentheses, $P(J=j) = \frac{e^{-\lambda} \lambda^j}{j!}$, is the probability mass function of a **Poisson** random variable $J \sim \text{Poisson}(\lambda)$.
+1.  The term in parentheses, $P(J=j) = \frac{e^{-\lambda/2} (\lambda/2)^j}{j!}$, is the probability mass function of a **Poisson** random variable $J \sim \text{Poisson}(\lambda/2)$. 
 2.  The term $(1-2t)^{-(n+2j)/2}$ is the MGF of a **central chi-square** distribution with $n+2j$ degrees of freedom.
 
 Since the MGF of the mixture is the sum of the MGFs of the components weighted by the mixture probabilities, the density must follow the same mixture structure.
@@ -693,14 +667,13 @@ Since the MGF of the mixture is the sum of the MGFs of the components weighted b
 ::: {.remark}
 This theorem implies a hierarchical model for generating a non-central chi-square variable:
 
-1.  Sample $J \sim \text{Poisson}(\lambda)$.
+1.  Sample $J \sim \text{Poisson}(\lambda/2)$.
 2.  Given $J=j$, sample $V \sim \chi^2(n+2j, 0)$.
 
 This is particularly useful for numerical computation, as it allows the non-central CDF to be approximated by a finite sum of central chi-square CDFs.
 :::
 
-```{r}
-#| label: fig-chisq-poisson-mixture-fixed
+```{r fig-chisq-poisson-mixture-fixed}
 #| fig-cap: "The non-central chi-square distribution as a Poisson mixture. The black curves represent central chi-square densities with $df = n + 2j$, with transparency (alpha) proportional to the Poisson weight $P(J=j)$. The solid blue line is the true non-central chi-square density."
 #| warning: false
 #| message: false
@@ -710,14 +683,14 @@ library(dplyr)
 
 # Parameters
 n <- 4          # Base degrees of freedom
-lambda <- 4     # Non-centrality parameter (lambda = 1/2 * ||mu||^2)
+lambda <- 4     # Non-centrality parameter (lambda = ||mu||^2)
 x_limit <- 25   # X-axis range
 j_values <- 0:15 # Sequence of J = 0, 1, 2...
 
 # Generate Data for the Mixture Components
 x <- seq(0, x_limit, length.out = 400)
 mixture_df <- do.call(rbind, lapply(j_values, function(j) {
-  weight <- dpois(j, lambda)
+  weight <- dpois(j, lambda/2)
   data.frame(
     x = x,
     y = dchisq(x, df = n + 2*j),
@@ -727,11 +700,11 @@ mixture_df <- do.call(rbind, lapply(j_values, function(j) {
 }))
 
 # Generate Data for the True Non-central Chi-square
-# R Uses Ncp = ||mu||^2, Which Equals 2 * Lambda
+# R Uses Ncp = ||mu||^2 (we set lambda = ||mu||^2)
 true_nc <- data.frame(
   x = x,
-  y = dchisq(x, df = n, ncp = 2 * lambda)
-)
+  y = dchisq(x, df = n, ncp = lambda)
+) 
 
 # Plotting
 ggplot() +
@@ -771,7 +744,7 @@ $$
 :::
 
 
-### Non-central $\chi^2$ of Quadratic Forms
+### Distribution of the Sum Squares of Projected Spherical Normal
 
 
 
@@ -781,7 +754,7 @@ We will prove a simplified version of @thm-dist-quad first.
 If $y \sim N_n(\mu, \sigma^2 I_n)$ and $P_V$ is a projection matrix onto a subspace $V$ of dimension $r$, then:
 
 $$
-\frac{1}{\sigma^2} y'P_V y = \frac{||P_V y||^2}{\sigma^2} \sim \chi^2\left(r, \frac{||P_V \mu||^2}{2\sigma^2}\right)
+\frac{1}{\sigma^2} y'P_V y = \frac{||P_V y||^2}{\sigma^2} \sim \chi^2\left(r, \frac{||P_V \mu||^2}{\sigma^2}\right)
 $$
 
 This holds because $\frac{1}{\sigma^2} P_V (\sigma^2 I) = P_V$, which is idempotent.
@@ -810,38 +783,38 @@ $$
 y' P_V y = y' Q Q' y = (Q'y)' (Q'y) = ||Q'y||^2
 $$
 
-Since $y \sim N(\mu, I_n)$, the linear transformation $z = Q'y$ follows:
+Since $y \sim N(\mu, I_n)$, the linear transformation $w = Q'y$ follows:
 $$
-z \sim N(Q'\mu, Q' I_n Q) = N(Q'\mu, I_r)
+w \sim N(Q'\mu, Q' I_n Q) = N(Q'\mu, I_r)
 $$
 
-Thus, $z$ is a vector of $r$ independent normal variables with variance 1. The sum of squares $||z||^2$ is by definition non-central chi-square:
+Thus, $w$ is a vector of $r$ independent normal variables with variance 1. The sum of squares $||w||^2$ is by definition non-central chi-square:
 
 $$
-||z||^2 \sim \chi^2(r, \lambda)
+||w||^2 \sim \chi^2(r, \lambda)
 $$
 where the non-centrality parameter is:
 $$
-\lambda = \frac{1}{2} ||E(z)||^2 = \frac{1}{2} ||Q'\mu||^2
+\lambda = ||E(w)||^2 = ||Q'\mu||^2
 $$
 
 Note that $||Q'\mu||^2 = \mu' Q Q' \mu = \mu' P_V \mu = ||P_V \mu||^2$.
 
-Thus, $y' P_V y \sim \chi^2(r, \frac{1}{2} ||P_V \mu||^2)$.
+Thus, $y' P_V y \sim \chi^2(r, ||P_V \mu||^2)$.
 
 **When $\sigma^2\not=1$**
 
 If $y \sim N(\mu, \sigma^2 I_n)$, we standardize by dividing by $\sigma$.
 
-Let $z = y/\sigma$. Then $z \sim N(\mu/\sigma, I_n)$.
-Applying the previous result to $z$:
+Let $w = y/\sigma$. Then $w \sim N(\mu/\sigma, I_n)$.
+Applying the previous result to $w$:
 
 $$
-z' P_V z = \frac{y' P_V y}{\sigma^2} \sim \chi^2\left(r, \frac{1}{2} \left|\left| P_V \frac{\mu}{\sigma} \right|\right|^2\right)
+w' P_V w = \frac{y' P_V y}{\sigma^2} \sim \chi^2\left(r, \left|\left| P_V \frac{\mu}{\sigma} \right|\right|^2\right)
 $$
 which simplifies to:
 $$
-\frac{||P_V y||^2}{\sigma^2} \sim \chi^2\left(r, \frac{||P_V \mu||^2}{2\sigma^2}\right)
+\frac{||P_V y||^2}{\sigma^2} \sim \chi^2\left(r, \frac{||P_V \mu||^2}{\sigma^2}\right)
 $$
 
 :::
@@ -856,13 +829,12 @@ E(\|P_V y\|^2) = \sigma^2 \left(r + \frac{\|P_V \mu\|^2}{\sigma^2}\right) = r\si
 $$
 :::
 
-```{r}
-#| label: plot-projection-3d-refined
+```{r plot-projection-3d-fixed}
 #| warning: false
 #| message: false
 #| fig-cap: "Visualization of Projected Trivariate Normal Cloud"
-#| screenshot.force: true
-#| webshot2: !expr list(vwidth = 900, vheight = 600, zoom = 2)
+#| fig-width: 8
+#| fig-height: 4.5
 #| out-width: "100%"
 
 library(plotly)
@@ -887,18 +859,22 @@ colnames(df_proj) <- c("px", "py", "pz")
 # 3. Setup Axis Styles
 ax_style <- list(
   title = "",
-  showgrid = TRUE,        # Keep the coordinate plane grids
+  showgrid = TRUE,        
   gridcolor = "gray",
   gridwidth = 0.5,
-  zeroline = FALSE,       # REMOVED: The static "crosshair" lines at 0
-  showline = FALSE,       # REMOVED: The front bounding box
+  zeroline = FALSE,       
+  showline = FALSE,       
   showticklabels = FALSE,
   showbackground = FALSE,
   showspikes = FALSE
 )
 
-# 4. Create the Plot
-plot_ly() %>%
+# 4. Create the Plot with EXPLICIT DIMENSIONS
+plot_ly(
+    # --- FIX IS HERE: Force the pixel dimensions ---
+    width = 800, 
+    height = 450 
+  ) %>%
   # --- Optional: Floor Plane ---
   add_trace(
     x = c(-2, 8, 8, -2), y = c(-2, -2, 8, 8), z = c(0, 0, 0, 0),
@@ -910,7 +886,6 @@ plot_ly() %>%
     data = df, x = ~x, y = ~y, z = ~z,
     type = 'scatter3d', mode = 'markers',
     marker = list(size = 3, color = 'blue', opacity = 0.6),
-    # Legend with Math (Italic y)
     name = '<i>y</i>' 
   ) %>%
   # --- Projected Shadow (P_V y) ---
@@ -918,7 +893,6 @@ plot_ly() %>%
     data = df_proj, x = ~px, y = ~py, z = ~pz,
     type = 'scatter3d', mode = 'markers',
     marker = list(size = 3, color = 'red', opacity = 0.8),
-    # Legend with Math (P_sub_V y)
     name = "<i>P</i><sub>V</sub><i>y</i>"
   ) %>%
   # --- Residual Lines ---
@@ -932,7 +906,6 @@ plot_ly() %>%
   # --- Manual Labels ---
   add_text(
     x = c(8.5, 0, 0), y = c(0, 8.5, 0), z = c(0, 0, 8.5),
-    # Used Unicode \u22A5 for perpendicular symbol
     text = c("<i>q</i><sub>1</sub>", "<i>q</i><sub>2</sub>", "<i>V</i><sup>\u22A5</sup>"),
     textfont = list(size = 15, color = "black"),
     showlegend = FALSE
@@ -946,9 +919,12 @@ plot_ly() %>%
       camera = list(eye = list(x = 1.6, y = 1.6, z = 1.3))
     ),
     title = "Projection of Trivariate Normal onto 2D Subspace",
-    margin = list(l=0, r=0, b=0, t=30)
+    margin = list(l=0, r=0, b=0, t=30),
+    # Ensure layout autosize is off so it respects the width/height above
+    autosize = FALSE 
   )
 ```
+
 
 ### Distribution of General Quadratic Forms
 
@@ -1019,7 +995,7 @@ Since similar matrices have the same rank, the equality holds.
 
 ::: {#thm-dist-quad name="Distribution of y'Ay"}
 Let $y \sim N_p(\mu, \Sigma)$. Let $A$ be a symmetric matrix of rank $r$.
-Then $y'Ay \sim \chi^2(r, \lambda)$ with $\lambda = \frac{1}{2} \mu' A \mu$ **if and only if** $A\Sigma$ is idempotent ($A\Sigma A\Sigma = A\Sigma$).
+Then $y'Ay \sim \chi^2(r, \lambda)$ with $\lambda = \mu' A \mu$ **if and only if** $A\Sigma$ is idempotent ($A\Sigma A\Sigma = A\Sigma$).
 
 **Special Case ($\Sigma = I$):**
 If $\Sigma = I$, the condition simplifies to $A$ being idempotent ($A^2 = A$).
@@ -1028,17 +1004,17 @@ If $\Sigma = I$, the condition simplifies to $A$ being idempotent ($A^2 = A$).
 ::: {.proof}
 Let $y^* = \Sigma^{-1/2}y$, so $y^* \sim N_n(\Sigma^{-1/2}\mu, I_n)$. We rewrite the quadratic form:
 $$y'Ay = y' \Sigma^{-1/2} (\Sigma^{1/2} A \Sigma^{1/2}) \Sigma^{-1/2} y = (y^*)' P_V y^* = \|P_V y^*\|^2$$
-Since $A\Sigma$ is idempotent, $P_V = \Sigma^{1/2} A \Sigma^{1/2}$ is a projection matrix with rank $r$. By the definition of the non-central chi-square, $y'Ay \sim \chi^2(r, \frac{1}{2}\|P_V \Sigma^{-1/2}\mu\|^2)$. The non-centrality parameter simplifies to $\lambda = \frac{1}{2}\mu'A\mu$.
+Since $A\Sigma$ is idempotent, $P_V = \Sigma^{1/2} A \Sigma^{1/2}$ is a projection matrix with rank $r$. By the definition of the non-central chi-square, $y'Ay \sim \chi^2(r, \|P_V \Sigma^{-1/2}\mu\|^2)$. The non-centrality parameter simplifies to $\lambda = \mu'A\mu$.
 :::
 
 ### Standardized Distance Distribution
 ::: {#cor-standardized-mvn name="Standardized Distance Distribution"}
 Suppose $y \sim N_n(\mu, \Sigma)$. Then the quadratic form representing the standardized distance from a constant vector $\mu_0$ follows a non-central chi-square distribution:
-$$(y-\mu_0)'\Sigma^{-1}(y-\mu_0) \sim \chi^2(n, \lambda = \frac{1}{2}(\mu-\mu_0)'\Sigma^{-1}(\mu-\mu_0))$$
+$$(y-\mu_0)'\Sigma^{-1}(y-\mu_0) \sim \chi^2(n, \lambda = (\mu-\mu_0)'\Sigma^{-1}(\mu-\mu_0))$$
 :::
 
 ::: {.proof}
-Let $A = \Sigma^{-1}$. Then $A\Sigma = \Sigma^{-1}\Sigma = I_n$, which is clearly idempotent. Alternatively, let $z = \Sigma^{-1/2}(y-\mu_0)$, then $z \sim N_n(\Sigma^{-1/2}(\mu-\mu_0), I_n)$. By the definition of chi-square, $\|z\|^2 = (y-\mu_0)'\Sigma^{-1}(y-\mu_0)$ follows the stated distribution.
+Let $A = \Sigma^{-1}$. Then $A\Sigma = \Sigma^{-1}\Sigma = I_n$, which is clearly idempotent. Alternatively, let $w = \Sigma^{-1/2}(y-\mu_0)$, then $w \sim N_n(\Sigma^{-1/2}(\mu-\mu_0), I_n)$. By the definition of chi-square, $\|w\|^2 = (y-\mu_0)'\Sigma^{-1}(y-\mu_0)$ follows the stated distribution.
 :::
 
 ::: {.callout-important}
@@ -1054,7 +1030,7 @@ Let $V$ be a $k$-dimensional subspace of $\mathcal{R}^n$ with projection matrix 
 
 1. $E(P_V y) = P_V \mu$.
 2. If $\text{Var}(y)=\sigma^2 I_n$, then $\text{Var}(P_V y) = \sigma^2 P_V$ and $E(\|P_V y\|^2) = \sigma^2 k + \|P_V \mu\|^2$.
-3. If $y \sim N_n(\mu, \sigma^2 I_n)$, then $\frac{1}{\sigma^2}\|P_V y\|^2 = \frac{1}{\sigma^2}y'P_Vy \sim \chi^2(k, \frac{1}{2\sigma^2}\|P_V \mu\|^2)$.
+3. If $y \sim N_n(\mu, \sigma^2 I_n)$, then $\frac{1}{\sigma^2}\|P_V y\|^2 = \frac{1}{\sigma^2}y'P_Vy \sim \chi^2(k, \frac{1}{\sigma^2}\|P_V \mu\|^2)$.
 :::
 
 ::: {.proof}
@@ -1069,7 +1045,7 @@ Let $V_1, \dots, V_k$ be mutually orthogonal subspaces with dimensions d_i and p
 
 1. The projections $\hat{y}_i = P_i y$ are independent with $\hat{y}_i \sim N(P_i \mu, \sigma^2 P_i)$.
 2. The squared norms $\|\hat{y}_i\|^2$ are mutually independent.
-3. $\frac{1}{\sigma^2}\|\hat{y}_i\|^2 \sim \chi^2(d_i, \frac{1}{2\sigma^2}\|P_i \mu\|^2)$.
+3. $\frac{1}{\sigma^2}\|\hat{y}_i\|^2 \sim \chi^2(d_i, \frac{1}{\sigma^2}\|P_i \mu\|^2)$.
 :::
 
 ::: {.proof}
@@ -1103,87 +1079,71 @@ Let $y \sim N_n(\mu, \sigma^2 I)$ and $y'y = \sum y'A_iy$. The quadratic forms $
 :::
 
 
-
 ## Non-central Distributions Derived from Non-central $\chi^2$
 
 We begin by defining two independent Chi-squared random variables that form the building blocks for statistical power analysis.
 
-* **Non-central Component ($X_1$):** $X_1 \sim \chi^2(n_1, 2\lambda)$.
-  Here, we use the "natural" definition where $\lambda$ is **half the sum of squared means** (or signal energy). This simplifies density formulas into direct Poisson mixtures.
-  *(Note: R defines the non-centrality parameter as the full sum of squares, i.e., $2\lambda$.)*
+* **Non-central Component ($X_1$):** $X_1 \sim \chi^2(\text{df}_1, \lambda)$.
+  Here, $\lambda$ is the non-centrality parameter, defined as the sum of squared means, $\lambda = ||\mu||^2$. This is consistent with the definition used throughout this chapter. *(Note: This definition is also used by R's `ncp` argument.)*
 
-* **Central Component ($X_2$):** $X_2 \sim \chi^2(n_2)$.
-  Represents the **Noise Sum of Squares** (SSE), arising from pure error.
+* **Central Component ($X_2$):** $X_2 \sim \chi^2(\text{df}_2)$. $X_2$ often represents the **Noise Sum of Squares**, SSE$_1$ of an adequate model, which is assume to follow a central $\chi^2$,
 
-We visualize these components as partitioning the Total Sum of Squares (SST).
+We visualize these components as using the follow diagram.
 
 ```{tikz}
 %| label: fig-variance-partition
-%| fig-cap: "Partitioning of Total Variation ($SST = X_1 + X_2$)."
+%| fig-cap: "A diagram of two independent $\\chi^2$ random variables"
 %| echo: false
 %| fig-align: "center"
-%| out-extra: 'style="width: 78% !important;"'
+%| out-extra: 'style="width: 85% !important;"'
 %| engine.opts:
 %|   extra.preamble: "\\usepackage{amssymb}"
 
 \begin{tikzpicture}[scale=1, transform shape, >=latex, font=\small]
 \usetikzlibrary{decorations.pathreplacing, calc}
 
-\def\lenNoise{4} \def\lenSignal{6} \def\yBar{1.0} \def\yBrace{0.8}
+\def\lenNoise{4} \def\lenSignal{6}
 \coordinate (O) at (0,0);
 \coordinate (P_SSE) at (\lenNoise, 0);
 \coordinate (P_SST) at (\lenNoise + \lenSignal, 0);
-\coordinate (Bar_Start) at (0, \yBar);
-\coordinate (Bar_Mid)   at (\lenNoise, \yBar);
-\coordinate (Bar_End)   at (\lenNoise + \lenSignal, \yBar);
 
 \draw[->, thick] (-0.5,0) -- (\lenNoise + \lenSignal + 1, 0);
 \draw[thick] (O) -- ++(0, -0.2) node[below] {\textbf{0}};
-\draw[thick] (P_SSE) -- ++(0, -0.2) node[below] {\textbf{$X_2$ (SSE)}};
-\draw[thick] (P_SST) -- ++(0, -0.2) node[below] {\textbf{$X_1+X_2$ (SST)}};
-\draw[dashed, gray] (Bar_Mid) -- (P_SSE);
-\draw[dashed, gray] (Bar_End) -- (P_SST);
+\draw[thick] (P_SSE) -- ++(0, -0.2) node[below] {\textbf{$X_2$}};
+\draw[thick] (P_SST) -- ++(0, -0.2) node[below] {\textbf{$X_2+X_1$}};
 
-\draw[ultra thick, red!70!black] (Bar_Start) -- (Bar_Mid);
-\node[above, red!70!black, font=\bfseries] at ($(Bar_Start)!0.5!(Bar_Mid)$) {$X_2$ (Noise)};
+\draw[ultra thick, red!70!black] (O) -- (P_SSE);
+\draw[ultra thick, blue!70!black] (P_SSE) -- (P_SST);
 
-\draw[ultra thick, blue!70!black] (Bar_Mid) -- (Bar_End);
-\node[above, blue!70!black, font=\bfseries] at ($(Bar_Mid)!0.5!(Bar_End)$) {$X_1$ (Signal)};
-
-\draw[decorate, decoration={brace, mirror, amplitude=6pt, raise=2pt}, thick, red!70!black] 
-    (0, \yBrace) -- (\lenNoise, \yBrace) node[midway, below=8pt] {$\sim \chi^2(n_2)$};
-\draw[decorate, decoration={brace, mirror, amplitude=6pt, raise=2pt}, thick, blue!70!black] 
-    (\lenNoise, \yBrace) -- (\lenNoise + \lenSignal, \yBrace) node[midway, below=8pt] {$\sim \chi^2(n_1, 2\lambda)$};
+\draw[decorate, decoration={brace, mirror, amplitude=6pt, raise=5pt}, thick, red!70!black] 
+    (O) -- (P_SSE) node[midway, below=12pt, align=center] {\textbf{$X_2$ (Noise)} \\ $\sim \chi^2(\text{df}_2)$};
+\draw[decorate, decoration={brace, mirror, amplitude=6pt, raise=5pt}, thick, blue!70!black] 
+    (P_SSE) -- (P_SST) node[midway, below=12pt, align=center] {\textbf{$X_1$ (Signal)} \\ $\sim \chi^2(\text{df}_1, \lambda)$};
 \end{tikzpicture}
 ```
 
-### The Non-central F-distribution $f(n_1, N_2, \lambda)$
+### The Non-central F-distribution $F(\text{df}_1, \text{df}_2, \lambda)$
 
 ::: {#def-noncentral-f}
 ### Non-central F
-Let $X_1 \sim \chi^2(n_1, 2\lambda)$ and $X_2 \sim \chi^2(n_2)$ be independent. The random variable $V$ follows a **non-central F-distribution**, defined as:
-$$V = \frac{X_1/n_1}{X_2/n_2} \sim F(n_1, n_2, \lambda)$$
+Let $X_1 \sim \chi^2(\text{df}_1, \lambda)$ and $X_2 \sim \chi^2(\text{df}_2)$ be independent. The random variable $F$ follows a **non-central F-distribution**:
+$$F = \frac{X_1/\text{df}_1}{X_2/\text{df}_2} \sim F(\text{df}_1, \text{df}_2, \lambda)$$
 :::
 
-Physically, this compares the *density* of the signal to the *density* of the noise.
+* **Expectation:**
+    * **Under $H_0$ ($\lambda=0$):** Exact mean is $\frac{\text{df}_2}{\text{df}_2 - 2}$ (for $\text{df}_2 > 2$).
+    * **Under $H_1$ ($\lambda \neq 0$):** Approximate mean is $1 + \frac{\lambda}{\text{df}_1}$.
 
-* **PDF:** A Poisson mixture of central F densities with weights $P(\text{Poisson}=\lambda)$.
-  $$f_V(v) = \sum_{j=0}^{\infty} \frac{e^{-\lambda}\lambda^j}{j!} f_{F}\left(v; n_1+2j, n_2\right)$$
-
-* **Exact Mean:** $E[V] = \frac{n_2(n_1 + 2\lambda)}{n_1(n_2 - 2)}$
-* **Approximate Mean:** $E[V] \approx 1 + \frac{2\lambda}{n_1}$
-
-```{r}
-#| label: fig-nc-f
+```{r fig-nc-f}
 #| echo: false
 #| fig-height: 3.5
-#| fig-cap: "Densities of Non-Central F ($\\lambda$ defined as half-sum of squares)."
+#| fig-cap: "Densities of Non-Central F ($\\lambda$ defined as sum of squares)."
 
 library(ggplot2)
 x_f <- seq(0, 6, length.out = 300)
-# Use 2*l for R's Ncp Argument
+# Use l for R's ncp argument
 df_list <- lapply(c(0, 2.5, 5), function(l) {
-  data.frame(x = x_f, y = df(x_f, 5, 20, ncp = 2*l), lambda = as.factor(l))
+  data.frame(x = x_f, y = df(x_f, 5, 20, ncp = l), lambda = as.factor(l))
 })
 plot_data <- do.call(rbind, df_list)
 
@@ -1191,30 +1151,27 @@ ggplot(plot_data, aes(x, y, color = lambda)) + geom_line(linewidth=1) +
   labs(x="Value", y="Density", title="Non-Central F Distribution") + theme_minimal()
 ```
 
-### Type I Non-central Beta $\text{beta}_i(n_1/2, N_2/2, \lambda)$
+### Type I Non-central Beta $\text{Beta}_1(\text{df}_1/2, \text{df}_2/2, \lambda)$
 
 ::: {#def-noncentral-beta1}
 ### Type I Non-central Beta
-The random variable $B_I$ follows a **Type I non-central Beta distribution**, defined as the signal's proportion of the total sum:
-$$B_I = \frac{X_1}{X_1 + X_2} \sim \text{Beta}\left(\frac{n_1}{2}, \frac{n_2}{2}, \lambda\right)$$
+The random variable $B_I$ follows a **Type I non-central Beta distribution**, defined as the signal's proportion of the total sum ($R^2$):
+$$B_I = \frac{X_1}{X_1 + X_2} \sim \text{Beta}_1\left(\frac{\text{df}_1}{2}, \frac{\text{df}_2}{2}, \lambda\right)$$
 :::
 
-This represents the **Coefficient of Determination ($R^2$)**.
+* **Relationship to F:** $B_I = \frac{(\text{df}_1/\text{df}_2) F}{1 + (\text{df}_1/\text{df}_2) F}$
+* **Expectation:**
+    * **Under $H_0$ ($\lambda=0$):** Exact mean is $\frac{\text{df}_1}{\text{df}_1 + \text{df}_2}$.
+    * **Under $H_1$ ($\lambda \neq 0$):** Approximate mean is $\frac{\text{df}_1 + \lambda}{\text{df}_1 + \text{df}_2 + \lambda}$.
 
-$$f_{B_I}(x) = \sum_{j=0}^{\infty} \frac{e^{-\lambda}\lambda^j}{j!} f_{\text{Beta}}\left(x; \frac{n_1}{2}+j, \frac{n_2}{2}\right)$$
-
-* **Exact Mean:** $E[B_I] = e^{-\lambda} \frac{n_1}{n_1+n_2} \,_1F_1\left(\frac{n_1}{2}+1; \frac{n_1+n_2}{2}+1; \lambda\right)$
-* **Approximate Mean:** $E[B_I] \approx \frac{n_1 + 2\lambda}{n_1 + n_2 + 2\lambda}$
-
-```{r}
-#| label: fig-nc-beta1
+```{r fig-nc-beta1}
 #| echo: false
 #| fig-height: 3.5
 #| fig-cap: "Densities of Type I Beta ($R^2$)."
 
 x_b <- seq(0, 1, length.out = 300)
 df_list <- lapply(c(0, 2.5, 5), function(l) {
-  data.frame(x = x_b, y = dbeta(x_b, 2.5, 10, ncp = 2*l), lambda = as.factor(l))
+  data.frame(x = x_b, y = dbeta(x_b, 2.5, 10, ncp = l), lambda = as.factor(l))
 })
 plot_data <- do.call(rbind, df_list)
 
@@ -1222,19 +1179,19 @@ ggplot(plot_data, aes(x, y, color = lambda)) + geom_line(linewidth=1) +
   labs(x="Value", y="Density", title="Type I Non-Central Beta") + theme_minimal()
 ```
 
-### Type II Non-central Beta $\text{beta}_{ii}(n_2/2, N_1/2, \lambda)$
+### Type II Non-central Beta $\text{Beta}_2(\text{df}_2/2, \text{df}_1/2, \lambda)$
 
 ::: {#def-noncentral-beta2}
 ### Type II Non-central Beta
-$$B_{II} = \frac{X_2}{X_1 + X_2} = 1 - B_I \sim \text{Beta}\left(\frac{n_2}{2}, \frac{n_1}{2}, \lambda\right)$$
+$$B_{II} = \frac{X_2}{X_1 + X_2} = 1 - B_I \sim \text{Beta}_2\left(\frac{\text{df}_2}{2}, \frac{\text{df}_1}{2}, \lambda\right)$$
 :::
 
-Represents the proportion of **unexplained variance ($\text{SSE}/\text{SST}$)**.
+* **Relationship to F:** $B_{II} = \frac{1}{1 + (\text{df}_1/\text{df}_2) F}$
+* **Expectation:**
+    * **Under $H_0$ ($\lambda=0$):** Exact mean is $\frac{\text{df}_2}{\text{df}_1 + \text{df}_2}$.
+    * **Under $H_1$ ($\lambda \neq 0$):** Approximate mean is $\frac{\text{df}_2}{\text{df}_1 + \text{df}_2 + \lambda}$.
 
-* **Approximate Mean:** $E[B_{II}] \approx \frac{n_2}{n_1 + n_2 + 2\lambda}$
-
-```{r}
-#| label: fig-beta-ii
+```{r fig-beta-ii}
 #| echo: false
 #| fig-height: 3.5
 #| fig-cap: "Densities of Type II Beta ($SSE/SST$). Support is [0, 1]."
@@ -1245,8 +1202,7 @@ x_common <- seq(0, 1.5, length.out = 400)
 plot_data <- data.frame()
 for(l in c(0, 2.5, 5)) {
   # B_II = 1 - B_I. 
-  # Use 2*l for R's ncp
-  y_val <- dbeta(1 - x_common, n1/2, n2/2, ncp = 2*l)
+  y_val <- dbeta(1 - x_common, n1/2, n2/2, ncp = l)
   y_val[x_common > 1] <- 0
   plot_data <- rbind(plot_data, data.frame(x=x_common, y=y_val, lambda=as.factor(l)))
 }
@@ -1258,19 +1214,19 @@ ggplot(plot_data, aes(x, y, color = lambda)) +
   theme_minimal()
 ```
 
-### Scaled Type II Beta $\text{scaled-beta}_{ii}(n_2/2, N_1/2, \lambda)$
+### Scaled Type II Beta $\text{Scaled-Beta}_2(\text{df}_2/2, \text{df}_1/2, \lambda)$
 
 ::: {#def-scaled-beta}
 ### Scaled Type II Beta
-$$S = \frac{X_2/n_2}{(X_1+X_2)/(n_1+n_2)} \sim \text{Scaled-Beta}_{II}\left(\frac{n_2}{2}, \frac{n_1}{2}, \lambda\right)$$
+$$S = \frac{X_2/\text{df}_2}{(X_1+X_2)/(\text{df}_1+\text{df}_2)} \sim \text{Scaled-Beta}_2$$
 :::
 
-Represents the ratio of variances **$\text{MSE}/MST$**.
+* **Relationship to F:** $S = \frac{\text{df}_1+\text{df}_2}{\text{df}_2 + \text{df}_1 F}$
+* **Expectation:**
+    * **Under $H_0$ ($\lambda=0$):** Exact mean is $1$.
+    * **Under $H_1$ ($\lambda \neq 0$):** Approximate mean is $\frac{\text{df}_1+\text{df}_2}{\text{df}_1+\text{df}_2+\lambda}$.
 
-* **Approximate Mean:** $E[S] \approx \frac{n_1+n_2}{n_1+n_2+2\lambda}$
-
-```{r}
-#| label: fig-scaled-beta
+```{r fig-scaled-beta}
 #| echo: false
 #| fig-height: 3.5
 #| fig-cap: "Densities of Scaled Type II Beta ($MSE/MST$)."
@@ -1282,10 +1238,10 @@ x_common <- seq(0, 1.5, length.out = 400)
 plot_data <- data.frame()
 for(l in c(0, 2.5, 5)) {
   # Density scaling: f_S(s) = (1/scale) * f_B_II(s/scale)
-  # R ncp = 2*l
+  # R ncp = l
   val_mapped <- x_common / scale_factor
   
-  y_val <- (1/scale_factor) * dbeta(1 - val_mapped, n1/2, n2/2, ncp = 2*l)
+  y_val <- (1/scale_factor) * dbeta(1 - val_mapped, n1/2, n2/2, ncp = l)
   y_val[x_common > scale_factor] <- 0
   
   plot_data <- rbind(plot_data, data.frame(x=x_common, y=y_val, lambda=as.factor(l)))
@@ -1298,21 +1254,21 @@ ggplot(plot_data, aes(x, y, color = lambda)) +
   theme_minimal()
 ```
 
-### The Non-central T-distribution $t(n_2, \delta)$
+
+### The Non-central t-distribution $t(\text{df}_2, \delta)$
 
 ::: {#def-noncentral-t}
-### Non-central T
-Let $Z \sim N(\delta, 1)$ and $X_2 \sim \chi^2(n_2)$ be independent. The random variable $T$ follows a **non-central t-distribution**:
-$$T = \frac{Z}{\sqrt{X_2/n_2}} \sim t(n_2, \delta)$$
+### Non-central t
+Let $Z \sim N(\delta, 1)$ and $X_2 \sim \chi^2(\text{df}_2)$ be independent. The random variable $T$ follows a **non-central t-distribution**:
+$$T = \frac{Z}{\sqrt{X_2/\text{df}_2}} \sim t(\text{df}_2, \delta)$$
 :::
 
-This models **Signal Amplitude vs. Noise Amplitude**. Note that $\delta^2$ relates to the non-centrality parameter of the corresponding F-distribution by $\delta^2 = 2\lambda$ (under our "natural" $\lambda$ definition).
+* **Relationship to F:** $F = T^2$ (when $\text{df}_1=1$). Note $\delta^2 = \lambda$.
+* **Expectation:**
+    * **Under $H_0$ ($\delta=0$):** Exact mean is $0$.
+    * **Under $H_1$ ($\delta \neq 0$):** Approximate mean is $\delta$.
 
-* **Exact Mean:** $E[T] = \delta \sqrt{\frac{n_2}{2}} \frac{\Gamma((n_2-1)/2)}{\Gamma(n_2/2)}$
-* **Approximate Mean:** $E[T] \approx \delta$
-
-```{r}
-#| label: fig-nc-t
+```{r fig-nc-t}
 #| echo: false
 #| fig-height: 3.5
 #| fig-cap: "Densities of Non-Central t ($df=20$)."
@@ -1327,7 +1283,6 @@ ggplot(plot_data, aes(x, y, color = delta)) + geom_line(linewidth=1) +
   labs(x="Value", y="Density", title="Non-Central t Distribution") + theme_minimal()
 ```
 
-
 ## Example: Inference of the Mean of Normal Sample
 
 Consider a random sample $y \sim N_n(\mu j_n, \sigma^2 I_n)$. We wish to test:
@@ -1339,31 +1294,26 @@ Let's define the transformed vector $y^* = y - \mu_0 j_n$. Note that $y^* \sim N
 
 ### Sum of Squares and Their Distributions
 
-We use the projection matrix $P_{j_n} = \frac{1}{n}j_n j_n'$ and its complement $(I_n - P_{j_n})$ to partition the transformed vector. By applying **@thm-proj-matrix**, we derive the sampling distributions for the Sum of Squared Errors under each model.
+We use the projection matrix $P_{j_n} = \frac{1}{n}j_n j_n'$ and its complement $(I_n - P_{j_n})$ to partition the transformed vector.
 
 * **Total SSE ($SSE_0$ for $M_0$):**
-    This represents the total squared deviation from the hypothesized mean $\mu_0$.
     $$SSE_0 = \|I_n y^*\|^2 = \sum_{i=1}^n (Y_i - \mu_0)^2$$
-    Since $E[y^*] \neq 0$, it follows a non-central distribution:
-    $$\frac{SSE_0}{\sigma^2} \sim \chi^2(n, \lambda) \quad \text{where } \lambda = \frac{n(\mu - \mu_0)^2}{2\sigma^2}$$
+    This follows a non-central distribution with $\text{df}_{\text{total}} = n$:
+    $$\frac{SSE_0}{\sigma^2} \sim \chi^2(n, \lambda) \quad \text{where } \lambda = \frac{n(\mu - \mu_0)^2}{\sigma^2}$$
 
 * **Residual SSE ($SSE_1$ for $M_1$):**
-    This represents the internal variation around the sample mean $\bar{Y}$.
     $$SSE_1 = \|(I_n - P_{j_n})y^*\|^2 = \sum_{i=1}^n (Y_i - \bar{Y})^2$$
-    This captures the random noise (central component):
+    This captures the random noise (central component) with $\text{df}_2 = n-1$:
     $$\frac{SSE_1}{\sigma^2} \sim \chi^2(n-1)$$
 
 * **Difference SS ($SS_{\text{diff}}$):**
-    This represents the variation explained by the sample mean's deviation from $\mu_0$.
     $$SS_{\text{diff}} = \|P_{j_n} y^*\|^2 = n(\bar{Y} - \mu_0)^2$$
-    This captures the signal (non-central component):
+    This captures the signal (non-central component) with $\text{df}_1 = 1$:
     $$\frac{SS_{\text{diff}}}{\sigma^2} \sim \chi^2(1, \lambda)$$
-
-By Cochran's Theorem, $SS_{\text{diff}}$ (Signal) and $SSE_1$ (Noise) are independent.
 
 ### Distributions of Equivalent Statistics
 
-We can construct five equivalent statistics to compare $M_0$ and $M_1$. While the T-statistic is standard for this specific test, the Beta family provides insight into the "proportion of variance" explained.
+We can construct five equivalent statistics to compare $M_0$ and $M_1$.
 
 * **The t-statistic ($T$):**
     $$T = \frac{\bar{Y} - \mu_0}{S/\sqrt{n}}$$
@@ -1372,38 +1322,30 @@ We can construct five equivalent statistics to compare $M_0$ and $M_1$. While th
     $$F = \frac{n(\bar{Y} - \mu_0)^2}{S^2} = T^2$$
 
 * **The Type I Beta statistic ($B_I$):**
-    Represents the proportion of total variation explained by the deviation from $\mu_0$ (analogous to $R^2$).
     $$B_I = \frac{SS_{\text{diff}}}{SSE_0} = \frac{n(\bar{Y} - \mu_0)^2}{\sum (Y_i - \mu_0)^2}$$
 
 * **The Type II Beta statistic ($B_{II}$):**
-    Represents the proportion of total variation that remains *unexplained* (Noise/Total).
     $$B_{II} = \frac{SSE_1}{SSE_0} = \frac{\sum (Y_i - \bar{Y})^2}{\sum (Y_i - \mu_0)^2} = 1 - B_I$$
 
 * **The Scaled Type II Beta statistic ($S_{\text{scaled}}$):**
-    Represents the ratio of Mean Square Error to Mean Square Total (MSE/MST).
     $$S_{\text{scaled}} = \frac{SSE_1/(n-1)}{SSE_0/n} = \left( \frac{n}{n-1} \right) B_{II}$$
 
 ### Expectations Under $M_1$ and $M_0$
 
-Under the Full Model ($M_1$), these statistics follow their respective **non-central** distributions: $t(n-1, \delta)$, $F(1, n-1, \lambda)$, and the Beta variants. Under $H_0$, $\lambda = 0$ and the means simplify to constants or functions of $n$.
+The table below contrasts the distributions and expected values of these statistics. We assume the sample size $n$ is large enough for the mean of $F$ to exist ($n > 3$).
 
-The table below contrasts the expected values (means) of these statistics.
+* **Degrees of Freedom:** $\text{df}_1 = 1$, $\text{df}_2 = n-1$.
+* **Non-centrality:** $\delta = \frac{\sqrt{n}(\mu - \mu_0)}{\sigma}$ and $\lambda = \delta^2 = \frac{n(\mu - \mu_0)^2}{\sigma^2}$.
 
-| Statistic | Mean under $H_0$ ($\mu = \mu_0$) | Approximate Mean under $H_1$ ($\mu \neq \mu_0$) |
-| :--- | :--- | :--- |
-| **$T$** | $0$ | $\delta$ |
-| **$F$** | $\frac{n-1}{n-3} \approx 1$ | $1 + 2\lambda$ |
-| **$B_I$** | $\frac{1}{n}$ | $\frac{1 + 2\lambda}{n + 2\lambda}$ |
-| **$B_{II}$** | $\frac{n-1}{n}$ | $\frac{n-1}{n + 2\lambda}$ |
-| **$S_{\text{scaled}}$** | $1$ | $\frac{n}{n + 2\lambda}$ |
+| Statistic | Distribution under $H_1$ ($\mu \neq \mu_0$) | Exact Mean under $H_0$ ($\mu=\mu_0$) | Approximate Mean under $H_1$ |
+| :--- | :--- | :--- | :--- |
+| **$T$** | $t(n-1, \delta)$ | $0$ | $\frac{\sqrt{n}(\mu - \mu_0)}{\sigma}$ |
+| **$F$** | $F(1, n-1, \lambda)$ | $\frac{n-1}{n-3} \approx 1$ | $1 + \frac{n(\mu - \mu_0)^2}{\sigma^2}$ |
+| **$B_I$** | $\text{Beta}_1\left(\frac{1}{2}, \frac{n-1}{2}, \lambda\right)$ | $\frac{1}{n}$ | $\frac{1/n + \frac{(\mu - \mu_0)^2}{\sigma^2}}{1 + \frac{(\mu - \mu_0)^2}{\sigma^2}}$ |
+| **$B_{II}$** | $\text{Beta}_2\left(\frac{n-1}{2}, \frac{1}{2}, \lambda\right)$ | $\frac{n-1}{n}$ | $\frac{(n-1)/n}{1 + \frac{(\mu - \mu_0)^2}{\sigma^2}}$ |
+| **$S_{\text{scaled}}$** | $\text{Scaled-Beta}_2\left(\frac{n-1}{2}, \frac{1}{2}, \lambda\right)$ | $1$ | $\frac{1}{1 + \frac{(\mu - \mu_0)^2}{\sigma^2}}$ |
+
+: Expected Values of Test Statistics Under Null and Alternative Hypotheses {#tbl-expected-values}
 
 **Key Interpretation:**
-
-* **$F$** grows linearly with the signal ($2\lambda$).
-* **$B_I$** grows from near 0 to 1.
-* **$S_{\text{scaled}}$** starts at 1 (indicating the error variance equals the total variance) and shrinks toward 0 as the signal $\lambda$ pushes the total variance up.
-
-*Definitions:*
-
-* $\delta = \frac{\mu - \mu_0}{\sigma/\sqrt{n}}$
-* $\lambda = \frac{1}{2}\delta^2 = \frac{n(\mu - \mu_0)^2}{2\sigma^2}$
+All statistics are functionally driven by the signal energy. Notably, for **$S_{\text{scaled}}$**, the sample size $n$ cancels out in the approximate mean. This makes it a direct measure of the ratio between Noise Variance and Total Variance (Noise + Signal) in the population distributions, connected to the Rao-Blackwell decomposition of variances.
