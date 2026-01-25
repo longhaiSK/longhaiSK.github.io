@@ -205,7 +205,13 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#fundamental-elements-of-bayesian-inference" id="toc-fundamental-elements-of-bayesian-inference" class="nav-link active" data-scroll-target="#fundamental-elements-of-bayesian-inference"><span class="header-section-number">3.1</span> Fundamental Elements of Bayesian Inference</a></li>
+  <li><a href="#posterior-distributions" id="toc-posterior-distributions" class="nav-link active" data-scroll-target="#posterior-distributions"><span class="header-section-number">3.1</span> Posterior Distributions</a>
+  <ul>
+  <li><a href="#discrete-posterior-calculation" id="toc-discrete-posterior-calculation" class="nav-link" data-scroll-target="#discrete-posterior-calculation"><span class="header-section-number">3.1.1</span> Discrete Posterior Calculation</a></li>
+  <li><a href="#binomial-beta-conjugacy" id="toc-binomial-beta-conjugacy" class="nav-link" data-scroll-target="#binomial-beta-conjugacy"><span class="header-section-number">3.1.2</span> Binomial-beta Conjugacy</a></li>
+  <li><a href="#normal-normal-conjugacy-known-variance" id="toc-normal-normal-conjugacy-known-variance" class="nav-link" data-scroll-target="#normal-normal-conjugacy-known-variance"><span class="header-section-number">3.1.3</span> Normal-normal Conjugacy (known Variance)</a></li>
+  <li><a href="#normal-with-unknown-mean-and-variance" id="toc-normal-with-unknown-mean-and-variance" class="nav-link" data-scroll-target="#normal-with-unknown-mean-and-variance"><span class="header-section-number">3.1.4</span> Normal with Unknown Mean and Variance</a></li>
+  </ul></li>
   <li><a href="#finding-bayes-rules-via-minimizing-posterior-expected-loss" id="toc-finding-bayes-rules-via-minimizing-posterior-expected-loss" class="nav-link" data-scroll-target="#finding-bayes-rules-via-minimizing-posterior-expected-loss"><span class="header-section-number">3.2</span> Finding Bayes Rules via Minimizing Posterior Expected Loss</a></li>
   <li><a href="#special-bayes-rules" id="toc-special-bayes-rules" class="nav-link" data-scroll-target="#special-bayes-rules"><span class="header-section-number">3.3</span> Special Bayes Rules</a>
   <ul>
@@ -272,7 +278,7 @@ window.Quarto = {
   </ul></li>
   <li><a href="#bayesian-predictive-distributions" id="toc-bayesian-predictive-distributions" class="nav-link" data-scroll-target="#bayesian-predictive-distributions"><span class="header-section-number">3.9</span> Bayesian Predictive Distributions</a></li>
   </ul>
-</nav>
+<div class="quarto-other-links"><h2>Other Links</h2><ul><li><a href="mathstat_2026_li.pdf"><i class="bi bi-link-45deg"></i>Download PDF</a></li></ul></div></nav>
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
@@ -300,8 +306,8 @@ window.Quarto = {
 </header>
 
 
-<section id="fundamental-elements-of-bayesian-inference" class="level2" data-number="3.1">
-<h2 data-number="3.1" class="anchored" data-anchor-id="fundamental-elements-of-bayesian-inference"><span class="header-section-number">3.1</span> Fundamental Elements of Bayesian Inference</h2>
+<section id="posterior-distributions" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="posterior-distributions"><span class="header-section-number">3.1</span> Posterior Distributions</h2>
 <p>The foundation of Bayesian inference relies on the relationship between the prior distribution, the likelihood of the data, and the posterior distribution. This relationship is governed by Bayes’ Theorem (or Law).</p>
 <div id="def-posterior" class="theorem definition">
 <p><span class="theorem-title"><strong>Definition 3.1 (Posterior Distribution)</strong></span> Suppose we have a parameter <span class="math inline">\(\theta\)</span> with a prior distribution denoted by <span class="math inline">\(\pi(\theta)\)</span>. If we observe data <span class="math inline">\(x\)</span> drawn from a distribution with probability density function (pdf) <span class="math inline">\(f(x; \theta)\)</span>, then the <strong>posterior density</strong> of <span class="math inline">\(\theta\)</span> given the data <span class="math inline">\(x\)</span> is defined as:</p>
@@ -317,8 +323,77 @@ m(x) = \int_{\Theta} \pi(\theta) f(x;\theta) d\theta
 \pi(\theta|x) \propto \pi(\theta) f(x;\theta)
 \]</span></p>
 </div>
+<section id="discrete-posterior-calculation" class="level3" data-number="3.1.1">
+<h3 data-number="3.1.1" class="anchored" data-anchor-id="discrete-posterior-calculation"><span class="header-section-number">3.1.1</span> Discrete Posterior Calculation</h3>
+<div id="exm-discrete-posterior" class="theorem example">
+<p><span class="theorem-title"><strong>Example 3.1 (Discrete Posterior Calculation)</strong></span> Consider the following table where we calculate the posterior probabilities for a discrete parameter space.</p>
+<p>Let the parameter <span class="math inline">\(\theta\)</span> take values <span class="math inline">\(\{1, 2, 3\}\)</span> with prior probabilities <span class="math inline">\(\pi(\theta)\)</span>. Let the data <span class="math inline">\(x\)</span> take values <span class="math inline">\(\{0, 1, 2, \dots\}\)</span>.</p>
+<p>Given:</p>
+<ul>
+<li>Prior <span class="math inline">\(\pi(\theta)\)</span>: <span class="math inline">\(\pi(1)=1/3, \pi(2)=1/3, \pi(3)=1/3\)</span>.</li>
+<li>Likelihood <span class="math inline">\(\pi(x|\theta)\)</span>:
+<ul>
+<li>If <span class="math inline">\(\theta=1\)</span>, <span class="math inline">\(x \sim \text{Uniform on } \{0, 1\}\)</span> (Prob = 1/2).</li>
+<li>If <span class="math inline">\(\theta=2\)</span>, <span class="math inline">\(x \sim \text{Uniform on } \{0, 1, 2\}\)</span> (Prob = 1/3).</li>
+<li>If <span class="math inline">\(\theta=3\)</span>, <span class="math inline">\(x \sim \text{Uniform on } \{0, 1, 2, 3\}\)</span> (Prob = 1/4).</li>
+</ul></li>
+</ul>
+<p>Suppose we observe <span class="math inline">\(x=2\)</span>. The calculation of the posterior probabilities is summarized in the table below:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: center;"><span class="math inline">\(\theta=1\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(\theta=2\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(\theta=3\)</span></th>
+<th style="text-align: center;">Sum</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Prior</strong> <span class="math inline">\(\pi(\theta)\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1/3\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1/3\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1/3\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Likelihood</strong> <span class="math inline">\(\pi(x=2|\theta)\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1/3\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1/4\)</span></td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Product</strong> <span class="math inline">\(\pi(\theta)\pi(x|\theta)\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1/9\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1/12\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(7/36\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Posterior</strong> <span class="math inline">\(\pi(\theta|x)\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(4/7\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(3/7\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>The marginal sum (evidence) is calculated as <span class="math inline">\(0 + 1/9 + 1/12 = 4/36 + 3/36 = 7/36\)</span>. The posterior values are obtained by dividing the product row by this sum.</p>
+</div>
+</section>
+<section id="binomial-beta-conjugacy" class="level3" data-number="3.1.2">
+<h3 data-number="3.1.2" class="anchored" data-anchor-id="binomial-beta-conjugacy"><span class="header-section-number">3.1.2</span> Binomial-beta Conjugacy</h3>
 <div id="exm-binomial-beta" class="theorem example">
-<p><span class="theorem-title"><strong>Example 3.1 (Binomial-beta Conjugacy)</strong></span> Consider an experiment where <span class="math inline">\(x|\theta \sim \text{Bin}(n, \theta)\)</span>. The likelihood function is:</p>
+<p><span class="theorem-title"><strong>Example 3.2 (Binomial-beta Conjugacy)</strong></span> Consider an experiment where <span class="math inline">\(x|\theta \sim \text{Bin}(n, \theta)\)</span>. The likelihood function is:</p>
 <p><span class="math display">\[
 f(x|\theta) = \binom{n}{x} \theta^x (1-\theta)^{n-x}
 \]</span></p>
@@ -367,8 +442,11 @@ Figure&nbsp;3.1: Prior vs Posterior for Beta-Binomial Example
 </div>
 </div>
 </div>
+</section>
+<section id="normal-normal-conjugacy-known-variance" class="level3" data-number="3.1.3">
+<h3 data-number="3.1.3" class="anchored" data-anchor-id="normal-normal-conjugacy-known-variance"><span class="header-section-number">3.1.3</span> Normal-normal Conjugacy (known Variance)</h3>
 <div id="exm-normal-normal" class="theorem example">
-<p><span class="theorem-title"><strong>Example 3.2 (Normal-normal Conjugacy (known Variance))</strong></span> Let <span class="math inline">\(X_1, X_2, \dots, X_n\)</span> be independent and identically distributed (i.i.d.) variables such that <span class="math inline">\(X_i \sim N(\mu, \sigma^2)\)</span>, where <span class="math inline">\(\sigma^2\)</span> is known.</p>
+<p><span class="theorem-title"><strong>Example 3.3 (Normal-normal Conjugacy (known Variance))</strong></span> Let <span class="math inline">\(X_1, X_2, \dots, X_n\)</span> be independent and identically distributed (i.i.d.) variables such that <span class="math inline">\(X_i \sim N(\mu, \sigma^2)\)</span>, where <span class="math inline">\(\sigma^2\)</span> is known.</p>
 <p>We assign a Normal prior to the mean <span class="math inline">\(\mu\)</span>: <span class="math inline">\(\mu \sim N(\mu_0, \sigma_0^2)\)</span>.</p>
 <p>To find the posterior <span class="math inline">\(\pi(\mu|x_1, \dots, x_n)\)</span>, let <span class="math inline">\(x = (x_1, \dots, x_n)\)</span>. The posterior is proportional to:</p>
 <p><span class="math display">\[
@@ -446,123 +524,68 @@ Figure&nbsp;3.2: Prior vs Posterior for Normal-Normal Example
 </div>
 </div>
 </div>
-<div id="exm-discrete-posterior" class="theorem example">
-<p><span class="theorem-title"><strong>Example 3.3 (Discrete Posterior Calculation)</strong></span> Consider the following table where we calculate the posterior probabilities for a discrete parameter space.</p>
-<p>Let the parameter <span class="math inline">\(\theta\)</span> take values <span class="math inline">\(\{1, 2, 3\}\)</span> with prior probabilities <span class="math inline">\(\pi(\theta)\)</span>. Let the data <span class="math inline">\(x\)</span> take values <span class="math inline">\(\{0, 1, 2, \dots\}\)</span>.</p>
-<p>Given:</p>
-<ul>
-<li>Prior <span class="math inline">\(\pi(\theta)\)</span>: <span class="math inline">\(\pi(1)=1/3, \pi(2)=1/3, \pi(3)=1/3\)</span>.</li>
-<li>Likelihood <span class="math inline">\(\pi(x|\theta)\)</span>:
-<ul>
-<li>If <span class="math inline">\(\theta=1\)</span>, <span class="math inline">\(x \sim \text{Uniform on } \{0, 1\}\)</span> (Prob = 1/2).</li>
-<li>If <span class="math inline">\(\theta=2\)</span>, <span class="math inline">\(x \sim \text{Uniform on } \{0, 1, 2\}\)</span> (Prob = 1/3).</li>
-<li>If <span class="math inline">\(\theta=3\)</span>, <span class="math inline">\(x \sim \text{Uniform on } \{0, 1, 2, 3\}\)</span> (Prob = 1/4).</li>
-</ul></li>
-</ul>
-<p>Suppose we observe <span class="math inline">\(x=2\)</span>. The calculation of the posterior probabilities is summarized in the table below:</p>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 16%">
-<col style="width: 20%">
-<col style="width: 20%">
-<col style="width: 20%">
-<col style="width: 20%">
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: left;"></th>
-<th style="text-align: center;"><span class="math inline">\(\theta=1\)</span></th>
-<th style="text-align: center;"><span class="math inline">\(\theta=2\)</span></th>
-<th style="text-align: center;"><span class="math inline">\(\theta=3\)</span></th>
-<th style="text-align: center;">Sum</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;"><strong>Prior</strong> <span class="math inline">\(\pi(\theta)\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(1/3\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(1/3\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(1/3\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(1\)</span></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><strong>Likelihood</strong> <span class="math inline">\(\pi(x=2|\theta)\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(1/3\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(1/4\)</span></td>
-<td style="text-align: center;">-</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;"><strong>Product</strong> <span class="math inline">\(\pi(\theta)\pi(x|\theta)\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(1/9\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(1/12\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(7/36\)</span></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><strong>Posterior</strong> <span class="math inline">\(\pi(\theta|x)\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(0\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(4/7\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(3/7\)</span></td>
-<td style="text-align: center;"><span class="math inline">\(1\)</span></td>
-</tr>
-</tbody>
-</table>
-<p>The marginal sum (evidence) is calculated as <span class="math inline">\(0 + 1/9 + 1/12 = 4/36 + 3/36 = 7/36\)</span>. The posterior values are obtained by dividing the product row by this sum.</p>
-</div>
+</section>
+<section id="normal-with-unknown-mean-and-variance" class="level3" data-number="3.1.4">
+<h3 data-number="3.1.4" class="anchored" data-anchor-id="normal-with-unknown-mean-and-variance"><span class="header-section-number">3.1.4</span> Normal with Unknown Mean and Variance</h3>
 <div id="exm-Normal-with-Unknown-Mean-and-Variance" class="theorem example">
 <p><span class="theorem-title"><strong>Example 3.4 (Normal with Unknown Mean and Variance)</strong></span> Consider <span class="math inline">\(X_1, \dots, X_n \sim N(\mu, 1/\tau)\)</span>, where both <span class="math inline">\(\mu\)</span> and the precision <span class="math inline">\(\tau\)</span> are unknown.</p>
-<p>We use a <strong>Normal-Gamma</strong> conjugate prior:</p>
+<p>We use a <strong>Normal-Gamma</strong> conjugate prior with parameters <span class="math inline">\(\mu_0, \tau_0, \alpha_0, w_0\)</span>:</p>
 <ul>
-<li><p><span class="math inline">\(\tau \sim \text{Gamma}(\alpha, \beta)\)</span> <span class="math display">\[\pi(\tau) \propto \tau^{\alpha-1} e^{-\beta\tau}\]</span></p></li>
-<li><p><span class="math inline">\(\mu|\tau \sim N(\mu_0, 1/(\tau_0\tau))\)</span> <span class="math display">\[\pi(\mu|\tau) \propto \tau^{1/2} e^{-\frac{\tau_0\tau}{2}(\mu-\mu_0)^2}\]</span></p></li>
+<li><p><span class="math inline">\(\tau \sim \text{Gamma}(\alpha_0/2, \alpha_0 w_0/2)\)</span> <span class="math display">\[ \pi(\tau) \propto \tau^{\alpha_0/2 - 1} \exp\left\{ -\frac{\alpha_0 w_0}{2} \tau \right\} \]</span></p></li>
+<li><p><span class="math inline">\(\mu|\tau \sim N(\mu_0, 1/(\tau_0\tau))\)</span> <span class="math display">\[ \pi(\mu|\tau) \propto \tau^{1/2} \exp\left\{ -\frac{\tau_0\tau}{2}(\mu-\mu_0)^2 \right\} \]</span></p></li>
 </ul>
 <p>The joint prior is: <span class="math display">\[
-\pi(\mu, \tau) \propto \tau^{\alpha - 1/2} \exp\left\{ -\tau \left( \beta + \frac{\tau_0}{2}(\mu - \mu_0)^2 \right) \right\}
+\pi(\mu, \tau) \propto \tau^{(\alpha_0+1)/2 - 1} \exp\left\{ -\frac{\tau}{2} \left( \alpha_0 w_0 + \tau_0(\mu - \mu_0)^2 \right) \right\}
 \]</span></p>
-<p><strong>Derivation of the Likelihood:</strong></p>
-<p>The likelihood is the product of the individual densities: <span class="math display">\[
+<p><strong>The Likelihood:</strong></p>
+<p>To derive the Maximum Likelihood Estimators (MLEs), we work with the log-likelihood function <span class="math inline">\(l(\mu, \tau) = \log L(\mu, \tau)\)</span>:</p>
+<p><span class="math display">\[
 \begin{aligned}
-L(\mu, \tau) &amp;= \prod_{i=1}^n \frac{\tau^{1/2}}{\sqrt{2\pi}} \exp\left\{ -\frac{\tau}{2}(x_i - \mu)^2 \right\} \\
-&amp;\propto \tau^{n/2} \exp\left\{ -\frac{\tau}{2} \sum_{i=1}^n (x_i - \mu)^2 \right\}
+l(\mu, \tau) &amp;= \log \left( \tau^{n/2} \exp\left\{ -\frac{\tau}{2} [ S_{xx} + n(\bar{x}-\mu)^2 ] \right\} \right) \\
+&amp;= \frac{n}{2} \log \tau - \frac{\tau}{2} \left[ S_{xx} + n(\bar{x}-\mu)^2 \right] + \text{const}
 \end{aligned}
 \]</span></p>
-<p>Using the identity <span class="math inline">\(\sum (x_i - \mu)^2 = S_{xx} + n(\bar{x}-\mu)^2\)</span>, where <span class="math inline">\(S_{xx} = \sum (x_i - \bar{x})^2\)</span>: <span class="math display">\[
-L(\mu, \tau) \propto \tau^{n/2} \exp\left\{ -\frac{\tau}{2} \left[ S_{xx} + n(\bar{x}-\mu)^2 \right] \right\}
+<p><strong>MLE for <span class="math inline">\(\mu\)</span></strong></p>
+<p>Differentiating <span class="math inline">\(l(\mu, \tau)\)</span> with respect to <span class="math inline">\(\mu\)</span> and setting to zero:</p>
+<p><span class="math display">\[
+\frac{\partial l}{\partial \mu} = n\tau(\bar{x} - \mu) = 0 \implies \hat{\mu}_{\text{MLE}} = \bar{x}
+\]</span></p>
+<p><strong>MLE for <span class="math inline">\(\sigma^2\)</span></strong></p>
+<p>Differentiating <span class="math inline">\(l(\mu, \tau)\)</span> with respect to <span class="math inline">\(\tau\)</span>, setting to zero, and substituting <span class="math inline">\(\mu = \bar{x}\)</span>:</p>
+<p><span class="math display">\[
+\frac{\partial l}{\partial \tau} = \frac{n}{2\tau} - \frac{S_{xx}}{2} = 0 \implies \hat{\tau}_{\text{MLE}} = \frac{n}{S_{xx}}
+\]</span></p>
+<p>Using the invariance property (<span class="math inline">\(\sigma^2 = 1/\tau\)</span>):</p>
+<p><span class="math display">\[
+\hat{\sigma}^2_{\text{MLE}} = \frac{S_{xx}}{n} = \frac{\sum_{i=1}^n (x_i - \bar{x})^2}{n}
 \]</span></p>
 <p><strong>Derivation of the Posterior:</strong></p>
-<p>Multiplying the prior by the likelihood gives the joint posterior density. We organize the terms to separate the marginal distribution of <span class="math inline">\(\tau\)</span> from the conditional distribution of <span class="math inline">\(\mu\)</span>: <span class="math display">\[
+<p>Multiplying the prior by the likelihood gives the joint posterior density. We organize the terms to separate the marginal distribution of <span class="math inline">\(\tau\)</span> from the conditional distribution of <span class="math inline">\(\mu\)</span>:</p>
+<p><span class="math display">\[
 \begin{aligned}
-\pi(\mu, \tau | x) &amp;\propto \underbrace{\tau^{\alpha + n/2 - 1} \exp\left\{ -\tau \left[ \beta + \frac{S_{xx}}{2} + \frac{n\tau_0}{2(n+\tau_0)}(\bar{x}-\mu_0)^2 \right] \right\}}_{\text{Marginal of } \tau} \\
+\pi(\mu, \tau | x) &amp;\propto \underbrace{\tau^{(\alpha_0 + n)/2 - 1} \exp\left\{ -\frac{\tau}{2} \left[ \alpha_0 w_0 + S_{xx} + \frac{n\tau_0}{n+\tau_0}(\bar{x}-\mu_0)^2 \right] \right\}}_{\text{Marginal of } \tau} \\
 &amp;\quad \times \underbrace{\tau^{1/2} \exp\left\{ -\frac{(n+\tau_0)\tau}{2} \left( \mu - \frac{\tau_0\mu_0+n\bar{x}}{n+\tau_0} \right)^2 \right\}}_{\text{Conditional of } \mu|\tau}
 \end{aligned}
 \]</span></p>
 <p><strong>Results:</strong></p>
-<p>We define the posterior parameters <span class="math inline">\(\tau' = \tau_0 + n\)</span> and <span class="math inline">\(\mu' = \frac{\tau_0\mu_0 + n\bar{x}}{\tau_0 + n}\)</span>.</p>
 <ul>
-<li><p><strong>Conditional Posterior of <span class="math inline">\(\mu|\tau, x\)</span></strong>: <span class="math display">\[\mu|\tau, x \sim N(\mu', 1/(\tau'\tau))\]</span> <span class="math display">\[E[\mu|\tau, x] = \mu' = \frac{\tau_0\mu_0 + n\bar{x}}{\tau_0 + n}\]</span></p></li>
-<li><p>The marginal posterior of the precision is <span class="math inline">\(\tau|x \sim \text{Gamma}(\alpha', \beta')\)</span>. While the shape parameter is always <span class="math inline">\(\alpha' = \frac{\alpha_0 + n}{2}\)</span>, the rate parameter <span class="math inline">\(\beta'\)</span> can be expressed in this form: <span class="math display">\[
-\beta' = \frac{1}{2} \left[ \alpha_0 w_0 + \sum_{i=1}^n (x_i - \mu_0)^2 - \frac{n^2}{n+\tau_0}(\bar{x}-\mu_0)^2 \right]
-\]</span></p>
-<p>We introduce the prior parameters <span class="math inline">\(\alpha=\alpha_0/2\)</span> and <span class="math inline">\(\beta = \alpha_0 w_0/2\)</span>, and the MLE variance <span class="math inline">\(\hat{\sigma}^2_{MLE} = S_{xx}/n\)</span>. The posterior is <span class="math inline">\(\tau|x \sim \text{Gamma}(\alpha', \beta')\)</span> where:</p>
+<li><p><strong>Conditional Posterior of <span class="math inline">\(\mu|\tau, x\)</span></strong>: <span class="math display">\[ \mu|\tau, x \sim N(\mu', 1/(\tau'\tau)) \]</span> <span class="math display">\[ E[\mu|\tau, x] = \frac{\tau_0\mu_0 + n\bar{x}}{\tau_0 + n} \]</span> where <span class="math display">\[\tau' = \tau_0 + n\]</span> <span class="math display">\[\mu' = \frac{\tau_0\mu_0 + n\bar{x}}{\tau_0 + n}\]</span></p></li>
+<li><p><strong>Marginal Posterior of <span class="math inline">\(\tau|x\)</span></strong>: The marginal posterior is <span class="math inline">\(\tau|x \sim \text{Gamma}(\alpha', \beta')\)</span> with: <span class="math display">\[
+  \alpha' = \frac{\alpha_0 + n}{2}, \quad \beta' = \frac{\alpha_0 w_0 + n\hat{\sigma}^2_{\text{MLE}} + \frac{n\tau_0}{n+\tau_0}(\bar{x}-\mu_0)^2}{2}
+  \]</span></p>
+<p>Using the approximation <span class="math inline">\(E[\sigma^2|x] \approx 1/E[\tau|x] = \beta'/\alpha'\)</span>, the posterior expectation of the variance is a weighted average of the prior variance, the data variance, and the discrepancy between the prior and data means:</p>
 <p><span class="math display">\[
-\begin{aligned}
-\alpha' &amp;= \frac{\alpha_0 + n}{2} \\
-\beta' &amp;= \frac{\alpha_0 w_0 + n\hat{\sigma}^2_{MLE} + \frac{n\tau_0}{n+\tau_0}(\bar{x}-\mu_0)^2}{2}
-\end{aligned}
-\]</span></p>
-<p><strong>Approximate Expectation of <span class="math inline">\(\sigma^2\)</span></strong>: Using the approximation <span class="math inline">\(E[\sigma^2|x] \approx 1/E[\tau|x] = \beta'/\alpha'\)</span>:</p>
-<p><span class="math display">\[
-E[\sigma^2|x] \approx \frac{\alpha_0 w_0 + n\hat{\sigma}^2_{MLE} + \frac{n\tau_0}{n+\tau_0}(\bar{x}-\mu_0)^2}{\alpha_0 + n}
-\]</span></p></li>
-<li><p><strong>Conditional Posterior of <span class="math inline">\(\tau|\mu, x\)</span></strong>: If <span class="math inline">\(\mu\)</span> is considered known (or conditioned upon), we combine the terms involving <span class="math inline">\(\tau\)</span> from the joint prior and likelihood, treating <span class="math inline">\(\mu\)</span> as a fixed parameter. Note that the prior term <span class="math inline">\(\pi(\mu|\tau)\)</span> contributes an extra <span class="math inline">\(\tau^{1/2}\)</span>. <span class="math display">\[
-\pi(\tau|\mu, x) \propto \tau^{\alpha + \frac{n+1}{2} - 1} \exp\left\{ -\tau \left[ \beta + \frac{1}{2}\sum_{i=1}^n (x_i-\mu)^2 + \frac{\tau_0}{2}(\mu-\mu_0)^2 \right] \right\}
-\]</span> Thus, <span class="math inline">\(\tau|\mu, x \sim \text{Gamma}(\alpha'', \beta'')\)</span> with shape <span class="math inline">\(\alpha'' = \frac{\alpha_0 + n + 1}{2}\)</span> and rate <span class="math inline">\(\beta'' = \frac{\alpha_0 w_0 + \sum(x_i-\mu)^2 + \tau_0(\mu-\mu_0)^2}{2}\)</span>.</p>
+  E[\sigma^2|x] \approx \frac{\alpha_0 w_0 + n\hat{\sigma}^2_{\text{MLE}} + \frac{1}{1/n+1/\tau_0}(\bar{x}-\mu_0)^2}{\alpha_0 + n}
+  \]</span></p></li>
+<li><p><strong>Conditional Posterior of <span class="math inline">\(\tau|\mu, x\)</span></strong>: If <span class="math inline">\(\mu\)</span> is considered known, the posterior for <span class="math inline">\(\tau\)</span> combines the prior <span class="math inline">\(\alpha_0, w_0\)</span> with the deviations from <span class="math inline">\(\mu\)</span>. Note that the prior term <span class="math inline">\(\pi(\mu|\tau)\)</span> contributes an extra factor of <span class="math inline">\(\tau^{1/2}\)</span> to the shape.</p>
+<p><span class="math display">\[ \tau|\mu, x \sim \text{Gamma}(\alpha'', \beta'') \]</span></p>
+<p>Where: <span class="math display">\[ \alpha'' = \frac{\alpha_0 + n + 1}{2}, \quad \beta'' = \frac{\alpha_0 w_0 + \sum_{i=1}^n (x_i-\mu)^2 + \tau_0(\mu-\mu_0)^2}{2} \]</span></p>
 <p>The approximate expectation of the variance is: <span class="math display">\[
-E[\sigma^2|\mu, x] \approx \frac{\beta''}{\alpha''} = \frac{\alpha_0 w_0 + \sum_{i=1}^n (x_i-\mu)^2 + \tau_0(\mu-\mu_0)^2}{\alpha_0 + n + 1}
+E[\sigma^2|\mu, x] \approx \frac{\alpha_0 w_0 + \sum_{i=1}^n (x_i-\mu)^2 + \tau_0(\mu-\mu_0)^2}{\alpha_0 + n + 1}
 \]</span></p></li>
 </ul>
 </div>
+</section>
 </section>
 <section id="finding-bayes-rules-via-minimizing-posterior-expected-loss" class="level2" data-number="3.2">
 <h2 data-number="3.2" class="anchored" data-anchor-id="finding-bayes-rules-via-minimizing-posterior-expected-loss"><span class="header-section-number">3.2</span> Finding Bayes Rules via Minimizing Posterior Expected Loss</h2>
