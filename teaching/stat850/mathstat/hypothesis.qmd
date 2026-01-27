@@ -72,7 +72,7 @@ Suppose we choose a critical region $X \ge k$.
 * If $k=8$, $P(X \ge 8 | \theta=0.5) \approx 0.0547$.
 
 Since we cannot achieve exactly 0.05 with a non-randomized test (the survival function jumps over 0.05), we must use a randomized test function.
-:::
+
 
 The randomized test is defined as:
 
@@ -104,36 +104,33 @@ $$
 :::
 
 
-```{tikz fig-binomial-survival-full}
-%| fig-cap: "Full Survival Function P(X >= k) for Bin(10, 0.5) with zoomed detail for test construction."
+```{tikz fig-binomial-survival-zoom}
+%| fig-cap: "Survival Function P(X >= k) with randomization detail"
 %| echo: false
 %| fig-align: "center"
-%| out-extra: 'style="width: 85% !important;"'
+%| out-extra: 'style="width: 90% !important;"'
 %| engine.opts:
 %|   extra.preamble: "\\usetikzlibrary{patterns, spy}"
 
 \begin{tikzpicture}[
     scale=1.2,
-    spy using outlines={circle, magnification=6, size=4cm, connect spies}
+    spy using outlines={circle, magnification=5, size=3.5cm, connect spies, thick, gray}
 ]
 
-% Define Vertical Scale (Height of Prob=1)
-\def\ysc{5} 
+% --- Definitions ---
+\def\ysc{5} % Y-scale factor
 
-% Axes
+% --- Axes ---
 \draw[->] (-0.5,0) -- (11.5,0) node[right] {$k$};
 \draw[->] (0,0) -- (0,\ysc+0.5) node[above] {$P(X \ge k)$};
 
-% Ticks
+% --- Ticks ---
 \foreach \x in {0,1,...,10} \draw (\x,0.1) -- (\x,-0.1) node[below] {\footnotesize \x};
 \draw (0.1, \ysc) -- (-0.1, \ysc) node[left] {\footnotesize 1.0};
 \draw (0.1, 0.5*\ysc) -- (-0.1, 0.5*\ysc) node[left] {\footnotesize 0.5};
 
-% Data Points for Bin(10, 0.5) Survival Function
-% 0: 1.000, 1: 0.999, 2: 0.989, 3: 0.945, 4: 0.828, 5: 0.623
-% 6: 0.377, 7: 0.172, 8: 0.0547, 9: 0.0107, 10: 0.001
-
-% Coordinates
+% --- Data Points (Binomial 10, 0.5 Survival) ---
+% P(>=8) = 0.0547, P(>=9) = 0.0107
 \coordinate (P0) at (0, 1.0*\ysc);
 \coordinate (P1) at (1, 0.999*\ysc);
 \coordinate (P2) at (2, 0.989*\ysc);
@@ -146,35 +143,30 @@ $$
 \coordinate (P9) at (9, 0.0107*\ysc);
 \coordinate (P10) at (10, 0.001*\ysc);
 
-% Draw the Curve (Sticks and Points)
+% --- Drawing Sticks (Vertical Lines) ---
+% We use very small points (0.4pt) so they don't look huge in the zoom
 \foreach \i in {0,...,10} {
-    \draw[dashed, gray!50] (\i,0) -- (P\i);
-    \fill[blue] (P\i) circle (1.5pt);
+    \draw[blue, thick] (\i,0) -- (P\i);
+    \fill[blue] (P\i) circle (0.4pt); 
 }
-% Connect tops for visual continuity (optional for discrete, but helps visualize "curve")
-\draw[blue, thin, opacity=0.5] (P0)--(P1)--(P2)--(P3)--(P4)--(P5)--(P6)--(P7)--(P8)--(P9)--(P10);
 
-% Alpha Line (Global)
-\draw[red, thick, dashed] (0, 0.05*\ysc) -- (11, 0.05*\ysc);
-\node[red, right] at (11, 0.05*\ysc) {$\alpha=0.05$};
+% --- Alpha Threshold Line ---
+\draw[red, dashed, thick] (-0.5, 0.05*\ysc) -- (11, 0.05*\ysc);
+\node[red, left] at (-0.5, 0.05*\ysc) {$\alpha=0.05$};
 
-% The Spy Area (Zooming in on k=8,9 region)
-% We spy on the point (8, alpha_height) roughly
-\coordinate (SpyPoint) at (8, 0.05*\ysc);
-\spy [blue, size=3.5cm] on (SpyPoint) in node at (5, 3.5);
+% --- Zoom / Spy Region ---
+% We spy on the gap between k=8 and k=9 around the alpha line
+% Spy point: x=8.5, y=0.03*5 (approx middle of gap)
+\coordinate (FocusPoint) at (8.2, 0.035*\ysc);
+\coordinate (ZoomLocation) at (7, 0.5*\ysc); 
 
-% Annotations INSIDE the Spy (Relative to the zoomed coordinate system essentially)
-% Note: TikZ Spy just magnifies the drawing. To add labels ONLY visible in zoom, 
-% we usually draw them tiny or draw them on top of the spy node. 
-% Here, standard drawing works best if we accept they look small on main graph 
-% or we rely on the magnification to make them readable.
+\spy [black, magnification=6] on (FocusPoint) in node at (ZoomLocation);
 
-% Let's clarify the logic with a label pointing to the spy node
-\node[right, align=left, font=\footnotesize] at (7.5, 3.5) {
-    \textbf{Zoom: Determination of $\gamma$}\\
-    At $k=8$, $P \approx 0.055 > \alpha$\\
-    At $k=9$, $P \approx 0.011 < \alpha$\\
-    We randomize at $k=8$.
+% --- Annotations (Outside spy to avoid double text) ---
+\node[right, font=\footnotesize, align=left] at (6.5, 0.85*\ysc) {
+    \textbf{Randomization Zone}\\
+    Zoom shows $k=8$ and $k=9$.\\
+    $\alpha$ passes between them.
 };
 
 \end{tikzpicture}
@@ -271,9 +263,7 @@ Since $E_{\theta_0}[\phi_0] = \alpha$ and $E_{\theta_0}[\phi] \le \alpha$, the t
 $$
 E_{\theta_1}[\phi_0] - E_{\theta_1}[\phi] \ge 0 \implies \text{Power}(\phi_0) \ge \text{Power}(\phi)
 $$
-:::
 
-::: {.proof}
 **Proof of (b) Existence:**
 Let $G(k) = P_{\theta_0}(\Lambda(X) \le k)$. $G(k)$ is the cumulative distribution function of the random variable $\Lambda(X)$, so it is non-decreasing.
 We seek $k_0$ such that $1 - G(k_0) \approx \alpha$.
@@ -286,6 +276,102 @@ $$
 
 Set $\gamma_0 = \frac{\alpha - P_{\theta_0}(\Lambda(X) > k_0)}{P_{\theta_0}(\Lambda(X) = k_0)}$.
 :::
+
+```{tikz fig-np-optimality}
+%| fig-cap: "Visualization of the Optimality Proof. The LRT region $C_\\alpha$ contains all points where the likelihood ratio is high ($>k$). Any competitor $C_\\alpha^*$ works by swapping a 'Good' region (A) for a 'Bad' region (B). The integral of U(x) sums the loss from A and the deficit from B, showing both lead to power loss."
+%| echo: false
+%| fig-align: "center"
+%| out-extra: 'style="width: 80% !important;"'
+%| engine.opts:
+%|   extra.preamble: "\\usetikzlibrary{patterns}"
+
+\begin{tikzpicture}[scale=1.2]
+% Define Curve Functions (approximations for visual)
+\def\fnull{2.5*exp(-0.5*(\x+1.5)^2)} % H0 centered left
+\def\falt{2.5*exp(-0.5*(\x-1.5)^2)}  % H1 centered right (Renamed from \fi to avoid clash)
+
+% Draw Axes
+\draw[->] (-4,0) -- (4,0) node[right] {$x$};
+\draw[->] (0,0) -- (0,3) node[above] {Density};
+
+% Draw Densities
+\draw[blue, thick] plot[domain=-4:4, samples=100] (\x, {\fnull});
+\node[blue] at (-2, 1.5) {$f_0(x)$};
+
+\draw[red, thick] plot[domain=-4:4, samples=100] (\x, {\falt});
+\node[red] at (2, 1.5) {$f_1(x)$};
+
+% Cutoff k (intersection roughly at 0 for these params, let's shift slightly for visual)
+\def\xc{0.2} % Cutoff point
+\draw[dashed, thick] (\xc, 0) -- (\xc, 2.8);
+\node[above] at (\xc, 2.8) {$k$ (cutoff)};
+
+% Region definitions
+% C_alpha (LRT) is everything to the right of xc
+% C_alpha* (Competitor) "misses" a chunk (A) and "adds" a chunk (B)
+
+% Region A: The part of C_alpha that C_alpha* excludes (The Loss)
+% Let's say C* excludes [0.2, 1.0]
+\fill[pattern=north west lines, pattern color=purple] (0.2,0) -- plot[domain=0.2:1.0] (\x, {\falt}) -- (1.0,0) -- cycle;
+\node[purple, align=center] at (0.6, 1.8) {\textbf{Region A}\\(In $C_\alpha$, not $C_\alpha^*$)\\$f_1 > k f_0$};
+\draw[->, purple] (0.6, 1.5) -- (0.6, 0.5);
+
+% Region B: The part C_alpha* includes that C_alpha doesn't (The Bad Gain)
+% Let's say C* includes [-1.5, -0.7]
+\fill[pattern=north east lines, pattern color=orange] (-1.5,0) -- plot[domain=-1.5:-0.7] (\x, {\falt}) -- (-0.7,0) -- cycle;
+\node[orange, align=center] at (-1.1, 1.8) {\textbf{Region B}\\(In $C_\alpha^*$, not $C_\alpha$)\\$f_1 < k f_0$};
+\draw[->, orange] (-1.1, 1.5) -- (-1.1, 0.5);
+
+% Labels for the Rejection Sets on Axis
+\draw[|-|, thick, purple] (0.2, -0.4) -- (4, -0.4);
+\node[purple, below] at (2.1, -0.4) {$C_\alpha$ (LRT)};
+
+\draw[thick, orange] (-1.5, -0.8) -- (-0.7, -0.8);
+\draw[->, thick, orange] (1.0, -0.8) -- (4, -0.8); % The part of C_alpha it kept
+\node[orange, below] at (0, -0.8) {$C_\alpha^*$ (Competitor)};
+
+\end{tikzpicture}
+```
+
+```{tikz fig-mlr-equivalence}
+%| fig-cap: "Equivalence of Likelihood Ratio Test and thresholding the statistic T(x) under Monotone Likelihood Ratio (MLR). Because $\Lambda(x)$ is strictly increasing in $T(x)$, the condition $\Lambda(x) > k$ is equivalent to $T(x) > t_0$."
+%| echo: false
+%| fig-align: "center"
+%| out-extra: 'style="width: 70% !important;"'
+
+\begin{tikzpicture}[scale=1.2]
+% Axes
+\draw[->] (0,0) -- (6,0) node[right] {$T(x)$ (Statistic)};
+\draw[->] (0,0) -- (0,4.5) node[above] {$\Lambda(x) = \frac{L(\theta_1)}{L(\theta_0)}$};
+
+% Monotone Increasing Function
+\draw[blue, very thick] (0.5, 0.5) .. controls (2, 1) and (3, 3.5) .. (5.5, 4.2) node[right] {$\Lambda(t)$};
+
+% Threshold k (Horizontal Line)
+\draw[red, thick, dashed] (0, 2.8) -- (5.5, 2.8) node[right] {threshold $k$};
+
+% Drop down to t_0
+% Approximate intersection is around x=2.6 based on control points
+% Let's force the visual intersection to be nice
+\coordinate (Intersection) at (2.65, 2.8);
+\draw[dashed] (Intersection) -- (2.65, 0);
+\node[below] at (2.65, 0) {$t_0$};
+
+% Rejection Regions
+\draw[->, red, thick] (2.65, 0.2) -- (5.5, 0.2);
+\node[red, below] at (4.1, 0.2) {Reject $H_0$ ($T(x) > t_0$)};
+
+\draw[->, red, thick] (2.8, 2.9) -- (2.8, 4.0);
+\node[red, right] at (2.8, 3.5) {$\Lambda(x) > k$};
+
+% Equivalence Text
+\node[align=center, fill=white, inner sep=2pt] at (1.5, 3.5) {
+    \textbf{Equivalence}:\\
+    $\Lambda(x) > k \iff T(x) > t_0$
+};
+
+\end{tikzpicture}
+```
 
 ## Uniformly Most Powerful (UMP) Tests
 
@@ -323,24 +409,6 @@ A test $\phi_0(x)$ of size $\alpha$ is **Uniformly Most Powerful (UMP)** if:
 \end{tikzpicture}
 ```
 
-::: {#exm-ump-gamma}
-### UMP Test for Exponential/Gamma
-Let $X_1, \dots, X_n \overset{iid}{\sim} \text{Exp}(\theta)$ with pdf $f(x) = \frac{1}{\theta} e^{-x/\theta}$.
-Test $H_0: \theta = \theta_0$ vs $H_1: \theta > \theta_0$.
-The sum $T = \sum X_i$ is a sufficient statistic, and $T \sim \text{Gamma}(n, \theta)$.
-
-The Likelihood Ratio for $\theta_1 > \theta_0$ is:
-
-$$
-\frac{L(\theta_1)}{L(\theta_0)} = \frac{\theta_1^{-n} e^{-\sum x_i / \theta_1}}{\theta_0^{-n} e^{-\sum x_i / \theta_0}} = \left(\frac{\theta_0}{\theta_1}\right)^n \exp \left\{ \left( \frac{1}{\theta_0} - \frac{1}{\theta_1} \right) \sum x_i \right\}
-$$
-
-Since $\theta_1 > \theta_0$, the term $(\frac{1}{\theta_0} - \frac{1}{\theta_1})$ is positive. Thus, $\Lambda(x)$ is an increasing function of $\sum x_i$.
-Rejecting for large $\Lambda(x)$ is equivalent to rejecting for $\sum x_i > C$.
-
-This test form does not depend on the specific $\theta_1$, so it is UMP for all $\theta > \theta_0$.
-:::
-
 ## Monotone Likelihood Ratio (MLR)
 
 ::: {#def-mlr}
@@ -358,8 +426,9 @@ Common examples include the one-parameter Exponential Family:
 $f(x; \theta) = h(x) c(\theta) \exp\{w(\theta) T(x)\}$.
 If $w(\theta)$ is increasing, the family has MLR w.r.t $T(x)$.
 
+### Karlin-Rubin Theorem {.unnumbered}
 ::: {#thm-karlin-rubin}
-### Karlin-Rubin Theorem (Theorem 4.2)
+### Karlin-Rubin Theorem 
 Suppose $X$ has a distribution from a family with MLR with respect to $T(X)$, and the distribution of $T(X)$ is continuous.
 Consider testing $H_0: \theta \le \theta_0$ vs $H_1: \theta > \theta_0$.
 
@@ -374,6 +443,58 @@ $$
 
 where $t_0$ is determined by $P_{\theta_0}(T(X) > t_0) = \alpha$, is the UMP size $\alpha$ test.
 :::
+
+::: {.proof}
+### Proof of Theorem 4.2 (UMP for MLR Families)
+
+**The Test:**
+Define the test $\phi(x)$ as:
+$$
+\phi(x) = \begin{cases} 
+1 & \text{if } T(x) > t_0 \\
+0 & \text{if } T(x) \le t_0
+\end{cases}
+$$
+where $t_0$ is determined such that the power at the boundary is $\alpha$, i.e., $W_{LR}(\theta_0) = \alpha$.
+
+**(1) Application of Neyman-Pearson Lemma**
+Because the family has a Monotone Likelihood Ratio (MLR) in $T(x)$, for any specific alternative $\theta_1 > \theta_0$, the likelihood ratio $\Lambda(x)$ is an increasing function of $T(x)$.
+Therefore, the rejection region $T(x) > t_0$ corresponds to $\Lambda(x) > k$.
+By the Neyman-Pearson Lemma, $\phi(x)$ is the Most Powerful (MP) test for testing $H_0': \theta = \theta_0$ vs $H_1': \theta = \theta_1$.
+
+**(2) Monotonicity of the Power Function**
+We claim that $W_{LR}(\theta)$ is a non-decreasing function of $\theta$.
+
+*Proof:*
+Let $\theta_2 < \theta_1$. Consider testing $\theta = \theta_2$ vs $\theta = \theta_1$.
+Let $\beta = W_{LR}(\theta_2)$.
+Define a constant dummy test $\phi^*(x) = \beta$ for all $x$. The power of this test is constant: $W_{\phi^*}(\theta) = \beta$.
+Since $\phi(x)$ corresponds to the likelihood ratio test form (reject for large $T$) for $\theta_2$ vs $\theta_1$, it is the MP test of size $\beta$.
+By the optimality of the NP Lemma, the power of $\phi$ at $\theta_1$ must be at least the power of the competitor $\phi^*$:
+$$
+W_{LR}(\theta_1) \ge W_{\phi^*}(\theta_1) = \beta = W_{LR}(\theta_2)
+$$
+Thus, $W_{LR}(\theta)$ is non-decreasing.
+
+**(3) Size Control**
+Since $W_{LR}(\theta)$ is non-decreasing and we set $W_{LR}(\theta_0) = \alpha$:
+$$
+W_{LR}(\theta) \le W_{LR}(\theta_0) = \alpha \quad \text{for all } \theta \le \theta_0
+$$
+This proves the test satisfies the size constraint for the composite null $H_0: \theta \le \theta_0$.
+
+**(4) UMP Property**
+Let $\phi'(x)$ be any other test with size $\le \alpha$ for $H_0: \theta \le \theta_0$. This implies $W_{\phi'}(\theta_0) \le \alpha$.
+For any specific $\theta_1 > \theta_0$, we treat the problem as testing $\theta_0$ vs $\theta_1$.
+Since $\phi(x)$ is the MP test for $\theta_0$ vs $\theta_1$ (from Step 1), and $\phi'$ is a valid competitor (size $\le \alpha$ at $\theta_0$), we have:
+$$
+W_{LR}(\theta_1) \ge W_{\phi'}(\theta_1)
+$$
+Since this holds for all $\theta_1 > \theta_0$, $\phi(x)$ is the Uniformly Most Powerful (UMP) test.
+:::
+```
+
+
 
 ```{tikz fig-mlr-dist}
 %| fig-cap: "Distribution of statistic T under H0 and H1 with MLR"
@@ -401,6 +522,26 @@ where $t_0$ is determined by $P_{\theta_0}(T(X) > t_0) = \alpha$, is the UMP siz
 
 \end{tikzpicture}
 ```
+
+
+::: {#exm-ump-gamma}
+### UMP Test for Exponential/Gamma
+Let $X_1, \dots, X_n \overset{iid}{\sim} \text{Exp}(\theta)$ with pdf $f(x) = \frac{1}{\theta} e^{-x/\theta}$.
+Test $H_0: \theta = \theta_0$ vs $H_1: \theta > \theta_0$.
+The sum $T = \sum X_i$ is a sufficient statistic, and $T \sim \text{Gamma}(n, \theta)$.
+
+The Likelihood Ratio for $\theta_1 > \theta_0$ is:
+
+$$
+\frac{L(\theta_1)}{L(\theta_0)} = \frac{\theta_1^{-n} e^{-\sum x_i / \theta_1}}{\theta_0^{-n} e^{-\sum x_i / \theta_0}} = \left(\frac{\theta_0}{\theta_1}\right)^n \exp \left\{ \left( \frac{1}{\theta_0} - \frac{1}{\theta_1} \right) \sum x_i \right\}
+$$
+
+Since $\theta_1 > \theta_0$, the term $(\frac{1}{\theta_0} - \frac{1}{\theta_1})$ is positive. Thus, $\Lambda(x)$ is an increasing function of $\sum x_i$.
+Rejecting for large $\Lambda(x)$ is equivalent to rejecting for $\sum x_i > C$.
+
+This test form does not depend on the specific $\theta_1$, so it is UMP for all $\theta > \theta_0$.
+:::
+
 
 ### Note on Two-Sided Hypotheses
 For testing $H_0: \theta = \theta_0$ vs $H_1: \theta \neq \theta_0$ (e.g., in a Normal distribution), a UMP test generally **does not exist**. This is because the "best" rejection region for $\theta > \theta_0$ (right tail) is completely different from the "best" region for $\theta < \theta_0$ (left tail).
