@@ -403,9 +403,19 @@ $$
 :::
 
 
-
 :::{.callout-important}
-Therefore, to minimize the Bayes risk, one just need to  choose $d(x)$ to minimize the **posterior expected loss** for each data set $x$.
+Therefore, to minimize the Bayes risk, one effectively minimizes the posterior expected loss for each $x$. This relationship relies on the key identity for the total expectation of the loss:
+
+$$
+\boxed{ r(\pi, d) = E^X \left[ E^{\theta|X} \big( \mathcal{L}(\theta, d(X)) \big) \right] = E^\pi \left[ E^{X|\theta} \big( \mathcal{L}(\theta, d(X)) \big) \right] }
+$$
+
+In the first expression, the outer expectation $E^X$ is taken with respect to the **marginal density of the data**, $m(x)$, defined as:
+$$
+m(x) = \int_{\Theta} f(x|\theta)\pi(\theta) d\theta
+$$
+
+In the second expression, the outer expectation $E^\pi$ is taken with respect to the **prior density** $\pi(\theta)$.
 :::
 
 The following diagram summarizes the general workflow for deriving a Bayes estimator:
@@ -928,6 +938,8 @@ $$
 
 :::
 
+### Exponential Minimax Estimation
+
 ::: {#exm-exponential-minimax}
 #### Exponential Minimax Estimation
 
@@ -937,46 +949,106 @@ $$
 \mathcal{L}(\theta, d) = \left( \frac{d}{\theta} - 1 \right)^2
 $$
 
-**Derivation of the MLE**
+**Likelihood and MLE**
 
-The likelihood function is given by:
-$$
-L(\theta|x) = \prod_{i=1}^n \frac{1}{\theta} e^{-x_i/\theta} = \theta^{-n} e^{-\frac{1}{\theta}\sum x_i}
-$$
-The log-likelihood is:
-$$
-\ell(\theta) = -n \ln \theta - \frac{1}{\theta} \sum_{i=1}^n x_i
-$$
-Differentiating with respect to $\theta$ and setting to zero:
-$$
-\frac{\partial \ell}{\partial \theta} = -\frac{n}{\theta} + \frac{\sum x_i}{\theta^2} = 0 \implies \hat{\theta}_{MLE} = \frac{\sum x_i}{n} = \bar{x}
-$$
-
-**Minimax Estimation**
-
-We propose the estimator $d_0(x) = \frac{\sum x_i}{n+1}$. Note that this shrinks the MLE slightly. Consider a sequence of priors $\pi_k \sim \text{Inverse-Gamma}(\alpha_k, \beta_k)$ for $\theta$, where the density is given by $\pi(\theta) \propto \theta^{-\alpha_k - 1} e^{-\beta_k / \theta}$.
-
-We will show that $d_0$ is a minimax estimator by deriving the Bayes estimator for this sequence and comparing the risks.
-
-**Posterior Analysis and Moments**
-
-Let $T = \sum x_i$. The likelihood is $L(\theta|x) = \theta^{-n} e^{-T/\theta}$. Multiplying by the prior $\pi_k(\theta)$, the posterior density is:
+The probability density function for a single observation is $f(x_i|\theta) = \frac{1}{\theta} e^{-x_i/\theta}$. The likelihood function for the sample is:
 
 $$
-\pi(\theta | x) \propto \theta^{-(n + \alpha_k) - 1} e^{-(T + \beta_k)/\theta}
+L(\theta|x) = \prod_{i=1}^n \frac{1}{\theta} e^{-x_i/\theta} = \theta^{-n} e^{-\frac{1}{\theta}\sum_{i=1}^n x_i}
 $$
 
-This is an **Inverse-Gamma** distribution with parameters $\alpha^* = n + \alpha_k$ and $\beta^* = T + \beta_k$. Using the properties of the Inverse-Gamma distribution, the required posterior moments are:
+The log-likelihood function is:
 
 $$
-E[\theta^{-1} | x] = \frac{n + \alpha_k}{T + \beta_k}, \quad E[\theta^{-2} | x] = \frac{(n + \alpha_k)(n + \alpha_k + 1)}{(T + \beta_k)^2}
+\ell(\theta) = \ln L(\theta|x) = -n \ln \theta - \frac{1}{\theta} \sum_{i=1}^n x_i
 $$
 
-The posterior expected loss is $E[ \mathcal{L}(\theta, d) | x ] = d^2 E[\theta^{-2} | x] - 2d E[\theta^{-1} | x] + 1$.
+Differentiating with respect to $\theta$ and setting to zero to find the critical point:
+
+$$
+\frac{\partial \ell}{\partial \theta} = -\frac{n}{\theta} + \frac{\sum x_i}{\theta^2} = 0
+$$
+
+Solving for $\theta$:
+
+$$
+\frac{n}{\theta} = \frac{\sum x_i}{\theta^2} \implies \hat{\theta}_{MLE} = \frac{\sum_{i=1}^n x_i}{n} = \bar{x}
+$$
+
+**Minimax Estimation Setup**
+
+We propose the estimator $d_0(x) = \frac{\sum x_i}{n+1}$. To show this is a minimax estimator, we consider a sequence of priors $\pi_k$ and examine the limit of their Bayes risks.
+
+**Prior Density**
+
+We assume the prior $\pi_k(\theta)$ follows an **Inverse-Gamma** distribution with shape $\alpha_k$ and scale $\beta_k$. The density is given by:
+
+$$
+\pi_k(\theta) = \frac{\beta_k^{\alpha_k}}{\Gamma(\alpha_k)} \theta^{-\alpha_k - 1} e^{-\beta_k / \theta}, \quad \theta > 0
+$$
+
+**Posterior Analysis**
+
+Let $T = \sum x_i$. The posterior density is proportional to the product of the likelihood and the prior:
+
+$$
+\begin{aligned}
+\pi(\theta | x) &\propto L(\theta|x) \cdot \pi_k(\theta) \\
+&\propto \left( \theta^{-n} e^{-T/\theta} \right) \cdot \left( \theta^{-\alpha_k - 1} e^{-\beta_k / \theta} \right) \\
+&\propto \theta^{-(n + \alpha_k) - 1} e^{-(T + \beta_k)/\theta}
+\end{aligned}
+$$
+
+This kernel corresponds to an Inverse-Gamma distribution with parameters:
+
+* Shape: $\alpha^* = n + \alpha_k$
+* Scale: $\beta^* = T + \beta_k$
+
+**Posterior Moments**
+
+For an Inverse-Gamma$(\alpha^*, \beta^*)$ variable, the required moments are:
+
+$$
+E[\theta^{-1} | x] = \frac{\alpha^*}{\beta^*} = \frac{n + \alpha_k}{T + \beta_k}
+$$
+
+$$
+E[\theta^{-2} | x] = \frac{\alpha^* (\alpha^* + 1)}{(\beta^*)^2} = \frac{(n + \alpha_k)(n + \alpha_k + 1)}{(T + \beta_k)^2}
+$$
 
 **Derivation of the Bayes Estimator**
 
-Minimizing the posterior expected loss with respect to $d$ yields $d_{\pi_k} = \frac{E[\theta^{-1} | x]}{E[\theta^{-2} | x]}$. Substituting the moments derived above:
+The Bayes estimator $d_{\pi_k}$ is the value that minimizes the posterior expected loss. We define the posterior expected loss function $Q(d)$:
+
+$$
+Q(d) = E[ \mathcal{L}(\theta, d) | x ] = E \left[ \left( \frac{d}{\theta} - 1 \right)^2 \Bigg| x \right]
+$$
+
+Expanding the quadratic term:
+
+$$
+Q(d) = E \left[ d^2 \theta^{-2} - 2d \theta^{-1} + 1 \Bigg| x \right]
+$$
+
+Using the linearity of expectation:
+
+$$
+Q(d) = d^2 E[\theta^{-2} | x] - 2d E[\theta^{-1} | x] + 1
+$$
+
+To find the minimum, we take the derivative with respect to $d$ and set it to zero:
+
+$$
+\frac{\partial Q(d)}{\partial d} = 2d E[\theta^{-2} | x] - 2 E[\theta^{-1} | x] = 0
+$$
+
+Solving for $d$:
+
+$$
+2d E[\theta^{-2} | x] = 2 E[\theta^{-1} | x] \implies d_{\pi_k} = \frac{E[\theta^{-1} | x]}{E[\theta^{-2} | x]}
+$$
+
+Substituting the Inverse-Gamma moments derived above:
 
 $$
 d_{\pi_k}(x) = \frac{ \frac{n + \alpha_k}{T + \beta_k} }{ \frac{(n + \alpha_k)(n + \alpha_k + 1)}{(T + \beta_k)^2} } = \frac{T + \beta_k}{n + \alpha_k + 1}
@@ -984,33 +1056,32 @@ $$
 
 **Bayes Risk Limit**
 
-The Bayes risk $r(\pi_k)$ is the expected value of the minimum posterior loss. Substituting $d_{\pi_k}$ back into the loss equation:
+The Bayes risk $r(\pi_k, d_{\pi_k})$ is the expected value of the minimum posterior loss. Substituting $d_{\pi_k}$ back into the loss equation:
 
 $$
-r(\pi_k | x) = 1 - \frac{(E[\theta^{-1}|x])^2}{E[\theta^{-2}|x]} = 1 - \frac{n + \alpha_k}{n + \alpha_k + 1} = \frac{1}{n + \alpha_k + 1}
+r(\pi_k, d_{\pi_k}) = 1 - \frac{(E[\theta^{-1}|x])^2}{E[\theta^{-2}|x]} = 1 - \frac{n + \alpha_k}{n + \alpha_k + 1} = \frac{1}{n + \alpha_k + 1}
 $$
 
-Since this does not depend on $x$, the integrated Bayes risk is $r(\pi_k) = \frac{1}{n + \alpha_k + 1}$. Taking the limit as the prior parameters approach zero ($\alpha_k \to 0$):
+Since this expression is independent of the data $x$, the integrated Bayes risk is the same as the posterior risk. Taking the limit as the prior parameters approach zero ($\alpha_k \to 0$):
 
 $$
-\lim_{k \to \infty} r(\pi_k) = \frac{1}{n+1}
+\lim_{k \to \infty} r(\pi_k, d_{\pi_k}) = \frac{1}{n+1}
 $$
 
 **Minimax Verification**
 
-Finally, we calculate the frequentist risk for the candidate estimator $d_0(x) = \frac{T}{n+1}$. Let $Y = T/\theta \sim \text{Gamma}(n, 1)$.
+We compute the frequentist risk of our candidate estimator $d_0(x) = \frac{T}{n+1}$. Let $Y = T/\theta \sim \text{Gamma}(n, 1)$. Note that $E[Y]=n$ and $\text{Var}(Y)=n$.
 
 $$
-R(\theta, d_0) = E \left[ \left( \frac{Y}{n+1} - 1 \right)^2 \right] = \text{Var}\left(\frac{Y}{n+1}\right) + \left(E\left[\frac{Y}{n+1}\right]-1\right)^2
+\begin{aligned}
+R(\theta, d_0) &= E \left[ \left( \frac{d_0}{\theta} - 1 \right)^2 \right] = E \left[ \left( \frac{Y}{n+1} - 1 \right)^2 \right] \\
+&= \text{Var}\left(\frac{Y}{n+1}\right) + \left(E\left[\frac{Y}{n+1}\right]-1\right)^2 \\
+&= \frac{n}{(n+1)^2} + \left( \frac{n}{n+1} - 1 \right)^2 \\
+&= \frac{1}{n+1}
+\end{aligned}
 $$
 
-With $E[Y]=n$ and $\text{Var}(Y)=n$, the risk is:
-
-$$
-R(\theta, d_0) = \frac{n}{(n+1)^2} + \left( \frac{n}{n+1} - 1 \right)^2 = \frac{1}{n+1}
-$$
-
-Since the risk of $d_0$ is constant and equals the limit of the Bayes risks ($\frac{1}{n+1}$), $d_0$ is a **minimax estimator**.
+Since $R(\theta, d_0) = \lim_{k \to \infty} r(\pi_k, d_{\pi_k}) = \frac{1}{n+1}$ for all $\theta$, $d_0$ is a **minimax estimator**.
 :::
 
 ## Stein's Paradox and the James-stein Estimator

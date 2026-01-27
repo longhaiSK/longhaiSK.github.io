@@ -225,6 +225,7 @@ window.Quarto = {
   <li><a href="#finding-minimax-rules-with-bayes-rules" id="toc-finding-minimax-rules-with-bayes-rules" class="nav-link" data-scroll-target="#finding-minimax-rules-with-bayes-rules"><span class="header-section-number">3.4</span> Finding Minimax Rules with Bayes Rules</a>
   <ul>
   <li><a href="#binomial-minimax-estimator" id="toc-binomial-minimax-estimator" class="nav-link" data-scroll-target="#binomial-minimax-estimator"><span class="header-section-number">3.4.1</span> Binomial Minimax Estimator</a></li>
+  <li><a href="#exponential-minimax-estimation" id="toc-exponential-minimax-estimation" class="nav-link" data-scroll-target="#exponential-minimax-estimation"><span class="header-section-number">3.4.2</span> Exponential Minimax Estimation</a></li>
   </ul></li>
   <li><a href="#steins-paradox-and-the-james-stein-estimator" id="toc-steins-paradox-and-the-james-stein-estimator" class="nav-link" data-scroll-target="#steins-paradox-and-the-james-stein-estimator"><span class="header-section-number">3.5</span> Stein’s Paradox and the James-stein Estimator</a>
   <ul>
@@ -646,13 +647,20 @@ Important
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Therefore, to minimize the Bayes risk, one just need to choose <span class="math inline">\(d(x)\)</span> to minimize the <strong>posterior expected loss</strong> for each data set <span class="math inline">\(x\)</span>.</p>
+<p>Therefore, to minimize the Bayes risk, one effectively minimizes the posterior expected loss for each <span class="math inline">\(x\)</span>. This relationship relies on the key identity for the total expectation of the loss:</p>
+<p><span class="math display">\[
+\boxed{ r(\pi, d) = E^X \left[ E^{\theta|X} \big( \mathcal{L}(\theta, d(X)) \big) \right] = E^\pi \left[ E^{X|\theta} \big( \mathcal{L}(\theta, d(X)) \big) \right] }
+\]</span></p>
+<p>In the first expression, the outer expectation <span class="math inline">\(E^X\)</span> is taken with respect to the <strong>marginal density of the data</strong>, <span class="math inline">\(m(x)\)</span>, defined as: <span class="math display">\[
+m(x) = \int_{\Theta} f(x|\theta)\pi(\theta) d\theta
+\]</span></p>
+<p>In the second expression, the outer expectation <span class="math inline">\(E^\pi\)</span> is taken with respect to the <strong>prior density</strong> <span class="math inline">\(\pi(\theta)\)</span>.</p>
 </div>
 </div>
 <p>The following diagram summarizes the general workflow for deriving a Bayes estimator:</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-bayes-workflow" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" style="width: 80% !important;">
+<div id="fig-bayes-workflow" class="quarto-float quarto-figure quarto-figure-center anchored" style="width: 80% !important;" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-bayes-workflow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="bayesian_files/figure-html/fig-bayes-workflow-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width: 80% !important;" width="576">
@@ -1185,56 +1193,105 @@ d(x) = w \hat{p} + (1-w) p_0
 <li><strong><span class="math inline">\(w = \frac{n}{n+\sqrt{n}}\)</span></strong>: The weight assigned to the data. As the sample size <span class="math inline">\(n\)</span> increases, <span class="math inline">\(w \to 1\)</span>, and the minimax estimator converges to the MLE.</li>
 </ul>
 </div>
+</section>
+<section id="exponential-minimax-estimation" class="level3" data-number="3.4.2">
+<h3 data-number="3.4.2" class="anchored" data-anchor-id="exponential-minimax-estimation"><span class="header-section-number">3.4.2</span> Exponential Minimax Estimation</h3>
 <div id="exm-exponential-minimax" class="theorem example">
 <p><span class="theorem-title"><strong>Example 3.6 (Exponential Minimax Estimation)</strong></span> Let <span class="math inline">\(x_1, \dots, x_n\)</span> be a sample from an <span class="math inline">\(\text{Exp}(\theta)\)</span> distribution with mean <span class="math inline">\(\theta\)</span>. We consider the <strong>Scale-Invariant Loss Function</strong>:</p>
 <p><span class="math display">\[
 \mathcal{L}(\theta, d) = \left( \frac{d}{\theta} - 1 \right)^2
 \]</span></p>
-<p><strong>Derivation of the MLE</strong></p>
-<p>The likelihood function is given by: <span class="math display">\[
-L(\theta|x) = \prod_{i=1}^n \frac{1}{\theta} e^{-x_i/\theta} = \theta^{-n} e^{-\frac{1}{\theta}\sum x_i}
-\]</span> The log-likelihood is: <span class="math display">\[
-\ell(\theta) = -n \ln \theta - \frac{1}{\theta} \sum_{i=1}^n x_i
-\]</span> Differentiating with respect to <span class="math inline">\(\theta\)</span> and setting to zero: <span class="math display">\[
-\frac{\partial \ell}{\partial \theta} = -\frac{n}{\theta} + \frac{\sum x_i}{\theta^2} = 0 \implies \hat{\theta}_{MLE} = \frac{\sum x_i}{n} = \bar{x}
-\]</span></p>
-<p><strong>Minimax Estimation</strong></p>
-<p>We propose the estimator <span class="math inline">\(d_0(x) = \frac{\sum x_i}{n+1}\)</span>. Note that this shrinks the MLE slightly. Consider a sequence of priors <span class="math inline">\(\pi_k \sim \text{Inverse-Gamma}(\alpha_k, \beta_k)\)</span> for <span class="math inline">\(\theta\)</span>, where the density is given by <span class="math inline">\(\pi(\theta) \propto \theta^{-\alpha_k - 1} e^{-\beta_k / \theta}\)</span>.</p>
-<p>We will show that <span class="math inline">\(d_0\)</span> is a minimax estimator by deriving the Bayes estimator for this sequence and comparing the risks.</p>
-<p><strong>Posterior Analysis and Moments</strong></p>
-<p>Let <span class="math inline">\(T = \sum x_i\)</span>. The likelihood is <span class="math inline">\(L(\theta|x) = \theta^{-n} e^{-T/\theta}\)</span>. Multiplying by the prior <span class="math inline">\(\pi_k(\theta)\)</span>, the posterior density is:</p>
+<p><strong>Likelihood and MLE</strong></p>
+<p>The probability density function for a single observation is <span class="math inline">\(f(x_i|\theta) = \frac{1}{\theta} e^{-x_i/\theta}\)</span>. The likelihood function for the sample is:</p>
 <p><span class="math display">\[
-\pi(\theta | x) \propto \theta^{-(n + \alpha_k) - 1} e^{-(T + \beta_k)/\theta}
+L(\theta|x) = \prod_{i=1}^n \frac{1}{\theta} e^{-x_i/\theta} = \theta^{-n} e^{-\frac{1}{\theta}\sum_{i=1}^n x_i}
 \]</span></p>
-<p>This is an <strong>Inverse-Gamma</strong> distribution with parameters <span class="math inline">\(\alpha^* = n + \alpha_k\)</span> and <span class="math inline">\(\beta^* = T + \beta_k\)</span>. Using the properties of the Inverse-Gamma distribution, the required posterior moments are:</p>
+<p>The log-likelihood function is:</p>
 <p><span class="math display">\[
-E[\theta^{-1} | x] = \frac{n + \alpha_k}{T + \beta_k}, \quad E[\theta^{-2} | x] = \frac{(n + \alpha_k)(n + \alpha_k + 1)}{(T + \beta_k)^2}
+\ell(\theta) = \ln L(\theta|x) = -n \ln \theta - \frac{1}{\theta} \sum_{i=1}^n x_i
 \]</span></p>
-<p>The posterior expected loss is <span class="math inline">\(E[ \mathcal{L}(\theta, d) | x ] = d^2 E[\theta^{-2} | x] - 2d E[\theta^{-1} | x] + 1\)</span>.</p>
+<p>Differentiating with respect to <span class="math inline">\(\theta\)</span> and setting to zero to find the critical point:</p>
+<p><span class="math display">\[
+\frac{\partial \ell}{\partial \theta} = -\frac{n}{\theta} + \frac{\sum x_i}{\theta^2} = 0
+\]</span></p>
+<p>Solving for <span class="math inline">\(\theta\)</span>:</p>
+<p><span class="math display">\[
+\frac{n}{\theta} = \frac{\sum x_i}{\theta^2} \implies \hat{\theta}_{MLE} = \frac{\sum_{i=1}^n x_i}{n} = \bar{x}
+\]</span></p>
+<p><strong>Minimax Estimation Setup</strong></p>
+<p>We propose the estimator <span class="math inline">\(d_0(x) = \frac{\sum x_i}{n+1}\)</span>. To show this is a minimax estimator, we consider a sequence of priors <span class="math inline">\(\pi_k\)</span> and examine the limit of their Bayes risks.</p>
+<p><strong>Prior Density</strong></p>
+<p>We assume the prior <span class="math inline">\(\pi_k(\theta)\)</span> follows an <strong>Inverse-Gamma</strong> distribution with shape <span class="math inline">\(\alpha_k\)</span> and scale <span class="math inline">\(\beta_k\)</span>. The density is given by:</p>
+<p><span class="math display">\[
+\pi_k(\theta) = \frac{\beta_k^{\alpha_k}}{\Gamma(\alpha_k)} \theta^{-\alpha_k - 1} e^{-\beta_k / \theta}, \quad \theta &gt; 0
+\]</span></p>
+<p><strong>Posterior Analysis</strong></p>
+<p>Let <span class="math inline">\(T = \sum x_i\)</span>. The posterior density is proportional to the product of the likelihood and the prior:</p>
+<p><span class="math display">\[
+\begin{aligned}
+\pi(\theta | x) &amp;\propto L(\theta|x) \cdot \pi_k(\theta) \\
+&amp;\propto \left( \theta^{-n} e^{-T/\theta} \right) \cdot \left( \theta^{-\alpha_k - 1} e^{-\beta_k / \theta} \right) \\
+&amp;\propto \theta^{-(n + \alpha_k) - 1} e^{-(T + \beta_k)/\theta}
+\end{aligned}
+\]</span></p>
+<p>This kernel corresponds to an Inverse-Gamma distribution with parameters:</p>
+<ul>
+<li>Shape: <span class="math inline">\(\alpha^* = n + \alpha_k\)</span></li>
+<li>Scale: <span class="math inline">\(\beta^* = T + \beta_k\)</span></li>
+</ul>
+<p><strong>Posterior Moments</strong></p>
+<p>For an Inverse-Gamma<span class="math inline">\((\alpha^*, \beta^*)\)</span> variable, the required moments are:</p>
+<p><span class="math display">\[
+E[\theta^{-1} | x] = \frac{\alpha^*}{\beta^*} = \frac{n + \alpha_k}{T + \beta_k}
+\]</span></p>
+<p><span class="math display">\[
+E[\theta^{-2} | x] = \frac{\alpha^* (\alpha^* + 1)}{(\beta^*)^2} = \frac{(n + \alpha_k)(n + \alpha_k + 1)}{(T + \beta_k)^2}
+\]</span></p>
 <p><strong>Derivation of the Bayes Estimator</strong></p>
-<p>Minimizing the posterior expected loss with respect to <span class="math inline">\(d\)</span> yields <span class="math inline">\(d_{\pi_k} = \frac{E[\theta^{-1} | x]}{E[\theta^{-2} | x]}\)</span>. Substituting the moments derived above:</p>
+<p>The Bayes estimator <span class="math inline">\(d_{\pi_k}\)</span> is the value that minimizes the posterior expected loss. We define the posterior expected loss function <span class="math inline">\(Q(d)\)</span>:</p>
+<p><span class="math display">\[
+Q(d) = E[ \mathcal{L}(\theta, d) | x ] = E \left[ \left( \frac{d}{\theta} - 1 \right)^2 \Bigg| x \right]
+\]</span></p>
+<p>Expanding the quadratic term:</p>
+<p><span class="math display">\[
+Q(d) = E \left[ d^2 \theta^{-2} - 2d \theta^{-1} + 1 \Bigg| x \right]
+\]</span></p>
+<p>Using the linearity of expectation:</p>
+<p><span class="math display">\[
+Q(d) = d^2 E[\theta^{-2} | x] - 2d E[\theta^{-1} | x] + 1
+\]</span></p>
+<p>To find the minimum, we take the derivative with respect to <span class="math inline">\(d\)</span> and set it to zero:</p>
+<p><span class="math display">\[
+\frac{\partial Q(d)}{\partial d} = 2d E[\theta^{-2} | x] - 2 E[\theta^{-1} | x] = 0
+\]</span></p>
+<p>Solving for <span class="math inline">\(d\)</span>:</p>
+<p><span class="math display">\[
+2d E[\theta^{-2} | x] = 2 E[\theta^{-1} | x] \implies d_{\pi_k} = \frac{E[\theta^{-1} | x]}{E[\theta^{-2} | x]}
+\]</span></p>
+<p>Substituting the Inverse-Gamma moments derived above:</p>
 <p><span class="math display">\[
 d_{\pi_k}(x) = \frac{ \frac{n + \alpha_k}{T + \beta_k} }{ \frac{(n + \alpha_k)(n + \alpha_k + 1)}{(T + \beta_k)^2} } = \frac{T + \beta_k}{n + \alpha_k + 1}
 \]</span></p>
 <p><strong>Bayes Risk Limit</strong></p>
-<p>The Bayes risk <span class="math inline">\(r(\pi_k)\)</span> is the expected value of the minimum posterior loss. Substituting <span class="math inline">\(d_{\pi_k}\)</span> back into the loss equation:</p>
+<p>The Bayes risk <span class="math inline">\(r(\pi_k, d_{\pi_k})\)</span> is the expected value of the minimum posterior loss. Substituting <span class="math inline">\(d_{\pi_k}\)</span> back into the loss equation:</p>
 <p><span class="math display">\[
-r(\pi_k | x) = 1 - \frac{(E[\theta^{-1}|x])^2}{E[\theta^{-2}|x]} = 1 - \frac{n + \alpha_k}{n + \alpha_k + 1} = \frac{1}{n + \alpha_k + 1}
+r(\pi_k, d_{\pi_k}) = 1 - \frac{(E[\theta^{-1}|x])^2}{E[\theta^{-2}|x]} = 1 - \frac{n + \alpha_k}{n + \alpha_k + 1} = \frac{1}{n + \alpha_k + 1}
 \]</span></p>
-<p>Since this does not depend on <span class="math inline">\(x\)</span>, the integrated Bayes risk is <span class="math inline">\(r(\pi_k) = \frac{1}{n + \alpha_k + 1}\)</span>. Taking the limit as the prior parameters approach zero (<span class="math inline">\(\alpha_k \to 0\)</span>):</p>
+<p>Since this expression is independent of the data <span class="math inline">\(x\)</span>, the integrated Bayes risk is the same as the posterior risk. Taking the limit as the prior parameters approach zero (<span class="math inline">\(\alpha_k \to 0\)</span>):</p>
 <p><span class="math display">\[
-\lim_{k \to \infty} r(\pi_k) = \frac{1}{n+1}
+\lim_{k \to \infty} r(\pi_k, d_{\pi_k}) = \frac{1}{n+1}
 \]</span></p>
 <p><strong>Minimax Verification</strong></p>
-<p>Finally, we calculate the frequentist risk for the candidate estimator <span class="math inline">\(d_0(x) = \frac{T}{n+1}\)</span>. Let <span class="math inline">\(Y = T/\theta \sim \text{Gamma}(n, 1)\)</span>.</p>
+<p>We compute the frequentist risk of our candidate estimator <span class="math inline">\(d_0(x) = \frac{T}{n+1}\)</span>. Let <span class="math inline">\(Y = T/\theta \sim \text{Gamma}(n, 1)\)</span>. Note that <span class="math inline">\(E[Y]=n\)</span> and <span class="math inline">\(\text{Var}(Y)=n\)</span>.</p>
 <p><span class="math display">\[
-R(\theta, d_0) = E \left[ \left( \frac{Y}{n+1} - 1 \right)^2 \right] = \text{Var}\left(\frac{Y}{n+1}\right) + \left(E\left[\frac{Y}{n+1}\right]-1\right)^2
+\begin{aligned}
+R(\theta, d_0) &amp;= E \left[ \left( \frac{d_0}{\theta} - 1 \right)^2 \right] = E \left[ \left( \frac{Y}{n+1} - 1 \right)^2 \right] \\
+&amp;= \text{Var}\left(\frac{Y}{n+1}\right) + \left(E\left[\frac{Y}{n+1}\right]-1\right)^2 \\
+&amp;= \frac{n}{(n+1)^2} + \left( \frac{n}{n+1} - 1 \right)^2 \\
+&amp;= \frac{1}{n+1}
+\end{aligned}
 \]</span></p>
-<p>With <span class="math inline">\(E[Y]=n\)</span> and <span class="math inline">\(\text{Var}(Y)=n\)</span>, the risk is:</p>
-<p><span class="math display">\[
-R(\theta, d_0) = \frac{n}{(n+1)^2} + \left( \frac{n}{n+1} - 1 \right)^2 = \frac{1}{n+1}
-\]</span></p>
-<p>Since the risk of <span class="math inline">\(d_0\)</span> is constant and equals the limit of the Bayes risks (<span class="math inline">\(\frac{1}{n+1}\)</span>), <span class="math inline">\(d_0\)</span> is a <strong>minimax estimator</strong>.</p>
+<p>Since <span class="math inline">\(R(\theta, d_0) = \lim_{k \to \infty} r(\pi_k, d_{\pi_k}) = \frac{1}{n+1}\)</span> for all <span class="math inline">\(\theta\)</span>, <span class="math inline">\(d_0\)</span> is a <strong>minimax estimator</strong>.</p>
 </div>
 </section>
 </section>
@@ -1880,7 +1937,7 @@ p(\boldsymbol{\mu}, \theta, \tau^2 | X) \propto \left[ \prod_{i=1}^n f(x_i | \mu
 <p>The following tree diagram illustrates the conditional dependencies. Note that the parameters <span class="math inline">\(\mu_i\)</span> are conditionally independent given the hyperparameter <span class="math inline">\(\theta\)</span>, which facilitates “borrowing strength” across groups.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-hierarchical-tree" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" style="width: 80% !important;">
+<div id="fig-hierarchical-tree" class="quarto-float quarto-figure quarto-figure-center anchored" style="width: 80% !important;" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-hierarchical-tree-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="bayesian_files/figure-html/fig-hierarchical-tree-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width: 80% !important;" width="576">
@@ -2249,24 +2306,25 @@ X_i &amp;\sim N(\mu_i, 1) \\
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit Random Intercept Model: X | Se(1) ~ 1 + (1|player)</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>fit_brms <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> x <span class="sc">|</span> <span class="fu">se</span>(sei, <span class="at">sigma =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Player),</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> baseball_data,</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">prior =</span> <span class="fu">c</span>(</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">10</span>), <span class="at">class =</span> <span class="st">"Intercept"</span>),</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">prior</span>(<span class="fu">cauchy</span>(<span class="dv">0</span>, <span class="dv">2</span>), <span class="at">class =</span> <span class="st">"sd"</span>)</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">chains =</span> <span class="dv">2</span>, <span class="at">iter =</span> <span class="dv">4000</span>, <span class="at">warmup =</span> <span class="dv">1000</span>, <span class="at">seed =</span> <span class="dv">123</span>,</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">refresh =</span> <span class="dv">0</span></span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract Point Estimates (posterior Means)</span></span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>post_means <span class="ot">&lt;-</span> <span class="fu">fitted</span>(fit_brms)[, <span class="st">"Estimate"</span>]</span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>mu_brms <span class="ot">&lt;-</span> post_means</span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="co"># MSE Calculation (transformed Scale)</span></span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>mse_brms <span class="ot">&lt;-</span> <span class="fu">mean</span>((mu_brms <span class="sc">-</span> baseball_data<span class="sc">$</span>true_mu)<span class="sc">^</span><span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>baseball_data<span class="sc">$</span>sei <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>, <span class="fu">length</span>(baseball_data<span class="sc">$</span>x))</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit Random Intercept Model: X | Se(1) ~ 1 + (1|player)</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>fit_brms <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> x <span class="sc">|</span> <span class="fu">se</span>(sei, <span class="at">sigma =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Player),</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> baseball_data,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">prior =</span> <span class="fu">c</span>(</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">10</span>), <span class="at">class =</span> <span class="st">"Intercept"</span>),</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">prior</span>(<span class="fu">cauchy</span>(<span class="dv">0</span>, <span class="dv">2</span>), <span class="at">class =</span> <span class="st">"sd"</span>)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">chains =</span> <span class="dv">2</span>, <span class="at">iter =</span> <span class="dv">4000</span>, <span class="at">warmup =</span> <span class="dv">1000</span>, <span class="at">seed =</span> <span class="dv">123</span>,</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">refresh =</span> <span class="dv">0</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract Point Estimates (posterior Means)</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>post_means <span class="ot">&lt;-</span> <span class="fu">fitted</span>(fit_brms)[, <span class="st">"Estimate"</span>]</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>mu_brms <span class="ot">&lt;-</span> post_means</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="co"># MSE Calculation (transformed Scale)</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>mse_brms <span class="ot">&lt;-</span> <span class="fu">mean</span>((mu_brms <span class="sc">-</span> baseball_data<span class="sc">$</span>true_mu)<span class="sc">^</span><span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
