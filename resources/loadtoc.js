@@ -1,11 +1,12 @@
 /* loadtoc-fixed-nav-expanded.js
    - Sidebar TOC respecting Top Nav
    - Defaults to EXPANDED (shows H2 and H3 immediately)
+   - Supports <main> tag or .main class
+   - Grey/Blue gradient background
 */
 
 (() => {
   // ===== Config =====
- // ===== Config =====
   const CFG = {
     width: 300,             
     navbarHeight: 60,       
@@ -13,12 +14,12 @@
     headerOffset: 80,       
     zBase: 950,             
     buildFromHeadingsIfMissingSidebar: true,
-    // CHANGED: Added .main to the selector to support <div class="main">
+    // Updated selector to support <div class="main">
     headingSelector: ':is(main, .main) :is(h2,h3)', 
     maxDepth: 3,
     startCollapsed: false 
   };
-  
+
   // ===== Utilities =====
   const $ = (sel, el=document) => el.querySelector(sel);
   const $$ = (sel, el=document) => [...el.querySelectorAll(sel)];
@@ -37,15 +38,17 @@
   function injectStyles() {
     const style = document.createElement('style');
     style.setAttribute('data-toc-style', 'permanent-sidebar');
+    // CHANGED: Updated --toc-bg to a gradient below
     style.textContent = `
       :root { 
         --toc-width: ${CFG.width}px; 
         --toc-nav-height: ${CFG.navbarHeight}px;
-        --toc-bg: #fdfdfd;
-        --toc-border: #eee;
+        /* CHANGED Background to Grey/Blue Gradient */
+        --toc-bg: linear-gradient(to bottom, #f8f9fa, #e6f0ff);
+        --toc-border: #dae0e5; /* Slightly darker border to match new bg */
       }
 
-      main :is(h1,h2,h3,h4,h5,h6){ scroll-margin-top: ${CFG.headerOffset}px; }
+      :is(main, .main) :is(h1,h2,h3,h4,h5,h6){ scroll-margin-top: ${CFG.headerOffset}px; }
 
       /* Panel Positioning */
       #toc-panel {
@@ -73,9 +76,12 @@
         display: flex; align-items: center; justify-content: center;
         width: 44px; height: 44px;
         border: 1px solid #ccc; border-radius: 8px;
-        background: #fff; cursor: pointer; 
+        /* Slight gradient on mobile button too */
+        background: linear-gradient(to bottom, #fff, #f0f2f5); 
+        cursor: pointer; 
         font-size: 24px; line-height: 1;
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        color: #333;
       }
 
       body.toc-mobile-open #toc-panel { transform: translateX(0); }
@@ -90,7 +96,8 @@
         #toc-panel {
           transform: translateX(0) !important;
           box-shadow: none; 
-          border-left: 1px solid #e0e0e0;
+          /* Use the variable border */
+          border-left: 1px solid var(--toc-border);
         }
         #toc-toggle-btn { display: none !important; }
         #toc-close { display: none !important; }
@@ -102,12 +109,13 @@
         padding: 1rem 1.2rem; 
         border-bottom: 1px solid var(--toc-border);
         display: flex; justify-content: space-between; align-items: center;
-        background: #f8f8f8;
+        /* Make header slightly darker/bluer transparent to show gradient beneath or set solid */
+        background: rgba(230, 240, 255, 0.5);
       }
-      #toc-head h3 { margin:0; font-size:16px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+      #toc-head h3 { margin:0; font-size:16px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color: #2c3e50; }
       
       #toc-close {
-        background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 5px;
+        background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 5px; color: #555;
       }
 
       #toc-content { 
@@ -118,17 +126,17 @@
       }
       #toc-content ul { list-style:none; margin: 0; padding-left: 1rem; }
       #toc-content li { margin: 6px 0; line-height: 1.4; }
-      #toc-content a { text-decoration:none; color: #444; display: block; }
-      #toc-content a:hover { color: #0066cc; }
+      #toc-content a { text-decoration:none; color: #444; display: block; transition: color 0.2s;}
+      #toc-content a:hover { color: #0056b3; } /* Slightly darker blue hover */
 
       #toc-content .lvl-1 > a { font-weight: 700; color: #000; margin-top: 15px; margin-bottom: 5px; }
-      #toc-content .lvl-2 > a { font-weight: 600; color: #333; }
-      #toc-content .lvl-3 > a { font-weight: 400; color: #666; font-size: 13px; }
+      #toc-content .lvl-2 > a { font-weight: 600; color: #2c3e50; } /* Dark blue-grey for H2 */
+      #toc-content .lvl-3 > a { font-weight: 400; color: #546e7a; font-size: 13px; } /* Lighter blue-grey for H3 */
 
       /* Caret Logic */
       .toc-caret { 
         display:inline-block; width:12px; margin-right:4px; 
-        cursor:pointer; color:#999; 
+        cursor:pointer; color:#78909c; /* Blue-grey caret */
         transition: transform 0.2s;
       }
       .toc-row { display: flex; align-items: baseline; }
