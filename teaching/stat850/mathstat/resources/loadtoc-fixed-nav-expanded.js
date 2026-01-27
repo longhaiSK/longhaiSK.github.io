@@ -5,7 +5,6 @@
 
 (() => {
   // ===== Config =====
- // ===== Config =====
   const CFG = {
     width: 300,             
     navbarHeight: 60,       
@@ -13,12 +12,11 @@
     headerOffset: 80,       
     zBase: 950,             
     buildFromHeadingsIfMissingSidebar: true,
-    // CHANGED: Added .main to the selector to support <div class="main">
-    headingSelector: ':is(main, .main) :is(h2,h3)', 
+    headingSelector: 'main :is(h2,h3)',
     maxDepth: 3,
-    startCollapsed: false 
+    startCollapsed: false // <--- CHANGED: Set to false to show sub-items by default
   };
-  
+
   // ===== Utilities =====
   const $ = (sel, el=document) => el.querySelector(sel);
   const $$ = (sel, el=document) => [...el.querySelectorAll(sel)];
@@ -163,7 +161,7 @@
 
       const content = document.createElement('div');
       content.id = 'toc-content';
-      content.innerHTML = '<p><em>Loading…</em></p>';
+      content.innerHTML = `<p><em>Loading…</em></p>`;
 
       panel.append(head, content);
       document.body.appendChild(panel);
