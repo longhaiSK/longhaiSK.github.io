@@ -745,25 +745,25 @@ In classification problems, the parameter of interest is a discrete class label 
 
 We typically employ the **0-1 loss function**, which assigns a penalty of 1 for a misclassification and 0 for a correct prediction:
 
-$$L(y, \hat{y}) = \begin{cases} 0 & \text{if } \hat{y} = y \ (\text{Correct Classification}) \\ 1 & \text{if } \hat{y} \neq y \ (\text{Misclassification}) \end{cases}$$
+$$\mathcal{L}(y, \hat{y}) = \begin{cases} 0 & \text{if } \hat{y} = y \ (\text{Correct Classification}) \\ 1 & \text{if } \hat{y} \neq y \ (\text{Misclassification}) \end{cases}$$
 
 To find the optimal classification rule (the Bayes Classifier), we minimize the posterior expected loss, which is equivalent to minimizing the probability of misclassification.
 
 $$
-E_{y|x}[L(y, \hat{y})] = \sum_{y} L(y, \hat{y}) P(y|x)
+E^{y|x}[\mathcal{L}(y, \hat{y})] = \sum_{y} \mathcal{L}(y, \hat{y}) P(y|x)
 $$
 
 Since the loss is 1 only when the predicted class $\hat{y}$ differs from the true class $y$, this sum simplifies to:
 
 $$
-E_{y|x}[L(y, \hat{y})] = \sum_{y \neq \hat{y}} 1 \cdot P(y|x) = P(y \neq \hat{y} | x) = 1 - P(y = \hat{y} | x)
+E^{y|x}[\mathcal{L}(y, \hat{y})] = \sum_{y \neq \hat{y}} 1 \cdot P(y|x) = P(y \neq \hat{y} | x) = 1 - P(y = \hat{y} | x)
 $$
 
 Minimizing the misclassification rate $1 - P(y = \hat{y} | x)$ is mathematically equivalent to maximizing the probability of being correct, $P(y = \hat{y} | x)$.
 
 **Result:**
 
-The Bayes rule for classification is to predict the class with the highest posterior probability. While this is technically the **Maximum A Posteriori (MAP)** estimator, in the context of machine learning and pattern recognition, this decision rule is known as the **Bayes Optimal Classifier**.
+The Bayes rule for classification is to predict the class with the highest posterior **predictive** probability. In the context of machine learning and pattern recognition, this decision rule is known as the **Bayes Optimal Classifier**.
 
 $$
 \hat{y}_{\text{Bayes}}(x) = \underset{k \in \{1, \dots, K\}}{\arg\max} \ P(y = k | x)
@@ -1280,10 +1280,10 @@ $$
 Since $E_\theta [ X ] = \theta$, we immediately obtain:
 
 $$
-E_\theta [ \|X\|^2 ] = \|\theta\|^2 + p
+E_\theta [ \lVert X \rVert^2 ] = \lVert \theta \rVert^2 + p
 $$
 
-This is precisely the mean of a $\chi^2_p(\lambda)$ distribution with non-centrality parameter $\lambda = \|\theta\|^2$. Essentially, Stein's Lemma decomposes the second moment into the **signal component** ($\|\theta\|^2$) and the **geometric noise component** ($p$).
+This is precisely the mean of a $\chi^2_p(\lambda)$ distribution with non-centrality parameter $\lambda = \lVert \theta \rVert^2$. Essentially, Stein's Lemma decomposes the second moment into the **signal component** ($\lVert \theta \rVert^2$) and the **geometric noise component** ($p$).
 :::
 
 
@@ -1295,10 +1295,10 @@ This is precisely the mean of a $\chi^2_p(\lambda)$ distribution with non-centra
 
 #### Stein's Lemma for Radial Fields
 
-Let $X \sim N_p(\theta, I)$ and consider a radial vector field of the form $g(X) = c(\|X\|^2)X$, where $c: \mathbb{R} \to \mathbb{R}$ is a differentiable scalar function. Then:
+Let $X \sim N_p(\theta, I)$ and consider a radial vector field of the form $g(X) = c(\lVert X \rVert^2)X$, where $c: \mathbb{R} \to \mathbb{R}$ is a differentiable scalar function. Then:
 
 $$
-E_\theta \left[ (X - \theta)^T g(X) \right] = E_\theta \left[ p \cdot c(\|X\|^2) + 2 \|X\|^2 \cdot c'(\|X\|^2) \right]
+E_\theta \left[ (X - \theta)^T g(X) \right] = E_\theta \left[ p \cdot c(\lVert X \rVert^2) + 2 \lVert X \rVert^2 \cdot c'(\lVert X \rVert^2) \right]
 $$
 
 where $c'(z) = \frac{d}{dz}c(z)$.
@@ -1308,10 +1308,10 @@ where $c'(z) = \frac{d}{dz}c(z)$.
 <details>
 
 
-We apply the general Stein's Lemma by calculating the divergence of the radial field $g(X) = c(\|X\|^2)X$. Using the product rule for divergence:
+We apply the general Stein's Lemma by calculating the divergence of the radial field $g(X) = c(\lVert X \rVert^2)X$. Using the product rule for divergence:
 
 $$
-\nabla \cdot (c(\|X\|^2)X) = c(\|X\|^2) (\nabla \cdot X) + X^T (\nabla c(\|X\|^2))
+\nabla \cdot (c(\lVert X \rVert^2)X) = c(\lVert X \rVert^2) (\nabla \cdot X) + X^T (\nabla c(\lVert X \rVert^2))
 $$
 
 
@@ -1323,16 +1323,16 @@ $$
 $$
 
 **Step 2: The radial stretch.**
-To find $\nabla c(\|X\|^2)$, we use the chain rule. Let $h(X) = \|X\|^2 = \sum X_i^2$. Then $\nabla h(X) = 2X$.
+To find $\nabla c(\lVert X \rVert^2)$, we use the chain rule. Let $h(X) = \lVert X \rVert^2 = \sum X_i^2$. Then $\nabla h(X) = 2X$.
 $$
-\nabla c(\|X\|^2) = c'(\|X\|^2) \nabla (\|X\|^2) = 2 c'(\|X\|^2) X
+\nabla c(\lVert X \rVert^2) = c'(\lVert X \rVert^2) \nabla (\lVert X \rVert^2) = 2 c'(\lVert X \rVert^2) X
 $$
 
 Substituting this back into the divergence formula:
 $$
 \begin{aligned}
-\nabla \cdot g(X) &= p \cdot c(\|X\|^2) + X^T (2 c'(\|X\|^2) X) \\
-&= p \cdot c(\|X\|^2) + 2 c'(\|X\|^2) \|X\|^2
+\nabla \cdot g(X) &= p \cdot c(\lVert X \rVert^2) + X^T (2 c'(\lVert X \rVert^2) X) \\
+&= p \cdot c(\lVert X \rVert^2) + 2 c'(\lVert X \rVert^2) \lVert X \rVert^2
 \end{aligned}
 $$
 
@@ -1342,12 +1342,12 @@ Taking the expectation of both sides completes the proof.
 
 **Connection to the $\chi^2$ Distribution**
 
-This version of the lemma is particularly useful because when $\theta = 0$, the quantity $\|X\|^2$ follows a central $\chi^2_p$ distribution.
+This version of the lemma is particularly useful because when $\theta = 0$, the quantity $\lVert X \rVert^2$ follows a central $\chi^2_p$ distribution.
 
-* **Verifying the Mean:** If we set $c(\|X\|^2) = 1$, then $g(X) = X$. The lemma gives $E_0[\|X\|^2] = p + 2\|X\|^2(0) = p$, which is the expected value of a $\chi^2_p$ variable.
-* **The James-Stein Weight:** If we set $c(\|X\|^2) = \frac{1}{\|X\|^2}$, then $c'(z) = -\frac{1}{z^2}$.
+* **Verifying the Mean:** If we set $c(\lVert X \rVert^2) = 1$, then $g(X) = X$. The lemma gives $E_0[\lVert X \rVert^2] = p + 2\lVert X \rVert^2(0) = p$, which is the expected value of a $\chi^2_p$ variable.
+* **The James-Stein Weight:** If we set $c(\lVert X \rVert^2) = \frac{1}{\lVert X \rVert^2}$, then $c'(z) = -\frac{1}{z^2}$.
     $$
-    \nabla \cdot g(X) = \frac{p}{\|X\|^2} + 2 \|X\|^2 \left( -\frac{1}{\|X\|^4} \right) = \frac{p-2}{\|X\|^2}
+    \nabla \cdot g(X) = \frac{p}{\lVert X \rVert^2} + 2 \lVert X \rVert^2 \left( -\frac{1}{\lVert X \rVert^4} \right) = \frac{p-2}{\lVert X \rVert^2}
     $$
     This explains why the $p-2$ constant appears in the James-Stein estimator—it is the net result of $p$ dimensions of "spreading" minus 2 dimensions of "radial thinning."
  
@@ -1415,8 +1415,8 @@ Thus, Stein's Lemma holds for this specific case.
 ### A Radial Field Example Verifying Stein's Lemma
 
 
-Let $X \sim N_p(\theta, I)$ and $g(X) = \|X\|^2 X$. We verify the Radial Field Lemma:
-$$E_\theta \left[ (X - \theta)^T g(X) \right] = E_\theta \left[ p \cdot c(\|X\|^2) + 2 \|X\|^2 \cdot c'(\|X\|^2) \right]$$
+Let $X \sim N_p(\theta, I)$ and $g(X) = \lVert X \rVert^2 X$. We verify the Radial Field Lemma:
+$$E_\theta \left[ (X - \theta)^T g(X) \right] = E_\theta \left[ p \cdot c(\lVert X \rVert^2) + 2 \lVert X \rVert^2 \cdot c'(\lVert X \rVert^2) \right]$$
 
 Here, $c(z) = z$, which implies $c'(z) = 1$.
 
@@ -1424,39 +1424,39 @@ Here, $c(z) = z$, which implies $c'(z) = 1$.
 Using the radial formula:
 $$
 \begin{aligned}
-\nabla \cdot g(X) &= p(\|X\|^2) + 2\|X\|^2(1) \\
-&= (p+2)\|X\|^2
+\nabla \cdot g(X) &= p(\lVert X \rVert^2) + 2\lVert X \rVert^2(1) \\
+&= (p+2)\lVert X \rVert^2
 \end{aligned}
 $$
-The expectation is $(p+2)E_\theta[\|X\|^2]$. Since $\|X\|^2$ is a non-central $\chi^2_p$ with non-centrality parameter $\|\theta\|^2$, we know $E_\theta[\|X\|^2] = p + \|\theta\|^2$.
-Thus, $\text{RHS} = (p+2)(p + \|\theta\|^2)$.
+The expectation is $(p+2)E_\theta[\lVert X \rVert^2]$. Since $\lVert X \rVert^2$ is a non-central $\chi^2_p$ with non-centrality parameter $\lVert \theta \rVert^2$, we know $E_\theta[\lVert X \rVert^2] = p + \lVert \theta \rVert^2$.
+Thus, $\text{RHS} = (p+2)(p + \lVert \theta \rVert^2)$.
 
 
 **LHS (Alignment):**
 $$
 \begin{aligned}
-E_\theta \left[ (X-\theta)^T (\|X\|^2 X) \right] &= E_\theta \left[ \|X\|^2 (X^T X - \theta^T X) \right] \\
-&= E_\theta \left[ \|X\|^4 - \theta^T X \|X\|^2 \right]
+E_\theta \left[ (X-\theta)^T (\lVert X \rVert^2 X) \right] &= E_\theta \left[ \lVert X \rVert^2 (X^T X - \theta^T X) \right] \\
+&= E_\theta \left[ \lVert X \rVert^4 - \theta^T X \lVert X \rVert^2 \right]
 \end{aligned}
 $$
 
 To simplify, let $X = \theta + Z$ where $Z \sim N_p(0, I)$.
 Recall the moments of the non-central chi-square distribution or expand the terms:
-$E[\|X\|^4] = p(p+2) + 2(p+2)\|\theta\|^2 + \|\theta\|^4$.
-For the cross term $E[\theta^T X \|X\|^2]$, we find it equals $\|\theta\|^4 + (p+2)\|\theta\|^2$.
+$E[\lVert X \rVert^4] = p(p+2) + 2(p+2)\lVert \theta \rVert^2 + \lVert \theta \rVert^4$.
+For the cross term $E[\theta^T X \lVert X \rVert^2]$, we find it equals $\lVert \theta \rVert^4 + (p+2)\lVert \theta \rVert^2$.
 
 Subtracting these:
 $$
 \begin{aligned}
-\text{LHS} &= [p(p+2) + 2(p+2)\|\theta\|^2 + \|\theta\|^4] - [\|\theta\|^4 + (p+2)\|\theta\|^2] \\
-&= p(p+2) + (p+2)\|\theta\|^2 \\
-&= (p+2)(p + \|\theta\|^2)
+\text{LHS} &= [p(p+2) + 2(p+2)\lVert \theta \rVert^2 + \lVert \theta \rVert^4] - [\lVert \theta \rVert^4 + (p+2)\lVert \theta \rVert^2] \\
+&= p(p+2) + (p+2)\lVert \theta \rVert^2 \\
+&= (p+2)(p + \lVert \theta \rVert^2)
 \end{aligned}
 $$
 
 **Conclusion**
 
-The results match exactly. The alignment of the cubic radial field with the noise is perfectly predicted by the sum of its geometric expansion ($p \|X\|^2$) and its radial stretch ($2 \|X\|^2$).
+The results match exactly. The alignment of the cubic radial field with the noise is perfectly predicted by the sum of its geometric expansion ($p \lVert X \rVert^2$) and its radial stretch ($2 \lVert X \rVert^2$).
 :::
 
 ### Inadmissibility of the MLE in High Dimensions (Stein's Phenomenon)
@@ -1470,7 +1470,7 @@ Let $X \sim N_p(\theta, I)$ be a $p$-dimensional random vector with $p \ge 3$. U
 ::: {.proof name="Proof of Inadmissibility"}
 To show that $d^0(X) = X$ is inadmissible, we compare its risk to that of the James-Stein estimator $d^{JS}(X)$.
 
-Let $g(X) = c(\|X\|^2)X$ where $c(\|X\|^2) = \frac{p-2}{\|X\|^2}$. We can write the James-Stein estimator as $d^{JS}(X) = X - g(X)$.
+Let $g(X) = c(\lVert X \rVert^2)X$ where $c(\lVert X \rVert^2) = \frac{p-2}{\lVert X \rVert^2}$. We can write the James-Stein estimator as $d^{JS}(X) = X - g(X)$.
 
 The risk is the expected squared error loss:
 
@@ -1491,49 +1491,49 @@ $$c(z) = \frac{p-2}{z} \implies c'(z) = -\frac{p-2}{z^2}$$
 Substituting these into the radial divergence formula from @lem-stein-radial:
 $$
 \begin{aligned}
-\nabla \cdot g(X) &= p \cdot c(\|X\|^2) + 2 \|X\|^2 \cdot c'(\|X\|^2) \\
-&= p \left( \frac{p-2}{\|X\|^2} \right) + 2 \|X\|^2 \left( -\frac{p-2}{\|X\|^4} \right) \\
-&= \frac{p(p-2)}{\|X\|^2} - \frac{2(p-2)}{\|X\|^2} \\
-&= \frac{(p-2)^2}{\|X\|^2}
+\nabla \cdot g(X) &= p \cdot c(\lVert X \rVert^2) + 2 \lVert X \rVert^2 \cdot c'(\lVert X \rVert^2) \\
+&= p \left( \frac{p-2}{\lVert X \rVert^2} \right) + 2 \lVert X \rVert^2 \left( -\frac{p-2}{\lVert X \rVert^4} \right) \\
+&= \frac{p(p-2)}{\lVert X \rVert^2} - \frac{2(p-2)}{\lVert X \rVert^2} \\
+&= \frac{(p-2)^2}{\lVert X \rVert^2}
 \end{aligned}
 $$
 
 
 
 Applying the lemma to the cross-term:
-$$2 E_\theta \left[ (X-\theta)^T g(X) \right] = 2 E_\theta [ \nabla \cdot g(X) ] = 2(p-2)^2 E_\theta \left[ \frac{1}{\|X\|^2} \right]$$
+$$2 E_\theta \left[ (X-\theta)^T g(X) \right] = 2 E_\theta [ \nabla \cdot g(X) ] = 2(p-2)^2 E_\theta \left[ \frac{1}{\lVert X \rVert^2} \right]$$
 
 The third term in the risk expansion is the squared magnitude of the shrinkage:
-$$\|g(X)\|^2 = \left\| \frac{p-2}{\|X\|^2} X \right\|^2 = \frac{(p-2)^2}{\|X\|^4} \|X\|^2 = \frac{(p-2)^2}{\|X\|^2}$$
+$$\lVert g(X) \rVert^2 = \left\lVert  \frac{p-2}{ \rVertX\lVert ^2} X \right \rVert^2 = \frac{(p-2)^2}{\lVert X \rVert^4} \lVert X \rVert^2 = \frac{(p-2)^2}{\lVert X \rVert^2}$$
 
 
 
 Substituting these results back into the risk equation:
 $$
 \begin{aligned}
-R(\theta, d^{JS}) &= p - 2(p-2)^2 E_\theta \left[ \frac{1}{\|X\|^2} \right] + (p-2)^2 E_\theta \left[ \frac{1}{\|X\|^2} \right] \\
-&= p - (p-2)^2 E_\theta \left[ \frac{1}{\|X\|^2} \right]
+R(\theta, d^{JS}) &= p - 2(p-2)^2 E_\theta \left[ \frac{1}{\lVert X \rVert^2} \right] + (p-2)^2 E_\theta \left[ \frac{1}{\lVert X \rVert^2} \right] \\
+&= p - (p-2)^2 E_\theta \left[ \frac{1}{\lVert X \rVert^2} \right]
 \end{aligned}
 $$
 
-Since $p \ge 3$, the constant $(p-2)^2$ is strictly positive. Because $1/\|X\|^2 > 0$ with probability 1, the risk of the James-Stein estimator is strictly less than $p$ for all $\theta \in \mathbb{R}^p$.
+Since $p \ge 3$, the constant $(p-2)^2$ is strictly positive. Because $1/\lVert X \rVert^2 > 0$ with probability 1, the risk of the James-Stein estimator is strictly less than $p$ for all $\theta \in \mathbb{R}^p$.
 
 Thus, $d^{JS}$ dominates the MLE, proving the MLE is inadmissible.
 :::
 
 **Interpretation:**
 
-The term $(p-2)^2 E_\theta \left[ \frac{1}{\|X\|^2} \right]$ represents the reduction in risk provided by the James-Stein estimator.
+The term $(p-2)^2 E_\theta \left[ \frac{1}{\lVert X \rVert^2} \right]$ represents the reduction in risk provided by the James-Stein estimator.
 
-* When the observed signal $\|X\|^2$ is large (implying $\|\theta\|^2$ is likely large), the term $1/\|X\|^2$ is small. Consequently, the risk of the James-Stein estimator approaches that of the MLE ($p$), and the improvement is negligible.
+* When the observed signal $\lVert X \rVert^2$ is large (implying $\lVert \theta \rVert^2$ is likely large), the term $1/\lVert X \rVert^2$ is small. Consequently, the risk of the James-Stein estimator approaches that of the MLE ($p$), and the improvement is negligible.
 
-* When the observed signal $\|X\|^2$ is small (implying $\|\theta\|^2$ is likely near zero), the term $1/\|X\|^2$ is large. In this scenario, the James-Stein estimator shrinks the estimate aggressively toward zero, resulting in a risk substantially lower than $p$.
+* When the observed signal $\lVert X \rVert^2$ is small (implying $\lVert \theta \rVert^2$ is likely near zero), the term $1/\lVert X \rVert^2$ is large. In this scenario, the James-Stein estimator shrinks the estimate aggressively toward zero, resulting in a risk substantially lower than $p$.
 
    **Risk Ratio near the Origin**:
-   As the true parameter vector shrinks to zero ($\|\theta\| \to 0$), the ratio of the risks converges to a constant fraction. We substitute the expectation $E[1/\|X\|^2] = 1/(p-2)$ directly into the numerator:
+   As the true parameter vector shrinks to zero ($\lVert \theta \rVert \to 0$), the ratio of the risks converges to a constant fraction. We substitute the expectation $E[1/\lVert X \rVert^2] = 1/(p-2)$ directly into the numerator:
    
    $$
-   \lim_{\|\theta\| \to 0} \frac{R(\theta, d^{JS})}{R(\theta, d^{MLE})} = \frac{p - (p-2)^2 \left( \frac{1}{p-2} \right)}{p} = \frac{p - (p-2)}{p} = \frac{2}{p}
+   \lim_{\lVert \theta \rVert \to 0} \frac{R(\theta, d^{JS})}{R(\theta, d^{MLE})} = \frac{p - (p-2)^2 \left( \frac{1}{p-2} \right)}{p} = \frac{p - (p-2)}{p} = \frac{2}{p}
    $$
 
    For a dimension like $p=10$, the James-Stein estimator incurs only $20\%$ of the risk of the MLE near the origin.
@@ -1544,7 +1544,7 @@ The term $(p-2)^2 E_\theta \left[ \frac{1}{\|X\|^2} \right]$ represents the redu
 
 Yes. Since the MLE is minimax with constant risk $p$, the minimax risk value for this problem is $p$.
 
-Because $R(\theta, d^{JS}) < p$ for all $\theta$ and $\lim_{\|\theta\| \to \infty} R(\theta, d^{JS}) = p$, the maximum risk of the James-Stein estimator is exactly $p$. Therefore, $d^{JS}$ achieves the minimax risk level and is a minimax estimator.
+Because $R(\theta, d^{JS}) < p$ for all $\theta$ and $\lim_{\lVert \theta \rVert \to \infty} R(\theta, d^{JS}) = p$, the maximum risk of the James-Stein estimator is exactly $p$. Therefore, $d^{JS}$ achieves the minimax risk level and is a minimax estimator.
 :::
 
 
@@ -1617,7 +1617,7 @@ ggplot(df, aes(x = theta_sq)) +
   # Theming
   labs(
       title = TeX(sprintf(r'(Risk Comparison of Estimators ($p=%d$))', p)),    
-      x = TeX(r'($\|\theta\|^2$ (Signal Strength))')
+      x = TeX(r'($\lVert \theta \rVert^2$ (Signal Strength))')
   ) +
   theme_minimal() +
   theme(
@@ -1633,36 +1633,36 @@ ggplot(df, aes(x = theta_sq)) +
 
 We consider the **Normalized Squared Error Loss** function, which penalizes errors relative to the magnitude of the true parameter vector:
 $$
-\mathcal{L}(\theta, d) = \frac{\|d - \theta\|^2}{\|\theta\|^2}, \quad \theta \neq 0
+\mathcal{L}(\theta, d) = \frac{\lVert d - \theta \rVert^2}{\lVert \theta \rVert^2}, \quad \theta \neq 0
 $$
 
 **1. Risk of the MLE ($d^{MLE} = X$)**
 
 The risk of the Maximum Likelihood Estimator is straightforward because the standard Mean Squared Error (MSE) of $X$ is constant ($p$):
 $$
-R(\theta, d^{MLE}) = E_\theta \left[ \frac{\|X - \theta\|^2}{\|\theta\|^2} \right] = \frac{1}{\|\theta\|^2} E_\theta \left[ \|X - \theta\|^2 \right]
+R(\theta, d^{MLE}) = E_\theta \left[ \frac{\lVert X - \theta \rVert^2}{\lVert \theta \rVert^2} \right] = \frac{1}{\lVert \theta \rVert^2} E_\theta \left[ \lVert X - \theta \rVert^2 \right]
 $$
-Since $X \sim N_p(\theta, I)$, we have $E[\|X - \theta\|^2] = p$.
+Since $X \sim N_p(\theta, I)$, we have $E[\lVert X - \theta \rVert^2] = p$.
 $$
-R(\theta, d^{MLE}) = \frac{p}{\|\theta\|^2}
+R(\theta, d^{MLE}) = \frac{p}{\lVert \theta \rVert^2}
 $$
 
 **2. Risk of the James-Stein Estimator ($d^{JS}$)**
 
-For the James-Stein estimator $d^{JS} = \left( 1 - \frac{p-2}{\|X\|^2} \right)X$, we utilize the known result for its standard MSE risk:
+For the James-Stein estimator $d^{JS} = \left( 1 - \frac{p-2}{\lVert X \rVert^2} \right)X$, we utilize the known result for its standard MSE risk:
 $$
-E_\theta [\|d^{JS} - \theta\|^2] = p - (p-2)^2 E_\theta \left[ \frac{1}{\|X\|^2} \right]
+E_\theta [\lVert d^{JS} - \theta \rVert^2] = p - (p-2)^2 E_\theta \left[ \frac{1}{\lVert X \rVert^2} \right]
 $$
-The risk under the normalized loss is simply this term scaled by $1/\|\theta\|^2$:
+The risk under the normalized loss is simply this term scaled by $1/\lVert \theta \rVert^2$:
 $$
-R(\theta, d^{JS}) = \frac{1}{\|\theta\|^2} \left( p - (p-2)^2 E_\theta \left[ \frac{1}{\|X\|^2} \right] \right)
+R(\theta, d^{JS}) = \frac{1}{\lVert \theta \rVert^2} \left( p - (p-2)^2 E_\theta \left[ \frac{1}{\lVert X \rVert^2} \right] \right)
 $$
 
 **3. Comparison and Dominance**
 
 We compare the risks by taking the difference:
 $$
-R(\theta, d^{MLE}) - R(\theta, d^{JS}) = \frac{1}{\|\theta\|^2} (p-2)^2 E_\theta \left[ \frac{1}{\|X\|^2} \right]
+R(\theta, d^{MLE}) - R(\theta, d^{JS}) = \frac{1}{\lVert \theta \rVert^2} (p-2)^2 E_\theta \left[ \frac{1}{\lVert X \rVert^2} \right]
 $$
 Since $(p-2)^2 > 0$ (for $p \ge 3$) and the expectation of a positive random variable is positive, this difference is strictly positive for all $\theta \neq 0$.
 $$
@@ -1671,16 +1671,16 @@ $$
 
 * **Global Dominance:** The James-Stein estimator dominates the MLE under this loss function as well, achieving lower risk everywhere in the parameter space.
 * **Behavior near $\theta \approx 0$:**
-    As $\|\theta\| \to 0$, both risks diverge to infinity. We analyze their relative performance by examining the ratio of the risks:
+    As $\lVert \theta \rVert \to 0$, both risks diverge to infinity. We analyze their relative performance by examining the ratio of the risks:
     
     $$
-    \frac{R(\theta, d^{JS})}{R(\theta, d^{MLE})} = \frac{p - (p-2)^2 E_\theta [1/\|X\|^2]}{p} = 1 - \frac{(p-2)^2}{p} E_\theta \left[ \frac{1}{\|X\|^2} \right]
+    \frac{R(\theta, d^{JS})}{R(\theta, d^{MLE})} = \frac{p - (p-2)^2 E_\theta [1/\lVert X \rVert^2]}{p} = 1 - \frac{(p-2)^2}{p} E_\theta \left[ \frac{1}{\lVert X \rVert^2} \right]
     $$
 
-    At $\theta = 0$, $\|X\|^2 \sim \chi^2_p$, and the expectation is $E[1/\|X\|^2] = 1/(p-2)$. Substituting this into the ratio:
+    At $\theta = 0$, $\lVert X \rVert^2 \sim \chi^2_p$, and the expectation is $E[1/\lVert X \rVert^2] = 1/(p-2)$. Substituting this into the ratio:
 
     $$
-    \lim_{\|\theta\| \to 0} \frac{R(\theta, d^{JS})}{R(\theta, d^{MLE})} = 1 - \frac{(p-2)^2}{p(p-2)} = 1 - \frac{p-2}{p} = \frac{2}{p}
+    \lim_{\lVert \theta \rVert \to 0} \frac{R(\theta, d^{JS})}{R(\theta, d^{MLE})} = 1 - \frac{(p-2)^2}{p(p-2)} = 1 - \frac{p-2}{p} = \frac{2}{p}
     $$
 
     Thus, near the origin, the James-Stein estimator reduces the risk by a factor of $p/2$. For large dimensions (e.g., $p=10$), the JS estimator has only $20\%$ of the risk of the MLE.
@@ -1926,7 +1926,7 @@ $$\delta^{EB}(X) = \left( 1 - \hat{B} \right) X = \left( 1 - \frac{p-2}{||X||^2}
 
 **What We Learned**
 
-* **Adaptive Shrinkage:** The James-Stein estimator automatically adjusts the amount of shrinkage based on the observed total magnitude $\|X\|^2$. If the data suggests the true means are spread far from zero, $\|X\|^2$ will be large, $\hat{B}$ will be small, and we shrink less.
+* **Adaptive Shrinkage:** The James-Stein estimator automatically adjusts the amount of shrinkage based on the observed total magnitude $\lVert X \rVert^2$. If the data suggests the true means are spread far from zero, $\lVert X \rVert^2$ will be large, $\hat{B}$ will be small, and we shrink less.
 * **Unbiasedness of B:** Interestingly, while $\hat{B}$ is an unbiased estimator of the shrinkage factor, the resulting James-Stein estimator itself is biased toward the origin. This is a classic example of sacrificing unbiasedness to minimize total risk.
 
 
