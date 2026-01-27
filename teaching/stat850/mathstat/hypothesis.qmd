@@ -1,0 +1,406 @@
+---
+title: "Hypothesis Testing"
+engine: knitr
+format: 
+  html: default
+  pdf: default
+---
+
+## General Terminologies
+
+### Hypothesis Testing 
+
+We formulate the problem of hypothesis testing as deciding between two competing claims about a parameter $\theta$:
+
+$$
+H_0: \theta \in \Theta_0 \quad \text{(Null Hypothesis)}
+$$
+
+$$
+H_1: \theta \in \Theta_1 \quad \text{(Alternative Hypothesis)}
+$$
+
+::: {#def-simple-composite}
+### Simple and Composite Hypotheses
+A hypothesis is called **simple** if it specifies a single value for the parameter (e.g., $\Theta_0$ contains only one point). It is called **composite** if it specifies more than one value.
+:::
+
+::: {#exm-normal-hypotheses}
+### Normal Mean Test
+Let $X_1, \dots, X_n \overset{iid}{\sim} N(\mu, \sigma^2)$.
+
+* If $\sigma^2$ is known, $H_0: \mu = \mu_0$ is a simple hypothesis.
+* If $\sigma^2$ is unknown, $H_0: \mu = \mu_0$ is a composite hypothesis (since $\sigma^2$ can vary).
+:::
+
+### Test Functions and Size
+
+A test is defined by a **critical region** $C_\alpha$ such that we reject $H_0$ if the data $x \in C_\alpha$. Equivalently, we can define a **test function** $\phi(x)$ representing the probability of rejecting $H_0$ given data $x$.
+
+* A non-randomized test is given as follows:
+
+$$
+\phi(x) = I(x \in C_\alpha) = \begin{cases} 1 & \text{if } x \in C_\alpha \text{ (Reject } H_0 \text{)} \\ 0 & \text{otherwise} \end{cases}
+$$
+
+* A randomized test, $\phi(x)$ can take values in $[0, 1]$, which can be expressed typically as follows:
+
+
+   $$
+   \phi(x) = \begin{cases} 
+   1 & \text{if } x \in C_1 \\
+   \gamma & \text{if } x \in C_* \\
+   0 & \text{otherwise}
+   \end{cases}
+   $$
+
+   where:
+
+   * $C_1$ is the region where we strictly reject $H_0$.
+   * $C_*$ is the boundary region (often where $T(x) = k$) where we reject $H_0$ with probability $\gamma$.
+
+* More generally, $\phi(x)$ is just a function of $x$ with values in $[0,1]$, which represents the probability that we will reject $H_0$. 
+
+
+::: {#exm-randomized-test}
+### Randomized Test for Binomial
+Let $X \sim \text{Bin}(n=10, \theta)$. Consider testing $H_0: \theta = 1/2$ vs $H_1: \theta > 1/2$ with target size $\alpha = 0.05$.
+
+Suppose we choose a critical region $X \ge k$.
+
+* If $k=9$, $P(X \ge 9 | \theta=0.5) \approx 0.0107$.
+* If $k=8$, $P(X \ge 8 | \theta=0.5) \approx 0.0547$.
+
+Since we cannot achieve exactly 0.05 with a non-randomized test (the survival function jumps over 0.05), we must use a randomized test function.
+:::
+
+The randomized test is defined as:
+
+$$
+\phi(x) = \begin{cases} 
+1 & \text{if } x \in C_1 \text{ (i.e., } x \ge 9) \\
+\gamma & \text{if } x \in C_* \text{ (i.e., } x = 8) \\
+0 & \text{otherwise}
+\end{cases}
+$$
+
+From the figure, we see that $\alpha = 0.05$ lies between $P(X \ge 9)$ and $P(X \ge 8)$. We always reject the "tail" where probabilities are strictly less than $\alpha$ (here $x \ge 9$). At the boundary $x=8$, we cannot reject with probability 1 (which would give total size 0.0547), nor with probability 0 (which would give total size 0.0107).
+
+We choose $\gamma$ to bridge this gap:
+
+$$
+\begin{aligned}
+\alpha &= P(X \ge 9) + \gamma \cdot P(X = 8) \\
+0.05 &= 0.01074 + \gamma \cdot (P(X \ge 8) - P(X \ge 9)) \\
+0.05 &= 0.01074 + \gamma \cdot (0.05469 - 0.01074)
+\end{aligned}
+$$
+
+Solving for $\gamma$:
+
+$$
+\gamma = \frac{0.05 - 0.01074}{0.04395} \approx \frac{39}{44} \approx 0.89
+$$
+:::
+
+
+```{tikz fig-binomial-survival-full}
+%| fig-cap: "Full Survival Function P(X >= k) for Bin(10, 0.5) with zoomed detail for test construction."
+%| echo: false
+%| fig-align: "center"
+%| out-extra: 'style="width: 85% !important;"'
+%| engine.opts:
+%|   extra.preamble: "\\usetikzlibrary{patterns, spy}"
+
+\begin{tikzpicture}[
+    scale=1.2,
+    spy using outlines={circle, magnification=6, size=4cm, connect spies}
+]
+
+% Define Vertical Scale (Height of Prob=1)
+\def\ysc{5} 
+
+% Axes
+\draw[->] (-0.5,0) -- (11.5,0) node[right] {$k$};
+\draw[->] (0,0) -- (0,\ysc+0.5) node[above] {$P(X \ge k)$};
+
+% Ticks
+\foreach \x in {0,1,...,10} \draw (\x,0.1) -- (\x,-0.1) node[below] {\footnotesize \x};
+\draw (0.1, \ysc) -- (-0.1, \ysc) node[left] {\footnotesize 1.0};
+\draw (0.1, 0.5*\ysc) -- (-0.1, 0.5*\ysc) node[left] {\footnotesize 0.5};
+
+% Data Points for Bin(10, 0.5) Survival Function
+% 0: 1.000, 1: 0.999, 2: 0.989, 3: 0.945, 4: 0.828, 5: 0.623
+% 6: 0.377, 7: 0.172, 8: 0.0547, 9: 0.0107, 10: 0.001
+
+% Coordinates
+\coordinate (P0) at (0, 1.0*\ysc);
+\coordinate (P1) at (1, 0.999*\ysc);
+\coordinate (P2) at (2, 0.989*\ysc);
+\coordinate (P3) at (3, 0.945*\ysc);
+\coordinate (P4) at (4, 0.828*\ysc);
+\coordinate (P5) at (5, 0.623*\ysc);
+\coordinate (P6) at (6, 0.377*\ysc);
+\coordinate (P7) at (7, 0.172*\ysc);
+\coordinate (P8) at (8, 0.0547*\ysc);
+\coordinate (P9) at (9, 0.0107*\ysc);
+\coordinate (P10) at (10, 0.001*\ysc);
+
+% Draw the Curve (Sticks and Points)
+\foreach \i in {0,...,10} {
+    \draw[dashed, gray!50] (\i,0) -- (P\i);
+    \fill[blue] (P\i) circle (1.5pt);
+}
+% Connect tops for visual continuity (optional for discrete, but helps visualize "curve")
+\draw[blue, thin, opacity=0.5] (P0)--(P1)--(P2)--(P3)--(P4)--(P5)--(P6)--(P7)--(P8)--(P9)--(P10);
+
+% Alpha Line (Global)
+\draw[red, thick, dashed] (0, 0.05*\ysc) -- (11, 0.05*\ysc);
+\node[red, right] at (11, 0.05*\ysc) {$\alpha=0.05$};
+
+% The Spy Area (Zooming in on k=8,9 region)
+% We spy on the point (8, alpha_height) roughly
+\coordinate (SpyPoint) at (8, 0.05*\ysc);
+\spy [blue, size=3.5cm] on (SpyPoint) in node at (5, 3.5);
+
+% Annotations INSIDE the Spy (Relative to the zoomed coordinate system essentially)
+% Note: TikZ Spy just magnifies the drawing. To add labels ONLY visible in zoom, 
+% we usually draw them tiny or draw them on top of the spy node. 
+% Here, standard drawing works best if we accept they look small on main graph 
+% or we rely on the magnification to make them readable.
+
+% Let's clarify the logic with a label pointing to the spy node
+\node[right, align=left, font=\footnotesize] at (7.5, 3.5) {
+    \textbf{Zoom: Determination of $\gamma$}\\
+    At $k=8$, $P \approx 0.055 > \alpha$\\
+    At $k=9$, $P \approx 0.011 < \alpha$\\
+    We randomize at $k=8$.
+};
+
+\end{tikzpicture}
+```
+
+
+::: {#def-test-size}
+### Size of a Test
+The **size** of a test $\phi(x)$, denoted by $\alpha$, is the maximum probability of rejecting the null hypothesis when it is true:
+
+$$
+\alpha = \sup_{\theta \in \Theta_0} \text{Pr}(\text{Reject } H_0 \mid \theta) = \sup_{\theta \in \Theta_0} E_\theta[\phi(X)]
+$$
+:::
+
+
+## Power Function
+
+The **power function** of a test, denoted $W(\theta)$ or $\beta(\theta)$, is the probability of rejecting $H_0$ as a function of $\theta$:
+
+$$
+W(\theta) = E_\theta[\phi(X)]
+$$
+
+Ideally, we want:
+
+1.  $E_\theta[\phi(X)] \le \alpha$ for all $\theta \in \Theta_0$ (Size control).
+2.  $E_\theta[\phi(X)]$ to be as large as possible for $\theta \in \Theta_1$ (High power).
+
+## The Neyman-Pearson Lemma
+
+Consider testing a simple null against a simple alternative:
+$H_0: \theta = \theta_0$ vs $H_1: \theta = \theta_1$.
+
+We define the **Likelihood Ratio** $\Lambda(x)$ as:
+
+$$
+\Lambda(x) = \frac{f_1(x)}{f_0(x)} = \frac{f(x; \theta_1)}{f(x; \theta_0)}
+$$
+
+::: {#def-lrt}
+### Likelihood Ratio Test (LRT)
+A test $\phi(x)$ is a Likelihood Ratio Test if it has the form:
+
+$$
+\phi(x) = \begin{cases} 
+1 & \text{if } \Lambda(x) > k \\
+\gamma(x) & \text{if } \Lambda(x) = k \\
+0 & \text{if } \Lambda(x) < k
+\end{cases}
+$$
+
+where $k \ge 0$ is a constant and $0 \le \gamma(x) \le 1$.
+:::
+
+::: {#thm-neyman-pearson}
+### Neyman-Pearson Lemma
+**a) Optimality:** For any $k$ and $\gamma(x)$, the LRT $\phi_0(x)$ defined above has maximum power among all tests whose size is less than or equal to the size of $\phi_0(x)$.
+
+**b) Existence:** Given $\alpha \in (0, 1)$, there exist constants $k$ and $\gamma_0$ such that the LRT defined by this $k$ and $\gamma(x) = \gamma_0$ has size exactly $\alpha$.
+
+**c) Uniqueness:** If a test $\phi$ has size $\alpha$ and is of maximum power among all tests of size $\alpha$, then $\phi$ is necessarily an LRT, except possibly on a set of measure zero under $H_0$ and $H_1$.
+:::
+
+::: {.proof}
+**Proof of (a) Optimality:**
+Let $\phi_0$ be the LRT with size $\alpha$, and $\phi$ be any other test with size $\le \alpha$.
+Define $U(x) = (\phi_0(x) - \phi(x))(f_1(x) - k f_0(x))$.
+
+We analyze the sign of $U(x)$:
+
+* If $f_1(x) - k f_0(x) > 0 \implies \Lambda(x) > k$, then $\phi_0(x) = 1$. Since $\phi(x) \le 1$, $\phi_0(x) - \phi(x) \ge 0$. Thus $U(x) \ge 0$.
+* If $f_1(x) - k f_0(x) < 0 \implies \Lambda(x) < k$, then $\phi_0(x) = 0$. Since $\phi(x) \ge 0$, $\phi_0(x) - \phi(x) \le 0$. Thus $U(x) \ge 0$.
+* If $f_1(x) - k f_0(x) = 0$, then $U(x) = 0$.
+
+Therefore, $U(x) \ge 0$ for all $x$. Integrating $U(x)$:
+
+$$
+\int U(x) dx = \int (\phi_0 - \phi)(f_1 - k f_0) dx \ge 0
+$$
+
+Expanding the integral:
+
+$$
+\int \phi_0 f_1 - \int \phi f_1 - k \left( \int \phi_0 f_0 - \int \phi f_0 \right) \ge 0
+$$
+
+$$
+E_{\theta_1}[\phi_0] - E_{\theta_1}[\phi] - k (E_{\theta_0}[\phi_0] - E_{\theta_0}[\phi]) \ge 0
+$$
+
+Since $E_{\theta_0}[\phi_0] = \alpha$ and $E_{\theta_0}[\phi] \le \alpha$, the term $(E_{\theta_0}[\phi_0] - E_{\theta_0}[\phi]) \ge 0$. Given $k \ge 0$:
+
+$$
+E_{\theta_1}[\phi_0] - E_{\theta_1}[\phi] \ge 0 \implies \text{Power}(\phi_0) \ge \text{Power}(\phi)
+$$
+:::
+
+::: {.proof}
+**Proof of (b) Existence:**
+Let $G(k) = P_{\theta_0}(\Lambda(X) \le k)$. $G(k)$ is the cumulative distribution function of the random variable $\Lambda(X)$, so it is non-decreasing.
+We seek $k_0$ such that $1 - G(k_0) \approx \alpha$.
+Because of discrete jumps, we might not hit $\alpha$ exactly.
+We choose $k_0$ such that:
+
+$$
+P_{\theta_0}(\Lambda(X) > k_0) \le \alpha \le P_{\theta_0}(\Lambda(X) \ge k_0)
+$$
+
+Set $\gamma_0 = \frac{\alpha - P_{\theta_0}(\Lambda(X) > k_0)}{P_{\theta_0}(\Lambda(X) = k_0)}$.
+:::
+
+## Uniformly Most Powerful (UMP) Tests
+
+When the alternative hypothesis is composite ($H_1: \theta \in \Theta_1$), we seek a test that is "best" for *all* $\theta \in \Theta_1$.
+
+::: {#def-ump}
+### Uniformly Most Powerful Test
+A test $\phi_0(x)$ of size $\alpha$ is **Uniformly Most Powerful (UMP)** if:
+
+1.  $E_{\theta}[\phi_0(X)] \le \alpha$ for all $\theta \in \Theta_0$.
+2.  For any other test $\phi(x)$ satisfying (1), $E_{\theta}[\phi_0(X)] \ge E_{\theta}[\phi(X)]$ for all $\theta \in \Theta_1$.
+:::
+
+```{tikz fig-ump-power}
+%| fig-cap: "Power functions of UMP test vs. another test"
+%| echo: false
+%| fig-align: "center"
+%| out-extra: 'style="width: 70% !important;"'
+
+\begin{tikzpicture}
+\draw[->] (0,0) -- (6,0) node[right] {$\theta$};
+\draw[->] (0,0) -- (0,4) node[above] {Power $W(\theta)$};
+
+\draw[dashed] (3,0) -- (3,4);
+\node at (3,-0.3) {$\theta_0$};
+\node at (1.5, -0.3) {$\Theta_0$};
+\node at (4.5, -0.3) {$\Theta_1$};
+
+\draw[thick, blue] (0,0.5) .. controls (2,0.6) and (3,1.5) .. (6,3.5) node[right] {$\phi_0$ (UMP)};
+\draw[thick, red] (0,0.8) .. controls (2,0.9) and (3,1.5) .. (6,2.5) node[right] {$\phi$};
+
+\draw[dotted] (0,1.5) -- (3,1.5);
+\node at (-0.3, 1.5) {$\alpha$};
+
+\end{tikzpicture}
+```
+
+::: {#exm-ump-gamma}
+### UMP Test for Exponential/Gamma
+Let $X_1, \dots, X_n \overset{iid}{\sim} \text{Exp}(\theta)$ with pdf $f(x) = \frac{1}{\theta} e^{-x/\theta}$.
+Test $H_0: \theta = \theta_0$ vs $H_1: \theta > \theta_0$.
+The sum $T = \sum X_i$ is a sufficient statistic, and $T \sim \text{Gamma}(n, \theta)$.
+
+The Likelihood Ratio for $\theta_1 > \theta_0$ is:
+
+$$
+\frac{L(\theta_1)}{L(\theta_0)} = \frac{\theta_1^{-n} e^{-\sum x_i / \theta_1}}{\theta_0^{-n} e^{-\sum x_i / \theta_0}} = \left(\frac{\theta_0}{\theta_1}\right)^n \exp \left\{ \left( \frac{1}{\theta_0} - \frac{1}{\theta_1} \right) \sum x_i \right\}
+$$
+
+Since $\theta_1 > \theta_0$, the term $(\frac{1}{\theta_0} - \frac{1}{\theta_1})$ is positive. Thus, $\Lambda(x)$ is an increasing function of $\sum x_i$.
+Rejecting for large $\Lambda(x)$ is equivalent to rejecting for $\sum x_i > C$.
+
+This test form does not depend on the specific $\theta_1$, so it is UMP for all $\theta > \theta_0$.
+:::
+
+## Monotone Likelihood Ratio (MLR)
+
+::: {#def-mlr}
+### Monotone Likelihood Ratio
+A family of densities $\{f(x; \theta)\}$ has a **Monotone Likelihood Ratio (MLR)** with respect to a statistic $T(x)$ if for any $\theta_1 > \theta_0$, the ratio:
+
+$$
+\frac{f(x; \theta_1)}{f(x; \theta_0)}
+$$
+
+is a non-decreasing function of $T(x)$.
+:::
+
+Common examples include the one-parameter Exponential Family:
+$f(x; \theta) = h(x) c(\theta) \exp\{w(\theta) T(x)\}$.
+If $w(\theta)$ is increasing, the family has MLR w.r.t $T(x)$.
+
+::: {#thm-karlin-rubin}
+### Karlin-Rubin Theorem (Theorem 4.2)
+Suppose $X$ has a distribution from a family with MLR with respect to $T(X)$, and the distribution of $T(X)$ is continuous.
+Consider testing $H_0: \theta \le \theta_0$ vs $H_1: \theta > \theta_0$.
+
+The test:
+
+$$
+\phi(x) = \begin{cases} 
+1 & \text{if } T(x) > t_0 \\
+0 & \text{if } T(x) \le t_0
+\end{cases}
+$$
+
+where $t_0$ is determined by $P_{\theta_0}(T(X) > t_0) = \alpha$, is the UMP size $\alpha$ test.
+:::
+
+```{tikz fig-mlr-dist}
+%| fig-cap: "Distribution of statistic T under H0 and H1 with MLR"
+%| echo: false
+%| fig-align: "center"
+%| out-extra: 'style="width: 70% !important;"'
+%| engine.opts:
+%|   extra.preamble: "\\usetikzlibrary{patterns}"
+
+\begin{tikzpicture}
+\draw[->] (0,0) -- (6,0) node[right] {$t$};
+\draw[->] (0,0) -- (0,3);
+
+\draw[thick, blue] plot [smooth, tension=0.7] coordinates {(0,0) (1,2.5) (2,0.5) (5,0.1)};
+\node[blue] at (1, 2.7) {$f(t|\theta_0)$};
+
+\draw[thick, red] plot [smooth, tension=0.7] coordinates {(0,0) (2,0.5) (3,2.5) (5,0.2)};
+\node[red] at (3, 2.7) {$f(t|\theta_1)$};
+
+\draw[dashed] (3.5, 0) -- (3.5, 2);
+\node at (3.5, -0.3) {$t_0$};
+
+\fill[pattern=north east lines, pattern color=black] (3.5,0) -- plot[smooth, tension=0.7] coordinates {(3.5, 0.1) (5,0.1)} -- (5,0) -- cycle;
+\node at (4.2, 0.5) {$\alpha$};
+
+\end{tikzpicture}
+```
+
+### Note on Two-Sided Hypotheses
+For testing $H_0: \theta = \theta_0$ vs $H_1: \theta \neq \theta_0$ (e.g., in a Normal distribution), a UMP test generally **does not exist**. This is because the "best" rejection region for $\theta > \theta_0$ (right tail) is completely different from the "best" region for $\theta < \theta_0$ (left tail).

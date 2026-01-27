@@ -42,12 +42,16 @@ plotting commands here
 ```
 
 * Specific instructions for making assignments:
-    - The solutions should be put in this format:
-    ```{asis}
+* 
+    - Solution is put in solution division in this format:
+    - 
     ::: {.sol}
     Content of solution
     :::
-    ```
+
     - Each question should be header level 2 (##).
 
 * Using \lVert \rVert to write || ||
+
+* Don't place floating figures like table and figure inside divisions like theorem, definition, example, proof, etc.
+* 
