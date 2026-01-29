@@ -245,11 +245,12 @@ window.Quarto = {
   </ul></li>
   <li><a href="#steins-lemma" id="toc-steins-lemma" class="nav-link" data-scroll-target="#steins-lemma"><span class="header-section-number">3.5.4</span> Stein’s Lemma</a></li>
   <li><a href="#inadmissibility-of-the-mle-in-high-dimensions-steins-phenomenon" id="toc-inadmissibility-of-the-mle-in-high-dimensions-steins-phenomenon" class="nav-link" data-scroll-target="#inadmissibility-of-the-mle-in-high-dimensions-steins-phenomenon"><span class="header-section-number">3.5.5</span> Inadmissibility of the MLE in High Dimensions (Stein’s Phenomenon)</a></li>
-  <li><a href="#risk-comparison-under-normalized-loss-optional" id="toc-risk-comparison-under-normalized-loss-optional" class="nav-link" data-scroll-target="#risk-comparison-under-normalized-loss-optional"><span class="header-section-number">3.5.6</span> Risk Comparison under Normalized Loss (Optional)</a></li>
-  <li><a href="#bayes-risk-of-james-stein-estimator-optional" id="toc-bayes-risk-of-james-stein-estimator-optional" class="nav-link" data-scroll-target="#bayes-risk-of-james-stein-estimator-optional"><span class="header-section-number">3.5.7</span> Bayes Risk of James-stein Estimator (Optional)</a></li>
-  <li><a href="#practical-application-one-way-anova-and-borrowing-strength" id="toc-practical-application-one-way-anova-and-borrowing-strength" class="nav-link" data-scroll-target="#practical-application-one-way-anova-and-borrowing-strength"><span class="header-section-number">3.5.8</span> Practical Application: One-way ANOVA and “Borrowing Strength”</a></li>
-  <li><a href="#why-is-this-paradoxical" id="toc-why-is-this-paradoxical" class="nav-link" data-scroll-target="#why-is-this-paradoxical"><span class="header-section-number">3.5.9</span> Why Is This Paradoxical?</a></li>
-  <li><a href="#what-we-learned" id="toc-what-we-learned" class="nav-link" data-scroll-target="#what-we-learned"><span class="header-section-number">3.5.10</span> What We Learned</a></li>
+  <li><a href="#how-much-js-estimator-improves-over-mle" id="toc-how-much-js-estimator-improves-over-mle" class="nav-link" data-scroll-target="#how-much-js-estimator-improves-over-mle"><span class="header-section-number">3.5.6</span> How much JS Estimator Improves over MLE</a></li>
+  <li><a href="#using-normalized-loss-optional" id="toc-using-normalized-loss-optional" class="nav-link" data-scroll-target="#using-normalized-loss-optional"><span class="header-section-number">3.5.7</span> Using Normalized Loss (Optional)</a></li>
+  <li><a href="#bayes-risk-of-james-stein-estimator-optional" id="toc-bayes-risk-of-james-stein-estimator-optional" class="nav-link" data-scroll-target="#bayes-risk-of-james-stein-estimator-optional"><span class="header-section-number">3.5.8</span> Bayes Risk of James-stein Estimator (Optional)</a></li>
+  <li><a href="#practical-application-one-way-anova-and-borrowing-strength" id="toc-practical-application-one-way-anova-and-borrowing-strength" class="nav-link" data-scroll-target="#practical-application-one-way-anova-and-borrowing-strength"><span class="header-section-number">3.5.9</span> Practical Application: One-way ANOVA and “Borrowing Strength”</a></li>
+  <li><a href="#why-is-this-paradoxical" id="toc-why-is-this-paradoxical" class="nav-link" data-scroll-target="#why-is-this-paradoxical"><span class="header-section-number">3.5.10</span> Why Is This Paradoxical?</a></li>
+  <li><a href="#what-we-learned" id="toc-what-we-learned" class="nav-link" data-scroll-target="#what-we-learned"><span class="header-section-number">3.5.11</span> What We Learned</a></li>
   </ul></li>
   <li><a href="#empirical-bayes-rules" id="toc-empirical-bayes-rules" class="nav-link" data-scroll-target="#empirical-bayes-rules"><span class="header-section-number">3.6</span> Empirical Bayes Rules</a>
   <ul>
@@ -671,7 +672,7 @@ m(x) = \int_{\Theta} f(x|\theta)\pi(\theta) d\theta
 <p>The following diagram summarizes the general workflow for deriving a Bayes estimator:</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-bayes-workflow" class="quarto-float quarto-figure quarto-figure-center anchored" style="width: 80% !important;" data-fig-align="center">
+<div id="fig-bayes-workflow" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" style="width: 80% !important;">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-bayes-workflow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="bayesian_files/figure-html/fig-bayes-workflow-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width: 80% !important;" width="576">
@@ -1296,6 +1297,90 @@ R(\theta, d_0) &amp;= E^{X|\theta} \left[ \left( \frac{d_0}{\theta} - 1 \right)^
 <li>Jame-Stein Estimator:</li>
 </ul>
 <p><span class="math display">\[d^{JS}(X) = \left( 1 - \frac{p-2}{||X||^2} \right) X\]</span></p>
+<p>The James-Stein estimator improves upon the MLE by shrinking the individual observations toward a common mean (usually zero). The magnitude of this shrinkage depends on the total sum of squares of the observations.</p>
+<ul>
+<li>When the variance of <span class="math inline">\(\theta\)</span> is large, <span class="math inline">\(||X||^2\)</span> tends to be large, resulting in less shrinkage.</li>
+<li>When the variance of <span class="math inline">\(\theta\)</span> is small, <span class="math inline">\(||X||^2\)</span> is smaller, leading to a larger shrinkage factor.</li>
+</ul>
+<p>The following R code simulates these two cases and displays them side-by-side with a shared y-axis for direct comparison.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(latex2exp)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="dv">20</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>sigma1 <span class="ot">&lt;-</span> <span class="dv">3</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>sigma2 <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>simulate_js <span class="ot">&lt;-</span> <span class="cf">function</span>(sigma, p_dim) {</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  theta <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(p_dim, <span class="dv">0</span>, sigma)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  X <span class="ot">&lt;-</span> theta <span class="sc">+</span> <span class="fu">rnorm</span>(p_dim, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  sum_x_sq <span class="ot">&lt;-</span> <span class="fu">sum</span>(X<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  shrinkage_factor <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="dv">0</span>, <span class="dv">1</span> <span class="sc">-</span> (p_dim <span class="sc">-</span> <span class="dv">2</span>) <span class="sc">/</span> sum_x_sq)</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  js_est <span class="ot">&lt;-</span> shrinkage_factor <span class="sc">*</span> X</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span>p_dim,</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">X_i =</span> X,</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">JS_i =</span> js_est</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>df_large <span class="ot">&lt;-</span> <span class="fu">simulate_js</span>(sigma1, p)</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>df_small <span class="ot">&lt;-</span> <span class="fu">simulate_js</span>(sigma2, p)</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>y_lims <span class="ot">&lt;-</span> <span class="fu">range</span>(<span class="fu">c</span>(df_large<span class="sc">$</span>X_i, df_small<span class="sc">$</span>X_i))</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>create_plot <span class="ot">&lt;-</span> <span class="cf">function</span>(df, title, y_limits) {</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>  df_long <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">c</span>(X_i, JS_i), <span class="at">names_to =</span> <span class="st">"Est"</span>, <span class="at">values_to =</span> <span class="st">"Value"</span>)</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(df_long, <span class="fu">aes</span>(<span class="at">x =</span> i, <span class="at">y =</span> Value, <span class="at">color =</span> Est, <span class="at">shape =</span> Est)) <span class="sc">+</span></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_color_manual</span>(</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>      <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"X_i"</span> <span class="ot">=</span> <span class="st">"tomato"</span>, <span class="st">"JS_i"</span> <span class="ot">=</span> <span class="st">"blue"</span>),</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>      <span class="at">labels =</span> <span class="fu">unname</span>(<span class="fu">TeX</span>(<span class="fu">c</span>(<span class="st">"$</span><span class="sc">\\</span><span class="st">hat{</span><span class="sc">\\</span><span class="st">theta}_i^{JS}$"</span>, <span class="st">"$X_i$"</span>)))</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_shape_manual</span>(</span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>      <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"X_i"</span> <span class="ot">=</span> <span class="dv">4</span>, <span class="st">"JS_i"</span> <span class="ot">=</span> <span class="dv">16</span>),</span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>      <span class="at">labels =</span> <span class="fu">unname</span>(<span class="fu">TeX</span>(<span class="fu">c</span>(<span class="st">"$</span><span class="sc">\\</span><span class="st">hat{</span><span class="sc">\\</span><span class="st">theta}_i^{JS}$"</span>, <span class="st">"$X_i$"</span>)))</span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ylim</span>(y_limits) <span class="sc">+</span></span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(</span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>      <span class="at">title =</span> title,</span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>      <span class="at">x =</span> <span class="fu">TeX</span>(<span class="st">"Index $i$"</span>),</span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> <span class="fu">TeX</span>(<span class="st">"Value"</span>),</span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>      <span class="at">color =</span> <span class="st">"Estimator"</span>,</span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>      <span class="at">shape =</span> <span class="st">"Estimator"</span></span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">create_plot</span>(df_large, <span class="fu">TeX</span>(<span class="st">"Large $</span><span class="sc">\\</span><span class="st">sigma^2$ (Less Shrinkage)"</span>), y_lims)</span>
+<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">create_plot</span>(df_small, <span class="fu">TeX</span>(<span class="st">"Small $</span><span class="sc">\\</span><span class="st">sigma^2$ (More Shrinkage)"</span>), y_lims)</span>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine with patchwork, collect guides at the bottom</span></span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a>p1 <span class="sc">+</span> p2 <span class="sc">+</span> </span>
+<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">"collect"</span>) <span class="sc">&amp;</span> </span>
+<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-stein-vs-mle" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-stein-vs-mle-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="bayesian_files/figure-html/fig-stein-vs-mle-1.png" class="img-fluid figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-stein-vs-mle-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.5: Visualization of JS Estimator
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="the-maximum-likelihood-estimator" class="level3" data-number="3.5.2">
 <h3 data-number="3.5.2" class="anchored" data-anchor-id="the-maximum-likelihood-estimator"><span class="header-section-number">3.5.2</span> The Maximum Likelihood Estimator</h3>
@@ -1601,15 +1686,21 @@ R(\theta, d^{JS}) &amp;= p - 2(p-2)^2 E^{X|\theta} \left[ \frac{1}{\lVert X \rVe
 <p>Since <span class="math inline">\(p \ge 3\)</span>, the constant <span class="math inline">\((p-2)^2\)</span> is strictly positive. Because <span class="math inline">\(1/\lVert X \rVert^2 &gt; 0\)</span> with probability 1, the risk of the James-Stein estimator is strictly less than <span class="math inline">\(p\)</span> for all <span class="math inline">\(\theta \in \mathbb{R}^p\)</span>.</p>
 <p>Thus, <span class="math inline">\(d^{JS}\)</span> dominates the MLE, proving the MLE is inadmissible.</p>
 </div>
-<p><strong>Interpretation:</strong></p>
-<p>The term <span class="math inline">\((p-2)^2 E^{X|\theta} \left[ \frac{1}{\lVert X \rVert^2} \right]\)</span> represents the reduction in risk provided by the James-Stein estimator.</p>
+</section>
+<section id="how-much-js-estimator-improves-over-mle" class="level3" data-number="3.5.6">
+<h3 data-number="3.5.6" class="anchored" data-anchor-id="how-much-js-estimator-improves-over-mle"><span class="header-section-number">3.5.6</span> How much JS Estimator Improves over MLE</h3>
+<p>The exact risk function of the James-Stein estimator <span class="math inline">\(d^{JS}(X)\)</span> under squared error loss for <span class="math inline">\(X \sim N_p(\theta, I)\)</span> is given by:</p>
+<p><span class="math display">\[R(\theta, d^{JS}) = p - (p-2)^2 E \left[ \frac{1}{\chi_p^2(\|\theta\|^2/2)} \right]\]</span></p>
+<p>where <span class="math inline">\(\chi_p^2(\|\theta\|^2/2)\)</span> is a non-central chi-square random variable with <span class="math inline">\(p\)</span> degrees of freedom and non-centrality parameter <span class="math inline">\(\lambda = \|\theta\|^2/2\)</span>.</p>
+<p>Using the approximation <span class="math inline">\(E[1/\chi_p^2(\lambda)] \approx 1/E[\chi_p^2(\lambda)] = 1/(p + \|\theta\|^2)\)</span>, we can see the approximate behavior of the risk:</p>
+<p><span class="math display">\[R(\theta, d^{JS}) \approx p - \frac{(p-2)^2}{p + \|\theta\|^2}\]</span></p>
 <ul>
-<li><p>When the observed signal <span class="math inline">\(\lVert X \rVert^2\)</span> is large (implying <span class="math inline">\(\lVert \theta \rVert^2\)</span> is likely large), the term <span class="math inline">\(1/\lVert X \rVert^2\)</span> is small. Consequently, the risk of the James-Stein estimator approaches that of the MLE (<span class="math inline">\(p\)</span>), and the improvement is negligible.</p></li>
-<li><p>When the observed signal <span class="math inline">\(\lVert X \rVert^2\)</span> is small (implying <span class="math inline">\(\lVert \theta \rVert^2\)</span> is likely near zero), the term <span class="math inline">\(1/\lVert X \rVert^2\)</span> is large. In this scenario, the James-Stein estimator shrinks the estimate aggressively toward zero, resulting in a risk substantially lower than <span class="math inline">\(p\)</span>.</p></li>
+<li><p><strong>Aggressive Shrinkage near the Origin</strong>: When <span class="math inline">\(\|\theta\|^2\)</span> is small, the denominator <span class="math inline">\(p + \|\theta\|^2\)</span> is small, making the subtracted term large. This results in a risk substantially lower than the MLE risk of <span class="math inline">\(p\)</span>.</p></li>
+<li><p><strong>Diminishing Improvement with Large Signal</strong>: As <span class="math inline">\(\|\theta\|^2\)</span> becomes large, the term <span class="math inline">\(\frac{(p-2)^2}{p + \|\theta\|^2}\)</span> approaches zero. Consequently, the risk of the James-Stein estimator approaches <span class="math inline">\(p\)</span>, and the improvement over the MLE becomes negligible.</p></li>
 </ul>
-<p><strong>Risk Ratio near the Origin</strong>: As the true parameter vector shrinks to zero (<span class="math inline">\(\lVert \theta \rVert \to 0\)</span>), the ratio of the risks converges to a constant fraction. We substitute the expectation <span class="math inline">\(E^{X|\theta=0}[1/\lVert X \rVert^2] = 1/(p-2)\)</span> directly into the numerator:</p>
+<p><strong>Risk Ratio near the Origin</strong>: As the true parameter vector shrinks to zero (<span class="math inline">\(\|\theta\| \to 0\)</span>), the ratio of the risks converges to a constant fraction. Using the exact expectation <span class="math inline">\(E^{X|\theta=0}[1/\|X\|^2] = 1/(p-2)\)</span>:</p>
 <p><span class="math display">\[
-\lim_{\lVert \theta \rVert \to 0} \frac{R(\theta, d^{JS})}{R(\theta, d^{\text{MLE}})} = \frac{p - (p-2)^2 \left( \frac{1}{p-2} \right)}{p} = \frac{p - (p-2)}{p} = \frac{2}{p}
+\lim_{\|\theta\| \to 0} \frac{R(\theta, d^{JS})}{R(\theta, d^{\text{MLE}})} = \frac{p - (p-2)^2 \left( \frac{1}{p-2} \right)}{p} = \frac{p - (p-2)}{p} = \frac{2}{p}
 \]</span></p>
 <p>For a dimension like <span class="math inline">\(p=10\)</span>, the James-Stein estimator incurs only <span class="math inline">\(20\%\)</span> of the risk of the MLE near the origin.</p>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -1632,80 +1723,80 @@ R(\theta, d^{JS}) &amp;= p - 2(p-2)^2 E^{X|\theta} \left[ \frac{1}{\lVert X \rVe
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(latex2exp)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Parameters</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="dv">17</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>theta_sq <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">50</span>, <span class="at">length.out =</span> <span class="dv">300</span>)</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Create Data Frame</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a> <span class="at">theta_sq =</span> theta_sq,</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a> <span class="at">risk_mle =</span> p,</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a> <span class="at">risk_js =</span> p <span class="sc">-</span> (p <span class="sc">-</span> <span class="dv">2</span>)<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> (p <span class="sc">-</span> <span class="dv">2</span> <span class="sc">+</span> theta_sq)</span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate Ratio</span></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>ratio <span class="ot">&lt;-</span> df<span class="sc">$</span>risk_js <span class="sc">/</span> p</span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="co"># --- FIX: ADJUST SCALING FACTOR ---</span></span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="co"># We scale the Ratio so 1.0 sits at y = 12 (top of plot),</span></span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="co"># rather than y = 10, to separate it from the Risk curve.</span></span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>y_max_limit <span class="ot">&lt;-</span> p<span class="sc">+</span><span class="dv">1</span></span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>scale_factor <span class="ot">&lt;-</span> y_max_limit</span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Define Legend Labels</span></span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>labels_map <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a> <span class="st">"MLE"</span> <span class="ot">=</span> <span class="fu">TeX</span>(r<span class="st">'($R(</span><span class="sc">\t</span><span class="st">heta, d^{MLE}) = p$)'</span>),</span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a> <span class="st">"JS"</span> <span class="ot">=</span> <span class="fu">TeX</span>(r<span class="st">'($R(</span><span class="sc">\t</span><span class="st">heta, d^{JS})$)'</span>),</span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a> <span class="st">"Ratio"</span> <span class="ot">=</span> <span class="fu">TeX</span>(r<span class="st">'(Ratio $</span><span class="sc">\f</span><span class="st">rac{R(</span><span class="sc">\t</span><span class="st">heta, d^{JS})}{R(</span><span class="sc">\t</span><span class="st">heta, d^{MLE})}$)'</span>)</span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> theta_sq)) <span class="sc">+</span></span>
-<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a> <span class="co"># 1. MLE Risk Line (Red Dashed)</span></span>
-<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a> <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> risk_mle, <span class="at">color =</span> <span class="st">"MLE"</span>, <span class="at">linetype =</span> <span class="st">"MLE"</span>), <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a> <span class="co"># 2. JS Risk Line (Blue Solid)</span></span>
-<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a> <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> risk_js, <span class="at">color =</span> <span class="st">"JS"</span>, <span class="at">linetype =</span> <span class="st">"JS"</span>), <span class="at">size =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
-<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a> <span class="co"># 3. Ratio Line (Green Dot-Dash)</span></span>
-<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a> <span class="co"># We scale it up to occupy the full plot height</span></span>
-<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a> <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> ratio <span class="sc">*</span> scale_factor, <span class="at">color =</span> <span class="st">"Ratio"</span>, <span class="at">linetype =</span> <span class="st">"Ratio"</span>), <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a> <span class="co"># Axes Configuration</span></span>
-<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a> <span class="fu">scale_y_continuous</span>(</span>
-<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>  <span class="at">name =</span> <span class="st">"Risk"</span>,</span>
-<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>  <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, y_max_limit),</span>
-<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Secondary Axis: Divide back by the NEW scale factor</span></span>
-<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>  <span class="at">sec.axis =</span> <span class="fu">sec_axis</span>(<span class="sc">~</span> . <span class="sc">/</span> scale_factor, <span class="at">name =</span> <span class="st">"Risk Ratio"</span>)</span>
-<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a> ) <span class="sc">+</span></span>
-<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a> <span class="co"># Manual Colors and Linetypes</span></span>
-<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a> <span class="fu">scale_color_manual</span>(</span>
-<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>  <span class="at">name =</span> <span class="cn">NULL</span>,</span>
-<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>  <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"MLE"</span> <span class="ot">=</span> <span class="st">"firebrick"</span>, <span class="st">"JS"</span> <span class="ot">=</span> <span class="st">"dodgerblue"</span>, <span class="st">"Ratio"</span> <span class="ot">=</span> <span class="st">"forestgreen"</span>),</span>
-<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>  <span class="at">labels =</span> labels_map</span>
-<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a> ) <span class="sc">+</span></span>
-<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a> <span class="fu">scale_linetype_manual</span>(</span>
-<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a>  <span class="at">name =</span> <span class="cn">NULL</span>,</span>
-<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a>  <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"MLE"</span> <span class="ot">=</span> <span class="st">"dashed"</span>, <span class="st">"JS"</span> <span class="ot">=</span> <span class="st">"solid"</span>, <span class="st">"Ratio"</span> <span class="ot">=</span> <span class="st">"dotdash"</span>),</span>
-<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a>  <span class="at">labels =</span> labels_map</span>
-<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a> ) <span class="sc">+</span></span>
-<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a> <span class="co"># Theming</span></span>
-<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a> <span class="fu">labs</span>(</span>
-<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a>   <span class="at">title =</span> <span class="fu">TeX</span>(<span class="fu">sprintf</span>(r<span class="st">'(Risk Comparison of Estimators ($p=%d$))'</span>, p)),  </span>
-<span id="cb8-65"><a href="#cb8-65" aria-hidden="true" tabindex="-1"></a>   <span class="at">x =</span> <span class="fu">TeX</span>(r<span class="st">'($|| </span><span class="sc">\t</span><span class="st">heta ||^2$ (Signal Strength))'</span>)</span>
-<span id="cb8-66"><a href="#cb8-66" aria-hidden="true" tabindex="-1"></a> ) <span class="sc">+</span></span>
-<span id="cb8-67"><a href="#cb8-67" aria-hidden="true" tabindex="-1"></a> <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb8-68"><a href="#cb8-68" aria-hidden="true" tabindex="-1"></a> <span class="fu">theme</span>(</span>
-<span id="cb8-69"><a href="#cb8-69" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend.position =</span> <span class="fu">c</span>(<span class="fl">0.95</span>, <span class="fl">0.5</span>),</span>
-<span id="cb8-70"><a href="#cb8-70" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend.justification =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="fl">0.5</span>),</span>
-<span id="cb8-71"><a href="#cb8-71" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="st">"white"</span>, <span class="at">color =</span> <span class="st">"gray80"</span>),</span>
-<span id="cb8-72"><a href="#cb8-72" aria-hidden="true" tabindex="-1"></a>  <span class="at">axis.title.y.right =</span> <span class="fu">element_text</span>(<span class="at">color =</span> <span class="st">"forestgreen"</span>),</span>
-<span id="cb8-73"><a href="#cb8-73" aria-hidden="true" tabindex="-1"></a>  <span class="at">axis.text.y.right =</span> <span class="fu">element_text</span>(<span class="at">color =</span> <span class="st">"forestgreen"</span>)</span>
-<span id="cb8-74"><a href="#cb8-74" aria-hidden="true" tabindex="-1"></a> )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(latex2exp)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Parameters</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="dv">17</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>theta_sq <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">50</span>, <span class="at">length.out =</span> <span class="dv">300</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Create Data Frame</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a> <span class="at">theta_sq =</span> theta_sq,</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a> <span class="at">risk_mle =</span> p,</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a> <span class="at">risk_js =</span> p <span class="sc">-</span> (p <span class="sc">-</span> <span class="dv">2</span>)<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> (p <span class="sc">-</span> <span class="dv">2</span> <span class="sc">+</span> theta_sq)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate Ratio</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>ratio <span class="ot">&lt;-</span> df<span class="sc">$</span>risk_js <span class="sc">/</span> p</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="co"># --- FIX: ADJUST SCALING FACTOR ---</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="co"># We scale the Ratio so 1.0 sits at y = 12 (top of plot),</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="co"># rather than y = 10, to separate it from the Risk curve.</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>y_max_limit <span class="ot">&lt;-</span> p<span class="sc">+</span><span class="dv">1</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>scale_factor <span class="ot">&lt;-</span> y_max_limit</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Define Legend Labels</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>labels_map <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a> <span class="st">"MLE"</span> <span class="ot">=</span> <span class="fu">TeX</span>(r<span class="st">'($R(</span><span class="sc">\t</span><span class="st">heta, d^{MLE}) = p$)'</span>),</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a> <span class="st">"JS"</span> <span class="ot">=</span> <span class="fu">TeX</span>(r<span class="st">'($R(</span><span class="sc">\t</span><span class="st">heta, d^{JS})$)'</span>),</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a> <span class="st">"Ratio"</span> <span class="ot">=</span> <span class="fu">TeX</span>(r<span class="st">'(Ratio $</span><span class="sc">\f</span><span class="st">rac{R(</span><span class="sc">\t</span><span class="st">heta, d^{JS})}{R(</span><span class="sc">\t</span><span class="st">heta, d^{MLE})}$)'</span>)</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> theta_sq)) <span class="sc">+</span></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a> <span class="co"># 1. MLE Risk Line (Red Dashed)</span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a> <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> risk_mle, <span class="at">color =</span> <span class="st">"MLE"</span>, <span class="at">linetype =</span> <span class="st">"MLE"</span>), <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a> <span class="co"># 2. JS Risk Line (Blue Solid)</span></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a> <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> risk_js, <span class="at">color =</span> <span class="st">"JS"</span>, <span class="at">linetype =</span> <span class="st">"JS"</span>), <span class="at">size =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a> <span class="co"># 3. Ratio Line (Green Dot-Dash)</span></span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a> <span class="co"># We scale it up to occupy the full plot height</span></span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a> <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> ratio <span class="sc">*</span> scale_factor, <span class="at">color =</span> <span class="st">"Ratio"</span>, <span class="at">linetype =</span> <span class="st">"Ratio"</span>), <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a> <span class="co"># Axes Configuration</span></span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a> <span class="fu">scale_y_continuous</span>(</span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>  <span class="at">name =</span> <span class="st">"Risk"</span>,</span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>  <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, y_max_limit),</span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Secondary Axis: Divide back by the NEW scale factor</span></span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>  <span class="at">sec.axis =</span> <span class="fu">sec_axis</span>(<span class="sc">~</span> . <span class="sc">/</span> scale_factor, <span class="at">name =</span> <span class="st">"Risk Ratio"</span>)</span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a> ) <span class="sc">+</span></span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a> <span class="co"># Manual Colors and Linetypes</span></span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a> <span class="fu">scale_color_manual</span>(</span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>  <span class="at">name =</span> <span class="cn">NULL</span>,</span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>  <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"MLE"</span> <span class="ot">=</span> <span class="st">"firebrick"</span>, <span class="st">"JS"</span> <span class="ot">=</span> <span class="st">"dodgerblue"</span>, <span class="st">"Ratio"</span> <span class="ot">=</span> <span class="st">"forestgreen"</span>),</span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>  <span class="at">labels =</span> labels_map</span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a> ) <span class="sc">+</span></span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a> <span class="fu">scale_linetype_manual</span>(</span>
+<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a>  <span class="at">name =</span> <span class="cn">NULL</span>,</span>
+<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>  <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"MLE"</span> <span class="ot">=</span> <span class="st">"dashed"</span>, <span class="st">"JS"</span> <span class="ot">=</span> <span class="st">"solid"</span>, <span class="st">"Ratio"</span> <span class="ot">=</span> <span class="st">"dotdash"</span>),</span>
+<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>  <span class="at">labels =</span> labels_map</span>
+<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a> ) <span class="sc">+</span></span>
+<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a> <span class="co"># Theming</span></span>
+<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a> <span class="fu">labs</span>(</span>
+<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a>   <span class="at">title =</span> <span class="fu">TeX</span>(<span class="fu">sprintf</span>(r<span class="st">'(Risk Comparison of Estimators ($p=%d$))'</span>, p)),  </span>
+<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>   <span class="at">x =</span> <span class="fu">TeX</span>(r<span class="st">'($|| </span><span class="sc">\t</span><span class="st">heta ||^2$ (Signal Strength))'</span>)</span>
+<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a> ) <span class="sc">+</span></span>
+<span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a> <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a> <span class="fu">theme</span>(</span>
+<span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend.position =</span> <span class="fu">c</span>(<span class="fl">0.95</span>, <span class="fl">0.5</span>),</span>
+<span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend.justification =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="fl">0.5</span>),</span>
+<span id="cb9-71"><a href="#cb9-71" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="st">"white"</span>, <span class="at">color =</span> <span class="st">"gray80"</span>),</span>
+<span id="cb9-72"><a href="#cb9-72" aria-hidden="true" tabindex="-1"></a>  <span class="at">axis.title.y.right =</span> <span class="fu">element_text</span>(<span class="at">color =</span> <span class="st">"forestgreen"</span>),</span>
+<span id="cb9-73"><a href="#cb9-73" aria-hidden="true" tabindex="-1"></a>  <span class="at">axis.text.y.right =</span> <span class="fu">element_text</span>(<span class="at">color =</span> <span class="st">"forestgreen"</span>)</span>
+<span id="cb9-74"><a href="#cb9-74" aria-hidden="true" tabindex="-1"></a> )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div id="fig-js-risk-ggplot-fixed" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -1714,15 +1805,15 @@ R(\theta, d^{JS}) &amp;= p - 2(p-2)^2 E^{X|\theta} \left[ \frac{1}{\lVert X \rVe
 <img src="bayesian_files/figure-html/fig-js-risk-ggplot-fixed-1.png" class="img-fluid figure-img" width="576">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-js-risk-ggplot-fixed-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3.5: Risk comparison of James-Stein vs MLE (p=10). Note: Ratio uses the right axis.
+Figure&nbsp;3.6: Risk comparison of James-Stein vs MLE (p=10). Note: Ratio uses the right axis.
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
 </section>
-<section id="risk-comparison-under-normalized-loss-optional" class="level3" data-number="3.5.6">
-<h3 data-number="3.5.6" class="anchored" data-anchor-id="risk-comparison-under-normalized-loss-optional"><span class="header-section-number">3.5.6</span> Risk Comparison under Normalized Loss (Optional)</h3>
+<section id="using-normalized-loss-optional" class="level3" data-number="3.5.7">
+<h3 data-number="3.5.7" class="anchored" data-anchor-id="using-normalized-loss-optional"><span class="header-section-number">3.5.7</span> Using Normalized Loss (Optional)</h3>
 <p>We consider the <strong>Normalized Squared Error Loss</strong> function, which penalizes errors relative to the magnitude of the true parameter vector: <span class="math display">\[
 \mathcal{L}(\theta, d) = \frac{\lVert d - \theta \rVert^2}{\lVert \theta \rVert^2}, \quad \theta \neq 0
 \]</span></p>
@@ -1757,8 +1848,8 @@ R(\theta, d^{JS}) &lt; R(\theta, d^{\text{MLE}})
 <p>Thus, near the origin, the James-Stein estimator reduces the risk by a factor of <span class="math inline">\(p/2\)</span>. For large dimensions (e.g., <span class="math inline">\(p=10\)</span>), the JS estimator has only <span class="math inline">\(20\%\)</span> of the risk of the MLE.</p></li>
 </ul>
 </section>
-<section id="bayes-risk-of-james-stein-estimator-optional" class="level3" data-number="3.5.7">
-<h3 data-number="3.5.7" class="anchored" data-anchor-id="bayes-risk-of-james-stein-estimator-optional"><span class="header-section-number">3.5.7</span> Bayes Risk of James-stein Estimator (Optional)</h3>
+<section id="bayes-risk-of-james-stein-estimator-optional" class="level3" data-number="3.5.8">
+<h3 data-number="3.5.8" class="anchored" data-anchor-id="bayes-risk-of-james-stein-estimator-optional"><span class="header-section-number">3.5.8</span> Bayes Risk of James-stein Estimator (Optional)</h3>
 <p>We can derive the Bayes Risk <span class="math inline">\(r(\pi, d^{JS})\)</span> of this estimator using two equivalent methods: minimizing the expected frequentist risk, or minimizing the expected posterior loss.</p>
 <div id="thm-js-bayes-risk" class="theorem">
 <p><span class="theorem-title"><strong>Theorem 3.4 (Bayes Risk of James-stein Estimator)</strong></span> For <span class="math inline">\(p \ge 3\)</span>, the Bayes risk of the James-Stein estimator <span class="math inline">\(d^{JS}\)</span> with respect to the prior <span class="math inline">\(\theta \sim N(0, \sigma^2 I)\)</span> is:</p>
@@ -1849,8 +1940,8 @@ r(\pi, d^{JS}) = \underbrace{\frac{p\sigma^2}{1+\sigma^2}}_{\text{Variance Part}
 </details>
 </div>
 </section>
-<section id="practical-application-one-way-anova-and-borrowing-strength" class="level3" data-number="3.5.8">
-<h3 data-number="3.5.8" class="anchored" data-anchor-id="practical-application-one-way-anova-and-borrowing-strength"><span class="header-section-number">3.5.8</span> Practical Application: One-way ANOVA and “Borrowing Strength”</h3>
+<section id="practical-application-one-way-anova-and-borrowing-strength" class="level3" data-number="3.5.9">
+<h3 data-number="3.5.9" class="anchored" data-anchor-id="practical-application-one-way-anova-and-borrowing-strength"><span class="header-section-number">3.5.9</span> Practical Application: One-way ANOVA and “Borrowing Strength”</h3>
 <div id="exm-anova-js" class="theorem example">
 <p><span class="theorem-title"><strong>Example 3.9</strong></span> Consider a One-Way ANOVA setting where we wish to estimate the means of <span class="math inline">\(p\)</span> different independent groups (e.g., the true batting averages of <span class="math inline">\(p=10\)</span> baseball players, or the efficacy of <span class="math inline">\(p=5\)</span> different hospital treatments).</p>
 <ul>
@@ -1869,8 +1960,8 @@ r(\pi, d^{JS}) = \underbrace{\frac{p\sigma^2}{1+\sigma^2}}_{\text{Variance Part}
 <p>Thus, estimating the groups <em>together</em> yields a more accurate global picture than estimating them <em>separately</em>, even if the groups are independent.</p>
 </div>
 </section>
-<section id="why-is-this-paradoxical" class="level3" data-number="3.5.9">
-<h3 data-number="3.5.9" class="anchored" data-anchor-id="why-is-this-paradoxical"><span class="header-section-number">3.5.9</span> Why Is This Paradoxical?</h3>
+<section id="why-is-this-paradoxical" class="level3" data-number="3.5.10">
+<h3 data-number="3.5.10" class="anchored" data-anchor-id="why-is-this-paradoxical"><span class="header-section-number">3.5.10</span> Why Is This Paradoxical?</h3>
 <p>The result that <span class="math inline">\(d^{JS}\)</span> dominates <span class="math inline">\(d^0\)</span> is called <strong>Stein’s Paradox</strong> because it defies intuition in several ways:</p>
 <ul>
 <li><strong>Independence Irrelevance:</strong> The result holds even if the components <span class="math inline">\(X_i\)</span> are completely unrelated (e.g., <span class="math inline">\(X_1\)</span> is the price of tea in China, <span class="math inline">\(X_2\)</span> is the temperature in Saskatoon, and <span class="math inline">\(X_3\)</span> is the weight of a local cat). It seems absurd that combining unrelated data improves the estimate of each, but the combined risk is indeed lower.</li>
@@ -1878,8 +1969,8 @@ r(\pi, d^{JS}) = \underbrace{\frac{p\sigma^2}{1+\sigma^2}}_{\text{Variance Part}
 <li><strong>Destruction of Symmetry:</strong> The MLE is invariant under translation and rotation. The James-Stein estimator breaks this symmetry by shrinking toward an arbitrary point (usually the origin or the grand mean), yet it yields a better objective performance.</li>
 </ul>
 </section>
-<section id="what-we-learned" class="level3" data-number="3.5.10">
-<h3 data-number="3.5.10" class="anchored" data-anchor-id="what-we-learned"><span class="header-section-number">3.5.10</span> What We Learned</h3>
+<section id="what-we-learned" class="level3" data-number="3.5.11">
+<h3 data-number="3.5.11" class="anchored" data-anchor-id="what-we-learned"><span class="header-section-number">3.5.11</span> What We Learned</h3>
 <ul>
 <li><strong>Bias-Variance Tradeoff:</strong> This is the most famous example where introducing <strong>bias</strong> (shrinkage) leads to a massive reduction in <strong>variance</strong>, thereby reducing the overall Mean Squared Error (MSE). Unbiasedness is not always a virtue in estimation.</li>
 <li><strong>Inadmissibility in High Dimensions:</strong> Intuitions formed in 1D or 2D (where MLE is admissible) fail in higher dimensions (<span class="math inline">\(p \ge 3\)</span>). The volume of space grows so fast that “standard” diffuse priors or MLEs become inefficient.</li>
@@ -1923,11 +2014,11 @@ r(\pi, d^{JS}) = \underbrace{\frac{p\sigma^2}{1+\sigma^2}}_{\text{Variance Part}
 <p>Thus, <span class="math inline">\(\hat{B} = \frac{p-2}{||X||^2}\)</span> is an unbiased estimator of the optimal shrinkage factor <span class="math inline">\(B\)</span>.</p>
 <p><strong>Step 4: The Empirical Bayes Rule</strong></p>
 <p>Plugging <span class="math inline">\(\hat{B}\)</span> into the ideal Bayes estimator recovers the James-Stein rule: <span class="math display">\[\delta^{EB}(X) = \left( 1 - \hat{B} \right) X = \left( 1 - \frac{p-2}{||X||^2} \right) X\]</span></p>
-<p><strong>What We Learned</strong></p>
-<ul>
-<li><strong>Adaptive Shrinkage:</strong> The James-Stein estimator automatically adjusts the amount of shrinkage based on the observed total magnitude <span class="math inline">\(\lVert X \rVert^2\)</span>. If the data suggests the true means are spread far from zero, <span class="math inline">\(\lVert X \rVert^2\)</span> will be large, <span class="math inline">\(\hat{B}\)</span> will be small, and we shrink less.</li>
-<li><strong>Unbiasedness of B:</strong> Interestingly, while <span class="math inline">\(\hat{B}\)</span> is an unbiased estimator of the shrinkage factor, the resulting James-Stein estimator itself is biased toward the origin. This is a classic example of sacrificing unbiasedness to minimize total risk.</li>
-</ul>
+<p><strong>Remarks:</strong></p>
+<ol type="1">
+<li><p><strong>Adaptive Shrinkage:</strong> The James-Stein estimator automatically adjusts the amount of shrinkage based on the observed total magnitude <span class="math inline">\(\lVert X \rVert^2\)</span>. If the data suggests the true means are spread far from zero, <span class="math inline">\(\lVert X \rVert^2\)</span> will be large, <span class="math inline">\(\hat{B}\)</span> will be small, and we shrink less.</p></li>
+<li><p><strong>Unbiasedness of B:</strong> Interestingly, while <span class="math inline">\(\hat{B}\)</span> is an unbiased estimator of the shrinkage factor, the resulting James-Stein estimator itself is biased toward the origin. This is a classic example of sacrificing unbiasedness to minimize total risk.</p></li>
+</ol>
 </section>
 </section>
 <section id="hierarchical-modeling-via-mcmc" class="level2" data-number="3.7">
@@ -1953,13 +2044,13 @@ p(\boldsymbol{\mu}, \theta, \tau^2 | X) \propto \left[ \prod_{i=1}^n f(x_i | \mu
 <p>The following tree diagram illustrates the conditional dependencies. Note that the parameters <span class="math inline">\(\mu_i\)</span> are conditionally independent given the hyperparameter <span class="math inline">\(\theta\)</span>, which facilitates “borrowing strength” across groups.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-hierarchical-tree" class="quarto-float quarto-figure quarto-figure-center anchored" style="width: 80% !important;" data-fig-align="center">
+<div id="fig-hierarchical-tree" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" style="width: 80% !important;">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-hierarchical-tree-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="bayesian_files/figure-html/fig-hierarchical-tree-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width: 80% !important;" width="576">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-hierarchical-tree-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3.6: Hierarchical Tree Structure
+Figure&nbsp;3.7: Hierarchical Tree Structure
 </figcaption>
 </figure>
 </div>
@@ -2022,7 +2113,7 @@ Figure&nbsp;3.6: Hierarchical Tree Structure
 <img src="bayesian_files/figure-html/fig-mcmc-comparison-1.png" class="img-fluid figure-img" width="960">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-mcmc-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3.7: Comparison of Sampling Paths
+Figure&nbsp;3.8: Comparison of Sampling Paths
 </figcaption>
 </figure>
 </div>
@@ -2281,11 +2372,11 @@ x_i = \sqrt{n_i} \arcsin\left( 2 \frac{y_i}{n_i} - 1 \right)
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simple Estimate Is Just the Data Itself</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>mu_mle <span class="ot">&lt;-</span> baseball_data<span class="sc">$</span>x</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># MSE Calculation (transformed Scale)</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>mse_mle <span class="ot">&lt;-</span> <span class="fu">mean</span>((mu_mle <span class="sc">-</span> baseball_data<span class="sc">$</span>true_mu)<span class="sc">^</span><span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simple Estimate Is Just the Data Itself</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>mu_mle <span class="ot">&lt;-</span> baseball_data<span class="sc">$</span>x</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># MSE Calculation (transformed Scale)</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>mse_mle <span class="ot">&lt;-</span> <span class="fu">mean</span>((mu_mle <span class="sc">-</span> baseball_data<span class="sc">$</span>true_mu)<span class="sc">^</span><span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
@@ -2297,14 +2388,14 @@ x_i = \sqrt{n_i} \arcsin\left( 2 \frac{y_i}{n_i} - 1 \right)
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>theta_hat <span class="ot">&lt;-</span> <span class="fu">mean</span>(baseball_data<span class="sc">$</span>x)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>S <span class="ot">&lt;-</span> <span class="fu">sum</span>((baseball_data<span class="sc">$</span>x <span class="sc">-</span> theta_hat)<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>shrinkage_factor <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> (<span class="dv">14</span> <span class="sc">/</span> S)</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>mu_js <span class="ot">&lt;-</span> theta_hat <span class="sc">+</span> shrinkage_factor <span class="sc">*</span> (baseball_data<span class="sc">$</span>x <span class="sc">-</span> theta_hat)</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co"># MSE Calculation (transformed Scale)</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>mse_js <span class="ot">&lt;-</span> <span class="fu">mean</span>((mu_js <span class="sc">-</span> baseball_data<span class="sc">$</span>true_mu)<span class="sc">^</span><span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>theta_hat <span class="ot">&lt;-</span> <span class="fu">mean</span>(baseball_data<span class="sc">$</span>x)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>S <span class="ot">&lt;-</span> <span class="fu">sum</span>((baseball_data<span class="sc">$</span>x <span class="sc">-</span> theta_hat)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>shrinkage_factor <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> (<span class="dv">14</span> <span class="sc">/</span> S)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>mu_js <span class="ot">&lt;-</span> theta_hat <span class="sc">+</span> shrinkage_factor <span class="sc">*</span> (baseball_data<span class="sc">$</span>x <span class="sc">-</span> theta_hat)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co"># MSE Calculation (transformed Scale)</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>mse_js <span class="ot">&lt;-</span> <span class="fu">mean</span>((mu_js <span class="sc">-</span> baseball_data<span class="sc">$</span>true_mu)<span class="sc">^</span><span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
@@ -2322,25 +2413,25 @@ X_i &amp;\sim N(\mu_i, 1) \\
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>baseball_data<span class="sc">$</span>sei <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>, <span class="fu">length</span>(baseball_data<span class="sc">$</span>x))</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit Random Intercept Model: X | Se(1) ~ 1 + (1|player)</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>fit_brms <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> x <span class="sc">|</span> <span class="fu">se</span>(sei, <span class="at">sigma =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Player),</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> baseball_data,</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">prior =</span> <span class="fu">c</span>(</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">10</span>), <span class="at">class =</span> <span class="st">"Intercept"</span>),</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">prior</span>(<span class="fu">cauchy</span>(<span class="dv">0</span>, <span class="dv">2</span>), <span class="at">class =</span> <span class="st">"sd"</span>)</span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">chains =</span> <span class="dv">2</span>, <span class="at">iter =</span> <span class="dv">4000</span>, <span class="at">warmup =</span> <span class="dv">1000</span>, <span class="at">seed =</span> <span class="dv">123</span>,</span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">refresh =</span> <span class="dv">0</span></span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract Point Estimates (posterior Means)</span></span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>post_means <span class="ot">&lt;-</span> <span class="fu">fitted</span>(fit_brms)[, <span class="st">"Estimate"</span>]</span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>mu_brms <span class="ot">&lt;-</span> post_means</span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="co"># MSE Calculation (transformed Scale)</span></span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>mse_brms <span class="ot">&lt;-</span> <span class="fu">mean</span>((mu_brms <span class="sc">-</span> baseball_data<span class="sc">$</span>true_mu)<span class="sc">^</span><span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>baseball_data<span class="sc">$</span>sei <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>, <span class="fu">length</span>(baseball_data<span class="sc">$</span>x))</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit Random Intercept Model: X | Se(1) ~ 1 + (1|player)</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>fit_brms <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> x <span class="sc">|</span> <span class="fu">se</span>(sei, <span class="at">sigma =</span> <span class="cn">TRUE</span>) <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Player),</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> baseball_data,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">prior =</span> <span class="fu">c</span>(</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">10</span>), <span class="at">class =</span> <span class="st">"Intercept"</span>),</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">prior</span>(<span class="fu">cauchy</span>(<span class="dv">0</span>, <span class="dv">2</span>), <span class="at">class =</span> <span class="st">"sd"</span>)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">chains =</span> <span class="dv">2</span>, <span class="at">iter =</span> <span class="dv">4000</span>, <span class="at">warmup =</span> <span class="dv">1000</span>, <span class="at">seed =</span> <span class="dv">123</span>,</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">refresh =</span> <span class="dv">0</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract Point Estimates (posterior Means)</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>post_means <span class="ot">&lt;-</span> <span class="fu">fitted</span>(fit_brms)[, <span class="st">"Estimate"</span>]</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>mu_brms <span class="ot">&lt;-</span> post_means</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="co"># MSE Calculation (transformed Scale)</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>mse_brms <span class="ot">&lt;-</span> <span class="fu">mean</span>((mu_brms <span class="sc">-</span> baseball_data<span class="sc">$</span>true_mu)<span class="sc">^</span><span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
@@ -2506,37 +2597,37 @@ Table&nbsp;3.3: Comparison of Estimates (Sorted by Pre-season <span class="math 
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate Squared Errors Using the SORTED Dataframe</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>err_mle  <span class="ot">&lt;-</span> (df_sorted<span class="sc">$</span>x_i <span class="sc">-</span> df_sorted<span class="sc">$</span>mu_true)<span class="sc">^</span><span class="dv">2</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>err_js   <span class="ot">&lt;-</span> (df_sorted<span class="sc">$</span>mu_js <span class="sc">-</span> df_sorted<span class="sc">$</span>mu_true)<span class="sc">^</span><span class="dv">2</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>err_brms <span class="ot">&lt;-</span> (df_sorted<span class="sc">$</span>mu_bayes <span class="sc">-</span> df_sorted<span class="sc">$</span>mu_true)<span class="sc">^</span><span class="dv">2</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Determine Y-axis Range</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>y_max <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">c</span>(err_mle, err_js, err_brms))</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot MLE Errors (baseline)</span></span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">17</span>, err_mle, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">pch =</span> <span class="dv">1</span>, <span class="at">col =</span> <span class="st">"black"</span>, <span class="at">lty =</span> <span class="dv">2</span>,</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Player Index (Sorted by Pre-season Performance)"</span>, </span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="fu">expression</span>(Squared<span class="sc">~</span>Error<span class="sc">~</span><span class="er">~</span>(<span class="fu">hat</span>(mu) <span class="sc">-</span> mu[true])<span class="sc">^</span><span class="dv">2</span>),</span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Estimation Error Comparison (Sorted)"</span>,</span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, y_max))</span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Add James-stein Errors</span></span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">17</span>, err_js, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">col =</span> <span class="st">"blue"</span>)</span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Add Bayesian (brms) Errors</span></span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">17</span>, err_brms, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">pch =</span> <span class="dv">17</span>, <span class="at">col =</span> <span class="st">"red"</span>)</span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Add Grid and Legend</span></span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a><span class="fu">grid</span>()</span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topleft"</span>, </span>
-<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Mean Squared Error"</span>,</span>
-<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>       <span class="at">legend =</span> <span class="fu">c</span>(<span class="fu">paste0</span>(<span class="st">"MLE: "</span>, <span class="fu">round</span>(mse_mle, <span class="dv">3</span>)), </span>
-<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">paste0</span>(<span class="st">"JS: "</span>, <span class="fu">round</span>(mse_js, <span class="dv">3</span>)), </span>
-<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">paste0</span>(<span class="st">"Bayes: "</span>, <span class="fu">round</span>(mse_brms, <span class="dv">3</span>))),</span>
-<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>       <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"black"</span>, <span class="st">"blue"</span>, <span class="st">"red"</span>), </span>
-<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>       <span class="at">pch =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">19</span>, <span class="dv">17</span>), </span>
-<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>       <span class="at">lty =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate Squared Errors Using the SORTED Dataframe</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>err_mle  <span class="ot">&lt;-</span> (df_sorted<span class="sc">$</span>x_i <span class="sc">-</span> df_sorted<span class="sc">$</span>mu_true)<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>err_js   <span class="ot">&lt;-</span> (df_sorted<span class="sc">$</span>mu_js <span class="sc">-</span> df_sorted<span class="sc">$</span>mu_true)<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>err_brms <span class="ot">&lt;-</span> (df_sorted<span class="sc">$</span>mu_bayes <span class="sc">-</span> df_sorted<span class="sc">$</span>mu_true)<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Determine Y-axis Range</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>y_max <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">c</span>(err_mle, err_js, err_brms))</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot MLE Errors (baseline)</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">17</span>, err_mle, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">pch =</span> <span class="dv">1</span>, <span class="at">col =</span> <span class="st">"black"</span>, <span class="at">lty =</span> <span class="dv">2</span>,</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Player Index (Sorted by Pre-season Performance)"</span>, </span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="fu">expression</span>(Squared<span class="sc">~</span>Error<span class="sc">~</span><span class="er">~</span>(<span class="fu">hat</span>(mu) <span class="sc">-</span> mu[true])<span class="sc">^</span><span class="dv">2</span>),</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Estimation Error Comparison (Sorted)"</span>,</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, y_max))</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Add James-stein Errors</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">17</span>, err_js, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">col =</span> <span class="st">"blue"</span>)</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Add Bayesian (brms) Errors</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">17</span>, err_brms, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">pch =</span> <span class="dv">17</span>, <span class="at">col =</span> <span class="st">"red"</span>)</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Add Grid and Legend</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="fu">grid</span>()</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topleft"</span>, </span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Mean Squared Error"</span>,</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>       <span class="at">legend =</span> <span class="fu">c</span>(<span class="fu">paste0</span>(<span class="st">"MLE: "</span>, <span class="fu">round</span>(mse_mle, <span class="dv">3</span>)), </span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">paste0</span>(<span class="st">"JS: "</span>, <span class="fu">round</span>(mse_js, <span class="dv">3</span>)), </span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">paste0</span>(<span class="st">"Bayes: "</span>, <span class="fu">round</span>(mse_brms, <span class="dv">3</span>))),</span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>       <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"black"</span>, <span class="st">"blue"</span>, <span class="st">"red"</span>), </span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>       <span class="at">pch =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">19</span>, <span class="dv">17</span>), </span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>       <span class="at">lty =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div id="fig-error-index-sorted" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -2545,7 +2636,7 @@ Table&nbsp;3.3: Comparison of Estimates (Sorted by Pre-season <span class="math 
 <img src="bayesian_files/figure-html/fig-error-index-sorted-1.png" class="img-fluid figure-img" width="576">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-error-index-sorted-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3.8: Squared Error by Sorted Player Index (Transformed Scale)
+Figure&nbsp;3.9: Squared Error by Sorted Player Index (Transformed Scale)
 </figcaption>
 </figure>
 </div>
@@ -2576,25 +2667,25 @@ y_i | p_i &amp;\sim \text{Binomial}(n_i, p_i) \\
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Fit Hierarchical Logistic Regression</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Formula: Y | Trials(n) ~ 1 + (1 | Player)</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># This Estimates a Global Intercept (mu_0) and Random Intercepts for Each Player (logit(p_i))</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>fit_logit <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> Pre_HR <span class="sc">|</span> <span class="fu">trials</span>(Pre_AtBats) <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Player),</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> baseball_data,</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">"logit"</span>),</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">prior =</span> <span class="fu">c</span>(</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">5</span>), <span class="at">class =</span> <span class="st">"Intercept"</span>),</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">prior</span>(<span class="fu">cauchy</span>(<span class="dv">0</span>, <span class="dv">2</span>), <span class="at">class =</span> <span class="st">"sd"</span>)</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">chains =</span> <span class="dv">2</span>, <span class="at">iter =</span> <span class="dv">4000</span>, <span class="at">warmup =</span> <span class="dv">1000</span>, <span class="at">seed =</span> <span class="dv">123</span>,</span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">refresh =</span> <span class="dv">0</span></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Extract Posterior Means of P_i</span></span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Fitted() Returns the Posterior Expectations of the Response (expected Count).</span></span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>fitted_counts <span class="ot">&lt;-</span> <span class="fu">fitted</span>(fit_logit) </span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>p_hat_logit <span class="ot">&lt;-</span> fitted_counts[, <span class="st">"Estimate"</span>] <span class="sc">/</span> baseball_data<span class="sc">$</span>Pre_AtBats</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Fit Hierarchical Logistic Regression</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Formula: Y | Trials(n) ~ 1 + (1 | Player)</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co"># This Estimates a Global Intercept (mu_0) and Random Intercepts for Each Player (logit(p_i))</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>fit_logit <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> Pre_HR <span class="sc">|</span> <span class="fu">trials</span>(Pre_AtBats) <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Player),</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> baseball_data,</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">"logit"</span>),</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">prior =</span> <span class="fu">c</span>(</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">5</span>), <span class="at">class =</span> <span class="st">"Intercept"</span>),</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">prior</span>(<span class="fu">cauchy</span>(<span class="dv">0</span>, <span class="dv">2</span>), <span class="at">class =</span> <span class="st">"sd"</span>)</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">chains =</span> <span class="dv">2</span>, <span class="at">iter =</span> <span class="dv">4000</span>, <span class="at">warmup =</span> <span class="dv">1000</span>, <span class="at">seed =</span> <span class="dv">123</span>,</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">refresh =</span> <span class="dv">0</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Extract Posterior Means of P_i</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Fitted() Returns the Posterior Expectations of the Response (expected Count).</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>fitted_counts <span class="ot">&lt;-</span> <span class="fu">fitted</span>(fit_logit) </span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>p_hat_logit <span class="ot">&lt;-</span> fitted_counts[, <span class="st">"Estimate"</span>] <span class="sc">/</span> baseball_data<span class="sc">$</span>Pre_AtBats</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
@@ -2606,39 +2697,39 @@ y_i | p_i &amp;\sim \text{Binomial}(n_i, p_i) \\
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Extract Posterior Samples (n_samples X 17 Players)</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Posterior_epred Gives Samples of the Expected Count (N * P)</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>post_counts <span class="ot">&lt;-</span> <span class="fu">posterior_epred</span>(fit_logit) </span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert to Probability Scale by Dividing by Trials</span></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>p_samples <span class="ot">&lt;-</span> <span class="fu">sweep</span>(post_counts, <span class="dv">2</span>, baseball_data<span class="sc">$</span>Pre_AtBats, <span class="st">"/"</span>)</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Define Function for Weighted Median</span></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Finds the Value 'q' Such That Sum(weights Where X &lt;= Q) &gt;= 0.5 * Total_weight</span></span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>get_weighted_median <span class="ot">&lt;-</span> <span class="cf">function</span>(samples) {</span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate weights based on the loss function denominator</span></span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Avoid division by exact zero (unlikely but safer)</span></span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>  denom <span class="ot">&lt;-</span> <span class="fu">pmin</span>(samples, <span class="dv">1</span> <span class="sc">-</span> samples)</span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>  denom[denom <span class="sc">&lt;</span> <span class="fl">1e-6</span>] <span class="ot">&lt;-</span> <span class="fl">1e-6</span> </span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  weights <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">/</span> denom</span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Normalize weights</span></span>
-<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>  weights_norm <span class="ot">&lt;-</span> weights <span class="sc">/</span> <span class="fu">sum</span>(weights)</span>
-<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Sort samples and weights</span></span>
-<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>  ord <span class="ot">&lt;-</span> <span class="fu">order</span>(samples)</span>
-<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>  samp_sorted <span class="ot">&lt;-</span> samples[ord]</span>
-<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>  w_sorted <span class="ot">&lt;-</span> weights_norm[ord]</span>
-<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Find cutoff</span></span>
-<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>  cum_w <span class="ot">&lt;-</span> <span class="fu">cumsum</span>(w_sorted)</span>
-<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>  idx <span class="ot">&lt;-</span> <span class="fu">which</span>(cum_w <span class="sc">&gt;=</span> <span class="fl">0.5</span>)[<span class="dv">1</span>]</span>
-<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(samp_sorted[idx])</span>
-<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Apply to All Players</span></span>
-<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>p_hat_optimal <span class="ot">&lt;-</span> <span class="fu">apply</span>(p_samples, <span class="dv">2</span>, get_weighted_median)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Extract Posterior Samples (n_samples X 17 Players)</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Posterior_epred Gives Samples of the Expected Count (N * P)</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>post_counts <span class="ot">&lt;-</span> <span class="fu">posterior_epred</span>(fit_logit) </span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert to Probability Scale by Dividing by Trials</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>p_samples <span class="ot">&lt;-</span> <span class="fu">sweep</span>(post_counts, <span class="dv">2</span>, baseball_data<span class="sc">$</span>Pre_AtBats, <span class="st">"/"</span>)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Define Function for Weighted Median</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Finds the Value 'q' Such That Sum(weights Where X &lt;= Q) &gt;= 0.5 * Total_weight</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>get_weighted_median <span class="ot">&lt;-</span> <span class="cf">function</span>(samples) {</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate weights based on the loss function denominator</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Avoid division by exact zero (unlikely but safer)</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>  denom <span class="ot">&lt;-</span> <span class="fu">pmin</span>(samples, <span class="dv">1</span> <span class="sc">-</span> samples)</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>  denom[denom <span class="sc">&lt;</span> <span class="fl">1e-6</span>] <span class="ot">&lt;-</span> <span class="fl">1e-6</span> </span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>  weights <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">/</span> denom</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Normalize weights</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>  weights_norm <span class="ot">&lt;-</span> weights <span class="sc">/</span> <span class="fu">sum</span>(weights)</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Sort samples and weights</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>  ord <span class="ot">&lt;-</span> <span class="fu">order</span>(samples)</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>  samp_sorted <span class="ot">&lt;-</span> samples[ord]</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>  w_sorted <span class="ot">&lt;-</span> weights_norm[ord]</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Find cutoff</span></span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>  cum_w <span class="ot">&lt;-</span> <span class="fu">cumsum</span>(w_sorted)</span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>  idx <span class="ot">&lt;-</span> <span class="fu">which</span>(cum_w <span class="sc">&gt;=</span> <span class="fl">0.5</span>)[<span class="dv">1</span>]</span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(samp_sorted[idx])</span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Apply to All Players</span></span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>p_hat_optimal <span class="ot">&lt;-</span> <span class="fu">apply</span>(p_samples, <span class="dv">2</span>, get_weighted_median)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
@@ -2839,40 +2930,40 @@ Table&nbsp;3.4: Comparison of Estimated Probabilities (<span class="math inline"
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Calculate MSE</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>mse_p_mle   <span class="ot">&lt;-</span> <span class="fu">mean</span>((df_compare_sorted<span class="sc">$</span>p_mle <span class="sc">-</span> df_compare_sorted<span class="sc">$</span>p_true)<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>mse_p_js    <span class="ot">&lt;-</span> <span class="fu">mean</span>((df_compare_sorted<span class="sc">$</span>p_js <span class="sc">-</span> df_compare_sorted<span class="sc">$</span>p_true)<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>mse_p_norm  <span class="ot">&lt;-</span> <span class="fu">mean</span>((df_compare_sorted<span class="sc">$</span>p_norm <span class="sc">-</span> df_compare_sorted<span class="sc">$</span>p_true)<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>mse_p_logit <span class="ot">&lt;-</span> <span class="fu">mean</span>((df_compare_sorted<span class="sc">$</span>p_logit <span class="sc">-</span> df_compare_sorted<span class="sc">$</span>p_true)<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>mse_p_opt   <span class="ot">&lt;-</span> <span class="fu">mean</span>((df_compare_sorted<span class="sc">$</span>p_opt <span class="sc">-</span> df_compare_sorted<span class="sc">$</span>p_true)<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Plot MSE</span></span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>y_max <span class="ot">&lt;-</span> <span class="fu">max</span>((df_compare_sorted<span class="sc">$</span>p_mle <span class="sc">-</span> df_compare_sorted<span class="sc">$</span>p_true)<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">17</span>, (df_compare_sorted<span class="sc">$</span>p_mle <span class="sc">-</span> df_compare_sorted<span class="sc">$</span>p_true)<span class="sc">^</span><span class="dv">2</span>, </span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>     <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">pch =</span> <span class="dv">1</span>, <span class="at">col =</span> <span class="st">"black"</span>, <span class="at">lty =</span> <span class="dv">2</span>,</span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Player Index (Sorted by Pre-season)"</span>,</span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">"Squared Error"</span>,</span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Squared Error by Method"</span>,</span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, y_max))</span>
-<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">17</span>, (df_compare_sorted<span class="sc">$</span>p_js <span class="sc">-</span> df_compare_sorted<span class="sc">$</span>p_true)<span class="sc">^</span><span class="dv">2</span>, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">col =</span> <span class="st">"blue"</span>)</span>
-<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">17</span>, (df_compare_sorted<span class="sc">$</span>p_norm <span class="sc">-</span> df_compare_sorted<span class="sc">$</span>p_true)<span class="sc">^</span><span class="dv">2</span>, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">pch =</span> <span class="dv">17</span>, <span class="at">col =</span> <span class="st">"red"</span>)</span>
-<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">17</span>, (df_compare_sorted<span class="sc">$</span>p_logit <span class="sc">-</span> df_compare_sorted<span class="sc">$</span>p_true)<span class="sc">^</span><span class="dv">2</span>, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">pch =</span> <span class="dv">15</span>, <span class="at">col =</span> <span class="st">"darkgreen"</span>)</span>
-<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">17</span>, (df_compare_sorted<span class="sc">$</span>p_opt <span class="sc">-</span> df_compare_sorted<span class="sc">$</span>p_true)<span class="sc">^</span><span class="dv">2</span>, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">pch =</span> <span class="dv">18</span>, <span class="at">col =</span> <span class="st">"purple"</span>)</span>
-<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a><span class="fu">grid</span>()</span>
-<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topleft"</span>,</span>
-<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>       <span class="at">legend =</span> <span class="fu">c</span>(<span class="fu">paste0</span>(<span class="st">"MLE [MSE: "</span>, <span class="fu">round</span>(mse_p_mle, <span class="dv">4</span>), <span class="st">"]"</span>),</span>
-<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">paste0</span>(<span class="st">"JS [MSE: "</span>, <span class="fu">round</span>(mse_p_js, <span class="dv">4</span>), <span class="st">"]"</span>),</span>
-<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">paste0</span>(<span class="st">"Normal-Bayes [MSE: "</span>, <span class="fu">round</span>(mse_p_norm, <span class="dv">4</span>), <span class="st">"]"</span>),</span>
-<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">paste0</span>(<span class="st">"Logit-Normal [MSE: "</span>, <span class="fu">round</span>(mse_p_logit, <span class="dv">4</span>), <span class="st">"]"</span>),</span>
-<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">paste0</span>(<span class="st">"Optimal-Bayes [MSE: "</span>, <span class="fu">round</span>(mse_p_opt, <span class="dv">4</span>), <span class="st">"]"</span>)),</span>
-<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>       <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"black"</span>, <span class="st">"blue"</span>, <span class="st">"red"</span>, <span class="st">"darkgreen"</span>, <span class="st">"purple"</span>),</span>
-<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>       <span class="at">pch =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">19</span>, <span class="dv">17</span>, <span class="dv">15</span>, <span class="dv">18</span>),</span>
-<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>       <span class="at">lty =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>),</span>
-<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>       <span class="at">cex =</span> <span class="fl">0.75</span>,</span>
-<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>       <span class="at">bg =</span> <span class="st">"white"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Calculate MSE</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>mse_p_mle   <span class="ot">&lt;-</span> <span class="fu">mean</span>((df_compare_sorted<span class="sc">$</span>p_mle <span class="sc">-</span> df_compare_sorted<span class="sc">$</span>p_true)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>mse_p_js    <span class="ot">&lt;-</span> <span class="fu">mean</span>((df_compare_sorted<span class="sc">$</span>p_js <span class="sc">-</span> df_compare_sorted<span class="sc">$</span>p_true)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>mse_p_norm  <span class="ot">&lt;-</span> <span class="fu">mean</span>((df_compare_sorted<span class="sc">$</span>p_norm <span class="sc">-</span> df_compare_sorted<span class="sc">$</span>p_true)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>mse_p_logit <span class="ot">&lt;-</span> <span class="fu">mean</span>((df_compare_sorted<span class="sc">$</span>p_logit <span class="sc">-</span> df_compare_sorted<span class="sc">$</span>p_true)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>mse_p_opt   <span class="ot">&lt;-</span> <span class="fu">mean</span>((df_compare_sorted<span class="sc">$</span>p_opt <span class="sc">-</span> df_compare_sorted<span class="sc">$</span>p_true)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Plot MSE</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>y_max <span class="ot">&lt;-</span> <span class="fu">max</span>((df_compare_sorted<span class="sc">$</span>p_mle <span class="sc">-</span> df_compare_sorted<span class="sc">$</span>p_true)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">17</span>, (df_compare_sorted<span class="sc">$</span>p_mle <span class="sc">-</span> df_compare_sorted<span class="sc">$</span>p_true)<span class="sc">^</span><span class="dv">2</span>, </span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>     <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">pch =</span> <span class="dv">1</span>, <span class="at">col =</span> <span class="st">"black"</span>, <span class="at">lty =</span> <span class="dv">2</span>,</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Player Index (Sorted by Pre-season)"</span>,</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">"Squared Error"</span>,</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Squared Error by Method"</span>,</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, y_max))</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">17</span>, (df_compare_sorted<span class="sc">$</span>p_js <span class="sc">-</span> df_compare_sorted<span class="sc">$</span>p_true)<span class="sc">^</span><span class="dv">2</span>, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">col =</span> <span class="st">"blue"</span>)</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">17</span>, (df_compare_sorted<span class="sc">$</span>p_norm <span class="sc">-</span> df_compare_sorted<span class="sc">$</span>p_true)<span class="sc">^</span><span class="dv">2</span>, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">pch =</span> <span class="dv">17</span>, <span class="at">col =</span> <span class="st">"red"</span>)</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">17</span>, (df_compare_sorted<span class="sc">$</span>p_logit <span class="sc">-</span> df_compare_sorted<span class="sc">$</span>p_true)<span class="sc">^</span><span class="dv">2</span>, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">pch =</span> <span class="dv">15</span>, <span class="at">col =</span> <span class="st">"darkgreen"</span>)</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">17</span>, (df_compare_sorted<span class="sc">$</span>p_opt <span class="sc">-</span> df_compare_sorted<span class="sc">$</span>p_true)<span class="sc">^</span><span class="dv">2</span>, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">pch =</span> <span class="dv">18</span>, <span class="at">col =</span> <span class="st">"purple"</span>)</span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a><span class="fu">grid</span>()</span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topleft"</span>,</span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>       <span class="at">legend =</span> <span class="fu">c</span>(<span class="fu">paste0</span>(<span class="st">"MLE [MSE: "</span>, <span class="fu">round</span>(mse_p_mle, <span class="dv">4</span>), <span class="st">"]"</span>),</span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">paste0</span>(<span class="st">"JS [MSE: "</span>, <span class="fu">round</span>(mse_p_js, <span class="dv">4</span>), <span class="st">"]"</span>),</span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">paste0</span>(<span class="st">"Normal-Bayes [MSE: "</span>, <span class="fu">round</span>(mse_p_norm, <span class="dv">4</span>), <span class="st">"]"</span>),</span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">paste0</span>(<span class="st">"Logit-Normal [MSE: "</span>, <span class="fu">round</span>(mse_p_logit, <span class="dv">4</span>), <span class="st">"]"</span>),</span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">paste0</span>(<span class="st">"Optimal-Bayes [MSE: "</span>, <span class="fu">round</span>(mse_p_opt, <span class="dv">4</span>), <span class="st">"]"</span>)),</span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>       <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"black"</span>, <span class="st">"blue"</span>, <span class="st">"red"</span>, <span class="st">"darkgreen"</span>, <span class="st">"purple"</span>),</span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>       <span class="at">pch =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">19</span>, <span class="dv">17</span>, <span class="dv">15</span>, <span class="dv">18</span>),</span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>       <span class="at">lty =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>),</span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>       <span class="at">cex =</span> <span class="fl">0.75</span>,</span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>       <span class="at">bg =</span> <span class="st">"white"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -2892,7 +2983,7 @@ Table&nbsp;3.4: Comparison of Estimated Probabilities (<span class="math inline"
 <img src="bayesian_files/figure-html/fig-error-relative-1.png" class="img-fluid figure-img" width="576">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-error-relative-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3.9: Relative Error Assessment: Five Methods
+Figure&nbsp;3.10: Relative Error Assessment: Five Methods
 </figcaption>
 </figure>
 </div>

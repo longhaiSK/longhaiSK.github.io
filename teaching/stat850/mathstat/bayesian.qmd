@@ -1065,6 +1065,86 @@ Consider the setting:
 
 $$d^{JS}(X) = \left( 1 - \frac{p-2}{||X||^2} \right) X$$
 
+
+The James-Stein estimator improves upon the MLE by shrinking the individual observations toward a common mean (usually zero). The magnitude of this shrinkage depends on the total sum of squares of the observations.
+
+* When the variance of $\theta$ is large, $||X||^2$ tends to be large, resulting in less shrinkage.
+* When the variance of $\theta$ is small, $||X||^2$ is smaller, leading to a larger shrinkage factor.
+
+The following R code simulates these two cases and displays them side-by-side with a shared y-axis for direct comparison.
+
+```{r }
+#| label: fig-stein-vs-mle
+#| message: false
+#| warning: false
+#| fig-width: 10
+#| fig-height: 6
+#| fig-cap: Visualization of JS Estimator 
+
+library(ggplot2)
+library(patchwork)
+library(tidyr)
+library(dplyr)
+library(latex2exp)
+
+set.seed(42)
+p <- 20
+sigma1 <- 3
+sigma2 <- 1
+
+simulate_js <- function(sigma, p_dim) {
+  theta <- rnorm(p_dim, 0, sigma)
+  X <- theta + rnorm(p_dim, 0, 1)
+  sum_x_sq <- sum(X^2)
+  shrinkage_factor <- max(0, 1 - (p_dim - 2) / sum_x_sq)
+  js_est <- shrinkage_factor * X
+  
+  data.frame(
+    i = 1:p_dim,
+    X_i = X,
+    JS_i = js_est
+  )
+}
+
+df_large <- simulate_js(sigma1, p)
+df_small <- simulate_js(sigma2, p)
+y_lims <- range(c(df_large$X_i, df_small$X_i))
+
+create_plot <- function(df, title, y_limits) {
+  df_long <- df %>%
+    pivot_longer(cols = c(X_i, JS_i), names_to = "Est", values_to = "Value")
+  
+  ggplot(df_long, aes(x = i, y = Value, color = Est, shape = Est)) +
+    geom_point(size = 3, alpha = 0.8) +
+    scale_color_manual(
+      values = c("X_i" = "tomato", "JS_i" = "blue"),
+      labels = unname(TeX(c("$\\hat{\\theta}_i^{JS}$", "$X_i$")))
+    ) +
+    scale_shape_manual(
+      values = c("X_i" = 4, "JS_i" = 16),
+      labels = unname(TeX(c("$\\hat{\\theta}_i^{JS}$", "$X_i$")))
+    ) +
+    ylim(y_limits) +
+    theme_minimal() +
+    labs(
+      title = title,
+      x = TeX("Index $i$"),
+      y = TeX("Value"),
+      color = "Estimator",
+      shape = "Estimator"
+    )
+}
+
+p1 <- create_plot(df_large, TeX("Large $\\sigma^2$ (Less Shrinkage)"), y_lims)
+p2 <- create_plot(df_small, TeX("Small $\\sigma^2$ (More Shrinkage)"), y_lims)
+
+# Combine with patchwork, collect guides at the bottom
+p1 + p2 + 
+  plot_layout(guides = "collect") & 
+  theme(legend.position = "bottom")
+```
+
+
 ### The Maximum Likelihood Estimator
 
 Since the observations have the covariance matrix $I$ (the identity matrix), the individual components $X_1, \dots, X_p$ are independent, with $X_i \sim N(\theta_i, 1)$.
@@ -1525,23 +1605,34 @@ Since $p \ge 3$, the constant $(p-2)^2$ is strictly positive. Because $1/\lVert 
 Thus, $d^{JS}$ dominates the MLE, proving the MLE is inadmissible.
 :::
 
-**Interpretation:**
+### How much JS Estimator Improves over MLE
 
-The term $(p-2)^2 E^{X|\theta} \left[ \frac{1}{\lVert X \rVert^2} \right]$ represents the reduction in risk provided by the James-Stein estimator.
+The exact risk function of the James-Stein estimator $d^{JS}(X)$ under squared error loss for $X \sim N_p(\theta, I)$ is given by:
 
-* When the observed signal $\lVert X \rVert^2$ is large (implying $\lVert \theta \rVert^2$ is likely large), the term $1/\lVert X \rVert^2$ is small. Consequently, the risk of the James-Stein estimator approaches that of the MLE ($p$), and the improvement is negligible.
+$$R(\theta, d^{JS}) = p - (p-2)^2 E \left[ \frac{1}{\chi_p^2(\|\theta\|^2/2)} \right]$$
 
-* When the observed signal $\lVert X \rVert^2$ is small (implying $\lVert \theta \rVert^2$ is likely near zero), the term $1/\lVert X \rVert^2$ is large. In this scenario, the James-Stein estimator shrinks the estimate aggressively toward zero, resulting in a risk substantially lower than $p$.
+where $\chi_p^2(\|\theta\|^2/2)$ is a non-central chi-square random variable with $p$ degrees of freedom and non-centrality parameter $\lambda = \|\theta\|^2/2$. 
 
- **Risk Ratio near the Origin**:
- As the true parameter vector shrinks to zero ($\lVert \theta \rVert \to 0$), the ratio of the risks converges to a constant fraction. We substitute the expectation $E^{X|\theta=0}[1/\lVert X \rVert^2] = 1/(p-2)$ directly into the numerator:
- 
- $$
- \lim_{\lVert \theta \rVert \to 0} \frac{R(\theta, d^{JS})}{R(\theta, d^{\text{MLE}})} = \frac{p - (p-2)^2 \left( \frac{1}{p-2} \right)}{p} = \frac{p - (p-2)}{p} = \frac{2}{p}
- $$
+Using the approximation $E[1/\chi_p^2(\lambda)] \approx 1/E[\chi_p^2(\lambda)] = 1/(p + \|\theta\|^2)$, we can see the approximate behavior of the risk:
 
- For a dimension like $p=10$, the James-Stein estimator incurs only $20\%$ of the risk of the MLE near the origin.
+$$R(\theta, d^{JS}) \approx p - \frac{(p-2)^2}{p + \|\theta\|^2}$$
 
+
+
+* **Aggressive Shrinkage near the Origin**: When $\|\theta\|^2$ is small, the denominator $p + \|\theta\|^2$ is small, making the subtracted term large. This results in a risk substantially lower than the MLE risk of $p$.
+
+* **Diminishing Improvement with Large Signal**: As $\|\theta\|^2$ becomes large, the term $\frac{(p-2)^2}{p + \|\theta\|^2}$ approaches zero. Consequently, the risk of the James-Stein estimator approaches $p$, and the improvement over the MLE becomes negligible.
+
+
+
+**Risk Ratio near the Origin**:
+As the true parameter vector shrinks to zero ($\|\theta\| \to 0$), the ratio of the risks converges to a constant fraction. Using the exact expectation $E^{X|\theta=0}[1/\|X\|^2] = 1/(p-2)$:
+
+$$
+\lim_{\|\theta\| \to 0} \frac{R(\theta, d^{JS})}{R(\theta, d^{\text{MLE}})} = \frac{p - (p-2)^2 \left( \frac{1}{p-2} \right)}{p} = \frac{p - (p-2)}{p} = \frac{2}{p}
+$$
+
+For a dimension like $p=10$, the James-Stein estimator incurs only $20\%$ of the risk of the MLE near the origin.
 
 ::: {.callout-note collapse="true"}
 #### Is $d^{JS}$ Minimax?
@@ -1633,7 +1724,7 @@ ggplot(df, aes(x = theta_sq)) +
  )
 ```
 
-### Risk Comparison under Normalized Loss (Optional)
+### Using Normalized Loss (Optional)
 
 We consider the **Normalized Squared Error Loss** function, which penalizes errors relative to the magnitude of the true parameter vector:
 $$
@@ -1928,9 +2019,10 @@ Plugging $\hat{B}$ into the ideal Bayes estimator recovers the James-Stein rule:
 $$\delta^{EB}(X) = \left( 1 - \hat{B} \right) X = \left( 1 - \frac{p-2}{||X||^2} \right) X$$
 
 
-**What We Learned**
+**Remarks:**
 
-* **Adaptive Shrinkage:** The James-Stein estimator automatically adjusts the amount of shrinkage based on the observed total magnitude $\lVert X \rVert^2$. If the data suggests the true means are spread far from zero, $\lVert X \rVert^2$ will be large, $\hat{B}$ will be small, and we shrink less.
-* **Unbiasedness of B:** Interestingly, while $\hat{B}$ is an unbiased estimator of the shrinkage factor, the resulting James-Stein estimator itself is biased toward the origin. This is a classic example of sacrificing unbiasedness to minimize total risk.
+(1) **Adaptive Shrinkage:** The James-Stein estimator automatically adjusts the amount of shrinkage based on the observed total magnitude $\lVert X \rVert^2$. If the data suggests the true means are spread far from zero, $\lVert X \rVert^2$ will be large, $\hat{B}$ will be small, and we shrink less.
+
+(2) **Unbiasedness of B:** Interestingly, while $\hat{B}$ is an unbiased estimator of the shrinkage factor, the resulting James-Stein estimator itself is biased toward the origin. This is a classic example of sacrificing unbiasedness to minimize total risk.
 
 {{< include bayesian2.qmd >}}
