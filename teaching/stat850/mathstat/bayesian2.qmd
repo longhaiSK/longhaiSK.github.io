@@ -530,7 +530,11 @@ post_counts <- posterior_epred(fit_logit)
 # Convert to Probability Scale by Dividing by Trials
 p_samples <- sweep(post_counts, 2, baseball_data$Pre_AtBats, "/")
 
-# 2. Define Function for Weighted Median
+# 2. Extract Posterior Means (Method 4)
+# This provides the missing p_hat_logit variable
+p_hat_logit <- colMeans(p_samples)
+
+# 3. Define Function for Weighted Median
 # Finds the Value 'q' Such That Sum(weights Where X <= Q) >= 0.5 * Total_weight
 get_weighted_median <- function(samples) {
   # Calculate weights based on the loss function denominator
@@ -554,13 +558,14 @@ get_weighted_median <- function(samples) {
   return(samp_sorted[idx])
 }
 
-# 3. Apply to All Players
+# 4. Apply to All Players (Method 5)
 p_hat_optimal <- apply(p_samples, 2, get_weighted_median)
 ```
 
 #### Comparison of All Five Estimates of $p_i$
 
 We now compare all five methods: MLE, James-Stein (transformed), Bayes Normal-Normal (transformed), Hierarchical Logit-Normal (Posterior Mean), and Optimal Bayes (Weighted Median).
+
 
 
 ```{r}
@@ -574,15 +579,14 @@ We now compare all five methods: MLE, James-Stein (transformed), Bayes Normal-No
 inv_trans <- function(mu, n) { 0.5 * (sin(mu / sqrt(n)) + 1) }
 
 # Convert Transformed Estimates Back to Probability Scale
+# (Assuming mu_js and mu_brms were defined in previous logic)
 p_mle    <- inv_trans(baseball_data$x, baseball_data$Pre_AtBats)
 p_js     <- inv_trans(mu_js, baseball_data$Pre_AtBats)
 p_normal <- inv_trans(mu_brms, baseball_data$Pre_AtBats) 
-# P_hat_logit (method 4) and P_hat_optimal (method 5) Are Already Calculated
 
 # 2. Combine into Dataframe
 df_compare <- data.frame(
   Player = baseball_data$Player,
-  x_i    = baseball_data$x, # For sorting
   p_true = baseball_data$p_season,
   p_mle  = p_mle,
   p_js   = p_js,
@@ -591,10 +595,8 @@ df_compare <- data.frame(
   p_opt   = p_hat_optimal
 )
 
-
-
 library(knitr)
-# Sort by Initial Performance
+# Sort by Initial Performance (MLE)
 df_compare_sorted <- df_compare[order(df_compare$p_mle), ]
 
 # Prepare the display table from the sorted comparison data
