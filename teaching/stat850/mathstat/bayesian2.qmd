@@ -434,17 +434,13 @@ y_i | p_i &\sim \text{Binomial}(n_i, p_i) \\
 $$
 
 We implement this in `brms` using the `binomial` family with a logit link. The individual point estimate $\hat{p}_i$ is the **posterior mean** of $p_i$. Note that because the inverse-logit function is non-linear, the posterior mean of $p_i$ is not simply the inverse-logit of the posterior mean of the random effect; `brms` handles this integration automatically via the `fitted()` function.
-
 ```{r}
-#| label: method-logit-normal
-#| echo: true
-#| results: hide
+#| label: mcmc-sampling
 #| message: false
 #| warning: false
 
 # 1. Fit Hierarchical Logistic Regression
-# Formula: Y | Trials(n) ~ 1 + (1 | Player)
-# This Estimates a Global Intercept (mu_0) and Random Intercepts for Each Player (logit(p_i))
+# We use the 'file' argument to cache the model on disk
 fit_logit <- brm(
   formula = Pre_HR | trials(Pre_AtBats) ~ 1 + (1 | Player),
   data = baseball_data,
@@ -454,13 +450,64 @@ fit_logit <- brm(
     prior(cauchy(0, 2), class = "sd")
   ),
   chains = 2, iter = 4000, warmup = 1000, seed = 123,
-  refresh = 0
+  refresh = 0,
+  file = "fit_logit_baseball" 
 )
 
-# 2. Extract Posterior Means of P_i
-# Fitted() Returns the Posterior Expectations of the Response (expected Count).
-fitted_counts <- fitted(fit_logit) 
-p_hat_logit <- fitted_counts[, "Estimate"] / baseball_data$Pre_AtBats
+# 2. Extract specific players for the plots
+ordered_players <- baseball_data %>% arrange(p_pre)
+target_players <- ordered_players[c(1, 2, 16, 17), ]
+
+# 3. Extract Posterior Draws
+# summary = FALSE gives the full MCMC matrix (iter x players)
+post_draws <- fitted(fit_logit, 
+                     newdata = target_players, 
+                     summary = FALSE)
+```
+
+```{r}
+#| label: visualization-densities
+#| fig-width: 10
+#| fig-height: 8
+
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+
+# 1. Prepare data for plotting
+plot_list <- list()
+for(i in 1:nrow(target_players)) {
+  p_id <- target_players$Player[i]
+  n_i <- target_players$Pre_AtBats[i]
+  
+  plot_list[[i]] <- data.frame(
+    Player = paste("Player", p_id),
+    p_sample = post_draws[, i] / n_i,
+    p_pre = target_players$p_pre[i],
+    p_season = target_players$p_season[i]
+  )
+}
+plot_data <- do.call(rbind, plot_list)
+
+# 2. Draw the faceted density plots
+ggplot(plot_data, aes(x = p_sample)) +
+  geom_density(fill = "steelblue", alpha = 0.4, color = "steelblue") +
+  geom_vline(aes(xintercept = p_pre), 
+             color = "grey50", linetype = "dashed", linewidth = 1) +
+  geom_vline(aes(xintercept = p_season), 
+             color = "black", linetype = "solid", linewidth = 1) +
+  facet_wrap(~Player, scales = "free", ncol = 2) +
+  theme_minimal() +
+  labs(
+    title = "Posterior Distributions of HR Probabilities for Extreme Players",
+    subtitle = "Dashed Grey: Pre-season (Observed) | Solid Black: Remainder of Season (Actual)",
+    x = expression(p[i]),
+    y = "Posterior Density"
+  ) +
+  theme(
+    strip.text = element_text(face = "bold"),
+    panel.spacing = unit(1, "lines")
+  )
 ```
 
 #### Method 5: Optimal Bayes Estimator w.r.t. Relative Absolute Error
