@@ -349,6 +349,11 @@ is the expected loss with respect to the sampling distribution when the true par
 * **Bayes Risk:** For a decision rule $d$ and prior distribution $\pi$,
 $$r(\pi, d) = \int_{\Theta} R(\theta, d) \pi(\theta) d\theta = E^\theta [ R(\theta, d) ]$$
 is the expected risk averaging over both the parameter uncertainty (prior) and the data variability (likelihood).
+
+* **Posterior Bayes Loss:** The minimum possible expected loss given observed data $x$ is denoted as $\rho^{\text{Bayes}}(\pi, x)$. It represents the expected posterior loss of the Bayes rule:
+$$
+\rho^{\text{Bayes}}(\pi, x) = \inf_{d} E^{\theta|x} [ \mathcal{L}(\theta, d) ]
+$$
 :::
 
 ::: {#thm-bayes-rule-minimization}
@@ -358,6 +363,7 @@ Minimizing the Bayes risk $r(\pi, d)$ is equivalent to minimizing the posterior 
 $$
 d(x) = \underset{a}{\arg\min} \ E^{\theta|X} [ \mathcal{L}(\theta, a) ]
 $$
+The value of the minimum expected posterior loss is $\rho^{\text{Bayes}}(\pi, x)$.
 :::
 
 ::: {.proof}
@@ -472,7 +478,7 @@ $$
 Differentiating with respect to $d$ and setting to zero:
 
 $$
-\frac{d Q}{d d} = 2d E^{\theta|X}[\theta^{-2}] - 2 E^{\theta|X}[\theta^{-1}] = 0
+\frac{\partial Q}{\partial d} = 2d E^{\theta|X}[\theta^{-2}] - 2 E^{\theta|X}[\theta^{-1}] = 0
 $$
 
 Solving for $d$:
@@ -503,7 +509,7 @@ $$
 We find the minimum by analyzing the rate of change of $\psi(d)$ with respect to $d$. Differentiating (or taking the subgradient for non-differentiable points):
 
 $$
-\frac{d}{dd} \psi(d) = \int_{-\infty}^{d} 1 \, dF(\theta|x) - \int_{d}^{\infty} 1 \, dF(\theta|x) = P(\theta \le d|x) - P(\theta > d|x)
+\frac{\partial}{\partial d} \psi(d) = \int_{-\infty}^{d} 1 \, dF(\theta|x) - \int_{d}^{\infty} 1 \, dF(\theta|x) = P(\theta \le d|x) - P(\theta > d|x)
 $$
 
 Setting this derivative to zero implies we seek a point where the probability mass to the left equals the probability mass to the right:
@@ -813,7 +819,7 @@ $$
 
 To find the optimal $d$, we differentiate the integral with respect to $d$ and set it to zero:
 $$
-\frac{d}{dd} \left( \int_{d-\delta}^{d+\delta} \pi(\theta|x) \, d\theta \right) = \pi(d+\delta|x) - \pi(d-\delta|x) = 0
+\frac{\partial}{\partial d} \left( \int_{d-\delta}^{d+\delta} \pi(\theta|x) \, d\theta \right) = \pi(d+\delta|x) - \pi(d-\delta|x) = 0
 $$
 
 This yields the condition **$\pi(d+\delta|x) = \pi(d-\delta|x)$**.
@@ -973,7 +979,7 @@ $$
 L(\theta|x) = \theta^{-n} e^{-\frac{1}{\theta}\sum_{i=1}^n x_i}
 $$
 
-The Maximum Likelihood Estimator is standard: $\hat{\theta}_{MLE} = \bar{X}$.
+The Maximum Likelihood Estimator is standard: $\hat{\theta}_{\text{MLE}} = \bar{X}$.
 
 **Minimax Estimation Setup**
 
@@ -1055,48 +1061,45 @@ Consider the setting:
 
 * Data: $X \sim N_p(\theta, I)$
 * Prior: $\theta \sim N_p(0, \sigma^2 I)$
-* Jame-Stein Estimator: 
+* Jame-Stein Estimator: 
 
 $$d^{JS}(X) = \left( 1 - \frac{p-2}{||X||^2} \right) X$$
 
 ### The Maximum Likelihood Estimator
 
-Given the data model $X \sim N_p(\theta, I)$, the likelihood function $L(\theta; x)$ is the probability density function of the multivariate normal distribution:
+Since the observations have the covariance matrix $I$ (the identity matrix), the individual components $X_1, \dots, X_p$ are independent, with $X_i \sim N(\theta_i, 1)$.
+
+The joint likelihood function is the product of the individual probability density functions:
 
 $$
-L(\theta; x) = (2\pi)^{-p/2} \det(I)^{-1/2} \exp\left( -\frac{1}{2} (x - \theta)^T I^{-1} (x - \theta) \right)
+L(\theta; x) = \prod_{i=1}^p \frac{1}{\sqrt{2\pi}} \exp\left( -\frac{(X_i - \theta_i)^2}{2} \right)
 $$
 
-Simplifying with the identity matrix $I$:
+To find the estimator, we maximize the log-likelihood function $\ell(\theta)$:
 
 $$
-L(\theta; x) \propto \exp\left( -\frac{1}{2} ||x - \theta||^2 \right)
+\begin{aligned}
+\ell(\theta) &= \ln \left( \prod_{i=1}^p \frac{1}{\sqrt{2\pi}} \exp\left( -\frac{(X_i - \theta_i)^2}{2} \right) \right) \\
+&= \sum_{i=1}^p \left[ \ln\left(\frac{1}{\sqrt{2\pi}}\right) - \frac{(X_i - \theta_i)^2}{2} \right]
+\end{aligned}
 $$
 
-To find the estimator that maximizes this likelihood, we work with the log-likelihood function $\ell(\theta)$:
+Maximizing this sum is equivalent to minimizing the sum of squared errors $\sum (X_i - \theta_i)^2$. We can solve for each component $\theta_i$ separately. Differentiating with respect to $\theta_i$:
 
 $$
-\ell(\theta) = \ln L(\theta; x) = C - \frac{1}{2} ||x - \theta||^2
+\frac{\partial \ell}{\partial \theta_i} = (X_i - \theta_i)
 $$
 
-where $C$ is a constant independent of $\theta$. Maximizing $\ell(\theta)$ is equivalent to minimizing the squared Euclidean distance $||x - \theta||^2$.
-
-Differentiating with respect to the vector $\theta$:
+Setting the derivative to zero gives the critical point:
 
 $$
-\nabla_\theta \ell(\theta) = \nabla_\theta \left( -\frac{1}{2} (x - \theta)^T (x - \theta) \right) = (x - \theta)
+X_i - \hat{\theta}_i = 0 \implies \hat{\theta}_{i, \text{MLE}} = X_i
 $$
 
-Setting the gradient to zero to find the critical point:
+Since this holds for every component $i = 1, \dots, p$, the Maximum Likelihood Estimator for the entire vector is simply the observation vector itself:
 
 $$
-x - \hat{\theta} = 0 \implies \hat{\theta}_{MLE} = x
-$$
-
-The Hessian matrix of second derivatives is $-I$ (negative definite), confirming this solution is a global maximum. Thus, the Maximum Likelihood Estimator is simply the observation itself:
-
-$$
-d^{MLE}(X) = X
+d^{\text{MLE}}(X) = X
 $$
 
 ### A Bayes Rule
@@ -1120,29 +1123,29 @@ Since the components are independent, we can derive the Bayes rule for a single 
 For a single component, the posterior distribution of $\theta_i$ given $X_i$ is Normal, with parameters determined by the standard conjugate formulas:
 
 * **Posterior Precision (inverse variance):**
-    The posterior precision is the sum of the prior precision and the data precision.
-    $$
-    \frac{1}{v_{post}} = \frac{1}{\sigma^2} + \frac{1}{1} = \frac{1 + \sigma^2}{\sigma^2}
-    $$
-    Therefore, the posterior variance is:
-    $$
-    v_{post} = \frac{\sigma^2}{1 + \sigma^2}
-    $$
+    The posterior precision is the sum of the prior precision and the data precision.
+    $$
+    \frac{1}{v_{\text{post}}} = \frac{1}{\sigma^2} + \frac{1}{1} = \frac{1 + \sigma^2}{\sigma^2}
+    $$
+    Therefore, the posterior variance is:
+    $$
+    v_{\text{post}} = \frac{\sigma^2}{1 + \sigma^2}
+    $$
 
 * **Posterior Mean (Bayes Estimator):**
-    The posterior mean is the precision-weighted average of the prior mean (0) and the data mean ($X_i$).
-    $$
-    \begin{aligned}
-    E^{\theta_i|X_i}[\theta_i] &= v_{post} \left( \frac{0}{\sigma^2} + \frac{X_i}{1} \right) \\
-    &= \frac{\sigma^2}{1 + \sigma^2} X_i \\
-    &= \left( 1 - \frac{1}{1 + \sigma^2} \right) X_i
-    \end{aligned}
-    $$
+    The posterior mean is the precision-weighted average of the prior mean (0) and the data mean ($X_i$).
+    $$
+    \begin{aligned}
+    E^{\theta_i|X_i}[\theta_i] &= v_{\text{post}} \left( \frac{0}{\sigma^2} + \frac{X_i}{1} \right) \\
+    &= \frac{\sigma^2}{1 + \sigma^2} X_i \\
+    &= \left( 1 - \frac{1}{1 + \sigma^2} \right) X_i
+    \end{aligned}
+    $$
 
 Since this holds for all $i$, the Bayes rule for the vector $\theta$ is applying this shrinkage factor to each component:
 
 $$
-d^{Bayes}(X) = \left( 1 - \frac{1}{1 + \sigma^2} \right) X
+d^{\text{Bayes}}(X) = \left( 1 - \frac{1}{1 + \sigma^2} \right) X
 $$
 
 #### Bayes Risk of the Bayes Rule
@@ -1150,13 +1153,13 @@ $$
 To compute the Bayes risk, we sum the risks of the individual components. For squared error loss, the posterior expected loss for one component is simply the posterior variance derived above:
 
 $$
-E^{\theta_i|X_i} [ (\theta_i - d^{Bayes}(X_i))^2 ] = v_{post} = \frac{\sigma^2}{1 + \sigma^2}
+E^{\theta_i|X_i} [ (\theta_i - d^{\text{Bayes}}(X_i))^2 ] = v_{\text{post}} = \frac{\sigma^2}{1 + \sigma^2}
 $$
 
 The total Bayes risk is the sum of these variances over $p$ components:
 
 $$
-r(\pi, d^{Bayes}) = \sum_{i=1}^p \frac{\sigma^2}{1 + \sigma^2} = \frac{p\sigma^2}{1 + \sigma^2}
+r(\pi, d^{\text{Bayes}}) = \sum_{i=1}^p \frac{\sigma^2}{1 + \sigma^2} = \frac{p\sigma^2}{1 + \sigma^2}
 $$
 
 #### Minimaxity of the MLE
@@ -1180,10 +1183,10 @@ $$
 
 The risk of the MLE is $R(\theta, d^0) = p$ for all $\theta$. Since it is a constant risk estimator, its maximum risk is simply $p$.
 
-To prove it is minimax, we show that $p$ is the limit of the Bayes risks for a sequence of conjugate priors $\theta_i \sim N(0, \sigma^2)$. As derived above, the Bayes risk for the optimal Bayes estimator $d^{Bayes}$ is:
+To prove it is minimax, we show that $p$ is the limit of the Bayes risks for a sequence of conjugate priors $\theta_i \sim N(0, \sigma^2)$. As derived above, the Bayes risk for the optimal Bayes estimator $d^{\text{Bayes}}$ is:
 
 $$
-r(\pi_{\sigma^2}, d^{Bayes}) = \frac{p\sigma^2}{1 + \sigma^2}
+r(\pi_{\sigma^2}, d^{\text{Bayes}}) = \frac{p\sigma^2}{1 + \sigma^2}
 $$
 
 As $\sigma^2 \to \infty$ (the prior becomes "flat"), the Bayes risk approaches $p$:
@@ -1270,7 +1273,7 @@ $$
 
 ::: {.callout-tip}
 ### Remark: Connection to Non-Central $\chi^2$ Moments
-This identity provides an elegant way to derive the mean of a non-central chi-square distribution without performing complex integration. 
+This identity provides an elegant way to derive the mean of a non-central chi-square distribution without performing complex integration. 
 
 Consider the case where $g(X) = X$. Here, $\nabla \cdot X = p$. Plugging this into the vector form:
 
@@ -1347,11 +1350,11 @@ This version of the lemma is particularly useful because when $\theta = 0$, the 
 
 * **Verifying the Mean:** If we set $c(\lVert X \rVert^2) = 1$, then $g(X) = X$. The lemma gives $E^{X|\theta=0}[\lVert X \rVert^2] = p + 2\lVert X \rVert^2(0) = p$, which is the expected value of a $\chi^2_p$ variable.
 * **The James-Stein Weight:** If we set $c(\lVert X \rVert^2) = \frac{1}{\lVert X \rVert^2}$, then $c'(z) = -\frac{1}{z^2}$.
-    $$
-    \nabla \cdot g(X) = \frac{p}{\lVert X \rVert^2} + 2 \lVert X \rVert^2 \left( -\frac{1}{\lVert X \rVert^4} \right) = \frac{p-2}{\lVert X \rVert^2}
-    $$
-    This explains why the $p-2$ constant appears in the James-Stein estimator—it is the net result of $p$ dimensions of "spreading" minus 2 dimensions of "radial thinning."
- 
+    $$
+    \nabla \cdot g(X) = \frac{p}{\lVert X \rVert^2} + 2 \lVert X \rVert^2 \left( -\frac{1}{\lVert X \rVert^4} \right) = \frac{p-2}{\lVert X \rVert^2}
+    $$
+    This explains why the $p-2$ constant appears in the James-Stein estimator—it is the net result of $p$ dimensions of "spreading" minus 2 dimensions of "radial thinning."
+ 
 </details>
 :::
 
@@ -1482,7 +1485,7 @@ R(\theta, d^{JS}) &= E^{X|\theta} \left[ || (X - \theta) - g(X) ||^2 \right] \\
 \end{aligned}
 $$
 
-The first term is the risk of the MLE, which is $p$. 
+The first term is the risk of the MLE, which is $p$. 
 
 
 
@@ -1505,11 +1508,7 @@ Applying the lemma to the cross-term:
 $$2 E^{X|\theta} \left[ (X-\theta)^T g(X) \right] = 2 E^{X|\theta} [ \nabla \cdot g(X) ] = 2(p-2)^2 E^{X|\theta} \left[ \frac{1}{\lVert X \rVert^2} \right]$$
 
 The third term in the risk expansion is the squared magnitude of the shrinkage:
-$$
-\lVert g(X) \rVert^2 = 
-\left \lVert  \frac{p-2}{ \lVert X \rVert ^2} X \right \rVert^2 = \frac{(p-2)^2}{\lVert X \rVert^4} \lVert X \rVert^2 
-= \frac{(p-2)^2}{\lVert X \rVert^2}
-$$
+$$\lVert g(X) \rVert^2 = \left\lVert  \frac{p-2}{ \lVert X \rVert ^2} X \right \rVert^2 = \frac{(p-2)^2}{\lVert X \rVert^4} \lVert X \rVert^2 = \frac{(p-2)^2}{\lVert X \rVert^2}$$
 
 
 
@@ -1534,16 +1533,16 @@ The term $(p-2)^2 E^{X|\theta} \left[ \frac{1}{\lVert X \rVert^2} \right]$ repre
 
 * When the observed signal $\lVert X \rVert^2$ is small (implying $\lVert \theta \rVert^2$ is likely near zero), the term $1/\lVert X \rVert^2$ is large. In this scenario, the James-Stein estimator shrinks the estimate aggressively toward zero, resulting in a risk substantially lower than $p$.
 
-   **Risk Ratio near the Origin**:
-   As the true parameter vector shrinks to zero ($\lVert \theta \rVert \to 0$), the ratio of the risks converges to a constant fraction. We substitute the expectation $E^{X|\theta=0}[1/\lVert X \rVert^2] = 1/(p-2)$ directly into the numerator:
-   
-   $$
-   \lim_{\lVert \theta \rVert \to 0} \frac{R(\theta, d^{JS})}{R(\theta, d^{MLE})} = \frac{p - (p-2)^2 \left( \frac{1}{p-2} \right)}{p} = \frac{p - (p-2)}{p} = \frac{2}{p}
-   $$
+   **Risk Ratio near the Origin**:
+   As the true parameter vector shrinks to zero ($\lVert \theta \rVert \to 0$), the ratio of the risks converges to a constant fraction. We substitute the expectation $E^{X|\theta=0}[1/\lVert X \rVert^2] = 1/(p-2)$ directly into the numerator:
+   
+   $$
+   \lim_{\lVert \theta \rVert \to 0} \frac{R(\theta, d^{JS})}{R(\theta, d^{\text{MLE}})} = \frac{p - (p-2)^2 \left( \frac{1}{p-2} \right)}{p} = \frac{p - (p-2)}{p} = \frac{2}{p}
+   $$
 
-   For a dimension like $p=10$, the James-Stein estimator incurs only $20\%$ of the risk of the MLE near the origin.
+   For a dimension like $p=10$, the James-Stein estimator incurs only $20\%$ of the risk of the MLE near the origin.
 
- 
+ 
 ::: {.callout-note collapse="true"}
 #### Is $d^{JS}$ Minimax?
 
@@ -1567,71 +1566,71 @@ theta_sq <- seq(0, 50, length.out = 300)
 
 # Create Data Frame
 df <- data.frame(
-  theta_sq = theta_sq,
-  risk_mle = p,
-  risk_js = p - (p - 2)^2 / (p - 2 + theta_sq)
+  theta_sq = theta_sq,
+  risk_mle = p,
+  risk_js = p - (p - 2)^2 / (p - 2 + theta_sq)
 )
 
 # Calculate Ratio
 df$ratio <- df$risk_js / p
 
 # --- FIX: ADJUST SCALING FACTOR ---
-# We scale the Ratio so 1.0 sits at y = 12 (top of plot), 
+# We scale the Ratio so 1.0 sits at y = 12 (top of plot), 
 # rather than y = 10, to separate it from the Risk curve.
 y_max_limit <- p+1
-scale_factor <- y_max_limit 
+scale_factor <- y_max_limit 
 
 # Define Legend Labels
 labels_map <- c(
-  "MLE" = TeX(r'($R(\theta, d^{MLE}) = p$)'),
-  "JS" = TeX(r'($R(\theta, d^{JS})$)'),
-  "Ratio" = TeX(r'(Ratio $\frac{R(\theta, d^{JS})}{R(\theta, d^{MLE})}$)')
+  "MLE" = TeX(r'($R(\theta, d^{MLE}) = p$)'),
+  "JS" = TeX(r'($R(\theta, d^{JS})$)'),
+  "Ratio" = TeX(r'(Ratio $\frac{R(\theta, d^{JS})}{R(\theta, d^{MLE})}$)')
 )
 
 ggplot(df, aes(x = theta_sq)) +
-  # 1. MLE Risk Line (Red Dashed)
-  geom_line(aes(y = risk_mle, color = "MLE", linetype = "MLE"), size = 1) +
-  
-  # 2. JS Risk Line (Blue Solid)
-  geom_line(aes(y = risk_js, color = "JS", linetype = "JS"), size = 1.2) +
-  
-  # 3. Ratio Line (Green Dot-Dash) 
-  # We scale it up to occupy the full plot height
-  geom_line(aes(y = ratio * scale_factor, color = "Ratio", linetype = "Ratio"), size = 1) +
-  
-  # Axes Configuration
-  scale_y_continuous(
-    name = "Risk",
-    limits = c(0, y_max_limit),
-    # Secondary Axis: Divide back by the NEW scale factor
-    sec.axis = sec_axis(~ . / scale_factor, name = "Risk Ratio")
-  ) +
-  
-  # Manual Colors and Linetypes
-  scale_color_manual(
-    name = NULL,
-    values = c("MLE" = "firebrick", "JS" = "dodgerblue", "Ratio" = "forestgreen"),
-    labels = labels_map
-  ) +
-  scale_linetype_manual(
-    name = NULL,
-    values = c("MLE" = "dashed", "JS" = "solid", "Ratio" = "dotdash"),
-    labels = labels_map
-  ) +
-  
-  # Theming
-  labs(
-      title = TeX(sprintf(r'(Risk Comparison of Estimators ($p=%d$))', p)),     
-      x = TeX(r'($|| \theta ||^2$ (Signal Strength))')
-  ) +
-  theme_minimal() +
-  theme(
-    legend.position = c(0.95, 0.5),
-    legend.justification = c(1, 0.5),
-    legend.background = element_rect(fill = "white", color = "gray80"),
-    axis.title.y.right = element_text(color = "forestgreen"),
-    axis.text.y.right = element_text(color = "forestgreen")
-  )
+  # 1. MLE Risk Line (Red Dashed)
+  geom_line(aes(y = risk_mle, color = "MLE", linetype = "MLE"), size = 1) +
+  
+  # 2. JS Risk Line (Blue Solid)
+  geom_line(aes(y = risk_js, color = "JS", linetype = "JS"), size = 1.2) +
+  
+  # 3. Ratio Line (Green Dot-Dash) 
+  # We scale it up to occupy the full plot height
+  geom_line(aes(y = ratio * scale_factor, color = "Ratio", linetype = "Ratio"), size = 1) +
+  
+  # Axes Configuration
+  scale_y_continuous(
+    name = "Risk",
+    limits = c(0, y_max_limit),
+    # Secondary Axis: Divide back by the NEW scale factor
+    sec.axis = sec_axis(~ . / scale_factor, name = "Risk Ratio")
+  ) +
+  
+  # Manual Colors and Linetypes
+  scale_color_manual(
+    name = NULL,
+    values = c("MLE" = "firebrick", "JS" = "dodgerblue", "Ratio" = "forestgreen"),
+    labels = labels_map
+  ) +
+  scale_linetype_manual(
+    name = NULL,
+    values = c("MLE" = "dashed", "JS" = "solid", "Ratio" = "dotdash"),
+    labels = labels_map
+  ) +
+  
+  # Theming
+  labs(
+      title = TeX(sprintf(r'(Risk Comparison of Estimators ($p=%d$))', p)),     
+      x = TeX(r'($|| \theta ||^2$ (Signal Strength))')
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = c(0.95, 0.5),
+    legend.justification = c(1, 0.5),
+    legend.background = element_rect(fill = "white", color = "gray80"),
+    axis.title.y.right = element_text(color = "forestgreen"),
+    axis.text.y.right = element_text(color = "forestgreen")
+  )
 ```
 
 ### Risk Comparison under Normalized Loss (Optional)
@@ -1641,15 +1640,15 @@ $$
 \mathcal{L}(\theta, d) = \frac{\lVert d - \theta \rVert^2}{\lVert \theta \rVert^2}, \quad \theta \neq 0
 $$
 
-**1. Risk of the MLE ($d^{MLE} = X$)**
+**1. Risk of the MLE ($d^{\text{MLE}} = X$)**
 
 The risk of the Maximum Likelihood Estimator is straightforward because the standard Mean Squared Error (MSE) of $X$ is constant ($p$):
 $$
-R(\theta, d^{MLE}) = E^{X|\theta} \left[ \frac{\lVert X - \theta \rVert^2}{\lVert \theta \rVert^2} \right] = \frac{1}{\lVert \theta \rVert^2} E^{X|\theta} \left[ \lVert X - \theta \rVert^2 \right]
+R(\theta, d^{\text{MLE}}) = E^{X|\theta} \left[ \frac{\lVert X - \theta \rVert^2}{\lVert \theta \rVert^2} \right] = \frac{1}{\lVert \theta \rVert^2} E^{X|\theta} \left[ \lVert X - \theta \rVert^2 \right]
 $$
 Since $X \sim N_p(\theta, I)$, we have $E^{X|\theta}[\lVert X - \theta \rVert^2] = p$.
 $$
-R(\theta, d^{MLE}) = \frac{p}{\lVert \theta \rVert^2}
+R(\theta, d^{\text{MLE}}) = \frac{p}{\lVert \theta \rVert^2}
 $$
 
 **2. Risk of the James-Stein Estimator ($d^{JS}$)**
@@ -1667,28 +1666,28 @@ $$
 
 We compare the risks by taking the difference:
 $$
-R(\theta, d^{MLE}) - R(\theta, d^{JS}) = \frac{1}{\lVert \theta \rVert^2} (p-2)^2 E^{X|\theta} \left[ \frac{1}{\lVert X \rVert^2} \right]
+R(\theta, d^{\text{MLE}}) - R(\theta, d^{JS}) = \frac{1}{\lVert \theta \rVert^2} (p-2)^2 E^{X|\theta} \left[ \frac{1}{\lVert X \rVert^2} \right]
 $$
 Since $(p-2)^2 > 0$ (for $p \ge 3$) and the expectation of a positive random variable is positive, this difference is strictly positive for all $\theta \neq 0$.
 $$
-R(\theta, d^{JS}) < R(\theta, d^{MLE})
+R(\theta, d^{JS}) < R(\theta, d^{\text{MLE}})
 $$
 
 * **Global Dominance:** The James-Stein estimator dominates the MLE under this loss function as well, achieving lower risk everywhere in the parameter space.
 * **Behavior near $\theta \approx 0$:**
-    As $\lVert \theta \rVert \to 0$, both risks diverge to infinity. We analyze their relative performance by examining the ratio of the risks:
-    
-    $$
-    \frac{R(\theta, d^{JS})}{R(\theta, d^{MLE})} = \frac{p - (p-2)^2 E^{X|\theta} [1/\lVert X \rVert^2]}{p} = 1 - \frac{(p-2)^2}{p} E^{X|\theta} \left[ \frac{1}{\lVert X \rVert^2} \right]
-    $$
+    As $\lVert \theta \rVert \to 0$, both risks diverge to infinity. We analyze their relative performance by examining the ratio of the risks:
+    
+    $$
+    \frac{R(\theta, d^{JS})}{R(\theta, d^{\text{MLE}})} = \frac{p - (p-2)^2 E^{X|\theta} [1/\lVert X \rVert^2]}{p} = 1 - \frac{(p-2)^2}{p} E^{X|\theta} \left[ \frac{1}{\lVert X \rVert^2} \right]
+    $$
 
-    At $\theta = 0$, $\lVert X \rVert^2 \sim \chi^2_p$, and the expectation is $E^{X|\theta=0}[1/\lVert X \rVert^2] = 1/(p-2)$. Substituting this into the ratio:
+    At $\theta = 0$, $\lVert X \rVert^2 \sim \chi^2_p$, and the expectation is $E^{X|\theta=0}[1/\lVert X \rVert^2] = 1/(p-2)$. Substituting this into the ratio:
 
-    $$
-    \lim_{\lVert \theta \rVert \to 0} \frac{R(\theta, d^{JS})}{R(\theta, d^{MLE})} = 1 - \frac{(p-2)^2}{p(p-2)} = 1 - \frac{p-2}{p} = \frac{2}{p}
-    $$
+    $$
+    \lim_{\lVert \theta \rVert \to 0} \frac{R(\theta, d^{JS})}{R(\theta, d^{\text{MLE}})} = 1 - \frac{(p-2)^2}{p(p-2)} = 1 - \frac{p-2}{p} = \frac{2}{p}
+    $$
 
-    Thus, near the origin, the James-Stein estimator reduces the risk by a factor of $p/2$. For large dimensions (e.g., $p=10$), the JS estimator has only $20\%$ of the risk of the MLE.
+    Thus, near the origin, the James-Stein estimator reduces the risk by a factor of $p/2$. For large dimensions (e.g., $p=10$), the JS estimator has only $20\%$ of the risk of the MLE.
 
 ### Bayes Risk of James-stein Estimator (Optional)
 
@@ -1709,7 +1708,7 @@ $$
 <details>
 <summary>Method 1: Integration over the Prior (Frequentist Risk approach)</summary>
 
-The Bayes risk is defined as $r(\pi, d) = E^\theta [ R(\theta, d) ]$.
+The Bayes risk is defined as $r(\pi, d) = E^\pi [ R(\theta, d) ]$.
 
 First, recall the frequentist risk of the James-Stein estimator for a fixed $\theta$. Using Stein's Lemma, the risk is given by:
 
@@ -1720,10 +1719,10 @@ $$
 To find the Bayes risk, we take the expectation of this risk with respect to the prior $\pi(\theta)$:
 
 $$
-r(\pi, d^{JS}) = \int R(\theta, d^{JS}) \pi(\theta) d\theta = p - (p-2)^2 E^\theta \left[ E^{X|\theta} \left( \frac{1}{||X||^2} \right) \right]
+r(\pi, d^{JS}) = \int R(\theta, d^{JS}) \pi(\theta) d\theta = p - (p-2)^2 E^\pi \left[ E^{X|\theta} \left( \frac{1}{||X||^2} \right) \right]
 $$
 
-By the law of iterated expectations, $E^\theta [ E^{X|\theta} (\cdot) ]$ is equivalent to the expectation with respect to the marginal distribution of $X$, denoted as $m(x)$.
+By the law of iterated expectations, $E^\pi [ E^{X|\theta} (\cdot) ]$ is equivalent to the expectation with respect to the marginal distribution of $X$, denoted as $m(x)$.
 Under the conjugate prior, the marginal distribution is $X \sim N(0, (1+\sigma^2)I)$.
 
 Consequently, the quantity $\frac{||X||^2}{1+\sigma^2}$ follows a Chi-squared distribution with $p$ degrees of freedom ($\chi^2_p$). The expectation of the inverse chi-square is:
@@ -1773,22 +1772,22 @@ E^{\theta|X} [ ||\theta - d^{JS}(X)||^2 ] = \text{tr}(\text{Var}^{\theta|X}(\the
 $$
 
 * **Trace term:**
-    $$\text{tr} \left( \frac{\sigma^2}{1+\sigma^2} I_p \right) = \frac{p\sigma^2}{1+\sigma^2}$$
+    $$\text{tr} \left( \frac{\sigma^2}{1+\sigma^2} I_p \right) = \frac{p\sigma^2}{1+\sigma^2}$$
 
 * **Squared Bias term:**
-    Let $B = \frac{1}{1+\sigma^2}$. Then $E^{\theta|X}[\theta] = (1-B)X$.
-    The estimator is $d^{JS}(X) = (1 - \frac{p-2}{||X||^2})X$.
-    The difference is:
+    Let $B = \frac{1}{1+\sigma^2}$. Then $E^{\theta|X}[\theta] = (1-B)X$.
+    The estimator is $d^{JS}(X) = (1 - \frac{p-2}{||X||^2})X$.
+    The difference is:
 
-    $$
-    E^{\theta|X}[\theta] - d^{JS}(X) = \left( (1-B) - \left( 1 - \frac{p-2}{||X||^2} \right) \right) X = \left( \frac{p-2}{||X||^2} - B \right) X
-    $$
+    $$
+    E^{\theta|X}[\theta] - d^{JS}(X) = \left( (1-B) - \left( 1 - \frac{p-2}{||X||^2} \right) \right) X = \left( \frac{p-2}{||X||^2} - B \right) X
+    $$
 
-    Squaring the norm gives:
+    Squaring the norm gives:
 
-    $$
-    \left( \frac{p-2}{||X||^2} - B \right)^2 ||X||^2 = \frac{(p-2)^2}{||X||^2} - 2B(p-2) + B^2 ||X||^2
-    $$
+    $$
+    \left( \frac{p-2}{||X||^2} - B \right)^2 ||X||^2 = \frac{(p-2)^2}{||X||^2} - 2B(p-2) + B^2 ||X||^2
+    $$
 
 **Step 2: Expectation with respect to Marginal $X$**
 
@@ -1797,14 +1796,14 @@ We now take the expectation $E^X[\cdot]$ of the posterior loss. Recall $X \sim N
 * **Expectation of Trace term:** Constant, remains $\frac{p\sigma^2}{1+\sigma^2}$.
 * **Expectation of Bias term:**
 
-    $$
-    \begin{aligned}
-    E^X \left[ \frac{(p-2)^2}{||X||^2} - \frac{2(p-2)}{1+\sigma^2} + \frac{||X||^2}{(1+\sigma^2)^2} \right] &= (p-2)^2 \frac{1}{(p-2)(1+\sigma^2)} - \frac{2(p-2)}{1+\sigma^2} + \frac{p(1+\sigma^2)}{(1+\sigma^2)^2} \\
-    &= \frac{p-2}{1+\sigma^2} - \frac{2p-4}{1+\sigma^2} + \frac{p}{1+\sigma^2} \\
-    &= \frac{p - 2 - 2p + 4 + p}{1+\sigma^2} \\
-    &= \frac{2}{1+\sigma^2}
-    \end{aligned}
-    $$
+    $$
+    \begin{aligned}
+    E^X \left[ \frac{(p-2)^2}{||X||^2} - \frac{2(p-2)}{1+\sigma^2} + \frac{||X||^2}{(1+\sigma^2)^2} \right] &= (p-2)^2 \frac{1}{(p-2)(1+\sigma^2)} - \frac{2(p-2)}{1+\sigma^2} + \frac{p(1+\sigma^2)}{(1+\sigma^2)^2} \\
+    &= \frac{p-2}{1+\sigma^2} - \frac{2p-4}{1+\sigma^2} + \frac{p}{1+\sigma^2} \\
+    &= \frac{p - 2 - 2p + 4 + p}{1+\sigma^2} \\
+    &= \frac{2}{1+\sigma^2}
+    \end{aligned}
+    $$
 
 **Step 3: Combine Terms**
 
@@ -1870,20 +1869,20 @@ In a standard Bayesian analysis, the hyperparameters of the prior are fixed base
 
 The workflow typically follows these steps:
 
-1.  **Hierarchical Model:**
-    We assume the data $X$ comes from a distribution $f(x|\theta)$, and the parameter $\theta$ comes from a prior $\pi(\theta|\eta)$ controlled by hyperparameters $\eta$.
+1.  **Hierarchical Model:**
+    We assume the data $X$ comes from a distribution $f(x|\theta)$, and the parameter $\theta$ comes from a prior $\pi(\theta|\eta)$ controlled by hyperparameters $\eta$.
 
-2.  **Marginal Likelihood (Evidence):**
-    We integrate out the parameter $\theta$ to obtain the marginal distribution of the data given the hyperparameters:
-    $$m(x|\eta) = \int f(x|\theta) \pi(\theta|\eta) d\theta$$
+2.  **Marginal Likelihood (Evidence):**
+    We integrate out the parameter $\theta$ to obtain the marginal distribution of the data given the hyperparameters:
+    $$m(x|\eta) = \int f(x|\theta) \pi(\theta|\eta) d\theta$$
 
-3.  **Estimation of Hyperparameters:**
-    Instead of fixing $\eta$, we estimate it by maximizing the marginal likelihood (Type-II Maximum Likelihood) or using method-of-moments:
-    $$\hat{\eta} = \underset{\eta}{\arg\max} \ m(x|\eta)$$
+3.  **Estimation of Hyperparameters:**
+    Instead of fixing $\eta$, we estimate it by maximizing the marginal likelihood (Type-II Maximum Likelihood) or using method-of-moments:
+    $$\hat{\eta} = \underset{\eta}{\arg\max} \ m(x|\eta)$$
 
-4.  **Posterior Inference:**
-    We proceed with standard Bayesian inference, but we substitute the estimated estimate $\hat{\eta}$ into the posterior:
-    $$\pi(\theta|x, \hat{\eta}) \propto f(x|\theta) \pi(\theta|\hat{\eta})$$
+4.  **Posterior Inference:**
+    We proceed with standard Bayesian inference, but we substitute the estimated estimate $\hat{\eta}$ into the posterior:
+    $$\pi(\theta|x, \hat{\eta}) \propto f(x|\theta) \pi(\theta|\hat{\eta})$$
 
 **Discussion:**
 
