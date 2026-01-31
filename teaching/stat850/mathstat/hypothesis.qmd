@@ -222,14 +222,159 @@ $$
 where $k \ge 0$ is a constant and $0 \le \gamma(x) \le 1$.
 :::
 
+```{r}
+#| label: fig-lrt-density-primary
+#| fig-cap: "Densities of $\\Lambda$ (primary view) with the LRT function $\\phi(x)$ scaled to the bottom 10% of the axis."
+#| fig-width: 7
+#| fig-height: 5
+
+library(ggplot2)
+
+# 1. Define Constants
+k_val     <- 7
+gamma_val <- 0.5
+df_val    <- 3
+ncp_h0    <- 0
+ncp_h1    <- 5.5
+
+# 2. Calculate Scaling
+# We find the peak density to determine the Y-axis range.
+max_dens <- max(
+  dchisq(df_val - 2, df = df_val, ncp = ncp_h0), # Mode approx df-2
+  dchisq(df_val + ncp_h1 - 2, df = df_val, ncp = ncp_h1)
+)
+# Make the graph slightly taller than the max density for headroom
+y_limit <- max_dens * 1.1
+
+# The user wants phi=1 to equal 0.1 of the range (approx 0.1 * y_limit)
+phi_scale <- 0.1 * y_limit
+
+# 3. Define Scaled Segments for phi(x)
+# Original y=1 becomes y=phi_scale
+df_segments <- data.frame(
+  x_start = c(0, k_val),
+  x_end   = c(k_val, 15),
+  y_start = c(0, phi_scale),
+  y_end   = c(0, phi_scale)
+)
+
+ggplot() +
+  # --- Layer 1: Densities (Primary Scale) ---
+  
+  # H0 Density (Red)
+  stat_function(fun = dchisq, args = list(df = df_val, ncp = ncp_h0), 
+                geom = "area", fill = "red", alpha = 0.2) +
+  stat_function(fun = dchisq, args = list(df = df_val, ncp = ncp_h0), 
+                color = "red", linetype = "dashed") +
+  
+  # H1 Density (Blue)
+  stat_function(fun = dchisq, args = list(df = df_val, ncp = ncp_h1), 
+                geom = "area", fill = "blue", alpha = 0.2) +
+  stat_function(fun = dchisq, args = list(df = df_val, ncp = ncp_h1), 
+                color = "blue", linetype = "dashed") +
+
+  # --- Layer 2: Scaled Test Function phi(x) (Bottom 10%) ---
+  
+  # The horizontal steps
+  geom_segment(data = df_segments, 
+               aes(x = x_start, xend = x_end, y = y_start, yend = y_end), 
+               size = 1.2) +
+  
+  # The vertical threshold line (goes up to the density to show the cut)
+  geom_segment(aes(x = k_val, xend = k_val, y = 0, yend = phi_scale), 
+               linetype = "dotted", color = "black") +
+  
+  # Points scaled to phi_scale
+  geom_point(aes(x = k_val, y = gamma_val * phi_scale), size = 3) + 
+  geom_point(aes(x = k_val, y = 0), size = 3, shape = 21, fill = "white") +
+  geom_point(aes(x = k_val, y = phi_scale), size = 3, shape = 21, fill = "white") +
+
+  # --- Layer 3: Annotations ---
+  
+  # Label for gamma
+  annotate("text", x = k_val + 0.2, y = gamma_val * phi_scale, 
+           label = expression(gamma), hjust = 0, fontface = "bold") +
+  
+  # Labels for Densities
+  annotate("text", x = 2, y = max_dens * 0.9, 
+           label = expression(H[0]), color = "red", size = 5) +
+  annotate("text", x = 8, y = max_dens * 0.4, 
+           label = expression(H[1]), color = "blue", size = 5) +
+
+  # --- Layer 4: Axes ---
+  scale_y_continuous(
+    name = "Density f(x)",
+    limits = c(0, y_limit),
+    
+    # Secondary axis shows the 0-1 scale for phi
+    sec.axis = sec_axis(~ . / phi_scale, 
+                        name = expression(phi(x) ~ "(Indicator)"),
+                        breaks = c(0, 0.5, 1))
+  ) +
+  scale_x_continuous(name = expression(Lambda(x))) +
+  
+  theme_minimal() +
+  theme(
+    axis.title.y.right = element_text(angle = 90, vjust = 0.5),
+    panel.grid.minor = element_blank()
+  )
+```
+
+### Neyman-Pearson Lemma
 ::: {#thm-neyman-pearson}
 ### Neyman-Pearson Lemma
-**a) Optimality:** For any $k$ and $\gamma(x)$, the LRT $\phi_0(x)$ defined above has maximum power among all tests whose size is less than or equal to the size of $\phi_0(x)$.
+a) **Optimality:** For any $k$ and $\gamma(x)$, the LRT $\phi_0(x)$ defined above has maximum power among all tests whose size is less than or equal to the size of $\phi_0(x)$.
 
-**b) Existence:** Given $\alpha \in (0, 1)$, there exist constants $k$ and $\gamma_0$ such that the LRT defined by this $k$ and $\gamma(x) = \gamma_0$ has size exactly $\alpha$.
+a) **Existence:** Given $\alpha \in (0, 1)$, there exist constants $k$ and $\gamma_0$ such that the LRT defined by this $k$ and $\gamma(x) = \gamma_0$ has size exactly $\alpha$.
 
-**c) Uniqueness:** If a test $\phi$ has size $\alpha$ and is of maximum power among all tests of size $\alpha$, then $\phi$ is necessarily an LRT, except possibly on a set of measure zero under $H_0$ and $H_1$.
+c) ** Uniqueness:** If a test $\phi$ has size $\alpha$ and is of maximum power among all tests of size $\alpha$, then $\phi$ is necessarily an LRT, except possibly on a set of measure zero under $H_0$ and $H_1$.
 :::
+
+### A Derivation with The Lagrange Multiplier Approach
+
+To make the optimality of the Likelihood Ratio Test (LRT) intuitive, we can frame the search for the best test function $\phi(x)$ as a constrained optimization problem.
+
+We want to maximize the power of the test:
+
+$$
+\text{Power}(\phi) = \int \phi(x) f_1(x) dx
+$$
+
+subject to the constraint on the size of the test $\alpha$:
+
+$$
+\text{Size}(\phi) = \int \phi(x) f_0(x) dx = \alpha
+$$
+
+Using the method of Lagrange multipliers, we define the objective function $L$ with a multiplier $k$:
+
+$$
+L(\phi, k) = \int \phi(x) f_1(x) dx - k \left( \int \phi(x) f_0(x) dx - \alpha \right)
+$$
+
+Rearranging the terms inside the integral, we get:
+
+$$
+L(\phi, k) = \int \phi(x) [f_1(x) - k f_0(x)] dx + k\alpha
+$$
+
+To maximize $L$ with respect to $\phi(x)$, we look at the integrand. Since $0 \le \phi(x) \le 1$, we should choose $\phi(x)$ to be as large as possible whenever its coefficient is positive, and as small as possible whenever its coefficient is negative:
+
+* If $f_1(x) - k f_0(x) > 0$, set $\phi(x) = 1$.
+* If $f_1(x) - k f_0(x) < 0$, set $\phi(x) = 0$.
+* If $f_1(x) - k f_0(x) = 0$, the value of $\phi(x)$ does not affect the integral (this is where $\gamma$ comes in).
+
+This decision rule is equivalent to:
+
+$$
+\phi(x) = 
+\begin{cases} 
+1 & \text{if } \frac{f_1(x)}{f_0(x)} > k \\
+0 & \text{if } \frac{f_1(x)}{f_0(x)} < k
+\end{cases}
+$$
+
+This is precisely the form of the Likelihood Ratio Test. The "shadow price" or Lagrange multiplier $k$ represents the critical threshold that balances the gain in power against the cost of increasing the Type I error.
 
 ::: {.proof}
 **Proof of (a) Optimality:**
