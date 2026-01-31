@@ -1,13 +1,18 @@
+/* =========================================
+   1. VARIABLES & THEME SETTINGS
+   ========================================= */
 :root {
   --background: white;
   --textcolor: black;
   --linkcolor: blue;
   --menubackground: lightgrey;
   --navbar-height: 40px;
-  /* Shrink the Left Sidebar (default is roughly 300px) */
+  --quarto-sidebar-width: 300px;
 }
 
-
+/* =========================================
+   2. GLOBAL TYPOGRAPHY & LAYOUT
+   ========================================= */
 body {
   padding-bottom: 60px;
   padding-left: 1rem;
@@ -23,6 +28,11 @@ body {
   text-align: left;
 }
 
+p {
+  margin-top: 0.2em;
+  margin-bottom: 0.2em;
+}
+
 a {
   color: #007bff;
   text-decoration: none;
@@ -32,6 +42,9 @@ a:hover {
   text-decoration: underline;
 }
 
+/* =========================================
+   3. HEADINGS
+   ========================================= */
 h1 {
   font-size: 2em;
   font-weight: bold;
@@ -42,50 +55,16 @@ h2 {
   padding-top: 20px;
   font-size: 1.5em;
   font-weight: bold;
-  border-bottom: 2px solid blue; /* Adds a 2px blue line at the bottom */
-  padding-bottom: 5px;           /* Adds some space between text and line */
+  border-bottom: 2px solid blue;
+  padding-bottom: 5px;
 }
+
 h3 {
   font-size: 1.2em;
   font-weight: bold;
 }
 
-p {
-  margin-top: 0.2em;
-  margin-bottom: 0.2em;
-}
-
-/* --- IMAGE SCALING FIX --- */
-
-/* Only target images in the main content area for the 80% width rule */
-/* We exclude .logo and images in the navbar or sidebar */
-main img:not(.logo),
-.contents img:not(.logo),
-#main img:not(.logo) {
-  max-width: 100% !important;
-  width: 90% !important;
-  height: auto;
-  margin: 1em auto;
-  display: block;
-}
-
-/* Specifically protect pkgdown's navbar logo */
-.navbar .logo, .navbar-brand img {
-  width: auto !important;
-  height: var(--navbar-height) !important;
-  max-height: var(--navbar-height);
-  display: inline-block;
-}
-
-/* Ensure sidebar badges (CRAN, etc) don't expand to 80% */
-.col-md-3 img, .sidebar img {
-  width: auto !important;
-  max-width: 100% !important;
-  display: inline-block;
-}
-
-/* --- LAYOUT & ANCHORS --- */
-
+/* Anchor links alignment */
 h2.anchored, h3.anchored, h4.anchored, h5.anchored, h6.anchored {
   display: flex;
   align-items: baseline;
@@ -104,9 +83,58 @@ h2.anchored .anchorjs-link, h3.anchored .anchorjs-link {
   flex: 0 0 auto;
 }
 
+/* =========================================
+   4. LISTS & NUMBERING
+   ========================================= */
+ol {
+  margin-top: 0.2em;
+  margin-bottom: 0.2em;
+  padding-left: 2.5em;
+  list-style-type: none;
+}
 
+ul {
+  margin-top: 0.2em;
+  margin-bottom: 0.2em;
+  padding-left: 2em;
+}
 
-/* definition of button styles */
+/* LEVEL 1: Format as (1). */
+ol > li::marker {
+  content: "(" counter(list-item) ") ";
+  font-weight: bold;
+}
+
+/* LEVEL 2: Format as (a). */
+ol ol > li::marker {
+  content: "(" counter(list-item, lower-alpha) ") ";
+  font-weight: normal;
+}
+
+/* =========================================
+   5. IMAGES & RESPONSIVENESS
+   ========================================= */
+main img:not(.logo),
+.contents img:not(.logo),
+#main img:not(.logo) {
+  max-width: 100% !important;
+  width: 90% !important;
+  height: auto;
+  margin: 1em auto;
+  display: block;
+}
+
+/* Protect logos/badges */
+.navbar .logo, .navbar-brand img,
+.col-md-3 img, .sidebar img {
+  width: auto !important;
+  max-width: 100% !important;
+  display: inline-block;
+}
+
+/* =========================================
+   6. BUTTONS
+   ========================================= */
 .btn {
   color: royalblue;
   font-weight: bold;
@@ -114,7 +142,6 @@ h2.anchored .anchorjs-link, h3.anchored .anchorjs-link {
   text-decoration: none;
   background-color: var(--menubackground);
   border: 0;
-  outline: none;
   border-radius: 5px;
   padding: 5px 10px;
   min-width: 50px;
@@ -128,17 +155,14 @@ h2.anchored .anchorjs-link, h3.anchored .anchorjs-link {
   text-decoration: underline;
 }
 
-.btn.active {
-  color: var(--linkcolor);
-}
+.btn.active { color: var(--linkcolor); }
 
 .button {
   color: black;
   border: 0;
-  outline: none;
   padding: 5px 5px;
   background-color: lightgrey;
-  border-radius: 5px 5px 5px 5px;
+  border-radius: 5px;
   font-weight: bold;
   font-size: 0.8rem;
   min-width: 100px;
@@ -150,68 +174,123 @@ h2.anchored .anchorjs-link, h3.anchored .anchorjs-link {
   background-color: lightcyan;
 }
 
+/* =========================================
+   7. UNIFIED SIDEBAR (MERGED TOC + CHAPTERS)
+   ========================================= */
 
-ol {
-  margin-top: 0.2em;
-  margin-bottom: 0.2em;
-  padding-left: 2.5em;
-}
-ul {
-  margin-top: 0.2em;
-  margin-bottom: 0.2em;
-  padding-left: 2em;
-}
-
-/* LEVEL 1: Format as (1). */
-ol {
-  list-style-type: none; /* Turn off default 1. 2. 3. */
+/* --- A. GHOST MODE (Vital for Live Sync) --- */
+/* We hide the sidebar visually but keep it in the DOM 
+   so the scroll-spy observer can still track active sections. */
+#quarto-margin-sidebar {
+  visibility: hidden;
+  height: 0;
+  width: 0;
+  overflow: hidden;
+  position: absolute;
 }
 
-ol > li::marker {
-  /* Use the native 'list-item' counter so it respects the actual number */
-  content: "(" counter(list-item) ") ";
-  font-weight: bold;
+/* --- B. ANTI-FLASH (Fade in on Load) --- */
+#quarto-sidebar .sidebar-menu-container {
+  opacity: 0;
+  transition: opacity 0.2s ease-in;
 }
 
-/* LEVEL 2: Format as (a). */
-ol ol > li::marker {
-  /* Override to use lower-alpha for the inner counter */
-  content: "(" counter(list-item, lower-alpha) ") ";
-  font-weight: normal;
+#quarto-sidebar .sidebar-menu-container.loaded {
+  opacity: 1;
 }
 
-/* Unified Sidebar Styling */
-
-/* Ensure the sidebar takes focus and looks like a book spine */
-#quarto-sidebar {
-  background-color: #f8f9fa; /* Classic light grey like bookdown */
-  border-right: 1px solid #e9ecef;
-  font-size: 0.9rem;
-}
-
-/* Add vertical indentation lines for nested TOC items */
-#quarto-sidebar .sidebar-item-container .sidebar-section-items {
-  border-left: 1px solid #ced4da;
-  margin-left: 12px;
-  padding-left: 8px;
-  transition: border-color 0.3s ease;
-}
-
-/* Highlight the active section clearly */
-#quarto-sidebar .sidebar-link.active {
-  color: #007bff;
-  font-weight: bold;
-  background-color: transparent;
-  border-left: 2px solid #007bff;
-  margin-left: -10px; /* Offset the parent border */
-  padding-left: 8px;
-}
-
-/* Make collapse toggles more visible */
+/* --- C. HIDE DEFAULT TOGGLES --- */
 .sidebar-item-toggle {
-  color: #6c757d;
+  display: none !important;
 }
 
-.sidebar-item-toggle:hover {
-  color: #007bff;
+/* --- D. LIST RESET (No Bullets) --- */
+ul.injected-page-toc,
+ul.injected-page-toc ul {
+  list-style: none !important;
+  list-style-type: none !important;
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+}
+
+/* Hierarchy Indentation */
+#quarto-sidebar .sidebar-item-container {
+  padding-left: 0.5rem; /* Level 1 */
+}
+
+ul.injected-page-toc {
+  padding-left: 12px !important;
+  margin-left: 1.8em !important; /* Level 2 */
+  border-left: 1px solid #dee2e6;
+  margin-top: 5px !important;
+  margin-bottom: 10px !important;
+}
+
+ul.injected-page-toc ul {
+  padding-left: 15px !important; /* Level 3 */
+}
+
+/* --- E. FLEXBOX LAYOUT (The Hanging Indent) --- */
+/* Targets both Chapter links and Injected TOC links */
+#quarto-sidebar .sidebar-link,
+ul.injected-page-toc a {
+  display: flex !important;
+  align-items: baseline;
+  text-decoration: none !important;
+  color: #6c757d !important;
+  padding: 6px 0;
+  border: none !important;
+  width: 100%;
+}
+
+/* Ensure internal Quarto text spans behave correctly */
+#quarto-sidebar .sidebar-link .menu-text {
+  display: flex;
+  width: 100%;
+}
+
+/* Column 1: The Number */
+.toc-num {
+  flex: 0 0 auto;
+  min-width: 1.8em;
+  padding-right: 0.5em;
+  font-weight: 500;
+  text-align: right;
+  margin-right: 5px;
+}
+
+/* Column 2: The Text */
+.toc-text {
+  flex: 1 1 auto;
+  display: block;
+}
+
+/* --- F. COLLAPSIBLE ARROW INDICATORS --- */
+/* Only applied to items marked 'has-children' by JS */
+.has-children .toc-text::after {
+  content: "›"; 
+  float: right;
+  margin-right: 5px;
+  font-weight: bold;
+  font-family: monospace; 
+  transform: rotate(90deg); /* Default: Expanded (Down) */
+  transition: transform 0.2s ease;
+}
+
+/* Collapsed State (Right) */
+.has-children.collapsed .toc-text::after {
+  transform: rotate(0deg); 
+}
+
+/* --- G. ACTIVE STATE (Highlighter) --- */
+#quarto-sidebar .sidebar-link.active,
+ul.injected-page-toc a.active {
+  color: #007bff !important;
+  font-weight: 700 !important;
+}
+
+/* Highlight number separately if needed */
+#quarto-sidebar .sidebar-link.active .toc-num,
+ul.injected-page-toc a.active .toc-num {
+  color: #007bff !important;
 }
