@@ -438,7 +438,112 @@ $$
 Set $\gamma_0 = \frac{\alpha - P_{\theta_0}(\Lambda(X) > k_0)}{P_{\theta_0}(\Lambda(X) = k_0)}$.
 :::
 
+```{r}
+#| label: fig-lrt-proof-transparent-pink
+#| fig-cap: "Visualizing the NP Lemma: The thick, transparent pink line is $\\phi_{LRT}$. The thin solid black line is $\\phi_{Other}$. Overlap is visible as a black line inside pink."
+#| fig-width: 7
+#| fig-height: 5
 
+library(ggplot2)
+
+# 1. Define Parameters
+mu0 <- 0
+mu1 <- 3
+sigma <- 1
+c_lrt <- 1.5
+gamma_val <- 0.5
+
+# Scaling constants
+max_dens <- dnorm(mu0, mean = mu0, sd = sigma)
+y_limit <- max_dens * 1.1
+phi_scale <- 0.1 * y_limit
+
+# 2. Define Test Functions Data
+df_lrt <- data.frame(
+  x_start = c(-3, c_lrt),
+  x_end   = c(c_lrt, 6),
+  y_val   = c(0, phi_scale),
+  Test    = "phi[LRT]" 
+)
+
+df_other <- data.frame(
+  x_start = c(-3, 1, 3),
+  x_end   = c(1, 3, 6),
+  y_val   = c(0, phi_scale, 0),
+  Test    = "phi[Other]"
+)
+
+ggplot() +
+  # --- Layer 1: Densities (Solid Lines, No Fill) ---
+  stat_function(fun = dnorm, args = list(mean = mu0, sd = sigma), 
+                color = "blue", size = 0.8) +
+  stat_function(fun = dnorm, args = list(mean = mu1, sd = sigma), 
+                color = "red", size = 0.8) +
+
+  # --- Layer 2: Test Functions (Segments) ---
+  
+  # 2a. LRT Segments (Thick, Transparent Pink)
+  # alpha = 0.4 makes it look like a highlighter
+  geom_segment(data = df_lrt,
+               aes(x = x_start, xend = x_end, 
+                   y = y_val, yend = y_val, 
+                   color = Test, linetype = Test, size = Test),
+               alpha = 0.4) + # Transparency added here
+  
+  # Vertical connector for LRT
+  geom_segment(aes(x = c_lrt, xend = c_lrt, y = 0, yend = phi_scale),
+               color = "deeppink", linetype = "dotted", size = 0.5, alpha = 0.6) +
+
+  # 2b. Other Test Segments (Thin Black Opaque)
+  geom_segment(data = df_other,
+               aes(x = x_start, xend = x_end, 
+                   y = y_val, yend = y_val, 
+                   color = Test, linetype = Test, size = Test)) +
+  
+  # Vertical connectors for Other Test
+  geom_segment(aes(x = 1, xend = 1, y = 0, yend = phi_scale),
+               color = "black", linetype = "dotted", size = 0.5) +
+  geom_segment(aes(x = 3, xend = 3, y = 0, yend = phi_scale),
+               color = "black", linetype = "dotted", size = 0.5) +
+
+  # --- Layer 3: Annotations ---
+  # LRT Gamma Point (Pink)
+  geom_point(aes(x = c_lrt, y = gamma_val * phi_scale), 
+             color = "deeppink", size = 3) +
+  
+  # Density Labels
+  annotate("text", x = mu0, y = max_dens * 0.9, 
+           label = expression(H[0]), color = "blue", size = 5) +
+  annotate("text", x = mu1, y = max_dens * 0.9, 
+           label = expression(H[1]), color = "red", size = 5) +
+
+  # --- Layer 4: Scales and Legend ---
+  scale_y_continuous(
+    name = "Density f(x)", limits = c(-0.02, y_limit), expand = c(0, 0),
+    sec.axis = sec_axis(~ . / phi_scale, name = expression(phi(x)), breaks = c(0, 1))
+  ) +
+  scale_x_continuous(name = "Observation x", limits = c(-3, 6)) +
+  
+  # Manual Legend Controls
+  scale_color_manual(name = "Test Function",
+                     values = c("phi[LRT]" = "deeppink", "phi[Other]" = "black"),
+                     labels = c(expression(phi[LRT]), expression(phi[Other]))) +
+  scale_linetype_manual(name = "Test Function",
+                        values = c("phi[LRT]" = "solid", "phi[Other]" = "solid"),
+                        labels = c(expression(phi[LRT]), expression(phi[Other]))) +
+  scale_size_manual(name = "Test Function",
+                    values = c("phi[LRT]" = 2,   # Extra Thick
+                               "phi[Other]" = 0.8), # Thin
+                    labels = c(expression(phi[LRT]), expression(phi[Other]))) +
+  
+  theme_minimal() +
+  theme(
+    legend.position = "top",
+    legend.title = element_text(face = "bold"),
+    axis.title.y.right = element_text(angle = 90, vjust = 0.5),
+    panel.grid.minor = element_blank()
+  )
+```
 
 
 ## Uniformly Most Powerful (UMP) Tests
