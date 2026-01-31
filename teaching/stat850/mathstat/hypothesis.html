@@ -216,11 +216,15 @@ window.Quarto = {
   <li><a href="#hypothesis-testing" id="toc-hypothesis-testing" class="nav-link" data-scroll-target="#hypothesis-testing"><span class="header-section-number">4.1.1</span> Hypothesis Testing</a></li>
   <li><a href="#test-functions-and-size" id="toc-test-functions-and-size" class="nav-link" data-scroll-target="#test-functions-and-size"><span class="header-section-number">4.1.2</span> Test Functions and Size</a></li>
   </ul></li>
-  <li><a href="#power-function" id="toc-power-function" class="nav-link" data-scroll-target="#power-function"><span class="header-section-number">4.2</span> Power Function</a></li>
+  <li><a href="#power-and-size-function" id="toc-power-and-size-function" class="nav-link" data-scroll-target="#power-and-size-function"><span class="header-section-number">4.2</span> Power and Size Function</a>
+  <ul>
+  <li><a href="#power-definitions" id="toc-power-definitions" class="nav-link" data-scroll-target="#power-definitions"><span class="header-section-number">4.2.1</span> Power Definitions</a></li>
+  </ul></li>
   <li><a href="#the-neyman-pearson-lemma" id="toc-the-neyman-pearson-lemma" class="nav-link" data-scroll-target="#the-neyman-pearson-lemma"><span class="header-section-number">4.3</span> The Neyman-Pearson Lemma</a>
   <ul>
   <li><a href="#neyman-pearson-lemma" id="toc-neyman-pearson-lemma" class="nav-link" data-scroll-target="#neyman-pearson-lemma"><span class="header-section-number">4.3.1</span> Neyman-Pearson Lemma</a></li>
   <li><a href="#a-derivation-with-the-lagrange-multiplier-approach" id="toc-a-derivation-with-the-lagrange-multiplier-approach" class="nav-link" data-scroll-target="#a-derivation-with-the-lagrange-multiplier-approach"><span class="header-section-number">4.3.2</span> A Derivation with The Lagrange Multiplier Approach</a></li>
+  <li><a href="#proof-of-np-lemma" id="toc-proof-of-np-lemma" class="nav-link" data-scroll-target="#proof-of-np-lemma"><span class="header-section-number">4.3.3</span> Proof of NP Lemma</a></li>
   </ul></li>
   <li><a href="#uniformly-most-powerful-ump-tests" id="toc-uniformly-most-powerful-ump-tests" class="nav-link" data-scroll-target="#uniformly-most-powerful-ump-tests"><span class="header-section-number">4.4</span> Uniformly Most Powerful (UMP) Tests</a></li>
   <li><a href="#monotone-likelihood-ratio-mlr" id="toc-monotone-likelihood-ratio-mlr" class="nav-link" data-scroll-target="#monotone-likelihood-ratio-mlr"><span class="header-section-number">4.5</span> Monotone Likelihood Ratio (MLR)</a>
@@ -336,7 +340,7 @@ H_1: \theta \in \Theta_1 \quad \text{(Alternative Hypothesis)}
 </div>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-binomial-survival-zoom" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" style="width: 90% !important;">
+<div id="fig-binomial-survival-zoom" class="quarto-float quarto-figure quarto-figure-center anchored" style="width: 90% !important;" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-binomial-survival-zoom-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="hypothesis_files/figure-html/fig-binomial-survival-zoom-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width: 90% !important;" width="576">
@@ -348,25 +352,140 @@ Figure&nbsp;4.1: Survival Function P(X &gt;= k) with randomization detail
 </div>
 </div>
 </div>
+</section>
+</section>
+<section id="power-and-size-function" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="power-and-size-function"><span class="header-section-number">4.2</span> Power and Size Function</h2>
 <div id="def-test-size" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 4.2 (Size of a Test)</strong></span> The <strong>size</strong> of a test <span class="math inline">\(\phi(x)\)</span>, denoted by <span class="math inline">\(\alpha\)</span>, is the maximum probability of rejecting the null hypothesis when it is true:</p>
+<p><span class="theorem-title"><strong>Definition 4.2 (Size of a Test)</strong></span> The <strong>size</strong> of a test <span class="math inline">\(\phi(x)\)</span> is the maximum probability of rejecting the null hypothesis when it is true:</p>
 <p><span class="math display">\[
-\alpha = \sup_{\theta \in \Theta_0} \text{Pr}(\text{Reject } H_0 \mid \theta) = \sup_{\theta \in \Theta_0} E_\theta[\phi(X)]
+\text{Size}(\phi) = \sup_{\theta \in \Theta_0} W_\phi(\theta) = \sup_{\theta \in \Theta_0} E_\theta[\phi(X)]
 \]</span></p>
 </div>
-</section>
-</section>
-<section id="power-function" class="level2" data-number="4.2">
-<h2 data-number="4.2" class="anchored" data-anchor-id="power-function"><span class="header-section-number">4.2</span> Power Function</h2>
-<p>The <strong>power function</strong> of a test, denoted <span class="math inline">\(W(\theta)\)</span> or <span class="math inline">\(\beta(\theta)\)</span>, is the probability of rejecting <span class="math inline">\(H_0\)</span> as a function of <span class="math inline">\(\theta\)</span>:</p>
+<section id="power-definitions" class="level3" data-number="4.2.1">
+<h3 data-number="4.2.1" class="anchored" data-anchor-id="power-definitions"><span class="header-section-number">4.2.1</span> Power Definitions</h3>
+<p>We distinguish between the power function varying over parameters and the power metric of a specific test.</p>
+<p><strong>1. Power Function (<span class="math inline">\(W_\phi(\theta)\)</span>)</strong> The probability of rejecting <span class="math inline">\(H_0\)</span> as a function of the parameter <span class="math inline">\(\theta\)</span>:</p>
 <p><span class="math display">\[
-W(\theta) = E_\theta[\phi(X)]
+W_\phi(\theta) = E_\theta[\phi(X)]
+\]</span></p>
+<p><strong>2. Power of the Test (<span class="math inline">\(\text{Power}(\phi)\)</span>)</strong> In the context of a specific alternative hypothesis (e.g., <span class="math inline">\(H_1: \theta = \theta_1\)</span>), we define the power as a scalar functional of <span class="math inline">\(\phi\)</span>:</p>
+<p><span class="math display">\[
+\text{Power}(\phi) = E_{\theta_1}[\phi(X)]
 \]</span></p>
 <p>Ideally, we want:</p>
-<ol type="1">
-<li><span class="math inline">\(E_\theta[\phi(X)] \le \alpha\)</span> for all <span class="math inline">\(\theta \in \Theta_0\)</span> (Size control).</li>
-<li><span class="math inline">\(E_\theta[\phi(X)]\)</span> to be as large as possible for <span class="math inline">\(\theta \in \Theta_1\)</span> (High power).</li>
-</ol>
+<ul>
+<li><span class="math inline">\(W_\phi(\theta) \le \text{Size}(\phi)\)</span> for all <span class="math inline">\(\theta \in \Theta_0\)</span> (Control Type I error).</li>
+<li><span class="math inline">\(\text{Power}(\phi)\)</span> to be as large as possible (Maximize sensitivity to <span class="math inline">\(H_1\)</span>).</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Define Normal Distribution Parameters</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>mu0 <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>mu1 <span class="ot">&lt;-</span> <span class="dv">3</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>sigma <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>c_val <span class="ot">&lt;-</span> <span class="fl">1.5</span>      <span class="co"># Critical value on x-axis (Threshold)</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>gamma_val <span class="ot">&lt;-</span> <span class="fl">0.5</span>  <span class="co"># Randomization constant at the boundary</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Calculate Scaling for Dual View</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Peak density of N(0,1) is approx 0.4</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>max_dens <span class="ot">&lt;-</span> <span class="fu">dnorm</span>(mu0, <span class="at">mean =</span> mu0, <span class="at">sd =</span> sigma)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>y_limit <span class="ot">&lt;-</span> max_dens <span class="sc">*</span> <span class="fl">1.1</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Set phi=1 to represent 10% of the y-axis range</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>phi_scale <span class="ot">&lt;-</span> <span class="fl">0.1</span> <span class="sc">*</span> y_limit</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Define the Test Function phi(x) based on x</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># For Normal mean shift (mu1 &gt; mu0), LRT rejects for large x.</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Step: 0 -&gt; 1 at c_val</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>df_segments <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">x_start =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">3</span>, c_val),</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">x_end   =</span> <span class="fu">c</span>(c_val, <span class="dv">6</span>),</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">y_start =</span> <span class="fu">c</span>(<span class="dv">0</span>, phi_scale),</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">y_end   =</span> <span class="fu">c</span>(<span class="dv">0</span>, phi_scale)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Layer 1: Densities (Primary Scale) ---</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  <span class="co"># H0: Normal(0, 1) - Red</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm, <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> mu0, <span class="at">sd =</span> sigma), </span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>                <span class="at">geom =</span> <span class="st">"area"</span>, <span class="at">fill =</span> <span class="st">"red"</span>, <span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm, <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> mu0, <span class="at">sd =</span> sigma), </span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>                <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>  <span class="co"># H1: Normal(3, 1) - Blue</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm, <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> mu1, <span class="at">sd =</span> sigma), </span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>                <span class="at">geom =</span> <span class="st">"area"</span>, <span class="at">fill =</span> <span class="st">"blue"</span>, <span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm, <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> mu1, <span class="at">sd =</span> sigma), </span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>                <span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Layer 2: Scaled Test Function phi(x) ---</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>  <span class="co"># The horizontal steps (Indicator of rejection region)</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="at">data =</span> df_segments, </span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>               <span class="fu">aes</span>(<span class="at">x =</span> x_start, <span class="at">xend =</span> x_end, <span class="at">y =</span> y_start, <span class="at">yend =</span> y_end), </span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>               <span class="at">size =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>  <span class="co"># The vertical threshold line at critical value c</span></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> c_val, <span class="at">xend =</span> c_val, <span class="at">y =</span> <span class="dv">0</span>, <span class="at">yend =</span> phi_scale), </span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>               <span class="at">linetype =</span> <span class="st">"dotted"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Points for gamma and discontinuity (Scaled)</span></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> c_val, <span class="at">y =</span> gamma_val <span class="sc">*</span> phi_scale), <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span> </span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> c_val, <span class="at">y =</span> <span class="dv">0</span>), <span class="at">size =</span> <span class="dv">3</span>, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">fill =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> c_val, <span class="at">y =</span> phi_scale), <span class="at">size =</span> <span class="dv">3</span>, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">fill =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Layer 3: Annotations ---</span></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> c_val <span class="sc">+</span> <span class="fl">0.2</span>, <span class="at">y =</span> gamma_val <span class="sc">*</span> phi_scale, </span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="fu">expression</span>(gamma), <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">fontface =</span> <span class="st">"bold"</span>) <span class="sc">+</span></span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Label H0 and H1</span></span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> mu0, <span class="at">y =</span> <span class="fu">dnorm</span>(mu0, mu0, sigma) <span class="sc">*</span> <span class="fl">0.9</span>, </span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="fu">expression</span>(H[<span class="dv">0</span>]), <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">size =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> mu1, <span class="at">y =</span> <span class="fu">dnorm</span>(mu1, mu1, sigma) <span class="sc">*</span> <span class="fl">0.9</span>, </span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="fu">expression</span>(H[<span class="dv">1</span>]), <span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">size =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Label the Critical Value</span></span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> c_val, <span class="at">y =</span> <span class="sc">-</span><span class="fl">0.01</span>, <span class="at">label =</span> <span class="st">"c"</span>, <span class="at">vjust =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Layer 4: Axes ---</span></span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(</span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"Density f(x)"</span>,</span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a>    <span class="at">limits =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.02</span>, y_limit), <span class="co"># Small negative limit for "c" label</span></span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>    <span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>),</span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Secondary Axis for phi</span></span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a>    <span class="at">sec.axis =</span> <span class="fu">sec_axis</span>(<span class="sc">~</span> . <span class="sc">/</span> phi_scale, </span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a>                        <span class="at">name =</span> <span class="fu">expression</span>(<span class="fu">phi</span>(x) <span class="sc">~</span> <span class="st">"(Rejection Prob)"</span>),</span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a>                        <span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">name =</span> <span class="st">"Observation x"</span>, <span class="at">limits =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">3</span>, <span class="dv">6</span>)) <span class="sc">+</span></span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title.y.right =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>),</span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>()</span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-lrt-normal-x" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-lrt-normal-x-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="hypothesis_files/figure-html/fig-lrt-normal-x-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-lrt-normal-x-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.2: Illustration of Test Function, Size, and Power
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
 </section>
 <section id="the-neyman-pearson-lemma" class="level2" data-number="4.3">
 <h2 data-number="4.3" class="anchored" data-anchor-id="the-neyman-pearson-lemma"><span class="header-section-number">4.3</span> The Neyman-Pearson Lemma</h2>
@@ -386,113 +505,6 @@ W(\theta) = E_\theta[\phi(X)]
 \]</span></p>
 <p>where <span class="math inline">\(k \ge 0\)</span> is a constant and <span class="math inline">\(0 \le \gamma(x) \le 1\)</span>.</p>
 </div>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Define Constants</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>k_val     <span class="ot">&lt;-</span> <span class="dv">7</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>gamma_val <span class="ot">&lt;-</span> <span class="fl">0.5</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>df_val    <span class="ot">&lt;-</span> <span class="dv">3</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>ncp_h0    <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>ncp_h1    <span class="ot">&lt;-</span> <span class="fl">5.5</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Calculate Scaling</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># We find the peak density to determine the Y-axis range.</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>max_dens <span class="ot">&lt;-</span> <span class="fu">max</span>(</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dchisq</span>(df_val <span class="sc">-</span> <span class="dv">2</span>, <span class="at">df =</span> df_val, <span class="at">ncp =</span> ncp_h0), <span class="co"># Mode approx df-2</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dchisq</span>(df_val <span class="sc">+</span> ncp_h1 <span class="sc">-</span> <span class="dv">2</span>, <span class="at">df =</span> df_val, <span class="at">ncp =</span> ncp_h1)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Make the graph slightly taller than the max density for headroom</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>y_limit <span class="ot">&lt;-</span> max_dens <span class="sc">*</span> <span class="fl">1.1</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># The user wants phi=1 to equal 0.1 of the range (approx 0.1 * y_limit)</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>phi_scale <span class="ot">&lt;-</span> <span class="fl">0.1</span> <span class="sc">*</span> y_limit</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Define Scaled Segments for phi(x)</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Original y=1 becomes y=phi_scale</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>df_segments <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">x_start =</span> <span class="fu">c</span>(<span class="dv">0</span>, k_val),</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">x_end   =</span> <span class="fu">c</span>(k_val, <span class="dv">15</span>),</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">y_start =</span> <span class="fu">c</span>(<span class="dv">0</span>, phi_scale),</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">y_end   =</span> <span class="fu">c</span>(<span class="dv">0</span>, phi_scale)</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Layer 1: Densities (Primary Scale) ---</span></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  <span class="co"># H0 Density (Red)</span></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dchisq, <span class="at">args =</span> <span class="fu">list</span>(<span class="at">df =</span> df_val, <span class="at">ncp =</span> ncp_h0), </span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>                <span class="at">geom =</span> <span class="st">"area"</span>, <span class="at">fill =</span> <span class="st">"red"</span>, <span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dchisq, <span class="at">args =</span> <span class="fu">list</span>(<span class="at">df =</span> df_val, <span class="at">ncp =</span> ncp_h0), </span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>                <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>  <span class="co"># H1 Density (Blue)</span></span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dchisq, <span class="at">args =</span> <span class="fu">list</span>(<span class="at">df =</span> df_val, <span class="at">ncp =</span> ncp_h1), </span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>                <span class="at">geom =</span> <span class="st">"area"</span>, <span class="at">fill =</span> <span class="st">"blue"</span>, <span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dchisq, <span class="at">args =</span> <span class="fu">list</span>(<span class="at">df =</span> df_val, <span class="at">ncp =</span> ncp_h1), </span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>                <span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Layer 2: Scaled Test Function phi(x) (Bottom 10%) ---</span></span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>  <span class="co"># The horizontal steps</span></span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="at">data =</span> df_segments, </span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>               <span class="fu">aes</span>(<span class="at">x =</span> x_start, <span class="at">xend =</span> x_end, <span class="at">y =</span> y_start, <span class="at">yend =</span> y_end), </span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>               <span class="at">size =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>  <span class="co"># The vertical threshold line (goes up to the density to show the cut)</span></span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> k_val, <span class="at">xend =</span> k_val, <span class="at">y =</span> <span class="dv">0</span>, <span class="at">yend =</span> phi_scale), </span>
-<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>               <span class="at">linetype =</span> <span class="st">"dotted"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
-<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Points scaled to phi_scale</span></span>
-<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> k_val, <span class="at">y =</span> gamma_val <span class="sc">*</span> phi_scale), <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span> </span>
-<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> k_val, <span class="at">y =</span> <span class="dv">0</span>), <span class="at">size =</span> <span class="dv">3</span>, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">fill =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
-<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> k_val, <span class="at">y =</span> phi_scale), <span class="at">size =</span> <span class="dv">3</span>, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">fill =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
-<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Layer 3: Annotations ---</span></span>
-<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Label for gamma</span></span>
-<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> k_val <span class="sc">+</span> <span class="fl">0.2</span>, <span class="at">y =</span> gamma_val <span class="sc">*</span> phi_scale, </span>
-<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="fu">expression</span>(gamma), <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">fontface =</span> <span class="st">"bold"</span>) <span class="sc">+</span></span>
-<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Labels for Densities</span></span>
-<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="dv">2</span>, <span class="at">y =</span> max_dens <span class="sc">*</span> <span class="fl">0.9</span>, </span>
-<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="fu">expression</span>(H[<span class="dv">0</span>]), <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">size =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
-<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="dv">8</span>, <span class="at">y =</span> max_dens <span class="sc">*</span> <span class="fl">0.4</span>, </span>
-<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="fu">expression</span>(H[<span class="dv">1</span>]), <span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">size =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
-<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Layer 4: Axes ---</span></span>
-<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(</span>
-<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"Density f(x)"</span>,</span>
-<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>    <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, y_limit),</span>
-<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Secondary axis shows the 0-1 scale for phi</span></span>
-<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a>    <span class="at">sec.axis =</span> <span class="fu">sec_axis</span>(<span class="sc">~</span> . <span class="sc">/</span> phi_scale, </span>
-<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a>                        <span class="at">name =</span> <span class="fu">expression</span>(<span class="fu">phi</span>(x) <span class="sc">~</span> <span class="st">"(Indicator)"</span>),</span>
-<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a>                        <span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="dv">1</span>))</span>
-<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">name =</span> <span class="fu">expression</span>(<span class="fu">Lambda</span>(x))) <span class="sc">+</span></span>
-<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title.y.right =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>),</span>
-<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>()</span>
-<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output-display">
-<div id="fig-lrt-density-primary" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-lrt-density-primary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="hypothesis_files/figure-html/fig-lrt-density-primary-1.png" class="img-fluid figure-img" width="672">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-lrt-density-primary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4.2: Densities of <span class="math inline">\(\Lambda\)</span> (primary view) with the LRT function <span class="math inline">\(\phi(x)\)</span> scaled to the bottom 10% of the axis.
-</figcaption>
-</figure>
-</div>
-</div>
-</div>
 <section id="neyman-pearson-lemma" class="level3" data-number="4.3.1">
 <h3 data-number="4.3.1" class="anchored" data-anchor-id="neyman-pearson-lemma"><span class="header-section-number">4.3.1</span> Neyman-Pearson Lemma</h3>
 <div id="thm-neyman-pearson" class="theorem">
@@ -500,7 +512,7 @@ Figure&nbsp;4.2: Densities of <span class="math inline">\(\Lambda\)</span> (prim
 <ol type="a">
 <li><p><strong>Optimality:</strong> For any <span class="math inline">\(k\)</span> and <span class="math inline">\(\gamma(x)\)</span>, the LRT <span class="math inline">\(\phi_0(x)\)</span> defined above has maximum power among all tests whose size is less than or equal to the size of <span class="math inline">\(\phi_0(x)\)</span>.</p></li>
 <li><p><strong>Existence:</strong> Given <span class="math inline">\(\alpha \in (0, 1)\)</span>, there exist constants <span class="math inline">\(k\)</span> and <span class="math inline">\(\gamma_0\)</span> such that the LRT defined by this <span class="math inline">\(k\)</span> and <span class="math inline">\(\gamma(x) = \gamma_0\)</span> has size exactly <span class="math inline">\(\alpha\)</span>.</p></li>
-<li><p>** Uniqueness:** If a test <span class="math inline">\(\phi\)</span> has size <span class="math inline">\(\alpha\)</span> and is of maximum power among all tests of size <span class="math inline">\(\alpha\)</span>, then <span class="math inline">\(\phi\)</span> is necessarily an LRT, except possibly on a set of measure zero under <span class="math inline">\(H_0\)</span> and <span class="math inline">\(H_1\)</span>.</p></li>
+<li><p><strong>Uniqueness:</strong> If a test <span class="math inline">\(\phi\)</span> has size <span class="math inline">\(\alpha\)</span> and is of maximum power among all tests of size <span class="math inline">\(\alpha\)</span>, then <span class="math inline">\(\phi\)</span> is necessarily an LRT, except possibly on a set of measure zero under <span class="math inline">\(H_0\)</span> and <span class="math inline">\(H_1\)</span>.</p></li>
 </ol>
 </div>
 </section>
@@ -538,6 +550,9 @@ L(\phi, k) = \int \phi(x) [f_1(x) - k f_0(x)] dx + k\alpha
 \end{cases}
 \]</span></p>
 <p>This is precisely the form of the Likelihood Ratio Test. The “shadow price” or Lagrange multiplier <span class="math inline">\(k\)</span> represents the critical threshold that balances the gain in power against the cost of increasing the Type I error.</p>
+</section>
+<section id="proof-of-np-lemma" class="level3" data-number="4.3.3">
+<h3 data-number="4.3.3" class="anchored" data-anchor-id="proof-of-np-lemma"><span class="header-section-number">4.3.3</span> Proof of NP Lemma</h3>
 <div class="proof">
 <p><span class="proof-title"><em>Proof</em>. </span><strong>Proof of (a) Optimality:</strong> Let <span class="math inline">\(\phi_0\)</span> be the LRT with size <span class="math inline">\(\alpha\)</span>, and <span class="math inline">\(\phi\)</span> be any other test with size <span class="math inline">\(\le \alpha\)</span>. Define <span class="math inline">\(U(x) = (\phi_0(x) - \phi(x))(f_1(x) - k f_0(x))\)</span>.</p>
 <p>We analyze the sign of <span class="math inline">\(U(x)\)</span>:</p>
@@ -567,34 +582,6 @@ P_{\theta_0}(\Lambda(X) &gt; k_0) \le \alpha \le P_{\theta_0}(\Lambda(X) \ge k_0
 \]</span></p>
 <p>Set <span class="math inline">\(\gamma_0 = \frac{\alpha - P_{\theta_0}(\Lambda(X) &gt; k_0)}{P_{\theta_0}(\Lambda(X) = k_0)}\)</span>.</p>
 </div>
-<div class="cell" data-layout-align="center">
-<div class="cell-output-display">
-<div id="fig-np-optimality" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" style="width: 80% !important;">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-np-optimality-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="hypothesis_files/figure-html/fig-np-optimality-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width: 80% !important;" width="576">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-np-optimality-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4.3: Visualization of the Optimality Proof. The LRT region <span class="math inline">\(C_\alpha\)</span> contains all points where the likelihood ratio is high (<span class="math inline">\(&gt;k\)</span>). Any competitor <span class="math inline">\(C_\alpha^*\)</span> works by swapping a ‘Good’ region (A) for a ‘Bad’ region (B). The integral of U(x) sums the loss from A and the deficit from B, showing both lead to power loss.
-</figcaption>
-</figure>
-</div>
-</div>
-</div>
-<div class="cell" data-layout-align="center">
-<div class="cell-output-display">
-<div id="fig-mlr-equivalence" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" style="width: 70% !important;">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-mlr-equivalence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="hypothesis_files/figure-html/fig-mlr-equivalence-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width: 70% !important;" width="576">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-mlr-equivalence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4.4: Equivalence of Likelihood Ratio Test and thresholding the statistic T(x) under Monotone Likelihood Ratio (MLR). Because <span class="math inline">\( ambda(x)\)</span> is strictly increasing in <span class="math inline">\(T(x)\)</span>, the condition <span class="math inline">\( ambda(x) &gt; k\)</span> is equivalent to <span class="math inline">\(T(x) &gt; t_0\)</span>.
-</figcaption>
-</figure>
-</div>
-</div>
-</div>
 </section>
 </section>
 <section id="uniformly-most-powerful-ump-tests" class="level2" data-number="4.4">
@@ -609,13 +596,13 @@ Figure&nbsp;4.4: Equivalence of Likelihood Ratio Test and thresholding the stati
 </div>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-ump-power" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" style="width: 70% !important;">
+<div id="fig-ump-power" class="quarto-float quarto-figure quarto-figure-center anchored" style="width: 70% !important;" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-ump-power-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="hypothesis_files/figure-html/fig-ump-power-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width: 70% !important;" width="576">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ump-power-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4.5: Power functions of UMP test vs.&nbsp;another test
+Figure&nbsp;4.3: Power functions of UMP test vs.&nbsp;another test
 </figcaption>
 </figure>
 </div>
@@ -666,13 +653,13 @@ W_{LR}(\theta_1) \ge W_{\phi'}(\theta_1)
 </div>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-mlr-dist" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" style="width: 70% !important;">
+<div id="fig-mlr-dist" class="quarto-float quarto-figure quarto-figure-center anchored" style="width: 70% !important;" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-mlr-dist-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="hypothesis_files/figure-html/fig-mlr-dist-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width: 70% !important;" width="576">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-mlr-dist-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4.6: Distribution of statistic T under H0 and H1 with MLR
+Figure&nbsp;4.4: Distribution of statistic T under H0 and H1 with MLR
 </figcaption>
 </figure>
 </div>

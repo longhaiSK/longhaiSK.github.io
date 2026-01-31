@@ -173,29 +173,139 @@ $$
 ```
 
 
+
+
+## Power and Size Function
+
 ::: {#def-test-size}
 ### Size of a Test
-The **size** of a test $\phi(x)$, denoted by $\alpha$, is the maximum probability of rejecting the null hypothesis when it is true:
+The **size** of a test $\phi(x)$ is the maximum probability of rejecting the null hypothesis when it is true:
 
 $$
-\alpha = \sup_{\theta \in \Theta_0} \text{Pr}(\text{Reject } H_0 \mid \theta) = \sup_{\theta \in \Theta_0} E_\theta[\phi(X)]
+\text{Size}(\phi) = \sup_{\theta \in \Theta_0} W_\phi(\theta) = \sup_{\theta \in \Theta_0} E_\theta[\phi(X)]
 $$
 :::
 
+### Power Definitions
+We distinguish between the power function varying over parameters and the power metric of a specific test.
 
-## Power Function
-
-The **power function** of a test, denoted $W(\theta)$ or $\beta(\theta)$, is the probability of rejecting $H_0$ as a function of $\theta$:
+**1. Power Function ($W_\phi(\theta)$)**
+The probability of rejecting $H_0$ as a function of the parameter $\theta$:
 
 $$
-W(\theta) = E_\theta[\phi(X)]
+W_\phi(\theta) = E_\theta[\phi(X)]
+$$
+
+**2. Power of the Test ($\text{Power}(\phi)$)**
+In the context of a specific alternative hypothesis (e.g., $H_1: \theta = \theta_1$), we define the power as a scalar functional of $\phi$:
+
+$$
+\text{Power}(\phi) = E_{\theta_1}[\phi(X)]
 $$
 
 Ideally, we want:
 
-1.  $E_\theta[\phi(X)] \le \alpha$ for all $\theta \in \Theta_0$ (Size control).
-2.  $E_\theta[\phi(X)]$ to be as large as possible for $\theta \in \Theta_1$ (High power).
+* $W_\phi(\theta) \le \text{Size}(\phi)$ for all $\theta \in \Theta_0$ (Control Type I error).
+* $\text{Power}(\phi)$ to be as large as possible (Maximize sensitivity to $H_1$).
+  
 
+```{r}
+#| label: fig-lrt-normal-x
+#| fig-cap: "Illustration of Test Function, Size, and Power"
+#| fig-width: 7
+#| fig-height: 5
+
+library(ggplot2)
+
+# 1. Define Normal Distribution Parameters
+mu0 <- 0
+mu1 <- 3
+sigma <- 1
+c_val <- 1.5      # Critical value on x-axis (Threshold)
+gamma_val <- 0.5  # Randomization constant at the boundary
+
+# 2. Calculate Scaling for Dual View
+# Peak density of N(0,1) is approx 0.4
+max_dens <- dnorm(mu0, mean = mu0, sd = sigma)
+y_limit <- max_dens * 1.1
+
+# Set phi=1 to represent 10% of the y-axis range
+phi_scale <- 0.1 * y_limit
+
+# 3. Define the Test Function phi(x) based on x
+# For Normal mean shift (mu1 > mu0), LRT rejects for large x.
+# Step: 0 -> 1 at c_val
+df_segments <- data.frame(
+  x_start = c(-3, c_val),
+  x_end   = c(c_val, 6),
+  y_start = c(0, phi_scale),
+  y_end   = c(0, phi_scale)
+)
+
+ggplot() +
+  # --- Layer 1: Densities (Primary Scale) ---
+  
+  # H0: Normal(0, 1) - Red
+  stat_function(fun = dnorm, args = list(mean = mu0, sd = sigma), 
+                geom = "area", fill = "red", alpha = 0.2) +
+  stat_function(fun = dnorm, args = list(mean = mu0, sd = sigma), 
+                color = "red", linetype = "dashed") +
+  
+  # H1: Normal(3, 1) - Blue
+  stat_function(fun = dnorm, args = list(mean = mu1, sd = sigma), 
+                geom = "area", fill = "blue", alpha = 0.2) +
+  stat_function(fun = dnorm, args = list(mean = mu1, sd = sigma), 
+                color = "blue", linetype = "dashed") +
+
+  # --- Layer 2: Scaled Test Function phi(x) ---
+  
+  # The horizontal steps (Indicator of rejection region)
+  geom_segment(data = df_segments, 
+               aes(x = x_start, xend = x_end, y = y_start, yend = y_end), 
+               size = 1.2) +
+  
+  # The vertical threshold line at critical value c
+  geom_segment(aes(x = c_val, xend = c_val, y = 0, yend = phi_scale), 
+               linetype = "dotted", color = "black") +
+  
+  # Points for gamma and discontinuity (Scaled)
+  geom_point(aes(x = c_val, y = gamma_val * phi_scale), size = 3) + 
+  geom_point(aes(x = c_val, y = 0), size = 3, shape = 21, fill = "white") +
+  geom_point(aes(x = c_val, y = phi_scale), size = 3, shape = 21, fill = "white") +
+
+  # --- Layer 3: Annotations ---
+  
+  annotate("text", x = c_val + 0.2, y = gamma_val * phi_scale, 
+           label = expression(gamma), hjust = 0, fontface = "bold") +
+  
+  # Label H0 and H1
+  annotate("text", x = mu0, y = dnorm(mu0, mu0, sigma) * 0.9, 
+           label = expression(H[0]), color = "red", size = 5) +
+  annotate("text", x = mu1, y = dnorm(mu1, mu1, sigma) * 0.9, 
+           label = expression(H[1]), color = "blue", size = 5) +
+  
+  # Label the Critical Value
+  annotate("text", x = c_val, y = -0.01, label = "c", vjust = 1) +
+
+  # --- Layer 4: Axes ---
+  scale_y_continuous(
+    name = "Density f(x)",
+    limits = c(-0.02, y_limit), # Small negative limit for "c" label
+    expand = c(0, 0),
+    
+    # Secondary Axis for phi
+    sec.axis = sec_axis(~ . / phi_scale, 
+                        name = expression(phi(x) ~ "(Rejection Prob)"),
+                        breaks = c(0, 1))
+  ) +
+  scale_x_continuous(name = "Observation x", limits = c(-3, 6)) +
+  
+  theme_minimal() +
+  theme(
+    axis.title.y.right = element_text(angle = 90, vjust = 0.5),
+    panel.grid.minor = element_blank()
+  )
+```
 ## The Neyman-Pearson Lemma
 
 Consider testing a simple null against a simple alternative:
@@ -222,103 +332,7 @@ $$
 where $k \ge 0$ is a constant and $0 \le \gamma(x) \le 1$.
 :::
 
-```{r}
-#| label: fig-lrt-density-primary
-#| fig-cap: "Densities of $\\Lambda$ (primary view) with the LRT function $\\phi(x)$ scaled to the bottom 10% of the axis."
-#| fig-width: 7
-#| fig-height: 5
 
-library(ggplot2)
-
-# 1. Define Constants
-k_val     <- 7
-gamma_val <- 0.5
-df_val    <- 3
-ncp_h0    <- 0
-ncp_h1    <- 5.5
-
-# 2. Calculate Scaling
-# We find the peak density to determine the Y-axis range.
-max_dens <- max(
-  dchisq(df_val - 2, df = df_val, ncp = ncp_h0), # Mode approx df-2
-  dchisq(df_val + ncp_h1 - 2, df = df_val, ncp = ncp_h1)
-)
-# Make the graph slightly taller than the max density for headroom
-y_limit <- max_dens * 1.1
-
-# The user wants phi=1 to equal 0.1 of the range (approx 0.1 * y_limit)
-phi_scale <- 0.1 * y_limit
-
-# 3. Define Scaled Segments for phi(x)
-# Original y=1 becomes y=phi_scale
-df_segments <- data.frame(
-  x_start = c(0, k_val),
-  x_end   = c(k_val, 15),
-  y_start = c(0, phi_scale),
-  y_end   = c(0, phi_scale)
-)
-
-ggplot() +
-  # --- Layer 1: Densities (Primary Scale) ---
-  
-  # H0 Density (Red)
-  stat_function(fun = dchisq, args = list(df = df_val, ncp = ncp_h0), 
-                geom = "area", fill = "red", alpha = 0.2) +
-  stat_function(fun = dchisq, args = list(df = df_val, ncp = ncp_h0), 
-                color = "red", linetype = "dashed") +
-  
-  # H1 Density (Blue)
-  stat_function(fun = dchisq, args = list(df = df_val, ncp = ncp_h1), 
-                geom = "area", fill = "blue", alpha = 0.2) +
-  stat_function(fun = dchisq, args = list(df = df_val, ncp = ncp_h1), 
-                color = "blue", linetype = "dashed") +
-
-  # --- Layer 2: Scaled Test Function phi(x) (Bottom 10%) ---
-  
-  # The horizontal steps
-  geom_segment(data = df_segments, 
-               aes(x = x_start, xend = x_end, y = y_start, yend = y_end), 
-               size = 1.2) +
-  
-  # The vertical threshold line (goes up to the density to show the cut)
-  geom_segment(aes(x = k_val, xend = k_val, y = 0, yend = phi_scale), 
-               linetype = "dotted", color = "black") +
-  
-  # Points scaled to phi_scale
-  geom_point(aes(x = k_val, y = gamma_val * phi_scale), size = 3) + 
-  geom_point(aes(x = k_val, y = 0), size = 3, shape = 21, fill = "white") +
-  geom_point(aes(x = k_val, y = phi_scale), size = 3, shape = 21, fill = "white") +
-
-  # --- Layer 3: Annotations ---
-  
-  # Label for gamma
-  annotate("text", x = k_val + 0.2, y = gamma_val * phi_scale, 
-           label = expression(gamma), hjust = 0, fontface = "bold") +
-  
-  # Labels for Densities
-  annotate("text", x = 2, y = max_dens * 0.9, 
-           label = expression(H[0]), color = "red", size = 5) +
-  annotate("text", x = 8, y = max_dens * 0.4, 
-           label = expression(H[1]), color = "blue", size = 5) +
-
-  # --- Layer 4: Axes ---
-  scale_y_continuous(
-    name = "Density f(x)",
-    limits = c(0, y_limit),
-    
-    # Secondary axis shows the 0-1 scale for phi
-    sec.axis = sec_axis(~ . / phi_scale, 
-                        name = expression(phi(x) ~ "(Indicator)"),
-                        breaks = c(0, 0.5, 1))
-  ) +
-  scale_x_continuous(name = expression(Lambda(x))) +
-  
-  theme_minimal() +
-  theme(
-    axis.title.y.right = element_text(angle = 90, vjust = 0.5),
-    panel.grid.minor = element_blank()
-  )
-```
 
 ### Neyman-Pearson Lemma
 ::: {#thm-neyman-pearson}
@@ -327,7 +341,7 @@ a) **Optimality:** For any $k$ and $\gamma(x)$, the LRT $\phi_0(x)$ defined abov
 
 a) **Existence:** Given $\alpha \in (0, 1)$, there exist constants $k$ and $\gamma_0$ such that the LRT defined by this $k$ and $\gamma(x) = \gamma_0$ has size exactly $\alpha$.
 
-c) ** Uniqueness:** If a test $\phi$ has size $\alpha$ and is of maximum power among all tests of size $\alpha$, then $\phi$ is necessarily an LRT, except possibly on a set of measure zero under $H_0$ and $H_1$.
+c) **Uniqueness:** If a test $\phi$ has size $\alpha$ and is of maximum power among all tests of size $\alpha$, then $\phi$ is necessarily an LRT, except possibly on a set of measure zero under $H_0$ and $H_1$.
 :::
 
 ### A Derivation with The Lagrange Multiplier Approach
@@ -376,6 +390,8 @@ $$
 
 This is precisely the form of the Likelihood Ratio Test. The "shadow price" or Lagrange multiplier $k$ represents the critical threshold that balances the gain in power against the cost of increasing the Type I error.
 
+### Proof of NP Lemma
+
 ::: {.proof}
 **Proof of (a) Optimality:**
 Let $\phi_0$ be the LRT with size $\alpha$, and $\phi$ be any other test with size $\le \alpha$.
@@ -422,101 +438,8 @@ $$
 Set $\gamma_0 = \frac{\alpha - P_{\theta_0}(\Lambda(X) > k_0)}{P_{\theta_0}(\Lambda(X) = k_0)}$.
 :::
 
-```{tikz fig-np-optimality}
-%| fig-cap: "Visualization of the Optimality Proof. The LRT region $C_\\alpha$ contains all points where the likelihood ratio is high ($>k$). Any competitor $C_\\alpha^*$ works by swapping a 'Good' region (A) for a 'Bad' region (B). The integral of U(x) sums the loss from A and the deficit from B, showing both lead to power loss."
-%| echo: false
-%| fig-align: "center"
-%| out-extra: 'style="width: 80% !important;"'
-%| engine.opts:
-%|   extra.preamble: "\\usetikzlibrary{patterns}"
 
-\begin{tikzpicture}[scale=1.2]
-% Define Curve Functions (approximations for visual)
-\def\fnull{2.5*exp(-0.5*(\x+1.5)^2)} % H0 centered left
-\def\falt{2.5*exp(-0.5*(\x-1.5)^2)}  % H1 centered right (Renamed from \fi to avoid clash)
 
-% Draw Axes
-\draw[->] (-4,0) -- (4,0) node[right] {$x$};
-\draw[->] (0,0) -- (0,3) node[above] {Density};
-
-% Draw Densities
-\draw[blue, thick] plot[domain=-4:4, samples=100] (\x, {\fnull});
-\node[blue] at (-2, 1.5) {$f_0(x)$};
-
-\draw[red, thick] plot[domain=-4:4, samples=100] (\x, {\falt});
-\node[red] at (2, 1.5) {$f_1(x)$};
-
-% Cutoff k (intersection roughly at 0 for these params, let's shift slightly for visual)
-\def\xc{0.2} % Cutoff point
-\draw[dashed, thick] (\xc, 0) -- (\xc, 2.8);
-\node[above] at (\xc, 2.8) {$k$ (cutoff)};
-
-% Region definitions
-% C_alpha (LRT) is everything to the right of xc
-% C_alpha* (Competitor) "misses" a chunk (A) and "adds" a chunk (B)
-
-% Region A: The part of C_alpha that C_alpha* excludes (The Loss)
-% Let's say C* excludes [0.2, 1.0]
-\fill[pattern=north west lines, pattern color=purple] (0.2,0) -- plot[domain=0.2:1.0] (\x, {\falt}) -- (1.0,0) -- cycle;
-\node[purple, align=center] at (0.6, 1.8) {\textbf{Region A}\\(In $C_\alpha$, not $C_\alpha^*$)\\$f_1 > k f_0$};
-\draw[->, purple] (0.6, 1.5) -- (0.6, 0.5);
-
-% Region B: The part C_alpha* includes that C_alpha doesn't (The Bad Gain)
-% Let's say C* includes [-1.5, -0.7]
-\fill[pattern=north east lines, pattern color=orange] (-1.5,0) -- plot[domain=-1.5:-0.7] (\x, {\falt}) -- (-0.7,0) -- cycle;
-\node[orange, align=center] at (-1.1, 1.8) {\textbf{Region B}\\(In $C_\alpha^*$, not $C_\alpha$)\\$f_1 < k f_0$};
-\draw[->, orange] (-1.1, 1.5) -- (-1.1, 0.5);
-
-% Labels for the Rejection Sets on Axis
-\draw[|-|, thick, purple] (0.2, -0.4) -- (4, -0.4);
-\node[purple, below] at (2.1, -0.4) {$C_\alpha$ (LRT)};
-
-\draw[thick, orange] (-1.5, -0.8) -- (-0.7, -0.8);
-\draw[->, thick, orange] (1.0, -0.8) -- (4, -0.8); % The part of C_alpha it kept
-\node[orange, below] at (0, -0.8) {$C_\alpha^*$ (Competitor)};
-
-\end{tikzpicture}
-```
-
-```{tikz fig-mlr-equivalence}
-%| fig-cap: "Equivalence of Likelihood Ratio Test and thresholding the statistic T(x) under Monotone Likelihood Ratio (MLR). Because $\Lambda(x)$ is strictly increasing in $T(x)$, the condition $\Lambda(x) > k$ is equivalent to $T(x) > t_0$."
-%| echo: false
-%| fig-align: "center"
-%| out-extra: 'style="width: 70% !important;"'
-
-\begin{tikzpicture}[scale=1.2]
-% Axes
-\draw[->] (0,0) -- (6,0) node[right] {$T(x)$ (Statistic)};
-\draw[->] (0,0) -- (0,4.5) node[above] {$\Lambda(x) = \frac{L(\theta_1)}{L(\theta_0)}$};
-
-% Monotone Increasing Function
-\draw[blue, very thick] (0.5, 0.5) .. controls (2, 1) and (3, 3.5) .. (5.5, 4.2) node[right] {$\Lambda(t)$};
-
-% Threshold k (Horizontal Line)
-\draw[red, thick, dashed] (0, 2.8) -- (5.5, 2.8) node[right] {threshold $k$};
-
-% Drop down to t_0
-% Approximate intersection is around x=2.6 based on control points
-% Let's force the visual intersection to be nice
-\coordinate (Intersection) at (2.65, 2.8);
-\draw[dashed] (Intersection) -- (2.65, 0);
-\node[below] at (2.65, 0) {$t_0$};
-
-% Rejection Regions
-\draw[->, red, thick] (2.65, 0.2) -- (5.5, 0.2);
-\node[red, below] at (4.1, 0.2) {Reject $H_0$ ($T(x) > t_0$)};
-
-\draw[->, red, thick] (2.8, 2.9) -- (2.8, 4.0);
-\node[red, right] at (2.8, 3.5) {$\Lambda(x) > k$};
-
-% Equivalence Text
-\node[align=center, fill=white, inner sep=2pt] at (1.5, 3.5) {
-    \textbf{Equivalence}:\\
-    $\Lambda(x) > k \iff T(x) > t_0$
-};
-
-\end{tikzpicture}
-```
 
 ## Uniformly Most Powerful (UMP) Tests
 
