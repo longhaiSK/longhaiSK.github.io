@@ -103,6 +103,20 @@
   )
 }
 
+/* --- Equation Numbering Settings --- */
+
+// 1. Format the number as (Chapter.Equation)
+#set math.equation(numbering: n => {
+  let chapter = counter(heading).get().first()
+  numbering("(1.1)", chapter, n)
+})
+
+// 2. Reset equation counter at every Level 1 heading
+#show heading.where(level: 1): it => {
+  counter(math.equation).update(0)
+  it
+}
+
 // 5. User-Facing Wrappers (Robust Version)
 // These handle arguments from both your Lua filter AND the Quarto extension styles.
 #let env-wrapper(type, ..args) = {
