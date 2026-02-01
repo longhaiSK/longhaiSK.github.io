@@ -14,11 +14,11 @@
    2. GLOBAL TYPOGRAPHY & LAYOUT
    ========================================= */
 body {
-  padding-bottom: 60px;
-  padding-left: 1rem;
-  padding-right: 2rem;
-  margin-top: 30px;
-  margin-right: 10px;
+  /* FIX: Remove padding/margin from body so sidebar touches the edge */
+  padding: 0;
+  margin: 0;
+  margin-top: 30px; /* Keep top margin for navbar if needed */
+  
   background: var(--background);
   font-family: Helvetica, Arial, sans-serif;
   font-size: 16px;
@@ -26,6 +26,16 @@ body {
   color: var(--textcolor);
   line-height: 1.5em;
   text-align: left;
+}
+
+/* FIX: Add the spacing back to the MAIN content only */
+main.content, 
+#quarto-content {
+  padding-right: 2rem;
+  padding-bottom: 60px;
+  /* padding-left is usually handled by Quarto's grid, 
+     but add it here if text feels too close to sidebar */
+  padding-left: 1rem; 
 }
 
 p {
@@ -50,7 +60,6 @@ h1 {
   font-weight: bold;
 }
 
-/* Fancy shaded H2 box */
 h2 {
   padding-top: 20px;
   font-size: 1.5em;
@@ -84,29 +93,30 @@ h2.anchored .anchorjs-link, h3.anchored .anchorjs-link {
 }
 
 /* =========================================
-   4. LISTS & NUMBERING
+   4. LISTS & NUMBERING (Scoped to Main Content)
    ========================================= */
-ol {
+/* Only apply these list styles to the main content area */
+#quarto-content ol {
   margin-top: 0.2em;
   margin-bottom: 0.2em;
   padding-left: 2.5em;
   list-style-type: none;
 }
 
-ul {
+#quarto-content ul {
   margin-top: 0.2em;
   margin-bottom: 0.2em;
   padding-left: 2em;
 }
 
 /* LEVEL 1: Format as (1). */
-ol > li::marker {
+#quarto-content ol > li::marker {
   content: "(" counter(list-item) ") ";
   font-weight: bold;
 }
 
 /* LEVEL 2: Format as (a). */
-ol ol > li::marker {
+#quarto-content ol ol > li::marker {
   content: "(" counter(list-item, lower-alpha) ") ";
   font-weight: normal;
 }
@@ -124,7 +134,6 @@ main img:not(.logo),
   display: block;
 }
 
-/* Protect logos/badges */
 .navbar .logo, .navbar-brand img,
 .col-md-3 img, .sidebar img {
   width: auto !important;
@@ -175,133 +184,47 @@ main img:not(.logo),
 }
 
 /* =========================================
-   7. UNIFIED SIDEBAR (MERGED TOC + CHAPTERS)
+   7. SIDEBAR STYLING (Blue-Grey)
    ========================================= */
 
-/* --- A. GHOST MODE (Vital for Live Sync) --- */
-/* We hide the sidebar visually but keep it in the DOM 
-   so the scroll-spy observer can still track active sections. */
-#quarto-margin-sidebar {
-  visibility: hidden;
-  height: 0;
-  width: 0;
-  overflow: hidden;
-  position: absolute;
+/* --- A. Sidebar Container Color --- */
+#quarto-sidebar {
+  background-color: #f0f4f8 !important; /* Light Blue-Grey */
+  border-right: 1px solid #dbe2e8 !important;
+  /* Fix: Ensure it stretches full height if needed */
+  min-height: 100vh; 
 }
 
-/* --- B. ANTI-FLASH (Fade in on Load) --- */
-#quarto-sidebar .sidebar-menu-container {
-  opacity: 0;
-  transition: opacity 0.2s ease-in;
-}
-
-#quarto-sidebar .sidebar-menu-container.loaded {
-  opacity: 1;
-}
-
-/* --- C. HIDE DEFAULT TOGGLES --- */
-.sidebar-item-toggle {
-  display: none !important;
-}
-
-/* --- D. LIST RESET (No Bullets) --- */
-ul.injected-page-toc,
-ul.injected-page-toc ul {
-  list-style: none !important;
-  list-style-type: none !important;
-  padding-left: 0 !important;
-  margin-left: 0 !important;
-}
-
-/* Hierarchy Indentation */
-#quarto-sidebar .sidebar-item-container {
-  padding-left: 0.5rem; /* Level 1 */
-}
-
-ul.injected-page-toc {
-  padding-left: 12px !important;
-  margin-left: 1.8em !important; /* Level 2 */
-  border-left: 1px solid #dee2e6;
-  margin-top: 5px !important;
-  margin-bottom: 10px !important;
-}
-
-ul.injected-page-toc ul {
-  padding-left: 15px !important; /* Level 3 */
-}
-
-/* --- E. FLEXBOX LAYOUT (The Hanging Indent) --- */
-/* Targets both Chapter links and Injected TOC links */
+/* --- B. Text Colors --- */
 #quarto-sidebar .sidebar-link,
-ul.injected-page-toc a {
-  display: flex !important;
-  align-items: baseline;
-  text-decoration: none !important;
-  color: #6c757d !important;
-  padding: 6px 0;
-  border: none !important;
-  width: 100%;
+#quarto-sidebar .sidebar-title {
+  color: #485663 !important; /* Dark Grey Blue text */
 }
 
-/* Ensure internal Quarto text spans behave correctly */
-#quarto-sidebar .sidebar-link .menu-text {
-  display: flex;
-  width: 100%;
+#quarto-sidebar .sidebar-link:hover,
+ul.injected-page-toc a:hover {
+  color: #2c3e50 !important;
 }
 
-/* Column 1: The Number */
-.toc-num {
-  flex: 0 0 auto;
-  min-width: 1.8em;
-  padding-right: 0.5em;
-  font-weight: 500;
-  text-align: right;
-  margin-right: 5px;
-}
-
-/* Column 2: The Text */
-.toc-text {
-  flex: 1 1 auto;
-  display: block;
-}
-
-/* --- F. COLLAPSIBLE ARROW INDICATORS --- */
-/* Only applied to items marked 'has-children' by JS */
-.has-children .toc-text::after {
-  content: "›"; 
-  float: right;
-  margin-right: 5px;
-  font-weight: bold;
-  font-family: monospace; 
-  transform: rotate(90deg); /* Default: Expanded (Down) */
-  transition: transform 0.2s ease;
-}
-
-/* Collapsed State (Right) */
-.has-children.collapsed .toc-text::after {
-  transform: rotate(0deg); 
-}
-
-/* --- G. ACTIVE STATE (Highlighter) --- */
+/* --- C. Active State (Blue) --- */
 #quarto-sidebar .sidebar-link.active,
 ul.injected-page-toc a.active {
   color: #007bff !important;
+  background-color: transparent !important;
   font-weight: 700 !important;
 }
 
-/* Highlight number separately if needed */
+/* Active Number Color */
 #quarto-sidebar .sidebar-link.active .toc-num,
 ul.injected-page-toc a.active .toc-num {
   color: #007bff !important;
 }
 
-
 /* =========================================
-   RESOURCES/BOOKSTYLES.CSS
+   8. TOC MERGING & LAYOUT LOGIC
    ========================================= */
 
-/* --- 1. HIDE ALL DUPLICATE TOCS (Bottom & Side) --- */
-/* This specific selector targets the mobile footer TOC too */
+/* --- A. Hide Duplicates (Ghost Mode) --- */
 nav[role="doc-toc"],
 #quarto-margin-sidebar,
 .quarto-secondary-nav .toc {
@@ -314,14 +237,28 @@ nav[role="doc-toc"],
     visibility: hidden;
 }
 
-/* --- 2. HIDE DEFAULT TOGGLES --- */
+/* --- B. Hide Default Toggles --- */
 .sidebar-item-toggle { display: none !important; }
 
-/* --- 3. LIST RESET (No Bullets) --- */
+/* --- C. Anti-Flash --- */
+#quarto-sidebar .sidebar-menu-container {
+  opacity: 0;
+  transition: opacity 0.2s ease-in;
+}
+#quarto-sidebar .sidebar-menu-container.loaded {
+  opacity: 1;
+}
+
+/* --- D. List Reset (No Bullets) --- */
 ul.injected-page-toc, ul.injected-page-toc ul {
   list-style: none !important;
   padding-left: 0 !important;
   margin-left: 0 !important;
+}
+
+/* Hierarchy Indentation */
+#quarto-sidebar .sidebar-item-container {
+  padding-left: 0.5rem; /* Level 1 */
 }
 
 ul.injected-page-toc {
@@ -333,24 +270,29 @@ ul.injected-page-toc {
 }
 
 ul.injected-page-toc ul {
-  padding-left: 15px !important; 
+  padding-left: 15px !important; /* Level 3 */
 }
 
-/* --- 4. FLEXBOX LAYOUT --- */
+/* --- E. Flexbox Layout (Hanging Indent) --- */
 #quarto-sidebar .sidebar-link,
 ul.injected-page-toc a {
   display: flex !important;
   align-items: baseline;
   text-decoration: none !important;
-  color: #6c757d !important;
+  color: #6c757d; /* Default color (overridden by sidebar specific above) */
   padding: 6px 0;
   border: none !important;
   width: 100%;
-  position: relative; /* For arrow positioning */
+  position: relative;
 }
 
-/* --- 5. NUMBER & TEXT COLUMNS --- */
-/* Only applied if JS adds the classes */
+/* Ensure internal Quarto text spans behave correctly */
+#quarto-sidebar .sidebar-link .menu-text {
+  display: flex;
+  width: 100%;
+}
+
+/* Column 1: Number */
 .toc-num {
   flex: 0 0 auto;
   min-width: 1.8em;
@@ -360,18 +302,17 @@ ul.injected-page-toc a {
   margin-right: 5px;
 }
 
+/* Column 2: Text */
 .toc-text {
   flex: 1 1 auto;
   display: block;
 }
 
-/* --- 6. COLLAPSIBLE ARROW (FIXED) --- */
-/* We attach the arrow to the LINK, not the text span. 
-   This ensures it appears even for unnumbered items. */
+/* --- F. Collapsible Arrows --- */
 a.has-children::after {
   content: "›"; 
   display: inline-block;
-  margin-left: auto; /* Pushes arrow to far right */
+  margin-left: auto;
   margin-right: 5px;
   font-weight: bold;
   font-family: monospace; 
@@ -385,22 +326,66 @@ a.has-children.collapsed::after {
   transform: rotate(0deg); /* Collapsed (Right) */
 }
 
-/* --- 7. ACTIVE HIGHLIGHT --- */
-#quarto-sidebar .sidebar-link.active,
-ul.injected-page-toc a.active {
-  color: #007bff !important;
-  font-weight: 700 !important;
-}
-#quarto-sidebar .sidebar-link.active .toc-num,
-ul.injected-page-toc a.active .toc-num {
-  color: #007bff !important;
-}
+/* =========================================
+   9. QUARTO STRUCTURE OVERRIDE (Fixed Left-Aligned)
+   ========================================= */
 
-/* --- 8. ANTI-FLASH --- */
-#quarto-sidebar .sidebar-menu-container {
-  opacity: 0;
-  transition: opacity 0.2s ease-in;
-}
-#quarto-sidebar .sidebar-menu-container.loaded {
-  opacity: 1;
+@media (min-width: 992px) {
+
+  /* 1. SIDEBAR: Fixed to Glass (Left Edge) */
+  #quarto-sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 300px !important;
+    height: 100vh !important;
+    z-index: 1000 !important;
+    
+    /* Visuals */
+    background-color: #f0f4f8 !important;
+    border-right: 1px solid #dbe2e8 !important;
+    padding: 20px 10px !important;
+    overflow-y: auto !important;
+  }
+
+  /* 2. CONTENT WRAPPER: The "Lane" */
+  #quarto-content {
+    /* Push the start of the content area to the right of the sidebar */
+    margin-left: 300px !important; 
+    width: auto !important; 
+    padding: 0 !important; /* We handle spacing inside main */
+  }
+
+  /* 3. MAIN TEXT AREA: Fixed Width & Left Aligned */
+  main.content, 
+  .page-columns, 
+  .quarto-container {
+    display: block !important;
+    
+    /* THE GAP: Distance between Sidebar and Text */
+    margin-left: 40px !important; 
+    margin-right: 0 !important; /* Do not center (no margin-right auto) */
+    
+    /* THE FIXED WIDTH: Locks content stability */
+    width: 1000px !important;     
+    min-width: 1000px !important; 
+    max-width: 1000px !important;
+    
+    /* Internal spacing for text readability */
+    padding-top: 2rem !important;
+    padding-bottom: 4rem !important;
+    padding-left: 0 !important; 
+    padding-right: 0 !important;
+  }
+  
+  /* 4. HEADER/NAVBAR (If used) */
+  /* Must align exactly with the content */
+  #quarto-header {
+    margin-left: 340px !important; /* 300px sidebar + 40px gap */
+    width: 1000px !important;
+  }
+  
+  /* 5. Hide Mobile Nav */
+  .quarto-secondary-nav { display: none !important; }
 }
