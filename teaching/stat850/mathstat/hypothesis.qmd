@@ -958,7 +958,27 @@ For testing a point null hypothesis $H_0: \theta = \theta_0$ against a two-sided
     
 Since no single critical region can simultaneously maximize power for both $\theta > \theta_0$ and $\theta < \theta_0$, no UMP test exists. We typically restrict our search to **Unbiased** tests (UMPU) to resolve this.
 
-## The Likelihood Ratio Test
+
+
+```{r}
+#| echo: false
+#| fig-height: 4
+#| fig-width: 6
+theta <- seq(-3, 3, length.out=200)
+power_right <- 1 - pnorm(1.645 - theta) 
+power_left <- pnorm(-1.645 - theta)
+
+plot(theta, power_right, type='l', col='red', lwd=2, 
+   ylab="Power W(theta)", xlab=expression(theta),
+   main="Power Functions of One-Sided Tests")
+lines(theta, power_left, col='blue', lwd=2)
+abline(h=0.05, lty=2, col="gray")
+abline(v=0, lty=3)
+legend("top", legend=c(expression(W[right](theta)), expression(W[left](theta))), 
+      col=c("red", "blue"), lwd=2, bty="n")
+```
+
+## Wilks' Theorem for General Likelihood Ratio Tests
 
 The Likelihood Ratio Test (LRT) provides a unified approach for constructing hypothesis tests for parametric models. Let $X_1, \dots, X_n$ be a random sample with joint probability density function $L(\theta; \mathbf{x})$, where $\theta \in \Theta$. We consider the general hypothesis testing problem:
 $$H_0: \theta \in \Theta_0 \quad \text{vs} \quad H_1: \theta \in \Theta \setminus \Theta_0$$
@@ -987,11 +1007,11 @@ The asymptotic distribution of the Likelihood Ratio Test statistic is given by t
 
 ### Wilks' Theorem
 
-Let $X_1, \dots, X_n$ be an i.i.d. sample from a regular family of distributions with parameters $\theta \in \Theta \subseteq \mathbb{R}^p$. Consider the test:
+Let $X_1, \dots, X_n$ be an i.i.d. sample from a regular family of distributions with parameters $\theta \in \Theta \subseteq \mathbb{R}^{p_1}$. Consider the test:
 $$ H_0: \theta \in \Theta_0 \quad \text{vs} \quad H_1: \theta \in \Theta \setminus \Theta_0 $$
-where $\Theta_0$ is a smooth subset of $\Theta$ with dimension $q < p$. Let $\Lambda_n$ be the likelihood ratio statistic. Under $H_0$, as $n \to \infty$:
-$$ -2 \ln \Lambda_n \xrightarrow{d} \chi^2_{d} $$
-where the degrees of freedom $d = p - q$ is the difference in the number of free parameters between the full model and the null model.
+where $\Theta_0$ is a smooth subset of $\Theta$ with dimension $p_0 < p_1$. Let $\Lambda_n$ be the likelihood ratio statistic. Under $H_0$, as $n \to \infty$:
+$$ -2 \ln \Lambda_n \xrightarrow{d} \chi^2_{k} $$
+where the degrees of freedom $k = p_1 - p_0$ is the difference in the number of free parameters between the full model and the null model.
 
 :::
 
@@ -1006,20 +1026,19 @@ The proof relies on the Taylor expansion of the log-likelihood function $\ell(\t
     $$ \ell(\theta_0) \approx \ell(\hat{\theta}) + (\theta_0 - \hat{\theta})^T \nabla \ell(\hat{\theta}) + \frac{1}{2}(\theta_0 - \hat{\theta})^T \nabla^2 \ell(\hat{\theta}) (\theta_0 - \hat{\theta}) $$
     Since $\hat{\theta}$ is the MLE, the score vector $\nabla \ell(\hat{\theta}) = 0$. The Hessian $\nabla^2 \ell(\hat{\theta}) \approx -n I(\theta_0)$, where $I(\theta_0)$ is the Fisher Information matrix. Thus:
     $$ 2[\ell(\hat{\theta}) - \ell(\theta_0)] \approx n(\hat{\theta} - \theta_0)^T I(\theta_0) (\hat{\theta} - \theta_0) $$
-    From the asymptotic normality of the MLE, $\sqrt{n}(\hat{\theta} - \theta_0) \xrightarrow{d} N(0, I(\theta_0)^{-1})$. Therefore, the quadratic form converges to a Chi-square variable with $p$ degrees of freedom:
-    $$ 2[\ell(\hat{\theta}) - \ell(\theta_0)] \xrightarrow{d} \chi^2_p $$
+    From the asymptotic normality of the MLE, $\sqrt{n}(\hat{\theta} - \theta_0) \xrightarrow{d} N(0, I(\theta_0)^{-1})$. Therefore, the quadratic form converges to a Chi-square variable with $p_1$ degrees of freedom:
+    $$ 2[\ell(\hat{\theta}) - \ell(\theta_0)] \xrightarrow{d} \chi^2_{p_1} $$
 
 2.  **Decomposition of the Statistic:**
     The LRT statistic is $D = -2 \ln \Lambda = 2[\ell(\hat{\theta}) - \ell(\hat{\theta}_0)]$. We can rewrite this by adding and subtracting the true log-likelihood $\ell(\theta_0)$:
-    $$ 2[\ell(\hat{\theta}) - \ell(\hat{\theta}_0)] = \underbrace{2[\ell(\hat{\theta}) - \ell(\theta_0)]}_{\approx \chi^2_p} - \underbrace{2[\ell(\hat{\theta}_0) - \ell(\theta_0)]}_{\approx \chi^2_q} $$
-    The term $2[\ell(\hat{\theta}_0) - \ell(\theta_0)]$ represents the deviation of the *restricted* MLE from the truth. Since $\Theta_0$ has dimension $q$, this term converges to $\chi^2_q$.
+    $$ 2[\ell(\hat{\theta}) - \ell(\hat{\theta}_0)] = \underbrace{2[\ell(\hat{\theta}) - \ell(\theta_0)]}_{\approx \chi^2_{p_1}} - \underbrace{2[\ell(\hat{\theta}_0) - \ell(\theta_0)]}_{\approx \chi^2_{p_0}} $$
+    The term $2[\ell(\hat{\theta}_0) - \ell(\theta_0)]$ represents the deviation of the *restricted* MLE from the truth. Since $\Theta_0$ has dimension $p_0$, this term converges to $\chi^2_{p_0}$.
 
 3.  **Result via Cochran's Theorem Logic:**
     Geometrically, this is analogous to projecting the data vector onto orthogonal subspaces (like in ANOVA). The difference of two nested Chi-square variables (where one represents a subspace of the other) is itself Chi-square distributed with degrees of freedom equal to the difference in dimensions:
-    $$ D \xrightarrow{d} \chi^2_p - \chi^2_q \sim \chi^2_{p-q} $$
+    $$ D \xrightarrow{d} \chi^2_{p_1} - \chi^2_{p_0} \sim \chi^2_{p_1 - p_0} = \chi^2_k $$
 
 :::
-
 ::: {#exm-lrt-normal}
 
 **LRT for Normal Mean with Unknown Variance**
@@ -1070,3 +1089,30 @@ $$H_0: \mu = \mu_0 \quad \text{vs} \quad H_1: \mu \neq \mu_0$$
     Since $T \xrightarrow{d} Z$ as $n \to \infty$, $T^2 \xrightarrow{d} \chi^2_1$.
 
 :::
+
+## Historical Notes: Neyman-Pearson, Wilks, and Karlin-Rubin
+
+1. **The Foundation: Neyman & Pearson (1928, 1933)**
+   
+    In **1928**, Jerzy Neyman and Egon Pearson published *On the Use and Interpretation of Certain Test Criteria for Purposes of Statistical Inference*. In this landmark paper, they introduced the likelihood ratio $\lambda$ as a general principle for constructing tests. However, at this stage, they relied on ad-hoc methods to find the distribution of $\lambda$ for specific cases (like the t-test or F-test) and merely conjectured that it might follow a Chi-square distribution in the limit.
+
+    In **1933**, they published their most famous work, *On the Problem of the Most Efficient Tests of Statistical Hypotheses*. This paper established the **Neyman-Pearson Lemma**, proving that for testing a **simple** null against a **simple** alternative (no unknown nuisance parameters), the Likelihood Ratio test is Uniformly Most Powerful (UMP).
+
+2. **The Gap: The Problem of Composite Hypotheses**
+   
+    While Neyman and Pearson proved that the LR test was "optimal" for simple cases, two major problems remained for **composite hypotheses** (cases where parameters are free or tested as inequalities, e.g., $H_0: \theta \le \theta_0$):
+    * **Distributional:** How do we find critical values when nuisance parameters are present?
+    * **Optimality:** Does a UMP test even exist when the alternative is not a single point?
+
+3. **The Asymptotic Solution: S.S. Wilks (1938)**
+   
+    Five years after the NP Lemma, **Samuel S. Wilks** published *The Large-Sample Distribution of the Likelihood Ratio for Testing Composite Hypotheses* (1938).
+
+    Wilks, a student of Henryietz Rietz influenced by Neyman and Pearson, provided the general solution for the **distributional** problem. He proved mathematically that as $n \to \infty$, the distribution of $-2 \ln \Lambda$ does not depend on the specific form of the underlying density, but purely on the **number of free parameters** ($k = p_1 - p_0$). This made the LRT universally applicable for large samples.
+
+4. **The Finite-Sample Optimality: Karlin-Rubin (1956)**
+   
+    While Wilks handled the asymptotics, the question of exact **optimality** for composite hypotheses remained tricky. In **1956**, Samuel Karlin and Herman Rubin formalized the condition of **Monotone Likelihood Ratio (MLR)**.
+    
+    The **Karlin-Rubin Theorem** extended the logic of the Neyman-Pearson Lemma to **one-sided** composite hypotheses ($H_0: \theta \le \theta_0$ vs $H_1: \theta > \theta_0$). They proved that if the family of distributions possesses the MLR property (e.g., Normal, Exponential, Binomial), then the test based on the sufficient statistic is indeed UMP. This result completed the theoretical foundation, delineating exactly when a "perfect" test exists for finite samples.
+
