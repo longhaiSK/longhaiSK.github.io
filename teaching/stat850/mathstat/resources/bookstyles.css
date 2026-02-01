@@ -8,8 +8,11 @@
   --menubackground: lightgrey;
   --navbar-height: 40px;
   
-  /* PARAMETER: Change this value to resize sidebar everywhere */
+  /* PARAMETER: Full Sidebar Width */
   --quarto-sidebar-width: 400px; 
+  
+  /* PARAMETER: Mini (Collapsed) Sidebar Width */
+  --quarto-sidebar-mini-width: 60px;
 }
 
 /* =========================================
@@ -185,6 +188,8 @@ ul.injected-page-toc a.active .toc-num {
 /* =========================================
    8. TOC MERGING & LAYOUT LOGIC
    ========================================= */
+
+/* --- A. Hide Duplicates (Ghost Mode) --- */
 nav[role="doc-toc"],
 #quarto-margin-sidebar,
 .quarto-secondary-nav .toc {
@@ -195,31 +200,46 @@ nav[role="doc-toc"],
     overflow: hidden; visibility: hidden;
 }
 
+/* --- B. Hide Default Toggles --- */
 .sidebar-item-toggle { display: none !important; }
 
+/* --- C. Anti-Flash --- */
 #quarto-sidebar .sidebar-menu-container {
   opacity: 0;
   transition: opacity 0.2s ease-in;
 }
 #quarto-sidebar .sidebar-menu-container.loaded { opacity: 1; }
 
+/* --- D. RESET LIST PADDING (The Fix) --- */
+/* 1. Reset the main list so it aligns with the Book Title */
+#quarto-sidebar .sidebar-menu-container > ul {
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+  list-style: none !important;
+}
+
+/* 2. Remove internal item padding */
+#quarto-sidebar .sidebar-item-container { 
+  padding-left: 0 !important; 
+}
+
+/* --- E. INJECTED TOC (Sub-chapters) --- */
 ul.injected-page-toc, ul.injected-page-toc ul {
   list-style: none !important;
   padding-left: 0 !important;
   margin-left: 0 !important;
 }
 
-#quarto-sidebar .sidebar-item-container { padding-left: 0.5rem; }
-
 ul.injected-page-toc {
   padding-left: 12px !important; 
   border-left: 1px solid #dee2e6;
-  margin-left: 1.8em !important;
+  margin-left: 1.0em !important; /* Slightly tighter indentation */
   margin-top: 5px !important;
   margin-bottom: 10px !important;
 }
 ul.injected-page-toc ul { padding-left: 15px !important; }
 
+/* --- F. FLEXBOX ALIGNMENT --- */
 #quarto-sidebar .sidebar-link,
 ul.injected-page-toc a {
   display: flex !important;
@@ -234,6 +254,7 @@ ul.injected-page-toc a {
 
 #quarto-sidebar .sidebar-link .menu-text { display: flex; width: 100%; }
 
+/* Column 1: Number */
 .toc-num {
   flex: 0 0 auto;
   min-width: 1.8em;
@@ -242,8 +263,10 @@ ul.injected-page-toc a {
   text-align: right; 
   margin-right: 5px;
 }
+/* Column 2: Text */
 .toc-text { flex: 1 1 auto; display: block; }
 
+/* --- G. ARROW --- */
 a.has-children::after {
   content: "›"; 
   display: inline-block;
@@ -258,91 +281,145 @@ a.has-children::after {
 a.has-children.collapsed::after { transform: rotate(0deg); }
 
 /* =========================================
-   9. CUSTOM LAYOUT & TOGGLE (Parameterized)
+   9. CUSTOM LAYOUT: MINI-SIDEBAR RAIL
    ========================================= */
 
+/* --- SHARED SETTINGS (Desktop 992px+) --- */
 @media (min-width: 992px) {
-
-  /* --- A. SIDEBAR (Width from Variable) --- */
-  #quarto-sidebar {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important; 
-    bottom: 0 !important;
-    
-    /* Use the variable */
-    width: var(--quarto-sidebar-width) !important;
-    
-    height: 100vh !important;
-    z-index: 1000 !important;
-    background-color: #f0f4f8 !important;
-    border-right: 1px solid #dbe2e8 !important;
-    padding: 20px 10px !important;
-    overflow-y: auto !important;
-    transition: left 0.3s ease;
-  }
-
-  /* --- B. CONTENT (Margin from Variable) --- */
-  #quarto-content {
-    /* Push content exactly the width of the sidebar */
-    margin-left: var(--quarto-sidebar-width) !important;
-    
-    width: auto !important;
-    transition: margin-left 0.3s ease;
-    padding: 0 !important;
-  }
-
-  /* --- C. MAIN TEXT --- */
-  main.content, 
-  .page-columns, 
-  .quarto-container {
+  
+  /* 1. Main Content Base Styles */
+  main.content, .page-columns, .quarto-container {
     display: block !important;
-    margin-left: 40px !important;
-    margin-right: 0 !important;
-    
-    /* Fix width to 1000px as desired */
-    width: 1000px !important;
-    
-    /* Responsive calc: Screen Width - Sidebar Width - Extra Gap */
-    max-width: calc(100vw - var(--quarto-sidebar-width) - 60px) !important;
-    
+    width: 100% !important;
+    max-width: 1000px !important;
+    min-width: 600px !important;
     padding-top: 2rem !important;
     padding-bottom: 4rem !important;
   }
 
-  /* --- D. CLOSED STATE --- */
+  /* 2. Sidebar Base Styles */
+  #quarto-sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important; /* Always pinned to left */
+    height: 100vh !important;
+    z-index: 1100 !important;
+    overflow-x: hidden !important; /* Hide text when shrinking */
+    overflow-y: auto !important;
+    transition: width 0.3s ease, box-shadow 0.3s ease;
+    
+    /* Ensure background covers the mini-strip */
+    background-color: #f0f4f8 !important;
+    border-right: 1px solid #dbe2e8 !important;
+  }
   
-  /* Slide sidebar to the left by its exact negative width */
-  body.sidebar-closed #quarto-sidebar {
-    left: calc( -1 * var(--quarto-sidebar-width) ) !important;
+  /* 3. Content Transition */
+  #quarto-content {
+    transition: margin-left 0.3s ease;
+    padding: 0 !important;
+    width: auto !important;
   }
 
-  /* Reset margin when sidebar is gone */
-  body.sidebar-closed #quarto-content {
-    margin-left: 0 !important; 
+  /* 4. HIDE TEXT CONTENT WHEN COLLAPSED */
+  /* When sidebar is closed (Mini), hide the links/titles immediately 
+     so they don't look messy while shrinking. */
+  body.sidebar-closed #quarto-sidebar .sidebar-menu-container,
+  body.sidebar-closed #quarto-sidebar .sidebar-title,
+  body.sidebar-closed #quarto-sidebar .sidebar-header,
+  body.sidebar-closed #quarto-sidebar .sidebar-search {
+     opacity: 0 !important;
+     visibility: hidden !important;
+     transition: opacity 0.1s ease; 
+  }
+  /* Restore when open */
+  #quarto-sidebar .sidebar-menu-container,
+  #quarto-sidebar .sidebar-title {
+     opacity: 1;
+     transition: opacity 0.3s ease 0.1s; /* Slight delay to wait for expansion */
+  }
+}
+
+/* --- A. MEDIUM SCREEN (992px - 1060px) --- */
+/* Default: Mini-Sidebar. Toggle OPENS it (Overlay/Stack). */
+@media (min-width: 992px) and (max-width: 1059px) {
+  
+  /* DEFAULT: Mini Width */
+  body:not(.sidebar-closed) #quarto-sidebar {
+    width: var(--quarto-sidebar-mini-width) !important;
+    box-shadow: none !important;
+  }
+  /* Hide text in default state here */
+  body:not(.sidebar-closed) #quarto-sidebar .sidebar-menu-container {
+    opacity: 0 !important; visibility: hidden !important;
+  }
+
+  /* TOGGLED: Full Width (Stacked) */
+  /* Logic Inversion: 'sidebar-closed' class actually OPENS it here */
+  body.sidebar-closed #quarto-sidebar {
+    width: var(--quarto-sidebar-width) !important;
+    box-shadow: 5px 0 15px rgba(0,0,0,0.2) !important;
+  }
+  /* Show text when toggled open */
+  body.sidebar-closed #quarto-sidebar .sidebar-menu-container {
+    opacity: 1 !important; visibility: visible !important;
+  }
+
+  /* CONTENT: Always pushed by Mini Width only */
+  #quarto-content { margin-left: var(--quarto-sidebar-mini-width) !important; }
+  main.content { margin: 0 auto !important; }
+}
+
+/* --- B. WIDE SCREEN (1060px+) --- */
+/* Default: Full Width. Toggle SHRINKS it to Mini. */
+@media (min-width: 1060px) {
+
+  /* DEFAULT: Full Width */
+  body:not(.sidebar-closed) #quarto-sidebar {
+    width: var(--quarto-sidebar-width) !important;
+    box-shadow: none !important;
+  }
+
+  /* DEFAULT: Push Content Full Distance */
+  body:not(.sidebar-closed) #quarto-content {
+    margin-left: var(--quarto-sidebar-width) !important;
   }
   
-  /* Center text when sidebar is gone */
-  body.sidebar-closed main.content {
-    margin: 0 auto !important;
-    max-width: 1000px !important;
+  /* DEFAULT: Align Text Left */
+  body:not(.sidebar-closed) main.content {
+    margin: 0 !important;
+    margin-left: 40px !important;
+    max-width: calc(100vw - var(--quarto-sidebar-width) - 60px) !important;
+  }
+
+  /* TOGGLED: Mini Width */
+  body.sidebar-closed #quarto-sidebar {
+    width: var(--quarto-sidebar-mini-width) !important;
+  }
+
+  /* TOGGLED: Push Content Mini Distance */
+  body.sidebar-closed #quarto-content {
+    margin-left: var(--quarto-sidebar-mini-width) !important;
+  }
+  
+  /* TOGGLED: Center Text */
+  body.sidebar-closed main.content { 
+    margin: 0 auto !important; 
   }
 }
 
 /* =========================================
-   E. THE HAMBURGER BUTTON (Calculated Position)
+   E. THE HAMBURGER BUTTON (Rail Position)
    ========================================= */
 #custom-sidebar-toggle {
   position: fixed;
   top: 10px;
   
-  /* Position = Sidebar Width + 20px Gap */
-  left: calc(var(--quarto-sidebar-width) + 5px);
+  /* Always centered within the Mini-Sidebar width */
+  left: 7px; /* (60px width - 45px button) / 2 = ~7.5px */
   
-  z-index: 9999;
+  z-index: 1200; /* Must be higher than sidebar content */
   
-  transition: left 0.3s ease, background-color 0.2s, color 0.2s;
-
   display: flex;
   align-items: center;
   justify-content: center;
@@ -350,26 +427,28 @@ a.has-children.collapsed::after { transform: rotate(0deg); }
   height: 45px;
   border-radius: 50%;
   
-  background-color: white;
-  border: 1px solid #cccfd2;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  /* Transparent background to blend with rail */
+  background-color: transparent; 
+  border: 1px solid transparent; /* No border unless hovered */
+  
   color: #6c757d;
   font-size: 30px;
   cursor: pointer;
+  
+  /* Smooth color transition only */
+  transition: background-color 0.2s, color 0.2s;
+  
   display: none; 
 }
 
 #custom-sidebar-toggle:hover {
   color: #007bff;
-  background-color: #f8f9fa;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  background-color: rgba(255,255,255, 0.8);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border: 1px solid #cccfd2;
 }
 
-/* CLOSED STATE: Move button to the left edge */
-body.sidebar-closed #custom-sidebar-toggle {
-  left: 20px; 
-}
-
+/* Show on all Desktop sizes */
 @media (min-width: 992px) {
   #custom-sidebar-toggle { display: flex; }
 }
