@@ -9,7 +9,7 @@
   --navbar-height: 40px;
   
   /* PARAMETER: Full Sidebar Width */
-  --quarto-sidebar-width: 400px; 
+  --quarto-sidebar-width: 350px; 
   
   /* PARAMETER: Mini (Collapsed) Sidebar Width */
   --quarto-sidebar-mini-width: 60px;
@@ -300,16 +300,16 @@ a.has-children.collapsed::after { transform: rotate(0deg); }
   /* 2. Sidebar Base Styles */
   #quarto-sidebar {
     position: fixed !important;
+    padding: 60px 10px 20px 10px !important;
     top: 0 !important;
     bottom: 0 !important;
-    left: 0 !important; /* Always pinned to left */
+    left: 0 !important;
     height: 100vh !important;
     z-index: 1100 !important;
-    overflow-x: hidden !important; /* Hide text when shrinking */
+    overflow-x: hidden !important; 
     overflow-y: auto !important;
     transition: width 0.3s ease, box-shadow 0.3s ease;
     
-    /* Ensure background covers the mini-strip */
     background-color: #f0f4f8 !important;
     border-right: 1px solid #dbe2e8 !important;
   }
@@ -321,48 +321,52 @@ a.has-children.collapsed::after { transform: rotate(0deg); }
     width: auto !important;
   }
 
-  /* 4. HIDE TEXT CONTENT WHEN COLLAPSED */
-  /* When sidebar is closed (Mini), hide the links/titles immediately 
-     so they don't look messy while shrinking. */
-  body.sidebar-closed #quarto-sidebar .sidebar-menu-container,
-  body.sidebar-closed #quarto-sidebar .sidebar-title,
-  body.sidebar-closed #quarto-sidebar .sidebar-header,
-  body.sidebar-closed #quarto-sidebar .sidebar-search {
-     opacity: 0 !important;
-     visibility: hidden !important;
-     transition: opacity 0.1s ease; 
-  }
-  /* Restore when open */
+  /* 4. BASE TRANSITION RULES */
+  /* Ensure smooth fading for all elements we plan to hide */
   #quarto-sidebar .sidebar-menu-container,
-  #quarto-sidebar .sidebar-title {
-     opacity: 1;
-     transition: opacity 0.3s ease 0.1s; /* Slight delay to wait for expansion */
+  #quarto-sidebar .sidebar-title,
+  #quarto-sidebar .sidebar-header,
+  #quarto-sidebar .sidebar-search,
+  #quarto-sidebar .sidebar-tools-main {
+     transition: opacity 0.2s ease, visibility 0.2s;
   }
 }
 
-/* --- A. MEDIUM SCREEN (992px - 1060px) --- */
+/* --- A. MEDIUM SCREEN (992px - 1200px) --- */
 /* Default: Mini-Sidebar. Toggle OPENS it (Overlay/Stack). */
-@media (min-width: 992px) and (max-width: 1059px) {
+@media (min-width: 992px) and (max-width: 1200px) {
   
   /* DEFAULT: Mini Width */
   body:not(.sidebar-closed) #quarto-sidebar {
     width: var(--quarto-sidebar-mini-width) !important;
     box-shadow: none !important;
   }
-  /* Hide text in default state here */
-  body:not(.sidebar-closed) #quarto-sidebar .sidebar-menu-container {
-    opacity: 0 !important; visibility: hidden !important;
+  
+  /* FIX: Explicitly hide EVERYTHING in default state */
+  body:not(.sidebar-closed) #quarto-sidebar .sidebar-menu-container,
+  body:not(.sidebar-closed) #quarto-sidebar .sidebar-title,
+  body:not(.sidebar-closed) #quarto-sidebar .sidebar-header,
+  body:not(.sidebar-closed) #quarto-sidebar .sidebar-search,
+  body:not(.sidebar-closed) #quarto-sidebar .sidebar-tools-main {
+    opacity: 0 !important; 
+    visibility: hidden !important;
   }
 
   /* TOGGLED: Full Width (Stacked) */
-  /* Logic Inversion: 'sidebar-closed' class actually OPENS it here */
   body.sidebar-closed #quarto-sidebar {
     width: var(--quarto-sidebar-width) !important;
     box-shadow: 5px 0 15px rgba(0,0,0,0.2) !important;
   }
-  /* Show text when toggled open */
-  body.sidebar-closed #quarto-sidebar .sidebar-menu-container {
-    opacity: 1 !important; visibility: visible !important;
+  
+  /* Show everything when toggled open */
+  body.sidebar-closed #quarto-sidebar .sidebar-menu-container,
+  body.sidebar-closed #quarto-sidebar .sidebar-title,
+  body.sidebar-closed #quarto-sidebar .sidebar-header,
+  body.sidebar-closed #quarto-sidebar .sidebar-search,
+  body.sidebar-closed #quarto-sidebar .sidebar-tools-main {
+    opacity: 1 !important; 
+    visibility: visible !important;
+    transition-delay: 0.1s;
   }
 
   /* CONTENT: Always pushed by Mini Width only */
@@ -370,9 +374,9 @@ a.has-children.collapsed::after { transform: rotate(0deg); }
   main.content { margin: 0 auto !important; }
 }
 
-/* --- B. WIDE SCREEN (1060px+) --- */
+/* --- B. WIDE SCREEN (1200px+) --- */
 /* Default: Full Width. Toggle SHRINKS it to Mini. */
-@media (min-width: 1060px) {
+@media (min-width: 1200px) {
 
   /* DEFAULT: Full Width */
   body:not(.sidebar-closed) #quarto-sidebar {
@@ -397,6 +401,16 @@ a.has-children.collapsed::after { transform: rotate(0deg); }
     width: var(--quarto-sidebar-mini-width) !important;
   }
 
+  /* FIX: Hide EVERYTHING when toggled closed */
+  body.sidebar-closed #quarto-sidebar .sidebar-menu-container,
+  body.sidebar-closed #quarto-sidebar .sidebar-title,
+  body.sidebar-closed #quarto-sidebar .sidebar-header,
+  body.sidebar-closed #quarto-sidebar .sidebar-search,
+  body.sidebar-closed #quarto-sidebar .sidebar-tools-main {
+     opacity: 0 !important;
+     visibility: hidden !important;
+  }
+
   /* TOGGLED: Push Content Mini Distance */
   body.sidebar-closed #quarto-content {
     margin-left: var(--quarto-sidebar-mini-width) !important;
@@ -413,12 +427,12 @@ a.has-children.collapsed::after { transform: rotate(0deg); }
    ========================================= */
 #custom-sidebar-toggle {
   position: fixed;
-  top: 10px;
+  top: 5px;
   
   /* Always centered within the Mini-Sidebar width */
   left: 7px; /* (60px width - 45px button) / 2 = ~7.5px */
   
-  z-index: 1200; /* Must be higher than sidebar content */
+  z-index: 1200; 
   
   display: flex;
   align-items: center;
@@ -427,15 +441,12 @@ a.has-children.collapsed::after { transform: rotate(0deg); }
   height: 45px;
   border-radius: 50%;
   
-  /* Transparent background to blend with rail */
   background-color: transparent; 
-  border: 1px solid transparent; /* No border unless hovered */
+  border: 1px solid transparent;
   
   color: #6c757d;
   font-size: 30px;
   cursor: pointer;
-  
-  /* Smooth color transition only */
   transition: background-color 0.2s, color 0.2s;
   
   display: none; 
