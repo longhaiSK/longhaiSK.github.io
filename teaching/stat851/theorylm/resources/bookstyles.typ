@@ -1,29 +1,68 @@
-/* In resources/bookstyles.typ */
-
-/* --- Heading Formatting --- */
-/* Level 1: 12pt size + 1 line (1em) space below */
-#show heading.where(level: 1): set text(size: 12pt)
-#show heading.where(level: 1): set block(below: 1em)
-
-/* Level 2: 11pt size + 1 line (1em) space below */
-#show heading.where(level: 2): set text(size: 11pt)
-#show heading.where(level: 2): set block(below: 1em)
-
-
-/* --- Global Text Settings --- */
+/* =========================================
+   1. GLOBAL TEXT & PARAGRAPH SETTINGS
+   ========================================= */
 #set text(
   font: "Times New Roman",
   size: 12pt
 )
 
-/* --- Paragraph Settings --- */
 #set par(
   leading: 0.65em, /* Line spacing */
   justify: true
 )
 
-// 1. Define the Color Palette
-// We use a dictionary to map environment names to their color schemes.
+/* =========================================
+   2. HEADING FORMATTING & NUMBERING
+   ========================================= */
+/* Force section numbering (e.g., 1.1, 1.1.1) */
+#set heading(numbering: "1.1")
+
+/* Level 1: 12pt size + space below */
+#show heading.where(level: 1): set text(size: 12pt)
+#show heading.where(level: 1): set block(below: 1em)
+
+/* Level 2: 11pt size + space below */
+#show heading.where(level: 2): set text(size: 11pt)
+#show heading.where(level: 2): set block(below: 1em)
+
+/* =========================================
+   3. COUNTER RESET LOGIC (CRITICAL)
+   ========================================= */
+/* This ensures that Equations AND Environments (Theorems, etc.) 
+   restart numbering at every new Chapter (Level 1).
+   e.g. Chapter 2 starts with Eq 2.1 and Theorem 2.1 
+*/
+#show heading.where(level: 1): it => {
+  // A. Reset Equation Counter
+  counter(math.equation).update(0)
+  
+  // B. Reset Environment Counters
+  counter(figure.where(kind: "theorem")).update(0)
+  counter(figure.where(kind: "definition")).update(0)
+  counter(figure.where(kind: "example")).update(0)
+  counter(figure.where(kind: "proof")).update(0)
+  counter(figure.where(kind: "algorithm")).update(0)
+  counter(figure.where(kind: "remark")).update(0)
+  counter(figure.where(kind: "sol")).update(0)
+  counter(figure.where(kind: "solution")).update(0)
+  
+  it
+}
+
+/* =========================================
+   4. EQUATION NUMBERING STYLE
+   ========================================= */
+/* Format math equations as (Chapter.Equation) */
+#set math.equation(numbering: n => {
+  let chapter = counter(heading).get().first()
+  numbering("(1.1)", chapter, n)
+})
+
+/* =========================================
+   5. CUSTOM COLORED ENVIRONMENTS
+   ========================================= */
+
+// A. Define the Color Palette
 #let themes = (
   theorem:    (bg: rgb("#f0f7ff"), border: rgb("#cfe2ff"), header-bg: rgb("#cfe2ff"), text: rgb("#084298")),
   definition: (bg: rgb("#f0fff4"), border: rgb("#badbcc"), header-bg: rgb("#badbcc"), text: rgb("#0f5132")),
@@ -35,40 +74,35 @@
   remark:     (bg: rgb("#f3fcfc"), border: rgb("#cff4fc"), header-bg: rgb("#cff4fc"), text: rgb("#055160")),
 )
 
-// 2. The Master Environment Function (Upgraded)
-// This wraps the colored box in a figure to enable numbering and referencing.
+// B. The Master Environment Function
 #let colored-env(type, title: none, body) = {
-  // A. Determine Theme
+  // 1. Determine Theme & Supplement
   let theme = if type in themes { themes.at(type) } else { themes.theorem }
-  
-  // B. Determine Supplement (e.g., "Theorem", "Definition")
-  let supplement = if type == "sol" or type == "solution" {
-    "Solution"
-  } else {
-    type.at(0).upper() + type.slice(1)
-  }
+  let supplement = if type == "sol" or type == "solution" { "Solution" } else { type.at(0).upper() + type.slice(1) }
 
-  // C. Create the Figure (This makes it referenceable!)
+  // 2. Create the Figure
   figure(
-    kind: type,            // Each type (theorem, lemma) gets its own counter
+    kind: type,
     supplement: supplement,
-    numbering: "1.1",      // Auto-numbering style
-    outlined: false,       // Don't show in table of figures
-    caption: none,         // Hide standard caption (we draw it inside the box)
+    numbering: "1.1",
+    outlined: false,
+    caption: none,
     
-    // D. The Content (Context is needed to get the current number)
+    // 3. Contextual Content (Numbering + Box)
     context {
-      // 1. Get the current number (e.g., "1.1")
-      let num = counter(figure.where(kind: type)).display(figure.numbering)
-      
-      // 2. Build the Header Title (e.g., "Theorem 1.1: Title")
+      // Get the chapter number and item number for "Chapter.Item" format
+      let chapter = counter(heading).get().first()
+      let item-num = counter(figure.where(kind: type)).get().first()
+      let num-str = [#chapter.#item-num]
+
+      // Build Header Title
       let full-title = if title != none {
-        [#supplement #num: #title]
+        [#supplement #num-str: #title]
       } else {
-        [#supplement #num]
+        [#supplement #num-str]
       }
 
-      // 3. Draw the Colored Box
+      // Draw the Colored Box
       block(
         fill: theme.bg,
         stroke: 2pt + theme.border,
@@ -76,7 +110,7 @@
         width: 100%,
         inset: 0pt,
         clip: true,
-        breakable: true, // Note: Figures often resist breaking across pages in Typst
+        breakable: true,
         {
           // Header
           block(
@@ -90,49 +124,26 @@
               #full-title
             ]
           )
-          
           // Body
-          block(
-            width: 100%,
-            inset: 1em,
-            body
-          )
+          block(width: 100%, inset: 1em, body)
         }
       )
     }
   )
 }
 
-/* --- Equation Numbering Settings --- */
-
-// 1. Format the number as (Chapter.Equation)
-#set math.equation(numbering: n => {
-  let chapter = counter(heading).get().first()
-  numbering("(1.1)", chapter, n)
-})
-
-// 2. Reset equation counter at every Level 1 heading
-#show heading.where(level: 1): it => {
-  counter(math.equation).update(0)
-  it
-}
-
-// 5. User-Facing Wrappers (Robust Version)
-// These handle arguments from both your Lua filter AND the Quarto extension styles.
+// C. User-Facing Wrappers
+// Handles arguments from both Lua filters and Quarto extension styles
 #let env-wrapper(type, ..args) = {
   let pos = args.pos()
   let named = args.named()
-  
-  // Default title to named arg 'title' or none
   let title = named.at("title", default: none)
   let body = none
 
   if pos.len() == 2 {
-    // Case: #env("Title")[Body] (Extension style)
     title = pos.at(0)
     body = pos.at(1)
   } else if pos.len() == 1 {
-    // Case: #env[Body] (Filter style)
     body = pos.at(0)
   } else {
     panic("Invalid arguments passed to environment wrapper")
@@ -141,7 +152,7 @@
   colored-env(type, title: title, body)
 }
 
-// Define the shortcuts using the wrapper
+// D. Shortcuts
 #let theorem(..args)    = env-wrapper("theorem", ..args)
 #let definition(..args) = env-wrapper("definition", ..args)
 #let example(..args)    = env-wrapper("example", ..args)
