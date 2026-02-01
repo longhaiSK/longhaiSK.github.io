@@ -392,6 +392,7 @@ This is precisely the form of the Likelihood Ratio Test. The "shadow price" or L
 ### Proof of NP Lemma
 
 ::: {.proof}
+
 **Proof of (a) Optimality:**
 Let $\phi_{\text{LRT}}$ be the LRT with size $\alpha$, and $\phi$ be any other test with size $\le \alpha$.
 Define the function $U(x)$ as the difference in test functions weighted by the linear combination of densities:
@@ -452,7 +453,8 @@ $$
 
 Since $E_{\theta_0}[\phi_{\text{LRT}}] =\text{Size}(\phi_{\text{LRT}})= \alpha$ and we require that $E_{\theta_0}[\phi] = \text{Size}(\phi)\le \alpha$,  
 $$
-E_{\theta_0}[\phi_{\text{LRT}}] - E_{\theta_0}[\phi] \ge 0$$
+E_{\theta_0}[\phi_{\text{LRT}}] - E_{\theta_0}[\phi] \ge 0
+$$
 
 Thereore, given that $k \ge 0$:
 
@@ -461,6 +463,7 @@ $$
 $$
 
 **Proof of (b) Existence:**
+
 Let $G(k) = P_{\theta_0}(\Lambda(X) \le k)$. $G(k)$ is the cumulative distribution function of the random variable $\Lambda(X)$, so it is non-decreasing.
 We seek $k_0$ such that $1 - G(k_0) \approx \alpha$.
 Because of discrete jumps, we might not hit $\alpha$ exactly.
@@ -471,6 +474,7 @@ P_{\theta_0}(\Lambda(X) > k_0) \le \alpha \le P_{\theta_0}(\Lambda(X) \ge k_0)
 $$
 
 Set $\gamma_0 = \frac{\alpha - P_{\theta_0}(\Lambda(X) > k_0)}{P_{\theta_0}(\Lambda(X) = k_0)}$.
+
 :::
 
 ```{r}
@@ -502,9 +506,9 @@ df_lrt <- data.frame(
 )
 
 df_other <- data.frame(
-  x_start = c(-3, 0.5, 1.5, 3),
-  x_end   = c(0.5, 1.5, 3,6),
-  y_val   = c(0, phi_scale, 0, phi_scale),
+  x_start = c(-3, 0.5, 1, 3),
+  x_end   = c(0.5, 1, 3,6),
+  y_val   = c(0, phi_scale, 0, 0),
   Test    = "phi"
 )
 
@@ -577,6 +581,7 @@ ggplot() +
     axis.title.y.right = element_text(angle = 90, vjust = 0.5),
     panel.grid.minor = element_blank()
   )
+  
 ```
 
 
@@ -586,10 +591,12 @@ When the alternative hypothesis is composite ($H_1: \theta \in \Theta_1$), we se
 
 ::: {#def-ump}
 ### Uniformly Most Powerful Test
+
 A test $\phi_0(x)$ of size $\alpha$ is **Uniformly Most Powerful (UMP)** if:
 
 1.  $E_{\theta}[\phi_0(X)] \le \alpha$ for all $\theta \in \Theta_0$.
 2.  For any other test $\phi(x)$ satisfying (1), $E_{\theta}[\phi_0(X)] \ge E_{\theta}[\phi(X)]$ for all $\theta \in \Theta_1$.
+   
 :::
 
 ```{tikz }
@@ -615,6 +622,7 @@ A test $\phi_0(x)$ of size $\alpha$ is **Uniformly Most Powerful (UMP)** if:
 \node at (-0.3, 1.5) {$\alpha$};
 
 \end{tikzpicture}
+
 ```
 
 ## Monotone Likelihood Ratio (MLR)
@@ -635,7 +643,7 @@ $f(x; \theta) = h(x) c(\theta) \exp\{w(\theta) T(x)\}$.
 If $w(\theta)$ is increasing, the family has MLR w.r.t $T(x)$.
 
 
-::: {#exm-mlr-gamma}
+:::: {#exm-mlr-gamma}
 
 Let $X_1, \dots, X_n \overset{iid}{\sim} \text{Exp}(\theta)$ with pdf $f(x) = \frac{1}{\theta} e^{-x/\theta}$.
 Test $$H_0: \theta = \theta_0 \text{ vs } H_1: \theta > \theta_0.$$
@@ -651,15 +659,36 @@ Since $\theta_1 > \theta_0$, the term $(\frac{1}{\theta_0} - \frac{1}{\theta_1})
 
 Rejecting for large $\Lambda(x)$ is equivalent to rejecting for $T(x)=\sum x_i > C$.
 
-$T \sim \text{Gamma}(n, \theta)$
+Under $H_0$, $X_i \sim \text{Exp}(\theta_0)$, which is equivalent to $\text{Gamma}(1, \theta_0)$. By the reproductive property of the Gamma distribution:
 
-This test form does not depend on the specific $\theta_1$, so it is UMP for all $\theta > \theta_0$.
+$$T = \sum_{i=1}^n X_i \sim \text{Gamma}(n, \theta_0)$$
+
+Alternatively, using the relationship with the Chi-square distribution:
+
+$$\frac{2T}{\theta_0} \sim \chi^2_{2n}$$
+
+To find $C$ for a significance level $\alpha$, we set $P(T > C | \theta_0) = \alpha$. Using the $\chi^2$ transformation:
+
+$$P\left(\frac{2T}{\theta_0} > \frac{2C}{\theta_0}\right) = \alpha \implies \frac{2C}{\theta_0} = \chi^2_{2n, \alpha}$$
+
+Thus, the critical value is:
+
+$$C = \frac{\theta_0}{2} \chi^2_{2n, \alpha}$$
+
+where $\chi^2_{2n, \alpha}$ is the upper-$\alpha$ quantile of a Chi-square distribution with $2n$ degrees of freedom. 
+
+::: {.callout-important}
+We note that the value $C$ does not depend on $\theta_1$.
 :::
 
+::::
 
-### Karlin-Rubin Theorem {.unnumbered}
-::: {#thm-karlin-rubin}
+
+
 ### Karlin-Rubin Theorem 
+
+::: {#thm-karlin-rubin}
+#### Karlin-Rubin Theorem 
 Suppose $X$ has a distribution from a family with MLR with respect to $T(X)$, and the distribution of $T(X)$ is continuous.
 Consider testing $H_0: \theta \le \theta_0$ vs $H_1: \theta > \theta_0$.
 
@@ -676,7 +705,6 @@ where $t_0$ is determined by $P_{\theta_0}(T(X) > t_0) = \alpha$, is the UMP siz
 :::
 
 ::: {.proof}
-### Proof of Theorem 4.2 (UMP for MLR Families)
 
 **The Test:**
 Define the test $\phi(x)$ as:
@@ -688,40 +716,43 @@ $$
 $$
 where $t_0$ is determined such that the power at the boundary is $\alpha$, i.e., $W_{LR}(\theta_0) = \alpha$.
 
-**(1) Application of Neyman-Pearson Lemma**
-Because the family has a Monotone Likelihood Ratio (MLR) in $T(x)$, for any specific alternative $\theta_1 > \theta_0$, the likelihood ratio $\Lambda(x)$ is an increasing function of $T(x)$.
-Therefore, the rejection region $T(x) > t_0$ corresponds to $\Lambda(x) > k$.
-By the Neyman-Pearson Lemma, $\phi(x)$ is the Most Powerful (MP) test for testing $H_0': \theta = \theta_0$ vs $H_1': \theta = \theta_1$.
+(1) **Application of Neyman-Pearson Lemma**
 
-**(2) Monotonicity of the Power Function**
-We claim that $W_{LR}(\theta)$ is a non-decreasing function of $\theta$.
+    Because the family has a Monotone Likelihood Ratio (MLR) in $T(x)$, for any specific alternative $\theta_1 > \theta_0$, the likelihood ratio $\Lambda(x)$ is an increasing function of $T(x)$.
+    Therefore, the rejection region $T(x) > t_0$ corresponds to $\Lambda(x) > k$.
+    By the Neyman-Pearson Lemma, $\phi(x)$ is the Most Powerful (MP) test for testing $H_0': \theta = \theta_0$ vs $H_1': \theta = \theta_1$.
 
-*Proof:*
-Let $\theta_2 < \theta_1$. Consider testing $\theta = \theta_2$ vs $\theta = \theta_1$.
-Let $\beta = W_{LR}(\theta_2)$.
-Define a constant dummy test $\phi^*(x) = \beta$ for all $x$. The power of this test is constant: $W_{\phi^*}(\theta) = \beta$.
-Since $\phi(x)$ corresponds to the likelihood ratio test form (reject for large $T$) for $\theta_2$ vs $\theta_1$, it is the MP test of size $\beta$.
-By the optimality of the NP Lemma, the power of $\phi$ at $\theta_1$ must be at least the power of the competitor $\phi^*$:
-$$
-W_{LR}(\theta_1) \ge W_{\phi^*}(\theta_1) = \beta = W_{LR}(\theta_2)
-$$
-Thus, $W_{LR}(\theta)$ is non-decreasing.
+(2) **Monotonicity of the Power Function** 
 
-**(3) Size Control**
-Since $W_{LR}(\theta)$ is non-decreasing and we set $W_{LR}(\theta_0) = \alpha$:
-$$
-W_{LR}(\theta) \le W_{LR}(\theta_0) = \alpha \quad \text{for all } \theta \le \theta_0
-$$
-This proves the test satisfies the size constraint for the composite null $H_0: \theta \le \theta_0$.
+  We claim that $W_{LR}(\theta)$ is a non-decreasing function of $\theta$.
 
-**(4) UMP Property**
-Let $\phi'(x)$ be any other test with size $\le \alpha$ for $H_0: \theta \le \theta_0$. This implies $W_{\phi'}(\theta_0) \le \alpha$.
-For any specific $\theta_1 > \theta_0$, we treat the problem as testing $\theta_0$ vs $\theta_1$.
-Since $\phi(x)$ is the MP test for $\theta_0$ vs $\theta_1$ (from Step 1), and $\phi'$ is a valid competitor (size $\le \alpha$ at $\theta_0$), we have:
-$$
-W_{LR}(\theta_1) \ge W_{\phi'}(\theta_1)
-$$
-Since this holds for all $\theta_1 > \theta_0$, $\phi(x)$ is the Uniformly Most Powerful (UMP) test.
+  Let $\theta_2 < \theta_1$. Consider testing $\theta = \theta_2$ vs $\theta = \theta_1$.
+  Let $\beta = W_{LR}(\theta_2)$.
+  Define a constant dummy test $\phi^*(x) = \beta$ for all $x$. The power of this test is constant: $W_{\phi^*}(\theta) = \beta$.
+  Since $\phi(x)$ corresponds to the likelihood ratio test form (reject for large $T$) for $\theta_2$ vs $\theta_1$, it is the MP test of size $\beta$.
+  By the optimality of the NP Lemma, the power of $\phi$ at $\theta_1$ must be at least the power of the competitor $\phi^*$:
+  $$
+  W_{LR}(\theta_1) \ge W_{\phi^*}(\theta_1) = \beta = W_{LR}(\theta_2)
+  $$
+  Thus, $W_{LR}(\theta)$ is non-decreasing.
+
+(3) **Size Control**
+
+  Since $W_{LR}(\theta)$ is non-decreasing and we set $W_{LR}(\theta_0) = \alpha$:
+  $$
+  W_{LR}(\theta) \le W_{LR}(\theta_0) = \alpha \quad \text{for all } \theta \le \theta_0
+  $$
+  This proves the test satisfies the size constraint for the composite null $H_0: \theta \le \theta_0$.
+
+(4) **UMP Property**
+
+  Let $\phi'(x)$ be any other test with size $\le \alpha$ for $H_0: \theta \le \theta_0$. This implies $W_{\phi'}(\theta_0) \le \alpha$.
+  For any specific $\theta_1 > \theta_0$, we treat the problem as testing $\theta_0$ vs $\theta_1$.
+  Since $\phi(x)$ is the MP test for $\theta_0$ vs $\theta_1$ (from Step 1), and $\phi'$ is a valid competitor (size $\le \alpha$ at $\theta_0$), we have:
+  $$
+  W_{LR}(\theta_1) \ge W_{\phi'}(\theta_1)
+  $$
+  Since this holds for all $\theta_1 > \theta_0$, $\phi(x)$ is the Uniformly Most Powerful (UMP) test.
 :::
 
 
@@ -768,9 +799,14 @@ $$
 $$
 
 Since $\theta_1 > \theta_0$, the term $(\frac{1}{\theta_0} - \frac{1}{\theta_1})$ is positive. Thus, $\Lambda(x)$ is an increasing function of $\sum x_i$.
+
 Rejecting for large $\Lambda(x)$ is equivalent to rejecting for $\sum x_i > C$.
 
+
+$T \sim \text{Gamma}(n, \theta)$
+
 This test form does not depend on the specific $\theta_1$, so it is UMP for all $\theta > \theta_0$.
+
 :::
 
 
