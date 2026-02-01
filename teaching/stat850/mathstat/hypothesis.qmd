@@ -687,6 +687,55 @@ We note that the value $C$ does not depend on $\theta_1$.
 
 ### Karlin-Rubin Theorem 
 
+::: {.theorem #thm-chebyshev-covariance}
+#### Chebyshev's Association Inequality
+
+Let $X$ be a random variable, and let $f(x)$ and $g(x)$ be two functions that are both non-decreasing (or both non-increasing). Then:
+$$
+E[f(X)g(X)] \ge E[f(X)] \cdot E[g(X)]
+$$
+Equivalently, the covariance is non-negative: $\text{Cov}(f(X), g(X)) \ge 0$.
+:::
+
+::: {.proof}
+Let $Y$ be an independent copy of $X$ (i.e., $X$ and $Y$ are i.i.d.). Consider the quantity:
+$$
+\Delta = (f(X) - f(Y))(g(X) - g(Y))
+$$
+
+Since $f$ and $g$ are both non-decreasing (or both non-increasing), the terms $(f(X) - f(Y))$ and $(g(X) - g(Y))$ always share the same sign. Thus, their product is always non-negative:
+$$
+\Delta \ge 0
+$$
+
+Taking the expectation:
+$$
+E[(f(X) - f(Y))(g(X) - g(Y))] \ge 0
+$$
+
+Expanding the product and using linearity of expectation:
+$$
+E[f(X)g(X)] - E[f(X)g(Y)] - E[f(Y)g(X)] + E[f(Y)g(Y)] \ge 0
+$$
+
+Since $X$ and $Y$ are i.i.d.:
+
+1.  $E[f(Y)g(Y)] = E[f(X)g(X)]$
+2.  $E[f(X)g(Y)] = E[f(X)]E[g(Y)] = E[f(X)]E[g(X)]$ (Independence)
+3.  $E[f(Y)g(X)] = E[f(Y)]E[g(X)] = E[f(X)]E[g(X)]$ (Independence)
+
+Substituting these back yields:
+$$
+2E[f(X)g(X)] - 2E[f(X)]E[g(X)] \ge 0
+$$
+
+Dividing by 2 proves the inequality:
+$$
+E[f(X)g(X)] \ge E[f(X)]E[g(X)]
+$$
+:::
+
+
 ::: {#thm-karlin-rubin}
 #### Karlin-Rubin Theorem 
 Suppose $X$ has a distribution from a family with MLR with respect to $T(X)$, and the distribution of $T(X)$ is continuous.
@@ -718,126 +767,115 @@ $$
 
 where $t_0$ is determined such that the power at the boundary is $\alpha$, i.e., $W_{\phi_0}(\theta_0) = \alpha$.
 
-**Application of Neyman-Pearson Lemma**
+1. **Monotonicity of the Power Function**
 
-Because the family has a Monotone Likelihood Ratio (MLR) in $T(x)$, for any specific alternative $\theta_1 > \theta_0$, the likelihood ratio $\Lambda(x)$ is an increasing function of $T(x)$. Therefore, the rejection region $T(x) > t_0$ corresponds to $\Lambda(x) > k$. By the Neyman-Pearson Lemma, $\phi_0(x)$ is the Most Powerful (MP) test for testing $H_0': \theta = \theta_0$ vs $H_1': \theta = \theta_1$.
+   We first establish that $W_{\phi_0}(\theta)$ is non-decreasing. Let $\theta_1 > \theta_0$.
+   Define the test indicator function $h(t) = \mathbb{I}(t > t_0)$ and the likelihood ratio $\Lambda(t) = \frac{f_{\theta_1}(t)}{f_{\theta_0}(t)}$.
+   
+   Because of the Monotone Likelihood Ratio (MLR) property, $\Lambda(t)$ is a non-decreasing function of $t$. The indicator function $h(t)$ is clearly non-decreasing.
+   
+   The power at $\theta_1$ can be written as an integral involving the density under $\theta_0$:
+   $$
+   W_{\phi_0}(\theta_1) = \int_{-\infty}^{\infty} h(t) f_{\theta_1}(t) \, dt = \int_{-\infty}^{\infty} h(t) \frac{f_{\theta_1}(t)}{f_{\theta_0}(t)} f_{\theta_0}(t) \, dt = \int_{-\infty}^{\infty} h(t) \Lambda(t) f_{\theta_0}(t) \, dt
+   $$
+   
+   This integral is the expectation $E_{\theta_0}[h(T) \Lambda(T)]$. By Chebyshev's Association Inequality (Covariance Inequality), since both $h(t)$ and $\Lambda(t)$ are non-decreasing, the expectation of their product is at least the product of their expectations:
+   $$
+   \int_{-\infty}^{\infty} h(t) \Lambda(t) f_{\theta_0}(t) \, dt \ge \left( \int_{-\infty}^{\infty} h(t) f_{\theta_0}(t) \, dt \right) \left( \int_{-\infty}^{\infty} \Lambda(t) f_{\theta_0}(t) \, dt \right)
+   $$
+   
+   We evaluate the two integrals on the right-hand side:
+   1. The first term is the power at $\theta_0$: $\int h(t) f_{\theta_0}(t) \, dt = W_{\phi_0}(\theta_0)$.
+   2. The second term integrates the likelihood ratio: $\int \frac{f_{\theta_1}(t)}{f_{\theta_0}(t)} f_{\theta_0}(t) \, dt = \int f_{\theta_1}(t) \, dt = 1$.
+   
+   Substituting these back, we get:
+   $$
+   W_{\phi_0}(\theta_1) \ge W_{\phi_0}(\theta_0) \cdot 1
+   $$
+   Thus, $W_{\phi_0}(\theta)$ is non-decreasing.
 
-**Monotonicity of the Power Function**
+2. **Size Control**
 
-**Proof 1:**
-
-We claim that $W_{\phi_0}(\theta)$ is a non-decreasing function of $\theta$.
-
-Let $\theta_2 < \theta_1$. Consider testing $\theta = \theta_2$ vs $\theta = \theta_1$. Let $\beta = W_{\phi_0}(\theta_2)$. Define a constant dummy test $\phi^*(x) = \beta$ for all $x$. The power of this test is constant: $W_{\phi^*}(\theta) = \beta$. Since $\phi_0(x)$ corresponds to the likelihood ratio test form for $\theta_2$ vs $\theta_1$, it is the MP test of size $\beta$. By the optimality of the NP Lemma:
-
-$$W_{\phi_0}(\theta_1) \ge W_{\phi^*}(\theta_1) = \beta = W_{\phi_0}(\theta_2)$$
-
-Thus, $W_{\phi_0}(\theta)$ is non-decreasing.
-
-**Proof 2:**
-
-We claim that $W_{\phi_0}(\theta)$ is increasing in $\theta$ by showing that the family of densities has the *Stochastic Increasing Property*.
-
-Let $\theta_1 < \theta_2$. Let $f_1(t)$ and $f_2(t)$ be the densities of $T$ under $\theta_1$ and $\theta_2$.
-
-1.  **Ratio Behavior:**
-    By MLR, the likelihood ratio $r(t) = \frac{f_2(t)}{f_1(t)}$ is a strictly increasing function of $t$.
-
-2.  **Single Crossing Property:**
-    Since both $f_1$ and $f_2$ integrate to 1, the ratio $r(t)$ cannot be always $>1$ or always $<1$. It must cross the value 1 exactly once.
-    Since $r(t)$ is increasing, it crosses from below. Thus, there exists a crossing point $t^*$ such that:
-    $$
-    f_2(t) < f_1(t) \quad \text{for } t < t^*
-    $$
-    $$
-    f_2(t) > f_1(t) \quad \text{for } t > t^*
-    $$
-    Geometrically, $f_2$ moves probability mass from the left of $t^*$ to the right of $t^*$.
-
-3.  **Tail Probability Comparison:**
-    This "mass transfer" to the right implies **First Order Stochastic Dominance**: for *any* cutoff $t_0$, the probability of exceeding $t_0$ is higher under $\theta_2$.
+   For the composite null $H_0: \theta \le \theta_0$, we require the size to be at most $\alpha$. Since $W_{\phi_0}(\theta)$ is non-decreasing (from Step 1) and we explicitly set $W_{\phi_0}(\theta_0) = \alpha$:
     
-    $$ P_{\theta_2}(T > t_0) \ge P_{\theta_1}(T > t_0) $$
+   $$
+   W_{\phi_0}(\theta) \le W_{\phi_0}(\theta_0) = \alpha \quad \text{for all } \theta \le \theta_0
+   $$
+    
+   This confirms $\phi_0$ is a valid level-$\alpha$ test.
 
-    Since the power function is exactly this tail probability ($W(\theta) = P_\theta(T > t_0)$), $W(\theta)$ is non-decreasing.
+3. **Uniformly Most Powerful (UMP) via Neyman-Pearson Lemma**
 
+   Let $\phi'(x)$ be any other valid test of size $\alpha$ for $H_0$. This implies $W_{\phi'}(\theta_0) \le \alpha$.
+    
+   Consider any specific alternative $\theta_1 > \theta_0$. Because the family has MLR, the likelihood ratio $\Lambda(x)$ is increasing in $T(x)$. Therefore, the test $\phi_0$ (which rejects for large $T$) is identified by the Neyman-Pearson Lemma as the Most Powerful (MP) test for the simple hypothesis $\theta_0$ vs $\theta_1$.
+    
+   Comparing the power of $\phi_0$ and $\phi'$ at this specific $\theta_1$:
+   $$
+   W_{\phi_0}(\theta_1) \ge W_{\phi'}(\theta_1)
+   $$
+   Since $\theta_1$ was arbitrary, this inequality holds for all $\theta > \theta_0$. Thus, $\phi_0$ is the UMP test.
 
-**Size Control**
-
-Since $W_{\phi_0}(\theta)$ is non-decreasing and we set $W_{\phi_0}(\theta_0) = \alpha$:
-
-$$W_{\phi_0}(\theta) \le W_{\phi_0}(\theta_0) = \alpha \quad \text{for all } \theta \le \theta_0$$
-
-This proves the test satisfies the size constraint for the composite null $H_0: \theta \le \theta_0$.
-
-**UMP Property**
-
-Let $\phi'(x)$ be any other test with size $\le \alpha$ for $H_0: \theta \le \theta_0$. This implies $W_{\phi'}(\theta_0) \le \alpha$. For any specific $\theta_1 > \theta_0$, we treat the problem as testing $\theta_0$ vs $\theta_1$. Since $\phi_0(x)$ is the MP test for $\theta_0$ vs $\theta_1$ (from Step 1), and $\phi'$ is a valid competitor (size $\le \alpha$ at $\theta_0$), we have:
-
-$$W_{\phi_0}(\theta_1) \ge W_{\phi'}(\theta_1)$$
-
-Since this holds for all $\theta_1 > \theta_0$, $\phi_0(x)$ is the Uniformly Most Powerful (UMP) test.
 :::
 
-```{r}
-
-library(reticulate)
-
-# Force the use of the virtual environment
-use_virtualenv("./.venv", required = TRUE)
-
-```
-
-```{r}
+```{r fig-monotonicity-power}
 #| echo: false
-#| fig-cap: "Visualizing Stochastic Ordering (Mass Transfer)"
+#| fig-cap: "Visualizing Monotonicity: $W(\\theta_1) > W(\\theta_0)$"
 
 # Parameters
-mu1 <- 0
-mu2 <- 2
+mu0 <- 0   # Corresponds to theta_0
+mu1 <- 2   # Corresponds to theta_1 (where theta_1 > theta_0)
 sigma <- 1.5
 t0 <- 1.0
 
 # Grid
 x <- seq(-4, 6, length.out = 500)
+f0 <- dnorm(x, mean = mu0, sd = sigma)
 f1 <- dnorm(x, mean = mu1, sd = sigma)
-f2 <- dnorm(x, mean = mu2, sd = sigma)
-crossing_point <- (mu1 + mu2) / 2
-y_cross <- dnorm(crossing_point, mean = mu1, sd = sigma)
+
+# Calculate exact densities at threshold t0 for polygon closing
+y0_t0 <- dnorm(t0, mean = mu0, sd = sigma)
+y1_t0 <- dnorm(t0, mean = mu1, sd = sigma)
 
 # Plotting
-plot(x, f1, type = "l", col = "blue", lwd = 2, 
-     ylab = "Density", xlab = "T(x)", 
-     main = "Visualizing Stochastic Ordering (Mass Transfer)")
-lines(x, f2, col = "red", lwd = 2)
+plot(x, f0, type = "l", col = "blue", lwd = 2, 
+     ylab = "Density f(t)", xlab = "T(x)", 
+     main = expression(paste("Monotonicity of Power: ", W(theta[1]) > W(theta[0]))))
+lines(x, f1, col = "red", lwd = 2)
 
-# Shading the "Deficit" (Mass Removed) - Area where f1 > f2 (Left)
-idx_left <- x < crossing_point
-x_poly_left <- c(x[idx_left], crossing_point, rev(x[idx_left]))
-y_poly_left <- c(f1[idx_left], y_cross, rev(f2[idx_left]))
+# Define the domain for the tails (t > t0)
+idx_tail <- x > t0
+x_poly <- c(t0, t0, x[idx_tail], max(x))
 
-polygon(x_poly_left, y_poly_left, 
-        col = rgb(0, 0, 1, 0.2), border = NA)
-
-# Shading the "Surplus" (Mass Added) - Area where f2 > f1 (Right)
-idx_right <- x > crossing_point
-x_poly_right <- c(crossing_point, x[idx_right], crossing_point)
-# Note: For the polygon to close correctly back to the start, we trace f2 then f1 back
-x_poly_right <- c(x[idx_right], crossing_point, rev(x[idx_right])) 
-y_poly_right <- c(f2[idx_right], y_cross, rev(f1[idx_right]))
-
-polygon(x_poly_right, y_poly_right, 
+# Shading W(theta_1) - The red tail
+# Corresponds to the Alternative theta_1
+y_poly1 <- c(0, y1_t0, f1[idx_tail], 0)
+polygon(x_poly, y_poly1, 
         col = rgb(1, 0, 0, 0.2), border = NA)
 
-# Add Lines
-abline(v = crossing_point, col = "black", lty = 2)
-abline(v = t0, col = "darkgreen", lwd = 2)
+# Shading W(theta_0) - The blue tail
+# Corresponds to the Null theta_0
+y_poly0 <- c(0, y0_t0, f0[idx_tail], 0)
+polygon(x_poly, y_poly0, 
+        col = rgb(0, 0, 1, 0.2), border = NA)
+
+# Add Threshold Line
+abline(v = t0, col = "black", lwd = 2, lty = 2)
 
 # Legend
-legend("topleft", legend = c("f1 (Lower theta)", "f2 (Higher theta)"),
-       col = c("blue", "red"), lwd = 2, bty = "n")
-text(crossing_point, max(f1)*0.9, "Crossing Point t*", pos = 4)
-text(t0, max(f1)*0.8, "Threshold t0", pos = 4, col = "darkgreen")
+legend("topleft", 
+       legend = c(expression(f[theta[0]] ~ "(Null)"), 
+                  expression(f[theta[1]] ~ "(Alternative)"), 
+                  expression(W(theta[0]) == P(T > t[0] ~ "|" ~ theta[0])), 
+                  expression(W(theta[1]) == P(T > t[0] ~ "|" ~ theta[1]))),
+       col = c("blue", "red", rgb(0, 0, 1, 0.2), rgb(1, 0, 0, 0.2)), 
+       lwd = c(2, 2, 10, 10), bty = "n")
+
+text(t0, max(f0)*0.8, expression(t[0]), pos = 4, col = "black", cex = 1.2)
+
+# Annotations pointing to the areas
+text(3, 0.05, expression(W(theta[0])), col = "blue", pos = 3)
+text(3.5, 0.15, expression(W(theta[1])), col = "red", pos = 3)
 ```
 
 ::: {#exm-ump-gamma}
