@@ -6,10 +6,84 @@ format:
   pdf: default
 ---
 
-## Exponential Family
+## Sufficient Statistics
+
+::: {#def-sufficient-statistic}
+### Sufficient Statistic
+A statistic $T(\mathbf{X})$ is said to be **sufficient** for the parameter $\theta$ if the conditional distribution of the sample $\mathbf{X}$ given the value of the statistic $T(\mathbf{X}) = t$ does not depend on $\theta$.
+
+In other words, once $T(\mathbf{X})$ is known, no other information in the sample $\mathbf{X}$ provides additional information about $\theta$.
+:::
+
+::: {#thm-factorization}
+### Factorization Theorem
+Let $f(\mathbf{x}|\theta)$ denote the joint probability density function (or probability mass function) of a sample $\mathbf{X}$. A statistic $T(\mathbf{X})$ is **sufficient** for $\theta$ if and only if the density can be factored as:
+
+$$
+f(\mathbf{x}|\theta) = g(T(\mathbf{x})|\theta) h(\mathbf{x})
+$$
+
+where:
+
+* $g(T(\mathbf{x})|\theta)$ depends on the data $\mathbf{x}$ only through the statistic $T(\mathbf{x})$ and the parameter $\theta$.
+
+* $h(\mathbf{x})$ does not depend on $\theta$.
+:::
+
+::: {#exm-normal-sufficient}
+
+### Sufficient Statistics for Normal Distribution
+Let $X_1, \dots, X_n \overset{iid}{\sim} N(\mu, \sigma^2)$. The joint density is given by:
+$$
+f(\mathbf{x}|\theta) = \prod_{i=1}^n \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left\{ -\frac{(x_i - \mu)^2}{2\sigma^2} \right\}
+$$
+
+Expanding the exponent:
+
+$$
+f(\mathbf{x}|\theta) = (2\pi\sigma^2)^{-n/2} \exp\left\{ -\frac{1}{2\sigma^2} \left( \sum_{i=1}^n x_i^2 - 2\mu \sum_{i=1}^n x_i + n\mu^2 \right) \right\}
+$$
+
+We can rearrange this into the factorization form $g(T(\mathbf{x})|\theta) h(\mathbf{x})$:
+
+$$
+f(\mathbf{x}|\theta) = \underbrace{ (2\pi\sigma^2)^{-n/2} \exp\left\{ -\frac{n\mu^2}{2\sigma^2} \right\} \exp\left\{ -\frac{1}{2\sigma^2} \sum_{i=1}^n x_i^2 + \frac{\mu}{\sigma^2} \sum_{i=1}^n x_i \right\} }_{g(T(\mathbf{x})|\theta)} \cdot \underbrace{ 1 }_{h(\mathbf{x})}
+$$
+
+Here, the function $g$ depends on the data only through the pair of statistics:
+
+$$
+T(\mathbf{x}) = \left( \sum_{i=1}^n X_i, \sum_{i=1}^n X_i^2 \right)
+$$
+
+Thus, $T(\mathbf{X}) = (\sum X_i, \sum X_i^2)$ is sufficient for $\theta = (\mu, \sigma^2)$ .
+
+:::
+
+::: {#rem-sufficient-likelihood}
+### Sufficient Statistic as Parameter of Likelihood
+There is a dual relationship between the sufficient statistic and the parameter $\theta$. Conventionally, we view $f(x|\theta)$ as a function of $x$ parameterized by $\theta$.
+
+However, in Bayesian inference or likelihood theory, we often view the likelihood $L(\theta; x)$ as a function of $\theta$ determined by the observed data $x$. The Factorization Theorem implies:
+
+$$
+L(\theta; \mathbf{x}) \propto g(T(\mathbf{x})|\theta)
+$$
+
+This suggests that $T(\mathbf{x})$ completely determines the shape of the likelihood function. In this specific sense, the sufficient statistic $T(\mathbf{x})$ acts as the **"parameter"** of the likelihood function itself.
+
+For the exponential family that we will discuss below, this duality is explicit:
+
+$$
+\log L(\theta; \mathbf{x}) = \text{const} + \sum_{i=1}^k \eta_i(\theta) T_i(\mathbf{x}) - n A(\theta)
+$$
+
+Here, $T_i(\mathbf{x})$ serves as the coefficient (or parameter) for the function $\eta_i(\theta)$.
+:::
+
+## Exponential Families
 
 ::: {#def-exponential-family}
-
 ### Exponential Family
 A family of probability density functions (or probability mass functions) $f(x|\theta)$ is said to be an **Exponential Family** if it can be written in the form:
 
@@ -23,6 +97,7 @@ where:
 
 * $k$ is the number of terms in the exponent. Note that $d$ may be less than $k$.
 
+* By the Factorization Theorem, the vector $T(x) = (\tau_1(x), \dots, \tau_k(x))$ constitutes a **sufficient statistic** for $\theta$.
 :::
 
 ### Examples of Exponential Families
@@ -31,7 +106,6 @@ where:
 
 ### Exponential Distribution
 Let $X_1, \dots, X_n \overset{iid}{\sim} \text{Exp}(\theta)$, where $\theta$ is the scale parameter.
-
 $$
 f(\mathbf{x}|\theta) = \prod_{i=1}^n \frac{1}{\theta} e^{-x_i/\theta} = \theta^{-n} \exp\left\{ -\frac{1}{\theta} \sum_{i=1}^n x_i \right\}
 $$
@@ -52,7 +126,6 @@ Here we identify:
 
 ### Gamma Distribution
 Let $X_1, \dots, X_n \overset{iid}{\sim} \text{Gamma}(\alpha, \beta)$.
-
 $$
 f(\mathbf{x}|\theta) = \prod_{i=1}^n \frac{1}{\Gamma(\alpha)\beta^\alpha} x_i^{\alpha-1} e^{-x_i/\beta}
 $$
@@ -79,7 +152,6 @@ Here:
 
 ### Beta Distribution
 Let $X_1, \dots, X_n \overset{iid}{\sim} \text{Beta}(a, b)$ with $\theta = (a, b)$.
-
 $$
 f(\mathbf{x}|\theta) = \prod_{i=1}^n \frac{1}{B(a, b)} x_i^{a-1} (1-x_i)^{b-1}
 $$
@@ -96,7 +168,6 @@ This is an exponential family with $k=2$.
 
 ### Normal Distribution
 Let $X_1, \dots, X_n \overset{iid}{\sim} N(\mu, \sigma^2)$ with $\theta = (\mu, \sigma^2)$.
-
 $$
 f(\mathbf{x}|\theta) = \prod_{i=1}^n \frac{1}{\sqrt{2\pi}\sigma} \exp\left\{ -\frac{(x_i - \mu)^2}{2\sigma^2} \right\}
 $$
@@ -121,7 +192,6 @@ A model is **not** in the exponential family if the support depends on the param
 
 ### Uniform Distribution
 Let $X \sim U(0, \theta)$.
-
 $$
 f(x|\theta) = \frac{1}{\theta} I(0 < x < \theta)
 $$
@@ -134,7 +204,6 @@ This cannot be written in the required form because the indicator function $I(0 
 
 ### Cauchy Distribution
 Let $X \sim \text{Cauchy}(\theta)$.
-
 $$
 f(x|\theta) = \frac{1}{\pi [1 + (x-\theta)^2]}
 $$
@@ -143,10 +212,54 @@ This involves $\log(1 + (x-\theta)^2)$ in the exponent, which cannot be separate
 
 :::
 
-## Moments of Exponential Families
+## Regular Families
 
+In the context of exponential families and maximum likelihood estimation, we often require the statistical model to satisfy specific regularity conditions to ensure that standard asymptotic results hold.
+
+::: {#def-regular-family}
+
+### Regular Family
+A family of probability density functions $f(x|\theta)$ is said to be a **Regular Family** (or "sufficiently well-behaved") if the domain of $x$ for which $f(x|\theta) > 0$ (the support) does not depend on the parameter $\theta$.
+
+This condition is necessary to satisfy the identity that allows differentiation under the integral sign:
+
+$$
+\frac{\partial}{\partial \theta} \int f(x|\theta) dx = \int \frac{\partial}{\partial \theta} f(x|\theta) dx
+$$
+
+:::
+
+### Why Regularity Matters {.unnumbered}
+
+If a family is regular, we can differentiate the identity $\int f(x|\theta) dx = 1$ with respect to $\theta$. This operation yields the fundamental properties of the **Score Function** $\frac{\partial}{\partial \theta} \log f(X|\theta)$:
+
+1.  **First Moment Identity:** The expected value of the score function is zero.
+
+$$E_\theta \left[ \frac{\partial \log f(X|\theta)}{\partial \theta_j} \right] = 0$$
+
+2.  **Second Moment Identity:** The Fisher Information (variance of the score) is equal to the negative expected Hessian.
+
+$$E_\theta \left[ \frac{\partial^2 \log f(X|\theta)}{\partial \theta_j \partial \theta_l} \right] = -E_\theta \left[ \frac{\partial \log f(X|\theta)}{\partial \theta_j} \frac{\partial \log f(X|\theta)}{\partial \theta_l} \right]$$
+
+### An Example of Non-regular Distribution  {.unnumbered}
+The **Uniform Distribution** $U(0, \theta)$ is a classic example of a **non-regular** family. Because the support $(0, \theta)$ depends on $\theta$, the integral limits change with the parameter, preventing the direct interchange of differentiation and integration . Consequently, the standard identities for the score function do not hold for this distribution.
+
+## Moments of Sufficient Statistics of Exponential Families
+
+### Means of Sufficient Statistics (General Case)
+
+::: {#thm-moments-exp-family}
+
+### Means of Sufficient Statistics (General Case)
+For a random variable $X$ belonging to an exponential family with density $f(x|\theta) = C(\theta) h(x) \exp\{\sum_{i=1}^k \pi_i(\theta) \tau_i(x)\}$, the moments of the sufficient statistics $\tau_i(X)$ satisfy the system of equations:
+$$
+\frac{1}{C(\theta)} \frac{\partial C(\theta)}{\partial \theta_j} + \sum_{i=1}^k \frac{\partial \pi_i(\theta)}{\partial \theta_j} E[\tau_i(X)] = 0 \quad \text{for } j=1, \dots, d
+$$
+
+:::
+
+::: {.proof}
 For regular families, we can interchange differentiation and integration. Since $\int f(x|\theta) dx = 1$, we have:
-
 $$
 \frac{\partial}{\partial \theta} \int f(x|\theta) dx = 0 \implies \int \frac{\partial}{\partial \theta} f(x|\theta) dx = 0
 $$
@@ -154,36 +267,480 @@ $$
 Using the identity $\frac{\partial f}{\partial \theta} = f(x|\theta) \frac{\partial \log f}{\partial \theta}$, we derive the fundamental moment property:
 
 $$
-E\left[ \frac{\partial}{\partial \theta} \log f(X|\theta) \right] = 0
+E\left[ \frac{\partial \log f(X|\theta)}{\partial \theta_j} \right] = \int \frac{\partial \log f(x|\theta)}{\partial \theta_j} f(x|\theta) dx = 0
 $$
 
-Differentiating a second time yields:
-
-$$
-E\left[ \frac{\partial^2}{\partial \theta_i \partial \theta_j} \log f(X|\theta) \right] = - E\left[ \frac{\partial \log f}{\partial \theta_i} \frac{\partial \log f}{\partial \theta_j} \right]
-$$
-
-For the exponential family $f(x|\theta) = C(\theta) h(x) \exp\{\sum \pi_i(\theta) \tau_i(x)\}$, the log-likelihood is:
+For the exponential family, the log-likelihood is given by:
 
 $$
 \log f(x|\theta) = \log C(\theta) + \log h(x) + \sum_{i=1}^k \pi_i(\theta) \tau_i(x)
 $$
 
-Taking the expectation of the derivative with respect to $\theta_j$ and setting it to zero gives:
+Taking the derivative with respect to $\theta_j$:
 
 $$
-\frac{1}{C(\theta)} \frac{\partial C(\theta)}{\partial \theta_j} + \sum_{i=1}^k \frac{\partial \pi_i(\theta)}{\partial \theta_j} E[\tau_i(X)] = 0
+\frac{\partial \log f(x|\theta)}{\partial \theta_j} = \frac{1}{C(\theta)} \frac{\partial C(\theta)}{\partial \theta_j} + \sum_{i=1}^k \frac{\partial \pi_i(\theta)}{\partial \theta_j} \tau_i(x)
 $$
 
-This system of equations allows us to find the moments $E[\tau_i(X)]$.
+Taking expectations and applying the condition $E[\frac{\partial}{\partial \theta} \log f(X|\theta)] = 0$ yields the theorem statement.
 
-## Natural Parameterization
+:::
+
+::: {#exm-normal-moments}
+
+### Moments of Normal Sufficient Statistics
+Consider the Normal distribution $N(\mu, \sigma^2)$ where $\theta = (\mu, \sigma^2)$. The density is:
+$$
+f(\mathbf{x}|\theta) = (2\pi\sigma^2)^{-n/2} \exp\left\{ -\frac{n\mu^2}{2\sigma^2} \right\} \exp\left\{ -\frac{1}{2\sigma^2} \sum_{i=1}^n x_i^2 + \frac{\mu}{\sigma^2} \sum_{i=1}^n x_i \right\}
+$$
+
+Here we identify the components :
+
+* $C(\mu, \sigma^2) = (2\pi)^{-n/2} (\sigma^2)^{-n/2} \exp\left(-\frac{n\mu^2}{2\sigma^2}\right)$
+
+* $\pi_1 = -\frac{1}{2\sigma^2}, \quad \tau_1(\mathbf{x}) = \sum x_i^2$
+
+* $\pi_2 = \frac{\mu}{\sigma^2}, \quad \tau_2(\mathbf{x}) = \sum x_i$
+
+We apply the theorem by differentiating with respect to $\mu$ and $\sigma^2$.
+
+1. Differentiate with respect to $\mu$:
+
+$$
+   \frac{\partial \log C}{\partial \mu} = -\frac{n\mu}{\sigma^2}
+   $$
+
+   
+
+  
+
+   
+
+ 
+
+   
+
+  
+
+   
+
+   
+
+  
+
+   
+
+ 
+
+   
+
+  
+
+  
+
+   
+
+  
+
+   
+
+ 
+
+   
+
+  
+
+   
+
+   
+
+  
+
+   
+
+ 
+
+   
+
+  
+
+ $$
+   \frac{\partial \pi_1}{\partial \mu} = 0, \quad \frac{\partial \pi_2}{\partial \mu} = \frac{1}{\sigma^2}
+   $$
+
+   The theorem equation becomes:
+
+   $$
+   -\frac{n\mu}{\sigma^2} + 0 \cdot E[\sum X_i^2] + \frac{1}{\sigma^2} E[\sum X_i] = 0
+   $$
+
+   
+
+  
+
+   
+
+ 
+
+   
+
+  
+
+   
+
+   
+
+  
+
+   
+
+ 
+
+   
+
+  
+
+  
+
+   
+
+  
+
+   
+
+ 
+
+   
+
+  
+
+   
+
+   
+
+  
+
+   
+
+ 
+
+   
+
+  
+
+ $$
+   \implies E[\sum_{i=1}^n X_i] = n\mu
+   $$
+
+2. Differentiate with respect to $\sigma^2$:
+
+$$
+   \frac{\partial \log C}{\partial \sigma^2} = -\frac{n}{2\sigma^2} + \frac{n\mu^2}{2(\sigma^2)^2}
+   $$
+
+   
+
+  
+
+   
+
+ 
+
+   
+
+  
+
+   
+
+   
+
+  
+
+   
+
+ 
+
+   
+
+  
+
+  
+
+   
+
+  
+
+   
+
+ 
+
+   
+
+  
+
+   
+
+   
+
+  
+
+   
+
+ 
+
+   
+
+  
+
+ $$
+   \frac{\partial \pi_1}{\partial \sigma^2} = \frac{1}{2(\sigma^2)^2}, \quad \frac{\partial \pi_2}{\partial \sigma^2} = -\frac{\mu}{(\sigma^2)^2}
+   $$
+
+   The theorem equation becomes:
+
+   $$
+   \left( -\frac{n}{2\sigma^2} + \frac{n\mu^2}{2(\sigma^2)^2} \right) + \frac{1}{2(\sigma^2)^2} E[\sum X_i^2] - \frac{\mu}{(\sigma^2)^2} E[\sum X_i] = 0
+   $$
+
+   Multiplying by $2(\sigma^2)^2$:
+
+   $$
+   -n\sigma^2 + n\mu^2 + E[\sum X_i^2] - 2\mu(n\mu) = 0
+   $$
+
+   
+
+  
+
+   
+
+ 
+
+   
+
+  
+
+   
+
+   
+
+  
+
+   
+
+ 
+
+   
+
+  
+
+  
+
+   
+
+  
+
+   
+
+ 
+
+   
+
+  
+
+   
+
+   
+
+  
+
+   
+
+ 
+
+   
+
+  
+
+ $$
+   E[\sum X_i^2] = n\sigma^2 + n\mu^2
+   $$
+
+   This recovers the standard second moment $E[X^2] = \sigma^2 + \mu^2$.
+
+:::
+
+::: {#exm-gamma-moments}
+
+### Moments of Gamma Sufficient Statistics
+Consider the Gamma distribution $\text{Gamma}(\alpha, \beta)$ with $\theta = (\alpha, \beta)$. The density is :
+$$
+f(\mathbf{x}|\theta) = [\Gamma(\alpha)]^{-n} \beta^{-n\alpha} \exp\left\{ (\alpha-1) \sum_{i=1}^n \log x_i - \frac{1}{\beta} \sum_{i=1}^n x_i \right\}
+$$
+
+Here we identify:
+
+* $\log C(\alpha, \beta) = -n \log \Gamma(\alpha) - n\alpha \log \beta$
+
+* $\pi_1 = \alpha - 1, \quad \tau_1(\mathbf{x}) = \sum \log x_i$
+
+* $\pi_2 = -\frac{1}{\beta}, \quad \tau_2(\mathbf{x}) = \sum x_i$
+
+1. Differentiate with respect to $\beta$:
+
+$$
+   \frac{\partial \log C}{\partial \beta} = -\frac{n\alpha}{\beta}
+   $$
+
+   
+
+  
+
+   
+
+ 
+
+   
+
+  
+
+   
+
+   
+
+  
+
+   
+
+ 
+
+   
+
+  
+
+  
+
+   
+
+  
+
+   
+
+ 
+
+   
+
+  
+
+   
+
+   
+
+  
+
+   
+
+ 
+
+   
+
+  
+
+ $$
+   \frac{\partial \pi_1}{\partial \beta} = 0, \quad \frac{\partial \pi_2}{\partial \beta} = \frac{1}{\beta^2}
+   $$
+
+   The theorem yields:
+
+   $$
+   -\frac{n\alpha}{\beta} + \frac{1}{\beta^2} E[\sum X_i] = 0 \implies E[\sum X_i] = n\alpha\beta
+   $$
+
+2. Differentiate with respect to $\alpha$:
+
+$$
+   \frac{\partial \log C}{\partial \alpha} = -n \frac{\Gamma'(\alpha)}{\Gamma(\alpha)} - n \log \beta = -n \psi(\alpha) - n \log \beta
+   $$
+
+   where $\psi(\alpha)$ is the digamma function.
+
+   $$
+   \frac{\partial \pi_1}{\partial \alpha} = 1, \quad \frac{\partial \pi_2}{\partial \alpha} = 0
+   $$
+
+   The theorem yields:
+
+   $$
+   (-n \psi(\alpha) - n \log \beta) + 1 \cdot E[\sum \log X_i] = 0
+   $$
+
+   
+
+  
+
+   
+
+ 
+
+   
+
+  
+
+   
+
+   
+
+  
+
+   
+
+ 
+
+   
+
+  
+
+  
+
+   
+
+  
+
+   
+
+ 
+
+   
+
+  
+
+   
+
+   
+
+  
+
+   
+
+ 
+
+   
+
+  
+
+ $$
+   \implies E[\sum_{i=1}^n \log X_i] = n(\psi(\alpha) + \log \beta)
+   $$
+
+:::
+
+
+### Natural Parameterization
 
 ::: {#def-natural-parameterization}
 
 ### Natural Parameterization
 Suppose an exponential family is given by:
-
 $$
 f(x|\theta) = C(\theta) h(x) \exp\left\{ \sum_{i=1}^k \pi_i(\theta) \tau_i(x) \right\}
 $$
@@ -200,7 +757,6 @@ $$
 
 ### Natural Parameter Space
 The natural parameter space $\mathcal{H}$ is defined as:
-
 $$
 \mathcal{H} = \{ \eta = (\pi_1(\theta), \dots, \pi_k(\theta)) : \int h(x) e^{\sum \eta_i \tau_i(x)} dx < \infty \}
 $$
@@ -208,6 +764,8 @@ $$
 where the condition ensures $C(\theta)$ is finite.
 
 :::
+
+:::{#def-curvedexpfam}
 
 ### Full vs. Curved Exponential Families
 
@@ -217,32 +775,137 @@ Let $d$ be the dimension of $\theta$ and $k$ be the dimension of the sufficient 
 
 * If $d < k$, we say $f(x|\theta)$ is a **Curved Exponential Family**.
 
-::: {#exm-curved-normal}
+:::
 
-### Curved Normal Distribution
-Consider $N(\theta, \theta^2)$ where $\mu = \theta$ and $\sigma^2 = \theta^2$. This implies a relationship between the parameters.
+::: {#exm-natural-normal}
 
+### Natural Parameterization of Normal Distribution
+Consider the full Normal family $N(\mu, \sigma^2)$ where both parameters are unknown ($d=2$). We previously identified the sufficient statistics $T_1(x) = \sum x_i$ and $T_2(x) = \sum x_i^2$ ($k=2$). Since $d=k$, this is a **Full Exponential Family**.
+
+The natural parameters $\eta = (\eta_1, \eta_2)$ are defined by the mapping:
+
+$$
+\eta_1 = \frac{\mu}{\sigma^2}, \quad \eta_2 = -\frac{1}{2\sigma^2}
+$$
+
+The density can be rewritten purely in terms of $\eta$:
+
+$$
+f(\mathbf{x}|\eta) \propto \exp\left\{ \eta_1 \sum_{i=1}^n x_i + \eta_2 \sum_{i=1}^n x_i^2 - A(\eta) \right\}
+$$
+where the log-partition function $A(\eta)$ absorbs the normalizing constants.
+
+:::
+
+::: {#exm-natural-gamma}
+
+### Natural Parameterization of Gamma Distribution
+Consider the Gamma family $\text{Gamma}(\alpha, \beta)$ ($d=2$). We identified the sufficient statistics $T_1(x) = \sum \log x_i$ and $T_2(x) = \sum x_i$ ($k=2$). Since $d=k$, this is also a **Full Exponential Family**.
+
+The natural parameters $\eta = (\eta_1, \eta_2)$ are derived from the canonical form :
+
+$$
+\eta_1 = \alpha - 1, \quad \eta_2 = -\frac{1}{\beta}
+$$
+
+The density in natural parameterization is:
+
+$$
+f(\mathbf{x}|\eta) \propto \exp\left\{ \eta_1 \sum_{i=1}^n \log x_i + \eta_2 \sum_{i=1}^n x_i - A(\eta) \right\}
+$$
+
+:::
+
+::: {#exm-curved-normal-natural}
+
+### Curved Exponential Family (Natural Parameterization)
+Consider the $N(\theta, \theta^2)$ distribution ($d=1$). The density is:
 $$
 f(x|\theta) \propto \exp\left\{ -\frac{1}{2\theta^2} \sum x_i^2 + \frac{1}{\theta} \sum x_i \right\}
 $$
 
-Here we have two sufficient statistics ($\sum x_i^2, \sum x_i$) but only one parameter $\theta$ ($d=1, k=2$). The natural parameters are $\eta_1 = -1/(2\theta^2)$ and $\eta_2 = 1/\theta$, which satisfies $\eta_1 = -\eta_2^2 / 2$. This constraint forms a curve in the parameter space.
+To express this in the natural parameterization, we define $\eta = (\eta_1, \eta_2)$ as:
+
+$$
+\eta_1 = -\frac{1}{2\theta^2}, \quad \eta_2 = \frac{1}{\theta}
+$$
+
+The density becomes:
+
+$$
+f(x|\eta) \propto \exp\left\{ \eta_1 \sum_{i=1}^n x_i^2 + \eta_2 \sum_{i=1}^n x_i - A(\eta) \right\}
+$$
+
+However, the natural parameters $\eta_1$ and $\eta_2$ are not independent. They satisfy the constraint:
+
+$$
+\eta_1 = -\frac{1}{2} \eta_2^2
+$$
+
+Because the parameter space $\mathcal{H}$ forms a 1-dimensional non-linear curve (a parabola) within the 2-dimensional space of natural parameters, this is a **Curved Exponential Family**.
 
 :::
 
-### Moments in Natural Parameterization
+### Mean and Covariance of  Natural Exponential Families
 
-For a natural exponential family, differentiating the log-partition function generates cumulants:
+
+::: {#thm-natural-covariance}
+
+### Mean and Covariance of Natural Exponential Families
+If the exponential family is in its **canonical form** (natural parameterization) where $\pi_i(\theta) = \theta_i$ for each $i$, then the mean and covariance of the sufficient statistics are given by:
+$$
+E_\theta[\tau_i(X)] = - \frac{\partial}{\partial \theta_i} \log C(\theta)
+$$
 
 $$
-E[\tau_j(X)] = - \frac{\partial}{\partial \eta_j} \log C^*(\eta)
+\text{Cov}_\theta(\tau_i(X), \tau_j(X)) = - \frac{\partial^2}{\partial \theta_i \partial \theta_j} \log C(\theta)
+$$
+
+:::
+
+::: {.proof}
+We use the second-order regularity condition for the score function:
+$$
+E_\theta\left[ \frac{\partial^2 \log f(X|\theta)}{\partial \theta_i \partial \theta_j} \right] = - E_\theta\left[ \frac{\partial \log f(X|\theta)}{\partial \theta_i} \frac{\partial \log f(X|\theta)}{\partial \theta_j} \right]
+$$
+
+In the case of a natural exponential family, $\pi_k(\theta) = \theta_k$. The derivative of the log-likelihood simplifies to:
+
+$$
+\frac{\partial \log f}{\partial \theta_i} = \frac{\partial \log C(\theta)}{\partial \theta_i} + \tau_i(x)
+$$
+
+Differentiating again with respect to $\theta_j$:
+
+$$
+\frac{\partial^2 \log f}{\partial \theta_i \partial \theta_j} = \frac{\partial^2 \log C(\theta)}{\partial \theta_i \partial \theta_j}
+$$
+
+Since this second derivative is non-random (it does not depend on $x$), its expectation is simply itself.
+
+Now consider the right-hand side of the regularity condition. From the first moment property, we know $E[\tau_i(X)] = - \frac{\partial \log C}{\partial \theta_i}$. Thus, the score function is:
+
+$$
+\frac{\partial \log f}{\partial \theta_i} = \tau_i(X) - E[\tau_i(X)]
+$$
+
+Substituting these into the identity:
+
+$$
+\frac{\partial^2 \log C(\theta)}{\partial \theta_i \partial \theta_j} = - E\left[ (\tau_i(X) - E[\tau_i(X)]) (\tau_j(X) - E[\tau_j(X)]) \right]
 $$
 
 $$
-\text{Cov}(\tau_i(X), \tau_j(X)) = - \frac{\partial^2}{\partial \eta_i \partial \eta_j} \log C^*(\eta)
+\frac{\partial^2 \log C(\theta)}{\partial \theta_i \partial \theta_j} = - \text{Cov}_\theta(\tau_i(X), \tau_j(X))
 $$
 
-## Lemmas on Sufficient Statistics
+Multiplying by $-1$ gives the result.
+
+:::
+
+
+
+## Distributions of Sufficient Statistics
 
 ::: {#lem-joint-distribution}
 
@@ -253,7 +916,6 @@ If $X$ has a distribution in the exponential family $f(x|\theta) = C(\theta) h(x
 
 ::: {.proof}
 Let $X$ be discrete. The probability mass function of $T$ is:
-
 $$
 P(T_1 = y_1, \dots, T_k = y_k | \theta) = \sum_{\{x : \tau(x) = y\}} P(X=x|\theta)
 $$
@@ -287,7 +949,6 @@ Let $S$ be a subset of indices $\{1, \dots, k\}$. If $\pi_i(\theta)$ are constan
 
 ::: {.proof}
 Let $T$ be discrete. We sum over the variables not in $S$ (denoted $T_{S^c}$):
-
 $$
 P(T_S = y_S | \theta) = \sum_{y_{S^c}} C(\theta) h^*(y) \exp\left\{ \sum_{j \in S} \pi_j(\theta) y_j + \sum_{l \in S^c} \pi_l(\theta) y_l \right\}
 $$
