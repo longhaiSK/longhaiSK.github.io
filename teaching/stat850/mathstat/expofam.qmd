@@ -8,14 +8,23 @@ format:
 
 ## Sufficient Statistics
 
-::: {#def-sufficient-statistic}
-### Sufficient Statistic
-A statistic $T(\mathbf{X})$ is said to be **sufficient** for the parameter $\theta$ if the conditional distribution of the sample $\mathbf{X}$ given the value of the statistic $T(\mathbf{X}) = t$ does not depend on $\theta$.
+::: {#def-sufficiency-likelihood}
 
-In other words, once $T(\mathbf{X})$ is known, no other information in the sample $\mathbf{X}$ provides additional information about $\theta$.
+### Sufficient Statistic (Likelihood Principle)
+A statistic $T(\mathbf{X})$ is **sufficient** for $\theta$ if the likelihood function $L(\theta; \mathbf{x})$ depends on the sample data $\mathbf{x}$ **only through** the value of the statistic $T(\mathbf{x})$.
+
+Formally, this means that for any two sample points $\mathbf{x}$ and $\mathbf{y}$ such that $T(\mathbf{x}) = T(\mathbf{y})$, the ratio of their likelihoods is constant with respect to $\theta$:
+
+$$
+\frac{L(\theta; \mathbf{x})}{L(\theta; \mathbf{y})} = k(\mathbf{x}, \mathbf{y}) \quad (\text{independent of } \theta)
+$$
+
+This implies that $L(\theta; \mathbf{x}) \propto L(\theta; T(\mathbf{x}))$.
+
 :::
 
 ::: {#thm-factorization}
+
 ### Factorization Theorem
 Let $f(\mathbf{x}|\theta)$ denote the joint probability density function (or probability mass function) of a sample $\mathbf{X}$. A statistic $T(\mathbf{X})$ is **sufficient** for $\theta$ if and only if the density can be factored as:
 
@@ -28,12 +37,14 @@ where:
 * $g(T(\mathbf{x})|\theta)$ depends on the data $\mathbf{x}$ only through the statistic $T(\mathbf{x})$ and the parameter $\theta$.
 
 * $h(\mathbf{x})$ does not depend on $\theta$.
+
 :::
 
 ::: {#exm-normal-sufficient}
 
 ### Sufficient Statistics for Normal Distribution
 Let $X_1, \dots, X_n \overset{iid}{\sim} N(\mu, \sigma^2)$. The joint density is given by:
+
 $$
 f(\mathbf{x}|\theta) = \prod_{i=1}^n \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left\{ -\frac{(x_i - \mu)^2}{2\sigma^2} \right\}
 $$
@@ -56,11 +67,21 @@ $$
 T(\mathbf{x}) = \left( \sum_{i=1}^n X_i, \sum_{i=1}^n X_i^2 \right)
 $$
 
-Thus, $T(\mathbf{X}) = (\sum X_i, \sum X_i^2)$ is sufficient for $\theta = (\mu, \sigma^2)$ .
+Thus, $T(\mathbf{X}) = (\sum X_i, \sum X_i^2)$ is sufficient for $\theta = (\mu, \sigma^2)$.
+
+**Invariance Property:**
+It is a general property that any one-to-one (invertible) function of a sufficient statistic is also a sufficient statistic. We can define the sample mean and sample variance as:
+
+$$
+\bar{X} = \frac{1}{n} \sum_{i=1}^n X_i, \quad S^2 = \frac{1}{n-1} \left( \sum_{i=1}^n X_i^2 - \frac{1}{n} \left(\sum_{i=1}^n X_i\right)^2 \right)
+$$
+
+Since the mapping from $(\sum X_i, \sum X_i^2)$ to $(\bar{X}, S^2)$ is invertible (provided $n \ge 2$), the statistic $T^*(\mathbf{X}) = (\bar{X}, S^2)$ is also sufficient for $\theta$.
 
 :::
 
 ::: {#rem-sufficient-likelihood}
+
 ### Sufficient Statistic as Parameter of Likelihood
 There is a dual relationship between the sufficient statistic and the parameter $\theta$. Conventionally, we view $f(x|\theta)$ as a function of $x$ parameterized by $\theta$.
 
@@ -79,11 +100,13 @@ $$
 $$
 
 Here, $T_i(\mathbf{x})$ serves as the coefficient (or parameter) for the function $\eta_i(\theta)$.
+
 :::
 
 ## Exponential Families
 
 ::: {#def-exponential-family}
+
 ### Exponential Family
 A family of probability density functions (or probability mass functions) $f(x|\theta)$ is said to be an **Exponential Family** if it can be written in the form:
 
@@ -98,6 +121,7 @@ where:
 * $k$ is the number of terms in the exponent. Note that $d$ may be less than $k$.
 
 * By the Factorization Theorem, the vector $T(x) = (\tau_1(x), \dots, \tau_k(x))$ constitutes a **sufficient statistic** for $\theta$.
+
 :::
 
 ### Examples of Exponential Families
@@ -306,264 +330,60 @@ We apply the theorem by differentiating with respect to $\mu$ and $\sigma^2$.
 
 1. Differentiate with respect to $\mu$:
 
-$$
-   \frac{\partial \log C}{\partial \mu} = -\frac{n\mu}{\sigma^2}
+   $$
+      \frac{\partial \log C}{\partial \mu} = -\frac{n\mu}{\sigma^2}
    $$
 
-   
-
-  
-
-   
-
- 
-
-   
-
-  
-
-   
-
-   
-
-  
-
-   
-
- 
-
-   
-
-  
-
-  
-
-   
-
-  
-
-   
-
- 
-
-   
-
-  
-
-   
-
-   
-
-  
-
-   
-
- 
-
-   
-
-  
-
- $$
-   \frac{\partial \pi_1}{\partial \mu} = 0, \quad \frac{\partial \pi_2}{\partial \mu} = \frac{1}{\sigma^2}
-   $$
-
-   The theorem equation becomes:
+      
 
    $$
-   -\frac{n\mu}{\sigma^2} + 0 \cdot E[\sum X_i^2] + \frac{1}{\sigma^2} E[\sum X_i] = 0
+      \frac{\partial \pi_1}{\partial \mu} = 0, \quad \frac{\partial \pi_2}{\partial \mu} = \frac{1}{\sigma^2}
    $$
 
-   
-
-  
-
-   
-
- 
-
-   
-
-  
-
-   
-
-   
-
-  
-
-   
-
- 
-
-   
-
-  
-
-  
-
-   
-
-  
-
-   
-
- 
-
-   
-
-  
-
-   
-
-   
-
-  
-
-   
-
- 
-
-   
-
-  
-
- $$
-   \implies E[\sum_{i=1}^n X_i] = n\mu
-   $$
-
-2. Differentiate with respect to $\sigma^2$:
-
-$$
-   \frac{\partial \log C}{\partial \sigma^2} = -\frac{n}{2\sigma^2} + \frac{n\mu^2}{2(\sigma^2)^2}
-   $$
-
-   
-
-  
-
-   
-
- 
-
-   
-
-  
-
-   
-
-   
-
-  
-
-   
-
- 
-
-   
-
-  
-
-  
-
-   
-
-  
-
-   
-
- 
-
-   
-
-  
-
-   
-
-   
-
-  
-
-   
-
- 
-
-   
-
-  
-
- $$
-   \frac{\partial \pi_1}{\partial \sigma^2} = \frac{1}{2(\sigma^2)^2}, \quad \frac{\partial \pi_2}{\partial \sigma^2} = -\frac{\mu}{(\sigma^2)^2}
-   $$
-
-   The theorem equation becomes:
+      The theorem equation becomes:
 
    $$
-   \left( -\frac{n}{2\sigma^2} + \frac{n\mu^2}{2(\sigma^2)^2} \right) + \frac{1}{2(\sigma^2)^2} E[\sum X_i^2] - \frac{\mu}{(\sigma^2)^2} E[\sum X_i] = 0
+      -\frac{n\mu}{\sigma^2} + 0 \cdot E[\sum X_i^2] + \frac{1}{\sigma^2} E[\sum X_i] = 0
    $$
 
-   Multiplying by $2(\sigma^2)^2$:
+      
+
 
    $$
-   -n\sigma^2 + n\mu^2 + E[\sum X_i^2] - 2\mu(n\mu) = 0
+      \implies E[\sum_{i=1}^n X_i] = n\mu
    $$
 
-   
+1. Differentiate with respect to $\sigma^2$:
 
-  
+   $$
+      \frac{\partial \log C}{\partial \sigma^2} = -\frac{n}{2\sigma^2} + \frac{n\mu^2}{2(\sigma^2)^2}
+   $$
 
-   
-
- 
-
-   
-
-  
+      
 
    
 
-   
+   $$
+      \frac{\partial \pi_1}{\partial \sigma^2} = \frac{1}{2(\sigma^2)^2}, \quad \frac{\partial \pi_2}{\partial \sigma^2} = -\frac{\mu}{(\sigma^2)^2}
+   $$
 
-  
+      The theorem equation becomes:
 
-   
+   $$
+      \left( -\frac{n}{2\sigma^2} + \frac{n\mu^2}{2(\sigma^2)^2} \right) + \frac{1}{2(\sigma^2)^2} E[\sum X_i^2] - \frac{\mu}{(\sigma^2)^2} E[\sum X_i] = 0
+   $$
 
- 
+      Multiplying by $2(\sigma^2)^2$:
 
-   
+   $$
+      -n\sigma^2 + n\mu^2 + E[\sum X_i^2] - 2\mu(n\mu) = 0
+   $$
 
-  
+      
 
-  
 
-   
-
-  
-
-   
-
- 
-
-   
-
-  
-
-   
-
-   
-
-  
-
-   
-
- 
-
-   
-
-  
-
- $$
-   E[\sum X_i^2] = n\sigma^2 + n\mu^2
+   $$
+      E[\sum X_i^2] = n\sigma^2 + n\mu^2
    $$
 
    This recovers the standard second moment $E[X^2] = \sigma^2 + \mu^2$.
@@ -588,147 +408,40 @@ Here we identify:
 
 1. Differentiate with respect to $\beta$:
 
-$$
-   \frac{\partial \log C}{\partial \beta} = -\frac{n\alpha}{\beta}
+   $$
+      \frac{\partial \log C}{\partial \beta} = -\frac{n\alpha}{\beta}
    $$
 
-   
-
-  
-
-   
-
- 
-
-   
-
-  
-
-   
-
-   
-
-  
-
-   
-
- 
-
-   
-
-  
-
-  
-
-   
-
-  
-
-   
-
- 
-
-   
-
-  
-
-   
-
-   
-
-  
-
-   
-
- 
-
-   
-
-  
-
- $$
-   \frac{\partial \pi_1}{\partial \beta} = 0, \quad \frac{\partial \pi_2}{\partial \beta} = \frac{1}{\beta^2}
-   $$
-
-   The theorem yields:
 
    $$
-   -\frac{n\alpha}{\beta} + \frac{1}{\beta^2} E[\sum X_i] = 0 \implies E[\sum X_i] = n\alpha\beta
+      \frac{\partial \pi_1}{\partial \beta} = 0, \quad \frac{\partial \pi_2}{\partial \beta} = \frac{1}{\beta^2}
    $$
 
-2. Differentiate with respect to $\alpha$:
-
-$$
-   \frac{\partial \log C}{\partial \alpha} = -n \frac{\Gamma'(\alpha)}{\Gamma(\alpha)} - n \log \beta = -n \psi(\alpha) - n \log \beta
-   $$
-
-   where $\psi(\alpha)$ is the digamma function.
+      The theorem yields:
 
    $$
-   \frac{\partial \pi_1}{\partial \alpha} = 1, \quad \frac{\partial \pi_2}{\partial \alpha} = 0
+      -\frac{n\alpha}{\beta} + \frac{1}{\beta^2} E[\sum X_i] = 0 \implies E[\sum X_i] = n\alpha\beta
    $$
 
-   The theorem yields:
+1. Differentiate with respect to $\alpha$:
 
    $$
-   (-n \psi(\alpha) - n \log \beta) + 1 \cdot E[\sum \log X_i] = 0
+      \frac{\partial \log C}{\partial \alpha} = -n \frac{\Gamma'(\alpha)}{\Gamma(\alpha)} - n \log \beta = -n \psi(\alpha) - n \log \beta
    $$
 
-   
+      where $\psi(\alpha)$ is the digamma function.
 
-  
+   $$
+      \frac{\partial \pi_1}{\partial \alpha} = 1, \quad \frac{\partial \pi_2}{\partial \alpha} = 0
+   $$
 
-   
+      The theorem yields:
 
- 
+   $$
+      (-n \psi(\alpha) - n \log \beta) + 1 \cdot E[\sum \log X_i] = 0
+   $$
 
-   
-
-  
-
-   
-
-   
-
-  
-
-   
-
- 
-
-   
-
-  
-
-  
-
-   
-
-  
-
-   
-
- 
-
-   
-
-  
-
-   
-
-   
-
-  
-
-   
-
- 
-
-   
-
-  
-
- $$
+   $$
    \implies E[\sum_{i=1}^n \log X_i] = n(\psi(\alpha) + \log \beta)
    $$
 
@@ -942,7 +655,7 @@ which is of the exponential family form .
 
 ::: {#lem-marginal-distribution}
 
-### Marginal Distribution
+### Marginal Distribution Lemma for Exponetial Families (MDL)
 Let $S$ be a subset of indices $\{1, \dots, k\}$. If $\pi_i(\theta)$ are constant for all $i \notin S$, then the marginal distribution of the statistics $T_S = \{ \tau_j(X) : j \in S \}$ is of the exponential family form with natural parameters $\pi_j(\theta)$ for $j \in S$.
 
 :::
@@ -959,6 +672,68 @@ $$
 = C(\theta) \exp\left\{ \sum_{j \in S} \pi_j(\theta) y_j \right\} \sum_{y_{S^c}} h^*(y) \exp\left\{ \sum_{l \in S^c} \pi_l y_l \right\}
 $$
 
-The sum becomes a new base measure $h^{**}(y_S)$, yielding the exponential family form .
+The sum becomes a new base measure $h^{**}(y_S)$, yielding the exponential family form.
+
+:::
+
+::: {#exm-normal-marginal-comparison}
+
+### Marginal Distributions of Normal Sufficient Statistics
+Consider the Normal model $N(\mu, \sigma^2)$ with sufficient statistics $T_1 = \sum X_i^2$ and $T_2 = \sum X_i$. The natural parameters are $\pi_1 = -\frac{1}{2\sigma^2}$ and $\pi_2 = \frac{\mu}{\sigma^2}$.
+
+1. Marginal of $T_2$ (fixing $\sigma^2$)
+   Suppose $\sigma^2$ is known (constant).
+
+   * **Lemma Condition:** $\pi_1 = -1/(2\sigma^2)$ is constant. The condition holds.
+   * **Implied Form by MDL:** The Marginal Distribution Lemma claims that $T_2$ follows an exponential family with natural parameter $\pi_2 = \frac{\mu}{\sigma^2}$:
+   $$
+   f_{T_2}(t_2|\theta) \propto h^*(t_2) \exp\left\{ \frac{\mu}{\sigma^2} t_2 \right\}
+   $$
+
+   * **Comparison with Known Distribution:**
+      We know $T_2 = \sum X_i \sim N(n\mu, n\sigma^2)$. The density is:
+      $$
+      f(t_2|\mu) = \frac{1}{\sqrt{2\pi n \sigma^2}} \exp\left\{ -\frac{(t_2 - n\mu)^2}{2n\sigma^2} \right\}
+      $$
+
+      Expanding the square $-\frac{1}{2n\sigma^2}(t_2^2 - 2n\mu t_2 + n^2\mu^2)$ and regrouping terms:
+
+      $$
+      f(t_2|\mu) = \underbrace{ \exp\left\{ -\frac{n\mu^2}{2\sigma^2} \right\} }_{C(\mu)} \underbrace{ \frac{1}{\sqrt{2\pi n \sigma^2}} \exp\left\{ -\frac{t_2^2}{2n\sigma^2} \right\} }_{h(t_2)} \exp\left\{ \frac{\mu}{\sigma^2} t_2 \right\}
+      $$
+      
+      **Result:** The Lemma correctly identifies the form, with the natural parameter $\frac{\mu}{\sigma^2}$.
+
+2. Marginal of $T_1$ (fixing $\mu$)
+   Suppose $\mu$ is known (constant). We investigate whether the marginal distribution of $T_1 = \sum X_i^2$ remains in the exponential family by checking the behavior of the remaining natural parameter $\pi_2 = \frac{\mu}{\sigma^2}$ with respect to the free parameter $\sigma^2$.
+
+   **Case A ($\mu = 0$):**
+
+   In this case, $\pi_2 = 0$, which is trivially constant with respect to $\sigma^2$. The condition of the Marginal Distribution Lemma is satisfied.
+
+   * **Implied Form by MDL:** The lemma claims that $T_1$ must follow an exponential family form with natural parameter $\pi_1 = -\frac{1}{2\sigma^2}$:
+   $$
+   f_{T_1}(t_1|\sigma^2) \propto h^*(t_1) \exp\left\{ -\frac{1}{2\sigma^2} t_1 \right\}
+   $$
+
+   * **Verification:** We know that for $\mu=0$, the scaled statistic $T_1 / \sigma^2$ follows a central Chi-squared distribution with $n$ degrees of freedom ($\chi^2_n$). The density is proportional to:
+   $$
+   f(t_1) \propto t_1^{n/2 - 1} \exp\left\{ -\frac{t_1}{2\sigma^2} \right\}
+   $$
+   This matches the form claimed by the MDL perfectly, with natural parameter $-1/(2\sigma^2)$ and base measure $h^*(t_1) = t_1^{n/2-1}$.
+
+   **Case B ($\mu \neq 0$):**
+
+   In this case, $\pi_2 = \frac{\mu}{\sigma^2}$ is a function of $\sigma^2$. As $\sigma^2$ changes, $\pi_2$ changes. The condition of the Lemma "$\pi_i(\theta)$ are constant for all $i \notin S$" **fails**. Therefore, the structure claimed by the lemma—a simple exponential family with parameter $\pi_1$—is not guaranteed.
+
+   * **Verification:** We know that for $\mu \neq 0$, the statistic $T_1/\sigma^2$ follows a **Non-central Chi-squared** distribution $\chi'^2_n(\lambda)$ with non-centrality parameter $\lambda = \frac{\sum \mu^2}{\sigma^2} = \frac{n\mu^2}{\sigma^2}$.
+
+   * The density of a non-central Chi-squared involves an infinite mixture of central densities:
+     $$
+     f(t_1) = \sum_{k=0}^\infty P(K=k) f_{\chi^2_{n+2k}}(t_1)
+     $$
+     where the weights $P(K=k)$ depend on $\lambda$ (and thus $\sigma^2$).
+
+   * **Result:** Because the parameter $\sigma^2$ appears inside the Poisson weights of the infinite sum, the density **cannot** be factored into the simple form $C(\sigma^2)h(t_1)\exp(\pi_1 t_1)$. This confirms that when the orthogonality condition is violated, the marginal distribution of a sufficient statistic leaves the simple exponential family.
 
 :::

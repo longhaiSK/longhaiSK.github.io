@@ -5,6 +5,13 @@ Instructions for Writing quarto Document
 * Don't forget to add ``` at the end of code chunk.
 * The top header level is #. 
 * Delete the direct numbering like 3.1, or Chapter 1
+* Indent the text sublist  of a list item such as:
+  
+1. Item 1
+   More discussion of Item 1
+2. Item 2
+   More discussion of Item 2
+
 * Put definitions/theorem/corrallary example in respective divisions in this format:
 
 ::: {#thm-admissibility-unique}
