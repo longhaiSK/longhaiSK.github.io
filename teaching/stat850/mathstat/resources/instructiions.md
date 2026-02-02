@@ -51,7 +51,6 @@ plotting commands here
 
     - Each question should be header level 2 (##).
 
-* Using \lVert \rVert to write || ||
 
 * Don't place floating figures like table and figure inside divisions like theorem, definition, example, proof, etc.
 * 
