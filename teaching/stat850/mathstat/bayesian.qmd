@@ -1957,6 +1957,127 @@ The result that $d^{JS}$ dominates $d^0$ is called **Stein's Paradox** because i
 * **Inadmissibility in High Dimensions:** Intuitions formed in 1D or 2D (where MLE is admissible) fail in higher dimensions ($p \ge 3$). The volume of space grows so fast that "standard" diffuse priors or MLEs become inefficient.
 * **Hierarchical Modeling:** Stein's result provides the theoretical foundation for **Hierarchical Bayesian Models**. When we assume parameters come from a common distribution (e.g., $\theta_i \sim N(\mu, \tau^2)$), we naturally derive shrinkage estimators that "borrow strength" across groups, formalized as Empirical Bayes or fully Bayesian methods.
 
+### Bias-variance Tradeoff
+
+```{r}
+#| label: fig-js-shrinkage-r
+#| fig-cap: "Visualizing James-Stein Shrinkage and Bias-Variance Tradeoff"
+#| echo: false
+#| fig-align: "center"
+#| out.width: "100%"
+#| warning: false
+
+library(ggplot2)
+library(grid)
+
+# 1. Setup Data
+theta <- c(5, 4)
+# Create 4 data points around theta
+set.seed(123)
+x_points <- data.frame(
+  id = 1:4,
+  x1 = c(6.2, 4.0, 3.8, 5.5),
+  x2 = c(4.5, 5.2, 2.8, 3.0)
+)
+
+# Shrinkage factor (fake for visualization)
+k <- 0.25 
+d_points <- x_points
+d_points$x1 <- x_points$x1 * (1 - k)
+d_points$x2 <- x_points$x2 * (1 - k)
+
+# Mean of estimates
+mu_d <- colMeans(d_points[, c("x1", "x2")])
+
+# 2. Define Plot Limits to make room for text on the right
+# Data is roughly in x=[0, 7]. We extend x to 13 to hold annotations.
+x_limits <- c(-0.5, 13)
+y_limits <- c(-0.5, 6.5)
+
+# 3. Create Vectors for the Tradeoff Triangle (using point #1)
+# Create a dedicated clean dataframe for arrows to avoid duplicate name error
+arrow_data <- data.frame(
+  x_start = x_points$x1,
+  y_start = x_points$x2,
+  x_end   = d_points$x1,
+  y_end   = d_points$x2
+)
+
+# Vectors for specific components
+vec_bias <- data.frame(x = mu_d[1], y = mu_d[2], xend = theta[1], yend = theta[2])
+vec_var  <- data.frame(x = d_points$x1[1], y = d_points$x2[1], xend = mu_d[1], yend = mu_d[2])
+vec_err  <- data.frame(x = d_points$x1[1], y = d_points$x2[1], xend = theta[1], yend = theta[2])
+
+# 4. Plot
+ggplot() +
+  # --- Setup ---
+  coord_fixed(ratio = 1, xlim = x_limits, ylim = y_limits) +
+  theme_void() +
+  theme(plot.background = element_rect(fill = "white", color = NA)) +
+  
+  # --- Axes ---
+  annotate("segment", x = -0.5, y = 0, xend = 7, yend = 0, arrow = arrow(length = unit(0.2, "cm")), color = "gray50") +
+  annotate("segment", x = 0, y = -0.5, xend = 0, yend = 6, arrow = arrow(length = unit(0.2, "cm")), color = "gray50") +
+  annotate("text", x = 0, y = 0, label = "O", hjust = 1.5, vjust = 1.5) +
+
+  # --- Variance Ellipse ---
+  stat_ellipse(data = d_points, aes(x = x1, y = x2), color = "skyblue", fill = "aliceblue", geom = "polygon", alpha = 0.3, level = 0.8) +
+
+  # --- Vectors (Tradeoff) ---
+  # Bias (Orange)
+  geom_segment(data = vec_bias, aes(x=x, y=y, xend=xend, yend=yend), 
+               color = "orange", linewidth = 1.5, arrow = arrow(length = unit(0.3, "cm"))) +
+  annotate("text", x = 5.2, y = 4.4, label = "Bias", color = "orange", fontface = "bold", size = 3.5) +
+
+  # Variance (Green)
+  geom_segment(data = vec_var, aes(x=x, y=y, xend=xend, yend=yend), 
+               color = "forestgreen", linewidth = 1.2, arrow = arrow(length = unit(0.25, "cm"))) +
+  annotate("text", x = 4.2, y = 3.6, label = "Deviation", color = "forestgreen", size = 3) +
+
+  # Total Error (Red Dashed)
+  geom_segment(data = vec_err, aes(x=x, y=y, xend=xend, yend=yend), 
+               color = "red", linetype = "dashed", linewidth = 0.8, arrow = arrow(length = unit(0.2, "cm"))) +
+
+  # --- Points ---
+  # Original X (Gray Hollow)
+  geom_point(data = x_points, aes(x = x1, y = x2), shape = 1, size = 3, color = "gray40") +
+  # Shrunken D (Blue Solid)
+  geom_point(data = d_points, aes(x = x1, y = x2), shape = 19, size = 3, color = "blue") +
+  
+  # Shrinkage arrows (Using the clean arrow_data)
+  geom_segment(data = arrow_data, 
+               aes(x = x_start, y = y_start, xend = x_end, yend = y_end), 
+               arrow = arrow(length = unit(0.15, "cm")), color = "gray80") +
+  
+  # Mu (Mean of D)
+  geom_point(aes(x = mu_d[1], y = mu_d[2]), color = "blue", size = 5, shape = 19) +
+  annotate("text", x = mu_d[1], y = mu_d[2] - 0.4, label = "Mean(d)", color = "blue", size = 3) +
+
+  # Theta (Truth)
+  geom_point(aes(x = theta[1], y = theta[2]), color = "red", size = 5, shape = 19) +
+  annotate("text", x = theta[1] + 0.3, y = theta[2], label = "Theta", color = "red", fontface = "bold", hjust = 0) +
+
+  # --- Annotation Box (Right Side) ---
+  annotate("rect", xmin = 7.5, xmax = 12.8, ymin = 1, ymax = 6, fill = "white", color = "gray90", alpha = 0.8) +
+  
+  # Title
+  annotate("text", x = 8, y = 5.5, label = "James-Stein Tradeoff", fontface = "bold", size = 5, hjust = 0) +
+  
+  # Equations using plotmath expressions
+  annotate("text", x = 8, y = 4.5, hjust = 0, parse = TRUE, size = 4,
+           label = "'Estimator (Shrinkage):'") +
+  annotate("text", x = 8.2, y = 4.0, hjust = 0, parse = TRUE, size = 3.8,
+           label = "d[i] %approx% (1 - frac(1, group('||', x[i], '||')^2)) * x[i]") +
+           
+  annotate("text", x = 8, y = 3.0, hjust = 0, parse = TRUE, size = 4,
+           label = "'MSE Decomposition:'") +
+  annotate("text", x = 8.2, y = 2.4, hjust = 0, parse = TRUE, size = 3.8,
+           label = "E['||' * d - theta * '||'^2] == E['||' * d - mu[d] * '||'^2] + '||' * mu[d] - theta * '||'^2") +
+  
+  # Legend for terms
+  annotate("text", x = 8.2, y = 1.7, hjust = 0, label = "= Variance (Green) + Bias^2 (Orange)", color = "gray30", size = 3.5)
+```
+
 ## Empirical Bayes Rules
 
 The James-Stein estimator provides a natural entry point into the concept of **Empirical Bayes (EB)**. While the Stein estimator was originally derived using frequentist risk arguments, it can be intuitively understood as a Bayesian estimator where the parameters of the prior distribution are estimated from the data itself.
