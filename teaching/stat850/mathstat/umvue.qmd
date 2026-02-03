@@ -163,141 +163,192 @@ Here, $t(x) = x$. Therefore, $T(X) = \sum_{i=1}^n X_i$ is sufficient for $p$.
 
 :::
 
+::: {#lem-loglik-equivalence}
+### Equivalence of Log-Likelihood Conditions
+For any pair of data sets $x$ and $y$, the following three conditions are equivalent descriptions of the relationship between their log-likelihood functions $\ell(\theta; \cdot) = \ln L(\theta; \cdot)$:
 
-::: {#thm-mss-ratio-implication}
+1.  **Parallel Log-Likelihoods:**
+    $$\ell(\theta; x) = \ell(\theta; y) + c(x, y) \quad \text{for all } \theta$$
+    (where $c(x,y)$ is independent of $\theta$).
 
-### MSS Condition Theorem
-Let $T(X)$ be a **sufficient statistic**. $T(X)$ is a **Minimal Sufficient Statistic (MSS)** if and only if for any pair of data sets $x$ and $y$, the following conditions imply $T(x)=T(y)$:
+2.  **Constant Difference:**
+    $$\ell(\theta; x) - \ell(\theta; y) \quad \text{is constant as a function of } \theta$$
 
-1.  **Proportional Likelihoods:** $L(\theta; x) = c(x, y) L(\theta; y)$ for all $\theta$.
-2.  **Ratio Independence:** $\frac{L(\theta; x)}{L(\theta; y)}$ is constant as a function of $\theta$.
-3.  **Equality of Likelihood Ratio Statistics:** $\Lambda_x(\theta_1, \theta_2) = \Lambda_y(\theta_1, \theta_2)$ for all $\theta_1, \theta_2$.
-
-**Logic:**
-Since $T$ is already sufficient, we know $T(x)=T(y) \implies \text{Proportional Likelihood Condition}$.
-The condition for **minimality** is the reverse: $\text{Proportional Likelihood Condition} \implies T(x)=T(y)$.
-
+3.  **Equality of Log-Likelihood Differences:**
+    $$\ell(\theta_2; x) - \ell(\theta_1; x) = \ell(\theta_2; y) - \ell(\theta_1; y) \quad \text{for all } \theta_1, \theta_2$$
 :::
 
 ::: {.proof}
-**Proof**
+**Proof of Lemma**
 
-We assume Conditions (1), (2), and (3) are equivalent descriptions of $x$ and $y$ having proportional likelihoods. We denote "Conditions (1-3)" collectively as the **Proportional Likelihood Condition**.
+* **$(1) \iff (2)$:**
+    Rearranging (1) gives $\ell(\theta; x) - \ell(\theta; y) = c(x, y)$. Since $c(x,y)$ does not depend on $\theta$, the difference is constant in $\theta$.
 
-**Direction 1: $T$ is MSS $\implies$ (Proportional Likelihood Condition $\implies T(x)=T(y)$)**
+* **$(1) \implies (3)$:**
+    Substitute $\ell(\theta; x) = \ell(\theta; y) + c$ into the LHS of (3):
+    $$[\ell(\theta_2; y) + c] - [\ell(\theta_1; y) + c] = \ell(\theta_2; y) - \ell(\theta_1; y)$$
+    This matches the RHS of (3).
 
-Assume $T(X)$ is a Minimal Sufficient Statistic. By definition, $T$ is a function of *any* other sufficient statistic $S$.
-
-Let us construct a specific statistic $S^*(X)$ defined by the likelihood partitions:
-$$ S^*(x) = \{ z : L(\theta; z) = c \cdot L(\theta; x) \text{ for some constant } c \} $$
-(i.e., $S^*(x)$ groups all data points that satisfy the Proportional Likelihood Condition).
-$S^*(X)$ is known to be a sufficient statistic.
-
-Since $T$ is MSS, it must be a function of $S^*$. That is, there exists some function $g$ such that $T(x) = g(S^*(x))$.
-If the Proportional Likelihood Condition holds for $x$ and $y$, then by definition $S^*(x) = S^*(y)$.
-Therefore:
-$$ S^*(x) = S^*(y) \implies g(S^*(x)) = g(S^*(y)) \implies T(x) = T(y) $$
-
-**Direction 2: (Proportional Likelihood Condition $\implies T(x)=T(y)$) $\implies$ $T$ is MSS**
-
-Assume that for any $x,y$, if the Proportional Likelihood Condition holds, then $T(x)=T(y)$.
-We must show that $T$ is a function of any sufficient statistic $S$.
-
-Let $S(X)$ be *any* sufficient statistic.
-By the Factorization Theorem, if $S(x) = S(y)$, then:
-$$ L(\theta; x) = h(x)g(S(x); \theta) \quad \text{and} \quad L(\theta; y) = h(y)g(S(y); \theta) $$
-Since $S(x)=S(y)$, the term $g(S(x);\theta) = g(S(y);\theta)$.
-The ratio is:
-$$ \frac{L(\theta; x)}{L(\theta; y)} = \frac{h(x)}{h(y)} $$
-This ratio is independent of $\theta$, so the Proportional Likelihood Condition holds.
-
-By our assumption, Proportional Likelihood Condition $\implies T(x)=T(y)$.
-So, we have shown:
-$$ S(x) = S(y) \implies T(x) = T(y) $$
-This implies that $T$ is a function of $S$.
-Since $S$ was arbitrary, $T$ is a function of every sufficient statistic.
-Therefore, $T$ is Minimal Sufficient.
-
+* **$(3) \implies (1)$:**
+    Fix $\theta_1 = \theta_0$ as a reference point. Rearrange (3):
+    $$\ell(\theta_2; x) - \ell(\theta_2; y) = \ell(\theta_0; x) - \ell(\theta_0; y)$$
+    Let $c(x, y) = \ell(\theta_0; x) - \ell(\theta_0; y)$. Since $\theta_0$ is fixed, $c(x, y)$ is constant with respect to the varying $\theta_2$.
+    Thus, $\ell(\theta; x) - \ell(\theta; y) = c(x, y)$ for all $\theta$.
 :::
 
-```{tikz fig-log-likelihood}
-%| fig-cap: "Visualizing Proportional Likelihoods (Parallel Log-Likelihoods)"
-%| echo: false
-%| fig-align: "center"
-%| out-extra: 'style="width: 70% !important;"'
+```{r fig-log-likelihood-homo}
+#| fig-cap: "Visualizing Parallel Log-Likelihoods (Gap = 1 Grid Unit)"
+#| echo: false
+#| fig-align: "center"
+#| message: false
+#| warning: false
+#| out.width: "70%"
 
-\begin{tikzpicture}
-    % Axes
-    \draw[->] (0,0) -- (6,0) node[right] {$\theta$};
-    \draw[->] (0,0) -- (0,5) node[above] {$\ell(\theta) = \ln L(\theta)$};
+library(ggplot2)
 
-    % Curve 1: l(theta; x) - Concave down (typical log-like shape)
-    \draw[thick, blue] (1, 1.5) .. controls (3, 5.5) .. (5, 1.5) node[right] {$\ell(\theta; x)$};
-    
-    % Curve 2: l(theta; y) - Vertically shifted down by constant k
-    % The shape must be identical, just shifted y-1
-    \draw[thick, red, dashed] (1, 0.5) .. controls (3, 4.5) .. (5, 0.5) node[right] {$\ell(\theta; y)$};
+# Define range for theta
+theta <- seq(0, 6, length.out = 300)
 
-    % Visualizing the constant vertical difference
-    \draw[<->] (3, 3.5) -- (3, 2.5) node[midway, right] {$\ln c$};
-    
-    % Guide line
-    \draw[dotted] (3, 0) -- (3, 2.5);
+# Define log-likelihood functions
+# Peak is set exactly at y = 4 to align with a grid line
+ll_x <- -0.8 * (theta - 3)^2 + 4 
 
-    % Annotation
-    \node at (3, 5) [blue] {Parallel Curves (Constant Difference)};
-    \node at (3, -0.8) {Condition: $\ell(\theta; x) - \ell(\theta; y) = \text{constant}$};
-\end{tikzpicture}
+# The gap is set to 2, which matches the grid spacing defined below
+const_diff <- 2
+ll_y <- ll_x - const_diff
+
+# Create data frame for plotting
+df <- data.frame(
+  theta = rep(theta, 2),
+  loglik = c(ll_x, ll_y),
+  curve = rep(c("l(theta; x)", "l(theta; y)"), each = 300)
+)
+
+# Arrows at multiple points to show constant vertical gap
+arrow_x <- c(1.5, 3, 4.5)
+arrow_df <- data.frame(
+  x = arrow_x,
+  y_start = -0.8 * (arrow_x - 3)^2 + 4,
+  y_end = -0.8 * (arrow_x - 3)^2 + 4 - const_diff
+)
+
+# Plot
+ggplot(df, aes(x = theta, y = loglik, color = curve, linetype = curve)) +
+  geom_line(linewidth = 1.2) +
+  
+  # Add vertical arrows
+  geom_segment(data = arrow_df, aes(x = x, xend = x, y = y_start, yend = y_end),
+               arrow = arrow(ends = "both", length = unit(0.2, "cm")), 
+               color = "black", inherit.aes = FALSE) +
+  
+  annotate("text", x = 3.1, y = 3, 
+           label = "Gap = 1 Grid Unit", hjust = 0, size = 4.5) +
+
+  # Styling
+  scale_color_manual(values = c("blue", "red")) +
+  scale_linetype_manual(values = c("solid", "dashed")) +
+  
+  # Force grid lines to align with the peaks and the gap
+  scale_y_continuous(breaks = seq(-10, 10, by = 2)) +
+  
+  labs(x = expression(theta), y = expression(ell(theta)),
+       title = "Parallel Log-Likelihoods",
+       subtitle = "The vertical difference is exactly one grid unit everywhere") +
+  theme_minimal() +
+  theme(legend.title = element_blank(),
+        legend.position = "top",
+        text = element_text(size = 14),
+        panel.grid.major.y = element_line(color = "gray60", linetype = "dotted"),
+        panel.grid.minor.y = element_blank())
 ```
-::: {#exm-poisson-mss}
 
-### Poisson Distribution
-Let $X_1, \dots, X_n \sim \text{Poisson}(\theta)$.
-$T(X) = \sum X_i$ is minimal sufficient.
-$S(X) = (\sum X_i, X_1)$ is sufficient but not minimal.
-
+::: {#thm-mss-loglik}
+### MSS Condition Theorem
+Let $T(X)$ be a **sufficient statistic**. $T(X)$ is a **Minimal Sufficient Statistic (MSS)** if and only if for any pair of data sets $x$ and $y$:
+$$
+\text{Log-Likelihoods are Parallel} \implies T(x) = T(y)
+$$
+*(Note: "Log-Likelihoods are Parallel" refers to any of the equivalent conditions in @lem-loglik-equivalence)*.
 :::
 
 ::: {.proof}
-**Proof that $S(X) = (\sum X_i, X_1)$ is Not Minimal**
+**Proof of Theorem**
 
-We use the **MSS Condition Theorem** stated above.
-For $S(X)$ to be minimal sufficient, the following implication must hold for any pair of data sets $x$ and $y$:
-$$ \text{Proportional Likelihood Condition} \implies S(x) = S(y) $$
+We denote the condition "Log-Likelihoods are Parallel" as $\mathcal{P}(x, y)$.
 
-**Step 1: Evaluate the Proportional Likelihood Condition**
-For the Poisson distribution, the likelihood ratio between two data sets $x$ and $y$ is:
-$$
-\frac{L(\theta; x)}{L(\theta; y)} = \theta^{\left(\sum x_i - \sum y_i\right)} \frac{\prod y_i!}{\prod x_i!}
-$$
-The **Proportional Likelihood Condition** requires this ratio to be independent of $\theta$.
-This holds if and only if the exponent of $\theta$ is zero:
-$$ \sum x_i = \sum y_i $$
+**Direction 1: Necessity ($T$ is MSS $\implies$ Implication holds)**
 
-**Step 2: Test the Implication for $S(X)$**
-The requirement becomes:
-$$ \sum x_i = \sum y_i \implies \left(\sum x_i, x_1\right) = \left(\sum y_i, y_1\right) $$
+Assume $T(X)$ is a Minimal Sufficient Statistic. We must prove that $\mathcal{P}(x, y) \implies T(x) = T(y)$.
 
-**Step 3: Counter-Example**
-Consider sample size $n=2$ and two data sets:
+1.  **Construct the Likelihood Shape Statistic $T^*$:**
+    Let us define a statistic $T^*(X)$ that corresponds exactly to the shape of the log-likelihood. We define $T^*(x)$ as the set of all points $z$ such that $\mathcal{P}(x, z)$ holds (i.e., the equivalence class of $x$ under the parallel condition).
+    By definition, $\mathcal{P}(x, y) \iff T^*(x) = T^*(y)$.
+    It is a known result that $T^*(X)$ is a sufficient statistic.
 
-* $x = (2, 0)$ where $\sum x_i = 2$ and $x_1 = 2$.
-* $y = (1, 1)$ where $\sum y_i = 2$ and $y_1 = 1$.
+2.  **Use Definition of MSS:**
+    Since $T(X)$ is **Minimal** Sufficient, it must be a function of *any* other sufficient statistic.
+    Therefore, $T$ is a function of $T^*$. That is, there exists a function $g$ such that $T(x) = g(T^*(x))$.
 
-**Check Proportional Likelihood Condition:**
-$\sum x_i = 2$ and $\sum y_i = 2$. The condition holds.
+3.  **Conclusion:**
+    If $\mathcal{P}(x, y)$ holds, then $T^*(x) = T^*(y)$.
+    Applying $g$ to both sides: $g(T^*(x)) = g(T^*(y))$.
+    Substituting back: $T(x) = T(y)$.
 
-**Check Statistic Equality:**
-$$ S(x) = (2, 2) $$
-$$ S(y) = (2, 1) $$
-$$ S(x) \neq S(y) $$
+**Direction 2: Sufficiency (Implication holds $\implies$ $T$ is MSS)**
 
-**Conclusion:**
-We have found a case where the Proportional Likelihood Condition holds, but $S(x) \neq S(y)$.
-The implication fails. Therefore, $S(X)$ is **not** Minimal Sufficient.
+Assume that for all pairs $x, y$, $\mathcal{P}(x, y) \implies T(x) = T(y)$. We must prove that $T$ is Minimal Sufficient.
 
+To show $T$ is minimal, we must show that $T$ is a function of **any** sufficient statistic $S(X)$. That is, we must show:
+$$S(x) = S(y) \implies T(x) = T(y)$$
+
+1.  **Assume $S$ is Sufficient:**
+    Let $S(X)$ be an arbitrary sufficient statistic. Suppose we have two data points $x$ and $y$ such that $S(x) = S(y)$.
+
+2.  **Apply Factorization Theorem:**
+    Since $S$ is sufficient, the Factorization Theorem states:
+    $$L(\theta; x) = h(x)g(S(x); \theta)$$
+    The log-likelihood is:
+    $$\ell(\theta; x) = \ln h(x) + \ln g(S(x); \theta)$$
+
+3.  **Check Parallel Condition:**
+    Consider the difference between the log-likelihoods of $x$ and $y$:
+    $$\ell(\theta; x) - \ell(\theta; y) = [\ln h(x) + \ln g(S(x); \theta)] - [\ln h(y) + \ln g(S(y); \theta)]$$
+    Since $S(x) = S(y)$, the terms involving $g$ are identical and cancel out:
+    $$\ell(\theta; x) - \ell(\theta; y) = \ln h(x) - \ln h(y)$$
+    This difference depends only on $x$ and $y$, not on $\theta$.
+    Therefore, the condition $\mathcal{P}(x, y)$ is satisfied.
+
+4.  **Use Main Assumption:**
+    We assumed at the start that $\mathcal{P}(x, y) \implies T(x) = T(y)$.
+    Since we just showed $\mathcal{P}(x, y)$ is true, it must be that $T(x) = T(y)$.
+
+5.  **Conclusion:**
+    We have shown that $S(x) = S(y) \implies T(x) = T(y)$.
+    This implies $T$ is a function of $S$.
+    Since $S$ was arbitrary, $T$ is a function of *every* sufficient statistic.
+    Thus, $T$ is Minimal Sufficient.
 :::
 
+::: {#exm-poisson-mss-log}
+### Poisson Distribution (Log-Likelihood Approach)
+Let $X_1, \dots, X_n \sim \text{Poisson}(\theta)$.
+To check if $S(X) = (\sum X_i, X_1)$ is minimal, we test the implication:
+$$\text{Parallel Log-Likelihoods} \implies S(x) = S(y)$$
+
+**1. Check Parallel Condition:**
+$$\ell(\theta; x) = -n\theta + (\sum x_i)\ln\theta - \sum \ln(x_i!)$$
+The difference is:
+$$\ell(\theta; x) - \ell(\theta; y) = (\sum x_i - \sum y_i)\ln\theta + K$$
+For this to be constant in $\theta$ (Parallel), the $\ln\theta$ term must vanish:
+$$\sum x_i = \sum y_i$$
+
+**2. Check Implication:**
+Does $\sum x_i = \sum y_i \implies (\sum x_i, x_1) = (\sum y_i, y_1)$?
+No. Consider $x=(2,0)$ and $y=(1,1)$.
+Sum is equal ($2=2$), so Log-Likelihoods are parallel.
+But $S(x)=(2,2) \neq S(y)=(2,1)$.
+Thus, $S(X)$ is **not** minimal.
+:::
 
 ## Completeness
 
