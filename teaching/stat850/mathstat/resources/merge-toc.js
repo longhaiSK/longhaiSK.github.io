@@ -9,7 +9,6 @@ document.addEventListener("DOMContentLoaded", function() {
     if (container.querySelector('.toc-num')) return false;
 
     const text = container.innerText;
-    // Safety Check: Ensure text exists
     if (!text) return false;
 
     const match = text.match(/^([\d\w\.]+\.?)(\s+)(.*)/);
@@ -111,45 +110,69 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             });
             parentLi.appendChild(clonedList);
-            syncActiveState(toc, clonedList);
+            // UPDATED: Pass only the injected list
+            syncActiveState(clonedList);
         }
       }
     }
   }
 
-  // --- PART C: LIVE SYNC ---
-  function syncActiveState(originalToc, injectedToc) {
-    const linkMap = {};
-    injectedToc.querySelectorAll('a').forEach(a => {
-        const href = a.getAttribute('href');
-        if (href) linkMap[href] = a;
+  // --- PART C: LIVE SYNC (REPLACED) ---
+  function syncActiveState(injectedToc) {
+    // Select headers in the content area
+    const headers = document.querySelectorAll('main h1, main h2, main h3, main h4, main h5, main h6');
+    const tocLinks = injectedToc.querySelectorAll('a');
+    
+    // Create a map of ID -> Link for O(1) lookup
+    const idToLink = {};
+    tocLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if(href && href.startsWith('#')) {
+             idToLink[href.substring(1)] = link;
+        }
     });
 
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach(mutation => {
-            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                const originalLink = mutation.target;
-                const injectedLink = linkMap[originalLink.getAttribute('href')];
-                if (injectedLink) {
-                    if (originalLink.classList.contains('active')) {
-                        injectedLink.classList.add('active');
-                        const parentUl = injectedLink.closest('ul');
-                        if (parentUl && parentUl.style.display === 'none') {
+    // Observer: Triggers when a header enters the top 30% of the screen
+    // rootMargin: top, right, bottom, left. 
+    // '-80%' bottom means the "active zone" is only the top 20% of the viewport.
+    const observerOptions = {
+        root: null,
+        rootMargin: '0px 0px -80% 0px', 
+        threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            // Only act when a header *enters* the zone.
+            // If it leaves (scrolls up out of view), we don't clear active immediately 
+            // to ensure the section stays highlighted while reading long content.
+            if (entry.isIntersecting) {
+                const id = entry.target.getAttribute('id');
+                const activeLink = idToLink[id];
+                
+                if (activeLink) {
+                    // Remove active from all other links
+                    tocLinks.forEach(l => l.classList.remove('active'));
+                    
+                    // Set current active
+                    activeLink.classList.add('active');
+                    
+                    // Auto-expand parents
+                    const parentUl = activeLink.closest('ul');
+                    if (parentUl && parentUl.style.display === 'none') {
                            parentUl.style.display = 'block';
                            const parentLink = parentUl.parentElement.querySelector('a.has-children');
                            if (parentLink) {
                                parentLink.classList.remove('collapsed');
                                parentLink.classList.add('expanded');
                            }
-                        }
-                    } else {
-                        injectedLink.classList.remove('active');
                     }
                 }
             }
         });
-    });
-    originalToc.querySelectorAll('a').forEach(a => observer.observe(a, { attributes: true }));
+    }, observerOptions);
+
+    headers.forEach(header => observer.observe(header));
   }
 
   // --- PART D: SIDEBAR TOGGLE ---
@@ -158,10 +181,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const btn = document.createElement("button");
     btn.id = "custom-sidebar-toggle";
-    btn.innerHTML = '&#9776;'; // Hamburger Icon
+    btn.innerHTML = '&#9776;'; 
     btn.title = "Toggle Sidebar";
     
-    // Insert specifically into body to ensure it's not buried
     document.body.insertAdjacentElement('afterbegin', btn);
 
     btn.addEventListener("click", function() {
@@ -169,12 +191,9 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 
-  // --- EXECUTION (Safer Order) ---
+  // --- EXECUTION ---
   function run() {
-    // 1. Create Button FIRST (So it exists even if other parts crash)
     try { createSidebarToggle(); } catch(e) { console.error(e); }
-
-    // 2. Run Formatting (Wrapped in try/catch for safety)
     try { formatChapters(); } catch(e) { console.error(e); }
     try { moveToc(); } catch(e) { console.error(e); }
     
@@ -182,5 +201,5 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   run();
-  setTimeout(run, 500); // Retry for slow loaders
+  setTimeout(run, 500); 
 });
