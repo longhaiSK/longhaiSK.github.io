@@ -116,6 +116,8 @@ main img:not(.logo),
   display: inline-block;
 }
 
+figcaption, caption { text-align: center; }
+
 /* =========================================
    6. BUTTONS
    ========================================= */
@@ -173,16 +175,22 @@ ul.injected-page-toc a:hover {
   color: #2c3e50 !important;
 }
 
-#quarto-sidebar .sidebar-link.active,
-ul.injected-page-toc a.active {
+/* --- PARENT CHAPTER HIGHLIGHT --- */
+/* This highlights the Chapter Title when you are anywhere inside it */
+#quarto-sidebar .sidebar-link.active {
   color: #007bff !important;
   background-color: transparent !important;
-  font-weight: 700 !important;
+  font-weight: 800 !important; /* Bold */
 }
 
-#quarto-sidebar .sidebar-link.active .toc-num,
-ul.injected-page-toc a.active .toc-num {
-  color: #007bff !important;
+/* --- SUBSECTION HIGHLIGHT (NEW) --- */
+/* This highlights the specific H2/H3 you are looking at */
+ul.injected-page-toc a.toc-active {
+  color: #0056b3 !important;       /* Darker Blue */
+  font-weight: 600 !important;     /* Semi-Bold */
+  border-left: 3px solid #007bff;  /* Blue Indicator Bar */
+  padding-left: 8px;               /* Indent for the bar */
+  background-color: rgba(0, 123, 255, 0.05); /* Very faint blue background */
 }
 
 /* =========================================
@@ -210,15 +218,13 @@ nav[role="doc-toc"],
 }
 #quarto-sidebar .sidebar-menu-container.loaded { opacity: 1; }
 
-/* --- D. RESET LIST PADDING (The Fix) --- */
-/* 1. Reset the main list so it aligns with the Book Title */
+/* --- D. RESET LIST PADDING --- */
 #quarto-sidebar .sidebar-menu-container > ul {
   padding-left: 0 !important;
   margin-left: 0 !important;
   list-style: none !important;
 }
 
-/* 2. Remove internal item padding */
 #quarto-sidebar .sidebar-item-container { 
   padding-left: 0 !important; 
 }
@@ -233,7 +239,7 @@ ul.injected-page-toc, ul.injected-page-toc ul {
 ul.injected-page-toc {
   padding-left: 12px !important; 
   border-left: 1px solid #dee2e6;
-  margin-left: 1.0em !important; /* Slightly tighter indentation */
+  margin-left: 1.0em !important; 
   margin-top: 5px !important;
   margin-bottom: 10px !important;
 }
@@ -250,6 +256,7 @@ ul.injected-page-toc a {
   border: none !important;
   width: 100%;
   position: relative;
+  transition: all 0.2s ease;
 }
 
 #quarto-sidebar .sidebar-link .menu-text { display: flex; width: 100%; }
@@ -322,7 +329,6 @@ a.has-children.collapsed::after { transform: rotate(0deg); }
   }
 
   /* 4. BASE TRANSITION RULES */
-  /* Ensure smooth fading for all elements we plan to hide */
   #quarto-sidebar .sidebar-menu-container,
   #quarto-sidebar .sidebar-title,
   #quarto-sidebar .sidebar-header,
@@ -333,16 +339,12 @@ a.has-children.collapsed::after { transform: rotate(0deg); }
 }
 
 /* --- A. MEDIUM SCREEN (992px - 1200px) --- */
-/* Default: Mini-Sidebar. Toggle OPENS it (Overlay/Stack). */
 @media (min-width: 992px) and (max-width: 1200px) {
-  
-  /* DEFAULT: Mini Width */
   body:not(.sidebar-closed) #quarto-sidebar {
     width: var(--quarto-sidebar-mini-width) !important;
     box-shadow: none !important;
   }
   
-  /* FIX: Explicitly hide EVERYTHING in default state */
   body:not(.sidebar-closed) #quarto-sidebar .sidebar-menu-container,
   body:not(.sidebar-closed) #quarto-sidebar .sidebar-title,
   body:not(.sidebar-closed) #quarto-sidebar .sidebar-header,
@@ -352,13 +354,11 @@ a.has-children.collapsed::after { transform: rotate(0deg); }
     visibility: hidden !important;
   }
 
-  /* TOGGLED: Full Width (Stacked) */
   body.sidebar-closed #quarto-sidebar {
     width: var(--quarto-sidebar-width) !important;
     box-shadow: 5px 0 15px rgba(0,0,0,0.2) !important;
   }
   
-  /* Show everything when toggled open */
   body.sidebar-closed #quarto-sidebar .sidebar-menu-container,
   body.sidebar-closed #quarto-sidebar .sidebar-title,
   body.sidebar-closed #quarto-sidebar .sidebar-header,
@@ -369,39 +369,31 @@ a.has-children.collapsed::after { transform: rotate(0deg); }
     transition-delay: 0.1s;
   }
 
-  /* CONTENT: Always pushed by Mini Width only */
   #quarto-content { margin-left: var(--quarto-sidebar-mini-width) !important; }
   main.content { margin: 0 auto !important; }
 }
 
 /* --- B. WIDE SCREEN (1200px+) --- */
-/* Default: Full Width. Toggle SHRINKS it to Mini. */
 @media (min-width: 1200px) {
-
-  /* DEFAULT: Full Width */
   body:not(.sidebar-closed) #quarto-sidebar {
     width: var(--quarto-sidebar-width) !important;
     box-shadow: none !important;
   }
 
-  /* DEFAULT: Push Content Full Distance */
   body:not(.sidebar-closed) #quarto-content {
     margin-left: var(--quarto-sidebar-width) !important;
   }
   
-  /* DEFAULT: Align Text Left */
   body:not(.sidebar-closed) main.content {
     margin: 0 !important;
     margin-left: 40px !important;
     max-width: calc(100vw - var(--quarto-sidebar-width) - 60px) !important;
   }
 
-  /* TOGGLED: Mini Width */
   body.sidebar-closed #quarto-sidebar {
     width: var(--quarto-sidebar-mini-width) !important;
   }
 
-  /* FIX: Hide EVERYTHING when toggled closed */
   body.sidebar-closed #quarto-sidebar .sidebar-menu-container,
   body.sidebar-closed #quarto-sidebar .sidebar-title,
   body.sidebar-closed #quarto-sidebar .sidebar-header,
@@ -411,12 +403,10 @@ a.has-children.collapsed::after { transform: rotate(0deg); }
      visibility: hidden !important;
   }
 
-  /* TOGGLED: Push Content Mini Distance */
   body.sidebar-closed #quarto-content {
     margin-left: var(--quarto-sidebar-mini-width) !important;
   }
   
-  /* TOGGLED: Center Text */
   body.sidebar-closed main.content { 
     margin: 0 auto !important; 
   }
@@ -428,27 +418,20 @@ a.has-children.collapsed::after { transform: rotate(0deg); }
 #custom-sidebar-toggle {
   position: fixed;
   top: 5px;
-  
-  /* Always centered within the Mini-Sidebar width */
-  left: 7px; /* (60px width - 45px button) / 2 = ~7.5px */
-  
+  left: 7px;
   z-index: 1200; 
-  
   display: flex;
   align-items: center;
   justify-content: center;
   width: 45px;
   height: 45px;
   border-radius: 50%;
-  
   background-color: transparent; 
   border: 1px solid transparent;
-  
   color: #6c757d;
   font-size: 30px;
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s;
-  
   display: none; 
 }
 
@@ -459,7 +442,6 @@ a.has-children.collapsed::after { transform: rotate(0deg); }
   border: 1px solid #cccfd2;
 }
 
-/* Show on all Desktop sizes */
 @media (min-width: 992px) {
   #custom-sidebar-toggle { display: flex; }
 }

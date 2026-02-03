@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.42">
+<meta name="generator" content="quarto-1.9.16">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -32,15 +32,17 @@ ul.task-list li input[type="checkbox"] {
 <meta name="quarto:offset" content="./">
 <link href="./expofam.html" rel="next">
 <link href="./bayesian.html" rel="prev">
-<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-0de45b8b5f35a93596f1d788d60c4c11.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-792aea850e7e5573310f85939a37799b.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-4ae8bba48d879873ce5a6b72ff9b51ba.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-626f3934168f9f9886e6e52fc8b5c96a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -88,7 +90,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -106,7 +108,7 @@ window.Quarto = {
 
 </head>
 
-<body class="nav-sidebar floating">
+<body class="nav-sidebar floating quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -201,7 +203,7 @@ window.Quarto = {
    
   <ul>
   <li><a href="#sufficient-statistics" id="toc-sufficient-statistics" class="nav-link active" data-scroll-target="#sufficient-statistics"><span class="header-section-number">4.1</span> Sufficient Statistics</a></li>
-  <li><a href="#minimal-sufficient-statistic" id="toc-minimal-sufficient-statistic" class="nav-link" data-scroll-target="#minimal-sufficient-statistic"><span class="header-section-number">4.2</span> Minimal Sufficient Statistic</a></li>
+  <li><a href="#minimal-sufficient-statistics" id="toc-minimal-sufficient-statistics" class="nav-link" data-scroll-target="#minimal-sufficient-statistics"><span class="header-section-number">4.2</span> Minimal Sufficient Statistics</a></li>
   </ul>
 </nav>
 </nav>
@@ -234,18 +236,19 @@ window.Quarto = {
 <section id="sufficient-statistics" class="level2" data-number="4.1">
 <h2 data-number="4.1" class="anchored" data-anchor-id="sufficient-statistics"><span class="header-section-number">4.1</span> Sufficient Statistics</h2>
 <div id="def-sufficient-statistic" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 4.1 (Sufficient Statistic)</strong></span> A statistic <span class="math inline">\(T=T(X)\)</span> is sufficient for <span class="math inline">\(\theta\)</span> if one of the following three equivalent conditions holds:</p>
+<p><span class="theorem-title"><strong>Definition 4.1 (Sufficient Statistic)</strong></span> A statistic <span class="math inline">\(T=T(\mathbf{X})\)</span> is sufficient for <span class="math inline">\(\theta\)</span> if one of the following three equivalent conditions holds:</p>
 <ol type="1">
-<li><p><strong>Paralell Log-Likelihood:</strong></p>
-<p>For any pair of data sets <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> such that <span class="math inline">\(T(x)=T(y)\)</span>, the difference in their log-likelihoods (<span class="math inline">\(\ell(\theta;x)=\ln(f(x;\theta)))\)</span> is constant with respect to <span class="math inline">\(\theta\)</span>: <span class="math display">\[
-\ell(\theta; x) - \ell(\theta; y) = c(x, y) \quad \text{for all } \theta
-\]</span> where <span class="math inline">\(c(x,y)\)</span> depends only on <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>, not on <span class="math inline">\(\theta\)</span>.</p></li>
-<li><p><strong>Factorization of likelihood:</strong> The likelihood function of <span class="math inline">\(\theta\)</span> given <span class="math inline">\(x\)</span> can be expressed as: <span class="math display">\[
-L(\theta; x) = h(x)g(t(x);\theta)
-\]</span> where <span class="math inline">\(h(x)\)</span> is irrelevant to <span class="math inline">\(\theta\)</span>.</p></li>
-<li><p><strong>Non-informative Conditional Distribution of <span class="math inline">\(X|T(X)\)</span>:</strong></p>
-<p>The conditional distribution of <span class="math inline">\(X\)</span> given <span class="math inline">\(T(X)=t\)</span>, denoted as <span class="math inline">\(f(x|t(x), \theta)\)</span>, is independent of <span class="math inline">\(\theta\)</span>. <span class="math display">\[
-f(x|t(x), \theta) = f(x|t(x))
+<li><p><strong>Parallel Log-Likelihood</strong></p>
+<p>For any pair of data sets <span class="math inline">\(\mathbf{x}\)</span> and <span class="math inline">\(\mathbf{y}\)</span> such that <span class="math inline">\(T(\mathbf{x})=T(\mathbf{y})\)</span>, the difference in their log-likelihoods (<span class="math inline">\(\ell(\theta;\mathbf{x})=\ln(f(\mathbf{x};\theta)))\)</span> is constant with respect to <span class="math inline">\(\theta\)</span>: <span class="math display">\[
+\ell(\theta; \mathbf{x}) - \ell(\theta; \mathbf{y}) = c(\mathbf{x}, \mathbf{y}) \quad \text{for all } \theta
+\]</span> where <span class="math inline">\(c(\mathbf{x},\mathbf{y})\)</span> depends only on <span class="math inline">\(\mathbf{x}\)</span> and <span class="math inline">\(\mathbf{y}\)</span>, not on <span class="math inline">\(\theta\)</span>.</p></li>
+<li><p><strong>Factorization of Likelihood</strong></p>
+<p>The likelihood function of <span class="math inline">\(\theta\)</span> given <span class="math inline">\(\mathbf{x}\)</span> can be expressed as: <span class="math display">\[
+L(\theta; \mathbf{x}) = h(\mathbf{x})g(T(\mathbf{x});\theta)
+\]</span> where <span class="math inline">\(h(\mathbf{x})\)</span> is irrelevant to <span class="math inline">\(\theta\)</span>.</p></li>
+<li><p><strong>Non-informative Conditional Distribution of <span class="math inline">\(\mathbf{X}|T(\mathbf{X})\)</span></strong></p>
+<p>The conditional distribution of <span class="math inline">\(\mathbf{X}\)</span> given <span class="math inline">\(T(\mathbf{X})=t\)</span>, denoted as <span class="math inline">\(f(\mathbf{x}|t, \theta)\)</span>, is independent of <span class="math inline">\(\theta\)</span>. <span class="math display">\[
+f(\mathbf{x}|T(\mathbf{x})=t, \theta) = f(\mathbf{x}|t)
 \]</span></p></li>
 </ol>
 </div>
@@ -264,7 +267,7 @@ Figure&nbsp;4.1: Visualizing Parallel Log-Likelihoods
 </div>
 </div>
 <div id="thm-paralell-loglik" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 4.1 (Factorization Theorem)</strong></span> The three conditions in the definitions of <a href="umvue.html#def-sufficient-statistic" class="quarto-xref">Definition&nbsp;<span>6.1</span></a> are equivalent.</p>
+<p><span class="theorem-title"><strong>Theorem 4.1 (Factorization Theorem)</strong></span> The three conditions in the definitions of <a href="#def-sufficient-statistic" class="quarto-xref">Definition&nbsp;<span>4.1</span></a> are equivalent.</p>
 </div>
 <details>
 <summary>
@@ -274,129 +277,121 @@ Click to view Complete Proof of Equivalence
 <p><span class="proof-title"><em>Proof</em>. </span><strong>Proof of Equivalence</strong></p>
 <p>We show the equivalence by proving the implications in a cycle or pairs: <span class="math inline">\((2 \Rightarrow 1)\)</span>, <span class="math inline">\((1 \Rightarrow 2)\)</span>, <span class="math inline">\((2 \Rightarrow 3)\)</span>, and <span class="math inline">\((3 \Rightarrow 2)\)</span>.</p>
 <ol type="1">
-<li>Factorization <span class="math inline">\(\Rightarrow\)</span> Log-Likelihood Difference <span class="math inline">\((2 \Rightarrow 1)\)</span></li>
-</ol>
-<p>Assume the <strong>Factorization Theorem</strong> holds: <span class="math inline">\(L(\theta; x) = h(x) g(T(x); \theta)\)</span>. Consider any pair <span class="math inline">\(x, y\)</span> such that <span class="math inline">\(T(x) = T(y)\)</span>. <span class="math display">\[
-\ell(\theta; x) - \ell(\theta; y) = [\ln h(x) + \ln g(T(x); \theta)] - [\ln h(y) + \ln g(T(y); \theta)]
-\]</span> Since <span class="math inline">\(T(x)=T(y)\)</span>, the terms <span class="math inline">\(\ln g(T(x); \theta)\)</span> and <span class="math inline">\(\ln g(T(y); \theta)\)</span> are identical and cancel out. <span class="math display">\[
-\ell(\theta; x) - \ell(\theta; y) = \ln h(x) - \ln h(y)
-\]</span> This difference depends only on <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> (via <span class="math inline">\(h\)</span>), and is independent of <span class="math inline">\(\theta\)</span>. Thus, condition 1 holds.</p>
-<ol start="2" type="1">
-<li>Log-Likelihood Difference <span class="math inline">\(\Rightarrow\)</span> Factorization <span class="math inline">\((1 \Rightarrow 2)\)</span></li>
-</ol>
-<p>Assume Condition 1 holds. For any <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> with <span class="math inline">\(T(x)=T(y)\)</span>, <span class="math inline">\(\ell(\theta; x) - \ell(\theta; y) = c(x, y)\)</span>. Exponentiating, we get <span class="math inline">\(L(\theta; x) = k(x, y) L(\theta; y)\)</span>, where <span class="math inline">\(k\)</span> is independent of <span class="math inline">\(\theta\)</span>.</p>
-<p>For each value <span class="math inline">\(t\)</span> in the range of <span class="math inline">\(T\)</span>, select a fixed representative data point <span class="math inline">\(x_t\)</span> such that <span class="math inline">\(T(x_t) = t\)</span>. For any data point <span class="math inline">\(x\)</span>, let <span class="math inline">\(t = T(x)\)</span>. Using the relation above: <span class="math display">\[
-L(\theta; x) = k(x, x_t) L(\theta; x_t)
-\]</span> Define <span class="math inline">\(h(x) = k(x, x_{T(x)})\)</span> and <span class="math inline">\(g(t; \theta) = L(\theta; x_t)\)</span>. Then: <span class="math display">\[
-L(\theta; x) = h(x) g(T(x); \theta)
-\]</span> This is exactly the Factorization form.</p>
-<ol start="3" type="1">
-<li>Factorization <span class="math inline">\(\Rightarrow\)</span> Conditional Distribution <span class="math inline">\((2 \Rightarrow 3)\)</span></li>
-</ol>
-<p>Assume <span class="math inline">\(f(x; \theta) = h(x)g(T(x); \theta)\)</span>. We derive the conditional distribution <span class="math inline">\(P(X=x | T(X)=t)\)</span>. If <span class="math inline">\(T(x) \neq t\)</span>, the probability is 0 (independent of <span class="math inline">\(\theta\)</span>). If <span class="math inline">\(T(x) = t\)</span>: <span class="math display">\[
-P(X=x | T(X)=t) = \frac{P(X=x, T(X)=t)}{P(T(X)=t)} = \frac{f(x; \theta)}{\sum_{\{y : T(y)=t\}} f(y; \theta)}
+<li><p><strong>Factorization <span class="math inline">\(\Rightarrow\)</span> Log-Likelihood Difference <span class="math inline">\((2 \Rightarrow 1)\)</span></strong></p>
+<p>Assume the <strong>Factorization Theorem</strong> holds: <span class="math inline">\(L(\theta; \mathbf{x}) = h(\mathbf{x}) g(T(\mathbf{x}); \theta)\)</span>. Consider any pair <span class="math inline">\(\mathbf{x}, \mathbf{y}\)</span> such that <span class="math inline">\(T(\mathbf{x}) = T(\mathbf{y})\)</span>. <span class="math display">\[
+\ell(\theta; \mathbf{x}) - \ell(\theta; \mathbf{y}) = [\ln h(\mathbf{x}) + \ln g(T(\mathbf{x}); \theta)] - [\ln h(\mathbf{y}) + \ln g(T(\mathbf{y}); \theta)]
+\]</span> Since <span class="math inline">\(T(\mathbf{x})=T(\mathbf{y})\)</span>, the terms <span class="math inline">\(\ln g(T(\mathbf{x}); \theta)\)</span> and <span class="math inline">\(\ln g(T(\mathbf{y}); \theta)\)</span> are identical and cancel out. <span class="math display">\[
+\ell(\theta; \mathbf{x}) - \ell(\theta; \mathbf{y}) = \ln h(\mathbf{x}) - \ln h(\mathbf{y})
+\]</span> This difference depends only on <span class="math inline">\(\mathbf{x}\)</span> and <span class="math inline">\(\mathbf{y}\)</span> (via <span class="math inline">\(h\)</span>), and is independent of <span class="math inline">\(\theta\)</span>. Thus, condition 1 holds.</p></li>
+<li><p><strong>Log-Likelihood Difference <span class="math inline">\(\Rightarrow\)</span> Factorization <span class="math inline">\((1 \Rightarrow 2)\)</span></strong></p>
+<p>Assume Condition 1 holds. For any <span class="math inline">\(\mathbf{x}\)</span> and <span class="math inline">\(\mathbf{y}\)</span> with <span class="math inline">\(T(\mathbf{x})=T(\mathbf{y})\)</span>, <span class="math inline">\(\ell(\theta; \mathbf{x}) - \ell(\theta; \mathbf{y}) = c(\mathbf{x}, \mathbf{y})\)</span>. Exponentiating, we get <span class="math inline">\(L(\theta; \mathbf{x}) = k(\mathbf{x}, \mathbf{y}) L(\theta; \mathbf{y})\)</span>, where <span class="math inline">\(k\)</span> is independent of <span class="math inline">\(\theta\)</span>.</p>
+<p>For each value <span class="math inline">\(t\)</span> in the range of <span class="math inline">\(T\)</span>, select a fixed representative data point <span class="math inline">\(\mathbf{x}_t\)</span> such that <span class="math inline">\(T(\mathbf{x}_t) = t\)</span>. For any data point <span class="math inline">\(\mathbf{x}\)</span>, let <span class="math inline">\(t = T(\mathbf{x})\)</span>. Using the relation above: <span class="math display">\[
+L(\theta; \mathbf{x}) = k(\mathbf{x}, \mathbf{x}_t) L(\theta; \mathbf{x}_t)
+\]</span> Define <span class="math inline">\(h(\mathbf{x}) = k(\mathbf{x}, \mathbf{x}_{T(\mathbf{x})})\)</span> and <span class="math inline">\(g(t; \theta) = L(\theta; \mathbf{x}_t)\)</span>. Then: <span class="math display">\[
+L(\theta; \mathbf{x}) = h(\mathbf{x}) g(T(\mathbf{x}); \theta)
+\]</span> This is exactly the Factorization form.</p></li>
+<li><p><strong>Factorization <span class="math inline">\(\Rightarrow\)</span> Conditional Distribution <span class="math inline">\((2 \Rightarrow 3)\)</span></strong></p>
+<p>Assume <span class="math inline">\(f(\mathbf{x}; \theta) = h(\mathbf{x})g(T(\mathbf{x}); \theta)\)</span>. We derive the conditional distribution <span class="math inline">\(P(\mathbf{X}=\mathbf{x} | T(\mathbf{X})=t)\)</span>. If <span class="math inline">\(T(\mathbf{x}) \neq t\)</span>, the probability is 0 (independent of <span class="math inline">\(\theta\)</span>). If <span class="math inline">\(T(\mathbf{x}) = t\)</span>: <span class="math display">\[
+P(\mathbf{X}=\mathbf{x} | T(\mathbf{X})=t) = \frac{P(\mathbf{X}=\mathbf{x}, T(\mathbf{X})=t)}{P(T(\mathbf{X})=t)} = \frac{f(\mathbf{x}; \theta)}{\sum_{\{\mathbf{y} : T(\mathbf{y})=t\}} f(\mathbf{y}; \theta)}
 \]</span> Substitute the factorization: <span class="math display">\[
-= \frac{h(x)g(t; \theta)}{\sum_{\{y : T(y)=t\}} h(y)g(t; \theta)} = \frac{h(x)g(t; \theta)}{g(t; \theta) \sum_{\{y : T(y)=t\}} h(y)}
+= \frac{h(\mathbf{x})g(t; \theta)}{\sum_{\{\mathbf{y} : T(\mathbf{y})=t\}} h(\mathbf{y})g(t; \theta)} = \frac{h(\mathbf{x})g(t; \theta)}{g(t; \theta) \sum_{\{\mathbf{y} : T(\mathbf{y})=t\}} h(\mathbf{y})}
 \]</span> The term <span class="math inline">\(g(t; \theta)\)</span> cancels out: <span class="math display">\[
-= \frac{h(x)}{\sum_{\{y : T(y)=t\}} h(y)}
-\]</span> This expression depends only on <span class="math inline">\(x\)</span> and <span class="math inline">\(h(\cdot)\)</span>, and is entirely free of <span class="math inline">\(\theta\)</span>. Thus, Condition 3 holds.</p>
-<ol start="4" type="1">
-<li>Conditional Distribution <span class="math inline">\(\Rightarrow\)</span> Factorization <span class="math inline">\((3 \Rightarrow 2)\)</span></li>
-</ol>
-<p>Assume <span class="math inline">\(f(x | T(x); \theta) = k(x)\)</span>, where <span class="math inline">\(k(x)\)</span> is independent of <span class="math inline">\(\theta\)</span>. We can write the joint distribution as: <span class="math display">\[
-f(x; \theta) = f(x | T(x)=t; \theta) \cdot P(T(X)=t; \theta)
+= \frac{h(\mathbf{x})}{\sum_{\{\mathbf{y} : T(\mathbf{y})=t\}} h(\mathbf{y})}
+\]</span> This expression depends only on <span class="math inline">\(\mathbf{x}\)</span> and <span class="math inline">\(h(\cdot)\)</span>, and is entirely free of <span class="math inline">\(\theta\)</span>. Thus, Condition 3 holds.</p></li>
+<li><p><strong>Conditional Distribution <span class="math inline">\(\Rightarrow\)</span> Factorization <span class="math inline">\((3 \Rightarrow 2)\)</span></strong></p>
+<p>Assume <span class="math inline">\(f(\mathbf{x} | T(\mathbf{x}); \theta) = k(\mathbf{x})\)</span>, where <span class="math inline">\(k(\mathbf{x})\)</span> is independent of <span class="math inline">\(\theta\)</span>. We can write the joint distribution as: <span class="math display">\[
+f(\mathbf{x}; \theta) = f(\mathbf{x} | T(\mathbf{x})=t; \theta) \cdot P(T(\mathbf{X})=t; \theta)
 \]</span> Substitute the assumption: <span class="math display">\[
-f(x; \theta) = k(x) \cdot P(T(X)=T(x); \theta)
-\]</span> Let <span class="math inline">\(h(x) = k(x)\)</span> and <span class="math inline">\(g(t; \theta) = P(T(X)=t; \theta)\)</span>. Then: <span class="math display">\[
-f(x; \theta) = h(x) g(T(x); \theta)
-\]</span> This recovers the Factorization form.</p>
+f(\mathbf{x}; \theta) = k(\mathbf{x}) \cdot P(T(\mathbf{X})=T(\mathbf{x}); \theta)
+\]</span> Let <span class="math inline">\(h(\mathbf{x}) = k(\mathbf{x})\)</span> and <span class="math inline">\(g(t; \theta) = P(T(\mathbf{X})=t; \theta)\)</span>. Then: <span class="math display">\[
+f(\mathbf{x}; \theta) = h(\mathbf{x}) g(T(\mathbf{x}); \theta)
+\]</span> This recovers the Factorization form.</p></li>
+</ol>
 </div>
 </details>
 <div id="exm-uniform-sufficiency" class="theorem example">
-<p><span class="theorem-title"><strong>Example 4.1 (Uniform Distribution <span class="math inline">\(U(\theta-1, \theta+1)\)</span>)</strong></span> Consider a random sample <span class="math inline">\(X_1, \dots, X_n\)</span> from a Uniform distribution with range <span class="math inline">\((\theta-1, \theta+1)\)</span>.</p>
-<p>The density for a single observation is:</p>
-<p><span class="math display">\[
+<p><span class="theorem-title"><strong>Example 4.1 (Uniform Distribution <span class="math inline">\(U(\theta-1, \theta+1)\)</span>)</strong></span> Consider a random sample <span class="math inline">\(\mathbf{X} = (X_1, \dots, X_n)\)</span> from a Uniform distribution with range <span class="math inline">\((\theta-1, \theta+1)\)</span>.</p>
+<p>The density for a single observation is: <span class="math display">\[
 f(x_i|\theta) = \frac{1}{(\theta+1) - (\theta-1)} I(\theta-1 &lt; x_i &lt; \theta+1) = \frac{1}{2} I(\theta-1 &lt; x_i &lt; \theta+1)
 \]</span></p>
-<p>The joint PDF (likelihood) is:</p>
-<p><span class="math display">\[
-L(\theta; x) = \prod_{i=1}^n \frac{1}{2} I(\theta-1 &lt; x_i &lt; \theta+1)
+<p>The joint PDF (likelihood) for the vector <span class="math inline">\(\mathbf{x}\)</span> is: <span class="math display">\[
+L(\theta; \mathbf{x}) = \prod_{i=1}^n \frac{1}{2} I(\theta-1 &lt; x_i &lt; \theta+1)
 \]</span></p>
 <p><span class="math display">\[
-L(\theta; x) = 2^{-n} \cdot I( \min(x_i) &gt; \theta-1 ) \cdot I( \max(x_i) &lt; \theta+1 )
+L(\theta; \mathbf{x}) = 2^{-n} \cdot I( \min(x_i) &gt; \theta-1 ) \cdot I( \max(x_i) &lt; \theta+1 )
 \]</span></p>
-<p>Using order statistics notation where <span class="math inline">\(X_{(1)} = \min(X_i)\)</span> and <span class="math inline">\(X_{(n)} = \max(X_i)\)</span>:</p>
-<p><span class="math display">\[
-L(\theta; x) = 2^{-n} \cdot I( \theta &lt; X_{(1)} + 1 ) \cdot I( \theta &gt; X_{(n)} - 1 )
+<p>Using order statistics notation where <span class="math inline">\(X_{(1)} = \min(X_i)\)</span> and <span class="math inline">\(X_{(n)} = \max(X_i)\)</span>: <span class="math display">\[
+L(\theta; \mathbf{x}) = 2^{-n} \cdot I( \theta &lt; X_{(1)} + 1 ) \cdot I( \theta &gt; X_{(n)} - 1 )
 \]</span></p>
 <p><span class="math display">\[
-L(\theta; x) = 2^{-n} \cdot I( X_{(n)} - 1 &lt; \theta &lt; X_{(1)} + 1 )
+L(\theta; \mathbf{x}) = 2^{-n} \cdot I( X_{(n)} - 1 &lt; \theta &lt; X_{(1)} + 1 )
 \]</span></p>
 <p>By the <strong>Factorization Theorem</strong>, we can define:</p>
 <ul>
-<li><span class="math inline">\(h(x) = 2^{-n}\)</span> (or simply 1, grouping constants into <span class="math inline">\(g\)</span>)
-<ul>
-<li><span class="math inline">\(g(T(x), \theta) = I( X_{(n)} - 1 &lt; \theta &lt; X_{(1)} + 1 )\)</span></li>
-</ul></li>
+<li><span class="math inline">\(h(\mathbf{x}) = 2^{-n}\)</span> (or simply 1, grouping constants into <span class="math inline">\(g\)</span>)</li>
+<li><span class="math inline">\(g(T(\mathbf{x}), \theta) = I( X_{(n)} - 1 &lt; \theta &lt; X_{(1)} + 1 )\)</span></li>
 </ul>
 <p>Thus, the sufficient statistic is the pair of order statistics: <span class="math display">\[
-T(X) = (X_{(1)}, X_{(n)})
+T(\mathbf{X}) = (X_{(1)}, X_{(n)})
 \]</span></p>
 </div>
 <div id="exm-gamma-sufficiency" class="theorem example">
-<p><span class="theorem-title"><strong>Example 4.2 (Gamma Distribution)</strong></span> Let <span class="math inline">\(X_1, \dots, X_n\)</span> be i.i.d. <span class="math inline">\(\Gamma(\alpha, \beta)\)</span>. The pdf is:</p>
+<p><span class="theorem-title"><strong>Example 4.2 (Gamma Distribution)</strong></span> Let <span class="math inline">\(\mathbf{X} = (X_1, \dots, X_n)\)</span> be i.i.d. <span class="math inline">\(\Gamma(\alpha, \beta)\)</span>. The pdf is:</p>
 <p><span class="math display">\[
-f(x|\alpha, \beta) = \frac{1}{\Gamma(\alpha)\beta^\alpha} x^{\alpha-1} e^{-x/\beta}, \quad x &gt; 0
+f(x_i|\alpha, \beta) = \frac{1}{\Gamma(\alpha)\beta^\alpha} x_i^{\alpha-1} e^{-x_i/\beta}, \quad x_i &gt; 0
 \]</span></p>
 <p>The joint likelihood is:</p>
 <p><span class="math display">\[
-L(\alpha, \beta; x) = \left( \frac{1}{\Gamma(\alpha)\beta^\alpha} \right)^n \left( \prod_{i=1}^n x_i \right)^{\alpha-1} \exp\left( -\frac{1}{\beta} \sum_{i=1}^n x_i \right)
+L(\alpha, \beta; \mathbf{x}) = \left( \frac{1}{\Gamma(\alpha)\beta^\alpha} \right)^n \left( \prod_{i=1}^n x_i \right)^{\alpha-1} \exp\left( -\frac{1}{\beta} \sum_{i=1}^n x_i \right)
 \]</span></p>
 <p>By the Factorization Theorem, we can identify the parts that depend on the data and the parameters: <span class="math display">\[
-g(T(x), \theta) = \left( \prod_{i=1}^n x_i \right)^{\alpha} \exp\left( -\frac{1}{\beta} \sum_{i=1}^n x_i \right)
+g(T(\mathbf{x}), \mathbf{\theta}) = \left( \prod_{i=1}^n x_i \right)^{\alpha} \exp\left( -\frac{1}{\beta} \sum_{i=1}^n x_i \right)
 \]</span></p>
 <p>Thus, the sufficient statistics are: <span class="math display">\[
-T(X) = \left( \prod_{i=1}^n X_i, \sum_{i=1}^n X_i \right)
+T(\mathbf{X}) = \left( \prod_{i=1}^n X_i, \sum_{i=1}^n X_i \right)
 \]</span></p>
 </div>
 <div id="exm-exp-family-sufficiency" class="theorem example">
-<p><span class="theorem-title"><strong>Example 4.3 (General Exponential Family)</strong></span> Many common distributions (Normal, Poisson, Gamma, Binomial) belong to the Exponential Family. The lecture notes (Page 7) note that if a density can be written in the form:</p>
+<p><span class="theorem-title"><strong>Example 4.3 (Sufficient Statistic of Exponential Family)</strong></span> Many common distributions (Normal, Poisson, Gamma, Binomial) belong to the <strong>Exponential Family</strong>, which has a density in the form:</p>
 <p><span class="math display">\[
-f(x|\theta) = h(x) c(\theta) \exp\left( \sum_{j=1}^k w_j(\theta) t_j(x) \right)
+f(\mathbf{x}|\theta) = h(\mathbf{x}) c(\theta) \exp\left( \sum_{j=1}^k \pi_j(\theta) t_j(\mathbf{x}) \right)
 \]</span></p>
 <p>Then, by the Factorization Theorem, the statistic:</p>
 <p><span class="math display">\[
-T(X) = \left( \sum_{i=1}^n t_1(x_i), \dots, \sum_{i=1}^n t_k(x_i) \right)
+T(\mathbf{X}) = \left( \sum_{i=1}^n t_1(x_i), \dots, \sum_{i=1}^n t_k(x_i) \right)
 \]</span></p>
 <p>is a sufficient statistic for <span class="math inline">\(\theta\)</span>.</p>
 </div>
 <div id="exm-bernoulli-expfamily" class="theorem example">
-<p><span class="theorem-title"><strong>Example 4.4 (Bernoulli as Exponential Family)</strong></span> Let <span class="math inline">\(X_1, \dots, X_n \overset{i.i.d.}{\sim} \text{Bernoulli}(p)\)</span>. To find the sufficient statistic, we write the joint density in the canonical <strong>Exponential Family</strong> form: <span class="math display">\[
-f(x; \theta) = h(x) \exp\left( \eta(\theta) T(x) - A(\theta) \right)
+<p><span class="theorem-title"><strong>Example 4.4 (Bernoulli as Exponential Family)</strong></span> Let <span class="math inline">\(X_1, \dots, X_n \overset{i.i.d.}{\sim} \text{Bernoulli}(p)\)</span>. To find the sufficient statistic, we write the <strong>Joint PDF</strong> of the sample in the canonical Exponential Family form:</p>
+<p><span class="math display">\[
+f(\mathbf{x}|\theta) = h(\mathbf{x}) c(\theta) \exp\left( \sum_{j=1}^k \pi_j(\theta) T_j(\mathbf{x}) \right)
 \]</span></p>
 <ol type="1">
-<li><p>Write the Joint PDF: <span class="math display">\[
-f(x|p) = \prod_{i=1}^n p^{x_i} (1-p)^{1-x_i}
+<li><p><strong>Write the Joint PDF</strong></p>
+<p><span class="math display">\[
+f(\mathbf{x}|p) = \prod_{i=1}^n p^{x_i} (1-p)^{1-x_i}
 \]</span></p></li>
-<li><p>Convert to Exponential Form: <span class="math display">\[
+<li><p><strong>Convert to Exponential Form</strong></p>
+<p><span class="math display">\[
 \begin{aligned}
-f(x|p) &amp;= \exp\left( \ln \left( \prod_{i=1}^n p^{x_i} (1-p)^{1-x_i} \right) \right) \\
-&amp;= \exp\left( \sum_{i=1}^n \left[ x_i \ln p + (1-x_i) \ln(1-p) \right] \right) \\
-&amp;= \exp\left( (\ln p) \sum x_i + \ln(1-p) \left( n - \sum x_i \right) \right)
+f(\mathbf{x}|p) &amp;= \exp\left( \sum_{i=1}^n \left[ x_i \ln p + (1-x_i) \ln(1-p) \right] \right) \\
+&amp;= \exp\left( \sum_{i=1}^n \left[ x_i \ln p + \ln(1-p) - x_i \ln(1-p) \right] \right) \\
+&amp;= \exp\left( \sum_{i=1}^n \ln(1-p) + \sum_{i=1}^n x_i \left[ \ln p - \ln(1-p) \right] \right)
 \end{aligned}
 \]</span></p></li>
-<li><p>Group Terms by <span class="math inline">\(x\)</span> and <span class="math inline">\(p\)</span>: <span class="math display">\[
-\begin{aligned}
-f(x|p) &amp;= \exp\left( \underbrace{\left( \ln p - \ln(1-p) \right)}_{\eta(p)} \underbrace{\left(\sum_{i=1}^n x_i\right)}_{T(x)} + \underbrace{n \ln(1-p)}_{-A(p)} \right)
-\end{aligned}
+<li><p><strong>Factor into Components</strong> We separate the terms to match the definition:</p>
+<p><span class="math display">\[
+f(\mathbf{x}|p) = \underbrace{1}_{h(\mathbf{x})} \cdot \underbrace{(1-p)^n}_{c(p)} \cdot \exp\left( \underbrace{\ln\left(\frac{p}{1-p}\right)}_{\pi_1(p)} \underbrace{\sum_{i=1}^n x_i}_{T_1(\mathbf{x})} \right)
 \]</span></p></li>
 </ol>
-<p><strong>Conclusion:</strong> By the structure of the exponential family, the term multiplying the natural parameter <span class="math inline">\(\eta(p) = \ln\left(\frac{p}{1-p}\right)\)</span> is the sufficient statistic: <span class="math display">\[
-T(X) = \sum_{i=1}^n X_i
+<p><strong>Conclusion:</strong> By inspection of the exponent, the statistic coupled with the parameter <span class="math inline">\(\pi_1(p)\)</span> is the sufficient statistic:</p>
+<p><span class="math display">\[
+T(\mathbf{X}) = \sum_{i=1}^n X_i
 \]</span></p>
 </div>
 <div id="rem-sufficient-likelihood" class="proof remark">
-<p><span class="proof-title"><em>Remark 4.1</em> (Sufficient Statistic as Parameter of Likelihood). </span>There is a dual relationship between the sufficient statistic and the parameter <span class="math inline">\(\theta\)</span>. Conventionally, we view <span class="math inline">\(f(x|\theta)\)</span> as a function of <span class="math inline">\(x\)</span> parameterized by <span class="math inline">\(\theta\)</span>.</p>
+<p><span class="proof-title"><em>Remark 4.1</em> (Sufficient Statistic is the sufficient “Parameter” of Likelihood). </span>There is a dual relationship between the sufficient statistic and the parameter <span class="math inline">\(\theta\)</span>. Conventionally, we view <span class="math inline">\(f(x|\theta)\)</span> as a function of <span class="math inline">\(x\)</span> parameterized by <span class="math inline">\(\theta\)</span>.</p>
 <p>However, in Bayesian inference or likelihood theory, we often view the likelihood <span class="math inline">\(L(\theta; x)\)</span> as a function of <span class="math inline">\(\theta\)</span> determined by the observed data <span class="math inline">\(x\)</span>. The Factorization Theorem implies:</p>
 <p><span class="math display">\[
 L(\theta; \mathbf{x}) \propto g(T(\mathbf{x})|\theta)
@@ -409,8 +404,8 @@ L(\theta; \mathbf{x}) \propto g(T(\mathbf{x})|\theta)
 <p>Here, <span class="math inline">\(T_i(\mathbf{x})\)</span> serves as the coefficient (or parameter) for the function <span class="math inline">\(\eta_i(\theta)\)</span>.</p>
 </div>
 </section>
-<section id="minimal-sufficient-statistic" class="level2" data-number="4.2">
-<h2 data-number="4.2" class="anchored" data-anchor-id="minimal-sufficient-statistic"><span class="header-section-number">4.2</span> Minimal Sufficient Statistic</h2>
+<section id="minimal-sufficient-statistics" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="minimal-sufficient-statistics"><span class="header-section-number">4.2</span> Minimal Sufficient Statistics</h2>
 <div id="def-mss" class="theorem definition">
 <p><span class="theorem-title"><strong>Definition 4.2 (Minimal Sufficient Statistic (MSS))</strong></span> A statistic <span class="math inline">\(T(X)\)</span> is a <strong>Minimal Sufficient Statistic</strong> if:</p>
 <ol type="1">
@@ -465,17 +460,22 @@ S(x) = \{z \mid \ell(\theta; z) = \ell(\theta; x) + c_z \text{ for all } \theta 
 <p><span class="theorem-title"><strong>Example 4.5 (Checking Minimality via Log-Likelihood Condition)</strong></span> Let <span class="math inline">\(X_1, X_2, X_3 \overset{i.i.d.}{\sim} \text{Bernoulli}(p)\)</span>. We determine the MSS by checking the implication from the <strong>MSS Condition Theorem</strong>: <span class="math display">\[
 \text{Parallel Log-Likelihoods} \implies T(x) = T(y)
 \]</span></p>
-<p><strong>Step 1: Establishing the MSS</strong> First, we find the condition under which two log-likelihoods are parallel. <span class="math display">\[
+<p><strong>Step 1: Establishing the MSS</strong></p>
+<p>First, we find the condition under which two log-likelihoods are parallel. <span class="math display">\[
 \ell(p; x) = (\sum x_i) \ln p + (n - \sum x_i) \ln(1-p)
 \]</span> The difference <span class="math inline">\(\ell(p; x) - \ell(p; y)\)</span> depends on <span class="math inline">\(p\)</span> only through the term <span class="math inline">\((\sum x_i - \sum y_i) \ln \frac{p}{1-p}\)</span>. For this difference to be constant (independent of <span class="math inline">\(p\)</span>), the coefficient must be zero: <span class="math display">\[
 \text{Parallel Log-Likelihoods} \iff \sum x_i = \sum y_i
 \]</span> The statistic that corresponds exactly to this condition is <span class="math inline">\(T(X) = \sum X_i\)</span>. Since <span class="math inline">\(\sum x_i = \sum y_i\)</span> trivially implies <span class="math inline">\(T(x) = T(y)\)</span>, <span class="math inline">\(T(X)\)</span> is the <strong>Minimal Sufficient Statistic</strong>.</p>
-<p><strong>Step 2: Why <span class="math inline">\(S(X) = (X_1, \sum_{i=2}^3 X_i)\)</span> is NOT Minimal</strong> Now consider the “richer” statistic <span class="math inline">\(S(X)\)</span>. If <span class="math inline">\(S\)</span> were minimal, the parallel condition must imply <span class="math inline">\(S(x) = S(y)\)</span>. We check: <span class="math display">\[
+<p><strong>Step 2: Why <span class="math inline">\(S(X) = (X_1, \sum_{i=2}^3 X_i)\)</span> is NOT Minimal</strong></p>
+<p>Now consider the “richer” statistic <span class="math inline">\(S(X)\)</span>. If <span class="math inline">\(S\)</span> were minimal, the parallel condition must imply <span class="math inline">\(S(x) = S(y)\)</span>. We check: <span class="math display">\[
 \sum x_i = \sum y_i \stackrel{?}{\implies} (x_1, \sum_{i=2}^3 x_i) = (y_1, \sum_{i=2}^3 y_i)
-\]</span> <strong>Counter-Example:</strong> Let <span class="math inline">\(x = (1, 0, 1)\)</span> and <span class="math inline">\(y = (0, 1, 1)\)</span>.</p>
+\]</span> <strong>Counter-Example:</strong></p>
+<p>Let <span class="math inline">\(x = (1, 0, 1)\)</span> and <span class="math inline">\(y = (0, 1, 1)\)</span>.</p>
 <ol type="1">
-<li><p><strong>Check Parallel Condition:</strong> <span class="math inline">\(\sum x_i = 2\)</span> and <span class="math inline">\(\sum y_i = 2\)</span>. The sums are equal, so the log-likelihoods are parallel.</p></li>
-<li><p><strong>Check Statistic Equality:</strong> <span class="math display">\[S(x) = (1, 1)\]</span> <span class="math display">\[S(y) = (0, 2)\]</span> <span class="math display">\[S(x) \neq S(y)\]</span></p></li>
+<li><p><strong>Check Parallel Condition:</strong></p>
+<p><span class="math inline">\(\sum x_i = 2\)</span> and <span class="math inline">\(\sum y_i = 2\)</span>. The sums are equal, so the log-likelihoods are parallel.</p></li>
+<li><p><strong>Check Statistic Equality:</strong></p>
+<p><span class="math display">\[S(x) = (1, 1)\]</span> <span class="math display">\[S(y) = (0, 2)\]</span> <span class="math display">\[S(x) \neq S(y)\]</span></p></li>
 </ol>
 <p><strong>Conclusion:</strong> The parallel condition holds, but <span class="math inline">\(S(x) \neq S(y)\)</span>. The implication fails. This proves that <span class="math inline">\(S(X)\)</span> is <strong>not</strong> minimal—it retains “extra” information (the position of the first success) that is not relevant to the likelihood shape.</p>
 </div>
@@ -485,236 +485,243 @@ S(x) = \{z \mid \ell(\theta; z) = \ell(\theta; x) + c_z \text{ for all } \theta 
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
-window.document.addEventListener("DOMContentLoaded", function (event) {
-  const toggleBodyColorMode = (bsSheetEl) => {
-    const mode = bsSheetEl.getAttribute("data-mode");
-    const bodyEl = window.document.querySelector("body");
-    if (mode === "dark") {
-      bodyEl.classList.add("quarto-dark");
-      bodyEl.classList.remove("quarto-light");
-    } else {
-      bodyEl.classList.add("quarto-light");
-      bodyEl.classList.remove("quarto-dark");
-    }
-  }
-  const toggleBodyColorPrimary = () => {
-    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
-    if (bsSheetEl) {
-      toggleBodyColorMode(bsSheetEl);
-    }
-  }
-  toggleBodyColorPrimary();  
-  const icon = "";
-  const anchorJS = new window.AnchorJS();
-  anchorJS.options = {
-    placement: 'right',
-    icon: icon
-  };
-  anchorJS.add('.anchored');
-  const isCodeAnnotation = (el) => {
-    for (const clz of el.classList) {
-      if (clz.startsWith('code-annotation-')) {                     
-        return true;
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
       }
+      return false;
     }
-    return false;
-  }
-  const onCopySuccess = function(e) {
-    // button target
-    const button = e.trigger;
-    // don't keep focus
-    button.blur();
-    // flash "checked"
-    button.classList.add('code-copy-button-checked');
-    var currentTitle = button.getAttribute("title");
-    button.setAttribute("title", "Copied!");
-    let tooltip;
-    if (window.bootstrap) {
-      button.setAttribute("data-bs-toggle", "tooltip");
-      button.setAttribute("data-bs-placement", "left");
-      button.setAttribute("data-bs-title", "Copied!");
-      tooltip = new bootstrap.Tooltip(button, 
-        { trigger: "manual", 
-          customClass: "code-copy-button-tooltip",
-          offset: [0, -8]});
-      tooltip.show();    
-    }
-    setTimeout(function() {
-      if (tooltip) {
-        tooltip.hide();
-        button.removeAttribute("data-bs-title");
-        button.removeAttribute("data-bs-toggle");
-        button.removeAttribute("data-bs-placement");
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
       }
-      button.setAttribute("title", currentTitle);
-      button.classList.remove('code-copy-button-checked');
-    }, 1000);
-    // clear code selection
-    e.clearSelection();
-  }
-  const getTextToCopy = function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
       for (const childEl of codeEl.children) {
         if (isCodeAnnotation(childEl)) {
           childEl.remove();
         }
       }
       return codeEl.innerText;
-  }
-  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-    text: getTextToCopy
-  });
-  clipboard.on('success', onCopySuccess);
-  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-      text: getTextToCopy,
-      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
     });
-    clipboardModal.on('success', onCopySuccess);
-  }
-    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-    var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp('/' + window.location.host + '/');
-    var isInternal = (href) => {
-        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
     }
-    // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-    for (var i=0; i<links.length; i++) {
-      const link = links[i];
-      if (!isInternal(link.href)) {
-        // undo the damage that might have been done by quarto-nav.js in the case of
-        // links that we want to consider external
-        if (link.dataset.originalHref !== undefined) {
-          link.href = link.dataset.originalHref;
-        }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
-    }
-  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-    const config = {
-      allowHTML: true,
-      maxWidth: 500,
-      delay: 100,
-      arrow: false,
-      appendTo: function(el) {
-          return el.parentElement;
-      },
-      interactive: true,
-      interactiveBorder: 10,
-      theme: 'quarto',
-      placement: 'bottom-start',
-    };
-    if (contentFn) {
-      config.content = contentFn;
-    }
-    if (onTriggerFn) {
-      config.onTrigger = onTriggerFn;
-    }
-    if (onUntriggerFn) {
-      config.onUntrigger = onUntriggerFn;
-    }
-    window.tippy(el, config); 
-  }
-  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-  for (var i=0; i<noterefs.length; i++) {
-    const ref = noterefs[i];
-    tippyHover(ref, function() {
-      // use id or data attribute instead here
-      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-      try { href = new URL(href).hash; } catch {}
-      const id = href.replace(/^#\/?/, "");
-      const note = window.document.getElementById(id);
-      if (note) {
-        return note.innerHTML;
-      } else {
-        return "";
-      }
-    });
-  }
-  const xrefs = window.document.querySelectorAll('a.quarto-xref');
-  const processXRef = (id, note) => {
-    // Strip column container classes
-    const stripColumnClz = (el) => {
-      el.classList.remove("page-full", "page-columns");
-      if (el.children) {
-        for (const child of el.children) {
-          stripColumnClz(child);
-        }
-      }
-    }
-    stripColumnClz(note)
-    if (id === null || id.startsWith('sec-')) {
-      // Special case sections, only their first couple elements
-      const container = document.createElement("div");
-      if (note.children && note.children.length > 2) {
-        container.appendChild(note.children[0].cloneNode(true));
-        for (let i = 1; i < note.children.length; i++) {
-          const child = note.children[i];
-          if (child.tagName === "P" && child.innerText === "") {
-            continue;
-          } else {
-            container.appendChild(child.cloneNode(true));
-            break;
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
           }
         }
-        if (window.Quarto?.typesetMath) {
-          window.Quarto.typesetMath(container);
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
         }
-        return container.innerHTML
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
       } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
         if (window.Quarto?.typesetMath) {
           window.Quarto.typesetMath(note);
         }
-        return note.innerHTML;
-      }
-    } else {
-      // Remove any anchor links if they are present
-      const anchorLink = note.querySelector('a.anchorjs-link');
-      if (anchorLink) {
-        anchorLink.remove();
-      }
-      if (window.Quarto?.typesetMath) {
-        window.Quarto.typesetMath(note);
-      }
-      if (note.classList.contains("callout")) {
-        return note.outerHTML;
-      } else {
-        return note.innerHTML;
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
       }
     }
-  }
-  for (var i=0; i<xrefs.length; i++) {
-    const xref = xrefs[i];
-    tippyHover(xref, undefined, function(instance) {
-      instance.disable();
-      let url = xref.getAttribute('href');
-      let hash = undefined; 
-      if (url.startsWith('#')) {
-        hash = url;
-      } else {
-        try { hash = new URL(url).hash; } catch {}
-      }
-      if (hash) {
-        const id = hash.replace(/^#\/?/, "");
-        const note = window.document.getElementById(id);
-        if (note !== null) {
-          try {
-            const html = processXRef(id, note.cloneNode(true));
-            instance.setContent(html);
-          } finally {
-            instance.enable();
-            instance.show();
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
           }
         } else {
-          // See if we can fetch this
-          fetch(url.split('#')[0])
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
           .then(res => res.text())
           .then(html => {
             const parser = new DOMParser();
             const htmlDoc = parser.parseFromString(html, "text/html");
-            const note = htmlDoc.getElementById(id);
+            const note = htmlDoc.querySelector('main.content');
             if (note !== null) {
-              const html = processXRef(id, note);
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
               instance.setContent(html);
             } 
           }).finally(() => {
@@ -722,185 +729,161 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             instance.show();
           });
         }
-      } else {
-        // See if we can fetch a full url (with no hash to target)
-        // This is a special case and we should probably do some content thinning / targeting
-        fetch(url)
-        .then(res => res.text())
-        .then(html => {
-          const parser = new DOMParser();
-          const htmlDoc = parser.parseFromString(html, "text/html");
-          const note = htmlDoc.querySelector('main.content');
-          if (note !== null) {
-            // This should only happen for chapter cross references
-            // (since there is no id in the URL)
-            // remove the first header
-            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
-              note.children[0].remove();
-            }
-            const html = processXRef(null, note);
-            instance.setContent(html);
-          } 
-        }).finally(() => {
-          instance.enable();
-          instance.show();
-        });
-      }
-    }, function(instance) {
-    });
-  }
-      let selectedAnnoteEl;
-      const selectorForAnnotation = ( cell, annotation) => {
-        let cellAttr = 'data-code-cell="' + cell + '"';
-        let lineAttr = 'data-code-annotation="' +  annotation + '"';
-        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
-        return selector;
-      }
-      const selectCodeLines = (annoteEl) => {
-        const doc = window.document;
-        const targetCell = annoteEl.getAttribute("data-target-cell");
-        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
-        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
-        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
-        const lineIds = lines.map((line) => {
-          return targetCell + "-" + line;
-        })
-        let top = null;
-        let height = null;
-        let parent = null;
-        if (lineIds.length > 0) {
-            //compute the position of the single el (top and bottom and make a div)
-            const el = window.document.getElementById(lineIds[0]);
-            top = el.offsetTop;
-            height = el.offsetHeight;
-            parent = el.parentElement.parentElement;
-          if (lineIds.length > 1) {
-            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-            height = bottom - top;
-          }
-          if (top !== null && height !== null && parent !== null) {
-            // cook up a div (if necessary) and position it 
-            let div = window.document.getElementById("code-annotation-line-highlight");
-            if (div === null) {
-              div = window.document.createElement("div");
-              div.setAttribute("id", "code-annotation-line-highlight");
-              div.style.position = 'absolute';
-              parent.appendChild(div);
-            }
-            div.style.top = top - 2 + "px";
-            div.style.height = height + 4 + "px";
-            div.style.left = 0;
-            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-            if (gutterDiv === null) {
-              gutterDiv = window.document.createElement("div");
-              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-              gutterDiv.style.position = 'absolute';
-              const codeCell = window.document.getElementById(targetCell);
-              const gutter = codeCell.querySelector('.code-annotation-gutter');
-              gutter.appendChild(gutterDiv);
-            }
-            gutterDiv.style.top = top - 2 + "px";
-            gutterDiv.style.height = height + 4 + "px";
-          }
-          selectedAnnoteEl = annoteEl;
-        }
-      };
-      const unselectCodeLines = () => {
-        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
-        elementsIds.forEach((elId) => {
-          const div = window.document.getElementById(elId);
-          if (div) {
-            div.remove();
-          }
-        });
-        selectedAnnoteEl = undefined;
-      };
-        // Handle positioning of the toggle
-    window.addEventListener(
-      "resize",
-      throttle(() => {
-        elRect = undefined;
-        if (selectedAnnoteEl) {
-          selectCodeLines(selectedAnnoteEl);
-        }
-      }, 10)
-    );
-    function throttle(fn, ms) {
-    let throttle = false;
-    let timer;
-      return (...args) => {
-        if(!throttle) { // first call gets through
-            fn.apply(this, args);
-            throttle = true;
-        } else { // all the others get throttled
-            if(timer) clearTimeout(timer); // cancel #2
-            timer = setTimeout(() => {
-              fn.apply(this, args);
-              timer = throttle = false;
-            }, ms);
-        }
-      };
-    }
-      // Attach click handler to the DT
-      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
-      for (const annoteDlNode of annoteDls) {
-        annoteDlNode.addEventListener('click', (event) => {
-          const clickedEl = event.target;
-          if (clickedEl !== selectedAnnoteEl) {
-            unselectCodeLines();
-            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
-            if (activeEl) {
-              activeEl.classList.remove('code-annotation-active');
-            }
-            selectCodeLines(clickedEl);
-            clickedEl.classList.add('code-annotation-active');
-          } else {
-            // Unselect the line
-            unselectCodeLines();
-            clickedEl.classList.remove('code-annotation-active');
-          }
-        });
-      }
-  const findCites = (el) => {
-    const parentEl = el.parentElement;
-    if (parentEl) {
-      const cites = parentEl.dataset.cites;
-      if (cites) {
-        return {
-          el,
-          cites: cites.split(' ')
-        };
-      } else {
-        return findCites(el.parentElement)
-      }
-    } else {
-      return undefined;
-    }
-  };
-  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-  for (var i=0; i<bibliorefs.length; i++) {
-    const ref = bibliorefs[i];
-    const citeInfo = findCites(ref);
-    if (citeInfo) {
-      tippyHover(citeInfo.el, function() {
-        var popup = window.document.createElement('div');
-        citeInfo.cites.forEach(function(cite) {
-          var citeDiv = window.document.createElement('div');
-          citeDiv.classList.add('hanging-indent');
-          citeDiv.classList.add('csl-entry');
-          var biblioDiv = window.document.getElementById('ref-' + cite);
-          if (biblioDiv) {
-            citeDiv.innerHTML = biblioDiv.innerHTML;
-          }
-          popup.appendChild(citeDiv);
-        });
-        return popup.innerHTML;
+      }, function(instance) {
       });
     }
-  }
-});
-</script>
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
 <nav class="page-navigation column-page-right">
   <div class="nav-page nav-page-previous">
       <a href="./bayesian.html" class="pagination-link" aria-label="Bayesian Inference">

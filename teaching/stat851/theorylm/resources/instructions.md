@@ -53,8 +53,6 @@
    ```
 
 
-* In making plots with R, if the label/annotation/text contain math equation or symbol, always use latex2exp package with TeX wrapper for text with math symbols
-  
 **Specific instructions for making assignments:**
 
 * Solution is put in solution division in this format:
