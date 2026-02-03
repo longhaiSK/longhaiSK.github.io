@@ -1,122 +1,443 @@
-# Uniformly Minimum Variance Estimators
+---
+title: "Uniformly Minimum Variance Estimators"
+engine: knitr
+format: 
+  html: default
+  pdf: default
+---
+
+
 
 ## Sufficiency and Completeness
 
-[cite_start]In the context of statistical inference, we consider the likelihood function $L(\theta; x) = f(x, \theta)$, where $\theta$ is the variable and $x$ is fixed[cite: 1, 6, 7, 8].
+### Sufficient Statistics
 
-::: {#exm-normal-likelihood}
-### Normal Distribution Likelihood
-Suppose $X_{1}, \dots, X_{n} | \mu, \sigma^{2} \sim N(\mu, \sigma^{2})$. [cite_start]The data is represented as $x = (x_1, \dots, x_n)$ and the parameter vector is $\theta = (\mu, \sigma^{2})$[cite: 9, 10]. The likelihood function is given by:
-
-$$ 
-L(\theta; x) = f(x | \theta) = (2\pi)^{-\frac{n}{2}} (\sigma^{2})^{-\frac{n}{2}} \exp\left\{ -\frac{1}{2\sigma^{2}} \sum (x_i - \mu)^2 \right\} 
-$$
-
-[cite_start]This can be rewritten to show it is determined by $\bar{x}$ and $s^2$[cite: 11, 12, 13, 14, 15].
-:::
 
 ::: {#def-sufficient-statistic}
 ### Sufficient Statistic
-[cite_start]A statistic $T = T(x)$ is sufficient for $\theta$ if one of the following conditions is met[cite: 28, 29, 30]:
+A statistic $T=T(X)$ is sufficient for $\theta$ if one of the following conditions holds:
 
-* Factorization Criterion:
-  [cite_start]The joint density can be factored as $f(x | \theta) = h(x) g(T(x), \theta)$, where $h(x)$ is independent of $\theta$[cite: 31, 33, 34].
+1.  **Factorization Theorem:**
+    $$
+    f(x;\theta) = h(x) g(t(x);\theta)
+    $$
+    Where $h(x)$ is irrelevant to $\theta$.
 
-* Likelihood Ratio Theorem:
-  [cite_start]For any pair of data sets $x$ and $x'$ such that $T(x) = T(x')$, the ratio $\frac{f(x, \theta_2)}{f(x, \theta_1)} = \frac{f(x', \theta_2)}{f(x', \theta_1)}$ for all $\theta_1, \theta_2$[cite: 35, 38, 39, 40, 42].
+2.  **Likelihood Ratio Theorem:**
+    For any pair of data sets $x$ and $x'$ such that $t(x)=t(x')$, the ratio
+    $$
+    \Lambda_x(\theta_1, \theta_2) = \frac{f(x, \theta_2)}{f(x, \theta_1)}
+    $$
+    is independent of the specific realization $x$ (it depends only on $t(x)$). Specifically, $\Lambda_x(\theta_1, \theta_2) = \Lambda_{x'}(\theta_1, \theta_2)$.
 
-* Conditional Distribution:
-  [cite_start]The conditional distribution of the data given the statistic, $f(x | T(x), \theta)$, is independent of $\theta$[cite: 43, 45, 46].
+3.  **Conditional Distribution:**
+    The conditional distribution of $X$ given $T(X)=t$, denoted as $f(x|t(x), \theta)$, is independent of $\theta$.
+    $$
+    f(x|t(x), \theta) = f(x|t(x))
+    $$
+:::
+
+::: {.proof}
+**Proof of Equivalence (1 $\Rightarrow$ 2):**
+
+Suppose $t(x) = t(x')$. From the Factorization Theorem:
+
+$$
+f(x;\theta) = h(x)g(t(x),\theta)
+$$
+
+The ratio becomes:
+
+$$
+\Lambda_x(\theta_1, \theta_2) = \frac{h(x)g(t(x), \theta_2)}{h(x)g(t(x), \theta_1)} = \frac{g(t(x), \theta_2)}{g(t(x), \theta_1)}
+$$
+
+Similarly for $x'$:
+
+$$
+\Lambda_{x'}(\theta_1, \theta_2) = \frac{g(t(x'), \theta_2)}{g(t(x'), \theta_1)}
+$$
+
+Since $t(x) = t(x')$, $\Lambda_x(\theta_1, \theta_2) = \Lambda_{x'}(\theta_1, \theta_2)$.
+:::
+
+::: {#exm-uniform-sufficiency}
+### Uniform Distribution $U(\theta-1, \theta+1)$
+Consider a random sample $X_1, \dots, X_n$ from a Uniform distribution with range $(\theta-1, \theta+1)$.
+
+The density for a single observation is:
+
+$$
+f(x_i|\theta) = \frac{1}{(\theta+1) - (\theta-1)} I(\theta-1 < x_i < \theta+1) = \frac{1}{2} I(\theta-1 < x_i < \theta+1)
+$$
+
+The joint PDF (likelihood) is:
+
+$$
+L(\theta; x) = \prod_{i=1}^n \frac{1}{2} I(\theta-1 < x_i < \theta+1)
+$$
+
+$$
+L(\theta; x) = 2^{-n} \cdot I( \min(x_i) > \theta-1 ) \cdot I( \max(x_i) < \theta+1 )
+$$
+
+Using order statistics notation where $X_{(1)} = \min(X_i)$ and $X_{(n)} = \max(X_i)$:
+
+$$
+L(\theta; x) = 2^{-n} \cdot I( \theta < X_{(1)} + 1 ) \cdot I( \theta > X_{(n)} - 1 )
+$$
+
+$$
+L(\theta; x) = 2^{-n} \cdot I( X_{(n)} - 1 < \theta < X_{(1)} + 1 )
+$$
+
+By the **Factorization Theorem**, we can define:
+* $h(x) = 2^{-n}$ (or simply 1, grouping constants into $g$)
+* $g(T(x), \theta) = I( X_{(n)} - 1 < \theta < X_{(1)} + 1 )$
+
+Thus, the sufficient statistic is the pair of order statistics:
+$$
+T(X) = (X_{(1)}, X_{(n)})
+$$
 :::
 
 
-## Minimal Sufficient Statistics
+::: {#exm-gamma-sufficiency}
+### Gamma Distribution
+Let $X_1, \dots, X_n$ be i.i.d. $\Gamma(\alpha, \beta)$. The pdf is:
 
-::: {#def-minimal-sufficient}
-### Minimal Sufficient Statistics (MSS)
-A sufficient statistic $T(X)$ is minimal sufficient if $T(X)$ is a function of any other sufficient statistic $S$. [cite_start]That is, for any sufficient statistic $S$, there exists a function $g$ such that $T(x) = g(S)$[cite: 107, 108, 111, 115, 118].
+$$
+f(x|\alpha, \beta) = \frac{1}{\Gamma(\alpha)\beta^\alpha} x^{\alpha-1} e^{-x/\beta}, \quad x > 0
+$$
+
+The joint likelihood is:
+
+$$
+L(\alpha, \beta; x) = \left( \frac{1}{\Gamma(\alpha)\beta^\alpha} \right)^n \left( \prod_{i=1}^n x_i \right)^{\alpha-1} \exp\left( -\frac{1}{\beta} \sum_{i=1}^n x_i \right)
+$$
+
+By the Factorization Theorem, we can identify the parts that depend on the data and the parameters:
+$$
+g(T(x), \theta) = \left( \prod_{i=1}^n x_i \right)^{\alpha} \exp\left( -\frac{1}{\beta} \sum_{i=1}^n x_i \right)
+$$
+
+Thus, the sufficient statistics are:
+$$
+T(X) = \left( \prod_{i=1}^n X_i, \sum_{i=1}^n X_i \right)
+$$
 :::
 
-::: {#thm-mss-ratio}
-### Theorem 6.1: Ratio Characterization of MSS
-[cite_start]$T(x)$ is minimal sufficient if and only if for any pair $x$ and $x'$, $T(x) = T(x')$ is equivalent to the ratio $\frac{f(x, \theta_2)}{f(x, \theta_1)}$ being equal to $\frac{f(x', \theta_2)}{f(x', \theta_1)}$ for all $\theta_1, \theta_2$[cite: 138, 141, 144, 204, 205].
+
+::: {#exm-exp-family-sufficiency}
+### General Exponential Family
+Many common distributions (Normal, Poisson, Gamma, Binomial) belong to the Exponential Family. The lecture notes (Page 7) note that if a density can be written in the form:
+
+$$
+f(x|\theta) = h(x) c(\theta) \exp\left( \sum_{j=1}^k w_j(\theta) t_j(x) \right)
+$$
+
+Then, by the Factorization Theorem, the statistic:
+
+$$
+T(X) = \left( \sum_{i=1}^n t_1(x_i), \dots, \sum_{i=1}^n t_k(x_i) \right)
+$$
+
+is a sufficient statistic for $\theta$.
+
+For example, if we have $X_1, \dots, X_n \sim \text{Bernoulli}(p)$:
+
+$$
+f(x|p) = p^x (1-p)^{1-x} = (1-p) \exp\left( x \ln\left(\frac{p}{1-p}\right) \right)
+$$
+
+Here, $t(x) = x$. Therefore, $T(X) = \sum_{i=1}^n X_i$ is sufficient for $p$.
+:::
+
+
+## Minimal Sufficient Statistics (MSS)
+
+::: {#def-mss}
+### Minimal Sufficient Statistic
+A sufficient statistic $T(X)$ is a **Minimal Sufficient Statistic** if for any other sufficient statistic $S(X)$, $T$ is a function of $S$. That is, there exists a function $g$ such that $T(x) = g(S(x))$.
+:::
+
+:::{.remark}
+Minimal sufficient statistics are not unique. If $T$ is MSS and $f$ is a one-to-one function, then $T^* = f(T)$ is also MSS.
+:::
+
+
+::: {#thm-mss-ratio-implication}
+### MSS Condition Theorem
+Let $T(X)$ be a **sufficient statistic**. $T(X)$ is a **Minimal Sufficient Statistic (MSS)** if and only if for any pair of data sets $x$ and $y$, the following conditions imply $T(x)=T(y)$:
+
+1.  **Proportional Likelihoods:** $L(\theta; x) = c(x, y) L(\theta; y)$ for all $\theta$.
+2.  **Ratio Independence:** $\frac{L(\theta; x)}{L(\theta; y)}$ is constant as a function of $\theta$.
+3.  **Equality of Likelihood Ratio Statistics:** $\Lambda_x(\theta_1, \theta_2) = \Lambda_y(\theta_1, \theta_2)$ for all $\theta_1, \theta_2$.
+
+**Logic:**
+Since $T$ is already sufficient, we know $T(x)=T(y) \implies \text{Conditions (1-3)}$.
+The condition for **minimality** is the reverse: $\text{Conditions (1-3)} \implies T(x)=T(y)$.
+:::
+
+::: {.proof}
+**Proof**
+
+We assume Conditions (1), (2), and (3) are equivalent descriptions of $x$ and $y$ having proportional likelihoods. We denote "Conditions (1-3)" simply as $\mathcal{C}(x,y)$.
+
+**Direction 1: $T$ is MSS $\implies$ ($\mathcal{C}(x,y) \implies T(x)=T(y)$)**
+
+Assume $T(X)$ is a Minimal Sufficient Statistic. By definition, $T$ is a function of *any* other sufficient statistic $S$.
+
+Let us construct a specific statistic $S^*(X)$ defined by the likelihood partitions:
+$$ S^*(x) = \{ z : L(\theta; z) = c \cdot L(\theta; x) \text{ for some constant } c \} $$
+(i.e., $S^*(x)$ groups all data points that satisfy Conditions (1-3)).
+$S^*(X)$ is known to be a sufficient statistic.
+
+Since $T$ is MSS, it must be a function of $S^*$. That is, there exists some function $g$ such that $T(x) = g(S^*(x))$.
+If Condition $\mathcal{C}(x,y)$ holds, then by definition $S^*(x) = S^*(y)$.
+Therefore:
+$$ S^*(x) = S^*(y) \implies g(S^*(x)) = g(S^*(y)) \implies T(x) = T(y) $$
+
+**Direction 2: ($\mathcal{C}(x,y) \implies T(x)=T(y)$) $\implies$ $T$ is MSS**
+
+Assume that for any $x,y$, if their likelihoods are proportional ($\mathcal{C}(x,y)$), then $T(x)=T(y)$.
+We must show that $T$ is a function of any sufficient statistic $S$.
+
+Let $S(X)$ be *any* sufficient statistic.
+By the Factorization Theorem, if $S(x) = S(y)$, then:
+$$ L(\theta; x) = h(x)g(S(x); \theta) \quad \text{and} \quad L(\theta; y) = h(y)g(S(y); \theta) $$
+Since $S(x)=S(y)$, the term $g(S(x);\theta) = g(S(y);\theta)$.
+The ratio is:
+$$ \frac{L(\theta; x)}{L(\theta; y)} = \frac{h(x)}{h(y)} $$
+This ratio is independent of $\theta$, so Condition $\mathcal{C}(x,y)$ holds.
+
+By our assumption, $\mathcal{C}(x,y) \implies T(x)=T(y)$.
+So, we have shown:
+$$ S(x) = S(y) \implies T(x) = T(y) $$
+This implies that $T$ is a function of $S$.
+Since $S$ was arbitrary, $T$ is a function of every sufficient statistic.
+Therefore, $T$ is Minimal Sufficient.
+:::
+
+::: {#exm-poisson-mss}
+### Poisson Distribution
+Let $X_1, \dots, X_n \sim \text{Poisson}(\theta)$.
+$T(X) = \sum X_i$ is minimal sufficient.
+$S(X) = (\sum X_i, X_1)$ is sufficient but not minimal.
+:::
+
+
+::: {.proof}
+**Proof that $S(X) = (\sum X_i, X_1)$ is Not Minimal**
+
+[cite_start]We use the **Minimal Sufficient Statistic (MSS) Condition Theorem** (Theorem 6.1 in your notes, Page 6 [cite: 138-144]):
+
+A statistic $T(X)$ is minimal sufficient if and only if for any pair of data sets $x$ and $y$:
+$$
+\Lambda_x(\theta_1, \theta_2) = \Lambda_y(\theta_1, \theta_2) \iff T(x) = T(y)
+$$
+
+This condition is equivalent to saying that the ratio $\frac{L(\theta; x)}{L(\theta; y)}$ is independent of $\theta$ implies $T(x) = T(y)$.
+
+**Step 1: Evaluate the Ratio Condition**
+For the Poisson distribution, the likelihood ratio between two data sets $x$ and $y$ is:
+$$
+\frac{L(\theta; x)}{L(\theta; y)} = \theta^{\left(\sum x_i - \sum y_i\right)} \frac{\prod y_i!}{\prod x_i!}
+$$
+This ratio is independent of $\theta$ (i.e., $\Lambda_x = \Lambda_y$) if and only if the exponent of $\theta$ is zero:
+$$
+\sum x_i = \sum y_i
+$$
+
+**Step 2: Test the Condition on $S(X) = (\sum X_i, X_1)$**
+For $S(X)$ to be a Minimal Sufficient Statistic, the theorem requires the following implication to hold:
+$$
+\text{Ratio independent of } \theta \implies S(x) = S(y)
+$$
+Substituting our finding from Step 1, this requires:
+$$
+\sum x_i = \sum y_i \implies \left(\sum x_i, x_1\right) = \left(\sum y_i, y_1\right)
+$$
+
+**Step 3: Counter-Example**
+We show that this implication **fails**.
+
+Consider the sample size $n=2$ and two data sets:
+* $x = (2, 0)$
+* $y = (1, 1)$
+
+**Check the LHS (Ratio Condition):**
+$$
+\sum x_i = 2 + 0 = 2
+$$
+$$
+\sum y_i = 1 + 1 = 2
+$$
+Since $\sum x_i = \sum y_i$, the likelihood ratio is independent of $\theta$.
+
+**Check the RHS (Statistic Equality):**
+$$
+S(x) = (\sum x_i, x_1) = (2, 2)
+$$
+$$
+S(y) = (\sum y_i, y_1) = (2, 1)
+$$
+$$
+S(x) \neq S(y)
+$$
+
+**Conclusion:**
+We have found a pair $x, y$ where the likelihood ratio is independent of $\theta$, but $S(x) \neq S(y)$.
+Thus, the implication fails.
+Therefore, $S(X)$ is **not** a Minimal Sufficient Statistic.
 :::
 
 ## Completeness
 
-::: {#def-complete-statistic}
+::: {#def-completeness}
 ### Complete Statistic
-A statistic $T$ is said to be complete if for every real-valued function $g$, $E[g(T) | [cite_start]\theta] = 0$ for all $\theta$ implies $P(g(T) = 0 | \theta) = 1$ for all $\theta$[cite: 206, 224, 227, 230].
+A statistic $T$ is said to be **complete** if for any real-valued function $g$,
+$$
+E[g(T)|\theta] = 0 \quad \text{for all } \theta
+$$
+implies
+$$
+P(g(T) = 0 | \theta) = 1 \quad \text{for all } \theta
+$$
 :::
 
-[cite_start]If a statistic is complete, then an unbiased estimator of $\theta$ based on that statistic is unique[cite: 235, 236, 238, 254].
+Significance: If $T$ is complete, then there exists at most one unbiased estimator for $\theta$ that is a function of $T$.
 
-::: {#thm-exponential-family-completeness}
-### Lemma 6.3: Exponential Family Completeness
-[cite_start]If $T = (T_1, \dots, T_k)$ is the natural statistic of an exponential family that contains an open rectangle in its parameter space, then $T$ is complete[cite: 331, 332, 334, 337, 340, 341].
-:::
+::: {#exm-uniform-incomplete}
+### Uniform Distribution (Not Complete)
+Let $X_1, \dots, X_n \sim \text{Unif}(\theta-1, \theta+1)$.
+The density is:
 
-::: {.proof}
-[cite_start]The density of $T$ follows the form $f(t_1, \dots, t_k | \theta) = C(\theta) h(t) \exp(\sum \theta_i t_i)$[cite: 342, 347]. Suppose $E[g(T) | \theta] = 0$:
-
-$$ 
-\int g(t) C(\theta) h(t) \exp\left( \sum \theta_i t_i \right) dt = 0 
+$$
+f(x) = \prod I(\theta-1 < x_i < \theta+1) = I(\theta \in (x_{(n)}-1, x_{(1)}+1))
 $$
 
-This integral represents a Laplace transform. [cite_start]Since the transform is zero over an open set, the function $g(t)h(t)$ must be zero almost everywhere, implying $g(T) = 0$ almost surely[cite: 363, 367, 368, 371, 372].
+The statistic $T(X) = (X_{(1)}, X_{(n)})$ is a Minimal Sufficient Statistic. However, it is **not complete**.
+
+Consider the range $R = X_{(n)} - X_{(1)}$. The distribution of $R$ does not depend on $\theta$ (it is an ancillary statistic). Let $g(T) = X_{(n)} - X_{(1)} - c$, where $c = E[X_{(n)} - X_{(1)}]$.
+Then $E[g(T)] = 0$ for all $\theta$, but $g(T)$ is not identically zero.
 :::
 
-## Uniformly Minimum Variance Unbiased Estimators (UMVUE)
+::: {#lem-exponential-complete}
+### Exponential Family Completeness
+If $T = (T_1, \dots, T_k)$ is the natural statistic of an exponential family that contains an open rectangle in the parameter space, then $T$ is complete.
+:::
+
+## UMVUE
 
 ::: {#def-umvue}
-### UMVUE
-[cite_start]A statistic $T(x)$ is a Uniformly Minimum Variance Unbiased Estimator for $\tau(\theta)$ if[cite: 382, 387]:
+### Uniformly Minimum Variance Unbiased Estimator (UMVUE)
+A statistic $T(x)$ is a UMVUE for $\theta$ if:
 
-* It is unbiased: $E[T(x) | [cite_start]\theta] = \tau(\theta)$ for all $\theta$[cite: 389, 390].
+1.  $E(T(x)|\theta) = \theta$ for all $\theta$ (Unbiased).
+2.  $Var(T(x)|\theta) \le Var(d(x)|\theta)$ for all $\theta$ and for all other unbiased estimators $d(x)$.
+:::
 
-* [cite_start]It has minimum variance: $Var(T(x) | \theta) \leq Var(d(x) | \theta)$ for all $\theta$, where $d(x)$ is any other unbiased estimator of $\tau(\theta)$[cite: 391, 393].
+The relationship between statistics types is visualized below:
+
+```{tikz fig-stats-hierarchy}
+%| fig-cap: "Hierarchy of Statistics"
+%| echo: false
+%| fig-align: "center"
+%| out-extra: 'style="width: 50% !important;"'
+
+\begin{tikzpicture}
+  \draw (0,0) circle (2.5cm);
+  \node at (0, 1.8) {Sufficient};
+  
+  \draw (0,-0.3) circle (1.8cm);
+  \node at (0, 0.8) {Minimal SS};
+  
+  \draw (0,-0.8) circle (1.0cm);
+  \node at (0, -0.8) {Complete};
+\end{tikzpicture}
+```
+
+::: {#thm-lehmann-scheffe}
+### Lehmann-Scheffe Theorem
+If $T$ is a complete and sufficient statistic, and there is an unbiased estimator $d(X)$ such that $E[d(X)] = \theta$, then $\phi(T) = E[d(X)|T]$ is the unique UMVUE for $\theta$.
 :::
 
 ::: {#thm-rao-blackwell}
-### Theorem 6.3: Rao-Blackwell Theorem
-Let $d_1(x)$ be an unbiased estimator of $\theta$ and $T$ be a sufficient statistic. Let $g(T) = E[d_1(x) | [cite_start]T]$[cite: 397, 398, 401, 402, 403]. Then:
+### Rao-Blackwell Theorem
+Given that $T$ is a sufficient statistic and $d_1(x)$ is an unbiased estimator ($E[d_1(x)] = \theta$).
+Define $g(T) = E[d_1(x) | T]$. Then:
 
-1. [cite_start]$g(T)$ is a statistic (independent of $\theta$)[cite: 404, 407, 408].
-
-2. $E[g(T) | [cite_start]\theta] = \theta$[cite: 409].
-
-3. [cite_start]$Var(g(T) | \theta) \leq Var(d_1(x) | \theta)$[cite: 410, 411].
+1.  $g(T)$ is a statistic (free of $\theta$ because $T$ is sufficient).
+2.  $E[g(T)] = \theta$ (Unbiased).
+3.  $Var(g(T)) \le Var(d_1(x))$.
 :::
 
 ::: {.proof}
-Since $T$ is sufficient, the conditional distribution of $X$ given $T$ does not depend on $\theta$, making $E[d_1(x) | [cite_start]T]$ a valid statistic[cite: 413, 416, 417]. By the law of total expectation, $E[E[d_1(x) | [cite_start]T]] = E[d_1(x)] = \theta$[cite: 418, 420]. [cite_start]By Jensen's Inequality or the law of total variance, the variance of the conditional expectation is less than or equal to the total variance[cite: 426, 428].
+**Proof of Rao-Blackwell:**
+
+1.  Since $T$ is sufficient, the conditional distribution $X|T$ is independent of $\theta$, so $g(T)$ is a valid statistic.
+2.  By the Law of Iterated Expectations:
+    $$
+    E[g(T)] = E_T[ E_X(d_1(X)|T) ] = E_X[d_1(X)] = \theta
+    $$
+3.  By the variance decomposition formula:
+    $$
+    Var(d_1(X)) = Var(E[d_1(X)|T]) + E[Var(d_1(X)|T)]
+    $$
+    $$
+    Var(d_1(X)) = Var(g(T)) + E[(d_1(X) - g(T))^2 | T]
+    $$
+    Since $(d_1(X) - g(T))^2 \ge 0$, we have $Var(g(T)) \le Var(d_1(X))$.
 :::
 
-### Lehmann-Scheffé Theorem
+## Methods for Finding UMVUE
 
-If $T$ is a sufficient and complete statistic, then $g(T) = E[d(X) | [cite_start]T]$ is the unique UMVUE[cite: 373, 375, 376, 430, 432].
+To find the UMVUE for a parameter $\theta$:
 
-### Methods for finding UMVUE
+1.  **Find a Complete Sufficient Statistic:**
+    Identify $T$ which is complete and sufficient for $\theta$ (often using the Exponential Family properties).
 
-1. [cite_start]Find a complete sufficient statistic $T$ for $\theta$[cite: 445, 446, 447].
+2.  **Find an Unbiased Estimator:**
+    Find any simple statistic $d(X)$ such that $E[d(X)] = \theta$.
 
-2. Find any unbiased estimator $d(x)$ such that $E[d(x) | [cite_start]\theta] = \theta$[cite: 449, 452, 454].
-
-3. Calculate $g(T) = E[d(x) | T]$. [cite_start]This result is the UMVUE[cite: 455, 456].
+3.  **Rao-Blackwellize:**
+    Compute $g(T) = E[d(X)|T]$. The result $g(T)$ is the UMVUE.
 
 ::: {#exm-poisson-umvue}
-### UMVUE for Poisson Mean
-Let $X_1, \dots, X_n \sim \text{Poisson}(\lambda)$.
+### Poisson UMVUE
+Let $X_1, \dots, X_n \sim \text{Poisson}(\lambda)$. Find the UMVUE for $\lambda$ and $\lambda^2$.
 
-1. [cite_start]$T = \sum X_i$ is a complete sufficient statistic[cite: 479, 482].
+**1. For $\lambda$:**
+$T = \sum X_i$ is a complete sufficient statistic (Poisson is exponential family).
+Let $d_1(X) = X_1$.
+$E[X_1] = \lambda$.
+We compute $g(T) = E[X_1 | T]$.
+Since the conditional distribution of $X_1$ given $T=t$ is Binomial($t, 1/n$):
 
-2. Let $d(X) = X_1$. [cite_start]Since $E[X_1] = \lambda$, it is an unbiased estimator[cite: 484, 485].
-
-3. Find $E[X_1 | T]$. Since $X_1 | [cite_start]\sum X_i = k \sim \text{Binomial}(k, 1/n)$[cite: 489, 494], we have:
-
-$$ 
-E[X_1 | T] = \frac{T}{n} = \bar{X} 
+$$
+E[X_1 | T] = t \cdot \frac{1}{n} = \frac{T}{n} = \bar{X}
 $$
 
-[cite_start]Thus, $\bar{X}$ is the UMVUE for $\lambda$[cite: 495, 496].
+Thus, $\bar{X}$ is the UMVUE for $\lambda$.
+
+**2. For $\lambda^2$:**
+We know $Var(X_1) = \lambda = E(X_1^2) - (E(X_1))^2$.
+So $E(X_1^2) - \lambda = \lambda^2$, which implies $E(X_1^2 - X_1) = \lambda^2$.
+Let $d_2(X) = X_1^2 - X_1$. This is an unbiased estimator for $\lambda^2$.
+
+We calculate $g(T) = E[X_1^2 - X_1 | T]$.
+
+$$
+g(T) = E[X_1^2 | T] - E[X_1 | T]
+$$
+
+Using the second moment of the Binomial distribution $Bin(T, 1/n)$:
+$E[X_1^2|T] = Var(X_1|T) + (E[X_1|T])^2 = T \frac{1}{n}(1-\frac{1}{n}) + (\frac{T}{n})^2$.
+
+$$
+g(T) = \left[ \frac{T}{n} - \frac{T}{n^2} + \frac{T^2}{n^2} \right] - \frac{T}{n} = \frac{T^2 - T}{n^2} = \frac{T(T-1)}{n^2}
+$$
+
+Thus, $\frac{T(T-1)}{n^2}$ is the UMVUE for $\lambda^2$.
 :::
