@@ -1,5 +1,5 @@
 ---
-title: "Uniformly Minimum Variance Estimators"
+title: "Sufficient Statistic and Minimum Variance Estimators"
 engine: knitr
 format: 
   html: default
@@ -8,28 +8,28 @@ format:
 
 
 
-## Sufficiency and Completeness
 
-### Sufficient Statistics
 
+
+## Sufficient Statistics
 
 ::: {#def-sufficient-statistic}
 
 ### Sufficient Statistic
 A statistic $T=T(X)$ is sufficient for $\theta$ if one of the following conditions holds:
 
-1.  **Factorization Theorem:**
+1.  **Log-Likelihood Difference:**
+    For any pair of data sets $x$ and $y$ such that $T(x)=T(y)$, the difference in their log-likelihoods is constant with respect to $\theta$:
+    $$
+    \ell(\theta; x) - \ell(\theta; y) = c(x, y) \quad \text{for all } \theta
+    $$
+    where $c(x,y)$ depends only on $x$ and $y$, not on $\theta$.
+
+2.  **Factorization Theorem:**
     $$
     f(x;\theta) = h(x) g(t(x);\theta)
     $$
     Where $h(x)$ is irrelevant to $\theta$.
-
-2.  **Likelihood Ratio Theorem:**
-    For any pair of data sets $x$ and $x'$ such that $t(x)=t(x')$, the ratio
-    $$
-    \Lambda_x(\theta_1, \theta_2) = \frac{f(x, \theta_2)}{f(x, \theta_1)}
-    $$
-    is independent of the specific realization $x$ (it depends only on $t(x)$). Specifically, $\Lambda_x(\theta_1, \theta_2) = \Lambda_{x'}(\theta_1, \theta_2)$.
 
 3.  **Conditional Distribution:**
     The conditional distribution of $X$ given $T(X)=t$, denoted as $f(x|t(x), \theta)$, is independent of $\theta$.
@@ -39,30 +39,152 @@ A statistic $T=T(X)$ is sufficient for $\theta$ if one of the following conditio
 
 :::
 
+
+```{r }
+#| label: fig-par-log-likelihood
+#| fig-cap: "Visualizing Parallel Log-Likelihoods"
+#| echo: false
+#| fig-align: "center"
+#| message: false
+#| warning: false
+#| out.width: "70%"
+
+library(ggplot2)
+
+# Define range for theta
+theta <- seq(0, 6, length.out = 300)
+
+# Define log-likelihood functions
+
+# Peak is set exactly at y = 4 to align with a grid line
+ll_x <- -0.8 * (theta - 3)^2 + 4 
+
+# The gap is set to 2, matching the grid spacing
+const_diff <- 2
+ll_y <- ll_x - const_diff
+
+# Create data frame for plotting
+
+# We use simple factor levels "A" and "B" for mapping, 
+
+# then swap them for expressions in the scale functions
+df <- data.frame(
+  theta = rep(theta, 2),
+  loglik = c(ll_x, ll_y),
+  curve = rep(c("A", "B"), each = 300)
+)
+
+# Plot
+ggplot(df, aes(x = theta, y = loglik, color = curve, linetype = curve)) +
+  geom_line(linewidth = 1.2) +
+  
+  # Styling with Math Expressions in Legends
+  scale_color_manual(
+    values = c("blue", "red"),
+    labels = expression(l(theta*"; "*x), l(theta*"; "*y))
+  ) +
+  scale_linetype_manual(
+    values = c("solid", "dashed"),
+    labels = expression(l(theta*"; "*x), l(theta*"; "*y))
+  ) +
+  
+  # Force grid lines to align with the peaks and the gap
+  scale_y_continuous(breaks = seq(-10, 10, by = 2)) +
+  
+  # Math expressions for axes
+  labs(x = expression(theta), 
+       y = expression(l(theta)),
+       title = "Parallel Log-Likelihoods",
+       subtitle = "Vertical difference is constant everywhere") +
+  
+  theme_minimal() +
+  theme(legend.title = element_blank(),
+        legend.position = "top",
+        text = element_text(size = 12),
+        plot.title = element_text(size = 12, face = "bold"),
+        panel.grid.major.y = element_line(color = "gray60", linetype = "dotted"),
+        panel.grid.minor.y = element_blank())
+
+```
+
+
+<details>
+<summary>Click to view Complete Proof of Equivalence</summary>
+
 ::: {.proof}
-**Proof of Equivalence (1 $\Rightarrow$ 2):**
+**Proof of Equivalence**
 
-Suppose $t(x) = t(x')$. From the Factorization Theorem:
+We show the equivalence by proving the implications in a cycle or pairs: $(2 \Rightarrow 1)$, $(1 \Rightarrow 2)$, $(2 \Rightarrow 3)$, and $(3 \Rightarrow 2)$.
 
+1. Factorization $\Rightarrow$ Log-Likelihood Difference $(2 \Rightarrow 1)$
+
+Assume the **Factorization Theorem** holds: $L(\theta; x) = h(x) g(T(x); \theta)$.
+Consider any pair $x, y$ such that $T(x) = T(y)$.
 $$
-f(x;\theta) = h(x)g(t(x),\theta)
+\ell(\theta; x) - \ell(\theta; y) = [\ln h(x) + \ln g(T(x); \theta)] - [\ln h(y) + \ln g(T(y); \theta)]
 $$
-
-The ratio becomes:
-
+Since $T(x)=T(y)$, the terms $\ln g(T(x); \theta)$ and $\ln g(T(y); \theta)$ are identical and cancel out.
 $$
-\Lambda_x(\theta_1, \theta_2) = \frac{h(x)g(t(x), \theta_2)}{h(x)g(t(x), \theta_1)} = \frac{g(t(x), \theta_2)}{g(t(x), \theta_1)}
+\ell(\theta; x) - \ell(\theta; y) = \ln h(x) - \ln h(y)
 $$
+This difference depends only on $x$ and $y$ (via $h$), and is independent of $\theta$. Thus, condition 1 holds.
 
-Similarly for $x'$:
+2. Log-Likelihood Difference $\Rightarrow$ Factorization $(1 \Rightarrow 2)$
 
+Assume Condition 1 holds. For any $x$ and $y$ with $T(x)=T(y)$, $\ell(\theta; x) - \ell(\theta; y) = c(x, y)$.
+Exponentiating, we get $L(\theta; x) = k(x, y) L(\theta; y)$, where $k$ is independent of $\theta$.
+
+For each value $t$ in the range of $T$, select a fixed representative data point $x_t$ such that $T(x_t) = t$.
+For any data point $x$, let $t = T(x)$. Using the relation above:
 $$
-\Lambda_{x'}(\theta_1, \theta_2) = \frac{g(t(x'), \theta_2)}{g(t(x'), \theta_1)}
+L(\theta; x) = k(x, x_t) L(\theta; x_t)
 $$
+Define $h(x) = k(x, x_{T(x)})$ and $g(t; \theta) = L(\theta; x_t)$.
+Then:
+$$
+L(\theta; x) = h(x) g(T(x); \theta)
+$$
+This is exactly the Factorization form.
 
-Since $t(x) = t(x')$, $\Lambda_x(\theta_1, \theta_2) = \Lambda_{x'}(\theta_1, \theta_2)$.
+3. Factorization $\Rightarrow$ Conditional Distribution $(2 \Rightarrow 3)$
+
+Assume $f(x; \theta) = h(x)g(T(x); \theta)$. We derive the conditional distribution $P(X=x | T(X)=t)$.
+If $T(x) \neq t$, the probability is 0 (independent of $\theta$).
+If $T(x) = t$:
+$$
+P(X=x | T(X)=t) = \frac{P(X=x, T(X)=t)}{P(T(X)=t)} = \frac{f(x; \theta)}{\sum_{\{y : T(y)=t\}} f(y; \theta)}
+$$
+Substitute the factorization:
+$$
+= \frac{h(x)g(t; \theta)}{\sum_{\{y : T(y)=t\}} h(y)g(t; \theta)} = \frac{h(x)g(t; \theta)}{g(t; \theta) \sum_{\{y : T(y)=t\}} h(y)}
+$$
+The term $g(t; \theta)$ cancels out:
+$$
+= \frac{h(x)}{\sum_{\{y : T(y)=t\}} h(y)}
+$$
+This expression depends only on $x$ and $h(\cdot)$, and is entirely free of $\theta$. Thus, Condition 3 holds.
+
+4. Conditional Distribution $\Rightarrow$ Factorization $(3 \Rightarrow 2)$
+
+Assume $f(x | T(x); \theta) = k(x)$, where $k(x)$ is independent of $\theta$.
+We can write the joint distribution as:
+$$
+f(x; \theta) = f(x | T(x)=t; \theta) \cdot P(T(X)=t; \theta)
+$$
+Substitute the assumption:
+$$
+f(x; \theta) = k(x) \cdot P(T(X)=T(x); \theta)
+$$
+Let $h(x) = k(x)$ and $g(t; \theta) = P(T(X)=t; \theta)$.
+Then:
+$$
+f(x; \theta) = h(x) g(T(x); \theta)
+$$
+This recovers the Factorization form.
 
 :::
+
+</details>
 
 ::: {#exm-uniform-sufficiency}
 
@@ -153,45 +275,108 @@ $$
 
 is a sufficient statistic for $\theta$.
 
-For example, if we have $X_1, \dots, X_n \sim \text{Bernoulli}(p)$:
 
+:::
+
+::: {#exm-bernoulli-expfamily}
+
+### Bernoulli as Exponential Family
+Let $X_1, \dots, X_n \overset{i.i.d.}{\sim} \text{Bernoulli}(p)$.
+To find the sufficient statistic, we write the joint density in the canonical **Exponential Family** form:
 $$
-f(x|p) = p^x (1-p)^{1-x} = (1-p) \exp\left( x \ln\left(\frac{p}{1-p}\right) \right)
+f(x; \theta) = h(x) \exp\left( \eta(\theta) T(x) - A(\theta) \right)
 $$
 
-Here, $t(x) = x$. Therefore, $T(X) = \sum_{i=1}^n X_i$ is sufficient for $p$.
+1. Write the Joint PDF:
+    $$
+f(x|p) = \prod_{i=1}^n p^{x_i} (1-p)^{1-x_i}
+$$
+
+2. Convert to Exponential Form:
+    $$
+\begin{aligned}
+f(x|p) &= \exp\left( \ln \left( \prod_{i=1}^n p^{x_i} (1-p)^{1-x_i} \right) \right) \\
+&= \exp\left( \sum_{i=1}^n \left[ x_i \ln p + (1-x_i) \ln(1-p) \right] \right) \\
+&= \exp\left( (\ln p) \sum x_i + \ln(1-p) \left( n - \sum x_i \right) \right)
+\end{aligned}
+$$
+
+3. Group Terms by $x$ and $p$:
+    $$
+\begin{aligned}
+f(x|p) &= \exp\left( \underbrace{\left( \ln p - \ln(1-p) \right)}_{\eta(p)} \underbrace{\left(\sum_{i=1}^n x_i\right)}_{T(x)} + \underbrace{n \ln(1-p)}_{-A(p)} \right)
+\end{aligned}
+$$
+
+**Conclusion:**
+By the structure of the exponential family, the term multiplying the natural parameter $\eta(p) = \ln\left(\frac{p}{1-p}\right)$ is the sufficient statistic:
+$$
+T(X) = \sum_{i=1}^n X_i
+$$
 
 :::
 
 ## Minimal Sufficient Statistic
 
-::: {#lem-loglik-equivalence}
-### Equivalence of Log-Likelihood Conditions
-For any pair of data sets $x$ and $y$, the following three conditions are equivalent descriptions of the relationship between their log-likelihood functions $\ell(\theta; \cdot) = \ln L(\theta; \cdot)$:
+::: {#def-mss}
 
-1.  **Parallel Log-Likelihoods:**
-    $$\ell(\theta; x) = \ell(\theta; y) + c(x, y) \quad \text{for all } \theta$$
-    (where $c(x,y)$ is independent of $\theta$).
+### Minimal Sufficient Statistic (MSS)
+A statistic $T(X)$ is a **Minimal Sufficient Statistic** if:
 
-2.  **Constant Difference:**
-    $$\ell(\theta; x) - \ell(\theta; y) \quad \text{is constant as a function of } \theta$$
-
-3.  **Equality of Log-Likelihood Differences:**
-    $$\ell(\theta_2; x) - \ell(\theta_1; x) = \ell(\theta_2; y) - \ell(\theta_1; y) \quad \text{for all } \theta_1, \theta_2$$
+1.  **Sufficiency:** $T(X)$ is a sufficient statistic for $\theta$.
+   2.  **Minimality:** For any other sufficient statistic $S(X)$, $T(X)$ is a function of $S(X)$.
+    $$
+    T(X) = g(S(X))
+    $$
+    *(This implies that $T(X)$ provides the greatest possible data reduction without losing information about $\theta$. If $S(x) = S(y)$, then it must be that $T(x) = T(y)$).*
 
 :::
 
 ::: {#thm-mss-loglik}
+
 ### MSS Condition Theorem
 Let $T(X)$ be a **sufficient statistic**. $T(X)$ is a **Minimal Sufficient Statistic (MSS)** if and only if for any pair of data sets $x$ and $y$:
 $$
 \ell(\theta; x) = \ell(\theta; y) + c(x, y) \text{ for all } \theta \implies T(x) = T(y)
 $$
 where $c(x, y)$ is a constant independent of $\theta$.
+
 :::
 
+<details>
+<summary>Click to view the Proof</summary>
+
 ::: {.proof}
-**Direction 1: Necessity ($T$ is MSS $\implies$ Implication holds)**
+
+
+**Direction 1: Sufficiency (Implication holds $\implies$ $T$ is MSS)**
+
+Assume that for any $x, y$, $[\ell(\theta; x) = \ell(\theta; y) + c(x, y)] \implies T(x) = T(y)$. We must show that $T$ is a function of *any* sufficient statistic $U$.
+
+1.  Let $U(X)$ be any sufficient statistic. Assume $U(x) = U(y)$.
+   2.  By the **Factorization Theorem**, the likelihoods are:
+    $$
+    L(\theta; x) = h(x)g(U(x), \theta)
+    $$
+    $$
+    L(\theta; y) = h(y)g(U(y), \theta)
+    $$
+
+3.  Since $U(x) = U(y)$, the factor $g(U(x), \theta)$ is identical to $g(U(y), \theta)$.
+    Taking the log-ratio:
+    $$
+    \ell(\theta; x) - \ell(\theta; y) = \ln h(x) - \ln h(y)
+    $$
+    The term $\ln h(x) - \ln h(y)$ depends only on $x$ and $y$, not on $\theta$. Let this be $c(x,y)$.
+    $$
+    \ell(\theta; x) = \ell(\theta; y) + c(x, y)
+    $$
+
+4.  By our main assumption, this condition implies $T(x) = T(y)$.
+   5.  Thus, we have shown that $U(x) = U(y) \implies T(x) = T(y)$. This means $T$ is a function of $U$.
+    Since $U$ is arbitrary, $T$ is Minimal Sufficient.
+
+**Direction 2: Necessity ($T$ is MSS $\implies$ Implication holds)**
 
 Assume $T$ is Minimal Sufficient. We must prove that if $\ell(\theta; x) = \ell(\theta; y) + c(x, y)$ for all $\theta$, then $T(x) = T(y)$.
 
@@ -209,11 +394,7 @@ Assume $T$ is Minimal Sufficient. We must prove that if $\ell(\theta; x) = \ell(
     $$
     \ell(\theta; x) - \ell(\theta; y) = c(x, y)
     $$
-    Exponentiating both sides:
-    $$
-    \frac{L(\theta; x)}{L(\theta; y)} = e^{c(x, y)}
-    $$
-    The likelihood ratio is independent of $\theta$. By the Likelihood Ratio definition of sufficiency, $S(X)$ is a sufficient statistic.
+    By the definition of sufficiency, $S(X)$ is a sufficient statistic.
 
 3.  **Use Minimality of $T$:**
     Since $T$ is a **Minimal** Sufficient Statistic, it is a function of *any* sufficient statistic.
@@ -224,113 +405,76 @@ Assume $T$ is Minimal Sufficient. We must prove that if $\ell(\theta; x) = \ell(
     Then $S(x) = S(y)$.
     Consequently, $T(x) = f(S(x)) = f(S(y)) = T(y)$.
 
-**Direction 2: Sufficiency (Implication holds $\implies$ $T$ is MSS)**
-
-Assume that for any $x, y$, $[\ell(\theta; x) = \ell(\theta; y) + c(x, y)] \implies T(x) = T(y)$. We must show that $T$ is a function of *any* sufficient statistic $U$.
-
-1.  Let $U(X)$ be any sufficient statistic. Assume $U(x) = U(y)$.
-2.  By the **Factorization Theorem**, the likelihoods are:
-    $$
-    L(\theta; x) = h(x)g(U(x), \theta)
-    $$
-    $$
-    L(\theta; y) = h(y)g(U(y), \theta)
-    $$
-3.  Since $U(x) = U(y)$, the factor $g(U(x), \theta)$ is identical to $g(U(y), \theta)$.
-    Taking the log-ratio:
-    $$
-    \ell(\theta; x) - \ell(\theta; y) = \ln h(x) - \ln h(y)
-    $$
-    The term $\ln h(x) - \ln h(y)$ depends only on $x$ and $y$, not on $\theta$. Let this be $c(x,y)$.
-    $$
-    \ell(\theta; x) = \ell(\theta; y) + c(x, y)
-    $$
-4.  By our main assumption, this condition implies $T(x) = T(y)$.
-5.  Thus, we have shown that $U(x) = U(y) \implies T(x) = T(y)$. This means $T$ is a function of $U$.
-    Since $U$ is arbitrary, $T$ is Minimal Sufficient.
 :::
+</details>
 
-```{r fig-log-likelihood}
-#| fig-cap: "Visualizing Parallel Log-Likelihoods"
-#| echo: false
-#| fig-align: "center"
-#| message: false
-#| warning: false
-#| out.width: "70%"
 
-library(ggplot2)
+::: {#exm-bernoulli-mss-check}
 
-# Define range for theta
-theta <- seq(0, 6, length.out = 300)
+### Checking Minimality via Log-Likelihood Condition
+Let $X_1, X_2, X_3 \overset{i.i.d.}{\sim} \text{Bernoulli}(p)$.
+We test two statistics against the **MSS Condition Theorem**:
+$$
+\text{Parallel Log-Likelihoods} \implies \text{Statistic}(x) = \text{Statistic}(y)
+$$
 
-# Define log-likelihood functions
-# Peak is set exactly at y = 4 to align with a grid line
-ll_x <- -0.8 * (theta - 3)^2 + 4 
+**Step 1: Establish the Parallel Condition**
+For Bernoulli data, the log-likelihood is:
+$$
+\ell(p; x) = (\sum x_i) \ln p + (n - \sum x_i) \ln(1-p)
+$$
+The difference $\ell(p; x) - \ell(p; y)$ is constant (parallel) if and only if the coefficients of $\ln p$ are identical:
+$$
+\sum x_i = \sum y_i
+$$
 
-# The gap is set to 2, matching the grid spacing
-const_diff <- 2
-ll_y <- ll_x - const_diff
+**Test 1: The Statistic $T(X) = \sum_{i=1}^3 X_i$**
+We check if the implication holds:
+$$
+\sum x_i = \sum y_i \implies T(x) = T(y)
+$$
+Since $T(x) = \sum x_i$, this becomes:
+$$
+\sum x_i = \sum y_i \implies \sum x_i = \sum y_i
+$$
+**Result:** The implication is trivially true.
+**Conclusion:** $T(X)$ satisfies the necessary condition for being a Minimal Sufficient Statistic.
 
-# Create data frame for plotting
-# We use simple factor levels "A" and "B" for mapping, 
-# then swap them for expressions in the scale functions
-df <- data.frame(
-  theta = rep(theta, 2),
-  loglik = c(ll_x, ll_y),
-  curve = rep(c("A", "B"), each = 300)
-)
+**Test 2: The Statistic $S(X) = (X_1, \sum_{i=2}^3 X_i)$**
+We check if the implication holds:
+$$
+\sum x_i = \sum y_i \implies S(x) = S(y)
+$$
+We use a counter-example to show this fails.
+Consider two data sets:
 
-# Plot
-ggplot(df, aes(x = theta, y = loglik, color = curve, linetype = curve)) +
-  geom_line(linewidth = 1.2) +
-  
-  # Styling with Math Expressions in Legends
-  scale_color_manual(
-    values = c("blue", "red"),
-    labels = expression(ell(theta*"; "*x), ell(theta*"; "*y))
-  ) +
-  scale_linetype_manual(
-    values = c("solid", "dashed"),
-    labels = expression(ell(theta*"; "*x), ell(theta*"; "*y))
-  ) +
-  
-  # Force grid lines to align with the peaks and the gap
-  scale_y_continuous(breaks = seq(-10, 10, by = 2)) +
-  
-  # Math expressions for axes
-  labs(x = expression(theta), 
-       y = expression(ell(theta)),
-       title = "Parallel Log-Likelihoods",
-       subtitle = "Vertical difference is constant everywhere") +
-  
-  theme_minimal() +
-  theme(legend.title = element_blank(),
-        legend.position = "top",
-        text = element_text(size = 12),
-        plot.title = element_text(size = 12, face = "bold"),
-        panel.grid.major.y = element_line(color = "gray60", linetype = "dotted"),
-        panel.grid.minor.y = element_blank())
-```
+* $x = (1, 0, 1)$
+* $y = (0, 1, 1)$
 
-::: {#exm-poisson-mss-log}
-### Poisson Distribution (Log-Likelihood Approach)
-Let $X_1, \dots, X_n \sim \text{Poisson}(\theta)$.
-To check if $S(X) = (\sum X_i, X_1)$ is minimal, we test the implication:
-$$\text{Parallel Log-Likelihoods} \implies S(x) = S(y)$$
+**Check Assumption (Parallel Log-Likelihoods):**
+$$
+\sum x_i = 1+0+1 = 2
+$$
+$$
+\sum y_i = 0+1+1 = 2
+$$
+The sums are equal, so the log-likelihoods are parallel.
 
-**1. Check Parallel Condition:**
-$$\ell(\theta; x) = -n\theta + (\sum x_i)\ln\theta - \sum \ln(x_i!)$$
-The difference is:
-$$\ell(\theta; x) - \ell(\theta; y) = (\sum x_i - \sum y_i)\ln\theta + K$$
-For this to be constant in $\theta$ (Parallel), the $\ln\theta$ term must vanish:
-$$\sum x_i = \sum y_i$$
+**Check Conclusion (Statistic Equality):**
+$$
+S(x) = (1, 0+1) = (1, 1)
+$$
+$$
+S(y) = (0, 1+1) = (0, 2)
+$$
+$$
+S(x) \neq S(y)
+$$
 
-**2. Check Implication:**
-Does $\sum x_i = \sum y_i \implies (\sum x_i, x_1) = (\sum y_i, y_1)$?
-No. Consider $x=(2,0)$ and $y=(1,1)$.
-Sum is equal ($2=2$), so Log-Likelihoods are parallel.
-But $S(x)=(2,2) \neq S(y)=(2,1)$.
-Thus, $S(X)$ is **not** minimal.
+**Conclusion:**
+We found a pair $x, y$ where the log-likelihoods are parallel, but the statistic values differ.
+Therefore, $S(X)$ does not compress the data as much as possible and is **not** a Minimal Sufficient Statistic.
+
 :::
 
 ## Completeness
@@ -423,7 +567,7 @@ Define $g(T) = E[d_1(x) | T]$. Then:
 
 1.  $g(T)$ is a statistic (free of $\theta$ because $T$ is sufficient).
    2.  $E[g(T)] = \theta$ (Unbiased).
-3.  $Var(g(T)) \le Var(d_1(x))$.
+   3.  $Var(g(T)) \le Var(d_1(x))$.
 
 :::
 
@@ -466,7 +610,7 @@ To find the UMVUE for a parameter $\theta$:
 Let $X_1, \dots, X_n \sim \text{Poisson}(\lambda)$. Find the UMVUE for $\lambda$ and $\lambda^2$.
 
 1. For $\lambda$:
-$T = \sum X_i$ is a complete sufficient statistic (Poisson is exponential family).
+    $T = \sum X_i$ is a complete sufficient statistic (Poisson is exponential family).
 Let $d_1(X) = X_1$.
 $E[X_1] = \lambda$.
 We compute $g(T) = E[X_1 | T]$.
@@ -479,7 +623,7 @@ $$
 Thus, $\bar{X}$ is the UMVUE for $\lambda$.
 
 2. For $\lambda^2$:
-We know $Var(X_1) = \lambda = E(X_1^2) - (E(X_1))^2$.
+    We know $Var(X_1) = \lambda = E(X_1^2) - (E(X_1))^2$.
 So $E(X_1^2) - \lambda = \lambda^2$, which implies $E(X_1^2 - X_1) = \lambda^2$.
 Let $d_2(X) = X_1^2 - X_1$. This is an unbiased estimator for $\lambda^2$.
 
