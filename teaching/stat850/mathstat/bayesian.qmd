@@ -10,6 +10,7 @@ format:
 The foundation of Bayesian inference relies on the relationship between the prior distribution, the likelihood of the data, and the posterior distribution. This relationship is governed by Bayes' Theorem (or Law).
 
 ::: {#def-posterior}
+
 ### Posterior Distribution
 
 Suppose we have a parameter $\theta$ with a prior distribution denoted by $\pi(\theta)$. If we observe data $x$ drawn from a distribution with probability density function (pdf) $f(x; \theta)$, then the **posterior density** of $\theta$ given the data $x$ is defined as:
@@ -30,11 +31,13 @@ Thus, we often state the proportional relationship:
 $$
 \pi(\theta|x) \propto \pi(\theta) f(x;\theta)
 $$
+
 :::
 
 ### Discrete Posterior Calculation
 
 ::: {#exm-discrete-posterior}
+
 ### Discrete Posterior Calculation
 
 Consider the following table where we calculate the posterior probabilities for a discrete parameter space.
@@ -44,7 +47,7 @@ Let the parameter $\theta$ take values $\{1, 2, 3\}$ with prior probabilities $\
 Given:
 
 * Prior $\pi(\theta)$: $\pi(1)=1/3, \pi(2)=1/3, \pi(3)=1/3$.
-* Likelihood $\pi(x|\theta)$:
+   * Likelihood $\pi(x|\theta)$:
     * If $\theta=1$, $x \sim \text{Uniform on } \{0, 1\}$ (Prob = 1/2).
     * If $\theta=2$, $x \sim \text{Uniform on } \{0, 1, 2\}$ (Prob = 1/3).
     * If $\theta=3$, $x \sim \text{Uniform on } \{0, 1, 2, 3\}$ (Prob = 1/4).
@@ -59,11 +62,13 @@ Suppose we observe $x=2$. The calculation of the posterior probabilities is summ
 | **Posterior** $\pi(\theta|x)$ | $0$ | $4/7$ | $3/7$ | $1$ |
 
 The marginal sum (evidence) is calculated as $0 + 1/9 + 1/12 = 4/36 + 3/36 = 7/36$. The posterior values are obtained by dividing the product row by this sum.
+
 :::
 
 ### Binomial-beta Conjugacy
 
 ::: {#exm-binomial-beta}
+
 ### Binomial-beta Conjugacy
 
 Consider an experiment where $x|\theta \sim \text{Bin}(n, \theta)$. The likelihood function is:
@@ -113,10 +118,11 @@ $$
 Suppose we are estimating a probability $\theta$.
 
 * **Prior:** $\theta \sim \text{Beta}(2, 2)$ (Mean = 0.5).
-* **Data:** 10 trials, 8 successes ($n=10, x=8$).
+   * **Data:** 10 trials, 8 successes ($n=10, x=8$).
 * **Posterior:** $\theta|x \sim \text{Beta}(2+8, 2+2) = \text{Beta}(10, 4)$ (Mean $\approx$ 0.71).
 
 The plot below shows the prior (dashed) and posterior (solid) densities.
+
 :::
 
 ```{r}
@@ -138,11 +144,13 @@ plot(theta, posterior, type = 'l', lwd = 2, col = "blue",
 lines(theta, prior, col = "red", lty = 2, lwd = 2)
 legend("topleft", legend = c("Prior Beta(2,2)", "Posterior Beta(10,4)"),
        col = c("red", "blue"), lty = c(2, 1), lwd = 2)
+
 ```
 
 ### Normal-normal Conjugacy (known Variance)
 
 ::: {#exm-normal-normal}
+
 ### Normal-normal Conjugacy (known Variance)
 
 Let $X_1, X_2, \dots, X_n$ be independent and identically distributed (i.i.d.) variables such that $X_i \sim N(\mu, \sigma^2)$, where $\sigma^2$ is known.
@@ -164,7 +172,7 @@ $$
 It is often more convenient to work with **precision** (the inverse of variance). Let:
 
 * $\tau_0 = 1/\sigma_0^2$ (Prior precision)
-* $\tau = 1/\sigma^2$ (Data precision)
+   * $\tau = 1/\sigma^2$ (Data precision)
 * $\tau_1 = 1/\sigma_1^2$ (Posterior precision)
 
 The relationship is additive:
@@ -194,14 +202,15 @@ $$
 Suppose we estimate a mean height $\mu$.
 
 * **Known Variance:** $\sigma^2 = 100$ ($\tau = 0.01$).
-* **Prior:** $\mu \sim N(175, 25)$ (Precision $\tau_0 = 0.04$).
+   * **Prior:** $\mu \sim N(175, 25)$ (Precision $\tau_0 = 0.04$).
 * **Data:** $n=10, \bar{x}=180$. (Total data precision $n\tau = 0.1$).
-* **Posterior:**
+   * **Posterior:**
   * Precision $\tau_1 = 0.04 + 0.1 = 0.14$.
   * Variance $\sigma_1^2 \approx 7.14$.
   * Mean $\mu_1 = \frac{175(0.04) + 180(0.1)}{0.14} \approx 178.6$.
 
 @fig-normal-conjugacy illustrates the prior (dashed) and posterior (solid) normal densities.
+
 :::
 
 ```{r}
@@ -224,11 +233,13 @@ plot(mu_vals, posterior_norm, type = 'l', lwd = 2, col = "blue",
 lines(mu_vals, prior_norm, col = "red", lty = 2, lwd = 2)
 legend("topleft", legend = c("Prior N(175, 25)", "Posterior N(178.6, 7.14)"),
        col = c("red", "blue"), lty = c(2, 1), lwd = 2)
+
 ```
 
 ### Normal with Unknown Mean and Variance
 
 ::: {#exm-Normal-with-Unknown-Mean-and-Variance}
+
 ### Normal with Unknown Mean and Variance
 
 Consider $X_1, \dots, X_n \sim N(\mu, 1/\tau)$, where both $\mu$ and the precision $\tau$ are unknown.
@@ -298,6 +309,7 @@ $$
     where 
        $$\tau' = \tau_0 + n$$ 
        $$\mu' = \frac{\tau_0\mu_0 + n\bar{x}}{\tau_0 + n}$$
+
 * **Marginal Posterior of $\tau|x$**:
     The marginal posterior is $\tau|x \sim \text{Gamma}(\alpha', \beta')$ with:
     $$
@@ -322,6 +334,7 @@ $$
     $$
     E^{\sigma^2|\mu, X}[\sigma^2] \approx \frac{\alpha_0 w_0 + \sum_{i=1}^n (x_i-\mu)^2 + \tau_0(\mu-\mu_0)^2}{\alpha_0 + n + 1}
     $$
+
 :::
 
 ## Finding Bayes Rules via Minimizing Posterior Expected Loss
@@ -329,34 +342,37 @@ $$
 The general form of Bayes rule is derived by minimizing risk.
 
 ::: {#def-risk}
+
 ### Risk Function and Bayes Risk
 
 **Setup and Notation:**
 
 - $\theta \in \Theta$: parameter of interest (unknown state of nature)
-- $x \in X$: observed data
+   - $x \in X$: observed data
 - $\pi(\theta)$: prior probability distribution over the parameter space
-- $f(x;\theta)$: likelihood or sampling distribution of the data given the parameter
+   - $f(x;\theta)$: likelihood or sampling distribution of the data given the parameter
 - $d: X \to A$: decision rule mapping observed data to an action/decision
-- $\mathcal{L}(\theta, a)$: loss function measuring the loss incurred when the true parameter is $\theta$ and action $a$ is taken
+   - $\mathcal{L}(\theta, a)$: loss function measuring the loss incurred when the true parameter is $\theta$ and action $a$ is taken
 
 **Definition:**
 
 * **Risk Function:** For a given decision rule $d$ and parameter value $\theta$,
-$$R(\theta, d) = \int_{X} \mathcal{L}(\theta, d(x)) f(x;\theta) dx = E^{X|\theta} [ \mathcal{L}(\theta, d(X)) ]$$
+   $$R(\theta, d) = \int_{X} \mathcal{L}(\theta, d(x)) f(x;\theta) dx = E^{X|\theta} [ \mathcal{L}(\theta, d(X)) ]$$
 is the expected loss with respect to the sampling distribution when the true parameter is $\theta$.
 
 * **Bayes Risk:** For a decision rule $d$ and prior distribution $\pi$,
-$$r(\pi, d) = \int_{\Theta} R(\theta, d) \pi(\theta) d\theta = E^\theta [ R(\theta, d) ]$$
+   $$r(\pi, d) = \int_{\Theta} R(\theta, d) \pi(\theta) d\theta = E^\theta [ R(\theta, d) ]$$
 is the expected risk averaging over both the parameter uncertainty (prior) and the data variability (likelihood).
 
 * **Posterior Bayes Loss:** The minimum possible expected loss given observed data $x$ is denoted as $\rho^{\text{Bayes}}(\pi, x)$. It represents the expected posterior loss of the Bayes rule:
-$$
+   $$
 \rho^{\text{Bayes}}(\pi, x) = \inf_{d} E^{\theta|x} [ \mathcal{L}(\theta, d) ]
 $$
+
 :::
 
 ::: {#thm-bayes-rule-minimization}
+
 ### Minimization of Bayes Risk
 
 Minimizing the Bayes risk $r(\pi, d)$ is equivalent to minimizing the posterior expected loss for each observed $x$. That is, the Bayes rule $d(x)$ is defined as
@@ -364,6 +380,7 @@ $$
 d^{\text{Bayes}}(x) = \underset{a}{\arg\min} \ E^{\theta|X} [ \mathcal{L}(\theta, a) ]
 $$
 The value of the minimum expected posterior loss is $\rho^{\text{Bayes}}(\pi, x)$.
+
 :::
 
 ::: {.proof}
@@ -398,6 +415,7 @@ The term inside the brackets is the **Posterior Expected Loss**:
 $$
 \int_{\Theta} \mathcal{L}(\theta, d(x)) \pi(\theta|x) d\theta = E^{\theta|X} [ \mathcal{L}(\theta, d(X)) ]
 $$
+
 :::
 
 :::{.callout-important}
@@ -413,6 +431,7 @@ m(x) = \int_{\Theta} f(x|\theta)\pi(\theta) d\theta
 $$
 
 In the second expression, the outer expectation $E^\theta$ is taken with respect to the **prior density** $\pi(\theta)$.
+
 :::
 
 The following diagram summarizes the general workflow for deriving a Bayes estimator:
@@ -447,6 +466,7 @@ The following diagram summarizes the general workflow for deriving a Bayes estim
     \path [line] (minimize) -- (bayesrule);
 
 \end{tikzpicture}
+
 ```
 
 ## Special Bayes Rules
@@ -527,7 +547,7 @@ In cases where the posterior distribution is discrete or has jump discontinuitie
 A median is formally defined as any value $m$ that satisfies the following two conditions simultaneously:
 
 * $P(\theta \le m|x) \ge \frac{1}{2}$
-* $P(\theta \ge m|x) \ge \frac{1}{2}$
+   * $P(\theta \ge m|x) \ge \frac{1}{2}$
 
 **Result:** The Bayes rule under absolute error loss is the **posterior median**.
 
@@ -552,6 +572,7 @@ $$
 **Result:** The Bayes rule is the **median** of the weighted posterior distribution $\pi^*(\theta|x)$.
 
 ::: {#alg-weighted-median}
+
 ##### Importance Sampling for Weighted Median
 
 **Goal:** Estimate the median of $\pi^*(\theta|x) \propto w(\theta)\pi(\theta|x)$ using samples from $\pi(\theta|x)$.
@@ -571,6 +592,7 @@ $$
     $$ k^* = \min \{ k : S_k \ge 0.5 \times S_M \} $$
 
 6.  **Output:** Return the estimator $\hat{\delta} = \theta_{(k^*)}$.
+
 :::
 
 **Numerical Example: Beta(2, 10)**
@@ -613,6 +635,7 @@ selection_table <- data.frame(
 )
 
 # 4. Set LaTeX Column Names
+
 # Note: We use double backslashes \\ for LaTeX commands inside R strings
 colnames(selection_table) <- c(
   "$i$",
@@ -628,14 +651,17 @@ cat("Total Weight ($\\sum w_i$):", total_weight, "\n")
 cat("Threshold ($0.5 \\times \\sum w_i$):", threshold, "\n\n")
 
 # 5. Render Table with escape = FALSE
+
 # escape = FALSE is crucial; otherwise, it prints the dollar signs literally
 knitr::kable(selection_table, 
              digits = 4, 
              align = "c",
              escape = FALSE)
+
 ```
 
 Actual Weighted Median with 1000 draws of $\theta$
+
 ```{r}
 #| label: large-sample-weighted-median
 #| echo: true
@@ -648,6 +674,7 @@ beta <- 10
 
 # 2. Generate Samples and Weights
 theta_samples <- rbeta(M, alpha, beta)
+
 # Weight function: w(theta) = 1 / min(theta, 1-theta)
 w <- function(theta) { 1 / pmin(theta, 1 - theta) }
 weights <- w(theta_samples)
@@ -666,6 +693,7 @@ k_idx <- which(cum_weights >= threshold)[1]
 mc_weighted_median <- sorted_theta[k_idx]
 
 # 5. Compare with Theoretical Value (calculated previously)
+
 # Re-calculating theoretical for completeness of this chunk
 weighted_dens_unnorm <- function(theta) { w(theta) * dbeta(theta, alpha, beta) }
 C <- integrate(weighted_dens_unnorm, 0, 1)$value
@@ -679,6 +707,7 @@ results <- data.frame(
 )
 
 knitr::kable(results, digits = 4, align = "l", caption = "Weighted Median Estimation")
+
 ```
 
 ### Hypothesis Testing (0-1 Loss)
@@ -845,6 +874,7 @@ eq_lower <- qgamma(alpha/2, shape = 2, rate = 0.5)
 eq_upper <- qgamma(1 - alpha/2, shape = 2, rate = 0.5)
 
 ## 2. HPD Interval (density Threshold Optimization)
+
 ## We Look for a Density Threshold K Such That the Area Above K Is 0.90
 find_hpd <- function(dist_vals, density_vals, probability) {
   ## Sort density values
@@ -881,6 +911,7 @@ polygon(c(x_vals[x_vals >= hpd_lower & x_vals <= hpd_upper], hpd_upper, hpd_lowe
 
 ## Draw Equal-tailed Lines (red)
 abline(v = c(eq_lower, eq_upper), col = "red", lwd = 2, lty = 2)
+
 ## Draw HPD Lines (blue)
 abline(v = c(hpd_lower, hpd_upper), col = "blue", lwd = 2, lty = 1)
 
@@ -898,7 +929,7 @@ legend("topright",
 **Comparison with Equal-Tailed Intervals:**
 
 * **Equal-Tailed Interval:** We simply cut off $\alpha/2$ probability from each tail of the distribution. This is easy to compute but may not be the shortest interval if the distribution is skewed.
-* **HPD Interval:** This is the shortest possible interval for the given coverage. For unimodal distributions, the probability density at the two endpoints of the HPD interval is identical.
+   * **HPD Interval:** This is the shortest possible interval for the given coverage. For unimodal distributions, the probability density at the two endpoints of the HPD interval is identical.
 
 The plot below illustrates a skewed posterior distribution (Gamma). Notice how the **HPD Interval (Blue)** is shifted toward the mode (the peak) to capture the highest density values, resulting in a shorter interval length compared to the **Equal-Tailed Interval (Red)**.
 
@@ -957,7 +988,7 @@ $$
 **Interpretation:**
 
 * **$p_0 = 0.5$**: The estimator shrinks the data toward a neutral prior mean of $0.5$ (representing maximum uncertainty).
-* **$w = \frac{n}{n+\sqrt{n}}$**: The weight assigned to the data. As the sample size $n$ increases, $w \to 1$, and the minimax estimator converges to the MLE.
+   * **$w = \frac{n}{n+\sqrt{n}}$**: The weight assigned to the data. As the sample size $n$ increases, $w \to 1$, and the minimax estimator converges to the MLE.
 
 :::
 
@@ -970,6 +1001,7 @@ $$
 where  $\{\delta_n\}$ is a sequence of Bayes rules with respect to priors $\{\pi_n\}$ and $r(\pi_n, \delta_n)$ is the associated Bayes risks.  Then $\delta_0$ is Minimax. This theorem is frequently used when a minimax estimator corresponds to an "improper" prior (a prior that does not integrate to 1, such as a uniform distribution on an infinite interval). Since Bayes rules cannot be directly defined for improper priors in the standard risk framework, we approximate the improper prior with a sequence of proper priors $\{\pi_k\}$. If the risk of our proposed estimator $\delta_0$ acts as a ceiling that the Bayes risks approach from below, $\delta_0$ effectively guards against the "least favorable" conditions, satisfying the minimax criterion.
 
 ::: {#exm-exponential-minimax}
+
 #### Exponential Minimax Estimation
 
 Let $X_1, \dots, X_n$ be a sample from an $\text{Exp}(\theta)$ distribution with mean $\theta$. We consider the **Scale-Invariant Loss Function**:
@@ -1021,7 +1053,7 @@ $$
 For an Inverse-Gamma$(\alpha^*, \beta^*)$ variable, the required moments are:
 
 * $E^{\theta|X}[\theta^{-1}] = \frac{\alpha^*}{\beta^*}$
-* $E^{\theta|X}[\theta^{-2}] = \frac{\alpha^* (\alpha^* + 1)}{(\beta^*)^2}$
+   * $E^{\theta|X}[\theta^{-2}] = \frac{\alpha^* (\alpha^* + 1)}{(\beta^*)^2}$
 
 Substituting these into the estimator formula:
 
@@ -1057,6 +1089,7 @@ R(\theta, d_0) &= E^{X|\theta} \left[ \left( \frac{d_0}{\theta} - 1 \right)^2 \r
 $$
 
 Since $R(\theta, d_0) = \lim_{k \to \infty} r(\pi_k, d_{\pi_k}) = \frac{1}{n+1}$ for all $\theta$, $d_0$ is a **minimax estimator**.
+
 :::
 
 ## Stein's Paradox and the James-stein Estimator
@@ -1067,7 +1100,7 @@ In high-dimensional estimation ($p \ge 3$), the Maximum Likelihood Estimator (ML
 Consider the setting:
 
 * Data: $X \sim N_p(\theta, I)$
-* Prior: $\theta \sim N_p(0, \sigma^2 I)$
+   * Prior: $\theta \sim N_p(0, \sigma^2 I)$
 * Jame-Stein Estimator:
 
 $$d^{JS}(X) = \left( 1 - \frac{p-2}{||X||^2} \right) X$$
@@ -1076,7 +1109,7 @@ $$d^{JS}(X) = \left( 1 - \frac{p-2}{||X||^2} \right) X$$
 The James-Stein estimator improves upon the MLE by shrinking the individual observations toward a common mean (usually zero). The magnitude of this shrinkage depends on the total sum of squares of the observations.
 
 * When the variance of $\theta$ is large, $||X||^2$ tends to be large, resulting in less shrinkage.
-* When the variance of $\theta$ is small, $||X||^2$ is smaller, leading to a larger shrinkage factor.
+   * When the variance of $\theta$ is small, $||X||^2$ is smaller, leading to a larger shrinkage factor.
 
 The following R code simulates these two cases and displays them side-by-side with a shared y-axis for direct comparison.
 
@@ -1149,6 +1182,7 @@ p2 <- create_plot(df_small, TeX("Small $\\sigma^2$ (More Shrinkage)"), y_lims)
 p1 + p2 + 
   plot_layout(guides = "collect") & 
   theme(legend.position = "bottom")
+
 ```
 
 
@@ -1254,6 +1288,7 @@ $$
 The James-Stein result is particularly striking when compared to the performance of the standard estimator.
 
 ::: {#thm-mle-minimax}
+
 #### Minimaxity of the Maximum Likelihood Estimator
 
 Let $X \sim N_p(\theta, I)$. Under the squared error loss function $\mathcal{L}(\theta, d) = ||\theta - d||^2$, the standard Maximum Likelihood Estimator $d^0(X) = X$ is a **minimax rule**. That is, it minimizes the maximum possible risk over the parameter space:
@@ -1261,6 +1296,7 @@ Let $X \sim N_p(\theta, I)$. Under the squared error loss function $\mathcal{L}(
 $$
 \sup_{\theta \in \mathbb{R}^p} R(\theta, d^0) = \inf_{d} \sup_{\theta \in \mathbb{R}^p} R(\theta, d) = p
 $$
+
 :::
 
 ::: {.proof}
@@ -1293,6 +1329,7 @@ By the property that the maximum risk of an estimator is always at least the Bay
 
 
 ::: {.callout-note}
+
 ### Notation: The Divergence Operator
 The symbol $\nabla \cdot g(X)$ (read as "divergence of $g$") is simply a shorthand notation for the sum of the partial derivatives:
 
@@ -1301,9 +1338,11 @@ $$
 $$
 
 It represents the total "outward flow" of the vector field $g$ from a local point.
+
 :::
 
 ::: {#lem-stein}
+
 #### Stein's Lemma
 
 Let $X \sim N_p(\theta, I)$ be a multivariate normal random vector, and let $g: \mathbb{R}^p \to \mathbb{R}^p$ be a continuously differentiable function such that $E^{X|\theta}[| \partial g_i / \partial X_i |] < \infty$. Then:
@@ -1313,6 +1352,7 @@ E^{X|\theta} \left[ (X - \theta)^T g(X) \right] = E^{X|\theta} \left[ \nabla \cd
 $$
 
 The term $\nabla \cdot g(X)$ represents the **divergence** of the vector field $g$, which intuitively measures the local rate of expansion or outward flux of the function $g$ at the point $X$; in this statistical context, it quantifies the aggregate sensitivity of the function components to changes in the data.
+
 :::
 
 ::: {.proof}
@@ -1349,6 +1389,7 @@ Assuming $g(x)$ does not grow exponentially fast, the boundary term vanishes. Th
 In high-dimensional statistics, Stein's Lemma is often expressed using the inner product of the random vector and the function vector field, which highlights the alignment between the data and the transformation.
 
 ::: {#cor-stein-vector}
+
 #### Stein's Lemma (Vector Form)
 
 Let $X \sim N_p(\theta, I)$ and $g: \mathbb{R}^p \to \mathbb{R}^p$ be a weakly differentiable function. Then:
@@ -1356,9 +1397,11 @@ Let $X \sim N_p(\theta, I)$ and $g: \mathbb{R}^p \to \mathbb{R}^p$ be a weakly d
 $$
 E^{X|\theta} [ X^T g(X) ] = \theta^T E^{X|\theta} [ g(X) ] + E^{X|\theta} [ \nabla \cdot g(X) ]
 $$
+
 :::
 
 ::: {.callout-tip}
+
 ### Remark: Connection to Non-Central $\chi^2$ Moments
 This identity provides an elegant way to derive the mean of a non-central chi-square distribution without performing complex integration.
 
@@ -1375,6 +1418,7 @@ E^{X|\theta} [ \lVert X \rVert^2 ] = \lVert \theta \rVert^2 + p
 $$
 
 This is precisely the mean of a $\chi^2_p(\lambda)$ distribution with non-centrality parameter $\lambda = \lVert \theta \rVert^2$. Essentially, Stein's Lemma decomposes the second moment into the **signal component** ($\lVert \theta \rVert^2$) and the **geometric noise component** ($p$).
+
 :::
 
 
@@ -1393,6 +1437,7 @@ E^{X|\theta} \left[ (X - \theta)^T g(X) \right] = E^{X|\theta} \left[ p \cdot c(
 $$
 
 where $c'(z) = \frac{d}{dz}c(z)$.
+
 :::
 
 ::: {.proof}
@@ -1436,17 +1481,19 @@ Taking the expectation of both sides completes the proof.
 This version of the lemma is particularly useful because when $\theta = 0$, the quantity $\lVert X \rVert^2$ follows a central $\chi^2_p$ distribution.
 
 * **Verifying the Mean:** If we set $c(\lVert X \rVert^2) = 1$, then $g(X) = X$. The lemma gives $E^{X|\theta=0}[\lVert X \rVert^2] = p + 2\lVert X \rVert^2(0) = p$, which is the expected value of a $\chi^2_p$ variable.
-* **The James-Stein Weight:** If we set $c(\lVert X \rVert^2) = \frac{1}{\lVert X \rVert^2}$, then $c'(z) = -\frac{1}{z^2}$.
+   * **The James-Stein Weight:** If we set $c(\lVert X \rVert^2) = \frac{1}{\lVert X \rVert^2}$, then $c'(z) = -\frac{1}{z^2}$.
   $$
   \nabla \cdot g(X) = \frac{p}{\lVert X \rVert^2} + 2 \lVert X \rVert^2 \left( -\frac{1}{\lVert X \rVert^4} \right) = \frac{p-2}{\lVert X \rVert^2}
   $$
   This explains why the $p-2$ constant appears in the James-Stein estimator—it is the net result of $p$ dimensions of "spreading" minus 2 dimensions of "radial thinning."
 
 </details>
+
 :::
 
 
 ::: {#exm-stein-polynomial}
+
 ### An Example for Verifying Stein's Lemma
 
 
@@ -1485,7 +1532,7 @@ $$
 We use the known moments of the standard normal distribution $Z$:
 
 * $E[Z] = 0$ (mean)
-* $E[Z^2] = 1$ (variance)
+   * $E[Z^2] = 1$ (variance)
 * $E[Z^3] = 0$ (skewness of symmetric distribution)
 
 Substituting these values back:
@@ -1499,6 +1546,7 @@ $$
 \text{LHS} = 2\theta \quad \text{and} \quad \text{RHS} = 2\theta
 $$
 Thus, Stein's Lemma holds for this specific case.
+
 :::
 
 ::: {#exm-stein-radial}
@@ -1548,6 +1596,7 @@ $$
 **Conclusion**
 
 The results match exactly. The alignment of the cubic radial field with the noise is perfectly predicted by the sum of its geometric expansion ($p \lVert X \rVert^2$) and its radial stretch ($2 \lVert X \rVert^2$).
+
 :::
 
 ### Inadmissibility of the MLE in High Dimensions (Stein's Phenomenon)
@@ -1556,6 +1605,7 @@ The results match exactly. The alignment of the cubic radial field with the nois
 ::: {#thm-mle-inadmissible}
 
 Let $X \sim N_p(\theta, I)$ be a $p$-dimensional random vector with $p \ge 3$. Under the squared error loss function $\mathcal{L}(\theta, d) = ||\theta - d||^2$, the standard Maximum Likelihood Estimator $d^0(X) = X$ is **inadmissible**.
+
 :::
 
 ::: {.proof name="Proof of Inadmissibility"}
@@ -1610,6 +1660,7 @@ $$
 Since $p \ge 3$, the constant $(p-2)^2$ is strictly positive. Because $1/\lVert X \rVert^2 > 0$ with probability 1, the risk of the James-Stein estimator is strictly less than $p$ for all $\theta \in \mathbb{R}^p$.
 
 Thus, $d^{JS}$ dominates the MLE, proving the MLE is inadmissible.
+
 :::
 
 ### How much JS Estimator Improves over MLE
@@ -1642,11 +1693,13 @@ $$
 For a dimension like $p=10$, the James-Stein estimator incurs only $20\%$ of the risk of the MLE near the origin.
 
 ::: {.callout-note collapse="true"}
+
 #### Is $d^{JS}$ Minimax?
 
 Yes. Since the MLE is minimax with constant risk $p$, the minimax risk value for this problem is $p$.
 
 Because $R(\theta, d^{JS}) < p$ for all $\theta$ and $\lim_{\lVert \theta \rVert \to \infty} R(\theta, d^{JS}) = p$, the maximum risk of the James-Stein estimator is exactly $p$. Therefore, $d^{JS}$ achieves the minimax risk level and is a minimax estimator.
+
 :::
 
 
@@ -1673,7 +1726,9 @@ df <- data.frame(
 df$ratio <- df$risk_js / p
 
 # --- FIX: ADJUST SCALING FACTOR ---
+
 # We scale the Ratio so 1.0 sits at y = 12 (top of plot),
+
 # rather than y = 10, to separate it from the Risk curve.
 y_max_limit <- p+1
 scale_factor <- y_max_limit
@@ -1729,6 +1784,7 @@ ggplot(df, aes(x = theta_sq)) +
   axis.title.y.right = element_text(color = "forestgreen"),
   axis.text.y.right = element_text(color = "forestgreen")
  )
+
 ```
 
 ### Using Normalized Loss (Optional)
@@ -1738,7 +1794,7 @@ $$
 \mathcal{L}(\theta, d) = \frac{\lVert d - \theta \rVert^2}{\lVert \theta \rVert^2}, \quad \theta \neq 0
 $$
 
-**1. Risk of the MLE ($d^{\text{MLE}} = X$)**
+1. Risk of the MLE ($d^{\text{MLE}} = X$)
 
 The risk of the Maximum Likelihood Estimator is straightforward because the standard Mean Squared Error (MSE) of $X$ is constant ($p$):
 $$
@@ -1749,7 +1805,7 @@ $$
 R(\theta, d^{\text{MLE}}) = \frac{p}{\lVert \theta \rVert^2}
 $$
 
-**2. Risk of the James-Stein Estimator ($d^{JS}$)**
+2. Risk of the James-Stein Estimator ($d^{JS}$)
 
 For the James-Stein estimator $d^{JS} = \left( 1 - \frac{p-2}{\lVert X \rVert^2} \right)X$, we utilize the known result for its standard MSE risk:
 $$
@@ -1760,7 +1816,7 @@ $$
 R(\theta, d^{JS}) = \frac{1}{\lVert \theta \rVert^2} \left( p - (p-2)^2 E^{X|\theta} \left[ \frac{1}{\lVert X \rVert^2} \right] \right)
 $$
 
-**3. Comparison and Dominance**
+3. Comparison and Dominance
 
 We compare the risks by taking the difference:
 $$
@@ -1772,7 +1828,7 @@ R(\theta, d^{JS}) < R(\theta, d^{\text{MLE}})
 $$
 
 * **Global Dominance:** The James-Stein estimator dominates the MLE under this loss function as well, achieving lower risk everywhere in the parameter space.
-* **Behavior near $\theta \approx 0$:**
+   * **Behavior near $\theta \approx 0$:**
   As $\lVert \theta \rVert \to 0$, both risks diverge to infinity. We analyze their relative performance by examining the ratio of the risks:
  
   $$
@@ -1792,6 +1848,7 @@ $$
 We can derive the Bayes Risk $r(\pi, d^{JS})$ of this estimator using two equivalent methods: minimizing the expected frequentist risk, or minimizing the expected posterior loss.
 
 ::: {#thm-js-bayes-risk}
+
 #### Bayes Risk of James-stein Estimator
 
 For $p \ge 3$, the Bayes risk of the James-Stein estimator $d^{JS}$ with respect to the prior $\theta \sim N(0, \sigma^2 I)$ is:
@@ -1799,6 +1856,7 @@ For $p \ge 3$, the Bayes risk of the James-Stein estimator $d^{JS}$ with respect
 $$
 r(\pi, d^{JS}) = \frac{p\sigma^2 + 2}{\sigma^2 + 1}
 $$
+
 :::
 
 ::: {.proof}
@@ -1892,7 +1950,7 @@ $$
 We now take the expectation $E^X[\cdot]$ of the posterior loss. Recall $X \sim N(0, (1+\sigma^2)I)$, so $E^X[||X||^2] = p(1+\sigma^2)$ and $E^X[1/||X||^2] = \frac{1}{(p-2)(1+\sigma^2)}$.
 
 * **Expectation of Trace term:** Constant, remains $\frac{p\sigma^2}{1+\sigma^2}$.
-* **Expectation of Bias term:**
+   * **Expectation of Bias term:**
 
   $$
   \begin{aligned}
@@ -1923,7 +1981,7 @@ Both methods yield the same result.
 Consider a One-Way ANOVA setting where we wish to estimate the means of $p$ different independent groups (e.g., the true batting averages of $p=10$ baseball players, or the efficacy of $p=5$ different hospital treatments).
 
 * **Model:** Let $X_i \sim N(\theta_i, \sigma^2)$ be the observed sample mean for group $i$, for $i = 1, \dots, p$.
-* **Goal:** Estimate the vector of true means $\boldsymbol{\theta} = (\theta_1, \dots, \theta_p)$ simultaneously. The loss is the sum of squared errors: $L(\boldsymbol{\theta}, \hat{\boldsymbol{\theta}}) = \sum (\theta_i - \hat{\theta}_i)^2$.
+   * **Goal:** Estimate the vector of true means $\boldsymbol{\theta} = (\theta_1, \dots, \theta_p)$ simultaneously. The loss is the sum of squared errors: $L(\boldsymbol{\theta}, \hat{\boldsymbol{\theta}}) = \sum (\theta_i - \hat{\theta}_i)^2$.
 
 **The MLE Approach (Total Separation):**
 The standard estimator is $\hat{\theta}_i^{\text{MLE}} = X_i$. This estimates each group entirely independently, using only data from that specific group. If a specific player has a lucky streak, their estimate is very high; if they are unlucky, it is very low.
@@ -1938,9 +1996,10 @@ $$
 Even though the groups might be physically independent (e.g., distinct hospitals), the James-Stein estimator **"borrows strength"** from the ensemble.
 
 * **Noise Reduction:** Extreme observations $X_i$ are likely to contain more positive noise than signal. Shrinking them toward the global average $\bar{X}$ reduces this variance.
-* **Stein's Paradox:** While $\hat{\theta}_i^{JS}$ introduces bias (estimates are pulled toward the center), the reduction in variance is so significant that the **Total Risk** (sum of squared errors over all groups) is strictly lower than that of the MLE, provided $p \ge 3$.
+   * **Stein's Paradox:** While $\hat{\theta}_i^{JS}$ introduces bias (estimates are pulled toward the center), the reduction in variance is so significant that the **Total Risk** (sum of squared errors over all groups) is strictly lower than that of the MLE, provided $p \ge 3$.
 
 Thus, estimating the groups *together* yields a more accurate global picture than estimating them *separately*, even if the groups are independent.
+
 :::
 
 ### Why Is This Paradoxical?
@@ -1948,134 +2007,160 @@ Thus, estimating the groups *together* yields a more accurate global picture tha
 The result that $d^{JS}$ dominates $d^0$ is called **Stein's Paradox** because it defies intuition in several ways:
 
 * **Independence Irrelevance:** The result holds even if the components $X_i$ are completely unrelated (e.g., $X_1$ is the price of tea in China, $X_2$ is the temperature in Saskatoon, and $X_3$ is the weight of a local cat). It seems absurd that combining unrelated data improves the estimate of each, but the combined risk is indeed lower.
-* **No "Free Lunch":** The James-Stein estimator does not improve every individual component $\theta_i$ simultaneously for every realization. Instead, it minimizes the **total** risk $\sum E(\hat{\theta}_i - \theta_i)^2$. It sacrifices accuracy on outliers (by biasing them) to gain significant stability on the bulk of the data.
+   * **No "Free Lunch":** The James-Stein estimator does not improve every individual component $\theta_i$ simultaneously for every realization. Instead, it minimizes the **total** risk $\sum E(\hat{\theta}_i - \theta_i)^2$. It sacrifices accuracy on outliers (by biasing them) to gain significant stability on the bulk of the data.
 * **Destruction of Symmetry:** The MLE is invariant under translation and rotation. The James-Stein estimator breaks this symmetry by shrinking toward an arbitrary point (usually the origin or the grand mean), yet it yields a better objective performance.
 
 ### What We Learned
 
 * **Bias-Variance Tradeoff:** This is the most famous example where introducing **bias** (shrinkage) leads to a massive reduction in **variance**, thereby reducing the overall Mean Squared Error (MSE). Unbiasedness is not always a virtue in estimation.
-* **Inadmissibility in High Dimensions:** Intuitions formed in 1D or 2D (where MLE is admissible) fail in higher dimensions ($p \ge 3$). The volume of space grows so fast that "standard" diffuse priors or MLEs become inefficient.
+   * **Inadmissibility in High Dimensions:** Intuitions formed in 1D or 2D (where MLE is admissible) fail in higher dimensions ($p \ge 3$). The volume of space grows so fast that "standard" diffuse priors or MLEs become inefficient.
 * **Hierarchical Modeling:** Stein's result provides the theoretical foundation for **Hierarchical Bayesian Models**. When we assume parameters come from a common distribution (e.g., $\theta_i \sim N(\mu, \tau^2)$), we naturally derive shrinkage estimators that "borrow strength" across groups, formalized as Empirical Bayes or fully Bayesian methods.
 
-### Bias-variance Tradeoff
+### Bias-Variance Decomposition for James-Stein Estimator
+
+Based on the derivations in your handwritten notes, here are the corresponding LaTeX equations formatted for your Quarto document.
+
+$$
+X = \begin{pmatrix} x_1 \\ x_2 \end{pmatrix}
+$$
+
+The Mean Squared Error (MSE) of the James-Stein estimator $d^{JS}(X)$ with respect to the parameter $\theta$ is decomposed by adding and subtracting the expected value $u_{d^{JS}} = E^{X|\theta}[d^{JS}(X)]$:
+
+$$
+\begin{aligned}
+E^{X|\theta} \left[ \| d^{JS}(X) - \theta \|^2 \right] &= E^{X|\theta} \left[ \| d^{JS} - u_{d^{JS}} + u_{d^{JS}} - \theta \|^2 \right] \\
+&= V(d^{JS}(X)) + \left[ Bias(d^{JS}(X)) \right]^2
+\end{aligned}
+$$
+
+where the components are defined as:
+
+1. **Variance Component**
+   $$ V(d^{JS}(X)) = E^{X|\theta} \left[ \| d^{JS}(X) - u_{d^{JS}} \|^2 \right] $$
+
+2. **Bias Component**
+   $$ Bias(d^{JS}(X)) = u_{d^{JS}} - \theta $$
+
+::: {.remark}
+Note that while the ordinary MLE $X$ is unbiased ($E^{X|\theta}(X) - \theta = 0$), the James-Stein estimator introduces a deliberate bias to significantly reduce the variance, resulting in a lower total MSE when the dimension is three or greater.
+
+:::
 
 ```{r}
-#| label: fig-js-shrinkage-r
-#| fig-cap: "Visualizing James-Stein Shrinkage and Bias-Variance Tradeoff"
-#| echo: false
-#| fig-align: "center"
-#| out.width: "100%"
+#| label: fig-js-shrinkage-final
+#| fig-cap: "Variance-Bias Tradeoff with Adjusted Shrinkage Factor"
 #| warning: false
+#| message: false
 
 library(ggplot2)
-library(grid)
+library(dplyr)
+library(latex2exp)
 
-# 1. Setup Data
-theta <- c(5, 4)
-# Create 4 data points around theta
-set.seed(123)
-x_points <- data.frame(
-  id = 1:4,
-  x1 = c(6.2, 4.0, 3.8, 5.5),
-  x2 = c(4.5, 5.2, 2.8, 3.0)
-)
+# Set seed for reproducibility
+set.seed(123) 
 
-# Shrinkage factor (fake for visualization)
-k <- 0.25 
-d_points <- x_points
-d_points$x1 <- x_points$x1 * (1 - k)
-d_points$x2 <- x_points$x2 * (1 - k)
+# --- 1. Parameters ---
+theta <- c(1, 1)
+sigma <- 0.35 
+n_obs_points <- 4
+# New constant requested: 0.5
+shrink_const <- 0.5
 
-# Mean of estimates
-mu_d <- colMeans(d_points[, c("x1", "x2")])
+# --- 2. Helper Function ---
+js_map <- function(x, y) {
+  sq_norm <- x^2 + y^2
+  s <- 1 - shrink_const / sq_norm
+  return(c(x * s, y * s))
+}
 
-# 2. Define Plot Limits to make room for text on the right
-# Data is roughly in x=[0, 7]. We extend x to 13 to hold annotations.
-x_limits <- c(-0.5, 13)
-y_limits <- c(-0.5, 6.5)
+# --- 3. Observation Data ---
+x_matrix <- matrix(rnorm(n_obs_points * 2, mean = theta, sd = sigma), ncol = 2, byrow = TRUE)
+df_obs <- as.data.frame(x_matrix)
+colnames(df_obs) <- c("x1", "x2")
 
-# 3. Create Vectors for the Tradeoff Triangle (using point #1)
-# Create a dedicated clean dataframe for arrows to avoid duplicate name error
-arrow_data <- data.frame(
-  x_start = x_points$x1,
-  y_start = x_points$x2,
-  x_end   = d_points$x1,
-  y_end   = d_points$x2
-)
+# Apply mapping to observations
+df_obs_mapped <- t(apply(df_obs, 1, function(row) js_map(row[1], row[2])))
+df_obs$x1_js <- df_obs_mapped[,1]
+df_obs$x2_js <- df_obs_mapped[,2]
 
-# Vectors for specific components
-vec_bias <- data.frame(x = mu_d[1], y = mu_d[2], xend = theta[1], yend = theta[2])
-vec_var  <- data.frame(x = d_points$x1[1], y = d_points$x2[1], xend = mu_d[1], yend = mu_d[2])
-vec_err  <- data.frame(x = d_points$x1[1], y = d_points$x2[1], xend = theta[1], yend = theta[2])
+# Map the true theta for the "mean" point
+theta_js <- js_map(theta[1], theta[2])
 
-# 4. Plot
+# --- 4. Construct Contours via Mapping ---
+angles <- seq(0, 2 * pi, length.out = 200)
+radii <- c(0.6, 1.2) * sigma
+
+contour_list <- lapply(radii, function(r) {
+  # Gray circle points
+  gray_x <- theta[1] + r * cos(angles)
+  gray_y <- theta[2] + r * sin(angles)
+  
+  # Map them point-by-point to green
+  green_pts <- t(mapply(js_map, gray_x, gray_y))
+  
+  data.frame(
+    gx = gray_x, gy = gray_y,
+    jx = green_pts[,1], jy = green_pts[,2],
+    radius_id = as.factor(r)
+  )
+})
+df_contours <- bind_rows(contour_list)
+
+# --- 5. Plotting ---
 ggplot() +
-  # --- Setup ---
-  coord_fixed(ratio = 1, xlim = x_limits, ylim = y_limits) +
-  theme_void() +
-  theme(plot.background = element_rect(fill = "white", color = NA)) +
+  coord_fixed(xlim = c(-0.1, theta[1]+1), ylim = c(-0.1, theta[1]+1)) +
+  theme_minimal() +
+  theme(
+    panel.grid = element_blank(),
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    plot.title = element_text(hjust = 0.5, size = 16),
+    legend.position = "right"
+  ) +
   
-  # --- Axes ---
-  annotate("segment", x = -0.5, y = 0, xend = 7, yend = 0, arrow = arrow(length = unit(0.2, "cm")), color = "gray50") +
-  annotate("segment", x = 0, y = -0.5, xend = 0, yend = 6, arrow = arrow(length = unit(0.2, "cm")), color = "gray50") +
-  annotate("text", x = 0, y = 0, label = "O", hjust = 1.5, vjust = 1.5) +
+  # Axes
+  geom_hline(yintercept = 0, color = "grey40", size = 0.5,
+             arrow = arrow(length = unit(0.3, "cm"), ends = "last")) +
+  geom_vline(xintercept = 0, color = "grey40", size = 0.5,
+             arrow = arrow(length = unit(0.3, "cm"), ends = "last")) +
+  annotate("text", x = 2, y = 0, label = TeX("$x_1$"), vjust = 1.5) +
+  annotate("text", x = 0, y = 2, label = TeX("$x_2$"), hjust = 1.5) +
 
-  # --- Variance Ellipse ---
-  stat_ellipse(data = d_points, aes(x = x1, y = x2), color = "skyblue", fill = "aliceblue", geom = "polygon", alpha = 0.3, level = 0.8) +
+  # Original Density Contours (Gray Dashed)
+  geom_path(data = df_contours, aes(x = gx, y = gy, group = radius_id),
+            color = "grey70", linetype = "dashed") +
 
-  # --- Vectors (Tradeoff) ---
-  # Bias (Orange)
-  geom_segment(data = vec_bias, aes(x=x, y=y, xend=xend, yend=yend), 
-               color = "orange", linewidth = 1.5, arrow = arrow(length = unit(0.3, "cm"))) +
-  annotate("text", x = 5.2, y = 4.4, label = "Bias", color = "orange", fontface = "bold", size = 3.5) +
+  # Mapped Density Contours (Green Dashed)
+  geom_path(data = df_contours, aes(x = jx, y = jy, group = radius_id),
+            color = "palegreen4", linetype = "dashed", size = 0.7) +
 
-  # Variance (Green)
-  geom_segment(data = vec_var, aes(x=x, y=y, xend=xend, yend=yend), 
-               color = "forestgreen", linewidth = 1.2, arrow = arrow(length = unit(0.25, "cm"))) +
-  annotate("text", x = 4.2, y = 3.6, label = "Deviation", color = "forestgreen", size = 3) +
+  # Gray vectors from origin to observations
+  geom_segment(data = df_obs, aes(x = 0, y = 0, xend = x1, yend = x2),
+               color = "grey90", size = 0.5) +
 
-  # Total Error (Red Dashed)
-  geom_segment(data = vec_err, aes(x=x, y=y, xend=xend, yend=yend), 
-               color = "red", linetype = "dashed", linewidth = 0.8, arrow = arrow(length = unit(0.2, "cm"))) +
-
-  # --- Points ---
-  # Original X (Gray Hollow)
-  geom_point(data = x_points, aes(x = x1, y = x2), shape = 1, size = 3, color = "gray40") +
-  # Shrunken D (Blue Solid)
-  geom_point(data = d_points, aes(x = x1, y = x2), shape = 19, size = 3, color = "blue") +
+  # Points for Legend
+  geom_point(aes(x = theta[1], y = theta[2], color = "theta", shape = "theta"), size = 4) +
   
-  # Shrinkage arrows (Using the clean arrow_data)
-  geom_segment(data = arrow_data, 
-               aes(x = x_start, y = y_start, xend = x_end, yend = y_end), 
-               arrow = arrow(length = unit(0.15, "cm")), color = "gray80") +
-  
-  # Mu (Mean of D)
-  geom_point(aes(x = mu_d[1], y = mu_d[2]), color = "blue", size = 5, shape = 19) +
-  annotate("text", x = mu_d[1], y = mu_d[2] - 0.4, label = "Mean(d)", color = "blue", size = 3) +
+  geom_point(data = df_obs, aes(x = x1, y = x2, color = "x", shape = "x"), 
+             size = 2.5, stroke = 0.8) +
 
-  # Theta (Truth)
-  geom_point(aes(x = theta[1], y = theta[2]), color = "red", size = 5, shape = 19) +
-  annotate("text", x = theta[1] + 0.3, y = theta[2], label = "Theta", color = "red", fontface = "bold", hjust = 0) +
+  geom_point(data = df_obs, aes(x = x1_js, y = x2_js, color = "djs", shape = "djs"), 
+             size = 2.5) +
 
-  # --- Annotation Box (Right Side) ---
-  annotate("rect", xmin = 7.5, xmax = 12.8, ymin = 1, ymax = 6, fill = "white", color = "gray90", alpha = 0.8) +
+  # Shrunken Theta
+  geom_point(aes(x = theta_js[1], y = theta_js[2], color = "mean", shape = "mean"), 
+             size = 3) +
+
+  # Manual Scale Definitions
+  scale_color_manual(name = "Legend",
+                     values = c("theta" = "red", "x" = "black", 
+                                "djs" = "darkgreen", "mean" = "darkgreen"),
+                     labels = unname(TeX(c("$d^{JS}(x)$", "$d^{JS}(\\theta)$", "$x$", "$\\theta$")))) +
+  scale_shape_manual(name = "Legend",
+                     values = c("theta" = 16, "x" = 1, "djs" = 17, "mean" = 17),
+                     labels = unname(TeX(c("$d^{JS}(x)$", "$d^{JS}(\\theta)$", "$x$", "$\\theta$")))) +
   
-  # Title
-  annotate("text", x = 8, y = 5.5, label = "James-Stein Tradeoff", fontface = "bold", size = 5, hjust = 0) +
-  
-  # Equations using plotmath expressions
-  annotate("text", x = 8, y = 4.5, hjust = 0, parse = TRUE, size = 4,
-           label = "'Estimator (Shrinkage):'") +
-  annotate("text", x = 8.2, y = 4.0, hjust = 0, parse = TRUE, size = 3.8,
-           label = "d[i] %approx% (1 - frac(1, group('||', x[i], '||')^2)) * x[i]") +
-           
-  annotate("text", x = 8, y = 3.0, hjust = 0, parse = TRUE, size = 4,
-           label = "'MSE Decomposition:'") +
-  annotate("text", x = 8.2, y = 2.4, hjust = 0, parse = TRUE, size = 3.8,
-           label = "E['||' * d - theta * '||'^2] == E['||' * d - mu[d] * '||'^2] + '||' * mu[d] - theta * '||'^2") +
-  
-  # Legend for terms
-  annotate("text", x = 8.2, y = 1.7, hjust = 0, label = "= Variance (Green) + Bias^2 (Orange)", color = "gray30", size = 3.5)
+  ggtitle(TeX("Bias-Variance Tradeoff (c = 0.5)"))
 ```
 
 ## Empirical Bayes Rules
@@ -2106,7 +2191,7 @@ The workflow typically follows these steps:
 **Discussion:**
 
 * **"Borrowing Strength":** EB allows us to pool information across independent groups to estimate the common structure (the prior) governing them.
-* **The Critique:** A purist Bayesian might object that using the data twice (once to estimate the prior, once to estimate $\theta$) underestimates the uncertainty. A fully Bayesian Hierarchical model would instead place a "hyperprior" on $\eta$ and integrate it out.
+   * **The Critique:** A purist Bayesian might object that using the data twice (once to estimate the prior, once to estimate $\theta$) underestimates the uncertainty. A fully Bayesian Hierarchical model would instead place a "hyperprior" on $\eta$ and integrate it out.
 
 ### Deriving James-Stein as Empirical Bayes
 
@@ -2115,7 +2200,7 @@ The James-Stein estimator can be viewed as an **Empirical Bayes** procedure, whe
 **Model:**
 
 * **Likelihood:** $X_i | \mu_i \sim N(\mu_i, 1)$ for $i=1, \dots, p$.
-* **Prior:** $\mu_i \sim N(0, \sigma^2)$, where $\sigma^2$ is an unknown hyperparameter.
+   * **Prior:** $\mu_i \sim N(0, \sigma^2)$, where $\sigma^2$ is an unknown hyperparameter.
 
 
 

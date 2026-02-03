@@ -359,9 +359,9 @@ $$
 ::: {#thm-bayes-rule-minimization}
 ### Minimization of Bayes Risk
 
-Minimizing the Bayes risk $r(\pi, d)$ is equivalent to minimizing the posterior expected loss for each observed $x$. That is, the Bayes rule $d(x)$ satisfies:
+Minimizing the Bayes risk $r(\pi, d)$ is equivalent to minimizing the posterior expected loss for each observed $x$. That is, the Bayes rule $d(x)$ is defined as
 $$
-d(x) = \underset{a}{\arg\min} \ E^{\theta|X} [ \mathcal{L}(\theta, a) ]
+d^{\text{Bayes}}(x) = \underset{a}{\arg\min} \ E^{\theta|X} [ \mathcal{L}(\theta, a) ]
 $$
 The value of the minimum expected posterior loss is $\rho^{\text{Bayes}}(\pi, x)$.
 :::
@@ -961,6 +961,13 @@ $$
 
 :::
 
+### Exponential Minimax Estimation
+
+Let's recall @thm-limits. If there exists a rule $\delta_0$ such that:
+$$
+\sup_{\theta} R(\theta, \delta_0) \le \lim_{n \to \infty} r(\pi_n, \delta_n),
+$$
+where  $\{\delta_n\}$ is a sequence of Bayes rules with respect to priors $\{\pi_n\}$ and $r(\pi_n, \delta_n)$ is the associated Bayes risks.  Then $\delta_0$ is Minimax. This theorem is frequently used when a minimax estimator corresponds to an "improper" prior (a prior that does not integrate to 1, such as a uniform distribution on an infinite interval). Since Bayes rules cannot be directly defined for improper priors in the standard risk framework, we approximate the improper prior with a sequence of proper priors $\{\pi_k\}$. If the risk of our proposed estimator $\delta_0$ acts as a ceiling that the Bayes risks approach from below, $\delta_0$ effectively guards against the "least favorable" conditions, satisfying the minimax criterion.
 
 ::: {#exm-exponential-minimax}
 #### Exponential Minimax Estimation
@@ -1061,9 +1068,89 @@ Consider the setting:
 
 * Data: $X \sim N_p(\theta, I)$
 * Prior: $\theta \sim N_p(0, \sigma^2 I)$
-* Jame-Stein Estimator: 
+* Jame-Stein Estimator:
 
 $$d^{JS}(X) = \left( 1 - \frac{p-2}{||X||^2} \right) X$$
+
+
+The James-Stein estimator improves upon the MLE by shrinking the individual observations toward a common mean (usually zero). The magnitude of this shrinkage depends on the total sum of squares of the observations.
+
+* When the variance of $\theta$ is large, $||X||^2$ tends to be large, resulting in less shrinkage.
+* When the variance of $\theta$ is small, $||X||^2$ is smaller, leading to a larger shrinkage factor.
+
+The following R code simulates these two cases and displays them side-by-side with a shared y-axis for direct comparison.
+
+```{r }
+#| label: fig-stein-vs-mle
+#| message: false
+#| warning: false
+#| fig-width: 10
+#| fig-height: 6
+#| fig-cap: Visualization of JS Estimator 
+
+library(ggplot2)
+library(patchwork)
+library(tidyr)
+library(dplyr)
+library(latex2exp)
+
+set.seed(42)
+p <- 20
+sigma1 <- 3
+sigma2 <- 1
+
+simulate_js <- function(sigma, p_dim) {
+  theta <- rnorm(p_dim, 0, sigma)
+  X <- theta + rnorm(p_dim, 0, 1)
+  sum_x_sq <- sum(X^2)
+  shrinkage_factor <- max(0, 1 - (p_dim - 2) / sum_x_sq)
+  js_est <- shrinkage_factor * X
+  
+  data.frame(
+    i = 1:p_dim,
+    X_i = X,
+    JS_i = js_est
+  )
+}
+
+df_large <- simulate_js(sigma1, p)
+df_small <- simulate_js(sigma2, p)
+y_lims <- range(c(df_large$X_i, df_small$X_i))
+
+create_plot <- function(df, title, y_limits) {
+  df_long <- df %>%
+    pivot_longer(cols = c(X_i, JS_i), names_to = "Est", values_to = "Value")
+  
+  ggplot(df_long, aes(x = i, y = Value, color = Est, shape = Est)) +
+    geom_point(size = 3, alpha = 0.8) +
+    scale_color_manual(
+      values = c("X_i" = "tomato", "JS_i" = "blue"),
+      labels = unname(TeX(c("$\\hat{\\theta}_i^{JS}$", "$X_i$")))
+    ) +
+    scale_shape_manual(
+      values = c("X_i" = 4, "JS_i" = 16),
+      labels = unname(TeX(c("$\\hat{\\theta}_i^{JS}$", "$X_i$")))
+    ) +
+    ylim(y_limits) +
+    theme_minimal() +
+    labs(
+      title = title,
+      x = TeX("Index $i$"),
+      y = TeX("Value"),
+      color = "Estimator",
+      shape = "Estimator"
+    )
+}
+
+p1 <- create_plot(df_large, TeX("Large $\\sigma^2$ (Less Shrinkage)"), y_lims)
+p2 <- create_plot(df_small, TeX("Small $\\sigma^2$ (More Shrinkage)"), y_lims)
+
+# Combine with patchwork, collect guides at the bottom
+p1 + p2 + 
+  plot_layout(guides = "collect") & 
+  theme(legend.position = "bottom")
+```
+
 
 ### The Maximum Likelihood Estimator
 
@@ -1123,24 +1210,24 @@ Since the components are independent, we can derive the Bayes rule for a single 
 For a single component, the posterior distribution of $\theta_i$ given $X_i$ is Normal, with parameters determined by the standard conjugate formulas:
 
 * **Posterior Precision (inverse variance):**
-    The posterior precision is the sum of the prior precision and the data precision.
-    $$
-    \frac{1}{v_{\text{post}}} = \frac{1}{\sigma^2} + \frac{1}{1} = \frac{1 + \sigma^2}{\sigma^2}
-    $$
-    Therefore, the posterior variance is:
-    $$
-    v_{\text{post}} = \frac{\sigma^2}{1 + \sigma^2}
-    $$
+  The posterior precision is the sum of the prior precision and the data precision.
+  $$
+  \frac{1}{v_{\text{post}}} = \frac{1}{\sigma^2} + \frac{1}{1} = \frac{1 + \sigma^2}{\sigma^2}
+  $$
+  Therefore, the posterior variance is:
+  $$
+  v_{\text{post}} = \frac{\sigma^2}{1 + \sigma^2}
+  $$
 
 * **Posterior Mean (Bayes Estimator):**
-    The posterior mean is the precision-weighted average of the prior mean (0) and the data mean ($X_i$).
-    $$
-    \begin{aligned}
-    E^{\theta_i|X_i}[\theta_i] &= v_{\text{post}} \left( \frac{0}{\sigma^2} + \frac{X_i}{1} \right) \\
-    &= \frac{\sigma^2}{1 + \sigma^2} X_i \\
-    &= \left( 1 - \frac{1}{1 + \sigma^2} \right) X_i
-    \end{aligned}
-    $$
+  The posterior mean is the precision-weighted average of the prior mean (0) and the data mean ($X_i$).
+  $$
+  \begin{aligned}
+  E^{\theta_i|X_i}[\theta_i] &= v_{\text{post}} \left( \frac{0}{\sigma^2} + \frac{X_i}{1} \right) \\
+  &= \frac{\sigma^2}{1 + \sigma^2} X_i \\
+  &= \left( 1 - \frac{1}{1 + \sigma^2} \right) X_i
+  \end{aligned}
+  $$
 
 Since this holds for all $i$, the Bayes rule for the vector $\theta$ is applying this shrinkage factor to each component:
 
@@ -1273,7 +1360,7 @@ $$
 
 ::: {.callout-tip}
 ### Remark: Connection to Non-Central $\chi^2$ Moments
-This identity provides an elegant way to derive the mean of a non-central chi-square distribution without performing complex integration. 
+This identity provides an elegant way to derive the mean of a non-central chi-square distribution without performing complex integration.
 
 Consider the case where $g(X) = X$. Here, $\nabla \cdot X = p$. Plugging this into the vector form:
 
@@ -1350,11 +1437,11 @@ This version of the lemma is particularly useful because when $\theta = 0$, the 
 
 * **Verifying the Mean:** If we set $c(\lVert X \rVert^2) = 1$, then $g(X) = X$. The lemma gives $E^{X|\theta=0}[\lVert X \rVert^2] = p + 2\lVert X \rVert^2(0) = p$, which is the expected value of a $\chi^2_p$ variable.
 * **The James-Stein Weight:** If we set $c(\lVert X \rVert^2) = \frac{1}{\lVert X \rVert^2}$, then $c'(z) = -\frac{1}{z^2}$.
-    $$
-    \nabla \cdot g(X) = \frac{p}{\lVert X \rVert^2} + 2 \lVert X \rVert^2 \left( -\frac{1}{\lVert X \rVert^4} \right) = \frac{p-2}{\lVert X \rVert^2}
-    $$
-    This explains why the $p-2$ constant appears in the James-Stein estimator—it is the net result of $p$ dimensions of "spreading" minus 2 dimensions of "radial thinning."
- 
+  $$
+  \nabla \cdot g(X) = \frac{p}{\lVert X \rVert^2} + 2 \lVert X \rVert^2 \left( -\frac{1}{\lVert X \rVert^4} \right) = \frac{p-2}{\lVert X \rVert^2}
+  $$
+  This explains why the $p-2$ constant appears in the James-Stein estimator—it is the net result of $p$ dimensions of "spreading" minus 2 dimensions of "radial thinning."
+
 </details>
 :::
 
@@ -1485,7 +1572,7 @@ R(\theta, d^{JS}) &= E^{X|\theta} \left[ || (X - \theta) - g(X) ||^2 \right] \\
 \end{aligned}
 $$
 
-The first term is the risk of the MLE, which is $p$. 
+The first term is the risk of the MLE, which is $p$.
 
 
 
@@ -1508,7 +1595,7 @@ Applying the lemma to the cross-term:
 $$2 E^{X|\theta} \left[ (X-\theta)^T g(X) \right] = 2 E^{X|\theta} [ \nabla \cdot g(X) ] = 2(p-2)^2 E^{X|\theta} \left[ \frac{1}{\lVert X \rVert^2} \right]$$
 
 The third term in the risk expansion is the squared magnitude of the shrinkage:
-$$\lVert g(X) \rVert^2 = \left\lVert  \frac{p-2}{ \lVert X \rVert ^2} X \right \rVert^2 = \frac{(p-2)^2}{\lVert X \rVert^4} \lVert X \rVert^2 = \frac{(p-2)^2}{\lVert X \rVert^2}$$
+$$\lVert g(X) \rVert^2 = \left\lVert \frac{p-2}{ \lVert X \rVert ^2} X \right \rVert^2 = \frac{(p-2)^2}{\lVert X \rVert^4} \lVert X \rVert^2 = \frac{(p-2)^2}{\lVert X \rVert^2}$$
 
 
 
@@ -1525,24 +1612,35 @@ Since $p \ge 3$, the constant $(p-2)^2$ is strictly positive. Because $1/\lVert 
 Thus, $d^{JS}$ dominates the MLE, proving the MLE is inadmissible.
 :::
 
-**Interpretation:**
+### How much JS Estimator Improves over MLE
 
-The term $(p-2)^2 E^{X|\theta} \left[ \frac{1}{\lVert X \rVert^2} \right]$ represents the reduction in risk provided by the James-Stein estimator.
+The exact risk function of the James-Stein estimator $d^{JS}(X)$ under squared error loss for $X \sim N_p(\theta, I)$ is given by:
 
-* When the observed signal $\lVert X \rVert^2$ is large (implying $\lVert \theta \rVert^2$ is likely large), the term $1/\lVert X \rVert^2$ is small. Consequently, the risk of the James-Stein estimator approaches that of the MLE ($p$), and the improvement is negligible.
+$$R(\theta, d^{JS}) = p - (p-2)^2 E \left[ \frac{1}{\chi_p^2(\|\theta\|^2/2)} \right]$$
 
-* When the observed signal $\lVert X \rVert^2$ is small (implying $\lVert \theta \rVert^2$ is likely near zero), the term $1/\lVert X \rVert^2$ is large. In this scenario, the James-Stein estimator shrinks the estimate aggressively toward zero, resulting in a risk substantially lower than $p$.
+where $\chi_p^2(\|\theta\|^2/2)$ is a non-central chi-square random variable with $p$ degrees of freedom and non-centrality parameter $\lambda = \|\theta\|^2/2$. 
 
-   **Risk Ratio near the Origin**:
-   As the true parameter vector shrinks to zero ($\lVert \theta \rVert \to 0$), the ratio of the risks converges to a constant fraction. We substitute the expectation $E^{X|\theta=0}[1/\lVert X \rVert^2] = 1/(p-2)$ directly into the numerator:
-   
-   $$
-   \lim_{\lVert \theta \rVert \to 0} \frac{R(\theta, d^{JS})}{R(\theta, d^{\text{MLE}})} = \frac{p - (p-2)^2 \left( \frac{1}{p-2} \right)}{p} = \frac{p - (p-2)}{p} = \frac{2}{p}
-   $$
+Using the approximation $E[1/\chi_p^2(\lambda)] \approx 1/E[\chi_p^2(\lambda)] = 1/(p + \|\theta\|^2)$, we can see the approximate behavior of the risk:
 
-   For a dimension like $p=10$, the James-Stein estimator incurs only $20\%$ of the risk of the MLE near the origin.
+$$R(\theta, d^{JS}) \approx p - \frac{(p-2)^2}{p + \|\theta\|^2}$$
 
- 
+
+
+* **Aggressive Shrinkage near the Origin**: When $\|\theta\|^2$ is small, the denominator $p + \|\theta\|^2$ is small, making the subtracted term large. This results in a risk substantially lower than the MLE risk of $p$.
+
+* **Diminishing Improvement with Large Signal**: As $\|\theta\|^2$ becomes large, the term $\frac{(p-2)^2}{p + \|\theta\|^2}$ approaches zero. Consequently, the risk of the James-Stein estimator approaches $p$, and the improvement over the MLE becomes negligible.
+
+
+
+**Risk Ratio near the Origin**:
+As the true parameter vector shrinks to zero ($\|\theta\| \to 0$), the ratio of the risks converges to a constant fraction. Using the exact expectation $E^{X|\theta=0}[1/\|X\|^2] = 1/(p-2)$:
+
+$$
+\lim_{\|\theta\| \to 0} \frac{R(\theta, d^{JS})}{R(\theta, d^{\text{MLE}})} = \frac{p - (p-2)^2 \left( \frac{1}{p-2} \right)}{p} = \frac{p - (p-2)}{p} = \frac{2}{p}
+$$
+
+For a dimension like $p=10$, the James-Stein estimator incurs only $20\%$ of the risk of the MLE near the origin.
+
 ::: {.callout-note collapse="true"}
 #### Is $d^{JS}$ Minimax?
 
@@ -1566,74 +1664,74 @@ theta_sq <- seq(0, 50, length.out = 300)
 
 # Create Data Frame
 df <- data.frame(
-  theta_sq = theta_sq,
-  risk_mle = p,
-  risk_js = p - (p - 2)^2 / (p - 2 + theta_sq)
+ theta_sq = theta_sq,
+ risk_mle = p,
+ risk_js = p - (p - 2)^2 / (p - 2 + theta_sq)
 )
 
 # Calculate Ratio
 df$ratio <- df$risk_js / p
 
 # --- FIX: ADJUST SCALING FACTOR ---
-# We scale the Ratio so 1.0 sits at y = 12 (top of plot), 
+# We scale the Ratio so 1.0 sits at y = 12 (top of plot),
 # rather than y = 10, to separate it from the Risk curve.
 y_max_limit <- p+1
-scale_factor <- y_max_limit 
+scale_factor <- y_max_limit
 
 # Define Legend Labels
 labels_map <- c(
-  "MLE" = TeX(r'($R(\theta, d^{MLE}) = p$)'),
-  "JS" = TeX(r'($R(\theta, d^{JS})$)'),
-  "Ratio" = TeX(r'(Ratio $\frac{R(\theta, d^{JS})}{R(\theta, d^{MLE})}$)')
+ "MLE" = TeX(r'($R(\theta, d^{MLE}) = p$)'),
+ "JS" = TeX(r'($R(\theta, d^{JS})$)'),
+ "Ratio" = TeX(r'(Ratio $\frac{R(\theta, d^{JS})}{R(\theta, d^{MLE})}$)')
 )
 
 ggplot(df, aes(x = theta_sq)) +
-  # 1. MLE Risk Line (Red Dashed)
-  geom_line(aes(y = risk_mle, color = "MLE", linetype = "MLE"), size = 1) +
-  
-  # 2. JS Risk Line (Blue Solid)
-  geom_line(aes(y = risk_js, color = "JS", linetype = "JS"), size = 1.2) +
-  
-  # 3. Ratio Line (Green Dot-Dash) 
-  # We scale it up to occupy the full plot height
-  geom_line(aes(y = ratio * scale_factor, color = "Ratio", linetype = "Ratio"), size = 1) +
-  
-  # Axes Configuration
-  scale_y_continuous(
-    name = "Risk",
-    limits = c(0, y_max_limit),
-    # Secondary Axis: Divide back by the NEW scale factor
-    sec.axis = sec_axis(~ . / scale_factor, name = "Risk Ratio")
-  ) +
-  
-  # Manual Colors and Linetypes
-  scale_color_manual(
-    name = NULL,
-    values = c("MLE" = "firebrick", "JS" = "dodgerblue", "Ratio" = "forestgreen"),
-    labels = labels_map
-  ) +
-  scale_linetype_manual(
-    name = NULL,
-    values = c("MLE" = "dashed", "JS" = "solid", "Ratio" = "dotdash"),
-    labels = labels_map
-  ) +
-  
-  # Theming
-  labs(
-      title = TeX(sprintf(r'(Risk Comparison of Estimators ($p=%d$))', p)),     
-      x = TeX(r'($|| \theta ||^2$ (Signal Strength))')
-  ) +
-  theme_minimal() +
-  theme(
-    legend.position = c(0.95, 0.5),
-    legend.justification = c(1, 0.5),
-    legend.background = element_rect(fill = "white", color = "gray80"),
-    axis.title.y.right = element_text(color = "forestgreen"),
-    axis.text.y.right = element_text(color = "forestgreen")
-  )
+ # 1. MLE Risk Line (Red Dashed)
+ geom_line(aes(y = risk_mle, color = "MLE", linetype = "MLE"), size = 1) +
+
+ # 2. JS Risk Line (Blue Solid)
+ geom_line(aes(y = risk_js, color = "JS", linetype = "JS"), size = 1.2) +
+
+ # 3. Ratio Line (Green Dot-Dash)
+ # We scale it up to occupy the full plot height
+ geom_line(aes(y = ratio * scale_factor, color = "Ratio", linetype = "Ratio"), size = 1) +
+
+ # Axes Configuration
+ scale_y_continuous(
+  name = "Risk",
+  limits = c(0, y_max_limit),
+  # Secondary Axis: Divide back by the NEW scale factor
+  sec.axis = sec_axis(~ . / scale_factor, name = "Risk Ratio")
+ ) +
+
+ # Manual Colors and Linetypes
+ scale_color_manual(
+  name = NULL,
+  values = c("MLE" = "firebrick", "JS" = "dodgerblue", "Ratio" = "forestgreen"),
+  labels = labels_map
+ ) +
+ scale_linetype_manual(
+  name = NULL,
+  values = c("MLE" = "dashed", "JS" = "solid", "Ratio" = "dotdash"),
+  labels = labels_map
+ ) +
+
+ # Theming
+ labs(
+   title = TeX(sprintf(r'(Risk Comparison of Estimators ($p=%d$))', p)),  
+   x = TeX(r'($|| \theta ||^2$ (Signal Strength))')
+ ) +
+ theme_minimal() +
+ theme(
+  legend.position = c(0.95, 0.5),
+  legend.justification = c(1, 0.5),
+  legend.background = element_rect(fill = "white", color = "gray80"),
+  axis.title.y.right = element_text(color = "forestgreen"),
+  axis.text.y.right = element_text(color = "forestgreen")
+ )
 ```
 
-### Risk Comparison under Normalized Loss (Optional)
+### Using Normalized Loss (Optional)
 
 We consider the **Normalized Squared Error Loss** function, which penalizes errors relative to the magnitude of the true parameter vector:
 $$
@@ -1675,19 +1773,19 @@ $$
 
 * **Global Dominance:** The James-Stein estimator dominates the MLE under this loss function as well, achieving lower risk everywhere in the parameter space.
 * **Behavior near $\theta \approx 0$:**
-    As $\lVert \theta \rVert \to 0$, both risks diverge to infinity. We analyze their relative performance by examining the ratio of the risks:
-    
-    $$
-    \frac{R(\theta, d^{JS})}{R(\theta, d^{\text{MLE}})} = \frac{p - (p-2)^2 E^{X|\theta} [1/\lVert X \rVert^2]}{p} = 1 - \frac{(p-2)^2}{p} E^{X|\theta} \left[ \frac{1}{\lVert X \rVert^2} \right]
-    $$
+  As $\lVert \theta \rVert \to 0$, both risks diverge to infinity. We analyze their relative performance by examining the ratio of the risks:
+ 
+  $$
+  \frac{R(\theta, d^{JS})}{R(\theta, d^{\text{MLE}})} = \frac{p - (p-2)^2 E^{X|\theta} [1/\lVert X \rVert^2]}{p} = 1 - \frac{(p-2)^2}{p} E^{X|\theta} \left[ \frac{1}{\lVert X \rVert^2} \right]
+  $$
 
-    At $\theta = 0$, $\lVert X \rVert^2 \sim \chi^2_p$, and the expectation is $E^{X|\theta=0}[1/\lVert X \rVert^2] = 1/(p-2)$. Substituting this into the ratio:
+  At $\theta = 0$, $\lVert X \rVert^2 \sim \chi^2_p$, and the expectation is $E^{X|\theta=0}[1/\lVert X \rVert^2] = 1/(p-2)$. Substituting this into the ratio:
 
-    $$
-    \lim_{\lVert \theta \rVert \to 0} \frac{R(\theta, d^{JS})}{R(\theta, d^{\text{MLE}})} = 1 - \frac{(p-2)^2}{p(p-2)} = 1 - \frac{p-2}{p} = \frac{2}{p}
-    $$
+  $$
+  \lim_{\lVert \theta \rVert \to 0} \frac{R(\theta, d^{JS})}{R(\theta, d^{\text{MLE}})} = 1 - \frac{(p-2)^2}{p(p-2)} = 1 - \frac{p-2}{p} = \frac{2}{p}
+  $$
 
-    Thus, near the origin, the James-Stein estimator reduces the risk by a factor of $p/2$. For large dimensions (e.g., $p=10$), the JS estimator has only $20\%$ of the risk of the MLE.
+  Thus, near the origin, the James-Stein estimator reduces the risk by a factor of $p/2$. For large dimensions (e.g., $p=10$), the JS estimator has only $20\%$ of the risk of the MLE.
 
 ### Bayes Risk of James-stein Estimator (Optional)
 
@@ -1772,22 +1870,22 @@ E^{\theta|X} [ ||\theta - d^{JS}(X)||^2 ] = \text{tr}(\text{Var}^{\theta|X}(\the
 $$
 
 * **Trace term:**
-    $$\text{tr} \left( \frac{\sigma^2}{1+\sigma^2} I_p \right) = \frac{p\sigma^2}{1+\sigma^2}$$
+  $$\text{tr} \left( \frac{\sigma^2}{1+\sigma^2} I_p \right) = \frac{p\sigma^2}{1+\sigma^2}$$
 
 * **Squared Bias term:**
-    Let $B = \frac{1}{1+\sigma^2}$. Then $E^{\theta|X}[\theta] = (1-B)X$.
-    The estimator is $d^{JS}(X) = (1 - \frac{p-2}{||X||^2})X$.
-    The difference is:
+  Let $B = \frac{1}{1+\sigma^2}$. Then $E^{\theta|X}[\theta] = (1-B)X$.
+  The estimator is $d^{JS}(X) = (1 - \frac{p-2}{||X||^2})X$.
+  The difference is:
 
-    $$
-    E^{\theta|X}[\theta] - d^{JS}(X) = \left( (1-B) - \left( 1 - \frac{p-2}{||X||^2} \right) \right) X = \left( \frac{p-2}{||X||^2} - B \right) X
-    $$
+  $$
+  E^{\theta|X}[\theta] - d^{JS}(X) = \left( (1-B) - \left( 1 - \frac{p-2}{||X||^2} \right) \right) X = \left( \frac{p-2}{||X||^2} - B \right) X
+  $$
 
-    Squaring the norm gives:
+  Squaring the norm gives:
 
-    $$
-    \left( \frac{p-2}{||X||^2} - B \right)^2 ||X||^2 = \frac{(p-2)^2}{||X||^2} - 2B(p-2) + B^2 ||X||^2
-    $$
+  $$
+  \left( \frac{p-2}{||X||^2} - B \right)^2 ||X||^2 = \frac{(p-2)^2}{||X||^2} - 2B(p-2) + B^2 ||X||^2
+  $$
 
 **Step 2: Expectation with respect to Marginal $X$**
 
@@ -1796,14 +1894,14 @@ We now take the expectation $E^X[\cdot]$ of the posterior loss. Recall $X \sim N
 * **Expectation of Trace term:** Constant, remains $\frac{p\sigma^2}{1+\sigma^2}$.
 * **Expectation of Bias term:**
 
-    $$
-    \begin{aligned}
-    E^X \left[ \frac{(p-2)^2}{||X||^2} - \frac{2(p-2)}{1+\sigma^2} + \frac{||X||^2}{(1+\sigma^2)^2} \right] &= (p-2)^2 \frac{1}{(p-2)(1+\sigma^2)} - \frac{2(p-2)}{1+\sigma^2} + \frac{p(1+\sigma^2)}{(1+\sigma^2)^2} \\
-    &= \frac{p-2}{1+\sigma^2} - \frac{2p-4}{1+\sigma^2} + \frac{p}{1+\sigma^2} \\
-    &= \frac{p - 2 - 2p + 4 + p}{1+\sigma^2} \\
-    &= \frac{2}{1+\sigma^2}
-    \end{aligned}
-    $$
+  $$
+  \begin{aligned}
+  E^X \left[ \frac{(p-2)^2}{||X||^2} - \frac{2(p-2)}{1+\sigma^2} + \frac{||X||^2}{(1+\sigma^2)^2} \right] &= (p-2)^2 \frac{1}{(p-2)(1+\sigma^2)} - \frac{2(p-2)}{1+\sigma^2} + \frac{p(1+\sigma^2)}{(1+\sigma^2)^2} \\
+  &= \frac{p-2}{1+\sigma^2} - \frac{2p-4}{1+\sigma^2} + \frac{p}{1+\sigma^2} \\
+  &= \frac{p - 2 - 2p + 4 + p}{1+\sigma^2} \\
+  &= \frac{2}{1+\sigma^2}
+  \end{aligned}
+  $$
 
 **Step 3: Combine Terms**
 
@@ -1859,6 +1957,138 @@ The result that $d^{JS}$ dominates $d^0$ is called **Stein's Paradox** because i
 * **Inadmissibility in High Dimensions:** Intuitions formed in 1D or 2D (where MLE is admissible) fail in higher dimensions ($p \ge 3$). The volume of space grows so fast that "standard" diffuse priors or MLEs become inefficient.
 * **Hierarchical Modeling:** Stein's result provides the theoretical foundation for **Hierarchical Bayesian Models**. When we assume parameters come from a common distribution (e.g., $\theta_i \sim N(\mu, \tau^2)$), we naturally derive shrinkage estimators that "borrow strength" across groups, formalized as Empirical Bayes or fully Bayesian methods.
 
+### Bias-Variance Decomposition for James-Stein Estimator
+
+Based on the derivations in your handwritten notes, here are the corresponding LaTeX equations formatted for your Quarto document.
+
+$$
+X = \begin{pmatrix} x_1 \\ x_2 \end{pmatrix}
+$$
+
+The Mean Squared Error (MSE) of the James-Stein estimator $d^{JS}(X)$ with respect to the parameter $\theta$ is decomposed by adding and subtracting the expected value $u_{d^{JS}} = E^{X|\theta}[d^{JS}(X)]$:
+
+$$
+\begin{aligned}
+E^{X|\theta} \left[ \| d^{JS}(X) - \theta \|^2 \right] &= E^{X|\theta} \left[ \| d^{JS} - u_{d^{JS}} + u_{d^{JS}} - \theta \|^2 \right] \\
+&= V(d^{JS}(X)) + \left[ Bias(d^{JS}(X)) \right]^2
+\end{aligned}
+$$
+
+where the components are defined as:
+
+1. **Variance Component**
+   $$ V(d^{JS}(X)) = E^{X|\theta} \left[ \| d^{JS}(X) - u_{d^{JS}} \|^2 \right] $$
+
+2. **Bias Component**
+   $$ Bias(d^{JS}(X)) = u_{d^{JS}} - \theta $$
+
+::: {.remark}
+Note that while the ordinary MLE $X$ is unbiased ($E^{X|\theta}(X) - \theta = 0$), the James-Stein estimator introduces a deliberate bias to significantly reduce the variance, resulting in a lower total MSE when the dimension is three or greater.
+:::
+
+```{r}
+#| label: fig-bias-variance-js-clean
+#| fig-cap: "Variance-Bias Tradeoff: Observations and Shrunk Estimates"
+#| warning: false
+#| message: false
+
+library(ggplot2)
+library(dplyr)
+library(latex2exp)
+
+# Set seed for reproducibility
+set.seed(123) 
+
+# --- 1. Parameters ---
+theta <- c(1, 1)
+origin <- c(0, 0)
+n_obs_points <- 4
+sigma <- 0.35 
+
+# --- 2. Generate Observation Data ---
+x_matrix <- matrix(rnorm(n_obs_points * 2, mean = theta, sd = sigma), ncol = 2, byrow = TRUE)
+df <- as.data.frame(x_matrix)
+colnames(df) <- c("x1", "x2")
+
+# Apply shrinkage to observed points
+df <- df %>%
+  mutate(
+    norm_sq = x1^2 + x2^2,
+    shrinkage_factor = max(0, 1 - 1.0 / norm_sq), 
+    x1_js = x1 * shrinkage_factor,
+    x2_js = x2 * shrinkage_factor
+  )
+
+# Calculate the Mean of JS Estimators
+mean_js <- colMeans(df[, c("x1_js", "x2_js")])
+mean_js_df <- data.frame(x = mean_js[1], y = mean_js[2])
+
+# --- 3. Setup Contours for the Original Distribution ---
+angles <- seq(0, 2 * pi, length.out = 200)
+radii <- c(0.6, 1.2) * sigma
+
+circles_gray <- do.call(rbind, lapply(radii, function(r) {
+  data.frame(
+    x = theta[1] + r * cos(angles),
+    y = theta[2] + r * sin(angles),
+    radius_id = as.factor(r)
+  )
+}))
+
+# --- 4. Plotting ---
+ggplot() +
+  coord_fixed(xlim = c(-0.1, 2.0), ylim = c(-0.1, 2.0)) +
+  theme_minimal() +
+  theme(
+    panel.grid = element_blank(),
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    plot.title = element_text(hjust = 0.5, size = 16)
+  ) +
+  
+  # Axes
+  geom_hline(yintercept = 0, color = "grey40", size = 0.5,
+             arrow = arrow(length = unit(0.3, "cm"), ends = "last")) +
+  geom_vline(xintercept = 0, color = "grey40", size = 0.5,
+             arrow = arrow(length = unit(0.3, "cm"), ends = "last")) +
+  annotate("text", x = 2, y = 0, label = TeX("$x_1$"), vjust = 1.5) +
+  annotate("text", x = 0, y = 2, label = TeX("$x_2$"), hjust = 1.5) +
+
+  # Gray vectors from origin to observations
+  geom_segment(
+    data = df,
+    aes(x = 0, y = 0, xend = x1, yend = x2),
+    color = "grey85", size = 0.5
+  ) +
+
+  # Original Density Contours (Gray Dashed)
+  geom_path(data = circles_gray, aes(x = x, y = y, group = radius_id),
+            color = "grey60", linetype = "dashed") +
+
+  # Original Observations (Open Circles)
+  geom_point(data = df, aes(x = x1, y = x2),
+             shape = 1, size = 3, color = "black", stroke = 1) +
+
+  # JS Estimates (Green Triangles)
+  geom_point(data = df, aes(x = x1_js, y = x2_js),
+             shape = 17, size = 3, color = "darkgreen") +
+
+  # Parameter Theta (Red Dot)
+  geom_point(aes(x = theta[1], y = theta[2]), color = "red", size = 4) +
+
+  # Expected Value of JS Estimator (Green Cross)
+  geom_point(data = mean_js_df, aes(x = x, y = y),
+             shape = 3, size = 5, stroke = 2, color = "darkgreen") +
+
+  # Annotations
+  geom_text(aes(x = theta[1], y = theta[2], label = TeX("$\\theta$")),
+            hjust = -0.5, vjust = -0.5, size = 5) +
+  annotate("text", x = mean_js_df$x, y = mean_js_df$y, label = TeX("$\\bar{d}$"),
+           hjust = 1.3, vjust = 1.3, size = 5, color = "darkgreen") +
+  
+  ggtitle("Variance - Bias Tradeoff")
+```
+
 ## Empirical Bayes Rules
 
 The James-Stein estimator provides a natural entry point into the concept of **Empirical Bayes (EB)**. While the Stein estimator was originally derived using frequentist risk arguments, it can be intuitively understood as a Bayesian estimator where the parameters of the prior distribution are estimated from the data itself.
@@ -1869,20 +2099,20 @@ In a standard Bayesian analysis, the hyperparameters of the prior are fixed base
 
 The workflow typically follows these steps:
 
-1.  **Hierarchical Model:**
-    We assume the data $X$ comes from a distribution $f(x|\theta)$, and the parameter $\theta$ comes from a prior $\pi(\theta|\eta)$ controlled by hyperparameters $\eta$.
+1. **Hierarchical Model:**
+  We assume the data $X$ comes from a distribution $f(x|\theta)$, and the parameter $\theta$ comes from a prior $\pi(\theta|\eta)$ controlled by hyperparameters $\eta$.
 
-2.  **Marginal Likelihood (Evidence):**
-    We integrate out the parameter $\theta$ to obtain the marginal distribution of the data given the hyperparameters:
-    $$m(x|\eta) = \int f(x|\theta) \pi(\theta|\eta) d\theta$$
+2. **Marginal Likelihood (Evidence):**
+  We integrate out the parameter $\theta$ to obtain the marginal distribution of the data given the hyperparameters:
+  $$m(x|\eta) = \int f(x|\theta) \pi(\theta|\eta) d\theta$$
 
-3.  **Estimation of Hyperparameters:**
-    Instead of fixing $\eta$, we estimate it by maximizing the marginal likelihood (Type-II Maximum Likelihood) or using method-of-moments:
-    $$\hat{\eta} = \underset{\eta}{\arg\max} \ m(x|\eta)$$
+3. **Estimation of Hyperparameters:**
+  Instead of fixing $\eta$, we estimate it by maximizing the marginal likelihood (Type-II Maximum Likelihood) or using method-of-moments:
+  $$\hat{\eta} = \underset{\eta}{\arg\max} \ m(x|\eta)$$
 
-4.  **Posterior Inference:**
-    We proceed with standard Bayesian inference, but we substitute the estimated estimate $\hat{\eta}$ into the posterior:
-    $$\pi(\theta|x, \hat{\eta}) \propto f(x|\theta) \pi(\theta|\hat{\eta})$$
+4. **Posterior Inference:**
+  We proceed with standard Bayesian inference, but we substitute the estimated estimate $\hat{\eta}$ into the posterior:
+  $$\pi(\theta|x, \hat{\eta}) \propto f(x|\theta) \pi(\theta|\hat{\eta})$$
 
 **Discussion:**
 
@@ -1928,9 +2158,10 @@ Plugging $\hat{B}$ into the ideal Bayes estimator recovers the James-Stein rule:
 $$\delta^{EB}(X) = \left( 1 - \hat{B} \right) X = \left( 1 - \frac{p-2}{||X||^2} \right) X$$
 
 
-**What We Learned**
+**Remarks:**
 
-* **Adaptive Shrinkage:** The James-Stein estimator automatically adjusts the amount of shrinkage based on the observed total magnitude $\lVert X \rVert^2$. If the data suggests the true means are spread far from zero, $\lVert X \rVert^2$ will be large, $\hat{B}$ will be small, and we shrink less.
-* **Unbiasedness of B:** Interestingly, while $\hat{B}$ is an unbiased estimator of the shrinkage factor, the resulting James-Stein estimator itself is biased toward the origin. This is a classic example of sacrificing unbiasedness to minimize total risk.
+(1) **Adaptive Shrinkage:** The James-Stein estimator automatically adjusts the amount of shrinkage based on the observed total magnitude $\lVert X \rVert^2$. If the data suggests the true means are spread far from zero, $\lVert X \rVert^2$ will be large, $\hat{B}$ will be small, and we shrink less.
+
+(2) **Unbiasedness of B:** Interestingly, while $\hat{B}$ is an unbiased estimator of the shrinkage factor, the resulting James-Stein estimator itself is biased toward the origin. This is a classic example of sacrificing unbiasedness to minimize total risk.
 
 {{< include bayesian2.qmd >}}
