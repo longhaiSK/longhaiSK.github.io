@@ -110,82 +110,105 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             });
             parentLi.appendChild(clonedList);
-            // UPDATED: Pass only the injected list
-            syncActiveState(clonedList);
+            syncActiveState(clonedList); 
         }
       }
     }
   }
 
-  // --- PART C: LIVE SYNC (REPLACED) ---
+  // --- PART C: LIVE SYNC (Title Priority Fix) ---
   function syncActiveState(injectedToc) {
-    // Select headers in the content area
-    const headers = document.querySelectorAll('main h1, main h2, main h3, main h4, main h5, main h6');
+    // 1. Clean Slate: Remove any 'active' class that Quarto might have auto-injected into the sub-toc
     const tocLinks = injectedToc.querySelectorAll('a');
-    
-    // Create a map of ID -> Link for O(1) lookup
+    tocLinks.forEach(l => l.classList.remove('active')); // Remove default active
+    tocLinks.forEach(l => l.classList.remove('toc-active')); 
+
+    const headers = document.querySelectorAll('main h1, main h2, main h3, main h4, main h5, main h6');
     const idToLink = {};
+    
+    // Map IDs to Links
     tocLinks.forEach(link => {
         const href = link.getAttribute('href');
         if(href && href.startsWith('#')) {
-             idToLink[href.substring(1)] = link;
+            const id = href.substring(1);
+            idToLink[id] = link;
+            idToLink[decodeURIComponent(id)] = link; 
         }
     });
 
-    // Observer: Triggers when a header enters the top 30% of the screen
-    // rootMargin: top, right, bottom, left. 
-    // '-80%' bottom means the "active zone" is only the top 20% of the viewport.
-    const observerOptions = {
+    // --- STRATEGY: TWO OBSERVERS ---
+
+    // Observer 1: The "Cleaner" (Watches the Main Title H1)
+    // If H1 is visible, we force-clear all sub-section highlights.
+    const titleObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // If Title is visible, CLEAR all sub-highlights
+                tocLinks.forEach(l => l.classList.remove('toc-active'));
+            }
+        });
+    }, { rootMargin: '0px 0px -50% 0px' }); // Aggressive: Title must be in top half
+
+    const mainTitle = document.querySelector('main h1');
+    if (mainTitle) titleObserver.observe(mainTitle);
+
+
+    // Observer 2: The "Highlighter" (Watches H2-H6)
+    // Triggers only when headers cross a "read line" near the top
+    const contentObserverOptions = {
         root: null,
-        rootMargin: '0px 0px -80% 0px', 
+        rootMargin: '0px 0px -80% 0px', // Trigger only when element is near top
         threshold: 0
     };
 
-    const observer = new IntersectionObserver((entries) => {
+    const contentObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            // Only act when a header *enters* the zone.
-            // If it leaves (scrolls up out of view), we don't clear active immediately 
-            // to ensure the section stays highlighted while reading long content.
             if (entry.isIntersecting) {
+                // Double Check: If we are effectively at the top of the page, ignore this trigger
+                // (This prevents the first H2 from "winning" on page load if H1 is also there)
+                if (window.scrollY < 100) return; 
+
                 const id = entry.target.getAttribute('id');
-                const activeLink = idToLink[id];
+                const activeSubLink = idToLink[id];
                 
-                if (activeLink) {
-                    // Remove active from all other links
-                    tocLinks.forEach(l => l.classList.remove('active'));
+                if (activeSubLink) {
+                    // 1. Clear others
+                    tocLinks.forEach(l => l.classList.remove('toc-active'));
                     
-                    // Set current active
-                    activeLink.classList.add('active');
+                    // 2. Activate this one
+                    activeSubLink.classList.add('toc-active');
                     
-                    // Auto-expand parents
-                    const parentUl = activeLink.closest('ul');
+                    // 3. Auto-expand parents
+                    const parentUl = activeSubLink.closest('ul');
                     if (parentUl && parentUl.style.display === 'none') {
                            parentUl.style.display = 'block';
-                           const parentLink = parentUl.parentElement.querySelector('a.has-children');
-                           if (parentLink) {
-                               parentLink.classList.remove('collapsed');
-                               parentLink.classList.add('expanded');
+                           const pLink = parentUl.parentElement.querySelector('a.has-children');
+                           if (pLink) {
+                               pLink.classList.remove('collapsed');
+                               pLink.classList.add('expanded');
                            }
                     }
                 }
             }
         });
-    }, observerOptions);
+    }, contentObserverOptions);
 
-    headers.forEach(header => observer.observe(header));
+    // Only observe H2+ for highlighting (H1 is handled by the Cleaner)
+    headers.forEach(header => {
+        if (header.tagName !== 'H1') {
+            contentObserver.observe(header);
+        }
+    });
   }
 
   // --- PART D: SIDEBAR TOGGLE ---
   function createSidebarToggle() {
     if (document.getElementById('custom-sidebar-toggle')) return;
-
     const btn = document.createElement("button");
     btn.id = "custom-sidebar-toggle";
     btn.innerHTML = '&#9776;'; 
     btn.title = "Toggle Sidebar";
-    
     document.body.insertAdjacentElement('afterbegin', btn);
-
     btn.addEventListener("click", function() {
       document.body.classList.toggle("sidebar-closed");
     });
@@ -196,7 +219,6 @@ document.addEventListener("DOMContentLoaded", function() {
     try { createSidebarToggle(); } catch(e) { console.error(e); }
     try { formatChapters(); } catch(e) { console.error(e); }
     try { moveToc(); } catch(e) { console.error(e); }
-    
     document.querySelector('#quarto-sidebar .sidebar-menu-container')?.classList.add('loaded');
   }
 
