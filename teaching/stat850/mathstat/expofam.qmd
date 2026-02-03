@@ -580,6 +580,46 @@ The sum becomes a new base measure $h^{**}(y_S)$, yielding the exponential famil
 
 :::
 
+::: {#exm-bernoulli-failure}
+
+### Failure of MDL: The Coupled Bernoulli
+
+Suppose we try to be clever and rewrite the Bernoulli joint density treating Heads ($T_1$) and Tails ($T_2$) as distinct sufficient statistics:
+
+$$
+f(x|p) = \exp\left\{ (\log p) \sum x_i + (\log(1-p)) (n - \sum x_i) \right\}
+$$
+
+Let's define separate natural parameters to make it look like a 2-parameter exponential family:
+
+  * $\eta_1 = \log p$
+  * $\eta_2 = \log (1-p)$
+  * $T_1 = \sum x_i$ (Heads)
+  * $T_2 = n - \sum x_i$ (Tails)
+
+The density looks like:
+$$
+f(t_1, t_2) \propto h(t_1, t_2) \exp( \eta_1 T_1 + \eta_2 T_2 )
+$$
+
+**Attempting to apply the Lemma:**
+If we blindly followed the Lemma to find the marginal distribution of Heads ($T_1$), we would say: "Treat $\eta_2$ as constant, ignore the $T_2$ part, and focus on $T_1$."
+
+$$
+\text{Hypothetical Marginal}(t_1) \stackrel{?}{\propto} h^*(t_1) \exp( \eta_1 t_1 ) = \binom{n}{t_1} p^{t_1}
+$$
+
+**The Result:** $f(t_1) \propto \binom{n}{t_1} p^{t_1}$.
+This is **WRONG**. It is missing the $(1-p)^{n-t_1}$ term. It suggests the probability of heads grows infinitely with $p$ without being penalized by the probability of tails shrinking.
+
+**Why it Failed:**
+The Marginal Distribution Lemma requires the natural parameters $\eta_1$ and $\eta_2$ to be **variationally independent** (the parameter space must contain a rectangle).
+
+1.  **Parameter Constraint:** $\eta_1$ and $\eta_2$ are coupled by the constraint $e^{\eta_1} + e^{\eta_2} = 1$ (since $p + (1-p) = 1$). You cannot vary $\eta_1$ (change $p$) while holding $\eta_2$ constant.
+   2.  **Statistic Constraint:** $T_1$ and $T_2$ are perfectly collinear ($T_1 + T_2 = n$). The support of $(T_1, T_2)$ is a line segment, not a 2D grid. The base measure $h(t_1, t_2)$ does not factor because $h(t_1, t_2)$ is zero everywhere except on that line.
+
+:::
+
 ::: {#exm-normal-marginal-comparison}
 
 ### Marginal Distributions of Normal Sufficient Statistics
@@ -639,5 +679,63 @@ Consider the Normal model $N(\mu, \sigma^2)$ with sufficient statistics $T_1 = \
      where the weights $P(K=k)$ depend on $\lambda$ (and thus $\sigma^2$).
 
    * **Result:** Because the parameter $\sigma^2$ appears inside the Poisson weights of the infinite sum, the density **cannot** be factored into the simple form $C(\sigma^2)h(t_1)\exp(\pi_1 t_1)$. This confirms that when the orthogonality condition is violated, the marginal distribution of a sufficient statistic leaves the simple exponential family.
+
+:::
+
+::: {#exm-variance-distribution-mdl}
+
+### Distribution of Sample Variance $S^2$ via Marginal Distribution Lemma
+
+Consider the Normal model $X_i \sim N(\mu, \sigma^2)$. We wish to find the marginal distribution of the sufficient statistic $S^2 = \frac{1}{n-1}\sum (X_i - \bar{X})^2$.
+
+1. **Jacobian of the Transformation**
+   When transforming the joint density from the $n$ data points $(X_1, \dots, X_n)$ to the sufficient statistics $(\bar{X}, S^2)$, we must account for the change in volume (the Jacobian). 
+   
+   The vector of residuals $(X_1 - \bar{X}, \dots, X_n - \bar{X})$ lies on an $(n-1)$-dimensional sphere with squared radius proportional to $s^2$. The surface area of this sphere scales as $(s^2)^{\frac{n-1}{2}-1}$. Thus, the volume element transforms as:
+   
+   $$
+   \prod dx_i \propto (s^2)^{\frac{n-3}{2}} d s^2 d\bar{x}
+   $$
+
+2. **Decomposition of the Joint Density**
+   Incorporating this Jacobian into the exponential family form, the joint density of $(\bar{X}, S^2)$ is:
+
+   $$
+   \begin{aligned}
+   f(s^2, \bar{x}) &\propto \underbrace{(s^2)^{\frac{n-3}{2}}}_{\text{Jacobian } h(s^2, \bar{x})} \cdot \exp\left\{ -\frac{1}{2\sigma^2}\sum x_i^2 + \frac{\mu}{\sigma^2}\sum x_i \right\} \\
+   &\propto (s^2)^{\frac{n-3}{2}} \cdot \exp\left\{ -\frac{1}{2\sigma^2}\left[ (n-1)s^2 + n\bar{x}^2 \right] + \frac{n\mu}{\sigma^2}\bar{x} \right\}
+   \end{aligned}
+   $$
+
+   Grouping the terms by variable:
+
+   $$
+   f(s^2, \bar{x}) \propto \underbrace{\left[ (s^2)^{\frac{n-3}{2}} \exp\left\{ -\frac{n-1}{2\sigma^2} s^2 \right\} \right]}_{\text{Terms involving } s^2} \cdot \underbrace{\left[ \exp\left\{ -\frac{n}{2\sigma^2}\bar{x}^2 + \frac{n\mu}{\sigma^2}\bar{x} \right\} \right]}_{\text{Terms involving } \bar{x}}
+   $$
+
+3. **Marginal Integration**
+   To find the marginal distribution of $S^2$, we integrate out $\bar{x}$. Since the density factors completely (orthogonality), the integral over $\bar{x}$ contributes only a multiplicative constant $C(\mu, \sigma^2)$ and does not depend on $s^2$.
+   
+   The marginal density is simply the $s^2$ component retained from the joint density:
+
+   $$
+   f_{S^2}(s^2) \propto (s^2)^{\frac{n-3}{2}} \exp\left\{ -\frac{n-1}{2\sigma^2} s^2 \right\}
+   $$
+
+4. **Identification of Degrees of Freedom**
+   We match this result against the kernel of a standard Gamma distribution (or Chi-squared type), $f(y) \propto y^{k-1} e^{-\beta y}$.
+   
+   * **Shape Parameter ($k$):**
+       $$
+       k - 1 = \frac{n-3}{2} \implies k = \frac{n-1}{2}
+       $$
+       Since the degrees of freedom $\nu$ is defined as $2k$, we have $\nu = n-1$.
+       
+   * **Rate Parameter ($\beta$):**
+       $$
+       \beta = \frac{n-1}{2\sigma^2}
+       $$
+   
+   This confirms that $S^2 \sim \text{Gamma}(\frac{n-1}{2}, \frac{n-1}{2\sigma^2})$, or equivalently, $\frac{(n-1)S^2}{\sigma^2} \sim \chi^2_{n-1}$.
 
 :::
