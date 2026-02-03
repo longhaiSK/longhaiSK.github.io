@@ -2047,8 +2047,8 @@ Note that while the ordinary MLE $X$ is unbiased ($E^{X|\theta}(X) - \theta = 0$
 :::
 
 ```{r}
-#| label: fig-js-shrinkage-final
-#| fig-cap: "Variance-Bias Tradeoff with Adjusted Shrinkage Factor"
+#| label: fig-js-shrinkage-origin-vectors
+#| fig-cap: "Variance-Bias Tradeoff: 8 Alternated Points with Origin Vectors"
 #| warning: false
 #| message: false
 
@@ -2056,15 +2056,11 @@ library(ggplot2)
 library(dplyr)
 library(latex2exp)
 
-# Set seed for reproducibility
-set.seed(123) 
-
 # --- 1. Parameters ---
 theta <- c(1, 1)
 sigma <- 0.35 
-n_obs_points <- 4
-# New constant requested: 0.5
 shrink_const <- 0.5
+radii <- c(0.6, 1.2) * sigma
 
 # --- 2. Helper Function ---
 js_map <- function(x, y) {
@@ -2073,29 +2069,30 @@ js_map <- function(x, y) {
   return(c(x * s, y * s))
 }
 
-# --- 3. Observation Data ---
-x_matrix <- matrix(rnorm(n_obs_points * 2, mean = theta, sd = sigma), ncol = 2, byrow = TRUE)
-df_obs <- as.data.frame(x_matrix)
-colnames(df_obs) <- c("x1", "x2")
+# --- 3. Observation Data (8 Points) ---
+angles_obs <- seq(0, 2 * pi, length.out = 9)[1:8]
+obs_radii <- rep(radii, length.out = 8)
+
+x_obs <- theta[1] + obs_radii * cos(angles_obs)
+y_obs <- theta[2] + obs_radii * sin(angles_obs)
+
+df_obs <- data.frame(x1 = x_obs, x2 = y_obs)
 
 # Apply mapping to observations
 df_obs_mapped <- t(apply(df_obs, 1, function(row) js_map(row[1], row[2])))
 df_obs$x1_js <- df_obs_mapped[,1]
 df_obs$x2_js <- df_obs_mapped[,2]
 
-# Map the true theta for the "mean" point
-theta_js <- js_map(theta[1], theta[2])
+# Empirical mean of the 8 shrunken points (+)
+mean_js <- colMeans(df_obs[, c("x1_js", "x2_js")])
+mean_js_df <- data.frame(x = mean_js[1], y = mean_js[2])
 
 # --- 4. Construct Contours via Mapping ---
-angles <- seq(0, 2 * pi, length.out = 200)
-radii <- c(0.6, 1.2) * sigma
+angles_contour <- seq(0, 2 * pi, length.out = 200)
 
 contour_list <- lapply(radii, function(r) {
-  # Gray circle points
-  gray_x <- theta[1] + r * cos(angles)
-  gray_y <- theta[2] + r * sin(angles)
-  
-  # Map them point-by-point to green
+  gray_x <- theta[1] + r * cos(angles_contour)
+  gray_y <- theta[2] + r * sin(angles_contour)
   green_pts <- t(mapply(js_map, gray_x, gray_y))
   
   data.frame(
@@ -2108,23 +2105,31 @@ df_contours <- bind_rows(contour_list)
 
 # --- 5. Plotting ---
 ggplot() +
-  coord_fixed(xlim = c(-0.1, theta[1]+1), ylim = c(-0.1, theta[1]+1)) +
+  coord_fixed(xlim = c(-0.1, 2.2), ylim = c(-0.1, 2.2)) +
   theme_minimal() +
   theme(
     panel.grid = element_blank(),
     axis.text = element_blank(),
+    axis.title = element_blank(),
     axis.ticks = element_blank(),
     plot.title = element_text(hjust = 0.5, size = 16),
     legend.position = "right"
   ) +
   
-  # Axes
-  geom_hline(yintercept = 0, color = "grey40", size = 0.5,
-             arrow = arrow(length = unit(0.3, "cm"), ends = "last")) +
-  geom_vline(xintercept = 0, color = "grey40", size = 0.5,
-             arrow = arrow(length = unit(0.3, "cm"), ends = "last")) +
-  annotate("text", x = 2, y = 0, label = TeX("$x_1$"), vjust = 1.5) +
-  annotate("text", x = 0, y = 2, label = TeX("$x_2$"), hjust = 1.5) +
+  # Arrowed Axis Lines
+  geom_segment(aes(x = 0, y = 0, xend = 2.1, yend = 0), 
+               arrow = arrow(length = unit(0.3, "cm")), color = "black") +
+  geom_segment(aes(x = 0, y = 0, xend = 0, yend = 2.1), 
+               arrow = arrow(length = unit(0.3, "cm")), color = "black") +
+  
+  # Axis Labels
+  annotate("text", x = 2.2, y = 0, label = TeX("$x_1$"), vjust = 1.5, size = 5) +
+  annotate("text", x = 0, y = 2.2, label = TeX("$x_2$"), hjust = 1.5, size = 5) +
+  annotate("text", x = -0.05, y = -0.05, label = "O", size = 4) +
+
+  # Grey Lines from Origin to Original Points (x)
+  geom_segment(data = df_obs, aes(x = 0, y = 0, xend = x1, yend = x2),
+               color = "grey85", size = 0.5, alpha = 0.7) +
 
   # Original Density Contours (Gray Dashed)
   geom_path(data = df_contours, aes(x = gx, y = gy, group = radius_id),
@@ -2133,10 +2138,6 @@ ggplot() +
   # Mapped Density Contours (Green Dashed)
   geom_path(data = df_contours, aes(x = jx, y = jy, group = radius_id),
             color = "palegreen4", linetype = "dashed", size = 0.7) +
-
-  # Gray vectors from origin to observations
-  geom_segment(data = df_obs, aes(x = 0, y = 0, xend = x1, yend = x2),
-               color = "grey90", size = 0.5) +
 
   # Points for Legend
   geom_point(aes(x = theta[1], y = theta[2], color = "theta", shape = "theta"), size = 4) +
@@ -2147,20 +2148,19 @@ ggplot() +
   geom_point(data = df_obs, aes(x = x1_js, y = x2_js, color = "djs", shape = "djs"), 
              size = 2.5) +
 
-  # Shrunken Theta
-  geom_point(aes(x = theta_js[1], y = theta_js[2], color = "mean", shape = "mean"), 
-             size = 3) +
+  geom_point(data = mean_js_df, aes(x = x, y = y, color = "mean", shape = "mean"), 
+             size = 3, stroke = 1.2) +
 
   # Manual Scale Definitions
   scale_color_manual(name = "Legend",
                      values = c("theta" = "red", "x" = "black", 
                                 "djs" = "darkgreen", "mean" = "darkgreen"),
-                     labels = unname(TeX(c("$d^{JS}(x)$", "$d^{JS}(\\theta)$", "$x$", "$\\theta$")))) +
+                     labels = unname(TeX(c("$d^{JS}(x)$", "$\\bar{d}^{JS}$", "$x$", "$\\theta$")))) +
   scale_shape_manual(name = "Legend",
-                     values = c("theta" = 16, "x" = 1, "djs" = 17, "mean" = 17),
-                     labels = unname(TeX(c("$d^{JS}(x)$", "$d^{JS}(\\theta)$", "$x$", "$\\theta$")))) +
+                     values = c("theta" = 16, "x" = 1, "djs" = 17, "mean" = 3),
+                     labels = unname(TeX(c("$d^{JS}(x)$", "$\\bar{d}^{JS}$", "$x$", "$\\theta$")))) +
   
-  ggtitle(TeX("Bias-Variance Tradeoff (c = 0.5)"))
+  ggtitle(TeX("Bias-Variance Tradeoff"))
 ```
 
 ## Empirical Bayes Rules
