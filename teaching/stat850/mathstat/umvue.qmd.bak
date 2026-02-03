@@ -408,93 +408,49 @@ Assume $T$ is Minimal Sufficient. We must prove that if $\ell(\theta; x) = \ell(
 :::
 </details>
 
+
 ::: {#exm-bernoulli-mss-check}
 
 ### Checking Minimality via Log-Likelihood Condition
 Let $X_1, X_2, X_3 \overset{i.i.d.}{\sim} \text{Bernoulli}(p)$.
-We test two statistics against the **MSS Condition Theorem**:
+We determine the MSS by checking the implication from the **MSS Condition Theorem**:
 $$
-\text{Parallel Log-Likelihoods} \implies \text{Statistic}(x) = \text{Statistic}(y)
+\text{Parallel Log-Likelihoods} \implies T(x) = T(y)
 $$
 
-**Step 1: Establish the Parallel Condition**
-For Bernoulli data, the log-likelihood is:
+**Step 1: Establishing the MSS**
+First, we find the condition under which two log-likelihoods are parallel.
 $$
 \ell(p; x) = (\sum x_i) \ln p + (n - \sum x_i) \ln(1-p)
 $$
-The difference $\ell(p; x) - \ell(p; y)$ is constant (parallel) if and only if the coefficients of $\ln p$ are identical:
+The difference $\ell(p; x) - \ell(p; y)$ depends on $p$ only through the term $(\sum x_i - \sum y_i) \ln \frac{p}{1-p}$.
+For this difference to be constant (independent of $p$), the coefficient must be zero:
 $$
-\sum x_i = \sum y_i
+\text{Parallel Log-Likelihoods} \iff \sum x_i = \sum y_i
 $$
+The statistic that corresponds exactly to this condition is $T(X) = \sum X_i$.
+Since $\sum x_i = \sum y_i$ trivially implies $T(x) = T(y)$, $T(X)$ is the **Minimal Sufficient Statistic**.
 
-**Step 2: Test Statistic $T(X) = \sum X_i$ (The MSS)**
-Does the implication hold?
+**Step 2: Why $S(X) = (X_1, \sum_{i=2}^3 X_i)$ is NOT Minimal**
+Now consider the "richer" statistic $S(X)$. If $S$ were minimal, the parallel condition must imply $S(x) = S(y)$.
+We check:
 $$
-\sum x_i = \sum y_i \implies \sum x_i = \sum y_i
+\sum x_i = \sum y_i \stackrel{?}{\implies} (x_1, \sum_{i=2}^3 x_i) = (y_1, \sum_{i=2}^3 y_i)
 $$
-**Result:** Yes. The implication is trivially true.
-**Conclusion:** $T(X)$ satisfies the necessary condition for being Minimal Sufficient.
-
-**Step 3: Test Statistic $S(X) = (X_1, \sum_{i=2}^3 X_i)$ (Not Minimal)**
-Does the implication hold?
-$$
-\sum x_i = \sum y_i \implies (x_1, \sum_{i=2}^3 x_i) = (y_1, \sum_{i=2}^3 y_i)
-$$
-
 **Counter-Example:**
-Consider $x = (1, 0, 1)$ and $y = (0, 1, 1)$.
+Let $x = (1, 0, 1)$ and $y = (0, 1, 1)$.
 
-* **Check Assumption:** $\sum x_i = 2$ and $\sum y_i = 2$. The assumption holds (Log-Likelihoods are parallel).
-* **Check Conclusion:**
-    * $S(x) = (1, 1)$
-    * $S(y) = (0, 2)$
-    * $S(x) \neq S(y)$
+1.  **Check Parallel Condition:**
+    $\sum x_i = 2$ and $\sum y_i = 2$.
+    The sums are equal, so the log-likelihoods are parallel.
 
-**Result:** The implication fails.
-**Conclusion:** Since parallel log-likelihoods do *not* imply $S(x)=S(y)$, $S(X)$ is **not** a Minimal Sufficient Statistic.
+2.  **Check Statistic Equality:**
+    $$S(x) = (1, 1)$$
+    $$S(y) = (0, 2)$$
+    $$S(x) \neq S(y)$$
 
-:::
-
-::: {#exm-bernoulli-non-mss}
-
-### Non-Minimal Sufficient Statistic Example
-Let $X_1, X_2, X_3 \overset{i.i.d.}{\sim} \text{Bernoulli}(p)$.
-
-We compare two statistics:
-
-1.  **The MSS:** $T(X) = \sum_{i=1}^3 X_i$
-   2.  **A Sufficient (but not Minimal) Statistic:** $S(X) = (X_1, \sum_{i=2}^3 X_i)$
-
-1. Verify S is Sufficient:
-Note that $T(X)$ is simply the sum of the components of $S(X)$:
-$$T(X) = S_1(X) + S_2(X)$$
-Since the known sufficient statistic $T$ is a function of $S$, $S$ itself must also be sufficient (it contains *at least* as much information as $T$).
-
-2. Test for Minimality using MSS Condition:
-For $S(X)$ to be minimal, it must satisfy:
-$$\ell(p; x) = \ell(p; y) + c \implies S(x) = S(y)$$
-
-3. Numerical Counter-Example:
-Consider two data sets:
-
-* $x = (1, 0, 1)$
-   * $y = (0, 1, 1)$
-
-**Check Log-Likelihoods:**
-Both sets have exactly 2 successes and 1 failure.
-$$\ell(p; x) = 2\ln p + 1\ln(1-p)$$
-$$\ell(p; y) = 2\ln p + 1\ln(1-p)$$
-The difference is $0$ (constant). The condition holds.
-
-**Check Statistic S:**
-$$S(x) = (1, 0+1) = (1, 1)$$
-$$S(y) = (0, 1+1) = (0, 2)$$
-$$S(x) \neq S(y)$$
-
-**Conclusion:**
-We found a pair $x, y$ with identical likelihood shapes (parallel log-likelihoods) where $S(x) \neq S(y)$.
-Therefore, $S(X)$ fails to compress the data as much as possible. It distinguishes between $x$ and $y$ even though they provide the exact same information about $p$. Thus, $S(X)$ is **not** minimal.
-
+**Conclusion:** The parallel condition holds, but $S(x) \neq S(y)$. The implication fails.
+This proves that $S(X)$ is **not** minimal—it retains "extra" information (the position of the first success) that is not relevant to the likelihood shape.
 :::
 
 ## Completeness
