@@ -2,7 +2,6 @@
 title: "Exponential Families"
 engine: knitr
 format: 
-  html: default
   pdf: default
 ---
 
@@ -522,7 +521,7 @@ Multiplying by $-1$ gives the result.
 
 
 
-## Distributions of Sufficient Statistics
+## Distributions of Sufficient Statistics of Exponential Families
 
 ::: {#lem-joint-distribution}
 
@@ -579,6 +578,93 @@ $$
 The sum becomes a new base measure $h^{**}(y_S)$, yielding the exponential family form.
 
 :::
+
+
+::: {#exm-bernoulli-mdl-single}
+
+### Binomial Distribution from Bernoulli Trials
+
+Consider $n$ independent coin flips $X_1, \dots, X_n \sim \text{Bernoulli}(p)$. We wish to find the distribution of the sufficient statistic $T = \sum_{i=1}^n X_i$.
+
+1.  **Exponential Family Form**
+    The joint probability mass function for a sequence $x = (x_1, \dots, x_n)$ is:
+    $$
+    P(X=x) = \prod_{i=1}^n p^{x_i} (1-p)^{1-x_i} = (1-p)^n \exp\left\{ \log\left(\frac{p}{1-p}\right) \sum_{i=1}^n x_i \right\}
+    $$
+    We identify the components:
+    * **Natural Parameter:** $\eta = \log\left(\frac{p}{1-p}\right)$
+    * **Statistic:** $T(x) = \sum x_i$
+    * **Base Measure:** $h(x) = 1$ (Every specific binary sequence has weight 1).
+
+2.  **Applying MDL**
+    The Lemma states the marginal distribution of $T$ has the form:
+    $$
+    f_T(t) \propto h^*(t) \exp(\eta t)
+    $$
+    where $h^*(t)$ is the "volume" of the sample space mapping to $T=t$.
+
+3.  **Calculating the Base Measure $h^*(t)$**
+    Since $h(x)=1$, we simply count how many sequences $x$ satisfy $\sum x_i = t$. This is a standard combinatorial counting problem:
+    $$
+    h^*(t) = \binom{n}{t}
+    $$
+
+4.  **Result**
+    Substituting back:
+    $$
+    f_T(t) \propto \binom{n}{t} \exp\left\{ t \log\left(\frac{p}{1-p}\right) \right\} = \binom{n}{t} \left(\frac{p}{1-p}\right)^t
+    $$
+    Multiplying by the constant $(1-p)^n$ we set aside:
+    $$
+    f_T(t) = \binom{n}{t} p^t (1-p)^{n-t}
+    $$
+    This matches the **Binomial$(n, p)$** distribution.
+
+:::
+
+::: {#exm-exponential-sum-mdl}
+
+### Gamma Distribution from Exponential Sum
+
+Consider $n$ independent variables $X_1, \dots, X_n \sim \text{Exp}(\lambda)$ with pdf $f(x) = \lambda e^{-\lambda x}$. We want to find the distribution of $T = \sum_{i=1}^n X_i$.
+
+1.  **Exponential Family Form**
+    The joint density is:
+    $$
+    f(x_1, \dots, x_n) = \prod_{i=1}^n \lambda e^{-\lambda x_i} = \lambda^n \cdot \mathbf{1}_{\{x_i > 0\}} \cdot \exp\left\{ -\lambda \sum_{i=1}^n x_i \right\}
+    $$
+    * **Natural Parameter:** $\eta = -\lambda$
+    * **Statistic:** $T(x) = \sum x_i$
+    * **Base Measure:** $h(x) = 1$ (on the positive orthant).
+
+2.  **Applying MDL**
+    The marginal density of $T$ is:
+    $$
+    f_T(t) \propto h^*(t) \exp(-\lambda t)
+    $$
+    Here, $h^*(t)$ represents the geometric surface area of the simplex defined by $x_1 + \dots + x_n = t$ with $x_i > 0$.
+
+3.  **Calculating the Jacobian/Base Measure $h^*(t)$**
+    Instead of calculating the surface area directly, it is often easier to calculate the cumulative volume $V(t)$ of the region $\sum x_i \le t$ and take the derivative.
+    The volume of the standard simplex scaled by $t$ is known to be:
+    $$
+    V(t) = \int_{0 < \sum x_i \le t} 1 \, dx = \frac{t^n}{n!}
+    $$
+    The "surface area" $h^*(t)$ is the rate of change of this volume with respect to $t$:
+    $$
+    h^*(t) = \frac{d}{dt} V(t) = \frac{d}{dt} \left( \frac{t^n}{n!} \right) = \frac{n t^{n-1}}{n!} = \frac{t^{n-1}}{(n-1)!}
+    $$
+
+4.  **Result**
+    Substituting $h^*(t)$ back into the MDL form:
+    $$
+    f_T(t) \propto \frac{t^{n-1}}{(n-1)!} e^{-\lambda t}
+    $$
+    We recognize the kernel $t^{n-1} e^{-\lambda t}$ as that of a **Gamma$(n, \lambda)$** distribution (also known as the Erlang distribution). The factor $1/(n-1)!$ matches the $\Gamma(n)$ term in the denominator.
+
+:::
+
+
 
 ::: {#exm-bernoulli-failure}
 
@@ -739,3 +825,6 @@ Consider the Normal model $X_i \sim N(\mu, \sigma^2)$. We wish to find the margi
    This confirms that $S^2 \sim \text{Gamma}(\frac{n-1}{2}, \frac{n-1}{2\sigma^2})$, or equivalently, $\frac{(n-1)S^2}{\sigma^2} \sim \chi^2_{n-1}$.
 
 :::
+
+### Moment Generating Functions for Exponential Families
+
