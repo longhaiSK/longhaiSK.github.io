@@ -6,25 +6,30 @@ format:
   pdf: default
 ---
 
-
 ## Exponential Families
 
 ::: {#def-exponential-family}
 
 ### Exponential Family
-A family of probability density functions (or probability mass functions) $f(x|\theta)$ is said to be an **Exponential Family** if it can be written in the form:
+A family of probability density functions (or probability mass functions) is said to be an **Exponential Family** if the log-likelihood function, denoted by $\ell(\theta; x) = \log f(x|\theta)$, can be expressed as the sum of three distinct terms:
 
 $$
-f(x|\theta) = C(\theta) h(x) \exp\left\{ \sum_{i=1}^k \pi_i(\theta) \tau_i(x) \right\}
+\ell(\theta; x) = \sum_{i=1}^k \eta_i(\theta) T_i(x) - A(\theta) + \log h(x)
+$$
+
+Exponentiating this yields the density form:
+
+$$
+f(x|\theta) = h(x) \exp\left\{ \sum_{i=1}^k \eta_i(\theta) T_i(x) - A(\theta) \right\}
 $$
 
 where:
 
-* $\theta = (\theta_1, \dots, \theta_d)$ is the parameter vector.
-
-* $k$ is the number of terms in the exponent. Note that $d$ may be less than $k$.
-
-* By the Factorization Theorem, the vector $T(x) = (\tau_1(x), \dots, \tau_k(x))$ constitutes a **sufficient statistic** for $\theta$.
+* $\theta = (\theta_1, \dots, \theta_d)$ is the vector of model parameters.
+* $\eta_i(\theta)$ are the **natural parameter functions**.
+* $T(x) = (T_1(x), \dots, T_k(x))$ constitutes the vector of **sufficient statistics** for $\theta$.
+* $A(\theta)$ is the **log-partition function** (or cumulant function), which ensures the density integrates to 1.
+* $h(x)$ is the base measure.
 
 :::
 
@@ -35,44 +40,41 @@ where:
 ### Exponential Distribution
 Let $X_1, \dots, X_n \overset{iid}{\sim} \text{Exp}(\theta)$, where $\theta$ is the scale parameter.
 $$
-f(\mathbf{x}|\theta) = \prod_{i=1}^n \frac{1}{\theta} e^{-x_i/\theta} = \theta^{-n} \exp\left\{ -\frac{1}{\theta} \sum_{i=1}^n x_i \right\}
+f(\mathbf{x}|\theta) = \theta^{-n} \exp\left\{ -\frac{1}{\theta} \sum_{i=1}^n x_i \right\}
 $$
 
-Here we identify:
+The log-likelihood is:
+$$
+\ell(\theta; \mathbf{x}) = -\frac{1}{\theta} \sum_{i=1}^n x_i - n \log \theta
+$$
 
-* $C(\theta) = \theta^{-n}$
+Identifying the components:
 
-* $h(\mathbf{x}) = 1$
-
-* $\pi_1(\theta) = -\frac{1}{\theta}$
-
-* $\tau_1(\mathbf{x}) = \sum_{i=1}^n x_i$.
+* $\eta_1(\theta) = -\frac{1}{\theta}$
+* $T_1(\mathbf{x}) = \sum_{i=1}^n x_i$
+* $A(\theta) = n \log \theta$
+* $\log h(\mathbf{x}) = 0$
 
 :::
 
 ::: {#exm-gamma-dist}
 
 ### Gamma Distribution
-Let $X_1, \dots, X_n \overset{iid}{\sim} \text{Gamma}(\alpha, \beta)$.
+Let $X_1, \dots, X_n \overset{iid}{\sim} \text{Gamma}(\alpha, \beta)$. The density is:
 $$
-f(\mathbf{x}|\theta) = \prod_{i=1}^n \frac{1}{\Gamma(\alpha)\beta^\alpha} x_i^{\alpha-1} e^{-x_i/\beta}
-$$
-
-$$
-= [\Gamma(\alpha)\beta^\alpha]^{-n} \left( \prod_{i=1}^n x_i \right)^{\alpha-1} \exp\left\{ -\frac{1}{\beta} \sum_{i=1}^n x_i \right\}
+f(\mathbf{x}|\theta) = [\Gamma(\alpha)\beta^\alpha]^{-n} \left( \prod_{i=1}^n x_i \right)^{\alpha-1} \exp\left\{ -\frac{1}{\beta} \sum_{i=1}^n x_i \right\}
 $$
 
-Rewriting in the canonical form:
-
+The log-likelihood is:
 $$
-= [\Gamma(\alpha)]^{-n} \beta^{-n\alpha} \exp\left\{ (\alpha-1) \sum_{i=1}^n \log x_i - \frac{1}{\beta} \sum_{i=1}^n x_i \right\}
+\ell(\theta; \mathbf{x}) = (\alpha-1) \sum_{i=1}^n \log x_i - \frac{1}{\beta} \sum_{i=1}^n x_i - \left[ n \log \Gamma(\alpha) + n\alpha \log \beta \right]
 $$
 
-Here:
+Identifying the components:
 
-* $\pi_1(\theta) = \alpha - 1$, $\tau_1(\mathbf{x}) = \sum \log x_i$
-
-* $\pi_2(\theta) = -\frac{1}{\beta}$, $\tau_2(\mathbf{x}) = \sum x_i$.
+* $\eta_1(\theta) = \alpha - 1$, $\quad T_1(\mathbf{x}) = \sum \log x_i$
+* $\eta_2(\theta) = -\frac{1}{\beta}$, $\quad T_2(\mathbf{x}) = \sum x_i$
+* $A(\theta) = n \log \Gamma(\alpha) + n\alpha \log \beta$
 
 :::
 
@@ -81,34 +83,30 @@ Here:
 ### Beta Distribution
 Let $X_1, \dots, X_n \overset{iid}{\sim} \text{Beta}(a, b)$ with $\theta = (a, b)$.
 $$
-f(\mathbf{x}|\theta) = \prod_{i=1}^n \frac{1}{B(a, b)} x_i^{a-1} (1-x_i)^{b-1}
-$$
-
-$$
-= [B(a, b)]^{-n} \exp\left\{ (a-1) \sum_{i=1}^n \log x_i + (b-1) \sum_{i=1}^n \log(1-x_i) \right\}
+\ell(\theta; \mathbf{x}) = (a-1) \sum_{i=1}^n \log x_i + (b-1) \sum_{i=1}^n \log(1-x_i) - n \log B(a, b)
 $$
 
 This is an exponential family with $k=2$.
+
+* $\eta_1 = a-1$, $T_1 = \sum \log x_i$
+* $\eta_2 = b-1$, $T_2 = \sum \log(1-x_i)$
+* $A(\theta) = n \log B(a, b)$
 
 :::
 
 ::: {#exm-normal-dist}
 
 ### Normal Distribution
-Let $X_1, \dots, X_n \overset{iid}{\sim} N(\mu, \sigma^2)$ with $\theta = (\mu, \sigma^2)$.
+Let $X_1, \dots, X_n \overset{iid}{\sim} N(\mu, \sigma^2)$. The log-likelihood is:
 $$
-f(\mathbf{x}|\theta) = \prod_{i=1}^n \frac{1}{\sqrt{2\pi}\sigma} \exp\left\{ -\frac{(x_i - \mu)^2}{2\sigma^2} \right\}
-$$
-
-$$
-= (2\pi\sigma^2)^{-n/2} \exp\left\{ -\frac{1}{2\sigma^2} \sum_{i=1}^n x_i^2 + \frac{\mu}{\sigma^2} \sum_{i=1}^n x_i - \frac{n\mu^2}{2\sigma^2} \right\}
+\ell(\theta; \mathbf{x}) = \frac{\mu}{\sigma^2} \sum_{i=1}^n x_i - \frac{1}{2\sigma^2} \sum_{i=1}^n x_i^2 - \left[ \frac{n\mu^2}{2\sigma^2} + \frac{n}{2} \log(2\pi\sigma^2) \right]
 $$
 
-$$
-= \left[ (2\pi)^{-n/2} (\sigma^2)^{-n/2} e^{-\frac{n\mu^2}{2\sigma^2}} \right] \exp\left\{ -\frac{1}{2\sigma^2} \sum_{i=1}^n x_i^2 + \frac{\mu}{\sigma^2} \sum_{i=1}^n x_i \right\}
-$$
+Identifying the components:
 
-Here $d=2$ and $k=2$.
+* $\eta_1 = \frac{\mu}{\sigma^2}$, $T_1 = \sum x_i$
+* $\eta_2 = -\frac{1}{2\sigma^2}$, $T_2 = \sum x_i^2$
+* $A(\theta) = \frac{n\mu^2}{2\sigma^2} + n \log \sigma + \frac{n}{2} \log(2\pi)$
 
 :::
 
@@ -121,22 +119,10 @@ A model is **not** in the exponential family if the support depends on the param
 ### Uniform Distribution
 Let $X \sim U(0, \theta)$.
 $$
-f(x|\theta) = \frac{1}{\theta} I(0 < x < \theta)
+\ell(\theta; x) = -\log \theta + \log I(0 < x < \theta)
 $$
 
-This cannot be written in the required form because the indicator function $I(0 < x < \theta)$ cannot be factorized into separate functions of $x$ and $\theta$ inside an exponential.
-
-:::
-
-::: {#exm-cauchy-dist}
-
-### Cauchy Distribution
-Let $X \sim \text{Cauchy}(\theta)$.
-$$
-f(x|\theta) = \frac{1}{\pi [1 + (x-\theta)^2]}
-$$
-
-This involves $\log(1 + (x-\theta)^2)$ in the exponent, which cannot be separated into sums of products $\pi_i(\theta)\tau_i(x)$.
+The term $\log I(0 < x < \theta)$ couples $x$ and $\theta$ in a way that cannot be separated into a sum $\sum \eta_i(\theta) T_i(x)$.
 
 :::
 
@@ -147,101 +133,90 @@ In the context of exponential families and maximum likelihood estimation, we oft
 ::: {#def-regular-family}
 
 ### Regular Family
-A family of probability density functions $f(x|\theta)$ is said to be a **Regular Family** (or "sufficiently well-behaved") if the domain of $x$ for which $f(x|\theta) > 0$ (the support) does not depend on the parameter $\theta$.
+A family of probability density functions is said to be a **Regular Family** if the support $\{x : f(x|\theta) > 0\}$ does not depend on the parameter $\theta$.
 
-This condition is necessary to satisfy the identity that allows differentiation under the integral sign:
-
+This condition allows for the interchange of differentiation and integration:
 $$
-\frac{\partial}{\partial \theta} \int f(x|\theta) dx = \int \frac{\partial}{\partial \theta} f(x|\theta) dx
+\frac{\partial}{\partial \theta} \int \exp\{\ell(\theta; x)\} dx = \int \frac{\partial}{\partial \theta} \exp\{\ell(\theta; x)\} dx
 $$
 
 :::
 
 ### Why Regularity Matters {.unnumbered}
 
-If a family is regular, we can differentiate the identity $\int f(x|\theta) dx = 1$ with respect to $\theta$. This operation yields the fundamental properties of the **Score Function** $\frac{\partial}{\partial \theta} \log f(X|\theta)$:
+If a family is regular, we can differentiate the identity $\int f(x|\theta) dx = 1$ with respect to $\theta$. This yields the fundamental properties of the **Score Function** $\nabla \ell(\theta; X)$:
 
-1.  **First Moment Identity:** The expected value of the score function is zero.
+1.  **First Moment Identity:** The expected value of the score is zero.
+    $$E_\theta \left[ \frac{\partial \ell(\theta; X)}{\partial \theta_j} \right] = 0$$
 
-$$E_\theta \left[ \frac{\partial \log f(X|\theta)}{\partial \theta_j} \right] = 0$$
+2.  **Second Moment Identity:** The Fisher Information is the negative expected Hessian.
+    $$E_\theta \left[ \frac{\partial^2 \ell(\theta; X)}{\partial \theta_j \partial \theta_k} \right] = -E_\theta \left[ \frac{\partial \ell(\theta; X)}{\partial \theta_j} \frac{\partial \ell(\theta; X)}{\partial \theta_k} \right]$$
 
-2.  **Second Moment Identity:** The Fisher Information (variance of the score) is equal to the negative expected Hessian.
-
-$$E_\theta \left[ \frac{\partial^2 \log f(X|\theta)}{\partial \theta_j \partial \theta_l} \right] = -E_\theta \left[ \frac{\partial \log f(X|\theta)}{\partial \theta_j} \frac{\partial \log f(X|\theta)}{\partial \theta_l} \right]$$
-
-### An Example of Non-regular Distribution  {.unnumbered}
-The **Uniform Distribution** $U(0, \theta)$ is a classic example of a **non-regular** family. Because the support $(0, \theta)$ depends on $\theta$, the integral limits change with the parameter, preventing the direct interchange of differentiation and integration . Consequently, the standard identities for the score function do not hold for this distribution.
-
-## Moments of Sufficient Statistics of Exponential Families
+## Moments of Sufficient Statistics
 
 ### Means of Sufficient Statistics (General Case)
 
 ::: {#thm-moments-exp-family}
 
-### Means of Sufficient Statistics (General Case)
-For a random variable $X$ belonging to an exponential family with density $f(x|\theta) = C(\theta) h(x) \exp\{\sum_{i=1}^k \pi_i(\theta) \tau_i(x)\}$, the moments of the sufficient statistics $\tau_i(X)$ satisfy the system of equations:
+### Means via the Score Function
+For a regular exponential family with log-likelihood $\ell(\theta; x) = \sum \eta_i(\theta) T_i(x) - A(\theta) + \log h(x)$, the expectation of the sufficient statistics can be found by setting the expected score to zero:
+
 $$
-\frac{1}{C(\theta)} \frac{\partial C(\theta)}{\partial \theta_j} + \sum_{i=1}^k \frac{\partial \pi_i(\theta)}{\partial \theta_j} E[\tau_i(X)] = 0 \quad \text{for } j=1, \dots, d
+E_\theta \left[ \frac{\partial \ell(\theta; X)}{\partial \theta_j} \right] = 0
+$$
+
+Substituting the specific form of $\ell(\theta; X)$:
+
+$$
+\sum_{i=1}^k \frac{\partial \eta_i(\theta)}{\partial \theta_j} E[T_i(X)] = \frac{\partial A(\theta)}{\partial \theta_j} \quad \text{for } j=1, \dots, d
 $$
 
 :::
 
 ::: {.proof}
-For regular families, we can interchange differentiation and integration. Since $\int f(x|\theta) dx = 1$, we have:
+The log-likelihood is:
 $$
-\frac{\partial}{\partial \theta} \int f(x|\theta) dx = 0 \implies \int \frac{\partial}{\partial \theta} f(x|\theta) dx = 0
-$$
-
-Using the identity $\frac{\partial f}{\partial \theta} = f(x|\theta) \frac{\partial \log f}{\partial \theta}$, we derive the fundamental moment property:
-
-$$
-E\left[ \frac{\partial \log f(X|\theta)}{\partial \theta_j} \right] = \int \frac{\partial \log f(x|\theta)}{\partial \theta_j} f(x|\theta) dx = 0
+\ell(\theta; x) = \sum_{i=1}^k \eta_i(\theta) T_i(x) - A(\theta) + \log h(x)
 $$
 
-For the exponential family, the log-likelihood is given by:
-
+Differentiating with respect to $\theta_j$:
 $$
-\log f(x|\theta) = \log C(\theta) + \log h(x) + \sum_{i=1}^k \pi_i(\theta) \tau_i(x)
-$$
-
-Taking the derivative with respect to $\theta_j$:
-
-$$
-\frac{\partial \log f(x|\theta)}{\partial \theta_j} = \frac{1}{C(\theta)} \frac{\partial C(\theta)}{\partial \theta_j} + \sum_{i=1}^k \frac{\partial \pi_i(\theta)}{\partial \theta_j} \tau_i(x)
+\frac{\partial \ell}{\partial \theta_j} = \sum_{i=1}^k \frac{\partial \eta_i(\theta)}{\partial \theta_j} T_i(x) - \frac{\partial A(\theta)}{\partial \theta_j}
 $$
 
-Taking expectations and applying the condition $E[\frac{\partial}{\partial \theta} \log f(X|\theta)] = 0$ yields the theorem statement.
+Taking the expectation and using the regularity condition $E[\frac{\partial \ell}{\partial \theta_j}] = 0$:
+$$
+E\left[ \sum_{i=1}^k \frac{\partial \eta_i(\theta)}{\partial \theta_j} T_i(X) - \frac{\partial A(\theta)}{\partial \theta_j} \right] = 0
+$$
+
+$$
+\sum_{i=1}^k \frac{\partial \eta_i(\theta)}{\partial \theta_j} E[T_i(X)] = \frac{\partial A(\theta)}{\partial \theta_j}
+$$
 
 :::
-
 
 ### Natural Parameterization
 
 ::: {#def-natural-parameterization}
 
 ### Natural Parameterization
-Suppose an exponential family is given by:
-$$
-f(x|\theta) = C(\theta) h(x) \exp\left\{ \sum_{i=1}^k \pi_i(\theta) \tau_i(x) \right\}
-$$
-
-We define the **natural parameters** $\eta_i$ as $\eta_i = \pi_i(\theta)$. Let $\eta = (\eta_1, \dots, \eta_k)$. The density becomes:
+If the parameters are chosen such that $\eta_i(\theta) = \theta_i$ (implying $d=k$), the family is in **Canonical Form** (or Natural Parameterization). The log-likelihood simplifies to:
 
 $$
-f(x|\eta) = C^*(\eta) h(x) \exp\left\{ \sum_{i=1}^k \eta_i \tau_i(x) \right\}
+\ell(\eta; x) = \sum_{i=1}^k \eta_i T_i(x) - A(\eta) + \log h(x)
 $$
 
-:::
+In this case, the moment generating properties become direct derivatives of the log-partition function $A(\eta)$.
 
-::: {#def-natural-space}
-
-### Natural Parameter Space
-The natural parameter space $\mathcal{H}$ is defined as:
+**Mean:**
 $$
-\mathcal{H} = \{ \eta = (\pi_1(\theta), \dots, \pi_k(\theta)) : \int h(x) e^{\sum \eta_i \tau_i(x)} dx < \infty \}
+E[T_i(X)] = \frac{\partial A(\eta)}{\partial \eta_i}
 $$
 
-where the condition ensures $C(\theta)$ is finite.
+**Variance/Covariance:**
+$$
+\text{Cov}(T_i(X), T_j(X)) = \frac{\partial^2 A(\eta)}{\partial \eta_i \partial \eta_j}
+$$
 
 :::
 
@@ -249,141 +224,49 @@ where the condition ensures $C(\theta)$ is finite.
 
 ### Full vs. Curved Exponential Families
 
-Let $d$ be the dimension of $\theta$ and $k$ be the dimension of the sufficient statistic vector $\tau(x)$.
-
-* If $d = k$, we say $f(x|\theta)$ is a **Full Exponential Family**.
-
-* If $d < k$, we say $f(x|\theta)$ is a **Curved Exponential Family**.
-
-:::
-
-::: {#exm-natural-normal}
-
-### Natural Parameterization of Normal Distribution
-Consider the full Normal family $N(\mu, \sigma^2)$ where both parameters are unknown ($d=2$). We previously identified the sufficient statistics $T_1(x) = \sum x_i$ and $T_2(x) = \sum x_i^2$ ($k=2$). Since $d=k$, this is a **Full Exponential Family**.
-
-The natural parameters $\eta = (\eta_1, \eta_2)$ are defined by the mapping:
-
-$$
-\eta_1 = \frac{\mu}{\sigma^2}, \quad \eta_2 = -\frac{1}{2\sigma^2}
-$$
-
-The density can be rewritten purely in terms of $\eta$:
-
-$$
-f(\mathbf{x}|\eta) \propto \exp\left\{ \eta_1 \sum_{i=1}^n x_i + \eta_2 \sum_{i=1}^n x_i^2 - A(\eta) \right\}
-$$
-where the log-partition function $A(\eta)$ absorbs the normalizing constants.
-
-:::
-
-::: {#exm-natural-gamma}
-
-### Natural Parameterization of Gamma Distribution
-Consider the Gamma family $\text{Gamma}(\alpha, \beta)$ ($d=2$). We identified the sufficient statistics $T_1(x) = \sum \log x_i$ and $T_2(x) = \sum x_i$ ($k=2$). Since $d=k$, this is also a **Full Exponential Family**.
-
-The natural parameters $\eta = (\eta_1, \eta_2)$ are derived from the canonical form :
-
-$$
-\eta_1 = \alpha - 1, \quad \eta_2 = -\frac{1}{\beta}
-$$
-
-The density in natural parameterization is:
-
-$$
-f(\mathbf{x}|\eta) \propto \exp\left\{ \eta_1 \sum_{i=1}^n \log x_i + \eta_2 \sum_{i=1}^n x_i - A(\eta) \right\}
-$$
+* **Full Exponential Family:** When the natural parameters $\eta$ can vary independently in an open set of $\mathbb{R}^k$ (i.e., $d=k$ and the mapping is a bijection).
+* **Curved Exponential Family:** When the dimension of the parameter vector $\theta$ is smaller than the number of sufficient statistics ($d < k$), forcing the natural parameters $\eta(\theta)$ to lie on a non-linear curve or surface within the natural parameter space.
 
 :::
 
 ::: {#exm-curved-normal-natural}
 
-### Curved Exponential Family (Natural Parameterization)
-Consider the $N(\theta, \theta^2)$ distribution ($d=1$). The density is:
+### Curved Exponential Family Example
+Consider the $N(\theta, \theta^2)$ distribution ($d=1$). The log-likelihood is:
 $$
-f(x|\theta) \propto \exp\left\{ -\frac{1}{2\theta^2} \sum x_i^2 + \frac{1}{\theta} \sum x_i \right\}
-$$
-
-To express this in the natural parameterization, we define $\eta = (\eta_1, \eta_2)$ as:
-
-$$
-\eta_1 = -\frac{1}{2\theta^2}, \quad \eta_2 = \frac{1}{\theta}
+\ell(\theta; x) = -\frac{1}{2\theta^2} \sum x_i^2 + \frac{1}{\theta} \sum x_i - n \log \theta - \text{const}
 $$
 
-The density becomes:
+Here:
 
-$$
-f(x|\eta) \propto \exp\left\{ \eta_1 \sum_{i=1}^n x_i^2 + \eta_2 \sum_{i=1}^n x_i - A(\eta) \right\}
-$$
+* $\eta_1(\theta) = -\frac{1}{2\theta^2}$, $T_1 = \sum x_i^2$
+* $\eta_2(\theta) = \frac{1}{\theta}$, $T_2 = \sum x_i$
 
-However, the natural parameters $\eta_1$ and $\eta_2$ are not independent. They satisfy the constraint:
-
-$$
-\eta_1 = -\frac{1}{2} \eta_2^2
-$$
-
-Because the parameter space $\mathcal{H}$ forms a 1-dimensional non-linear curve (a parabola) within the 2-dimensional space of natural parameters, this is a **Curved Exponential Family**.
+Since $d=1$ but $k=2$, and $\eta_1 = -\frac{1}{2}\eta_2^2$, the parameters are constrained to a parabola. This is a **Curved Exponential Family**.
 
 :::
-
 
 ::: {#exm-bernoulli-moments}
 
 ### Moments of the Binomial Distribution
 
-Consider $n$ independent coin flips $X_1, \dots, X_n \sim \text{Bernoulli}(p)$. We wish to find the mean and variance of the sufficient statistic $T = \sum_{i=1}^n X_i$.
+Consider $n$ independent coin flips $X_1, \dots, X_n \sim \text{Bernoulli}(p)$. We find the mean and variance of $T = \sum X_i$.
 
-1. **Exponential Family Form**
-
-   The joint probability mass function is:
-
+1. **Log-Likelihood Form**
    $$
-   P(X=x) = \exp\left\{ \log\left(\frac{p}{1-p}\right) \sum_{i=1}^n x_i + n \log(1-p) \right\}
+   \ell(\theta; x) = \log\left(\frac{p}{1-p}\right) \sum x_i + n \log(1-p)
    $$
 
-   We identify the components in canonical form:
+   * Natural Parameter: $\eta = \log\left(\frac{p}{1-p}\right)$.
+   * Log-Partition Function: $A(\eta) = -n \log(1-p) = n \log(1+e^\eta)$.
 
-   * **Natural Parameter:** $\theta = \log\left(\frac{p}{1-p}\right)$. Inverting this gives $p = \frac{e^\theta}{1+e^\theta}$.
-   * **Sufficient Statistic:** $\tau(x) = \sum x_i$.
-   * **Log-Partition Function ($-\log C(\theta)$):**
-     To identify $\log C(\theta)$ (or $A(\theta)$ in some texts), we look at the term independent of $x$ but dependent on parameters. In the standard form $\exp(\theta \tau(x) - A(\theta))$, we have:
-
-     $$
-     A(\theta) = - n \log(1-p) = - n \log\left(\frac{1}{1+e^\theta}\right) = n \log(1+e^\theta)
-     $$
-
-2. **Calculating the Mean**
-
-   Using the theorem $E[\tau(X)] = \frac{\partial A(\theta)}{\partial \theta}$:
-
+2. **Calculating Moments**
    $$
-   E\left[\sum X_i\right] = \frac{\partial}{\partial \theta} \left( n \log(1+e^\theta) \right) = n \frac{e^\theta}{1+e^\theta}
+   E[T] = \frac{\partial A}{\partial \eta} = n \frac{e^\eta}{1+e^\eta} = np
    $$
 
-   Substituting back $p = \frac{e^\theta}{1+e^\theta}$, we recover the standard expectation:
-
    $$
-   E[T] = np
-   $$
-
-3. **Calculating the Variance**
-
-   Using the theorem $\text{Var}(\tau(X)) = \frac{\partial^2 A(\theta)}{\partial \theta^2}$:
-
-   $$
-   \text{Var}(T) = \frac{\partial}{\partial \theta} \left( n \frac{e^\theta}{1+e^\theta} \right)
-   $$
-
-   Using the quotient rule or recognizing the derivative of the sigmoid function:
-
-   $$
-   \text{Var}(T) = n \left( \frac{e^\theta (1+e^\theta) - e^\theta (e^\theta)}{(1+e^\theta)^2} \right) = n \frac{e^\theta}{(1+e^\theta)^2}
-   $$
-
-   We can rewrite this as $n \frac{e^\theta}{1+e^\theta} \frac{1}{1+e^\theta} = n p (1-p)$.
-
-   $$
-   \text{Var}(T) = np(1-p)
+   \text{Var}(T) = \frac{\partial^2 A}{\partial \eta^2} = n \frac{e^\eta}{(1+e^\eta)^2} = np(1-p)
    $$
 
 :::
@@ -392,60 +275,24 @@ Consider $n$ independent coin flips $X_1, \dots, X_n \sim \text{Bernoulli}(p)$. 
 
 ### Moments of the Gamma Sufficient Statistic
 
-Consider $n$ independent variables $X_1, \dots, X_n \sim \text{Exp}(\lambda)$. We want to find the mean and variance of $T = \sum_{i=1}^n X_i$.
+Consider $X_i \sim \text{Exp}(\lambda)$. We find the moments of $T = \sum X_i$.
 
-1. **Exponential Family Form**
-
-   The joint density is:
-
+1. **Log-Likelihood Form**
    $$
-   f(x) = \lambda^n \exp\left\{ -\lambda \sum_{i=1}^n x_i \right\} = \exp\left\{ -\lambda \sum x_i + n \log \lambda \right\}
+   \ell(\lambda; x) = -\lambda \sum x_i + n \log \lambda
    $$
 
-   * **Natural Parameter:** $\theta = -\lambda$ (so $\lambda = -\theta$).
-   * **Sufficient Statistic:** $\tau(x) = \sum x_i$.
-   * **Log-Partition Function:**
-     Identify the normalization term $A(\theta)$. Note that usually $\log f = \theta \tau - A(\theta)$.
+   * Natural Parameter: $\eta = -\lambda$.
+   * Log-Partition Function: $A(\eta) = -n \log \lambda = -n \log(-\eta)$.
 
-     $$
-     A(\theta) = - n \log \lambda = - n \log(-\theta)
-     $$
-
-2. **Calculating the Mean**
-
+2. **Calculating Moments**
    $$
-   E[T] = \frac{\partial A}{\partial \theta} = \frac{\partial}{\partial \theta} \left( -n \log(-\theta) \right)
-   $$
-
-   Using the chain rule:
-
-   $$
-   E[T] = -n \frac{1}{-\theta} (-1) = - \frac{n}{\theta}
-   $$
-
-   Substituting $\theta = -\lambda$:
-
-   $$
-   E[T] = \frac{n}{\lambda}
-   $$
-
-3. **Calculating the Variance**
-
-   $$
-   \text{Var}(T) = \frac{\partial^2 A}{\partial \theta^2} = \frac{\partial}{\partial \theta} \left( -n \theta^{-1} \right)
+   E[T] = \frac{\partial A}{\partial \eta} = -n \frac{1}{-\eta}(-1) = -\frac{n}{\eta} = \frac{n}{\lambda}
    $$
 
    $$
-   \text{Var}(T) = -n (-1) \theta^{-2} = \frac{n}{\theta^2}
+   \text{Var}(T) = \frac{\partial^2 A}{\partial \eta^2} = \frac{n}{\eta^2} = \frac{n}{\lambda^2}
    $$
-
-   Substituting $\theta = -\lambda$:
-
-   $$
-   \text{Var}(T) = \frac{n}{(-\lambda)^2} = \frac{n}{\lambda^2}
-   $$
-
-   These match the mean and variance of a Gamma$(n, \lambda)$ distribution.
 
 :::
 
@@ -453,222 +300,31 @@ Consider $n$ independent variables $X_1, \dots, X_n \sim \text{Exp}(\lambda)$. W
 
 ### Moments of Normal Sufficient Statistics
 
-Consider $X_1, \dots, X_n \sim N(\mu, \sigma^2)$. We determine the expectation and covariance of the natural sufficient statistics $T_1 = \sum X_i$ and $T_2 = \sum X_i^2$.
+Consider $X_i \sim N(\mu, \sigma^2)$.
 
-1. **Canonical Form and Partition Function**
-
-   The joint density is:
-
+1. **Log-Likelihood Form**
    $$
-   f(x) \propto \exp\left\{ \frac{\mu}{\sigma^2} \sum x_i - \frac{1}{2\sigma^2} \sum x_i^2 - \left( \frac{n\mu^2}{2\sigma^2} + n\log\sigma \right) \right\}
+   \ell(\theta; x) = \frac{\mu}{\sigma^2} \sum x_i - \frac{1}{2\sigma^2} \sum x_i^2 - \left[ \frac{n\mu^2}{2\sigma^2} + \frac{n}{2} \log(\sigma^2) \right]
+   $$
+   
+   Natural Parameters: $\eta_1 = \frac{\mu}{\sigma^2}, \eta_2 = -\frac{1}{2\sigma^2}$.
+   
+   Log-Partition Function (in terms of $\eta$):
+   $$
+   A(\eta) = -\frac{n \eta_1^2}{4 \eta_2} - \frac{n}{2} \log(-2\eta_2)
    $$
 
-   * **Natural Parameters:**
-     $\theta_1 = \frac{\mu}{\sigma^2}$
-     $\theta_2 = -\frac{1}{2\sigma^2}$
-
-   * **Parameter Mapping:**
-     $\sigma^2 = -\frac{1}{2\theta_2}$
-     $\mu = \theta_1 \sigma^2 = -\frac{\theta_1}{2\theta_2}$
-
-   * **Log-Partition Function ($A(\theta)$):**
-     Substituting the inverse mappings into the normalization constant $\frac{n\mu^2}{2\sigma^2} + \frac{n}{2}\log(\sigma^2)$:
-
-     $$
-     A(\theta) = \frac{n (-\theta_1/2\theta_2)^2}{2 (-1/2\theta_2)} + \frac{n}{2} \log\left(-\frac{1}{2\theta_2}\right)
-     $$
-
-     Simplifying:
-
-     $$
-     A(\theta) = -\frac{n \theta_1^2}{4 \theta_2} - \frac{n}{2} \log(-2\theta_2)
-     $$
-
-2. **First Moment (Means)**
-
-   * **Mean of $\sum X_i$:**
-
-     $$
-     E[T_1] = \frac{\partial A}{\partial \theta_1} = -\frac{2n\theta_1}{4\theta_2} = -\frac{n\theta_1}{2\theta_2} = n\mu
-     $$
-
-   * **Mean of $\sum X_i^2$:**
-
-     $$
-     E[T_2] = \frac{\partial A}{\partial \theta_2} = -\frac{n\theta_1^2}{4} (- \theta_2^{-2}) - \frac{n}{2} \frac{1}{-2\theta_2}(-2) = \frac{n\theta_1^2}{4\theta_2^2} - \frac{n}{2\theta_2}
-     $$
-
-     Substituting back:
-
-     $$
-     E[T_2] = n \left( \frac{\mu}{\sigma^2} \sigma^2 \right)^2 \frac{1}{(-1/2\sigma^2)^2 (-1/2\sigma^2)^{-2}} \dots \text{ (Simpler to use } \mu, \sigma)
-     $$
-
-     Using the mapping terms identified in $E[T_1]$: $\frac{\theta_1}{-2\theta_2} = \mu$ and $\frac{-1}{2\theta_2} = \sigma^2$.
-
-     $$
-     E[T_2] = n \mu^2 + n \sigma^2
-     $$
+2. **First Moments (Means)**
+   $$
+   E[T_1] = E\left[\sum X_i\right] = \frac{\partial A}{\partial \eta_1} = -\frac{n\eta_1}{2\eta_2} = n\mu
+   $$
+   $$
+   E[T_2] = E\left[\sum X_i^2\right] = \frac{\partial A}{\partial \eta_2} = \frac{n\eta_1^2}{4\eta_2^2} - \frac{n}{2\eta_2} = n(\mu^2 + \sigma^2)
+   $$
 
 3. **Second Moment (Covariance)**
-
-   We find the covariance between $T_1 = \sum X$ and $T_2 = \sum X^2$ by taking the cross derivative $\frac{\partial^2 A}{\partial \theta_1 \partial \theta_2}$.
-
    $$
-   \text{Cov}(T_1, T_2) = \frac{\partial}{\partial \theta_2} \left( E[T_1] \right) = \frac{\partial}{\partial \theta_2} \left( -\frac{n\theta_1}{2} \theta_2^{-1} \right)
+   \text{Cov}(T_1, T_2) = \frac{\partial^2 A}{\partial \eta_1 \partial \eta_2} = \frac{n\eta_1}{2\eta_2^2} = 2n\mu\sigma^2
    $$
-
-   $$
-   = -\frac{n\theta_1}{2} (-1)\theta_2^{-2} = \frac{n\theta_1}{2\theta_2^2}
-   $$
-
-   Substitute parameters back ($\theta_1 = \mu/\sigma^2, \theta_2 = -1/2\sigma^2$):
-
-   $$
-   \text{Cov}(\sum X, \sum X^2) = \frac{n (\mu/\sigma^2)}{2 (-1/2\sigma^2)^2} = \frac{n\mu}{\sigma^2} \cdot \frac{1}{2 (1/4\sigma^4)} = \frac{n\mu}{\sigma^2} \cdot 2\sigma^4 = 2n\mu\sigma^2
-   $$
-
-:::
-
-::: {#exm-variance-expectation}
-
-### Expectation of Sample Variance via Natural Moments
-
-We can calculate the expectation of the sample variance $S^2 = \frac{1}{n-1}\sum (X_i - \bar{X})^2$ without integrating, by using the moments of the natural sufficient statistics derived in @exm-normal-sufficient-moments.
-
-1. **Decomposition of $S^2$**
-
-   Standard algebraic expansion of the variance term gives:
-
-   $$
-   S^2 = \frac{1}{n-1} \left( \sum_{i=1}^n X_i^2 - n \bar{X}^2 \right) = \frac{1}{n-1} \left( \sum X_i^2 - \frac{1}{n} (\sum X_i)^2 \right)
-   $$
-
-   Notice that $S^2$ is a function of the natural sufficient statistics $T_2 = \sum X_i^2$ and $T_1 = \sum X_i$.
-
-2. **Expectation Calculation**
-
-   We apply the linearity of expectation:
-
-   $$
-   E[S^2] = \frac{1}{n-1} \left( E[T_2] - \frac{1}{n} E[T_1^2] \right)
-   $$
-
-   From the previous example, we derived:
-
-   * $E[T_2] = n(\mu^2 + \sigma^2)$
-   * $E[T_1] = n\mu$
-
-   However, we need $E[T_1^2]$. Recall that $\text{Var}(T_1) = E[T_1^2] - (E[T_1])^2$.
-   Using the Hessian property $\text{Var}(T_1) = \frac{\partial^2 A}{\partial \theta_1^2}$:
-
-   $$
-   \text{Var}(T_1) = \frac{\partial}{\partial \theta_1} (n \mu) = \frac{\partial}{\partial \theta_1} \left( -\frac{n \theta_1}{2 \theta_2} \right) = -\frac{n}{2\theta_2} = n\sigma^2
-   $$
-
-   Therefore:
-
-   $$
-   E[T_1^2] = \text{Var}(T_1) + (E[T_1])^2 = n\sigma^2 + (n\mu)^2
-   $$
-
-3. **Result**
-
-   Substitute $E[T_2]$ and $E[T_1^2]$ back into the expression for $E[S^2]$:
-
-   $$
-   \begin{aligned}
-   E[S^2] &= \frac{1}{n-1} \left[ (n\mu^2 + n\sigma^2) - \frac{1}{n} (n\sigma^2 + n^2\mu^2) \right] \\
-   &= \frac{1}{n-1} \left[ n\mu^2 + n\sigma^2 - \sigma^2 - n\mu^2 \right] \\
-   &= \frac{1}{n-1} \left[ n\sigma^2 - \sigma^2 \right] \\
-   &= \frac{1}{n-1} \sigma^2 (n-1) \\
-   &= \sigma^2
-   \end{aligned}
-   $$
-
-   This confirms $S^2$ is an unbiased estimator, derived entirely from the derivatives of the log-partition function.
-
-:::
-
-### Conditional Distributions
-
-::: {#thm-conditional-exp-family}
-
-### Conditional Distributions in Exponential Families
-
-Consider a standard exponential family with two natural parameters $\theta_1, \theta_2$ and sufficient statistics $T_1, T_2$:
-$$
-f(t_1, t_2 | \theta_1, \theta_2) = \exp\left\{ \theta_1 t_1 + \theta_2 t_2 - A(\theta_1, \theta_2) \right\} h(t_1, t_2)
-$$
-
-The conditional distribution of $T_2$ given $T_1 = t_1$ has the density:
-$$
-f(t_2 | t_1; \theta) = \frac{f(t_1, t_2)}{f_{T_1}(t_1)}
-$$
-
-Substituting the joint density structure:
-$$
-f(t_2 | t_1; \theta) \propto \frac{\exp\{ \theta_1 t_1 + \theta_2 t_2 \} h(t_1, t_2)}{ \int \exp\{ \theta_1 t_1 + \theta_2 t_2 \} h(t_1, t_2) dt_2 }
-$$
-
-Notice that the term $\exp(\theta_1 t_1)$ factors out of the integral in the denominator and cancels with the numerator. The term $A(\theta)$ also cancels out.
-
-**Result:**
-$$
-f(t_2 | t_1; \theta_2) = C(t_1, \theta_2) \exp\{ \theta_2 t_2 \} h(t_1, t_2)
-$$
-Crucially, **this conditional distribution does not depend on $\theta_1$**. 
-
-This property allows us to eliminate nuisance parameters ($\theta_1$) by conditioning on their sufficient statistics ($T_1$).
-
-:::
-
-::: {#exm-poisson-conditional-binomial}
-
-### Deriving the Binomial from Poisson Components
-
-Consider two independent Poisson variables $X \sim \text{Poisson}(\lambda_1)$ and $Y \sim \text{Poisson}(\lambda_2)$. We define the sufficient statistics as the sum $T_1 = X + Y$ and the first component $T_2 = X$.
-
-1. **Joint Distribution as Exponential Family**
-
-   The joint probability mass function is:
-   $$
-   \begin{aligned}
-   P(X=x, Y=y) &= \frac{e^{-\lambda_1}\lambda_1^x}{x!} \frac{e^{-\lambda_2}\lambda_2^y}{y!} \\
-   &= \exp\left\{ x \log \lambda_1 + y \log \lambda_2 - (\lambda_1 + \lambda_2) \right\} \frac{1}{x! y!}
-   \end{aligned}
-   $$
-
-   We express this in terms of $T_1 = x+y$ (so $y = t_1 - t_2$) and $T_2 = x$:
-
-   $$
-   \begin{aligned}
-   P(T_1=t_1, T_2=t_2) &= \exp\left\{ t_2 \log \lambda_1 + (t_1 - t_2) \log \lambda_2 - (\lambda_1 + \lambda_2) \right\} \frac{1}{t_2! (t_1-t_2)!} \\
-   &= \exp\left\{ t_1 \log \lambda_2 + t_2 (\log \lambda_1 - \log \lambda_2) - (\lambda_1 + \lambda_2) \right\} \binom{t_1}{t_2} \frac{1}{t_1!}
-   \end{aligned}
-   $$
-
-   We identify the natural parameters:
-   * Parameter for fixed $T_1$: $\theta_1 = \log \lambda_2$ (Nuisance)
-   * Parameter for $T_2$: $\theta_2 = \log(\lambda_1/\lambda_2)$ (Interest)
-
-2. **Applying the Conditional Property**
-
-   According to @thm-conditional-exp-family, the conditional distribution of $T_2$ (the count $X$) given $T_1$ (the total $X+Y$) must be an exponential family depending *only* on $\theta_2 = \log(\lambda_1/\lambda_2)$.
-
-   $$
-   P(T_2 = t_2 | T_1 = t_1) \propto \binom{t_1}{t_2} \exp\left\{ t_2 \log\left(\frac{\lambda_1}{\lambda_2}\right) \right\}
-   $$
-
-   Let $p = \frac{\lambda_1}{\lambda_1 + \lambda_2}$. Then $\frac{p}{1-p} = \frac{\lambda_1}{\lambda_2}$. The term $\exp\{ t_2 \theta_2 \}$ becomes $(\frac{p}{1-p})^{t_2}$.
-
-   $$
-   P(T_2 = k | T_1 = n) \propto \binom{n}{k} \left( \frac{p}{1-p} \right)^k
-   $$
-
-   This is the kernel of a **Binomial$(n, p)$** distribution.
-
-   **Conclusion:**
-   Conditioning on the total count $n$, the distribution of the first count $X$ is Binomial with probability parameter $p = \frac{\lambda_1}{\lambda_1 + \lambda_2}$. Note that the absolute magnitude of the rates ($\lambda_1, \lambda_2$) has disappeared; only their ratio remains.
 
 :::
