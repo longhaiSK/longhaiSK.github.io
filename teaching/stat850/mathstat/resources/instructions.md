@@ -1,7 +1,7 @@
 
 **Instructions for Writing quarto Documents**
 * wrap all code with ```, eg. ```{r} ... ```, and wrap everything with ````{markdown} ... ```` so the qmd code is in textbox that is copiable. 
-* Don't add yaml header.
+* Don't add yaml header. 
 * Always add 4 backticks ```` around qmd code
 * Don't use the direct numbering such as 3.1, or Chapter 1
 * Dont use direct numbering to make a list such as **1. Factor into Components:**. Instead, using auto numbering: 
