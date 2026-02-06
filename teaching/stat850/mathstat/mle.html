@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -209,6 +243,13 @@ window.Quarto = {
   <li><a href="#asymptotic-normality" id="toc-asymptotic-normality" class="nav-link" data-scroll-target="#asymptotic-normality"><span class="header-section-number">6.7</span> Asymptotic Normality</a></li>
   <li><a href="#hypothesis-testing-likelihood-ratio-test" id="toc-hypothesis-testing-likelihood-ratio-test" class="nav-link" data-scroll-target="#hypothesis-testing-likelihood-ratio-test"><span class="header-section-number">6.8</span> Hypothesis Testing: Likelihood Ratio Test</a></li>
   <li><a href="#illustration-of-wilks-theorem" id="toc-illustration-of-wilks-theorem" class="nav-link" data-scroll-target="#illustration-of-wilks-theorem"><span class="header-section-number">6.9</span> Illustration of Wilks’ Theorem</a></li>
+  <li><a href="#an-example-poisson-regression" id="toc-an-example-poisson-regression" class="nav-link" data-scroll-target="#an-example-poisson-regression"><span class="header-section-number">6.10</span> An Example: Poisson Regression</a>
+  <ul>
+  <li><a href="#canonical-representation" id="toc-canonical-representation" class="nav-link" data-scroll-target="#canonical-representation"><span class="header-section-number">6.10.1</span> Canonical Representation</a></li>
+  <li><a href="#the-score-and-information" id="toc-the-score-and-information" class="nav-link" data-scroll-target="#the-score-and-information"><span class="header-section-number">6.10.2</span> The Score and Information</a></li>
+  <li><a href="#asymptotic-distributions-theory" id="toc-asymptotic-distributions-theory" class="nav-link" data-scroll-target="#asymptotic-distributions-theory"><span class="header-section-number">6.10.3</span> Asymptotic Distributions (Theory)</a></li>
+  <li><a href="#numerical-application-in-r" id="toc-numerical-application-in-r" class="nav-link" data-scroll-target="#numerical-application-in-r"><span class="header-section-number">6.10.4</span> Numerical Application in R</a></li>
+  </ul></li>
   </ul>
 </nav>
 </nav>
@@ -511,8 +552,98 @@ l(\theta_0) \approx l(\hat{\theta}) + (\theta_0 - \hat{\theta})l'(\hat{\theta}) 
 \]</span> Since <span class="math inline">\(l'(\hat{\theta}) = 0\)</span>: <span class="math display">\[
 2[l(\hat{\theta}) - l(\theta_0)] \approx -(\theta_0 - \hat{\theta})^2 l''(\hat{\theta}) = (\hat{\theta} - \theta_0)^2 [-\frac{1}{n} l''(\hat{\theta})] \cdot n
 \]</span> As <span class="math inline">\(n \to \infty\)</span>, <span class="math inline">\(-\frac{1}{n}l'' \to I(\theta_0)\)</span> and <span class="math inline">\(\sqrt{n}(\hat{\theta}-\theta_0) \to N(0, 1/I)\)</span>. Thus, the expression behaves like <span class="math inline">\(Z^2 \sim \chi^2_1\)</span>.</p>
+</section>
+<section id="an-example-poisson-regression" class="level2" data-number="6.10">
+<h2 data-number="6.10" class="anchored" data-anchor-id="an-example-poisson-regression"><span class="header-section-number">6.10</span> An Example: Poisson Regression</h2>
+<p>In this example, we explore the Generalized Linear Model (GLM) for count data using the Poisson distribution. Let <span class="math inline">\(Y_1, \dots, Y_n\)</span> be independent count variables where <span class="math inline">\(Y_i \sim \text{Poisson}(\lambda_i)\)</span>. The expected count <span class="math inline">\(\lambda_i\)</span> is related to a vector of covariates <span class="math inline">\(\mathbf{x}_i\)</span> and parameters <span class="math inline">\(\boldsymbol{\beta}\)</span> via the <strong>canonical log link function</strong>: <span class="math display">\[ \log(\lambda_i) = \eta_i = \mathbf{x}_i^\top \boldsymbol{\beta} = \beta_0 + \beta_1 x_{i1} + \dots + \beta_k x_{ik} \]</span></p>
+<section id="canonical-representation" class="level3" data-number="6.10.1">
+<h3 data-number="6.10.1" class="anchored" data-anchor-id="canonical-representation"><span class="header-section-number">6.10.1</span> Canonical Representation</h3>
+<p>We begin by expressing the log-likelihood in the canonical exponential family form. The probability mass function for the Poisson distribution is <span class="math inline">\(P(Y_i=y_i) = \frac{e^{-\lambda_i}\lambda_i^{y_i}}{y_i!}\)</span>. The log-likelihood is: <span class="math display">\[ \ell(\boldsymbol{\beta}) = \sum_{i=1}^n \left( y_i \log(\lambda_i) - \lambda_i - \log(y_i!) \right) \]</span></p>
+<p>Substituting the log link <span class="math inline">\(\log(\lambda_i) = \mathbf{x}_i^\top \boldsymbol{\beta}\)</span> and <span class="math inline">\(\lambda_i = e^{\mathbf{x}_i^\top \boldsymbol{\beta}}\)</span>: <span class="math display">\[ \ell(\boldsymbol{\beta}) = \sum_{i=1}^n \left( y_i (\mathbf{x}_i^\top \boldsymbol{\beta}) - e^{\mathbf{x}_i^\top \boldsymbol{\beta}} \right) + \text{const} \]</span> Rearranging terms to isolate the parameters <span class="math inline">\(\beta_j\)</span>: <span class="math display">\[ \ell(\boldsymbol{\beta}; \mathbf{y}) = \sum_{j=0}^k \beta_j \underbrace{\left( \sum_{i=1}^n y_i x_{ij} \right)}_{T_j(\mathbf{y})} - \underbrace{\sum_{i=1}^n e^{\mathbf{x}_i^\top \boldsymbol{\beta}}}_{A(\boldsymbol{\beta})} + \text{const} \]</span></p>
+<p>From this form, we identify:</p>
+<ul>
+<li><strong>Sufficient Statistics:</strong> <span class="math inline">\(\mathbf{T}(\mathbf{y}) = \mathbf{X}^\top \mathbf{y}\)</span>.</li>
+<li><strong>Log-Partition Function:</strong> <span class="math inline">\(A(\boldsymbol{\beta}) = \sum_{i=1}^n \lambda_i = \sum_{i=1}^n e^{\mathbf{x}_i^\top \boldsymbol{\beta}}\)</span>.</li>
+</ul>
+</section>
+<section id="the-score-and-information" class="level3" data-number="6.10.2">
+<h3 data-number="6.10.2" class="anchored" data-anchor-id="the-score-and-information"><span class="header-section-number">6.10.2</span> The Score and Information</h3>
+<p>Next, we derive the gradient and Hessian of the log-likelihood.</p>
+<ul>
+<li><p><strong>Score Vector (<span class="math inline">\(\mathbf{U}\)</span>):</strong> The gradient of <span class="math inline">\(\ell(\boldsymbol{\beta})\)</span> is the difference between the observed sufficient statistics and their expectations (derived from <span class="math inline">\(\nabla A\)</span>). <span class="math display">\[ \mathbf{U}(\boldsymbol{\beta}) = \nabla_{\boldsymbol{\beta}} \ell = \mathbf{T}(\mathbf{y}) - \nabla A(\boldsymbol{\beta}) = \sum_{i=1}^n y_i \mathbf{x}_i - \sum_{i=1}^n \lambda_i \mathbf{x}_i = \mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda}) \]</span></p></li>
+<li><p><strong>Fisher Information Matrix (<span class="math inline">\(\mathcal{J}\)</span>):</strong> This is the negative Hessian of the log-likelihood, or equivalently the Hessian of the log-partition function <span class="math inline">\(A(\boldsymbol{\beta})\)</span>. <span class="math display">\[ \mathcal{J}(\boldsymbol{\beta}) = \nabla^2 A(\boldsymbol{\beta}) = \sum_{i=1}^n \mathbf{x}_i \frac{\partial \lambda_i}{\partial \boldsymbol{\beta}^\top} = \sum_{i=1}^n \lambda_i \mathbf{x}_i \mathbf{x}_i^\top \]</span> In matrix notation, <span class="math inline">\(\mathcal{J}(\boldsymbol{\beta}) = \mathbf{X}^\top \mathbf{W} \mathbf{X}\)</span>, where <span class="math inline">\(\mathbf{W} = \text{diag}(\lambda_i)\)</span>. Note that for the Poisson model, the variance equals the mean <span class="math inline">\(\lambda_i\)</span>.</p></li>
+</ul>
+</section>
+<section id="asymptotic-distributions-theory" class="level3" data-number="6.10.3">
+<h3 data-number="6.10.3" class="anchored" data-anchor-id="asymptotic-distributions-theory"><span class="header-section-number">6.10.3</span> Asymptotic Distributions (Theory)</h3>
+<ol type="a">
+<li><p><strong>Normality of the Score:</strong> The Score vector <span class="math inline">\(\mathbf{U}(\boldsymbol{\beta}) = \sum_{i=1}^n (Y_i - \lambda_i)\mathbf{x}_i\)</span> is a sum of independent mean-zero random vectors.</p>
+<ul>
+<li>Mean: <span class="math inline">\(E[\mathbf{U}] = \mathbf{0}\)</span>.</li>
+<li>Variance: <span class="math inline">\(\text{Var}(\mathbf{U}) = \sum \text{Var}(Y_i)\mathbf{x}_i\mathbf{x}_i^\top = \mathcal{J}(\boldsymbol{\beta})\)</span>. By the <strong>Multivariate Central Limit Theorem</strong>, as <span class="math inline">\(n \to \infty\)</span>: <span class="math display">\[ \frac{1}{\sqrt{n}}\mathbf{U}(\boldsymbol{\beta}) \xrightarrow{d} N(\mathbf{0}, \mathcal{I}(\boldsymbol{\beta})) \]</span> where <span class="math inline">\(\mathcal{I}\)</span> is the limit of <span class="math inline">\(\frac{1}{n}\mathcal{J}\)</span>.</li>
+</ul></li>
+<li><p><strong>Normality of the Estimator:</strong> The MLE <span class="math inline">\(\hat{\boldsymbol{\beta}}\)</span> satisfies <span class="math inline">\(\mathbf{U}(\hat{\boldsymbol{\beta}}) = \mathbf{0}\)</span>. Taking a first-order Taylor expansion around the true parameter <span class="math inline">\(\boldsymbol{\beta}\)</span>: <span class="math display">\[ \mathbf{0} = \mathbf{U}(\hat{\boldsymbol{\beta}}) \approx \mathbf{U}(\boldsymbol{\beta}) - \mathcal{J}(\boldsymbol{\beta}) (\hat{\boldsymbol{\beta}} - \boldsymbol{\beta}) \]</span> Rearranging gives <span class="math inline">\((\hat{\boldsymbol{\beta}} - \boldsymbol{\beta}) \approx \mathcal{J}^{-1}(\boldsymbol{\beta}) \mathbf{U}(\boldsymbol{\beta})\)</span>. Since <span class="math inline">\(\mathbf{U}\)</span> is asymptotically normal, the linear transformation implies: <span class="math display">\[ \sqrt{n}(\hat{\boldsymbol{\beta}} - \boldsymbol{\beta}) \xrightarrow{d} N\left(\mathbf{0}, \mathcal{I}^{-1}(\boldsymbol{\beta})\right) \]</span></p></li>
+</ol>
+</section>
+<section id="numerical-application-in-r" class="level3" data-number="6.10.4">
+<h3 data-number="6.10.4" class="anchored" data-anchor-id="numerical-application-in-r"><span class="header-section-number">6.10.4</span> Numerical Application in R</h3>
+<p>We now implement the Newton-Raphson algorithm in R to estimate parameters for a Poisson regression model with a <strong>continuous covariate</strong>. Let <span class="math inline">\(\log(\lambda_i) = \beta_0 + \beta_1 x_i\)</span>.</p>
+<p><strong>a. Data Generation</strong> We simulate <span class="math inline">\(n=100\)</span> observations using a continuous predictor <span class="math inline">\(x\)</span> drawn from a Uniform distribution.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">runif</span>(n, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># True parameters: Intercept=0.5, Slope=2.0</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>beta_true <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">2.0</span>) </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate response Y</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>lambda_true <span class="ot">&lt;-</span> <span class="fu">exp</span>(beta_true[<span class="dv">1</span>] <span class="sc">+</span> beta_true[<span class="dv">2</span>] <span class="sc">*</span> x)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">rpois</span>(n, lambda_true)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Design Matrix (intercept column + covariate)</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="dv">1</span>, x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>b. Newton-Raphson Implementation</strong> The update rule is <span class="math inline">\(\boldsymbol{\beta}^{(t+1)} = \boldsymbol{\beta}^{(t)} + \mathcal{J}^{-1}\mathbf{U}\)</span>. We implement this iteratively.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>newton_raphson_poisson <span class="ot">&lt;-</span> <span class="cf">function</span>(X, y, <span class="at">tol =</span> <span class="fl">1e-6</span>, <span class="at">max_iter =</span> <span class="dv">100</span>) {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, <span class="fu">ncol</span>(X)) <span class="co"># Start at 0</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>max_iter) {</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 1. Compute means and weights</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    eta <span class="ot">&lt;-</span> X <span class="sc">%*%</span> beta</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    lambda <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(<span class="fu">exp</span>(eta))</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 2. Compute Score U and Info J</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    U <span class="ot">&lt;-</span> <span class="fu">crossprod</span>(X, y <span class="sc">-</span> lambda)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    J <span class="ot">&lt;-</span> <span class="fu">crossprod</span>(X <span class="sc">*</span> lambda, X) <span class="co"># Efficient t(X) %*% W %*% X</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 3. Update beta</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    delta <span class="ot">&lt;-</span> <span class="fu">solve</span>(J, U)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    beta_new <span class="ot">&lt;-</span> beta <span class="sc">+</span> <span class="fu">as.vector</span>(delta)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 4. Check convergence</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    diff <span class="ot">&lt;-</span> <span class="fu">sum</span>((beta_new <span class="sc">-</span> beta)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Iter %d: beta0=%.4f, beta1=%.4f, diff=%.6f</span><span class="sc">\n</span><span class="st">"</span>, </span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>                i, beta_new[<span class="dv">1</span>], beta_new[<span class="dv">2</span>], diff))</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (diff <span class="sc">&lt;</span> tol) <span class="fu">return</span>(beta_new)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    beta <span class="ot">&lt;-</span> beta_new</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>beta_mle <span class="ot">&lt;-</span> <span class="fu">newton_raphson_poisson</span>(X, y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Output:</strong></p>
+<pre><code>Iter 1: beta0=1.1718, beta1=0.6234, diff=1.761592
+Iter 2: beta0=0.6970, beta1=1.5794, diff=1.139433
+Iter 3: beta0=0.4996, beta1=2.0101, diff=0.224446
+Iter 4: beta0=0.4725, beta1=2.0838, diff=0.006173
+Iter 5: beta0=0.4722, beta1=2.0845, diff=0.000001
+</code></pre>
+<p><strong>c.&nbsp;Discussion &amp; Verification</strong> We compare our manual estimates with R’s built-in <code>glm</code> function.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Manual MLE: "</span>, beta_mle, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"GLM Output: "</span>, <span class="fu">coef</span>(<span class="fu">glm</span>(y <span class="sc">~</span> x, <span class="at">family =</span> <span class="st">"poisson"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Observation:</strong> The manual implementation converges to the exact same values as the built-in function (<span class="math inline">\(\hat{\beta}_0 \approx 0.47, \hat{\beta}_1 \approx 2.08\)</span>). Notice that we started at <span class="math inline">\(\boldsymbol{\beta}=(0,0)\)</span>. In the first iteration, the algorithm took a large step because the log-likelihood surface is steep. The quadratic convergence of Newton-Raphson is evident in the rapid decrease of the difference term (from 1.13 to 0.22 to 0.006).</p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

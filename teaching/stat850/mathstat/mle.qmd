@@ -98,8 +98,10 @@ $$
     \hat{\sigma}^2_{\text{MLE}} = \frac{\sum(x_i - \hat{\mu})^2}{n} = \frac{\sum(x_i - \bar{x})^2}{n}
     $$
 **Bias:**
+
     * $E(S^2) = \sigma^2$ (Unbiased)
     * $E(\hat{\sigma}^2_{\text{MLE}}) = E\left(\frac{n-1}{n} S^2\right) = \frac{n-1}{n} \sigma^2 \ne \sigma^2$ (Biased)
+
 :::
 
 ## Properties of Score and Fisher Information
@@ -445,4 +447,137 @@ $$
 $$
 As $n \to \infty$, $-\frac{1}{n}l'' \to I(\theta_0)$ and $\sqrt{n}(\hat{\theta}-\theta_0) \to N(0, 1/I)$.
 Thus, the expression behaves like $Z^2 \sim \chi^2_1$.
+
+
+## An Example: Poisson Regression
+
+
+
+
+
+In this example, we explore the Generalized Linear Model (GLM) for count data using the Poisson distribution. Let $Y_1, \dots, Y_n$ be independent count variables where $Y_i \sim \text{Poisson}(\lambda_i)$. The expected count $\lambda_i$ is related to a vector of covariates $\mathbf{x}_i$ and parameters $\boldsymbol{\beta}$ via the **canonical log link function**:
+$$ \log(\lambda_i) = \eta_i = \mathbf{x}_i^\top \boldsymbol{\beta} = \beta_0 + \beta_1 x_{i1} + \dots + \beta_k x_{ik} $$
+
+### Canonical Representation
+
+We begin by expressing the log-likelihood in the canonical exponential family form. The probability mass function for the Poisson distribution is $P(Y_i=y_i) = \frac{e^{-\lambda_i}\lambda_i^{y_i}}{y_i!}$. The log-likelihood is:
+$$ \ell(\boldsymbol{\beta}) = \sum_{i=1}^n \left( y_i \log(\lambda_i) - \lambda_i - \log(y_i!) \right) $$
+
+Substituting the log link $\log(\lambda_i) = \mathbf{x}_i^\top \boldsymbol{\beta}$ and $\lambda_i = e^{\mathbf{x}_i^\top \boldsymbol{\beta}}$:
+$$ \ell(\boldsymbol{\beta}) = \sum_{i=1}^n \left( y_i (\mathbf{x}_i^\top \boldsymbol{\beta}) - e^{\mathbf{x}_i^\top \boldsymbol{\beta}} \right) + \text{const} $$
+Rearranging terms to isolate the parameters $\beta_j$:
+$$ \ell(\boldsymbol{\beta}; \mathbf{y}) = \sum_{j=0}^k \beta_j \underbrace{\left( \sum_{i=1}^n y_i x_{ij} \right)}_{T_j(\mathbf{y})} - \underbrace{\sum_{i=1}^n e^{\mathbf{x}_i^\top \boldsymbol{\beta}}}_{A(\boldsymbol{\beta})} + \text{const} $$
+
+From this form, we identify:
+
+* **Sufficient Statistics:** $\mathbf{T}(\mathbf{y}) = \mathbf{X}^\top \mathbf{y}$.
+* **Log-Partition Function:** $A(\boldsymbol{\beta}) = \sum_{i=1}^n \lambda_i = \sum_{i=1}^n e^{\mathbf{x}_i^\top \boldsymbol{\beta}}$.
+
+### The Score and Information
+
+Next, we derive the gradient and Hessian of the log-likelihood.
+
+* **Score Vector ($\mathbf{U}$):** The gradient of $\ell(\boldsymbol{\beta})$ is the difference between the observed sufficient statistics and their expectations (derived from $\nabla A$).
+    $$ \mathbf{U}(\boldsymbol{\beta}) = \nabla_{\boldsymbol{\beta}} \ell = \mathbf{T}(\mathbf{y}) - \nabla A(\boldsymbol{\beta}) = \sum_{i=1}^n y_i \mathbf{x}_i - \sum_{i=1}^n \lambda_i \mathbf{x}_i = \mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda}) $$
+
+* **Fisher Information Matrix ($\mathcal{J}$):** This is the negative Hessian of the log-likelihood, or equivalently the Hessian of the log-partition function $A(\boldsymbol{\beta})$.
+    $$ \mathcal{J}(\boldsymbol{\beta}) = \nabla^2 A(\boldsymbol{\beta}) = \sum_{i=1}^n \mathbf{x}_i \frac{\partial \lambda_i}{\partial \boldsymbol{\beta}^\top} = \sum_{i=1}^n \lambda_i \mathbf{x}_i \mathbf{x}_i^\top $$
+    In matrix notation, $\mathcal{J}(\boldsymbol{\beta}) = \mathbf{X}^\top \mathbf{W} \mathbf{X}$, where $\mathbf{W} = \text{diag}(\lambda_i)$. Note that for the Poisson model, the variance equals the mean $\lambda_i$.
+
+### Asymptotic Distributions (Theory)
+
+a.  **Normality of the Score:**
+    The Score vector $\mathbf{U}(\boldsymbol{\beta}) = \sum_{i=1}^n (Y_i - \lambda_i)\mathbf{x}_i$ is a sum of independent mean-zero random vectors.
+
+    * Mean: $E[\mathbf{U}] = \mathbf{0}$.
+    * Variance: $\text{Var}(\mathbf{U}) = \sum \text{Var}(Y_i)\mathbf{x}_i\mathbf{x}_i^\top = \mathcal{J}(\boldsymbol{\beta})$.
+    By the **Multivariate Central Limit Theorem**, as $n \to \infty$:
+    $$ \frac{1}{\sqrt{n}}\mathbf{U}(\boldsymbol{\beta}) \xrightarrow{d} N(\mathbf{0}, \mathcal{I}(\boldsymbol{\beta})) $$
+    where $\mathcal{I}$ is the limit of $\frac{1}{n}\mathcal{J}$.
+
+b.  **Normality of the Estimator:**
+    The MLE $\hat{\boldsymbol{\beta}}$ satisfies $\mathbf{U}(\hat{\boldsymbol{\beta}}) = \mathbf{0}$. Taking a first-order Taylor expansion around the true parameter $\boldsymbol{\beta}$:
+    $$ \mathbf{0} = \mathbf{U}(\hat{\boldsymbol{\beta}}) \approx \mathbf{U}(\boldsymbol{\beta}) - \mathcal{J}(\boldsymbol{\beta}) (\hat{\boldsymbol{\beta}} - \boldsymbol{\beta}) $$
+    Rearranging gives $(\hat{\boldsymbol{\beta}} - \boldsymbol{\beta}) \approx \mathcal{J}^{-1}(\boldsymbol{\beta}) \mathbf{U}(\boldsymbol{\beta})$. Since $\mathbf{U}$ is asymptotically normal, the linear transformation implies:
+    $$ \sqrt{n}(\hat{\boldsymbol{\beta}} - \boldsymbol{\beta}) \xrightarrow{d} N\left(\mathbf{0}, \mathcal{I}^{-1}(\boldsymbol{\beta})\right) $$
+
+### Numerical Application in R
+
+We now implement the Newton-Raphson algorithm in R to estimate parameters for a Poisson regression model with a **continuous covariate**. Let $\log(\lambda_i) = \beta_0 + \beta_1 x_i$.
+
+**a. Data Generation**
+We simulate $n=100$ observations using a continuous predictor $x$ drawn from a Uniform distribution.
+
+```r
+set.seed(123)
+n <- 100
+x <- runif(n, 0, 1)
+
+# True parameters: Intercept=0.5, Slope=2.0
+beta_true <- c(0.5, 2.0) 
+
+# Generate response Y
+lambda_true <- exp(beta_true[1] + beta_true[2] * x)
+y <- rpois(n, lambda_true)
+
+# Design Matrix (intercept column + covariate)
+X <- cbind(1, x)
+
+```
+
+**b. Newton-Raphson Implementation**
+The update rule is $\boldsymbol{\beta}^{(t+1)} = \boldsymbol{\beta}^{(t)} + \mathcal{J}^{-1}\mathbf{U}$. We implement this iteratively.
+
+```r
+newton_raphson_poisson <- function(X, y, tol = 1e-6, max_iter = 100) {
+  beta <- rep(0, ncol(X)) # Start at 0
+  
+  for (i in 1:max_iter) {
+    # 1. Compute means and weights
+    eta <- X %*% beta
+    lambda <- as.vector(exp(eta))
+    
+    # 2. Compute Score U and Info J
+    U <- crossprod(X, y - lambda)
+    J <- crossprod(X * lambda, X) # Efficient t(X) %*% W %*% X
+    
+    # 3. Update beta
+    delta <- solve(J, U)
+    beta_new <- beta + as.vector(delta)
+    
+    # 4. Check convergence
+    diff <- sum((beta_new - beta)^2)
+    cat(sprintf("Iter %d: beta0=%.4f, beta1=%.4f, diff=%.6f\n", 
+                i, beta_new[1], beta_new[2], diff))
+    
+    if (diff < tol) return(beta_new)
+    beta <- beta_new
+  }
+}
+
+beta_mle <- newton_raphson_poisson(X, y)
+
+```
+
+**Output:**
+
+```
+Iter 1: beta0=1.1718, beta1=0.6234, diff=1.761592
+Iter 2: beta0=0.6970, beta1=1.5794, diff=1.139433
+Iter 3: beta0=0.4996, beta1=2.0101, diff=0.224446
+Iter 4: beta0=0.4725, beta1=2.0838, diff=0.006173
+Iter 5: beta0=0.4722, beta1=2.0845, diff=0.000001
+
+```
+
+**c. Discussion & Verification**
+We compare our manual estimates with R's built-in `glm` function.
+
+```r
+cat("Manual MLE: ", beta_mle, "\n")
+cat("GLM Output: ", coef(glm(y ~ x, family = "poisson")))
+
+```
+
+**Observation:** The manual implementation converges to the exact same values as the built-in function ($\hat{\beta}_0 \approx 0.47, \hat{\beta}_1 \approx 2.08$). Notice that we started at $\boldsymbol{\beta}=(0,0)$. In the first iteration, the algorithm took a large step because the log-likelihood surface is steep. The quadratic convergence of Newton-Raphson is evident in the rapid decrease of the difference term (from 1.13 to 0.22 to 0.006).
 
