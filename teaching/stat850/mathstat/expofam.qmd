@@ -126,11 +126,12 @@ The term $\log I(0 < x < \theta)$ couples $x$ and $\theta$ in a way that cannot 
 
 :::
 
-## Regular Families
+## Score Vector and Fisher Information of Regular Families
 
 In the context of exponential families and maximum likelihood estimation, we often require the statistical model to satisfy specific regularity conditions to ensure that standard asymptotic results hold.
 
 ::: {#def-regular-family}
+
 
 ### Regular Family
 A family of probability density functions is said to be a **Regular Family** if the support $\{x : f(x|\theta) > 0\}$ does not depend on the parameter $\theta$.
@@ -142,17 +143,119 @@ $$
 
 :::
 
-### Why Regularity Matters {.unnumbered}
+### Definition of Score and Fisher Information
 
-If a family is regular, we can differentiate the identity $\int f(x|\theta) dx = 1$ with respect to $\theta$. This yields the fundamental properties of the **Score Function** $\nabla \ell(\theta; X)$:
+Before stating the theorem, we define the following notations for the score and information in the context of a parameter vector $\theta = (\theta_1, \dots, \theta_p)^T \in \mathbb{R}^p$:
 
-1.  **First Moment Identity:** The expected value of the score is zero.
-    $$E_\theta \left[ \frac{\partial \ell(\theta; X)}{\partial \theta_j} \right] = 0$$
+:::{#def-score-fisher}
 
-2.  **Second Moment Identity:** The Fisher Information is the negative expected Hessian.
-    $$E_\theta \left[ \frac{\partial^2 \ell(\theta; X)}{\partial \theta_j \partial \theta_k} \right] = -E_\theta \left[ \frac{\partial \ell(\theta; X)}{\partial \theta_j} \frac{\partial \ell(\theta; X)}{\partial \theta_k} \right]$$
+1.  **Score Vector ($U$):** The gradient of the log-likelihood. It is a random column vector of dimension $p \times 1$.
+    $$
+    U(\theta; X) = \nabla \ell(\theta; X) = \frac{\partial \ell(\theta; X)}{\partial \theta} = 
+    \begin{bmatrix}
+    \frac{\partial \ell(\theta; X)}{\partial \theta_1} \\[6pt]
+    \frac{\partial \ell(\theta; X)}{\partial \theta_2} \\[6pt]
+    \vdots \\[6pt]
+    \frac{\partial \ell(\theta; X)}{\partial \theta_p}
+    \end{bmatrix}
+    $$
 
-## Moments of Sufficient Statistics
+2.  **Observed Information Matrix ($J$):** The negative Hessian of the log-likelihood. It is a symmetric random matrix of dimension $p \times p$, measuring the curvature of the log-likelihood surface.
+    $$
+    J(\theta; X) = - \nabla^2 \ell(\theta; X) = - \frac{\partial^2 \ell(\theta; X)}{\partial \theta \partial \theta^T} = -
+    \begin{bmatrix}
+    \frac{\partial^2 \ell}{\partial \theta_1^2} & \frac{\partial^2 \ell}{\partial \theta_1 \partial \theta_2} & \cdots & \frac{\partial^2 \ell}{\partial \theta_1 \partial \theta_p} \\[8pt]
+    \frac{\partial^2 \ell}{\partial \theta_2 \partial \theta_1} & \frac{\partial^2 \ell}{\partial \theta_2^2} & \cdots & \frac{\partial^2 \ell}{\partial \theta_2 \partial \theta_p} \\[8pt]
+    \vdots & \vdots & \ddots & \vdots \\[8pt]
+    \frac{\partial^2 \ell}{\partial \theta_p \partial \theta_1} & \frac{\partial^2 \ell}{\partial \theta_p \partial \theta_2} & \cdots & \frac{\partial^2 \ell}{\partial \theta_p^2}
+    \end{bmatrix}
+    $$
+
+3.  **Fisher Information Matrix ($I$):** The covariance matrix of the score vector. It is a deterministic $p \times p$ matrix (for a fixed $\theta$).
+    $$
+    I(\theta) = E_\theta \left[ J(\theta; X) \right]
+    $$
+
+:::
+
+::: {#thm-score-identities}
+## Bartlett's Identities: Mean and Covariance of Score Vector
+
+Let $\{f(x|\theta) : \theta \in \Theta\}$ be a regular family of probability density functions. The following identities hold relating the moments of the score vector $U(\theta; X)$ and the observed information matrix $J(\theta; X)$:
+
+1.  **First Moment Identity:** The expected score is zero.
+    $$
+    E_\theta [ U(\theta; X) ] = 0
+    $$
+
+2.  **Second Moment Identity:** The expected observed information equals the covariance of the score vector (Fisher Information).
+    $$
+    \text{Cov}_\theta \left( U(\theta; X) \right) = E_\theta [ J(\theta; X) ] = I(\theta)
+    $$
+:::
+
+::: {.proof}
+**1. Proof of the First Moment Identity**
+
+We start with the fundamental property that a density function integrates to 1 over the sample space of $X$:
+$$
+\int f(x|\theta) \, dx = 1
+$$
+Differentiating both sides with respect to the parameter vector $\theta$:
+$$
+\nabla_\theta \int f(x|\theta) \, dx = 0
+$$
+Assuming regularity allows us to interchange differentiation and integration:
+$$
+\int \nabla_\theta f(x|\theta) \, dx = 0
+$$
+Using the identity $\nabla_\theta f(x|\theta) = f(x|\theta) \nabla_\theta \log f(x|\theta) = f(x|\theta) U(\theta; x)$:
+$$
+\int U(\theta; x) f(x|\theta) \, dx = 0
+$$
+This is precisely the definition of the expectation:
+$$
+E_\theta [ U(\theta; X) ] = 0
+$$
+
+**2. Proof of the Second Moment Identity**
+
+We differentiate the result of the First Moment Identity ($E[U(\theta; X)]=0$) with respect to $\theta^T$.
+$$
+\nabla_{\theta^T} \int U(\theta; x) f(x|\theta) \, dx = 0
+$$
+Applying the product rule inside the integral:
+$$
+\int \left[ \left( \nabla_{\theta^T} U(\theta; x) \right) f(x|\theta) + U(\theta; x) \left( \nabla_{\theta^T} f(x|\theta) \right) \right] dx = 0
+$$
+We analyze the two terms in the bracket:
+
+* **Term 1:** $\nabla_{\theta^T} U(\theta; x)$ is the Jacobian of the score, which is the Hessian of the log-likelihood, $\nabla^2 \ell(\theta; x)$. By definition, this is $-J(\theta; x)$.
+* **Term 2:** We use the identity $\nabla_{\theta^T} f(x|\theta) = f(x|\theta) (\nabla_{\theta} \log f(x|\theta))^T = f(x|\theta) U(\theta; x)^T$.
+
+Substituting these back into the integral:
+$$
+\int \left[ -J(\theta; x) f(x|\theta) + U(\theta; x) U(\theta; x)^T f(x|\theta) \right] dx = 0
+$$
+This simplifies to expectations:
+$$
+-E_\theta [ J(\theta; X) ] + E_\theta [ U(\theta; X) U(\theta; X)^T ] = 0
+$$
+Rearranging gives:
+$$
+E_\theta [ J(\theta; X) ] = E_\theta [ U(\theta; X) U(\theta; X)^T ]
+$$
+Finally, recall the definition of the covariance matrix for a random vector with zero mean. Since $E_\theta[U(\theta; X)] = 0$, we have:
+$$
+\text{Cov}_\theta(U(\theta; X)) = E_\theta[U(\theta; X)U(\theta; X)^T] - E_\theta[U(\theta; X)]E_\theta[U(\theta; X)]^T = E_\theta[U(\theta; X)U(\theta; X)^T]
+$$
+Therefore, we conclude:
+$$
+\text{Cov}_\theta(U(\theta; X))=E_\theta [ J(\theta; X) ] = I(\theta)
+$$
+:::
+
+## Moments of Sufficient Statistics of Exponential Families
 
 ### Means of Sufficient Statistics (General Case)
 
@@ -198,26 +301,72 @@ $$
 ### Natural Parameterization
 
 ::: {#def-natural-parameterization}
+### Natural Parameterization (Canonical Form)
 
-### Natural Parameterization
-If the parameters are chosen such that $\eta_i(\theta) = \theta_i$ (implying $d=k$), the family is in **Canonical Form** (or Natural Parameterization). The log-likelihood simplifies to:
+If the parameterization is chosen such that the natural parameters are the components of the parameter vector itself (i.e., $\eta(\theta) = \theta$), the exponential family is said to be in **Canonical Form** or **Natural Parameterization**.
 
+The log-likelihood for the natural parameter vector $\eta = (\eta_1, \dots, \eta_k)^T$ simplifies to:
 $$
 \ell(\eta; x) = \sum_{i=1}^k \eta_i T_i(x) - A(\eta) + \log h(x)
 $$
-
-In this case, the moment generating properties become direct derivatives of the log-partition function $A(\eta)$.
-
-**Mean:**
+or in vector notation:
 $$
-E[T_i(X)] = \frac{\partial A(\eta)}{\partial \eta_i}
+\ell(\eta; x) = \eta^T T(x) - A(\eta) + \log h(x)
+$$
+where $A(\eta)$ is the log-partition function.
+:::
+
+::: {#thm-cumulant-generating}
+### Derivatives of the Log-Partition Function
+
+For an exponential family in canonical form, the log-partition function $A(\eta)$ acts as the **Cumulant Generating Function** for the sufficient statistic vector $T(X)$. The derivatives of $A(\eta)$ yield the moments of $T(X)$ as follows:
+
+1.  **Mean (First Derivative):**
+    $$
+    E[T_i(X)] = \frac{\partial A(\eta)}{\partial \eta_i}
+    $$
+    In vector form: $E[T(X)] = \nabla A(\eta)$.
+
+2.  **Covariance (Second Derivative):**
+    $$
+    \text{Cov}(T_i(X), T_j(X)) = \frac{\partial^2 A(\eta)}{\partial \eta_i \partial \eta_j}
+    $$
+    In matrix form: $\text{Var}(T(X)) = \nabla^2 A(\eta)$.
+
+3.  **Higher-Order Moments:**
+    In general, the $k$-th partial derivative of $A(\eta)$ with respect to components of $\eta$ corresponds to the $k$-th **cumulant** of the sufficient statistics.
+:::
+
+::: {.proof}
+**Derivation**
+
+These results follow directly from Bartlett's Identities (Theorem @thm-score-identities) applied to the canonical log-likelihood:
+$$
+\ell(\eta; x) = \eta^T T(x) - A(\eta) + \log h(x)
 $$
 
-**Variance/Covariance:**
+**For the Mean:**
+The score function (gradient of $\ell$) is:
 $$
-\text{Cov}(T_i(X), T_j(X)) = \frac{\partial^2 A(\eta)}{\partial \eta_i \partial \eta_j}
+U(\eta) = \nabla_\eta \ell(\eta; x) = T(x) - \nabla A(\eta)
+$$
+By the First Moment Identity, $E[U(\eta)] = 0$:
+$$
+E[T(X) - \nabla A(\eta)] = 0 \implies E[T(X)] = \nabla A(\eta)
 $$
 
+**For the Covariance:**
+The observed information (negative Hessian of $\ell$) is:
+$$
+J(\eta) = -\nabla^2_\eta \ell(\eta; x) = -\nabla_\eta (T(x) - \nabla A(\eta)) = \nabla^2 A(\eta)
+$$
+Note that $T(x)$ is constant with respect to $\eta$, so its derivative vanishes.
+By the Second Moment Identity, $I(\eta) = E[J(\eta)] = \text{Cov}(U(\eta))$.
+Since $U(\eta) = T(X) - \text{constant}$, $\text{Cov}(U(\eta)) = \text{Cov}(T(X))$.
+Therefore:
+$$
+\text{Cov}(T(X)) = E[\nabla^2 A(\eta)] = \nabla^2 A(\eta)
+$$
 :::
 
 :::{#def-curvedexpfam}
