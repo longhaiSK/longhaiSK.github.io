@@ -1,19 +1,19 @@
 ---
-title: "Exponential Families"
+title: Likelihood Theory
 engine: knitr
 format: 
   html: default
   pdf: default
 ---
 
-## Regular Families, Score Vector, and Fisher Information
+## Definitions and Notations
 
-In the context of exponential families and maximum likelihood estimation, we often require the statistical model to satisfy specific regularity conditions to ensure that standard asymptotic results hold.
+### Regular Family
 
 ::: {#def-regular-family}
 
 
-### Regular Family
+### Regular Families
 A family of probability density functions is said to be a **Regular Family** if the support $\{x : f(x|\theta) > 0\}$ does not depend on the parameter $\theta$.
 
 This condition allows for the interchange of differentiation and integration:
@@ -23,7 +23,7 @@ $$
 
 :::
 
-### Definition of Score and Fisher Information
+### Score and Fisher Information
 
 Before stating the theorem, we define the following notations for the score and information in the context of a parameter vector $\theta = (\theta_1, \dots, \theta_p)^T \in \mathbb{R}^p$:
 
@@ -57,6 +57,8 @@ Before stating the theorem, we define the following notations for the score and 
     $$
 
 :::
+
+## Mean and Covariance of Score Vector
 
 ::: {#thm-score-identities}
 ## Bartlett's Identities: Mean and Covariance of Score Vector
@@ -140,6 +142,129 @@ $$
 $$
 :::
 
+## Cramer-Rao Lower Bound
+
+In estimation theory, we often wish to know the limit of how well a parameter can be estimated. The following theorem provides a lower bound on the variance of any estimator.
+
+::: {#thm-crlb}
+### Cramer-Rao Lower Bound
+
+Let $X$ be a random variable with probability density function (or probability mass function) $f(x|\theta)$, where $\theta \in \Theta$ is an unknown parameter. Let $T(X)$ be any estimator of $\theta$ with finite variance, and let $m(\theta) = E_\theta[T(X)]$ denote its expectation.
+
+Assume the following **regularity conditions** hold:
+
+1.  The support of $X$, denoted $\mathcal{X} = \{x : f(x|\theta) > 0\}$, does not depend on $\theta$.
+
+2.  The differentiation with respect to $\theta$ and integration (or summation) with respect to $x$ can be interchanged.
+
+Then, the variance of $T(X)$ satisfies:
+
+$$
+\text{Var}_\theta(T(X)) \ge \frac{[m'(\theta)]^2}{I(\theta)}
+$$
+
+where $I(\theta) = E_\theta \left[ \left( \frac{\partial}{\partial \theta} \log f(X|\theta) \right)^2 \right]$ is the Fisher Information.
+
+**Particular Case:** If $T(X)$ is an **unbiased** estimator of $\theta$ (i.e., $m(\theta) = \theta$ and $m'(\theta)=1$), then:
+
+$$
+\text{Var}_\theta(T(X)) \ge \frac{1}{I(\theta)}
+$$
+:::
+
+::: {.proof}
+Let $U = \frac{\partial}{\partial \theta} \log f(X|\theta)$ be the Score function. From the properties of the Score function under the stated regularity conditions, we know that the score has mean zero and variance equal to the Fisher Information:
+
+$$
+E_\theta[U] = 0 \quad \text{and} \quad \text{Var}_\theta(U) = I(\theta)
+$$
+
+Consider the covariance between the estimator $T(X)$ and the Score $U$. By the Cauchy-Schwarz inequality (applied to covariance), we have:
+
+$$
+[\text{Cov}_\theta(T, U)]^2 \le \text{Var}_\theta(T) \text{Var}_\theta(U)
+$$
+
+We now evaluate the covariance term explicitly. By definition:
+
+$$
+\begin{aligned}
+\text{Cov}_\theta(T, U) &= E_\theta[T(X) U] - E_\theta[T]E_\theta[U] \\
+&= E_\theta\left[ T(X) \frac{\partial}{\partial \theta} \log f(X|\theta) \right] - m(\theta) \cdot 0 \\
+&= \int T(x) \left( \frac{\partial \log f(x|\theta)}{\partial \theta} \right) f(x|\theta) \, dx \\
+&= \int T(x) \left( \frac{1}{f(x|\theta)} \frac{\partial f(x|\theta)}{\partial \theta} \right) f(x|\theta) \, dx \\
+&= \int T(x) \frac{\partial f(x|\theta)}{\partial \theta} \, dx
+\end{aligned}
+$$
+
+Invoking the regularity condition that allows the interchange of derivative and integral, we move the derivative outside the integral:
+
+$$
+\text{Cov}_\theta(T, U) = \frac{\partial}{\partial \theta} \int T(x) f(x|\theta) \, dx = \frac{\partial}{\partial \theta} E_\theta[T(X)] = m'(\theta)
+$$
+
+Substituting this result and $\text{Var}_\theta(U) = I(\theta)$ back into the covariance inequality:
+
+$$
+[m'(\theta)]^2 \le \text{Var}_\theta(T) \cdot I(\theta)
+$$
+
+Rearranging the terms yields the desired lower bound:
+
+$$
+\text{Var}_\theta(T(X)) \ge \frac{[m'(\theta)]^2}{I(\theta)}
+$$
+:::
+
+::: {#rem-crlb-generality}
+### Generality of the Lower Bound
+The power of the Cramer-Rao Lower Bound lies in its independence from the specific method of estimation. It relies solely on the properties of the underlying probability model (specifically, the curvature of the log-likelihood function) and the bias of the estimator. Consequently, it provides a universal benchmark for precision:
+
+1.  **Fundamental Limit**
+    It represents the limit of "extractable information" about $\theta$ contained in the data $X$. No matter how clever the estimation algorithm is (e.g., Method of Moments, Bayes estimators, etc.), the variance cannot be reduced beyond this intrinsic bound determined by the Fisher Information.
+
+2.  **Efficiency Standard**
+    It allows us to define the concept of an *efficient estimator*. Any unbiased estimator that attains this lower bound is the Uniformly Minimum Variance Unbiased Estimator (UMVUE).
+
+3.  **Asymptotic Justification**
+    While finite-sample estimators may not always achieve this bound, the Maximum Likelihood Estimator (MLE) is asymptotically efficient. This means that as the sample size $n \to \infty$, the variance of the MLE approaches the CRLB, justifying the popularity of likelihood-based inference.
+:::
+
+::: {#exm-exponential-crlb}
+Let $X_1, \dots, X_n \overset{iid}{\sim} \operatorname{Exp}(\theta)$, where $f(x|\theta) = \frac{1}{\theta} e^{-x/\theta}$.
+Log-likelihood:
+$$
+l(\theta; x) = -n \log \theta - \frac{1}{\theta} \sum x_i
+$$
+Score function:
+$$
+S(\theta; x) = -\frac{n}{\theta} + \frac{\sum x_i}{\theta^2}
+$$
+Setting $S=0 \implies \hat{\theta}_{\text{MLE}} = \bar{x}$.
+
+Fisher Information:
+$$
+I(\theta) = \text{Var}(S) = \frac{1}{\theta^4} \text{Var}(\sum X_i) = \frac{1}{\theta^4} n \theta^2 = \frac{n}{\theta^2}
+$$
+Alternatively using the second derivative:
+$$
+S'(\theta) = \frac{n}{\theta^2} - \frac{2\sum x_i}{\theta^3}
+$$
+$$
+-E[S'] = -\left( \frac{n}{\theta^2} - \frac{2 n \theta}{\theta^3} \right) = -\left( \frac{n}{\theta^2} - \frac{2n}{\theta^2} \right) = \frac{n}{\theta^2}
+$$
+
+Variance of MLE:
+$$
+\text{Var}(\hat{\theta}_{\text{MLE}}) = \text{Var}(\bar{X}) = \frac{\text{Var}(X)}{n} = \frac{\theta^2}{n}
+$$
+CRLB for unbiased estimator:
+$$
+\text{CRLB} = \frac{1}{I(\theta)} = \frac{1}{n/\theta^2} = \frac{\theta^2}{n}
+$$
+Since $\text{Var}(\hat{\theta}_{\text{MLE}}) = \text{CRLB}$, the MLE is efficient.
+
+:::
 
 ## Exponential Families
 
