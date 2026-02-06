@@ -1,246 +1,304 @@
 
 ---
-title: "Maximum Likelihood Estimation and Likelihood Theory"
+title: "Maximum Likelihood Estimation"
 engine: knitr
 format: 
   html: default
   pdf: default
 ---
 
+## Definitions and Concepts
 
-## Definitions
+### Likelihood and MLE
 
-1.  **Likelihood Function**
-    Let $f(x|\theta)$ be the probability density function (or mass function). The likelihood function is:
-    $$
-    L(\theta; x) = f(x|\theta)
-    $$
+::: {#def-likelihood-mle}
+### Maximum Likelihood Estimation
 
-2.  **Log-likelihood**
+1.  **Likelihood Function:**
+    Let $f(\mathbf{x}|\boldsymbol{\theta})$ be the joint probability density function of the data $\mathbf{X}$. When viewed as a function of the parameter $\boldsymbol{\theta}$ given fixed data $\mathbf{x}$, it is called the likelihood function:
     $$
-    l(\theta; x) = \log L(\theta; x) = \log f(x|\theta)
-    $$
-
-3.  **Score Function**
-    The score function is the derivative of the log-likelihood with respect to the parameter $\theta$:
-    $$
-    S(\theta; x) = \frac{\partial}{\partial \theta} l(\theta; x) = \frac{\partial}{\partial \theta} \log L(\theta; x)
+    L(\boldsymbol{\theta}; \mathbf{x}) = f(\mathbf{x}|\boldsymbol{\theta})
     $$
 
-4.  **Maximum Likelihood Estimator (MLE)**
-    The MLE is the value that maximizes the likelihood function:
+2.  **Log-likelihood:**
+    It is usually easier to maximize the natural logarithm of the likelihood:
     $$
-    \hat{\theta}_{\text{MLE}}(x) = \operatorname{\text{argmax}}_{\theta} L(\theta; x) = \operatorname{\text{argmax}}_{\theta} l(\theta; x)
-    $$
-    An approach to finding $\hat{\theta}$ is to solve the score equation:
-    $$
-    \forall_{\theta}, \quad S(\theta; x) = 0
+    \ell(\boldsymbol{\theta}; \mathbf{x}) = \log L(\boldsymbol{\theta}; \mathbf{x})
     $$
 
-::: {#exm-uniform-mle}
+3.  **Maximum Likelihood Estimator (MLE):**
+    The MLE $\hat{\boldsymbol{\theta}}_{\text{MLE}}$ is the value that maximizes the likelihood function:
+    $$
+    \hat{\boldsymbol{\theta}}_{\text{MLE}}(\mathbf{x}) = \operatorname*{argmax}_{\boldsymbol{\theta} \in \Theta} \ell(\boldsymbol{\theta}; \mathbf{x})
+    $$
 
-## Uniform Distribution MLE
-Let $X_1, \dots, X_n \overset{iid}{\sim} \operatorname{\text{Unif}}(0, \theta)$.
-
-The likelihood function is:
-$$
-L(\theta; x) = \prod_{i=1}^{n} f(x_i | \theta) = \frac{1}{\theta^n} I(X_{(n)} < \theta)
-$$
-where $X_{(n)} = \max\{X_1, \dots, X_n\}$.
-
-To maximize this function, we observe that $L(\theta)$ decreases as $\theta$ increases, but $\theta$ must be at least $X_{(n)}$. Therefore:
-$$
-\hat{\theta}_{\text{MLE}}(x) = X_{(n)}
-$$
-
-**Properties of this estimator:**
-The CDF of $X_{(n)}$ is:
-$$
-P(X_{(n)} \le x) = [P(X_1 \le x)]^n = \left(\frac{x}{\theta}\right)^n \quad \text{for } 0 < x < \theta
-$$
-The PDF is $f_{X_{(n)}}(x) = n \left(\frac{x}{\theta}\right)^{n-1} \frac{1}{\theta}$.
-
-The expected value is:
-$$
-E(X_{(n)}) = \int_{0}^{\theta} x \cdot \frac{n x^{n-1}}{\theta^n} dx = \frac{n}{\theta^n} \int_{0}^{\theta} x^n dx = \frac{n}{\theta^n} \left[ \frac{x^{n+1}}{n+1} \right]_0^{\theta} = \frac{n}{n+1}\theta < \theta
-$$
-Thus, it is a biased estimator.
-
+4.  **Score Function ($\mathbf{U}$):**
+    The score function is defined as the gradient of the log-likelihood with respect to the parameter vector. Finding the MLE often involves solving the score equation:
+    $$
+    \mathbf{U}(\boldsymbol{\theta}; \mathbf{x}) = \nabla_{\boldsymbol{\theta}} \ell(\boldsymbol{\theta}; \mathbf{x}) = \mathbf{0}
+    $$
 :::
 
-::: {#exm-normal-mle}
+## Examples
 
-## Normal Distribution MLE
-Let $X_1, \dots, X_n \overset{iid}{\sim} N(\mu, \sigma^2)$. Let $\theta = (\mu, \sigma^2)$.
+::: {#exm-normal-mle-score}
 
-The likelihood is:
+### Normal Distribution: MLE and Score Convergence
+
+Let $X_1, \dots, X_n \overset{iid}{\sim} N(\mu, \sigma^2)$. We define $\boldsymbol{\theta} = (\mu, \sigma^2)^T$.
+
+**1. Log-Likelihood**
 $$
-L(\theta; x) = (2\pi\sigma^2)^{-n/2} \exp\left( -\frac{\sum(x_i - \mu)^2}{2\sigma^2} \right)
-$$
-The log-likelihood is:
-$$
-l(\theta; x) = -\frac{n}{2} \log(2\pi\sigma^2) - \frac{\sum(x_i - \mu)^2}{2\sigma^2}
+\ell(\boldsymbol{\theta}; \mathbf{x}) = -\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} \sum_{i=1}^n (x_i - \mu)^2
 $$
 
-**Score Functions:**
+**2. Score Function and MLE**
+The Score vector $\mathbf{U}(\boldsymbol{\theta})$ has two components:
 
-1.  With respect to $\mu$:
+* **Component 1 (Mean):**
     $$
-    \frac{\partial l}{\partial \mu} = \frac{2\sum(x_i - \mu)}{2\sigma^2} = \frac{\sum(x_i - \mu)}{\sigma^2} = 0 \implies \hat{\mu}_{\text{MLE}} = \bar{x}
+    U_\mu = \frac{\partial \ell}{\partial \mu} = \frac{1}{\sigma^2} \sum_{i=1}^n (x_i - \mu)
+    $$
+    Setting $U_\mu = 0$ yields $\hat{\mu}_{\text{MLE}} = \bar{x}$.
+
+* **Component 2 (Variance):**
+    $$
+    U_{\sigma^2} = \frac{\partial \ell}{\partial \sigma^2} = -\frac{n}{2\sigma^2} + \frac{1}{2\sigma^4} \sum_{i=1}^n (x_i - \mu)^2
+    $$
+    Setting $U_{\sigma^2} = 0$ yields $\hat{\sigma}^2_{\text{MLE}} = \frac{1}{n} \sum (x_i - \hat{\mu})^2$.
+
+**3. Asymptotic Normality of the Score**
+We now demonstrate that $\mathbf{U}(\boldsymbol{\theta})$ follows a Normal distribution $N(\mathbf{0}, \mathbf{I}(\boldsymbol{\theta}))$.
+
+* **For $U_\mu$:**
+    $$
+    U_\mu = \frac{n}{\sigma^2} (\bar{X} - \mu)
+    $$
+    Since $\bar{X} \sim N(\mu, \sigma^2/n)$, $U_\mu$ is a linear transformation of a Normal variable. It is **exactly Normal**:
+    $$
+    E[U_\mu] = 0, \quad \text{Var}(U_\mu) = \left(\frac{n}{\sigma^2}\right)^2 \text{Var}(\bar{X}) = \frac{n^2}{\sigma^4} \frac{\sigma^2}{n} = \frac{n}{\sigma^2}
+    $$
+    Thus, $U_\mu \sim N(0, \frac{n}{\sigma^2})$.
+
+* **For $U_{\sigma^2}$:**
+    We rewrite $U_{\sigma^2}$ as a sum of i.i.d. variables. Let $Z_i = ((X_i - \mu)/\sigma)^2$. Note that $Z_i \sim \chi^2_1$, with variance 2.
+    $$
+    U_{\sigma^2} = \frac{1}{2\sigma^2} \sum_{i=1}^n \left( \left(\frac{X_i - \mu}{\sigma}\right)^2 - 1 \right) = \frac{1}{2\sigma^2} \sum_{i=1}^n (Z_i - 1)
+    $$
+    Since this is a sum of i.i.d. random variables with mean 0, the **Central Limit Theorem** applies:
+    $$
+    U_{\sigma^2} \xrightarrow{d} \text{Normal}
+    $$
+    The limiting variance is:
+    $$
+    \text{Var}(U_{\sigma^2}) = \frac{1}{4\sigma^4} \sum \text{Var}(Z_i) = \frac{1}{4\sigma^4} (n \times 2) = \frac{n}{2\sigma^4}
     $$
 
-2.  With respect to $\sigma^2$:
-    $$
-    \frac{\partial l}{\partial \sigma^2} = -\frac{n}{2\sigma^2} + \frac{\sum(x_i - \mu)^2}{2(\sigma^2)^2} = 0
-    $$
-    Solving for $\sigma^2$:
-    $$
-    \hat{\sigma}^2_{\text{MLE}} = \frac{\sum(x_i - \hat{\mu})^2}{n} = \frac{\sum(x_i - \bar{x})^2}{n}
-    $$
-**Bias:**
-    * $E(S^2) = \sigma^2$ (Unbiased)
-    * $E(\hat{\sigma}^2_{\text{MLE}}) = E\left(\frac{n-1}{n} S^2\right) = \frac{n-1}{n} \sigma^2 \ne \sigma^2$ (Biased)
+**Conclusion:**
+The covariance matrix of the Score approaches the Fisher Information matrix:
+$$
+\text{Var}(\mathbf{U}) = \begin{bmatrix} \frac{n}{\sigma^2} & 0 \\ 0 & \frac{n}{2\sigma^4} \end{bmatrix} = \mathbf{I}(\boldsymbol{\theta})
+$$
 :::
 
-## Properties of Score and Fisher Information
+::: {#exm-uniform-mle-boundary}
 
-::: {#def-fisher-information}
+### Uniform Distribution (Boundary Case)
 
-### Definition of Fisher Information
-Some properties about the Score function $S(\theta; x)$:
+Let $X_1, \dots, X_n \overset{iid}{\sim} \operatorname{\text{Unif}}(0, \theta)$. The likelihood is:
+$$
+L(\theta; \mathbf{x}) = \frac{1}{\theta^n} I(x_{(n)} \le \theta)
+$$
+This function strictly decreases for $\theta \ge x_{(n)}$ and is zero otherwise. Thus:
+$$
+\hat{\theta}_{\text{MLE}} = x_{(n)}
+$$
+Note that the Score equation approach fails here because the support depends on $\theta$, making the log-likelihood discontinuous at the boundary.
+:::
 
-1.  **Mean:** $E[S(\theta; x) | \theta] = 0$.
-   2.  **Variance/Covariance:**
+## Review of Convergence Theorems for Probability
+
+
+
+::: {#thm-lln}
+### Weak Law of Large Numbers (WLLN)
+Let $X_1, \dots, X_n$ be independent and identically distributed (i.i.d.) random variables with mean $E[X_i] = \mu$ and finite variance $\text{Var}(X_i) = \sigma^2 < \infty$.
+
+Then, the sample mean $\bar{X}_n = \frac{1}{n}\sum_{i=1}^n X_i$ converges in probability to $\mu$:
+$$
+\bar{X}_n \xrightarrow{p} \mu \quad \text{as } n \to \infty
+$$
+Formal definition: For any $\epsilon > 0$, $\lim_{n \to \infty} P(|\bar{X}_n - \mu| > \epsilon) = 0$.
+:::
+
+
+
+::: {#thm-clt}
+### Central Limit Theorem for IID Cases
+Let $X_1, \dots, X_n$ be i.i.d. random variables with mean $E[X_i] = \mu$ and finite variance $0 < \text{Var}(X_i) = \sigma^2 < \infty$.
+
+Then, the random variable $\sqrt{n}(\bar{X}_n - \mu)$ converges in distribution to a normal distribution with mean 0 and variance $\sigma^2$:
+$$
+\sqrt{n}(\bar{X}_n - \mu) \xrightarrow{d} N(0, \sigma^2)
+$$
+:::
+
+::: {#rem-clt-history}
+### Historical Note: The Evolution of the CLT
+
+While the standard i.i.d. theorem is named after **Jarl Waldemar Lindeberg** and **Paul Lévy**, they were the "closers" of a discovery process that involved many others:
+
+1.  **Abraham de Moivre (1733):** The first to discover the "Normal curve" as an approximation to the Binomial distribution (specifically for the symmetric case $p=1/2$).
+
+2.  **Pierre-Simon Laplace (1812):** Generalized de Moivre's work to arbitrary $p$ (the De Moivre-Laplace Theorem) and intuitively grasped that sums of independent errors tend toward normality, though his proofs lacked modern rigor.
+
+3.  **Pafnuty Chebyshev (1887):** Attempted to prove the general CLT using the "Method of Moments." While his proof had gaps, it established the moment-based approach later completed by his student, Markov.
+
+4.  **Aleksandr Lyapunov (1901):** Provided the first rigorous proof for independent variables using **Characteristic Functions**. However, he required a slightly stricter condition (existence of $(2+\delta)$ moments) than necessary.
+
+5.  **Lindeberg (1922) & Lévy (1925):**
+    * **Lindeberg** proved the general CLT for independent variables under the famous "Lindeberg Condition." notably using a direct "replacement method" (swapping distributions), **not** characteristic functions.
+    * **Lévy** rigorously proved the i.i.d. case and investigated stable laws using Characteristic Functions, establishing them as the standard tool for such proofs.
+
+6.  **William Feller (1935):** Proved the converse: if the individual random variables are asymptotically negligible (no single term dominates the sum), then the Lindeberg condition is not just sufficient, but **necessary** for the sum to converge to a Normal distribution. Hence, the general theorem is often called the **Lindeberg-Feller Theorem**.
+:::
+
+::: {#thm-lindeberg-feller}
+### Lindeberg-Feller CLT (For Non-Identical Distributions)
+This variation is crucial for regression analysis (e.g., OLS properties with fixed regressors) where variables are independent but **not** identically distributed.
+
+Let $X_1, \dots, X_n$ be independent random variables with $E[X_i] = \mu_i$ and $\text{Var}(X_i) = \sigma_i^2$.
+Define the **average variance** $\tilde{\sigma}_n^2$:
+$$
+\tilde{\sigma}_n^2 = \frac{1}{n} \sum_{i=1}^n \sigma_i^2
+$$
+
+If the **Lindeberg Condition** holds:
+For every $\epsilon > 0$,
+$$
+\lim_{n \to \infty} \frac{1}{n \tilde{\sigma}_n^2} \sum_{i=1}^n E\left[ (X_i - \mu_i)^2 \cdot I\left( |X_i - \mu_i| > \epsilon \sqrt{n \tilde{\sigma}_n^2} \right) \right] = 0
+$$
+
+Then the standardized sum converges to a standard normal:
+$$
+\frac{\sum_{i=1}^n (X_i - \mu_i)}{\sqrt{n \tilde{\sigma}_n^2}} \xrightarrow{d} N(0, 1)
+$$
+:::
+
+::: {#cor-lindeberg-feller-approx}
+### Approximating Distribution for Sample Mean (Non-i.i.d.)
+
+Under the conditions of the Lindeberg-Feller CLT, we can derive the asymptotic distribution for the sample mean $\bar{X}_n = \frac{1}{n}\sum_{i=1}^n X_i$.
+
+Let $\bar{\mu}_n = \frac{1}{n}\sum_{i=1}^n \mu_i$ be the average mean. Note that the denominator in the CLT is simply $\sqrt{n} \tilde{\sigma}_n$.
+
+The standardized sum converges to $N(0,1)$:
+$$
+\frac{\sum (X_i - \mu_i)}{\sqrt{n \tilde{\sigma}_n^2}} = \frac{n(\bar{X}_n - \bar{\mu}_n)}{\sqrt{n} \tilde{\sigma}_n} = \frac{\sqrt{n}(\bar{X}_n - \bar{\mu}_n)}{\tilde{\sigma}_n} \xrightarrow{d} N(0, 1)
+$$
+
+This implies the following **approximate distributions** for large $n$:
+
+1.  **For the Sample Mean:**
     $$
-    \text{Cov}(S_i(\theta; x), S_j(\theta; x)) = -E\left[ \frac{\partial^2 l(\theta; x)}{\partial \theta_i \partial \theta_j} \right]
+    \bar{X}_n \overset{\cdot}{\sim} N\left(\bar{\mu}_n, \frac{\tilde{\sigma}_n^2}{n}\right)
     $$
-    The Fisher Information matrix $I(\theta)$ is defined as:
+
+2.  **For the Scaled Difference (Root-n consistency):**
     $$
-    I(\theta) = \text{Cov}(S(\theta; x)) = E[S(\theta; x) S(\theta; x)^T] = -E\left[ \frac{\partial^2 l(\theta; x)}{\partial \theta^2} \right]
+    \sqrt{n}(\bar{X}_n - \bar{\mu}_n) \overset{\cdot}{\sim} N\left(0, \tilde{\sigma}_n^2\right)
     $$
-    Note: $J(\theta, x) = -\frac{\partial^2}{\partial \theta_i \partial \theta_k} l(\theta; x)$ is the Observed Fisher Information. $I(\theta) = E[J(\theta, x)]$.
 
+*Note: If all $X_i$ share the same mean $\mu$, simply replace $\bar{\mu}_n$ with $\mu$.*
 :::
 
-::: {#thm-score-properties}
+::: {#thm-slutsky}
+### Slutsky's Theorem
+Let $X_n$ and $Y_n$ be sequences of random variables. If $X_n \xrightarrow{d} X$ and $Y_n \xrightarrow{p} c$, where $c$ is a constant, then:
 
-## Properties of Score Function
-Given the support of $X$ is free of $\theta$:
-
-1.  $E_X[S(\theta; x)] = 0$
-   2.  $\text{Cov}(S(\theta; x)) = I(\theta)$
-
+1.  **Sum:** $X_n + Y_n \xrightarrow{d} X + c$
+2.  **Product:** $X_n Y_n \xrightarrow{d} cX$
+3.  **Quotient:** $X_n / Y_n \xrightarrow{d} X/c$ (provided $c \ne 0$)
 :::
 
-::: {.proof}
-**Proof of Mean 0:**
+::: {#thm-generalized-slutsky}
+### Generalized Slutsky's Theorem (Continuous Mapping)
+
+The arithmetic operations in Slutsky's theorem are special cases of a broader property.
+
+Let $X_n \xrightarrow{d} X$ and $Y_n \xrightarrow{p} c$, where $c$ is a constant.
+Let $g: \mathbb{R}^2 \to \mathbb{R}^k$ be a function that is **continuous** at every point $(x, c)$ where $x$ is in the support of $X$.
+
+Then:
 $$
-\begin{aligned}
-E[S(\theta; X)] &= \int \frac{\partial \log f(x|\theta)}{\partial \theta} f(x|\theta) dx \\
-&= \int \frac{1}{f(x|\theta)} \frac{\partial f(x|\theta)}{\partial \theta} f(x|\theta) dx \\
-&= \int \frac{\partial f(x|\theta)}{\partial \theta} dx \\
-&= \frac{\partial}{\partial \theta} \int f(x|\theta) dx \quad \text{(assuming regularity conditions allow interchange)} \\
-&= \frac{\partial}{\partial \theta} (1) = 0
-\end{aligned}
+g(X_n, Y_n) \xrightarrow{d} g(X, c)
 $$
 
-**Proof of Variance:**
-Differentiating $\int f(x|\theta) dx = 1$ twice with respect to $\theta$ leads to the identity:
-$$
-\text{Var}(S(\theta)) = E\left[ \left(\frac{\partial l}{\partial \theta}\right)^2 \right] = -E\left[ \frac{\partial^2 l}{\partial \theta^2} \right]
-$$
-
+This implies that for any "well-behaved" algebraic combination (polynomials, exponentials, etc.) of a sequence converging in distribution and a sequence converging in probability to a constant, the limit behaves as if the constant were substituted directly.
 :::
 
-::: {#rem-fisher-iid}
-If $X_1, \dots, X_n$ are i.i.d with $f(x|\theta)$, then:
-$$
-l(\theta; x) = \sum_{i=1}^n \log f(x_i|\theta)
-$$
-The score function is the sum of individual score functions. Since variance of a sum of independent variables is the sum of variances:
-$$
-I_n(\theta) = n I_1(\theta)
-$$
-where $I_1(\theta) = E\left[ -\frac{\partial^2}{\partial \theta^2} \log f(X_1|\theta) \right]$.
+::: {#exm-asymptotic-normal-variance}
+### Asymptotic Normality of Sample Variance
 
+Let $X_1, \dots, X_n \overset{iid}{\sim} N(\mu, \sigma^2)$. We wish to derive the asymptotic distribution of the MLE for variance, 
+
+$$\hat{\sigma}^2 = \frac{1}{n}\sum_{i=1}^n (X_i - \bar{X})^2.$$
+
+**1. Algebraic Expansion**
+
+We rewrite the estimator by adding and subtracting the true mean $\mu$:
+$$
+\sum_{i=1}^n (X_i - \bar{X})^2 = \sum_{i=1}^n ((X_i - \mu) - (\bar{X} - \mu))^2
+$$
+$$
+= \sum_{i=1}^n (X_i - \mu)^2 - 2(\bar{X} - \mu)\sum_{i=1}^n(X_i - \mu) + n(\bar{X} - \mu)^2
+$$
+Since $\sum(X_i - \mu) = n(\bar{X} - \mu)$:
+$$
+= \sum_{i=1}^n (X_i - \mu)^2 - n(\bar{X} - \mu)^2
+$$
+Dividing by $n$, we get:
+$$
+\hat{\sigma}^2 = \frac{1}{n}\sum_{i=1}^n (X_i - \mu)^2 - (\bar{X} - \mu)^2
+$$
+
+**2. Scaling by $\sqrt{n}$**
+
+We rearrange to look at the pivotal quantity $\sqrt{n}(\hat{\sigma}^2 - \sigma^2)$:
+$$
+\sqrt{n}(\hat{\sigma}^2 - \sigma^2) = \sqrt{n}\left( \frac{1}{n}\sum_{i=1}^n (X_i - \mu)^2 - \sigma^2 \right) - \sqrt{n}(\bar{X} - \mu)^2
+$$
+
+**3. Applying Convergence Theorems**
+
+
+* **Term 1 (CLT):**
+* 
+    Let $W_i = (X_i - \mu)^2$. Since $X_i \sim N(\mu, \sigma^2)$, $W_i/\sigma^2 \sim \chi^2_1$.
+    moments of $W_i$: $E[W_i] = \sigma^2$ and $\text{Var}(W_i) = 2\sigma^4$.
+    By the standard CLT:
+    $$
+    \sqrt{n}(\bar{W} - E[W]) = \sqrt{n}\left( \frac{1}{n}\sum (X_i - \mu)^2 - \sigma^2 \right) \xrightarrow{d} N(0, 2\sigma^4)
+    $$
+
+* **Term 2 (Slutsky):**
+* 
+    Consider the term $\sqrt{n}(\bar{X} - \mu)^2$. We can rewrite this as:
+    $$
+    \underbrace{\sqrt{n}(\bar{X} - \mu)}_{\xrightarrow{d} N(0, \sigma^2)} \cdot \underbrace{(\bar{X} - \mu)}_{\xrightarrow{p} 0 \text{ by LLN}}
+    $$
+    By Slutsky's Theorem, the product converges to $Z \cdot 0 = 0$.
+
+**Conclusion:**
+
+Combining the terms:
+$$
+\sqrt{n}(\hat{\sigma}^2 - \sigma^2) \xrightarrow{d} N(0, 2\sigma^4) - 0 = N(0, 2\sigma^4)
+$$
 :::
 
-## Cramer-Rao Lower Bound (CRLB)
 
-::: {#thm-crlb}
-
-## Cramer-Rao Lower Bound
-Let $W(X)$ be any estimator with $m(\theta) = E[W(X)]$. Under regularity conditions (support of X independent of $\theta$),
-$$
-\text{Var}(W(X)) \ge \frac{[m'(\theta)]^2}{I(\theta)}
-$$
-**Particular Case:** If $W(X)$ is an unbiased estimator of $\theta$ (i.e., $m(\theta) = \theta, m'(\theta)=1$), then:
-$$
-\text{Var}(W(X)) \ge \frac{1}{I(\theta)}
-$$
-
-:::
-
-::: {.proof}
-Let $Z = S(\theta; X)$. We know $E[Z] = 0$ and $\text{Var}(Z) = I(\theta)$.
-Using the Covariance inequality:
-$$
-[\text{Cov}(W, Z)]^2 \le \text{Var}(W) \text{Var}(Z)
-$$
-Evaluate the covariance:
-$$
-\begin{aligned}
-\text{Cov}(W, Z) &= E[W(X) S(\theta; X)] - E[W]E[S] \\
-&= \int w(x) \frac{\partial \log f(x|\theta)}{\partial \theta} f(x|\theta) dx - 0 \\
-&= \int w(x) \frac{\partial f(x|\theta)}{\partial \theta} dx \\
-&= \frac{\partial}{\partial \theta} \int w(x) f(x|\theta) dx \\
-&= \frac{\partial}{\partial \theta} m(\theta) = m'(\theta)
-\end{aligned}
-$$
-Therefore:
-$$
-[m'(\theta)]^2 \le \text{Var}(W) \cdot I(\theta) \implies \text{Var}(W) \ge \frac{[m'(\theta)]^2}{I(\theta)}
-$$
-
-:::
-
-::: {#exm-exponential-crlb}
-Let $X_1, \dots, X_n \overset{iid}{\sim} \operatorname{Exp}(\theta)$, where $f(x|\theta) = \frac{1}{\theta} e^{-x/\theta}$.
-Log-likelihood:
-$$
-l(\theta; x) = -n \log \theta - \frac{1}{\theta} \sum x_i
-$$
-Score function:
-$$
-S(\theta; x) = -\frac{n}{\theta} + \frac{\sum x_i}{\theta^2}
-$$
-Setting $S=0 \implies \hat{\theta}_{\text{MLE}} = \bar{x}$.
-
-Fisher Information:
-$$
-I(\theta) = \text{Var}(S) = \frac{1}{\theta^4} \text{Var}(\sum X_i) = \frac{1}{\theta^4} n \theta^2 = \frac{n}{\theta^2}
-$$
-Alternatively using the second derivative:
-$$
-S'(\theta) = \frac{n}{\theta^2} - \frac{2\sum x_i}{\theta^3}
-$$
-$$
--E[S'] = -\left( \frac{n}{\theta^2} - \frac{2 n \theta}{\theta^3} \right) = -\left( \frac{n}{\theta^2} - \frac{2n}{\theta^2} \right) = \frac{n}{\theta^2}
-$$
-
-Variance of MLE:
-$$
-\text{Var}(\hat{\theta}_{\text{MLE}}) = \text{Var}(\bar{X}) = \frac{\text{Var}(X)}{n} = \frac{\theta^2}{n}
-$$
-CRLB for unbiased estimator:
-$$
-\text{CRLB} = \frac{1}{I(\theta)} = \frac{1}{n/\theta^2} = \frac{\theta^2}{n}
-$$
-Since $\text{Var}(\hat{\theta}_{\text{MLE}}) = \text{CRLB}$, the MLE is efficient.
-
-:::
-
-## Asymptotic Properties of MLE
+## Asymptotic Theory for MLE
 
 There are three main asymptotic properties:
 
@@ -248,25 +306,6 @@ There are three main asymptotic properties:
    2.  **Asymptotic Normality:** $\hat{\theta}_n \sim N(\theta_0, 1/I(\theta_0))$ roughly.
    3.  **Efficiency:** Variance achieves CRLB asymptotically.
 
-## Review of Convergence
-
-1.  **LLN (Law of Large Numbers):** $\bar{X} \xrightarrow{p} E(X)$.
-   2.  **CLT (Central Limit Theorem):** $\sqrt{n}(\bar{X} - \mu) \xrightarrow{d} N(0, \sigma^2)$.
-   3.  **Slutsky's Theorem:** If $X_n \xrightarrow{d} X$ and $Y_n \xrightarrow{p} a$ (constant), then:
-    * $X_n + Y_n \xrightarrow{d} X + a$
-    * $X_n Y_n \xrightarrow{d} aX$
-    * $X_n / Y_n \xrightarrow{d} X/a$
-
-::: {#exm-asymptotic-normal-variance}
-Let $X_1, \dots, X_n \sim N(\mu, \sigma^2)$.
-$\hat{\sigma}^2 = \frac{\sum(X_i - \bar{X})^2}{n}$.
-We can show:
-$$
-\sqrt{n}(\hat{\sigma}^2 - \sigma^2) \xrightarrow{d} N(0, 2\sigma^4)
-$$
-Using CLT on $Y_i = (X_i - \mu)^2$ and Slutsky's theorem.
-
-:::
 
 ## Consistency
 
@@ -467,6 +506,7 @@ Rearranging terms to isolate the parameters $\beta_j$:
 $$ \ell(\boldsymbol{\beta}; \mathbf{y}) = \sum_{j=0}^k \beta_j \underbrace{\left( \sum_{i=1}^n y_i x_{ij} \right)}_{T_j(\mathbf{y})} - \underbrace{\sum_{i=1}^n e^{\mathbf{x}_i^\top \boldsymbol{\beta}}}_{A(\boldsymbol{\beta})} + \text{const} $$
 
 From this form, we identify:
+
 * **Sufficient Statistics:** $\mathbf{T}(\mathbf{y}) = \mathbf{X}^\top \mathbf{y}$.
 * **Log-Partition Function:** $A(\boldsymbol{\beta}) = \sum_{i=1}^n \lambda_i = \sum_{i=1}^n e^{\mathbf{x}_i^\top \boldsymbol{\beta}}$.
 
@@ -485,6 +525,7 @@ Next, we derive the gradient and Hessian of the log-likelihood.
 
 a.  **Normality of the Score:**
     The Score vector $\mathbf{U}(\boldsymbol{\beta}) = \sum_{i=1}^n (Y_i - \lambda_i)\mathbf{x}_i$ is a sum of independent mean-zero random vectors.
+
     * Mean: $E[\mathbf{U}] = \mathbf{0}$.
     * Variance: $\text{Var}(\mathbf{U}) = \sum \text{Var}(Y_i)\mathbf{x}_i\mathbf{x}_i^\top = \mathcal{J}(\boldsymbol{\beta})$.
     By the **Multivariate Central Limit Theorem**, as $n \to \infty$:
@@ -518,6 +559,7 @@ y <- rpois(n, lambda_true)
 
 # Design Matrix (intercept column + covariate)
 X <- cbind(1, x)
+
 ```
 
 **b. Newton-Raphson Implementation**
@@ -551,15 +593,18 @@ newton_raphson_poisson <- function(X, y, tol = 1e-6, max_iter = 100) {
 }
 
 beta_mle <- newton_raphson_poisson(X, y)
+
 ```
 
 **Output:**
+
 ```
 Iter 1: beta0=1.1718, beta1=0.6234, diff=1.761592
 Iter 2: beta0=0.6970, beta1=1.5794, diff=1.139433
 Iter 3: beta0=0.4996, beta1=2.0101, diff=0.224446
 Iter 4: beta0=0.4725, beta1=2.0838, diff=0.006173
 Iter 5: beta0=0.4722, beta1=2.0845, diff=0.000001
+
 ```
 
 **c. Discussion & Verification**
@@ -568,6 +613,7 @@ We compare our manual estimates with R's built-in `glm` function.
 ```r
 cat("Manual MLE: ", beta_mle, "\n")
 cat("GLM Output: ", coef(glm(y ~ x, family = "poisson")))
+
 ```
 
 **Observation:** The manual implementation converges to the exact same values as the built-in function ($\hat{\beta}_0 \approx 0.47, \hat{\beta}_1 \approx 2.08$). Notice that we started at $\boldsymbol{\beta}=(0,0)$. In the first iteration, the algorithm took a large step because the log-likelihood surface is steep. The quadratic convergence of Newton-Raphson is evident in the rapid decrease of the difference term (from 1.13 to 0.22 to 0.006).
