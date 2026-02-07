@@ -7,9 +7,9 @@ format:
   pdf: default
 ---
 
-## Definitions and Concepts
 
-### Likelihood and MLE
+
+## Likelihood and MLE
 
 ::: {#def-likelihood-mle}
 
@@ -38,9 +38,25 @@ format:
 
 4.  **Score Function ($\mathbf{U}$):**
 
-    The score function is defined as the gradient of the log-likelihood with respect to the parameter vector. Finding the MLE often involves solving the score equation:
+    The score function is defined as the gradient of the log-likelihood with respect to the parameter vector. 
     $$
-    \mathbf{U}(\boldsymbol{\theta}; \mathbf{x}) = \nabla_{\boldsymbol{\theta}} \ell(\boldsymbol{\theta}; \mathbf{x}) = \mathbf{0}
+    \mathbf{U}(\boldsymbol{\theta}; \mathbf{x}) = \nabla_{\boldsymbol{\theta}} \ell(\boldsymbol{\theta}; \mathbf{x})
+    $$
+    Finding the MLE often involves solving the score equation: 
+    $$
+    \mathbf{U}(\boldsymbol{\theta}; \mathbf{x}) \equiv 0
+    $$
+5.  **Observed Fisher Inforamtion:**
+
+   $$
+   \mathbf{J}(\boldsymbol{\theta}; \mathbf{X}) = - \nabla^2 \ell(\boldsymbol{\theta}; \mathbf{X})
+   $$
+
+6.  **(Expected) Fisher Information Matrix ($\mathbf{I}$):** 
+   
+    The covariance matrix of the score vector. It is a deterministic $p \times p$ matrix (for a fixed $\boldsymbol{\theta}$).
+    $$
+    \mathbf{I}(\boldsymbol{\theta}) = E_{\boldsymbol{\theta}} \left[ \mathbf{J}(\boldsymbol{\theta}; \mathbf{X}) \right]
     $$
 
 :::
@@ -158,28 +174,6 @@ $$
 
 :::
 
-::: {#rem-clt-history}
-
-### Historical Note: The Evolution of the CLT
-
-While the standard i.i.d. theorem is named after **Jarl Waldemar Lindeberg** and **Paul Lévy**, they were the "closers" of a discovery process that involved many others:
-
-1.  **Abraham de Moivre (1733):** The first to discover the "Normal curve" as an approximation to the Binomial distribution (specifically for the symmetric case $p=1/2$).
-
-2.  **Pierre-Simon Laplace (1812):** Generalized de Moivre's work to arbitrary $p$ (the De Moivre-Laplace Theorem) and intuitively grasped that sums of independent errors tend toward normality, though his proofs lacked modern rigor.
-
-3.  **Pafnuty Chebyshev (1887):** Attempted to prove the general CLT using the "Method of Moments." While his proof had gaps, it established the moment-based approach later completed by his student, Markov.
-
-4.  **Aleksandr Lyapunov (1901):** Provided the first rigorous proof for independent variables using **Characteristic Functions**. However, he required a slightly stricter condition (existence of $(2+\delta)$ moments) than necessary.
-
-5.  **Lindeberg (1922) & Lévy (1925):**
-
-    * **Lindeberg** proved the general CLT for independent variables under the famous "Lindeberg Condition." notably using a direct "replacement method" (swapping distributions), **not** characteristic functions.
-    * **Lévy** rigorously proved the i.i.d. case and investigated stable laws using Characteristic Functions, establishing them as the standard tool for such proofs.
-
-6.  **William Feller (1935):** Proved the converse: if the individual random variables are asymptotically negligible (no single term dominates the sum), then the Lindeberg condition is not just sufficient, but **necessary** for the sum to converge to a Normal distribution. Hence, the general theorem is often called the **Lindeberg-Feller Theorem**.
-
-:::
 
 ::: {#thm-lindeberg-feller}
 
@@ -1090,7 +1084,7 @@ Let $X_1, \dots, X_n \overset{iid}{\sim} N(\mu, \sigma^2)$ where $\sigma^2$ is k
         $$
         Note that in this specific case, the curvature is constant and does not depend on data. The **Fisher Information** (for sample size $n$) is:
         $$
-        \mathcal{I}_n = -E[l''(\mu)] = \frac{n}{\sigma^2}
+        I_n = -E[l''(\mu)] = \frac{n}{\sigma^2}
         $$
 
 2. Taylor Approximation of Deviance
@@ -1219,23 +1213,41 @@ Consider a GLM where $Y_i \sim \text{Poisson}(\lambda_i)$. We use the canonical 
         $$
         *(where $\nabla A(\boldsymbol{\beta}) = \sum e^{\mathbf{x}_i^\top \boldsymbol{\beta}} \mathbf{x}_i = \sum \lambda_i \mathbf{x}_i = \mathbf{X}^\top \boldsymbol{\lambda}$)*.
 
-    * **Fisher Information ($\mathcal{J}$):**
+    * **Fisher Information ($J$):**
         The information is the Hessian of the log-partition function:
         $$
-        \mathcal{J}(\boldsymbol{\beta}) = \nabla^2 A(\boldsymbol{\beta}) = \sum_{i=1}^n \frac{\partial}{\partial \boldsymbol{\beta}} (\lambda_i \mathbf{x}_i^\top) = \sum_{i=1}^n \lambda_i \mathbf{x}_i \mathbf{x}_i^\top = \mathbf{X}^\top \mathbf{W} \mathbf{X}
+        J(\boldsymbol{\beta}) = \nabla^2 A(\boldsymbol{\beta}) = \sum_{i=1}^n \frac{\partial}{\partial \boldsymbol{\beta}} (\lambda_i \mathbf{x}_i^\top) = \sum_{i=1}^n \lambda_i \mathbf{x}_i \mathbf{x}_i^\top = \mathbf{X}^\top \mathbf{W} \mathbf{X}
         $$
+        where $\mathbf{W}$, in the context of Poisson regression, $\mathbf{W}$ is the diagonal matrix of the expected values (which are equal to the variances):
+
+
+
+        $$
+        \mathbf{W} = \text{diag}(\lambda_1, \lambda_2, \dots, \lambda_n) = 
+        \begin{bmatrix}
+        \lambda_1 & 0 & \cdots & 0 \\
+        0 & \lambda_2 & \cdots & 0 \\
+        \vdots & \vdots & \ddots & \vdots \\
+        0 & 0 & \cdots & \lambda_n
+        \end{bmatrix}
+        $$
+        where $\lambda_i = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})$.
+
+        
 
 3.  **Asymptotic Theory**
 
     * **Score Normality:** The Score vector is a sum of independent zero-mean random vectors. By the Multivariate CLT:
-        $$ \frac{1}{\sqrt{n}}\mathbf{U}(\boldsymbol{\beta}) \xrightarrow{d} N(\mathbf{0}, \mathcal{I}) $$
+        $$ \frac{1}{\sqrt{n}}\mathbf{U}(\boldsymbol{\beta}) \xrightarrow{d} N(\mathbf{0}, I) $$
 
-    * **MLE Normality:** By linear approximation $\mathbf{U}(\hat{\boldsymbol{\beta}}) \approx \mathbf{U}(\boldsymbol{\beta}) - \mathcal{J}(\boldsymbol{\beta})(\hat{\boldsymbol{\beta}} - \boldsymbol{\beta})$, the estimator converges as:
-        $$ \sqrt{n}(\hat{\boldsymbol{\beta}} - \boldsymbol{\beta}) \xrightarrow{d} N(\mathbf{0}, \mathcal{I}^{-1}) $$
+    * **MLE Normality:** By linear approximation $\mathbf{U}(\hat{\boldsymbol{\beta}}) \approx \mathbf{U}(\boldsymbol{\beta}) - J(\boldsymbol{\beta})(\hat{\boldsymbol{\beta}} - \boldsymbol{\beta})$, the estimator converges as:
+        $$ \sqrt{n}(\hat{\boldsymbol{\beta}} - \boldsymbol{\beta}) \xrightarrow{d} N(\mathbf{0}, I^{-1}) $$
 
 4.  **Simulation Verification**
 
     We simulate a Poisson regression with an intercept and one continuous covariate ($p=2$). We verify that the MLE and Score follow their theoretical normal distributions derived from $A(\boldsymbol{\beta})$.
+
+
 
 ```{r}
 #| label: fig-poisson-sim-nn
@@ -1306,199 +1318,36 @@ hist(deviance_vals, breaks = 20, freq = FALSE, col = "lightpink",
 curve(dchisq(x, df = 2), add = TRUE, col = "darkgreen", lwd = 2)
 ```
 
-### Poisson Regression
 
-::: {#exm-poisson-glm}
-Consider a GLM where $Y_i \sim \text{Poisson}(\lambda_i)$. We assume the **canonical link** where the linear predictor $\eta_i = \mathbf{x}_i^\top \boldsymbol{\beta}$ is equal to the natural parameter $\theta_i$.
+**Alternative Derivation: Sum of Individual Contributions**
 
-1. **Exponential Family Properties**
-   The log-likelihood contribution for a single observation is in the canonical form:
-   $$ \ell_i(\theta_i) = y_i \theta_i - A(\theta_i) + \log h(y_i) $$
-   
-   * **Natural Parameter:** $\theta_i = \log \lambda_i = \mathbf{x}_i^\top \boldsymbol{\beta}$.
-   * **Log-Partition Function:** $A(\theta_i) = e^{\theta_i} = \lambda_i$.
-   * **Moments:** $E[Y_i] = A'(\theta_i) = \lambda_i$ and $\text{Var}(Y_i) = A''(\theta_i) = \lambda_i$.
+We can also derive the Score and Information by viewing the full log-likelihood as a sum of individual contributions, where each contribution follows the scalar canonical form:
 
-2. **Derivations via Chain Rule**
-   We derive the gradient and Hessian with respect to $\boldsymbol{\beta}$ using the chain rule term $\frac{\partial \theta_i}{\partial \boldsymbol{\beta}} = \mathbf{x}_i$.
+$$
+\ell(\boldsymbol{\beta}) = \sum_{i=1}^n \ell_i(\theta_i; y_i) = \sum_{i=1}^n \left[ y_i \theta_i - A(\theta_i) + \log h(y_i) \right]
+$$
 
-   * **Score Vector ($\mathbf{U}$):**
-     $$ 
-     \mathbf{U}(\boldsymbol{\beta}) = \sum_{i=1}^n \frac{\partial \ell_i}{\partial \theta_i} \frac{\partial \theta_i}{\partial \boldsymbol{\beta}} = \sum_{i=1}^n \underbrace{(y_i - A'(\theta_i))}_{\text{Residual } (y_i - \lambda_i)} \mathbf{x}_i = \mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda}) 
-     $$
+1.  **Exponential Family Properties**
+    * **Natural Parameter:** $\theta_i = \log \lambda_i = \mathbf{x}_i^\top \boldsymbol{\beta}$.
+    * **Log-Partition Function:** $A(\theta_i) = e^{\theta_i} = \lambda_i$.
+    * **Moments:** $E[Y_i] = A'(\theta_i) = \lambda_i$ and $\text{Var}(Y_i) = A''(\theta_i) = \lambda_i$.
 
-   * **Fisher Information ($\mathcal{J}$):**
-     $$ 
-     \mathcal{J}(\boldsymbol{\beta}) = - \sum_{i=1}^n \frac{\partial}{\partial \boldsymbol{\beta}^\top} \left[ (y_i - A'(\theta_i)) \mathbf{x}_i \right] = \sum_{i=1}^n A''(\theta_i) \mathbf{x}_i \mathbf{x}_i^\top = \mathbf{X}^\top \mathbf{W} \mathbf{X} 
-     $$
-     where $\mathbf{W} = \text{diag}(\lambda_i)$ is the weight matrix (which equals the variance for Poisson).
+2.  **Derivations via Chain Rule**
+    We derive the gradient and Hessian with respect to $\boldsymbol{\beta}$ using the chain rule term $\frac{\partial \theta_i}{\partial \boldsymbol{\beta}} = \mathbf{x}_i$.
 
-3. **Asymptotic Distributions**
-   
-    * **Score Normality:** Since $\mathbf{U}$ is a sum of independent zero-mean vectors, by the Multivariate CLT:
-        $$ \frac{1}{\sqrt{n}}\mathbf{U}(\boldsymbol{\beta}) \xrightarrow{d} N(\mathbf{0}, \mathcal{I}) $$
+    * **Score Vector ($\mathbf{U}$):**
+        $$
+        \mathbf{U}(\boldsymbol{\beta}) = \nabla_{\boldsymbol{\beta}} \sum_{i=1}^n \ell_i(\theta_i) = \sum_{i=1}^n (y_i - A'(\theta_i)) \frac{\partial \theta_i}{\partial \boldsymbol{\beta}} = \sum_{i=1}^n (y_i - \lambda_i) \mathbf{x}_i = \mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda})
+        $$
 
-   * **MLE Normality:** By linear approximation $\mathbf{U}(\hat{\boldsymbol{\beta}}) \approx \mathbf{U}(\boldsymbol{\beta}) - \mathcal{J}(\boldsymbol{\beta})(\hat{\boldsymbol{\beta}} - \boldsymbol{\beta})$, the estimator converges as:
-       $$ \sqrt{n}(\hat{\boldsymbol{\beta}} - \boldsymbol{\beta}) \xrightarrow{d} N(\mathbf{0}, \mathcal{I}^{-1}) $$
-
-4. **Simulation Verification**
-
-    We simulate a Poisson regression with an intercept and one continuous covariate ($p=2$). We test the distribution of the slope parameter $\beta_1$ and the overall Deviance.
-
-```{r}
-#| label: fig-poisson-sim-new
-#| fig-cap: "Simulation of Poisson Regression (n=200, 2000 replicates). Left: The standardized MLE for the slope. Center: The standardized Score for the slope. Right: The Deviance for the full vector behaves as Chi-squared with p=2 degrees of freedom."
-#| warning: false
-#| message: false
-
-set.seed(42)
-n_sim <- 2000
-n <- 200
-beta_true <- c(0.5, 1.5) # Intercept, Slope
-
-# Fixed covariate matrix
-x <- runif(n, 0, 1)
-X_mat <- cbind(1, x)
-
-# Expected Fisher Info at Truth (Using exponential family formula X^T W X)
-lambda_true <- exp(X_mat %*% beta_true)
-W <- diag(as.vector(lambda_true))
-J_true <- t(X_mat) %*% W %*% X_mat # Total Info
-inv_J <- solve(J_true)
-
-# Storage
-mle_slope_z <- numeric(n_sim)
-score_slope_z <- numeric(n_sim)
-deviance_vals <- numeric(n_sim)
-
-for(i in 1:n_sim) {
-  y <- rpois(n, lambda = lambda_true)
-  
-  # Fit Model
-  fit <- glm(y ~ x, family = poisson)
-  
-  # 1. MLE Standardization (Slope)
-  beta_hat <- coef(fit)
-  se_slope <- sqrt(inv_J[2,2]) # Theoretical SE from Inverse Info
-  mle_slope_z[i] <- (beta_hat[2] - beta_true[2]) / se_slope
-  
-  # 2. Score Standardization (Slope component)
-  # U = X^T(y - lambda)
-  U <- t(X_mat) %*% (y - lambda_true)
-  se_score <- sqrt(J_true[2,2]) # Variance of Score is J (not inverse)
-  score_slope_z[i] <- U[2] / se_score
-  
-  # 3. Deviance (Likelihood Ratio vs Truth)
-  ll_hat <- as.numeric(logLik(fit))
-  ll_true <- sum(dpois(y, lambda = lambda_true, log = TRUE))
-  deviance_vals[i] <- 2 * (ll_hat - ll_true)
-}
-
-# --- Plotting ---
-par(mfrow = c(1, 3))
-
-# MLE Z-score
-hist(mle_slope_z, breaks = 20, freq = FALSE, col = "lightblue",
-     main = "Std. MLE (Slope)", xlab = "Z value")
-curve(dnorm(x), add = TRUE, col = "red", lwd = 2)
-
-# Score Z-score
-hist(score_slope_z, breaks = 20, freq = FALSE, col = "lightgreen",
-     main = "Std. Score (Slope)", xlab = "Z value")
-curve(dnorm(x), add = TRUE, col = "blue", lwd = 2)
-
-# Deviance (df = 2 parameters)
-hist(deviance_vals, breaks = 20, freq = FALSE, col = "lightpink",
-     main = "Deviance (p=2)", xlab = "D")
-curve(dchisq(x, df = 2), add = TRUE, col = "darkgreen", lwd = 2)
-```
-
-### Poisson Regression
-
-::: {#exm-poisson-glm}
-Consider a GLM where $Y_i \sim \text{Poisson}(\lambda_i)$ and $\log(\lambda_i) = \mathbf{x}_i^\top \boldsymbol{\beta}$.
-The log-likelihood is:
-$$ \ell(\boldsymbol{\beta}) = \sum_{i=1}^n \left( y_i \mathbf{x}_i^\top \boldsymbol{\beta} - e^{\mathbf{x}_i^\top \boldsymbol{\beta}} - \log(y_i!) \right) $$
-
-1. Asymptotic Theory
-
-    * **Score Normality:** The Score vector $\mathbf{U}(\boldsymbol{\beta}) = \mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda})$ is a sum of independent zero-mean vectors. By the Multivariate CLT:
-        $$ \frac{1}{\sqrt{n}}\mathbf{U}(\boldsymbol{\beta}) \xrightarrow{d} N(\mathbf{0}, \mathcal{I}) $$
-
-   * **MLE Normality:** By linear approximation $\mathbf{U}(\hat{\boldsymbol{\beta}}) \approx \mathbf{U}(\boldsymbol{\beta}) + \mathcal{J}(\boldsymbol{\beta})(\hat{\boldsymbol{\beta}} - \boldsymbol{\beta})$, the estimator converges as:
-       $$ \sqrt{n}(\hat{\boldsymbol{\beta}} - \boldsymbol{\beta}) \xrightarrow{d} N(\mathbf{0}, \mathcal{I}^{-1}) $$
-
-2. Simulation Verification
-
-    We simulate a Poisson regression with an intercept and one continuous covariate ($p=2$). We test the distribution of the slope parameter $\beta_1$ and the overall Deviance.
-
-```{r}
-#| label: fig-poisson-sim
-#| fig-cap: "Simulation of Poisson Regression (n=200, 2000 replicates). Left: The standardized MLE for the slope. Center: The standardized Score for the slope. Right: The Deviance for the full vector behaves as Chi-squared with p=2 degrees of freedom."
-#| warning: false
-#| message: false
-
-set.seed(42)
-n_sim <- 2000
-n <- 200
-beta_true <- c(0.5, 1.5) # Intercept, Slope
-
-# Fixed covariate matrix
-x <- runif(n, 0, 1)
-X_mat <- cbind(1, x)
-
-# Expected Fisher Info at Truth
-lambda_true <- exp(X_mat %*% beta_true)
-W <- diag(as.vector(lambda_true))
-J_true <- t(X_mat) %*% W %*% X_mat # Total Info
-inv_J <- solve(J_true)
-
-# Storage
-mle_slope_z <- numeric(n_sim)
-score_slope_z <- numeric(n_sim)
-deviance_vals <- numeric(n_sim)
-
-for(i in 1:n_sim) {
-  y <- rpois(n, lambda = lambda_true)
-  
-  # Fit Model
-  fit <- glm(y ~ x, family = poisson)
-  
-  # 1. MLE Standardization (Slope)
-  beta_hat <- coef(fit)
-  se_slope <- sqrt(inv_J[2,2]) # Theoretical SE
-  mle_slope_z[i] <- (beta_hat[2] - beta_true[2]) / se_slope
-  
-  # 2. Score Standardization (Slope component)
-  # U = X^T(y - lambda)
-  U <- t(X_mat) %*% (y - lambda_true)
-  se_score <- sqrt(J_true[2,2]) # Variance of Score is J (not inverse)
-  score_slope_z[i] <- U[2] / se_score
-  
-  # 3. Deviance (Likelihood Ratio vs Truth)
-  ll_hat <- as.numeric(logLik(fit))
-  ll_true <- sum(dpois(y, lambda = lambda_true, log = TRUE))
-  deviance_vals[i] <- 2 * (ll_hat - ll_true)
-}
-
-# --- Plotting ---
-par(mfrow = c(1, 3))
-
-# MLE Z-score
-hist(mle_slope_z, breaks = 20, freq = FALSE, col = "lightblue",
-     main = "Std. MLE (Slope)", xlab = "Z value")
-curve(dnorm(x), add = TRUE, col = "red", lwd = 2)
-
-# Score Z-score
-hist(score_slope_z, breaks = 20, freq = FALSE, col = "lightgreen",
-     main = "Std. Score (Slope)", xlab = "Z value")
-curve(dnorm(x), add = TRUE, col = "blue", lwd = 2)
-
-# Deviance (df = 2 parameters)
-hist(deviance_vals, breaks = 20, freq = FALSE, col = "lightpink",
-     main = "Deviance (p=2)", xlab = "D")
-curve(dchisq(x, df = 2), add = TRUE, col = "darkgreen", lwd = 2)
-
-```
-
+    * **Fisher Information ($J$):**
+        The information is the negative Hessian. The derivative of the residual $(y_i - \lambda_i)$ is $-A''(\theta_i) \frac{\partial \theta_i}{\partial \boldsymbol{\beta}}$:
+        $$
+        J(\boldsymbol{\beta}) = - \sum_{i=1}^n \frac{\partial}{\partial \boldsymbol{\beta}^\top} \left[ (y_i - \lambda_i) \mathbf{x}_i \right] = \sum_{i=1}^n A''(\theta_i) \mathbf{x}_i \mathbf{x}_i^\top = \mathbf{X}^\top \mathbf{W} \mathbf{X}
+        $$
+        where $\mathbf{W} = \text{diag}(\lambda_i)$ is the weight matrix (which equals the variance for Poisson).
 :::
+
+
+
+
