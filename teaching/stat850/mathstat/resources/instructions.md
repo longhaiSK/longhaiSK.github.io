@@ -15,6 +15,10 @@
    2. Item 2
       More discussion of Item 2
 
+
+* Ensure that the text under a list item is indented to at least the level of the text after the number.
+  
+  
 * Put definitions/theorem/corrallary/proof/example/remark in respective divisions in this format:
 
    ::: {#thm-admissibility-unique}
