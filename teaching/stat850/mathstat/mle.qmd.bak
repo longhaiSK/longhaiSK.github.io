@@ -7,9 +7,9 @@ format:
   pdf: default
 ---
 
-## Definitions and Concepts
 
-### Likelihood and MLE
+
+## Likelihood and MLE
 
 ::: {#def-likelihood-mle}
 
@@ -38,9 +38,25 @@ format:
 
 4.  **Score Function ($\mathbf{U}$):**
 
-    The score function is defined as the gradient of the log-likelihood with respect to the parameter vector. Finding the MLE often involves solving the score equation:
+    The score function is defined as the gradient of the log-likelihood with respect to the parameter vector. 
     $$
-    \mathbf{U}(\boldsymbol{\theta}; \mathbf{x}) = \nabla_{\boldsymbol{\theta}} \ell(\boldsymbol{\theta}; \mathbf{x}) = \mathbf{0}
+    \mathbf{U}(\boldsymbol{\theta}; \mathbf{x}) = \nabla_{\boldsymbol{\theta}} \ell(\boldsymbol{\theta}; \mathbf{x})
+    $$
+    Finding the MLE often involves solving the score equation: 
+    $$
+    \mathbf{U}(\boldsymbol{\theta}; \mathbf{x}) \equiv 0
+    $$
+5.  **Observed Fisher Inforamtion:**
+
+   $$
+   \mathbf{J}(\boldsymbol{\theta}; \mathbf{X}) = - \nabla^2 \ell(\boldsymbol{\theta}; \mathbf{X})
+   $$
+
+6.  **(Expected) Fisher Information Matrix ($\mathbf{I}$):** 
+   
+    The covariance matrix of the score vector. It is a deterministic $p \times p$ matrix (for a fixed $\boldsymbol{\theta}$).
+    $$
+    \mathbf{I}(\boldsymbol{\theta}) = E_{\boldsymbol{\theta}} \left[ \mathbf{J}(\boldsymbol{\theta}; \mathbf{X}) \right]
     $$
 
 :::
@@ -54,11 +70,13 @@ format:
 Let $X_1, \dots, X_n \overset{iid}{\sim} N(\mu, \sigma^2)$. We define $\boldsymbol{\theta} = (\mu, \sigma^2)^T$.
 
 1. Log-Likelihood
+
 $$
 \ell(\boldsymbol{\theta}; \mathbf{x}) = -\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} \sum_{i=1}^n (x_i - \mu)^2
 $$
 
 2. Score Function and MLE
+
 The Score vector $\mathbf{U}(\boldsymbol{\theta})$ has two components:
 
 * **Component 1 (Mean):**
@@ -74,6 +92,7 @@ The Score vector $\mathbf{U}(\boldsymbol{\theta})$ has two components:
     Setting $U_{\sigma^2} = 0$ yields $\hat{\sigma}^2_{\text{MLE}} = \frac{1}{n} \sum (x_i - \hat{\mu})^2$.
 
 3. Asymptotic Normality of the Score
+
 We now demonstrate that $\mathbf{U}(\boldsymbol{\theta})$ follows a Normal distribution $N(\mathbf{0}, \mathbf{I}(\boldsymbol{\theta}))$.
 
 * **For $U_\mu$:**
@@ -155,28 +174,6 @@ $$
 
 :::
 
-::: {#rem-clt-history}
-
-### Historical Note: The Evolution of the CLT
-
-While the standard i.i.d. theorem is named after **Jarl Waldemar Lindeberg** and **Paul Lévy**, they were the "closers" of a discovery process that involved many others:
-
-1.  **Abraham de Moivre (1733):** The first to discover the "Normal curve" as an approximation to the Binomial distribution (specifically for the symmetric case $p=1/2$).
-
-2.  **Pierre-Simon Laplace (1812):** Generalized de Moivre's work to arbitrary $p$ (the De Moivre-Laplace Theorem) and intuitively grasped that sums of independent errors tend toward normality, though his proofs lacked modern rigor.
-
-3.  **Pafnuty Chebyshev (1887):** Attempted to prove the general CLT using the "Method of Moments." While his proof had gaps, it established the moment-based approach later completed by his student, Markov.
-
-4.  **Aleksandr Lyapunov (1901):** Provided the first rigorous proof for independent variables using **Characteristic Functions**. However, he required a slightly stricter condition (existence of $(2+\delta)$ moments) than necessary.
-
-5.  **Lindeberg (1922) & Lévy (1925):**
-
-    * **Lindeberg** proved the general CLT for independent variables under the famous "Lindeberg Condition." notably using a direct "replacement method" (swapping distributions), **not** characteristic functions.
-    * **Lévy** rigorously proved the i.i.d. case and investigated stable laws using Characteristic Functions, establishing them as the standard tool for such proofs.
-
-6.  **William Feller (1935):** Proved the converse: if the individual random variables are asymptotically negligible (no single term dominates the sum), then the Lindeberg condition is not just sufficient, but **necessary** for the sum to converge to a Normal distribution. Hence, the general theorem is often called the **Lindeberg-Feller Theorem**.
-
-:::
 
 ::: {#thm-lindeberg-feller}
 
@@ -326,7 +323,7 @@ $$
 
 :::
 
-## Asymptotic Theory of Maximum Likelihood
+## Asymptotic Theory of Maximized Likelihood
 
 ### Consistency of the MLE
 
@@ -334,75 +331,190 @@ $$
 
 Consistency establishes that as the sample size grows, the estimator converges in probability to the true parameter value.
 
+::: {#lem-kl-divergence-mle}
+
+### Minimization of KL Divergence at the True Density
+
+Let $f(y|\boldsymbol{\theta}_0)$ be the true density of a random variable $Y$, and let $f(y|\boldsymbol{\theta})$ be any other density in the family. The **Kullback-Leibler (KL) Divergence** (or relative entropy) between the true distribution and a candidate distribution is defined as:
+
+$$
+D_{KL}(f(\cdot|\boldsymbol{\theta}_0) \| f(\cdot|\boldsymbol{\theta})) = E_{\boldsymbol{\theta}_0} \left[ \log \left( \frac{f(Y|\boldsymbol{\theta}_0)}{f(Y|\boldsymbol{\theta})} \right) \right]
+$$
+
+This quantity satisfies the **Information Inequality**:
+
+$$
+D_{KL}(f(\cdot|\boldsymbol{\theta}_0) \| f(\cdot|\boldsymbol{\theta})) \ge 0
+$$
+
+with equality if and only if $f(y|\boldsymbol{\theta}) = f(y|\boldsymbol{\theta}_0)$ almost everywhere. This implies that the expected log-likelihood $M(\boldsymbol{\theta}) = E_{\boldsymbol{\theta}_0}[\log f(Y|\boldsymbol{\theta})]$ is uniquely maximized at the true parameter $\boldsymbol{\theta}_0$ (or true density for $Y$).
+:::
+
+::: {.proof}
+
+1. **Information Inequality via Jensen's Inequality**
+   
+   Consider the negative KL divergence, which is the expected log-likelihood ratio. By **Jensen's Inequality**, since the logarithm is a strictly concave function:
+   
+   $$
+   -D_{KL}(f(\cdot|\boldsymbol{\theta}_0) \| f(\cdot|\boldsymbol{\theta})) = E_{\boldsymbol{\theta}_0} \left[ \log \left( \frac{f(Y|\boldsymbol{\theta})}{f(Y|\boldsymbol{\theta}_0)} \right) \right] \le \log E_{\boldsymbol{\theta}_0} \left[ \frac{f(Y|\boldsymbol{\theta})}{f(Y|\boldsymbol{\theta}_0)} \right]
+   $$
+
+2. **Evaluating the Expectation**
+   
+   We evaluate the expectation on the right-hand side:
+   
+   $$
+   E_{\boldsymbol{\theta}_0} \left[ \frac{f(Y|\boldsymbol{\theta})}{f(Y|\boldsymbol{\theta}_0)} \right] = \int_{\mathcal{Y}} \left( \frac{f(y|\boldsymbol{\theta})}{f(y|\boldsymbol{\theta}_0)} \right) f(y|\boldsymbol{\theta}_0) \, dy = \int_{\mathcal{Y}} f(y|\boldsymbol{\theta}) \, dy = 1
+   $$
+
+3. **Conclusion**
+   
+   Substituting the result into the inequality:
+   
+   $$
+   -D_{KL}(f(\cdot|\boldsymbol{\theta}_0) \| f(\cdot|\boldsymbol{\theta})) \le \log(1) = 0 \implies D_{KL}(f(\cdot|\boldsymbol{\theta}_0) \| f(\cdot|\boldsymbol{\theta})) \ge 0
+   $$
+   
+   Because the log function is strictly concave, the equality $E[\log Z] = \log E[Z]$ holds if and only if $Z$ is a constant with probability 1. Here, $Z = f(Y|\boldsymbol{\theta})/f(Y|\boldsymbol{\theta}_0)$, so equality holds if and only if $f(y|\boldsymbol{\theta}) = f(y|\boldsymbol{\theta}_0)$ for almost all $y$.
+
+:::
+
+
+
 ::: {#thm-mle-consistency}
 
-#### Consistency of MLE
-Let $Y_1, \dots, Y_n$ be i.i.d. with density $f(y|\boldsymbol{\theta})$. Let $\boldsymbol{\theta}_0$ be the true parameter. Under regularity conditions (specifically identifiability and compactness), the Maximum Likelihood Estimator $\hat{\boldsymbol{\theta}}_n$ satisfies:
+### Consistency of MLE
+
+Let $Y_1, \dots, Y_n$ be i.i.d. with density $f(y|\boldsymbol{\theta})$. Let $\boldsymbol{\theta}_0$ be the true parameter. Assume the following **Identifiability** condition holds:
+   
+$$
+f(y|\boldsymbol{\theta}) = f(y|\boldsymbol{\theta}_0) \text{ for almost all } y \implies \boldsymbol{\theta} = \boldsymbol{\theta}_0
+$$
+
+Under this and other standard regularity conditions (such as compactness of the parameter space $\Theta$), the Maximum Likelihood Estimator $\hat{\boldsymbol{\theta}}_n$ satisfies:
+
 $$
 \hat{\boldsymbol{\theta}}_n \xrightarrow{p} \boldsymbol{\theta}_0 \quad \text{as } n \to \infty
 $$
 
 :::
 
+
+
+::: {#rem-identifiability}
+
+### The Role of Identifiability
+
+Identifiability is a fundamental requirement for consistency because it ensures that different parameter values correspond to different probability distributions.
+
+1. **Uniqueness of the Mapping**
+   Mathematically, it means the mapping $\boldsymbol{\theta} \to f(\cdot|\boldsymbol{\theta})$ is one-to-one. If the model were not identifiable, there would exist at least one $\boldsymbol{\theta}_1 \neq \boldsymbol{\theta}_0$ such that $f(y|\boldsymbol{\theta}_1) = f(y|\boldsymbol{\theta}_0)$.
+   
+2. **Uniqueness of the Maximum**
+   In the context of the proof, @lem-kl-divergence-mle shows that the KL divergence is zero if and only if the densities are identical. Identifiability allows us to move from the space of "densities" back to the space of "parameters," ensuring that $\boldsymbol{\theta}_0$ is the **unique** global maximum of the expected log-likelihood function $M(\boldsymbol{\theta})$.
+   
+3. **Failure of Consistency**
+   Without identifiability, the data cannot distinguish between $\boldsymbol{\theta}_0$ and $\boldsymbol{\theta}_1$. The MLE would not converge to a single point but rather to the set of all parameters that produce the true density.
+:::
+
 ::: {.proof}
 
 1. **The Objective Function**
-
+   
    The MLE maximizes the average log-likelihood:
+   
    $$
    M_n(\boldsymbol{\theta}) = \frac{1}{n} \sum_{i=1}^n \log f(Y_i|\boldsymbol{\theta})
    $$
+   
    By the **Weak Law of Large Numbers (WLLN)**, for any fixed $\boldsymbol{\theta}$, $M_n(\boldsymbol{\theta})$ converges in probability to its expectation:
+   
    $$
    M_n(\boldsymbol{\theta}) \xrightarrow{p} M(\boldsymbol{\theta}) = E_{\boldsymbol{\theta}_0} [\log f(Y|\boldsymbol{\theta})]
    $$
 
-2. **Identifying the Maximum (Information Inequality)**
-
-   We compare the expected log-likelihood at an arbitrary $\boldsymbol{\theta}$ versus the true $\boldsymbol{\theta}_0$. Consider the difference:
+2. **Convergence to the Unique Maximum**
+   
+   According to @lem-kl-divergence-mle, the limit function $M(\boldsymbol{\theta})$ is maximized when the KL divergence is zero. This happens uniquely at $\boldsymbol{\theta}_0$ due to identifiability. 
+   
+   Since $\hat{\boldsymbol{\theta}}_n$ is the maximizer of $M_n(\boldsymbol{\theta})$, and $M_n(\boldsymbol{\theta})$ converges uniformly to $M(\boldsymbol{\theta})$, the sequence of maximizers must converge to the maximizer of the limit function:
+   
    $$
-   M(\boldsymbol{\theta}) - M(\boldsymbol{\theta}_0) = E_{\boldsymbol{\theta}_0} \left[ \log f(Y|\boldsymbol{\theta}) - \log f(Y|\boldsymbol{\theta}_0) \right] = E_{\boldsymbol{\theta}_0} \left[ \log \left( \frac{f(Y|\boldsymbol{\theta})}{f(Y|\boldsymbol{\theta}_0)} \right) \right]
+   \hat{\boldsymbol{\theta}}_n \xrightarrow{p} \boldsymbol{\theta}_0
    $$
-   By **Jensen's Inequality** (since $\log(y)$ is strictly concave), $E[\log Z] \le \log E[Z]$.
-   $$
-   E_{\boldsymbol{\theta}_0} \left[ \log \left( \frac{f(Y|\boldsymbol{\theta})}{f(Y|\boldsymbol{\theta}_0)} \right) \right] \le \log E_{\boldsymbol{\theta}_0} \left[ \frac{f(Y|\boldsymbol{\theta})}{f(Y|\boldsymbol{\theta}_0)} \right]
-   $$
-   Evaluating the expectation on the right:
-   $$
-   E_{\boldsymbol{\theta}_0} \left[ \frac{f(Y|\boldsymbol{\theta})}{f(Y|\boldsymbol{\theta}_0)} \right] = \int \left( \frac{f(y|\boldsymbol{\theta})}{f(y|\boldsymbol{\theta}_0)} \right) f(y|\boldsymbol{\theta}_0) \, dy = \int f(y|\boldsymbol{\theta}) \, dy = 1
-   $$
-   Therefore:
-   $$
-   M(\boldsymbol{\theta}) - M(\boldsymbol{\theta}_0) \le \log(1) = 0 \implies M(\boldsymbol{\theta}) \le M(\boldsymbol{\theta}_0)
-   $$
-   Assuming the model is **identifiable** (i.e., $f(y|\boldsymbol{\theta}) = f(y|\boldsymbol{\theta}_0) \iff \boldsymbol{\theta} = \boldsymbol{\theta}_0$), the maximum is unique at $\boldsymbol{\theta}_0$. Since $\hat{\boldsymbol{\theta}}_n$ maximizes $M_n(\boldsymbol{\theta})$, which converges to $M(\boldsymbol{\theta})$, $\hat{\boldsymbol{\theta}}_n$ must converge to $\boldsymbol{\theta}_0$.
 
 :::
 
-```{tikz}
-%| label: fig-likelihood-consistency
-%| fig-cap: "Consistency: As n increases, the log-likelihood function concentrates around the true parameter."
-%| echo: false
-%| fig-align: "center"
+```{r}
+#| label: fig-likelihood-concentration-normal
+#| fig-cap: "Consistency: Concentration of the Average Log-Likelihood for $N(\\theta, 1)$"
+#| echo: false
+#| fig-align: center
+#| fig-width: 7
+#| fig-height: 5
+#| dpi: 300
 
-\begin{tikzpicture}
-\draw[->] (0,0) -- (6,0) node[right] {$\theta$};
-\draw[->] (0,0) -- (0,4) node[above] {$M_n(\theta)$};
+library(latex2exp)
 
-% True Limit Curve
-\draw[thick, blue] (0.5,0.5) .. controls (3,4.5) and (5,1) .. (5.5,0.5);
-\node[blue] at (5.5, 0.8) {$M(\theta)$};
+# Increase right margin for labels
+par(mar = c(5, 5, 2, 8) + 0.1, xpd = TRUE)
 
-% Finite Sample Curve (wiggly)
-\draw[dashed, red] (0.5,0.3) .. controls (1,1) and (2.8,4.2) .. (3, 4) .. controls (3.2, 4.2) and (5,0.8) .. (5.5,0.3);
-\node[red] at (5.5, 0.2) {$M_n(\theta)$};
+# 1. Setup Simulation Parameters
+set.seed(123)
+theta_0 <- 0
+theta_seq <- seq(-3, 3, length.out = 200)
 
-% Maxima
-\draw[dashed] (3,0) node[below] {$\theta_0$} -- (3,3.7);
-\filldraw (3,3.7) circle (2pt);
+# Expected log-likelihood M(theta) for N(theta, 1) when true theta = 0
+# M(theta) = -0.5 * log(2*pi) - 0.5 * E[(X - theta)^2]
+# Since E[X^2]=1 and E[X]=0, E[(X-theta)^2] = 1 + theta^2
+m_theta <- -0.5 * log(2 * pi) - 0.5 * (1 + theta_seq^2)
 
-\end{tikzpicture}
+# 2. Setup Plot (No axes, no box)
+plot(theta_seq, m_theta, type = "n", 
+     xlab = "", ylab = "", 
+     axes = FALSE, ylim = c(-6, -0.5), xlim = c(-3, 3.5))
 
+# 3. Draw Axis Lines with Arrows
+arrows(x0 = -3, y0 = -5.8, x1 = 3.5, y1 = -5.8, length = 0.1, lwd = 1) # x-axis
+arrows(x0 = -3, y0 = -5.8, x1 = -3, y1 = -0.8, length = 0.1, lwd = 1) # y-axis
+
+# 4. Generate and Plot Sample Average Log-Likelihoods M_n(theta)
+n_val <- c(5, 50)
+cols <- c("#EF9A9A", "#B71C1C") # Light red for small n, dark red for larger n
+
+for(i in 1:length(n_val)){
+   # Generate data from N(0, 1)
+   x_samp <- rnorm(n_val[i], mean = theta_0, sd = 1)
+   
+   # Calculate M_n(theta) for each theta in the sequence
+   # M_n(theta) = (1/n) * sum(log f(x_i | theta))
+   m_n <- sapply(theta_seq, function(t) {
+      mean(-0.5 * log(2 * pi) - 0.5 * (x_samp - t)^2)
+   })
+   
+   lines(theta_seq, m_n, col = cols[i], lwd = 1.5)
+}
+
+# 5. Plot the True Limit M(theta)
+lines(theta_seq, m_theta, col = "blue", lwd = 2.5)
+
+# 6. Add Reference Line for True Parameter
+segments(theta_0, -5.8, theta_0, m_theta[which.min(abs(theta_seq - theta_0))], lty = 3)
+
+# 7. Labels and Legend
+text(3.5, -6.1, TeX("$\\theta$"))
+text(-3.8, -0.8, TeX("$M_n(\\theta)$"), adj = 1)
+text(theta_0, -6.1, TeX("$\\theta_0$"))
+
+legend(x = 3.2, y = -2,
+       legend = c(TeX("$M(\\theta)$"), 
+                 TeX("$M_n(\\theta), n=5$"),
+                 TeX("$M_n(\\theta), n=50$")),
+       col = c("blue", cols[1], cols[2]),
+       lty = 1,
+       lwd = c(2.5, 1.5, 1.5),
+       bty = "n")
 ```
 
 #### Non-IID Cases
@@ -943,6 +1055,7 @@ $$
 where:
 
 1.  $\mathbf{J}^{\psi\psi} = (\mathbf{J}_{\psi\psi} - \mathbf{J}_{\psi\lambda} \mathbf{J}_{\lambda\lambda}^{-1} \mathbf{J}_{\lambda\psi})^{-1}$ is the top-left block of the inverse matrix $\mathbf{J}^{-1}$ (the inverse of the Schur Complement).
+
 2.  $\tilde{\mathbf{U}}_{\psi} = \mathbf{U}_{\psi} - \mathbf{J}_{\psi\lambda} \mathbf{J}_{\lambda\lambda}^{-1} \mathbf{U}_{\lambda}$ is the "effective" score for $\psi$, orthogonalized with respect to $\lambda$.
 
 :::
@@ -950,6 +1063,7 @@ where:
 ::: {.proof}
 
 1. Block Matrix Inversion
+
 Using the Banachiewicz inversion formula, the blocks of the inverse matrix $\mathbf{J}^{-1}$ are expressed in terms of the Schur complement $S = \mathbf{J}_{\psi\psi} - \mathbf{J}_{\psi\lambda} \mathbf{J}_{\lambda\lambda}^{-1} \mathbf{J}_{\lambda\psi}$:
 
 $$
@@ -958,6 +1072,7 @@ $$
 where we define the projection operator $\mathbf{K} = \mathbf{J}_{\psi\lambda} \mathbf{J}_{\lambda\lambda}^{-1}$ for brevity.
 
 2. Algebraic Expansion
+
 Expand the quadratic form $\mathbf{U}^T \mathbf{J}^{-1} \mathbf{U}$ using these blocks:
 $$
 \begin{aligned}
@@ -966,12 +1081,14 @@ $$
 $$
 
 3. Regrouping
+
 Separate the term that does not involve $S^{-1}$:
 $$
 \mathbf{U}^T \mathbf{J}^{-1} \mathbf{U} = \mathbf{U}_{\lambda}^T \mathbf{J}_{\lambda\lambda}^{-1} \mathbf{U}_{\lambda} + \left[ \mathbf{U}_{\psi}^T S^{-1} \mathbf{U}_{\psi} - 2\mathbf{U}_{\psi}^T S^{-1} \mathbf{K} \mathbf{U}_{\lambda} + \mathbf{U}_{\lambda}^T \mathbf{K}^T S^{-1} \mathbf{K} \mathbf{U}_{\lambda} \right]
 $$
 
 4. Completing the Square
+
 The term in the brackets is a perfect quadratic form $(\mathbf{a} - \mathbf{b})^T S^{-1} (\mathbf{a} - \mathbf{b})$:
 $$
 \left[ \dots \right] = (\mathbf{U}_{\psi} - \mathbf{K} \mathbf{U}_{\lambda})^T S^{-1} (\mathbf{U}_{\psi} - \mathbf{K} \mathbf{U}_{\lambda})
@@ -1002,7 +1119,10 @@ $$
 :::
 
 ::: {.proof}
-**Strategy:** We expand the quadratic approximation of the likelihood and partition the information matrix to isolate the contribution of the parameters of interest.
+
+**Overview of the proof:** 
+
+We expand the quadratic approximation of the likelihood and partition the information matrix to isolate the contribution of the parameters of interest.
 
 1.  **Quadratic Approximation**
 
@@ -1056,6 +1176,80 @@ $$
 
 :::
 
+## The Newton-Raphson Algorithm
+
+When the score equation $\mathbf{U}(\boldsymbol{\theta}) = \mathbf{0}$ does not have a closed-form solution, we must rely on iterative numerical methods to find the Maximum Likelihood Estimator. The Newton-Raphson algorithm is the most common approach, utilizing the curvature of the log-likelihood surface to guide the search for the maximum.
+
+
+### Newton-Raphson Iteration
+
+::: {.algorithm}
+
+Starting from an initial guess $\boldsymbol{\theta}^{(0)}$, the algorithm updates the estimate of the parameter vector at each step $t$ using the following recurrence relation:
+
+$$
+\boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} + \left[ \mathbf{J}(\boldsymbol{\theta}^{(t)}) \right]^{-1} \mathbf{U}(\boldsymbol{\theta}^{(t)})
+$$
+
+where:
+
+1. **$\mathbf{U}(\boldsymbol{\theta}^{(t)})$** is the score vector (gradient) evaluated at the current estimate.
+
+2. **$\mathbf{J}(\boldsymbol{\theta}^{(t)})$** is the **Observed Fisher Information Matrix**, defined as the negative Hessian of the log-likelihood:
+   
+   $$
+   \mathbf{J}(\boldsymbol{\theta}) = - \nabla^2 \ell(\boldsymbol{\theta}) = - \frac{\partial^2 \ell(\boldsymbol{\theta})}{\partial \boldsymbol{\theta} \partial \boldsymbol{\theta}^T}
+   $$
+
+:::
+
+
+::: proof
+### Derivation via Taylor Expansion
+
+The algorithm is derived by approximating the score function $\mathbf{U}(\boldsymbol{\theta})$ with a first-order Taylor expansion around the current estimate $\boldsymbol{\theta}^{(t)}$:
+
+1. **Linear Approximation** \n
+   We approximate the score at the next step as:
+   
+   $$
+   \mathbf{U}(\boldsymbol{\theta}^{(t+1)}) \approx \mathbf{U}(\boldsymbol{\theta}^{(t)}) + \nabla \mathbf{U}(\boldsymbol{\theta}^{(t)}) (\boldsymbol{\theta}^{(t+1)} - \boldsymbol{\theta}^{(t)})
+   $$
+
+2. **Setting to Zero** \n
+   Since we want to find the root where $\mathbf{U}(\hat{\boldsymbol{\theta}}) = \mathbf{0}$, we set the left side to zero:
+   
+   $$
+   \mathbf{0} = \mathbf{U}(\boldsymbol{\theta}^{(t)}) - \mathbf{J}(\boldsymbol{\theta}^{(t)}) (\boldsymbol{\theta}^{(t+1)} - \boldsymbol{\theta}^{(t)})
+   $$
+   
+   Note that $\nabla \mathbf{U}(\boldsymbol{\theta}) = \nabla^2 \ell(\boldsymbol{\theta}) = -\mathbf{J}(\boldsymbol{\theta})$.
+
+3. **Solving for the Update** \n
+   Rearranging the terms gives the update rule:
+   
+   $$
+   \mathbf{J}(\boldsymbol{\theta}^{(t)}) (\boldsymbol{\theta}^{(t+1)} - \boldsymbol{\theta}^{(t)}) = \mathbf{U}(\boldsymbol{\theta}^{(t)})
+   $$
+   
+   $$
+   \boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} + \mathbf{J}(\boldsymbol{\theta}^{(t)})^{-1} \mathbf{U}(\boldsymbol{\theta}^{(t)})
+   $$
+:::
+
+
+
+
+### Fisher Scoring
+
+The Newton-Raphson algorithm specifically uses the **Observed Information** $\mathbf{J}(\boldsymbol{\theta})$. If the expected Fisher Information $\mathbf{I}(\boldsymbol{\theta}) = E[\mathbf{J}(\boldsymbol{\theta})]$ is used instead, the method is known as **Fisher Scoring**.
+
+1. **Convergence Speed** \n
+   Newton-Raphson typically achieves quadratic convergence near the maximum, making it very fast when the initial guess is good.
+
+2. **Stability** \n
+   Because $\mathbf{J}(\boldsymbol{\theta})$ depends on the specific data observed, it can occasionally be non-positive definite in regions far from the MLE, which may cause the algorithm to diverge. Fisher Scoring is often more stable in these cases because $\mathbf{I}(\boldsymbol{\theta})$ is always positive semi-definite for regular families.
+
 ## Examples
 
 ### Simple Normal Distributions
@@ -1064,55 +1258,59 @@ $$
 Let $X_1, \dots, X_n \overset{iid}{\sim} N(\mu, \sigma^2)$ where $\sigma^2$ is known. We test $H_0: \mu = \mu_0$ vs $H_1: \mu \ne \mu_0$.
 
 1. Log-Likelihood and Derivatives
-The log-likelihood function for the mean $\mu$ is:
-$$
-l(\mu) = -\frac{n}{2}\log(2\pi\sigma^2) - \frac{1}{2\sigma^2}\sum_{i=1}^n (x_i - \mu)^2
-$$
 
-* **Score Function (First Derivative):**
+    The log-likelihood function for the mean $\mu$ is:
     $$
-    l'(\mu) = \frac{d}{d\mu} \left[ -\frac{1}{2\sigma^2}\sum (x_i - \mu)^2 \right] = \frac{1}{\sigma^2}\sum (x_i - \mu) = \frac{n}{\sigma^2}(\bar{x} - \mu)
+    l(\mu) = -\frac{n}{2}\log(2\pi\sigma^2) - \frac{1}{2\sigma^2}\sum_{i=1}^n (x_i - \mu)^2
     $$
-    Setting $l'(\mu) = 0$ yields the MLE: **$\hat{\mu} = \bar{x}$**.
 
-* **Observed Information (Second Derivative):**
-    $$
-    l''(\mu) = \frac{d}{d\mu} \left[ \frac{n}{\sigma^2}(\bar{x} - \mu) \right] = -\frac{n}{\sigma^2}
-    $$
-    Note that in this specific case, the curvature is constant and does not depend on data. The **Fisher Information** (for sample size $n$) is:
-    $$
-    \mathcal{I}_n = -E[l''(\mu)] = \frac{n}{\sigma^2}
-    $$
+    * **Score Function (First Derivative):**
+        $$
+        l'(\mu) = \frac{d}{d\mu} \left[ -\frac{1}{2\sigma^2}\sum (x_i - \mu)^2 \right] = \frac{1}{\sigma^2}\sum (x_i - \mu) = \frac{n}{\sigma^2}(\bar{x} - \mu)
+        $$
+        Setting $l'(\mu) = 0$ yields the MLE: **$\hat{\mu} = \bar{x}$**.
+
+    * **Observed Information (Second Derivative):**
+        $$
+        l''(\mu) = \frac{d}{d\mu} \left[ \frac{n}{\sigma^2}(\bar{x} - \mu) \right] = -\frac{n}{\sigma^2}
+        $$
+        Note that in this specific case, the curvature is constant and does not depend on data. The **Fisher Information** (for sample size $n$) is:
+        $$
+        I_n = -E[l''(\mu)] = \frac{n}{\sigma^2}
+        $$
 
 2. Taylor Approximation of Deviance
-We expand the log-likelihood $l(\mu_0)$ around the MLE $\hat{\mu}$.
-$$
-l(\mu_0) \approx l(\hat{\mu}) + (\mu_0 - \hat{\mu})\underbrace{l'(\hat{\mu})}_{0} + \frac{1}{2}(\mu_0 - \hat{\mu})^2 l''(\hat{\mu})
-$$
-Rearranging for the Deviance $D = 2[l(\hat{\mu}) - l(\mu_0)]$ and substituting the specific expression for $l''(\hat{\mu}) = -n/\sigma^2$:
 
-$$
-\begin{aligned}
-D &\approx -(\mu_0 - \hat{\mu})^2 l''(\hat{\mu}) \\
-  &= -(\hat{\mu} - \mu_0)^2 \left( -\frac{n}{\sigma^2} \right) \\
-  &= \frac{n}{\sigma^2} (\hat{\mu} - \mu_0)^2 \\
-  &= \left( \frac{\hat{\mu} - \mu_0}{\sigma/\sqrt{n}} \right)^2
-\end{aligned}
-$$
+    We expand the log-likelihood $l(\mu_0)$ around the MLE $\hat{\mu}$.
+    $$
+    l(\mu_0) \approx l(\hat{\mu}) + (\mu_0 - \hat{\mu})\underbrace{l'(\hat{\mu})}_{0} + \frac{1}{2}(\mu_0 - \hat{\mu})^2 l''(\hat{\mu})
+    $$
+    Rearranging for the Deviance $D = 2[l(\hat{\mu}) - l(\mu_0)]$ and substituting the specific expression for $l''(\hat{\mu}) = -n/\sigma^2$:
+
+    $$
+    \begin{aligned}
+    D &\approx -(\mu_0 - \hat{\mu})^2 l''(\hat{\mu}) \\
+    &= -(\hat{\mu} - \mu_0)^2 \left( -\frac{n}{\sigma^2} \right) \\
+    &= \frac{n}{\sigma^2} (\hat{\mu} - \mu_0)^2 \\
+    &= \left( \frac{\hat{\mu} - \mu_0}{\sigma/\sqrt{n}} \right)^2
+    \end{aligned}
+    $$
 
 3. Conclusion
-The term inside the square is exactly the Z-score for the sample mean:
-$$
-Z = \frac{\bar{x} - \mu_0}{\sigma/\sqrt{n}} \sim N(0, 1)
-$$
-Therefore, the Deviance is the square of a standard normal variable:
-$$
-D = Z^2 \sim \chi^2_1
-$$
-In this Normal example, the "approximation" is actually exact because the log-likelihood is perfectly quadratic (the third derivative is zero).
+
+    The term inside the square is exactly the Z-score for the sample mean:
+    $$
+    Z = \frac{\bar{x} - \mu_0}{\sigma/\sqrt{n}} \sim N(0, 1)
+    $$
+    Therefore, the Deviance is the square of a standard normal variable:
+    $$
+    D = Z^2 \sim \chi^2_1
+    $$
+    In this Normal example, the "approximation" is actually exact because the log-likelihood is perfectly quadratic (the third derivative is zero).
 
 4. Simulation Verification
-We simulate 2000 datasets ($n=50$) to verify that the standardized MLE and Score follow a Normal distribution, and the Deviance follows a $\chi^2_1$ distribution.
+
+    We simulate 2000 datasets ($n=50$) to verify that the standardized MLE and Score follow a Normal distribution, and the Deviance follows a $\chi^2_1$ distribution.
 
 ```{r}
 #| label: fig-normal-sim
@@ -1176,91 +1374,396 @@ curve(dchisq(x, df = 1), add = TRUE, col = "darkgreen", lwd = 2)
 ```
 :::
 
-### Poisson Regression
+## Poisson Regression (Canonical Exponential Family)
 
 ::: {#exm-poisson-glm}
-Consider a GLM where $Y_i \sim \text{Poisson}(\lambda_i)$ and $\log(\lambda_i) = \mathbf{x}_i^\top \boldsymbol{\beta}$.
-The log-likelihood is:
-$$ \ell(\boldsymbol{\beta}) = \sum_{i=1}^n \left( y_i \mathbf{x}_i^\top \boldsymbol{\beta} - e^{\mathbf{x}_i^\top \boldsymbol{\beta}} - \log(y_i!) \right) $$
+Consider a GLM where $Y_i \sim \text{Poisson}(\lambda_i)$. We use the canonical link $\log(\lambda_i(\boldsymbol{\beta})) = \mathbf{x}_i^\top \boldsymbol{\beta}$, which implies the mean function is $\lambda_i(\boldsymbol{\beta}) = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})$.
 
-1. Asymptotic Theory
+1.  **Exponential Family Representation**
+    We rewrite the total log-likelihood by grouping terms associated with each $\beta_j$:
+    
+    $$
+    \begin{aligned}
+    \ell(\boldsymbol{\beta}) &= \sum_{i=1}^n \left( y_i (\mathbf{x}_i^\top \boldsymbol{\beta}) - \lambda_i(\boldsymbol{\beta}) - \log(y_i!) \right) \\
+    &= \sum_{i=1}^n \sum_{j=0}^p y_i x_{ij} \beta_j - \sum_{i=1}^n \exp(\mathbf{x}_i^\top \boldsymbol{\beta}) - \sum_{i=1}^n \log(y_i!) \\
+    &= \sum_{j=0}^p \beta_j \underbrace{\left( \sum_{i=1}^n y_i x_{ij} \right)}_{T_j(\mathbf{y})} - \underbrace{\sum_{i=1}^n \lambda_i(\boldsymbol{\beta})}_{A(\boldsymbol{\beta})} + \text{const}
+    \end{aligned}
+    $$
 
-* **Score Normality:** The Score vector $\mathbf{U}(\boldsymbol{\beta}) = \mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda})$ is a sum of independent zero-mean vectors. By the Multivariate CLT:
-    $$ \frac{1}{\sqrt{n}}\mathbf{U}(\boldsymbol{\beta}) \xrightarrow{d} N(\mathbf{0}, \mathcal{I}) $$
+    This is a multivariate exponential family in **canonical form** where:
+    * **Natural Parameters:** The regression coefficients $\boldsymbol{\beta} = (\beta_0, \dots, \beta_p)^\top$.
+    * **Sufficient Statistics:** $\mathbf{T}(\mathbf{y}) = \mathbf{X}^\top \mathbf{y}$.
+    * **Log-Partition Function:** $A(\boldsymbol{\beta}) = \sum_{i=1}^n \lambda_i(\boldsymbol{\beta})$.
 
-* **MLE Normality:** By linear approximation $\mathbf{U}(\hat{\boldsymbol{\beta}}) \approx \mathbf{U}(\boldsymbol{\beta}) + \mathcal{J}(\boldsymbol{\beta})(\hat{\boldsymbol{\beta}} - \boldsymbol{\beta})$, the estimator converges as:
-    $$ \sqrt{n}(\hat{\boldsymbol{\beta}} - \boldsymbol{\beta}) \xrightarrow{d} N(\mathbf{0}, \mathcal{I}^{-1}) $$
+2.  **Derivations via Moments of Sufficient Statistics**
+    Since we are in canonical form, the Score and Information are simply the derivatives of the log-partition function $A(\boldsymbol{\beta})$.
 
-2. Simulation Verification
-We simulate a Poisson regression with an intercept and one continuous covariate ($p=2$). We test the distribution of the slope parameter $\beta_1$ and the overall Deviance.
+    * **Score Vector ($\mathbf{U}$):**
+        $$
+        \mathbf{U}(\boldsymbol{\beta}) = \mathbf{T}(\mathbf{y}) - \nabla A(\boldsymbol{\beta}) = \mathbf{X}^\top \mathbf{y} - \mathbf{X}^\top \boldsymbol{\lambda}(\boldsymbol{\beta}) = \mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda}(\boldsymbol{\beta}))
+        $$
+        where $\boldsymbol{\lambda}(\boldsymbol{\beta}) = (\lambda_1(\boldsymbol{\beta}), \dots, \lambda_n(\boldsymbol{\beta}))^\top$.
+
+    * **Fisher Information ($J$):**
+        The information is the Hessian of the log-partition function:
+        $$
+        J(\boldsymbol{\beta}) = \nabla^2 A(\boldsymbol{\beta}) = \mathbf{X}^\top \mathbf{W}(\boldsymbol{\beta}) \mathbf{X}
+        $$
+        where $\mathbf{W}(\boldsymbol{\beta}) = \text{diag}(\lambda_1(\boldsymbol{\beta}), \dots, \lambda_n(\boldsymbol{\beta}))$.
+
+3.  **Newton-Raphson Algorithm for Poisson MLE**
+    To find the MLE $\hat{\boldsymbol{\beta}}$, we iterate until convergence:
+    
+    $$
+    \boldsymbol{\beta}^{(t+1)} = \boldsymbol{\beta}^{(t)} + [J(\boldsymbol{\beta}^{(t)})]^{-1} \mathbf{U}(\boldsymbol{\beta}^{(t)})
+    $$
+    
+    Substituting the Poisson-specific forms:
+    
+    $$
+    \boldsymbol{\beta}^{(t+1)} = \boldsymbol{\beta}^{(t)} + (\mathbf{X}^\top \mathbf{W}(\boldsymbol{\beta}^{(t)}) \mathbf{X})^{-1} \mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda}(\boldsymbol{\beta}^{(t)}))
+    $$
+    
+    This specific iteration is also known as **Iteratively Reweighted Least Squares (IRLS)**.
+:::
+
+
 
 ```{r}
-#| label: fig-poisson-sim
-#| fig-cap: "Simulation of Poisson Regression (n=200, 2000 replicates). Left: The standardized MLE for the slope. Center: The standardized Score for the slope. Right: The Deviance for the full vector behaves as Chi-squared with p=2 degrees of freedom."
-#| warning: false
+#| label: fig-poisson-nr-and-fit
+#| fig-cap: "Left: Newton-Raphson path on the log-likelihood surface. Right: Observed data with the true and estimated mean functions."
+#| echo: false
 #| message: false
+#| warning: false
+#| fig-width: 10
+#| fig-height: 5
+#| dpi: 300
+
+library(latex2exp)
+
+# 1. Data Generation
+set.seed(42)
+n <- 50
+beta_true <- c(0.5, 1.5)
+x_vals <- runif(n, -1, 1)
+X_mat <- cbind(1, x_vals)
+y_obs <- rpois(n, lambda = exp(X_mat %*% beta_true))
+
+# 2. Log-Likelihood Function for Contours
+log_lik <- function(b0, b1) {
+  eta <- b0 + b1 * x_vals
+  sum(y_obs * eta - exp(eta))
+}
+
+# 3. Newton-Raphson Implementation
+b_curr <- c(2, 3) # Initial guess
+path <- matrix(NA, nrow = 10, ncol = 2)
+path[1, ] <- b_curr
+
+for (t in 2:10) {
+  lambda <- as.vector(exp(X_mat %*% b_curr))
+  W <- diag(lambda)
+  U <- t(X_mat) %*% (y_obs - lambda)
+  J <- t(X_mat) %*% W %*% X_mat
+  
+  b_new <- b_curr + solve(J) %*% U
+  path[t, ] <- b_new
+  b_curr <- b_new
+}
+path <- na.omit(path)
+beta_mle <- path[nrow(path), ]
+
+# --- Plotting Side-by-Side ---
+par(mfrow = c(1, 2))
+
+
+# Plot B: Data and Fitted Curves
+plot(x_vals, y_obs, pch = 21, bg = "gray80", col = "gray50",
+     xlab = "x", ylab = "y", main = "Poisson Regression Fit")
+
+# Generate smooth lines for lambda
+x_smooth <- seq(-1, 1, length.out = 100)
+lambda_true <- exp(beta_true[1] + beta_true[2] * x_smooth)
+lambda_mle  <- exp(beta_mle[1] + beta_mle[2] * x_smooth)
+
+lines(x_smooth, lambda_true, col = "blue", lwd = 2, lty = 2)
+lines(x_smooth, lambda_mle, col = "red", lwd = 2)
+
+legend("topleft", legend = c("True Mean", "MLE Mean", "Observed Data"),
+       col = c("blue", "red", "gray50"), lty = c(2, 1, NA), 
+       pch = c(NA, NA, 21), pt.bg = "gray80", bty = "n", cex = 0.8)
+
+# Plot A: NR Optimization Path
+b0_grid <- seq(-0.5, 2.5, length.out = 50)
+b1_grid <- seq(0.5, 3.5, length.out = 50)
+z_vals <- outer(b0_grid, b1_grid, Vectorize(log_lik))
+
+contour(b0_grid, b1_grid, z_vals, nlevels = 20, 
+        xlab = TeX("$\\beta_0$"), ylab = TeX("$\\beta_1$"),
+        main = "Newton-Raphson Path")
+lines(path[,1], path[,2], type = "b", col = "red", pch = 19, lwd = 1.5)
+points(beta_true[1], beta_true[2], col = "blue", pch = 4, lwd = 2, cex = 1.2)
+legend("topright", legend = c("NR Path", "True Beta"), 
+       col = c("red", "blue"), pch = c(19, 4), bty = "n", cex = 0.8)
+
+```
+
+
+
+```{r}
+#| label: fig-poisson-sim-asymptotics
+#| fig-cap: "Asymptotic distributions of MLE, Score, and Deviance."
+#| echo: false
+#| warning: false
 
 set.seed(42)
 n_sim <- 2000
 n <- 200
-beta_true <- c(0.5, 1.5) # Intercept, Slope
-
-# Fixed covariate matrix
-x <- runif(n, 0, 1)
-X_mat <- cbind(1, x)
-
-# Expected Fisher Info at Truth
+beta_true <- c(0.5, 1.5)
+x_cov <- runif(n, 0, 1)
+X_mat <- cbind(1, x_cov)
 lambda_true <- exp(X_mat %*% beta_true)
-W <- diag(as.vector(lambda_true))
-J_true <- t(X_mat) %*% W %*% X_mat # Total Info
+J_true <- t(X_mat) %*% diag(as.vector(lambda_true)) %*% X_mat
 inv_J <- solve(J_true)
 
-# Storage
-mle_slope_z <- numeric(n_sim)
-score_slope_z <- numeric(n_sim)
-deviance_vals <- numeric(n_sim)
+mle_z <- numeric(n_sim); score_z <- numeric(n_sim); deviance_vals <- numeric(n_sim)
 
 for(i in 1:n_sim) {
-  y <- rpois(n, lambda = lambda_true)
-  
-  # Fit Model
-  fit <- glm(y ~ x, family = poisson)
-  
-  # 1. MLE Standardization (Slope)
-  beta_hat <- coef(fit)
-  se_slope <- sqrt(inv_J[2,2]) # Theoretical SE
-  mle_slope_z[i] <- (beta_hat[2] - beta_true[2]) / se_slope
-  
-  # 2. Score Standardization (Slope component)
-  # U = X^T(y - lambda)
-  U <- t(X_mat) %*% (y - lambda_true)
-  se_score <- sqrt(J_true[2,2]) # Variance of Score is J (not inverse)
-  score_slope_z[i] <- U[2] / se_score
-  
-  # 3. Deviance (Likelihood Ratio vs Truth)
-  ll_hat <- as.numeric(logLik(fit))
-  ll_true <- sum(dpois(y, lambda = lambda_true, log = TRUE))
-  deviance_vals[i] <- 2 * (ll_hat - ll_true)
+  y_sim <- rpois(n, lambda = lambda_true)
+  fit <- glm(y_sim ~ x_cov, family = poisson)
+  mle_z[i] <- (coef(fit)[2] - beta_true[2]) / sqrt(inv_J[2,2])
+  U <- t(X_mat) %*% (y_sim - lambda_true)
+  score_z[i] <- U[2] / sqrt(J_true[2,2])
+  deviance_vals[i] <- 2 * (as.numeric(logLik(fit)) - sum(dpois(y_sim, lambda_true, log = TRUE)))
 }
 
-# --- Plotting ---
 par(mfrow = c(1, 3))
-
-# MLE Z-score
-hist(mle_slope_z, breaks = 20, freq = FALSE, col = "lightblue",
-     main = "Std. MLE (Slope)", xlab = "Z value")
-curve(dnorm(x), add = TRUE, col = "red", lwd = 2)
-
-# Score Z-score
-hist(score_slope_z, breaks = 20, freq = FALSE, col = "lightgreen",
-     main = "Std. Score (Slope)", xlab = "Z value")
-curve(dnorm(x), add = TRUE, col = "blue", lwd = 2)
-
-# Deviance (df = 2 parameters)
-hist(deviance_vals, breaks = 20, freq = FALSE, col = "lightpink",
-     main = "Deviance (p=2)", xlab = "D")
-curve(dchisq(x, df = 2), add = TRUE, col = "darkgreen", lwd = 2)
-
+hist(mle_z, breaks = 30, freq = FALSE, col = "lightblue", main = TeX("Std. $\\hat{\\beta}_1$"))
+curve(dnorm(x), add = TRUE, col = "red")
+hist(score_z, breaks = 30, freq = FALSE, col = "lightgreen", main = TeX("Std. $U_1$"))
+curve(dnorm(x), add = TRUE, col = "blue")
+hist(deviance_vals, breaks = 30, freq = FALSE, col = "lightpink", main = "Deviance")
+curve(dchisq(x, df = 2), add = TRUE, col = "darkgreen")
 ```
 
+### Derivation of Score and Information in Poisson Regression {.unnumbered}
+
+:::: {.example}
+
+In a Poisson Generalized Linear Model with a canonical link, the mean is modeled as $\lambda_i(\boldsymbol{\beta}) = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})$. The derivation of the Score vector and the Fisher Information matrix relies on the chain rule and the properties of the exponential function.
+
+### Derivation of the Score Vector $\mathbf{U}(\boldsymbol{\beta})$
+
+The Score vector is defined as the gradient of the log-likelihood with respect to the parameter vector $\boldsymbol{\beta}$.
+
+
+1. **Differentiate the Log-Likelihood** \n
+   Starting from the log-likelihood function:
+   $$
+   \ell(\boldsymbol{\beta}) = \sum_{i=1}^n \left( y_i (\mathbf{x}_i^\top \boldsymbol{\beta}) - \exp(\mathbf{x}_i^\top \boldsymbol{\beta}) - \log(y_i!) \right)
+   $$
+   We take the partial derivative with respect to a single component $\beta_j$:
+   $$
+   \frac{\partial \ell}{\partial \beta_j} = \sum_{i=1}^n \left( y_i \frac{\partial (\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} - \frac{\partial \exp(\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} \right)
+   $$
+
+2. **Apply the Chain Rule** \n
+   Note that $\frac{\partial (\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} = x_{ij}$. Using the chain rule on the exponential term:
+   $$
+   \frac{\partial \exp(\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} = \exp(\mathbf{x}_i^\top \boldsymbol{\beta}) \cdot x_{ij} = \lambda_i(\boldsymbol{\beta}) x_{ij}
+   $$
+
+3. **Form the Vector** \n
+   Substituting these back, we get:
+   $$
+   \frac{\partial \ell}{\partial \beta_j} = \sum_{i=1}^n (y_i - \lambda_i(\boldsymbol{\beta})) x_{ij}
+   $$
+   In matrix notation, this corresponds to:
+   $$
+   \mathbf{U}(\boldsymbol{\beta}) = \mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda}(\boldsymbol{\beta}))
+   $$
+
+
+
+
+### Derivation of the Observed Fisher Information $J(\boldsymbol{\beta})$
+
+The Observed Information is the negative Hessian matrix of the log-likelihood.
+
+
+1. **Differentiate the Score** \n
+   We take the derivative of the $j$-th component of the score, $U_j = \sum_{i=1}^n (y_i - \lambda_i(\boldsymbol{\beta})) x_{ij}$, with respect to $\beta_k$:
+   $$
+   \frac{\partial^2 \ell}{\partial \beta_j \partial \beta_k} = \frac{\partial}{\partial \beta_k} \sum_{i=1}^n (y_i - \lambda_i(\boldsymbol{\beta})) x_{ij} = \sum_{i=1}^n \left( -\frac{\partial \lambda_i(\boldsymbol{\beta})}{\partial \beta_k} \right) x_{ij}
+   $$
+
+2. **Differentiate the Mean Function** \n
+   Recall $\lambda_i(\boldsymbol{\beta}) = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})$. Its derivative with respect to $\beta_k$ is:
+   $$
+   \frac{\partial \lambda_i(\boldsymbol{\beta})}{\partial \beta_k} = \lambda_i(\boldsymbol{\beta}) x_{ik}
+   $$
+
+3. **Construct the Information Matrix** \n
+   The $(j, k)$ element of the Hessian is:
+   $$
+   H_{jk} = -\sum_{i=1}^n \lambda_i(\boldsymbol{\beta}) x_{ij} x_{ik}
+   $$
+   The Observed Information $J(\boldsymbol{\beta}) = -H$ is therefore:
+   $$
+   J(\boldsymbol{\beta})_{jk} = \sum_{i=1}^n \lambda_i(\boldsymbol{\beta}) x_{ij} x_{ik}
+   $$
+   In matrix form, let $\mathbf{W}(\boldsymbol{\beta})$ be a diagonal matrix where $W_{ii} = \lambda_i(\boldsymbol{\beta})$. Then:
+   $$
+   J(\boldsymbol{\beta}) = \mathbf{X}^\top \mathbf{W}(\boldsymbol{\beta}) \mathbf{X}
+   $$
+
+
+
+
+::: {#rem-canonical-simplicity}
+### Canonical Link Advantage
+Notice that because we used the canonical link ($\log \lambda = \eta$), the second derivative of the log-likelihood (the Hessian) does not depend on the observed data $y_i$. It only depends on the predicted means $\lambda_i(\boldsymbol{\beta})$. Consequently, the **Observed Information** and the **Expected Information** are identical:
+$$
+J(\boldsymbol{\beta}) = I(\boldsymbol{\beta})
+$$
+This is a unique property of canonical links in Generalized Linear Models.
+:::
+
+::::
+
+## MLE and Penalized Likelihood in Deep Learning
+
+In deep learning, the objective function is typically the negative log-likelihood of the dataset, often supplemented by a penalty term (regularization) to prevent overfitting. While the theoretical foundations of Maximum Likelihood Estimation remain the same, the practical application in high-dimensional neural networks faces significant computational challenges that necessitate specialized optimization strategies.
+
+### The Optimization Challenge
+
+In traditional statistical models, $\ell(\boldsymbol{\theta})$ is often globally concave, allowing algorithms like Newton-Raphson to converge reliably. Deep learning models, however, present a different landscape:
+
+1. **Non-convexity** \n
+   The log-likelihood surface $\ell(\boldsymbol{\theta})$ is highly non-convex with numerous local minima, saddle points, and plateaus.
+   
+   
+2. **High Dimensionality** \n
+   The parameter vector $\boldsymbol{\theta}$ can contain millions or billions of weights ($p \gg 10^6$). This makes the storage and inversion of the Observed Information Matrix $\mathbf{J}(\boldsymbol{\theta})$ (the $p \times p$ Hessian) computationally intractable, as its storage requires $O(p^2)$ memory.
+
+### Penalized Likelihood (Regularization)
+
+To improve generalization, we often optimize a **penalized log-likelihood**:
+
+$$
+\ell_{pen}(\boldsymbol{\theta}) = \ell(\boldsymbol{\beta}) - \Omega(\boldsymbol{\theta})
+$$
+
+where $\Omega(\boldsymbol{\theta})$ is a penalty function. Common examples include:
+
+1. **$L_2$ Regularization (Weight Decay):** $\Omega(\boldsymbol{\theta}) = \frac{\lambda}{2} \|\boldsymbol{\theta}\|^2$, which corresponds to a Gaussian prior in a Bayesian framework.
+2. **$L_1$ Regularization (Lasso):** $\Omega(\boldsymbol{\theta}) = \lambda \|\boldsymbol{\theta}\|_1$, which encourages sparsity in the network weights.
+
+### Purely Gradient-Based Methods (O(p) Complexity)
+
+Because the Hessian is too large to compute, the most common approach is to use methods that only require the Score vector $\mathbf{U}(\boldsymbol{\theta})$. These methods have a memory complexity of $O(p)$, making them feasible for large-scale problems.
+
+1. **Stochastic Gradient Descent (SGD)** \n
+   Instead of the full score, SGD uses a "mini-batch" estimate $\mathbf{U}_{batch}$. The update is:
+   $$
+   \boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} + \alpha \mathbf{U}_{batch}(\boldsymbol{\theta}^{(t)})
+   $$
+   While simple, SGD treats all dimensions equally, which is inefficient if the likelihood surface is much steeper in some directions than others.
+
+2. **Momentum-Based Methods** \n
+   These maintain a moving average of past scores to dampen oscillations and accelerate progress in consistent directions, effectively acting as a low-pass filter on the noisy stochastic gradients.
+
+### Avoiding the Hessian via Score Covariance
+
+Modern optimizers leverage the **Second Moment Identity** (Bartlett's Identity) to capture curvature information without the $O(p^2)$ cost of the Hessian.
+
+::: {#thm-fisher-approximation}
+
+### Fisher Information Approximation and the Empirical Fisher
+
+In the context of high-dimensional optimization, the identity $\mathbf{I}(\boldsymbol{\theta}) = \text{Cov}_{\boldsymbol{\theta}_0}(\mathbf{U}) = E_{\boldsymbol{\theta}_0}[\mathbf{J}]$ is not just a theoretical curiosity, but a computational lifeline. 
+
+1. **Justification via the Second Moment** \n
+   Recall that for the score vector $\mathbf{U}$, we have $E_{\boldsymbol{\theta}_0}[\mathbf{U}] = \mathbf{0}$. Therefore, the covariance matrix simplifies to the second moment:
+   
+   $$
+   \text{Cov}(\mathbf{U}) = E_{\boldsymbol{\theta}_0}[\mathbf{U}\mathbf{U}^\top] - E_{\boldsymbol{\theta}_0}[\mathbf{U}]E_{\boldsymbol{\theta}_0}[\mathbf{U}]^\top = E_{\boldsymbol{\theta}_0}[\mathbf{U}\mathbf{U}^\top]
+   $$
+   
+   Under Bartlett's Second Identity, this expectation is exactly equal to the expected Observed Information (the expected negative Hessian), $E_{\boldsymbol{\theta}_0}[\mathbf{J}]$.
+
+2. **The Empirical Fisher Estimate** \n
+   In deep learning, we cannot compute the expectation over all possible data. Instead, we use the **Empirical Fisher Information Matrix** ($\hat{\mathbf{I}}$), which replaces the population expectation with the sample average across $n$ observations:
+   
+   $$
+   \hat{\mathbf{I}} = \frac{1}{n} \sum_{i=1}^n \left( \nabla_{\boldsymbol{\theta}} \log f(y_i | \boldsymbol{\theta}) \right) \left( \nabla_{\boldsymbol{\theta}} \log f(y_i | \boldsymbol{\theta}) \right)^\top
+   $$
+   
+   This estimate is constructed solely from **first-order gradients** (the score for each data point).
+
+3. **Handling High Dimensionality ($p$)** \n
+   Since $\hat{\mathbf{I}}$ is a $p \times p$ matrix, storing it is $O(p^2)$. For a model with 1 million parameters, the matrix would have $10^{12}$ elements. To handle this, deep learning optimizers typically use the **Diagonal Empirical Fisher**:
+   
+   $$
+   \text{diag}(\hat{\mathbf{I}}) = \frac{1}{n} \sum_{i=1}^n [ \mathbf{U}_i \odot \mathbf{U}_i ]
+   $$
+   
+   where $\odot$ is the Hadamard (element-wise) product. This reduces the complexity to $O(p)$.
+
+4. **Why use the Score Covariance instead of the Hessian?** \n
+   Computing the diagonal of the Hessian $\mathbf{J}$ directly (the second derivatives $\frac{\partial^2 \ell}{\partial \theta_j^2}$) is significantly more expensive than computing the gradient. Most deep learning frameworks are optimized for "backpropagation" (first derivatives). By using the squared gradients to approximate the diagonal of the Hessian, we get "second-order-like" curvature information for the price of first-order computation.
+:::
+
+
+
+::: {#rem-empirical-fisher-caveat}
+### A Note on the Approximation
+While $\text{Cov}(\mathbf{U}) = E[\mathbf{J}]$ holds at the true parameter $\boldsymbol{\theta}_0$, it may not hold perfectly during the early stages of training when $\boldsymbol{\theta}$ is far from the truth. In these regions, the empirical Fisher is technically an approximation of the *variability* of the gradients, which often serves as a robust proxy for the *sensitivity* (curvature) of the loss surface.
+:::
+
+### Adaptive Methods: Diagonal Covariance Scaling
+
+Algorithms like **RMSProp** and **Adam** avoid the $p \times p$ matrix entirely by assuming the Fisher Information is approximately diagonal. This reduces the memory cost back to $O(p)$.
+
+1. **RMSProp** \n
+   It maintains a running average of the squared scores for each parameter $j$:
+   $$
+   v_j^{(t)} = \gamma v_j^{(t-1)} + (1-\gamma) (U_j^{(t)})^2
+   $$
+   Since $(U_j)^2$ is a stochastic estimate of the variance $\text{Var}(U_j) = I_{jj}$, the term $\sqrt{v_j}$ approximates the local curvature (sensitivity) along that coordinate.
+
+2. **Adam (Adaptive Moment Estimation)** \n
+   Adam combines the concepts of momentum and RMSProp by maintaining moving averages of both the first and second moments of the score vector. It scales the update by the inverse square root of the estimated variance:
+   
+   $$
+   \theta_j^{(t+1)} = \theta_j^{(t)} + \alpha \frac{\hat{m}_j}{\sqrt{\hat{v}_j} + \epsilon}
+   $$
+   
+   Here, the terms $m_j$ and $v_j$ are defined as:
+   
+   * **The First Moment ($m_j$):** An exponentially decaying average of the score $U_j$, which acts as momentum to smooth out noisy gradients:
+     $$
+     m_j^{(t)} = \beta_1 m_j^{(t-1)} + (1 - \beta_1) U_j^{(t)}
+     $$
+   
+   * **The Second Moment ($v_j$):** An exponentially decaying average of the squared score $(U_j)^2$:
+     $$
+     v_j^{(t)} = \beta_2 v_j^{(t-1)} + (1 - \beta_2) (U_j^{(t)})^2
+     $$
+     Following the logic of @thm-fisher-approximation, $v_j$ serves as an estimate of the diagonal of the Fisher Information Matrix ($I_{jj}$).
+   
+   * **Bias Correction:** Because $m$ and $v$ are typically initialized at zero, they are biased toward zero during the initial steps. Adam uses the bias-corrected estimates $\hat{m}_j = m_j / (1 - \beta_1^t)$ and $\hat{v}_j = v_j / (1 - \beta_2^t)$ for the final update.
+
+   This "preconditioning" flattens the likelihood surface by normalizing the step size for each parameter. Dimensions with high gradient variance (high $I_{jj}$) receive smaller updates, while dimensions with low variance receive larger updates, effectively performing a coordinate-wise Newton-Raphson step using the Score Covariance as a proxy for the Hessian.
+
+
+
+::: {#rem-adam-interpretation}
+### Adam as Quasi-Newton
+From a statistical perspective, Adam can be viewed as an approximation of the Fisher Scoring algorithm. Instead of calculating the full expected information matrix and its inverse, Adam uses the moving average of squared gradients to estimate the diagonal entries of the information matrix in an online fashion. This allows the algorithm to adapt to the local geometry of the log-likelihood surface at a minimal $O(p)$ computational cost.
+:::
+
+::: {#rem-natural-gradient}
+### Natural Gradient and K-FAC
+The most sophisticated application of this theory is **Natural Gradient Descent**. To handle large $p$, methods like **K-FAC (Kronecker-factored Approximate Curvature)** approximate the Fisher Information Matrix as a product of smaller matrices. This allows for a more "Hessian-like" update that accounts for correlations between parameters while remaining computationally efficient.
 :::
