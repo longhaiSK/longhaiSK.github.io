@@ -312,34 +312,45 @@ variance.
 #| echo: false
 #| fig-align: center
 #| fig-width: 7
-#| fig-height: 4
+#| fig-height: 5
+#| dpi: 300
 
-library(ggplot2)
+# Increase right margin for the legend
+par(mar = c(5, 5, 2, 8) + 0.1, xpd = TRUE)
 
-# Define the likelihood functions
-high_info <- function(x) 2.5 * exp(-4 * x^2)
-low_info  <- function(x) 1.5 * exp(-0.5 * x^2)
+# 1. Data
+x <- seq(-3, 3, length.out = 200)
+high_y <- 2.5 * exp(-4 * x^2)
+low_y  <- 1.5 * exp(-0.5 * x^2)
 
-ggplot() +
-  # High Information Curve (Blue, Narrow)
-  stat_function(fun = high_info, xlim = c(-3, 3), 
-                aes(color = "High I(theta)"), size = 1) +
-  # Low Information Curve (Red, Wide, Dashed)
-  stat_function(fun = low_info, xlim = c(-3, 3), 
-                aes(color = "Low I(theta)"), linetype = "dashed", size = 1) +
-  # MLE vertical line
-  geom_segment(aes(x = 0, y = 0, xend = 0, yend = 2.5), linetype = "dotted") +
-  # Customizing axes and labels
-  scale_color_manual(values = c("High I(theta)" = "blue", "Low I(theta)" = "red")) +
-  labs(x = expression(theta), y = expression(paste("Likelihood ", L(theta))), color = "") +
-  annotate("text", x = 0, y = -0.15, label = expression(hat(theta)[MLE])) +
-  theme_classic() +
-  theme(
-    legend.position = "right",
-    axis.line = element_line(arrow = grid::arrow(length = unit(0.3, "cm"), type = "closed"))
-  ) +
-  coord_cartesian(ylim = c(0, 3), expand = FALSE)
+# 2. Base Plot (No axes, no box)
+plot(x, high_y, type = "l", col = "blue", lwd = 2,
+     xlab = "", ylab = "", # We will place labels manually for better control
+     axes = FALSE, ylim = c(0, 2.7), xlim = c(-3, 3.5))
 
+lines(x, low_y, col = "red", lwd = 2, lty = 2)
+
+# 3. Draw Axis Lines with Arrows
+# x-axis
+arrows(x0 = -3, y0 = 0, x1 = 3.5, y1 = 0, length = 0.1, lwd = 1)
+# y-axis
+arrows(x0 = -3, y0 = 0, x1 = -3, y1 = 2.7, length = 0.1, lwd = 1)
+
+# 4. Vertical line for MLE
+segments(0, 0, 0, 2.5, lty = 3)
+
+# 5. Labels and Legend
+text(3.5, -0.15, expression(theta))
+text(-3.4, 2.7, expression(L(theta)), adj = 1)
+text(0, -0.2, expression(hat(theta)[MLE]))
+
+legend(x = 3.2, y = 1.5,
+       legend = c(expression(High ~ I(theta)), 
+                 expression(Low ~ I(theta))),
+       col = c("blue", "red"),
+       lty = c(1, 2),
+       lwd = 2,
+       bty = "n")
 ```
 
 ::: {#rem-crlb-generality}
