@@ -306,33 +306,41 @@ curvature of the log-likelihood (Fisher Information) and the variance of
 the estimator. A sharper peak implies higher information and lower
 variance.
 
-```{tikz}
-%| label: fig-fisher-info
-%| fig-cap: "Fisher Information: Curvature vs. Variance"
-%| echo: false
-%| fig-align: "center"
-%| out-extra: 'style="width: 80% !important;"'
-%| engine.opts:
-%|   extra.preamble: "\\usepackage{amssymb}"
+```{r}
+#| label: fig-fisher-info
+#| fig-cap: "Fisher Information: Curvature vs. Variance"
+#| echo: false
+#| fig-align: center
+#| fig-width: 7
+#| fig-height: 4
 
-\begin{tikzpicture}
-  \draw[->] (-3,0) -- (3,0) node[right] {$\theta$};
-  \draw[->] (0,0) -- (0,3) node[above] {Likelihood $L(\theta)$};
-  
-  % High Information (Narrow)
-  \draw[thick, blue] plot[domain=-1.5:1.5, samples=100] (\x, {2.5*exp(-4*\x*\x)});
-  \node[blue, right] at (1, 2) {High $I(\theta)$};
-  
-  % Low Information (Wide)
-  \draw[thick, red, dashed] plot[domain=-2.5:2.5, samples=100] (\x, {1.5*exp(-0.5*\x*\x)});
-  \node[red, right] at (1.8, 0.8) {Low $I(\theta)$};
+library(ggplot2)
 
-  \draw[dotted] (0,0) -- (0,2.5);
-  \node[below] at (0,0) {$\hat{\theta}_{MLE}$};
-\end{tikzpicture}
+# Define the likelihood functions
+high_info <- function(x) 2.5 * exp(-4 * x^2)
+low_info  <- function(x) 1.5 * exp(-0.5 * x^2)
+
+ggplot() +
+  # High Information Curve (Blue, Narrow)
+  stat_function(fun = high_info, xlim = c(-3, 3), 
+                aes(color = "High I(theta)"), size = 1) +
+  # Low Information Curve (Red, Wide, Dashed)
+  stat_function(fun = low_info, xlim = c(-3, 3), 
+                aes(color = "Low I(theta)"), linetype = "dashed", size = 1) +
+  # MLE vertical line
+  geom_segment(aes(x = 0, y = 0, xend = 0, yend = 2.5), linetype = "dotted") +
+  # Customizing axes and labels
+  scale_color_manual(values = c("High I(theta)" = "blue", "Low I(theta)" = "red")) +
+  labs(x = expression(theta), y = expression(paste("Likelihood ", L(theta))), color = "") +
+  annotate("text", x = 0, y = -0.15, label = expression(hat(theta)[MLE])) +
+  theme_classic() +
+  theme(
+    legend.position = "right",
+    axis.line = element_line(arrow = grid::arrow(length = unit(0.3, "cm"), type = "closed"))
+  ) +
+  coord_cartesian(ylim = c(0, 3), expand = FALSE)
 
 ```
-
 
 ::: {#rem-crlb-generality}
 
