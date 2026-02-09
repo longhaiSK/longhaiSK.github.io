@@ -1119,7 +1119,10 @@ $$
 :::
 
 ::: {.proof}
-**Strategy:** We expand the quadratic approximation of the likelihood and partition the information matrix to isolate the contribution of the parameters of interest.
+
+**Overview of the proof:** 
+
+We expand the quadratic approximation of the likelihood and partition the information matrix to isolate the contribution of the parameters of interest.
 
 1.  **Quadratic Approximation**
 
@@ -1177,9 +1180,11 @@ $$
 
 When the score equation $\mathbf{U}(\boldsymbol{\theta}) = \mathbf{0}$ does not have a closed-form solution, we must rely on iterative numerical methods to find the Maximum Likelihood Estimator. The Newton-Raphson algorithm is the most common approach, utilizing the curvature of the log-likelihood surface to guide the search for the maximum.
 
-::: {#def-newton-raphson}
+
 ### Newton-Raphson Iteration
 
+::: {#alg-newton-raphson}
+### Newton-Raphson Iteration
 Starting from an initial guess $\boldsymbol{\theta}^{(0)}$, the algorithm updates the estimate of the parameter vector at each step $t$ using the following recurrence relation:
 
 $$
@@ -1195,8 +1200,8 @@ where:
    $$
    \mathbf{J}(\boldsymbol{\theta}) = - \nabla^2 \ell(\boldsymbol{\theta}) = - \frac{\partial^2 \ell(\boldsymbol{\theta})}{\partial \boldsymbol{\theta} \partial \boldsymbol{\theta}^T}
    $$
-:::
 
+:::
 
 
 ::: proof
@@ -1234,8 +1239,8 @@ The algorithm is derived by approximating the score function $\mathbf{U}(\boldsy
 
 
 
-::: {#rem-observed-vs-expected}
-### Observed vs. Expected Information
+
+### Fisher Scoring
 
 The Newton-Raphson algorithm specifically uses the **Observed Information** $\mathbf{J}(\boldsymbol{\theta})$. If the expected Fisher Information $\mathbf{I}(\boldsymbol{\theta}) = E[\mathbf{J}(\boldsymbol{\theta})]$ is used instead, the method is known as **Fisher Scoring**.
 
@@ -1244,7 +1249,6 @@ The Newton-Raphson algorithm specifically uses the **Observed Information** $\ma
 
 2. **Stability** \n
    Because $\mathbf{J}(\boldsymbol{\theta})$ depends on the specific data observed, it can occasionally be non-positive definite in regions far from the MLE, which may cause the algorithm to diverge. Fisher Scoring is often more stable in these cases because $\mathbf{I}(\boldsymbol{\theta})$ is always positive semi-definite for regular families.
-:::
 
 ## Examples
 
@@ -1370,171 +1374,334 @@ curve(dchisq(x, df = 1), add = TRUE, col = "darkgreen", lwd = 2)
 ```
 :::
 
-### Poisson Regression (Canonical Exponential Family)
+## Poisson Regression (Canonical Exponential Family)
 
 ::: {#exm-poisson-glm}
-Consider a GLM where $Y_i \sim \text{Poisson}(\lambda_i)$. We use the canonical link $\log(\lambda_i) = \mathbf{x}_i^\top \boldsymbol{\beta}$.
+Consider a GLM where $Y_i \sim \text{Poisson}(\lambda_i)$. We use the canonical link $\log(\lambda_i(\boldsymbol{\beta})) = \mathbf{x}_i^\top \boldsymbol{\beta}$, which implies the mean function is $\lambda_i(\boldsymbol{\beta}) = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})$.
 
 1.  **Exponential Family Representation**
     We rewrite the total log-likelihood by grouping terms associated with each $\beta_j$:
     
     $$
     \begin{aligned}
-    \ell(\boldsymbol{\beta}) &= \sum_{i=1}^n \left( y_i (\mathbf{x}_i^\top \boldsymbol{\beta}) - e^{\mathbf{x}_i^\top \boldsymbol{\beta}} - \log(y_i!) \right) \\
-    &= \sum_{i=1}^n \sum_{j=0}^p y_i x_{ij} \beta_j - \sum_{i=1}^n e^{\mathbf{x}_i^\top \boldsymbol{\beta}} - \sum_{i=1}^n \log(y_i!) \\
-    &= \sum_{j=0}^p \beta_j \underbrace{\left( \sum_{i=1}^n y_i x_{ij} \right)}_{T_j(\mathbf{y})} - \underbrace{\sum_{i=1}^n e^{\mathbf{x}_i^\top \boldsymbol{\beta}}}_{A(\boldsymbol{\beta})} + \text{const}
+    \ell(\boldsymbol{\beta}) &= \sum_{i=1}^n \left( y_i (\mathbf{x}_i^\top \boldsymbol{\beta}) - \lambda_i(\boldsymbol{\beta}) - \log(y_i!) \right) \\
+    &= \sum_{i=1}^n \sum_{j=0}^p y_i x_{ij} \beta_j - \sum_{i=1}^n \exp(\mathbf{x}_i^\top \boldsymbol{\beta}) - \sum_{i=1}^n \log(y_i!) \\
+    &= \sum_{j=0}^p \beta_j \underbrace{\left( \sum_{i=1}^n y_i x_{ij} \right)}_{T_j(\mathbf{y})} - \underbrace{\sum_{i=1}^n \lambda_i(\boldsymbol{\beta})}_{A(\boldsymbol{\beta})} + \text{const}
     \end{aligned}
     $$
 
     This is a multivariate exponential family in **canonical form** where:
     * **Natural Parameters:** The regression coefficients $\boldsymbol{\beta} = (\beta_0, \dots, \beta_p)^\top$.
     * **Sufficient Statistics:** $\mathbf{T}(\mathbf{y}) = \mathbf{X}^\top \mathbf{y}$.
-    * **Log-Partition Function:** $A(\boldsymbol{\beta}) = \sum_{i=1}^n \exp(\mathbf{x}_i^\top \boldsymbol{\beta})$.
+    * **Log-Partition Function:** $A(\boldsymbol{\beta}) = \sum_{i=1}^n \lambda_i(\boldsymbol{\beta})$.
 
 2.  **Derivations via Moments of Sufficient Statistics**
     Since we are in canonical form, the Score and Information are simply the derivatives of the log-partition function $A(\boldsymbol{\beta})$.
 
     * **Score Vector ($\mathbf{U}$):**
-        The expectation of the sufficient statistic is $\nabla A(\boldsymbol{\beta})$. The score is the difference between observed and expected $T$:
         $$
-        \mathbf{U}(\boldsymbol{\beta}) = \mathbf{T}(\mathbf{y}) - \nabla A(\boldsymbol{\beta}) = \mathbf{X}^\top \mathbf{y} - \mathbf{X}^\top \boldsymbol{\lambda} = \mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda})
+        \mathbf{U}(\boldsymbol{\beta}) = \mathbf{T}(\mathbf{y}) - \nabla A(\boldsymbol{\beta}) = \mathbf{X}^\top \mathbf{y} - \mathbf{X}^\top \boldsymbol{\lambda}(\boldsymbol{\beta}) = \mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda}(\boldsymbol{\beta}))
         $$
-        *(where $\nabla A(\boldsymbol{\beta}) = \sum e^{\mathbf{x}_i^\top \boldsymbol{\beta}} \mathbf{x}_i = \sum \lambda_i \mathbf{x}_i = \mathbf{X}^\top \boldsymbol{\lambda}$)*.
+        where $\boldsymbol{\lambda}(\boldsymbol{\beta}) = (\lambda_1(\boldsymbol{\beta}), \dots, \lambda_n(\boldsymbol{\beta}))^\top$.
 
     * **Fisher Information ($J$):**
         The information is the Hessian of the log-partition function:
         $$
-        J(\boldsymbol{\beta}) = \nabla^2 A(\boldsymbol{\beta}) = \sum_{i=1}^n \frac{\partial}{\partial \boldsymbol{\beta}} (\lambda_i \mathbf{x}_i^\top) = \sum_{i=1}^n \lambda_i \mathbf{x}_i \mathbf{x}_i^\top = \mathbf{X}^\top \mathbf{W} \mathbf{X}
+        J(\boldsymbol{\beta}) = \nabla^2 A(\boldsymbol{\beta}) = \mathbf{X}^\top \mathbf{W}(\boldsymbol{\beta}) \mathbf{X}
         $$
-        where $\mathbf{W}$, in the context of Poisson regression, $\mathbf{W}$ is the diagonal matrix of the expected values (which are equal to the variances):
+        where $\mathbf{W}(\boldsymbol{\beta}) = \text{diag}(\lambda_1(\boldsymbol{\beta}), \dots, \lambda_n(\boldsymbol{\beta}))$.
 
-
-
-        $$
-        \mathbf{W} = \text{diag}(\lambda_1, \lambda_2, \dots, \lambda_n) = 
-        \begin{bmatrix}
-        \lambda_1 & 0 & \cdots & 0 \\
-        0 & \lambda_2 & \cdots & 0 \\
-        \vdots & \vdots & \ddots & \vdots \\
-        0 & 0 & \cdots & \lambda_n
-        \end{bmatrix}
-        $$
-        where $\lambda_i = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})$.
-
-        
-
-3.  **Asymptotic Theory**
-
-    * **Score Normality:** The Score vector is a sum of independent zero-mean random vectors. By the Multivariate CLT:
-        $$ \frac{1}{\sqrt{n}}\mathbf{U}(\boldsymbol{\beta}) \xrightarrow{d} N(\mathbf{0}, I) $$
-
-    * **MLE Normality:** By linear approximation $\mathbf{U}(\hat{\boldsymbol{\beta}}) \approx \mathbf{U}(\boldsymbol{\beta}) - J(\boldsymbol{\beta})(\hat{\boldsymbol{\beta}} - \boldsymbol{\beta})$, the estimator converges as:
-        $$ \sqrt{n}(\hat{\boldsymbol{\beta}} - \boldsymbol{\beta}) \xrightarrow{d} N(\mathbf{0}, I^{-1}) $$
-
-4.  **Simulation Verification**
-
-    We simulate a Poisson regression with an intercept and one continuous covariate ($p=2$). We verify that the MLE and Score follow their theoretical normal distributions derived from $A(\boldsymbol{\beta})$.
-
-
-
-```{r}
-#| label: fig-poisson-sim-nn
-#| fig-cap: "Simulation of Poisson Regression (n=200, 2000 replicates). Left: The standardized MLE for the slope. Center: The standardized Score for the slope. Right: The Deviance for the full vector behaves as Chi-squared with p=2 degrees of freedom."
-#| warning: false
-#| message: false
-
-set.seed(42)
-n_sim <- 2000
-n <- 200
-beta_true <- c(0.5, 1.5) # Intercept, Slope
-
-# Fixed covariate matrix
-x <- runif(n, 0, 1)
-X_mat <- cbind(1, x)
-
-# Expected Fisher Info at Truth (Using exponential family formula X^T W X)
-# Here Hessian of A(beta) = X^T W X
-lambda_true <- exp(X_mat %*% beta_true)
-W <- diag(as.vector(lambda_true))
-J_true <- t(X_mat) %*% W %*% X_mat # Total Info
-inv_J <- solve(J_true)
-
-# Storage
-mle_slope_z <- numeric(n_sim)
-score_slope_z <- numeric(n_sim)
-deviance_vals <- numeric(n_sim)
-
-for(i in 1:n_sim) {
-  y <- rpois(n, lambda = lambda_true)
-  
-  # Fit Model
-  fit <- glm(y ~ x, family = poisson)
-  
-  # 1. MLE Standardization (Slope)
-  beta_hat <- coef(fit)
-  se_slope <- sqrt(inv_J[2,2]) # Theoretical SE from Inverse Info
-  mle_slope_z[i] <- (beta_hat[2] - beta_true[2]) / se_slope
-  
-  # 2. Score Standardization (Slope component)
-  # U = X^T y - grad A(beta)
-  U <- t(X_mat) %*% (y - lambda_true)
-  se_score <- sqrt(J_true[2,2]) # Variance of Score is J (not inverse)
-  score_slope_z[i] <- U[2] / se_score
-  
-  # 3. Deviance (Likelihood Ratio vs Truth)
-  ll_hat <- as.numeric(logLik(fit))
-  ll_true <- sum(dpois(y, lambda = lambda_true, log = TRUE))
-  deviance_vals[i] <- 2 * (ll_hat - ll_true)
-}
-
-# --- Plotting ---
-par(mfrow = c(1, 3))
-
-# MLE Z-score
-hist(mle_slope_z, breaks = 20, freq = FALSE, col = "lightblue",
-     main = "Std. MLE (Slope)", xlab = "Z value")
-curve(dnorm(x), add = TRUE, col = "red", lwd = 2)
-
-# Score Z-score
-hist(score_slope_z, breaks = 20, freq = FALSE, col = "lightgreen",
-     main = "Std. Score (Slope)", xlab = "Z value")
-curve(dnorm(x), add = TRUE, col = "blue", lwd = 2)
-
-# Deviance (df = 2 parameters)
-hist(deviance_vals, breaks = 20, freq = FALSE, col = "lightpink",
-     main = "Deviance (p=2)", xlab = "D")
-curve(dchisq(x, df = 2), add = TRUE, col = "darkgreen", lwd = 2)
-```
-
-
-**Alternative Derivation: Sum of Individual Contributions**
-
-We can also derive the Score and Information by viewing the full log-likelihood as a sum of individual contributions, where each contribution follows the scalar canonical form:
-
-$$
-\ell(\boldsymbol{\beta}) = \sum_{i=1}^n \ell_i(\theta_i; y_i) = \sum_{i=1}^n \left[ y_i \theta_i - A(\theta_i) + \log h(y_i) \right]
-$$
-
-1.  **Exponential Family Properties**
-    * **Natural Parameter:** $\theta_i = \log \lambda_i = \mathbf{x}_i^\top \boldsymbol{\beta}$.
-    * **Log-Partition Function:** $A(\theta_i) = e^{\theta_i} = \lambda_i$.
-    * **Moments:** $E[Y_i] = A'(\theta_i) = \lambda_i$ and $\text{Var}(Y_i) = A''(\theta_i) = \lambda_i$.
-
-2.  **Derivations via Chain Rule**
-    We derive the gradient and Hessian with respect to $\boldsymbol{\beta}$ using the chain rule term $\frac{\partial \theta_i}{\partial \boldsymbol{\beta}} = \mathbf{x}_i$.
-
-    * **Score Vector ($\mathbf{U}$):**
-        $$
-        \mathbf{U}(\boldsymbol{\beta}) = \nabla_{\boldsymbol{\beta}} \sum_{i=1}^n \ell_i(\theta_i) = \sum_{i=1}^n (y_i - A'(\theta_i)) \frac{\partial \theta_i}{\partial \boldsymbol{\beta}} = \sum_{i=1}^n (y_i - \lambda_i) \mathbf{x}_i = \mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda})
-        $$
-
-    * **Fisher Information ($J$):**
-        The information is the negative Hessian. The derivative of the residual $(y_i - \lambda_i)$ is $-A''(\theta_i) \frac{\partial \theta_i}{\partial \boldsymbol{\beta}}$:
-        $$
-        J(\boldsymbol{\beta}) = - \sum_{i=1}^n \frac{\partial}{\partial \boldsymbol{\beta}^\top} \left[ (y_i - \lambda_i) \mathbf{x}_i \right] = \sum_{i=1}^n A''(\theta_i) \mathbf{x}_i \mathbf{x}_i^\top = \mathbf{X}^\top \mathbf{W} \mathbf{X}
-        $$
-        where $\mathbf{W} = \text{diag}(\lambda_i)$ is the weight matrix (which equals the variance for Poisson).
+3.  **Newton-Raphson Algorithm for Poisson MLE**
+    To find the MLE $\hat{\boldsymbol{\beta}}$, we iterate until convergence:
+    
+    $$
+    \boldsymbol{\beta}^{(t+1)} = \boldsymbol{\beta}^{(t)} + [J(\boldsymbol{\beta}^{(t)})]^{-1} \mathbf{U}(\boldsymbol{\beta}^{(t)})
+    $$
+    
+    Substituting the Poisson-specific forms:
+    
+    $$
+    \boldsymbol{\beta}^{(t+1)} = \boldsymbol{\beta}^{(t)} + (\mathbf{X}^\top \mathbf{W}(\boldsymbol{\beta}^{(t)}) \mathbf{X})^{-1} \mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda}(\boldsymbol{\beta}^{(t)}))
+    $$
+    
+    This specific iteration is also known as **Iteratively Reweighted Least Squares (IRLS)**.
 :::
 
 
 
+```{r}
+#| label: fig-poisson-nr-and-fit
+#| fig-cap: "Left: Newton-Raphson path on the log-likelihood surface. Right: Observed data with the true and estimated mean functions."
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-width: 10
+#| fig-height: 5
+#| dpi: 300
+
+library(latex2exp)
+
+# 1. Data Generation
+set.seed(42)
+n <- 50
+beta_true <- c(0.5, 1.5)
+x_vals <- runif(n, -1, 1)
+X_mat <- cbind(1, x_vals)
+y_obs <- rpois(n, lambda = exp(X_mat %*% beta_true))
+
+# 2. Log-Likelihood Function for Contours
+log_lik <- function(b0, b1) {
+  eta <- b0 + b1 * x_vals
+  sum(y_obs * eta - exp(eta))
+}
+
+# 3. Newton-Raphson Implementation
+b_curr <- c(2, 3) # Initial guess
+path <- matrix(NA, nrow = 10, ncol = 2)
+path[1, ] <- b_curr
+
+for (t in 2:10) {
+  lambda <- as.vector(exp(X_mat %*% b_curr))
+  W <- diag(lambda)
+  U <- t(X_mat) %*% (y_obs - lambda)
+  J <- t(X_mat) %*% W %*% X_mat
+  
+  b_new <- b_curr + solve(J) %*% U
+  path[t, ] <- b_new
+  b_curr <- b_new
+}
+path <- na.omit(path)
+beta_mle <- path[nrow(path), ]
+
+# --- Plotting Side-by-Side ---
+par(mfrow = c(1, 2))
+
+
+# Plot B: Data and Fitted Curves
+plot(x_vals, y_obs, pch = 21, bg = "gray80", col = "gray50",
+     xlab = "x", ylab = "y", main = "Poisson Regression Fit")
+
+# Generate smooth lines for lambda
+x_smooth <- seq(-1, 1, length.out = 100)
+lambda_true <- exp(beta_true[1] + beta_true[2] * x_smooth)
+lambda_mle  <- exp(beta_mle[1] + beta_mle[2] * x_smooth)
+
+lines(x_smooth, lambda_true, col = "blue", lwd = 2, lty = 2)
+lines(x_smooth, lambda_mle, col = "red", lwd = 2)
+
+legend("topleft", legend = c("True Mean", "MLE Mean", "Observed Data"),
+       col = c("blue", "red", "gray50"), lty = c(2, 1, NA), 
+       pch = c(NA, NA, 21), pt.bg = "gray80", bty = "n", cex = 0.8)
+
+# Plot A: NR Optimization Path
+b0_grid <- seq(-0.5, 2.5, length.out = 50)
+b1_grid <- seq(0.5, 3.5, length.out = 50)
+z_vals <- outer(b0_grid, b1_grid, Vectorize(log_lik))
+
+contour(b0_grid, b1_grid, z_vals, nlevels = 20, 
+        xlab = TeX("$\\beta_0$"), ylab = TeX("$\\beta_1$"),
+        main = "Newton-Raphson Path")
+lines(path[,1], path[,2], type = "b", col = "red", pch = 19, lwd = 1.5)
+points(beta_true[1], beta_true[2], col = "blue", pch = 4, lwd = 2, cex = 1.2)
+legend("topright", legend = c("NR Path", "True Beta"), 
+       col = c("red", "blue"), pch = c(19, 4), bty = "n", cex = 0.8)
+
+```
+
+
+
+```{r}
+#| label: fig-poisson-sim-asymptotics
+#| fig-cap: "Asymptotic distributions of MLE, Score, and Deviance."
+#| echo: false
+#| warning: false
+
+set.seed(42)
+n_sim <- 2000
+n <- 200
+beta_true <- c(0.5, 1.5)
+x_cov <- runif(n, 0, 1)
+X_mat <- cbind(1, x_cov)
+lambda_true <- exp(X_mat %*% beta_true)
+J_true <- t(X_mat) %*% diag(as.vector(lambda_true)) %*% X_mat
+inv_J <- solve(J_true)
+
+mle_z <- numeric(n_sim); score_z <- numeric(n_sim); deviance_vals <- numeric(n_sim)
+
+for(i in 1:n_sim) {
+  y_sim <- rpois(n, lambda = lambda_true)
+  fit <- glm(y_sim ~ x_cov, family = poisson)
+  mle_z[i] <- (coef(fit)[2] - beta_true[2]) / sqrt(inv_J[2,2])
+  U <- t(X_mat) %*% (y_sim - lambda_true)
+  score_z[i] <- U[2] / sqrt(J_true[2,2])
+  deviance_vals[i] <- 2 * (as.numeric(logLik(fit)) - sum(dpois(y_sim, lambda_true, log = TRUE)))
+}
+
+par(mfrow = c(1, 3))
+hist(mle_z, breaks = 30, freq = FALSE, col = "lightblue", main = TeX("Std. $\\hat{\\beta}_1$"))
+curve(dnorm(x), add = TRUE, col = "red")
+hist(score_z, breaks = 30, freq = FALSE, col = "lightgreen", main = TeX("Std. $U_1$"))
+curve(dnorm(x), add = TRUE, col = "blue")
+hist(deviance_vals, breaks = 30, freq = FALSE, col = "lightpink", main = "Deviance")
+curve(dchisq(x, df = 2), add = TRUE, col = "darkgreen")
+```
+
+### Derivation of Score and Information in Poisson Regression {.unnumbered}
+
+:::: {.example}
+
+In a Poisson Generalized Linear Model with a canonical link, the mean is modeled as $\lambda_i(\boldsymbol{\beta}) = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})$. The derivation of the Score vector and the Fisher Information matrix relies on the chain rule and the properties of the exponential function.
+
+### Derivation of the Score Vector $\mathbf{U}(\boldsymbol{\beta})$
+
+The Score vector is defined as the gradient of the log-likelihood with respect to the parameter vector $\boldsymbol{\beta}$.
+
+
+1. **Differentiate the Log-Likelihood** \n
+   Starting from the log-likelihood function:
+   $$
+   \ell(\boldsymbol{\beta}) = \sum_{i=1}^n \left( y_i (\mathbf{x}_i^\top \boldsymbol{\beta}) - \exp(\mathbf{x}_i^\top \boldsymbol{\beta}) - \log(y_i!) \right)
+   $$
+   We take the partial derivative with respect to a single component $\beta_j$:
+   $$
+   \frac{\partial \ell}{\partial \beta_j} = \sum_{i=1}^n \left( y_i \frac{\partial (\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} - \frac{\partial \exp(\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} \right)
+   $$
+
+2. **Apply the Chain Rule** \n
+   Note that $\frac{\partial (\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} = x_{ij}$. Using the chain rule on the exponential term:
+   $$
+   \frac{\partial \exp(\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} = \exp(\mathbf{x}_i^\top \boldsymbol{\beta}) \cdot x_{ij} = \lambda_i(\boldsymbol{\beta}) x_{ij}
+   $$
+
+3. **Form the Vector** \n
+   Substituting these back, we get:
+   $$
+   \frac{\partial \ell}{\partial \beta_j} = \sum_{i=1}^n (y_i - \lambda_i(\boldsymbol{\beta})) x_{ij}
+   $$
+   In matrix notation, this corresponds to:
+   $$
+   \mathbf{U}(\boldsymbol{\beta}) = \mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda}(\boldsymbol{\beta}))
+   $$
+
+
+
+
+### Derivation of the Observed Fisher Information $J(\boldsymbol{\beta})$
+
+The Observed Information is the negative Hessian matrix of the log-likelihood.
+
+
+1. **Differentiate the Score** \n
+   We take the derivative of the $j$-th component of the score, $U_j = \sum_{i=1}^n (y_i - \lambda_i(\boldsymbol{\beta})) x_{ij}$, with respect to $\beta_k$:
+   $$
+   \frac{\partial^2 \ell}{\partial \beta_j \partial \beta_k} = \frac{\partial}{\partial \beta_k} \sum_{i=1}^n (y_i - \lambda_i(\boldsymbol{\beta})) x_{ij} = \sum_{i=1}^n \left( -\frac{\partial \lambda_i(\boldsymbol{\beta})}{\partial \beta_k} \right) x_{ij}
+   $$
+
+2. **Differentiate the Mean Function** \n
+   Recall $\lambda_i(\boldsymbol{\beta}) = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})$. Its derivative with respect to $\beta_k$ is:
+   $$
+   \frac{\partial \lambda_i(\boldsymbol{\beta})}{\partial \beta_k} = \lambda_i(\boldsymbol{\beta}) x_{ik}
+   $$
+
+3. **Construct the Information Matrix** \n
+   The $(j, k)$ element of the Hessian is:
+   $$
+   H_{jk} = -\sum_{i=1}^n \lambda_i(\boldsymbol{\beta}) x_{ij} x_{ik}
+   $$
+   The Observed Information $J(\boldsymbol{\beta}) = -H$ is therefore:
+   $$
+   J(\boldsymbol{\beta})_{jk} = \sum_{i=1}^n \lambda_i(\boldsymbol{\beta}) x_{ij} x_{ik}
+   $$
+   In matrix form, let $\mathbf{W}(\boldsymbol{\beta})$ be a diagonal matrix where $W_{ii} = \lambda_i(\boldsymbol{\beta})$. Then:
+   $$
+   J(\boldsymbol{\beta}) = \mathbf{X}^\top \mathbf{W}(\boldsymbol{\beta}) \mathbf{X}
+   $$
+
+
+
+
+::: {#rem-canonical-simplicity}
+### Canonical Link Advantage
+Notice that because we used the canonical link ($\log \lambda = \eta$), the second derivative of the log-likelihood (the Hessian) does not depend on the observed data $y_i$. It only depends on the predicted means $\lambda_i(\boldsymbol{\beta})$. Consequently, the **Observed Information** and the **Expected Information** are identical:
+$$
+J(\boldsymbol{\beta}) = I(\boldsymbol{\beta})
+$$
+This is a unique property of canonical links in Generalized Linear Models.
+:::
+
+::::
+
+## MLE and Penalized Likelihood in Deep Learning
+
+In deep learning, the objective function is typically the negative log-likelihood of the dataset, often supplemented by a penalty term (regularization) to prevent overfitting. While the theoretical foundations of Maximum Likelihood Estimation remain the same, the practical application in high-dimensional neural networks faces significant computational challenges that necessitate specialized optimization strategies.
+
+### The Optimization Challenge
+
+In traditional statistical models, $\ell(\boldsymbol{\theta})$ is often globally concave, allowing algorithms like Newton-Raphson to converge reliably. Deep learning models, however, present a different landscape:
+
+1. **Non-convexity** \n
+   The log-likelihood surface $\ell(\boldsymbol{\theta})$ is highly non-convex with numerous local minima, saddle points, and plateaus.
+   
+2. **High Dimensionality** \n
+   The parameter vector $\boldsymbol{\theta}$ can contain millions or billions of weights. This makes the storage and inversion of the Observed Information Matrix $\mathbf{J}(\boldsymbol{\theta})$ (the $p \times p$ Hessian) computationally intractable.
+
+
+
+### Penalized Likelihood (Regularization)
+
+To improve generalization, we often optimize a **penalized log-likelihood**:
+
+$$
+\ell_{pen}(\boldsymbol{\theta}) = \ell(\boldsymbol{\beta}) - \Omega(\boldsymbol{\theta})
+$$
+
+where $\Omega(\boldsymbol{\theta})$ is a penalty function. Common examples include:
+
+1. **$L_2$ Regularization (Weight Decay):** $\Omega(\boldsymbol{\theta}) = \frac{\lambda}{2} \|\boldsymbol{\theta}\|^2$, which corresponds to a Gaussian prior in a Bayesian framework.
+2. **$L_1$ Regularization (Lasso):** $\Omega(\boldsymbol{\theta}) = \lambda \|\boldsymbol{\theta}\|_1$, which encourages sparsity in the network weights.
+
+### Gradient-Based Methods and the Role of Fisher Information
+
+Because computing the Hessian $\mathbf{H} = -\mathbf{J}$ is impossible in large networks, deep learning relies on **First-Order Methods** (like SGD, Adam, or RMSProp). These methods primarily use the score vector $\mathbf{U}(\boldsymbol{\theta})$ to update parameters:
+
+$$
+\boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} + \alpha \mathbf{U}(\boldsymbol{\theta}^{(t)})
+$$
+
+However, the second-order information remains theoretically crucial. Modern optimizers leverage the **Second Moment Identity** (Bartlett's Identity) to approximate the curvature without ever computing the second derivatives:
+
+::: {#thm-fisher-approximation}
+### Fisher Information Approximation
+
+Recall from @thm-score-identities that at the true parameter (or a good estimate), the Fisher Information is both the variance of the score and the expected Hessian:
+
+$$
+\mathbf{I}(\boldsymbol{\theta}) = \text{Cov}(\mathbf{U}) = E[\mathbf{J}]
+$$
+
+In deep learning, we approximate $\mathbf{I}(\boldsymbol{\theta})$ using the "outer product of gradients" (empirical Fisher):
+
+$$
+\hat{\mathbf{I}} = \frac{1}{n} \sum_{i=1}^n \nabla \ell(\boldsymbol{\theta}; Y_i) \nabla \ell(\boldsymbol{\theta}; Y_i)^\top
+$$
+:::
+
+
+
+### Avoiding the Hessian via the Score Covariance
+
+Adaptive optimizers like **RMSProp** and **Adam** use this identity to perform a coordinate-wise scaling of the learning rate. Instead of computing the full Hessian $\mathbf{H}$, they maintain a running average of the squared scores ($U_j^2$):
+
+1. **Scaling by Variance:** Since $\text{Var}(U_j) = I_{jj}$, the squared gradients provide an estimate of the local curvature along each dimension.
+2. **Preconditioning:** By dividing the update by $\sqrt{\text{Var}(U_j)}$, these algorithms effectively "flatten" the likelihood surface, performing a simplified version of the Newton-Raphson update:
+   
+   $$
+   \theta_j^{(t+1)} \approx \theta_j^{(t)} + \frac{\alpha}{\sqrt{\hat{I}_{jj}}} U_j(\boldsymbol{\theta}^{(t)})
+   $$
+
+This approach allows deep learning models to benefit from the second-order geometry of the log-likelihood while only requiring first-order gradients, bypassing the $O(p^2)$ cost of the Hessian.
+
+::: {#rem-natural-gradient}
+### Natural Gradient Descent
+The most direct application of this theory is **Natural Gradient Descent**, which updates parameters using $\Delta \boldsymbol{\theta} = \alpha \mathbf{I}(\boldsymbol{\theta})^{-1} \mathbf{U}(\boldsymbol{\theta})$. This update is invariant to the parameterization of the model, as it moves the parameters a fixed distance in the space of *probability distributions* (measured by KL divergence) rather than the space of *weights*.
+:::

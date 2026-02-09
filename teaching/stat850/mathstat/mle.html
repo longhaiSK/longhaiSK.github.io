@@ -252,11 +252,26 @@ window.Quarto = {
   <li><a href="#generalized-wilks-theorem-parameter-partitioning" id="toc-generalized-wilks-theorem-parameter-partitioning" class="nav-link" data-scroll-target="#generalized-wilks-theorem-parameter-partitioning"><span class="header-section-number">6.4.4.2</span> Generalized Wilks’ Theorem (Parameter Partitioning)</a></li>
   </ul></li>
   </ul></li>
-  <li><a href="#the-newton-raphson-algorithm" id="toc-the-newton-raphson-algorithm" class="nav-link" data-scroll-target="#the-newton-raphson-algorithm"><span class="header-section-number">6.5</span> The Newton-Raphson Algorithm</a></li>
+  <li><a href="#the-newton-raphson-algorithm" id="toc-the-newton-raphson-algorithm" class="nav-link" data-scroll-target="#the-newton-raphson-algorithm"><span class="header-section-number">6.5</span> The Newton-Raphson Algorithm</a>
+  <ul>
+  <li><a href="#newton-raphson-iteration" id="toc-newton-raphson-iteration" class="nav-link" data-scroll-target="#newton-raphson-iteration"><span class="header-section-number">6.5.1</span> Newton-Raphson Iteration</a></li>
+  <li><a href="#newton-raphson-iteration-1" id="toc-newton-raphson-iteration-1" class="nav-link" data-scroll-target="#newton-raphson-iteration-1"><span class="header-section-number">6.5.2</span> Newton-Raphson Iteration</a></li>
+  <li><a href="#fisher-scoring" id="toc-fisher-scoring" class="nav-link" data-scroll-target="#fisher-scoring"><span class="header-section-number">6.5.3</span> Fisher Scoring</a></li>
+  </ul></li>
   <li><a href="#examples-1" id="toc-examples-1" class="nav-link" data-scroll-target="#examples-1"><span class="header-section-number">6.6</span> Examples</a>
   <ul>
   <li><a href="#simple-normal-distributions" id="toc-simple-normal-distributions" class="nav-link" data-scroll-target="#simple-normal-distributions"><span class="header-section-number">6.6.1</span> Simple Normal Distributions</a></li>
-  <li><a href="#poisson-regression-canonical-exponential-family" id="toc-poisson-regression-canonical-exponential-family" class="nav-link" data-scroll-target="#poisson-regression-canonical-exponential-family"><span class="header-section-number">6.6.2</span> Poisson Regression (Canonical Exponential Family)</a></li>
+  </ul></li>
+  <li><a href="#poisson-regression-canonical-exponential-family" id="toc-poisson-regression-canonical-exponential-family" class="nav-link" data-scroll-target="#poisson-regression-canonical-exponential-family"><span class="header-section-number">6.7</span> Poisson Regression (Canonical Exponential Family)</a>
+  <ul>
+  <li><a href="#derivation-of-score-and-information-in-poisson-regression" id="toc-derivation-of-score-and-information-in-poisson-regression" class="nav-link" data-scroll-target="#derivation-of-score-and-information-in-poisson-regression">Derivation of Score and Information in Poisson Regression</a></li>
+  </ul></li>
+  <li><a href="#mle-and-penalized-likelihood-in-deep-learning" id="toc-mle-and-penalized-likelihood-in-deep-learning" class="nav-link" data-scroll-target="#mle-and-penalized-likelihood-in-deep-learning"><span class="header-section-number">6.8</span> MLE and Penalized Likelihood in Deep Learning</a>
+  <ul>
+  <li><a href="#the-optimization-challenge" id="toc-the-optimization-challenge" class="nav-link" data-scroll-target="#the-optimization-challenge"><span class="header-section-number">6.8.1</span> The Optimization Challenge</a></li>
+  <li><a href="#penalized-likelihood-regularization" id="toc-penalized-likelihood-regularization" class="nav-link" data-scroll-target="#penalized-likelihood-regularization"><span class="header-section-number">6.8.2</span> Penalized Likelihood (Regularization)</a></li>
+  <li><a href="#gradient-based-methods-and-the-role-of-fisher-information" id="toc-gradient-based-methods-and-the-role-of-fisher-information" class="nav-link" data-scroll-target="#gradient-based-methods-and-the-role-of-fisher-information"><span class="header-section-number">6.8.3</span> Gradient-Based Methods and the Role of Fisher Information</a></li>
+  <li><a href="#avoiding-the-hessian-via-the-score-covariance" id="toc-avoiding-the-hessian-via-the-score-covariance" class="nav-link" data-scroll-target="#avoiding-the-hessian-via-the-score-covariance"><span class="header-section-number">6.8.4</span> Avoiding the Hessian via the Score Covariance</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -1052,7 +1067,8 @@ D_n = 2 [\ell_n(\hat{\boldsymbol{\theta}}) - \ell_n(\hat{\boldsymbol{\theta}}_0)
 \]</span></p>
 </div>
 <div class="proof">
-<p><span class="proof-title"><em>Proof</em>. </span><strong>Strategy:</strong> We expand the quadratic approximation of the likelihood and partition the information matrix to isolate the contribution of the parameters of interest.</p>
+<p><span class="proof-title"><em>Proof</em>. </span><strong>Overview of the proof:</strong></p>
+<p>We expand the quadratic approximation of the likelihood and partition the information matrix to isolate the contribution of the parameters of interest.</p>
 <ol type="1">
 <li><p><strong>Quadratic Approximation</strong></p>
 <p>From the simple Wilks’ theorem, we know that twice the log-likelihood difference approximates a quadratic form based on the Score vector <span class="math inline">\(\mathbf{U}\)</span> and Information matrix <span class="math inline">\(J\)</span> at the true parameter: <span class="math display">\[
@@ -1095,8 +1111,13 @@ D_n \xrightarrow{d} \chi^2_k
 <section id="the-newton-raphson-algorithm" class="level2" data-number="6.5">
 <h2 data-number="6.5" data-anchor-id="the-newton-raphson-algorithm"><span class="header-section-number">6.5</span> The Newton-Raphson Algorithm</h2>
 <p>When the score equation <span class="math inline">\(\mathbf{U}(\boldsymbol{\theta}) = \mathbf{0}\)</span> does not have a closed-form solution, we must rely on iterative numerical methods to find the Maximum Likelihood Estimator. The Newton-Raphson algorithm is the most common approach, utilizing the curvature of the log-likelihood surface to guide the search for the maximum.</p>
-<div id="def-newton-raphson" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 6.3 (Newton-Raphson Iteration)</strong></span> Starting from an initial guess <span class="math inline">\(\boldsymbol{\theta}^{(0)}\)</span>, the algorithm updates the estimate of the parameter vector at each step <span class="math inline">\(t\)</span> using the following recurrence relation:</p>
+<section id="newton-raphson-iteration" class="level3" data-number="6.5.1">
+<h3 data-number="6.5.1" data-anchor-id="newton-raphson-iteration"><span class="header-section-number">6.5.1</span> Newton-Raphson Iteration</h3>
+</section>
+<div id="alg-newton-raphson">
+<section id="newton-raphson-iteration-1" class="level3" data-number="6.5.2">
+<h3 data-number="6.5.2" data-anchor-id="newton-raphson-iteration-1"><span class="header-section-number">6.5.2</span> Newton-Raphson Iteration</h3>
+<p>Starting from an initial guess <span class="math inline">\(\boldsymbol{\theta}^{(0)}\)</span>, the algorithm updates the estimate of the parameter vector at each step <span class="math inline">\(t\)</span> using the following recurrence relation:</p>
 <p><span class="math display">\[
 \boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} + \left[ \mathbf{J}(\boldsymbol{\theta}^{(t)}) \right]^{-1} \mathbf{U}(\boldsymbol{\theta}^{(t)})
 \]</span></p>
@@ -1108,6 +1129,7 @@ D_n \xrightarrow{d} \chi^2_k
 \mathbf{J}(\boldsymbol{\theta}) = - \nabla^2 \ell(\boldsymbol{\theta}) = - \frac{\partial^2 \ell(\boldsymbol{\theta})}{\partial \boldsymbol{\theta} \partial \boldsymbol{\theta}^T}
 \]</span></p></li>
 </ol>
+</section>
 </div>
 <div class="proof">
 <p><span class="proof-title"><em>Proof</em> (Derivation via Taylor Expansion). </span>The algorithm is derived by approximating the score function <span class="math inline">\(\mathbf{U}(\boldsymbol{\theta})\)</span> with a first-order Taylor expansion around the current estimate <span class="math inline">\(\boldsymbol{\theta}^{(t)}\)</span>:</p>
@@ -1130,13 +1152,14 @@ D_n \xrightarrow{d} \chi^2_k
 \]</span></p></li>
 </ol>
 </div>
-<div id="rem-observed-vs-expected" class="proof remark">
-<p><span class="proof-title"><em>Remark 6.2</em> (Observed vs.&nbsp;Expected Information). </span>The Newton-Raphson algorithm specifically uses the <strong>Observed Information</strong> <span class="math inline">\(\mathbf{J}(\boldsymbol{\theta})\)</span>. If the expected Fisher Information <span class="math inline">\(\mathbf{I}(\boldsymbol{\theta}) = E[\mathbf{J}(\boldsymbol{\theta})]\)</span> is used instead, the method is known as <strong>Fisher Scoring</strong>.</p>
+<section id="fisher-scoring" class="level3" data-number="6.5.3">
+<h3 data-number="6.5.3" data-anchor-id="fisher-scoring"><span class="header-section-number">6.5.3</span> Fisher Scoring</h3>
+<p>The Newton-Raphson algorithm specifically uses the <strong>Observed Information</strong> <span class="math inline">\(\mathbf{J}(\boldsymbol{\theta})\)</span>. If the expected Fisher Information <span class="math inline">\(\mathbf{I}(\boldsymbol{\theta}) = E[\mathbf{J}(\boldsymbol{\theta})]\)</span> is used instead, the method is known as <strong>Fisher Scoring</strong>.</p>
 <ol type="1">
 <li><p><strong>Convergence Speed</strong> Newton-Raphson typically achieves quadratic convergence near the maximum, making it very fast when the initial guess is good.</p></li>
 <li><p><strong>Stability</strong> Because <span class="math inline">\(\mathbf{J}(\boldsymbol{\theta})\)</span> depends on the specific data observed, it can occasionally be non-positive definite in regions far from the MLE, which may cause the algorithm to diverge. Fisher Scoring is often more stable in these cases because <span class="math inline">\(\mathbf{I}(\boldsymbol{\theta})\)</span> is always positive semi-definite for regular families.</p></li>
 </ol>
-</div>
+</section>
 </section>
 <section id="examples-1" class="level2" data-number="6.6">
 <h2 data-number="6.6" data-anchor-id="examples-1"><span class="header-section-number">6.6</span> Examples</h2>
@@ -1251,151 +1274,178 @@ Figure&nbsp;6.4: Simulation of Normal Mean Asymptotics (n=50, 2000 replicates). 
 </div>
 </div>
 </section>
-<section id="poisson-regression-canonical-exponential-family" class="level3" data-number="6.6.2">
-<h3 data-number="6.6.2" data-anchor-id="poisson-regression-canonical-exponential-family"><span class="header-section-number">6.6.2</span> Poisson Regression (Canonical Exponential Family)</h3>
+</section>
+<section id="poisson-regression-canonical-exponential-family" class="level2" data-number="6.7">
+<h2 data-number="6.7" data-anchor-id="poisson-regression-canonical-exponential-family"><span class="header-section-number">6.7</span> Poisson Regression (Canonical Exponential Family)</h2>
 <div id="exm-poisson-glm" class="theorem example">
-<p><span class="theorem-title"><strong>Example 6.5</strong></span> Consider a GLM where <span class="math inline">\(Y_i \sim \text{Poisson}(\lambda_i)\)</span>. We use the canonical link <span class="math inline">\(\log(\lambda_i) = \mathbf{x}_i^\top \boldsymbol{\beta}\)</span>.</p>
+<p><span class="theorem-title"><strong>Example 6.5</strong></span> Consider a GLM where <span class="math inline">\(Y_i \sim \text{Poisson}(\lambda_i)\)</span>. We use the canonical link <span class="math inline">\(\log(\lambda_i(\boldsymbol{\beta})) = \mathbf{x}_i^\top \boldsymbol{\beta}\)</span>, which implies the mean function is <span class="math inline">\(\lambda_i(\boldsymbol{\beta}) = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})\)</span>.</p>
 <ol type="1">
 <li><p><strong>Exponential Family Representation</strong> We rewrite the total log-likelihood by grouping terms associated with each <span class="math inline">\(\beta_j\)</span>:</p>
 <p><span class="math display">\[
 \begin{aligned}
-\ell(\boldsymbol{\beta}) &amp;= \sum_{i=1}^n \left( y_i (\mathbf{x}_i^\top \boldsymbol{\beta}) - e^{\mathbf{x}_i^\top \boldsymbol{\beta}} - \log(y_i!) \right) \\
-&amp;= \sum_{i=1}^n \sum_{j=0}^p y_i x_{ij} \beta_j - \sum_{i=1}^n e^{\mathbf{x}_i^\top \boldsymbol{\beta}} - \sum_{i=1}^n \log(y_i!) \\
-&amp;= \sum_{j=0}^p \beta_j \underbrace{\left( \sum_{i=1}^n y_i x_{ij} \right)}_{T_j(\mathbf{y})} - \underbrace{\sum_{i=1}^n e^{\mathbf{x}_i^\top \boldsymbol{\beta}}}_{A(\boldsymbol{\beta})} + \text{const}
+\ell(\boldsymbol{\beta}) &amp;= \sum_{i=1}^n \left( y_i (\mathbf{x}_i^\top \boldsymbol{\beta}) - \lambda_i(\boldsymbol{\beta}) - \log(y_i!) \right) \\
+&amp;= \sum_{i=1}^n \sum_{j=0}^p y_i x_{ij} \beta_j - \sum_{i=1}^n \exp(\mathbf{x}_i^\top \boldsymbol{\beta}) - \sum_{i=1}^n \log(y_i!) \\
+&amp;= \sum_{j=0}^p \beta_j \underbrace{\left( \sum_{i=1}^n y_i x_{ij} \right)}_{T_j(\mathbf{y})} - \underbrace{\sum_{i=1}^n \lambda_i(\boldsymbol{\beta})}_{A(\boldsymbol{\beta})} + \text{const}
 \end{aligned}
 \]</span></p>
 <p>This is a multivariate exponential family in <strong>canonical form</strong> where:</p>
 <ul>
 <li><strong>Natural Parameters:</strong> The regression coefficients <span class="math inline">\(\boldsymbol{\beta} = (\beta_0, \dots, \beta_p)^\top\)</span>.</li>
 <li><strong>Sufficient Statistics:</strong> <span class="math inline">\(\mathbf{T}(\mathbf{y}) = \mathbf{X}^\top \mathbf{y}\)</span>.</li>
-<li><strong>Log-Partition Function:</strong> <span class="math inline">\(A(\boldsymbol{\beta}) = \sum_{i=1}^n \exp(\mathbf{x}_i^\top \boldsymbol{\beta})\)</span>.</li>
+<li><strong>Log-Partition Function:</strong> <span class="math inline">\(A(\boldsymbol{\beta}) = \sum_{i=1}^n \lambda_i(\boldsymbol{\beta})\)</span>.</li>
 </ul></li>
 <li><p><strong>Derivations via Moments of Sufficient Statistics</strong> Since we are in canonical form, the Score and Information are simply the derivatives of the log-partition function <span class="math inline">\(A(\boldsymbol{\beta})\)</span>.</p>
 <ul>
-<li><p><strong>Score Vector (<span class="math inline">\(\mathbf{U}\)</span>):</strong> The expectation of the sufficient statistic is <span class="math inline">\(\nabla A(\boldsymbol{\beta})\)</span>. The score is the difference between observed and expected <span class="math inline">\(T\)</span>: <span class="math display">\[
-  \mathbf{U}(\boldsymbol{\beta}) = \mathbf{T}(\mathbf{y}) - \nabla A(\boldsymbol{\beta}) = \mathbf{X}^\top \mathbf{y} - \mathbf{X}^\top \boldsymbol{\lambda} = \mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda})
-  \]</span> <em>(where <span class="math inline">\(\nabla A(\boldsymbol{\beta}) = \sum e^{\mathbf{x}_i^\top \boldsymbol{\beta}} \mathbf{x}_i = \sum \lambda_i \mathbf{x}_i = \mathbf{X}^\top \boldsymbol{\lambda}\)</span>)</em>.</p></li>
+<li><p><strong>Score Vector (<span class="math inline">\(\mathbf{U}\)</span>):</strong> <span class="math display">\[
+  \mathbf{U}(\boldsymbol{\beta}) = \mathbf{T}(\mathbf{y}) - \nabla A(\boldsymbol{\beta}) = \mathbf{X}^\top \mathbf{y} - \mathbf{X}^\top \boldsymbol{\lambda}(\boldsymbol{\beta}) = \mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda}(\boldsymbol{\beta}))
+  \]</span> where <span class="math inline">\(\boldsymbol{\lambda}(\boldsymbol{\beta}) = (\lambda_1(\boldsymbol{\beta}), \dots, \lambda_n(\boldsymbol{\beta}))^\top\)</span>.</p></li>
 <li><p><strong>Fisher Information (<span class="math inline">\(J\)</span>):</strong> The information is the Hessian of the log-partition function: <span class="math display">\[
-  J(\boldsymbol{\beta}) = \nabla^2 A(\boldsymbol{\beta}) = \sum_{i=1}^n \frac{\partial}{\partial \boldsymbol{\beta}} (\lambda_i \mathbf{x}_i^\top) = \sum_{i=1}^n \lambda_i \mathbf{x}_i \mathbf{x}_i^\top = \mathbf{X}^\top \mathbf{W} \mathbf{X}
-  \]</span> where <span class="math inline">\(\mathbf{W}\)</span>, in the context of Poisson regression, <span class="math inline">\(\mathbf{W}\)</span> is the diagonal matrix of the expected values (which are equal to the variances):</p>
+  J(\boldsymbol{\beta}) = \nabla^2 A(\boldsymbol{\beta}) = \mathbf{X}^\top \mathbf{W}(\boldsymbol{\beta}) \mathbf{X}
+  \]</span> where <span class="math inline">\(\mathbf{W}(\boldsymbol{\beta}) = \text{diag}(\lambda_1(\boldsymbol{\beta}), \dots, \lambda_n(\boldsymbol{\beta}))\)</span>.</p></li>
+</ul></li>
+<li><p><strong>Newton-Raphson Algorithm for Poisson MLE</strong> To find the MLE <span class="math inline">\(\hat{\boldsymbol{\beta}}\)</span>, we iterate until convergence:</p>
 <p><span class="math display">\[
-  \mathbf{W} = \text{diag}(\lambda_1, \lambda_2, \dots, \lambda_n) =
-  \begin{bmatrix}
-  \lambda_1 &amp; 0 &amp; \cdots &amp; 0 \\
-  0 &amp; \lambda_2 &amp; \cdots &amp; 0 \\
-  \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
-  0 &amp; 0 &amp; \cdots &amp; \lambda_n
-  \end{bmatrix}
-  \]</span> where <span class="math inline">\(\lambda_i = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})\)</span>.</p></li>
-</ul></li>
-<li><p><strong>Asymptotic Theory</strong></p>
-<ul>
-<li><p><strong>Score Normality:</strong> The Score vector is a sum of independent zero-mean random vectors. By the Multivariate CLT: <span class="math display">\[ \frac{1}{\sqrt{n}}\mathbf{U}(\boldsymbol{\beta}) \xrightarrow{d} N(\mathbf{0}, I) \]</span></p></li>
-<li><p><strong>MLE Normality:</strong> By linear approximation <span class="math inline">\(\mathbf{U}(\hat{\boldsymbol{\beta}}) \approx \mathbf{U}(\boldsymbol{\beta}) - J(\boldsymbol{\beta})(\hat{\boldsymbol{\beta}} - \boldsymbol{\beta})\)</span>, the estimator converges as: <span class="math display">\[ \sqrt{n}(\hat{\boldsymbol{\beta}} - \boldsymbol{\beta}) \xrightarrow{d} N(\mathbf{0}, I^{-1}) \]</span></p></li>
-</ul></li>
-<li><p><strong>Simulation Verification</strong></p>
-<p>We simulate a Poisson regression with an intercept and one continuous covariate (<span class="math inline">\(p=2\)</span>). We verify that the MLE and Score follow their theoretical normal distributions derived from <span class="math inline">\(A(\boldsymbol{\beta})\)</span>.</p></li>
+\boldsymbol{\beta}^{(t+1)} = \boldsymbol{\beta}^{(t)} + [J(\boldsymbol{\beta}^{(t)})]^{-1} \mathbf{U}(\boldsymbol{\beta}^{(t)})
+\]</span></p>
+<p>Substituting the Poisson-specific forms:</p>
+<p><span class="math display">\[
+\boldsymbol{\beta}^{(t+1)} = \boldsymbol{\beta}^{(t)} + (\mathbf{X}^\top \mathbf{W}(\boldsymbol{\beta}^{(t)}) \mathbf{X})^{-1} \mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda}(\boldsymbol{\beta}^{(t)}))
+\]</span></p>
+<p>This specific iteration is also known as <strong>Iteratively Reweighted Least Squares (IRLS)</strong>.</p></li>
 </ol>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>n_sim <span class="ot">&lt;-</span> <span class="dv">2000</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">200</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>beta_true <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">1.5</span>) <span class="co"># Intercept, Slope</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Fixed covariate matrix</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">runif</span>(n, <span class="dv">0</span>, <span class="dv">1</span>)</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>X_mat <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="dv">1</span>, x)</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Expected Fisher Info at Truth (Using exponential family formula X^T W X)</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Here Hessian of A(beta) = X^T W X</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>lambda_true <span class="ot">&lt;-</span> <span class="fu">exp</span>(X_mat <span class="sc">%*%</span> beta_true)</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>W <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="fu">as.vector</span>(lambda_true))</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>J_true <span class="ot">&lt;-</span> <span class="fu">t</span>(X_mat) <span class="sc">%*%</span> W <span class="sc">%*%</span> X_mat <span class="co"># Total Info</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>inv_J <span class="ot">&lt;-</span> <span class="fu">solve</span>(J_true)</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Storage</span></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>mle_slope_z <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n_sim)</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>score_slope_z <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n_sim)</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>deviance_vals <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n_sim)</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n_sim) {</span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> <span class="fu">rpois</span>(n, <span class="at">lambda =</span> lambda_true)</span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Fit Model</span></span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">glm</span>(y <span class="sc">~</span> x, <span class="at">family =</span> poisson)</span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 1. MLE Standardization (Slope)</span></span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  beta_hat <span class="ot">&lt;-</span> <span class="fu">coef</span>(fit)</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>  se_slope <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(inv_J[<span class="dv">2</span>,<span class="dv">2</span>]) <span class="co"># Theoretical SE from Inverse Info</span></span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>  mle_slope_z[i] <span class="ot">&lt;-</span> (beta_hat[<span class="dv">2</span>] <span class="sc">-</span> beta_true[<span class="dv">2</span>]) <span class="sc">/</span> se_slope</span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 2. Score Standardization (Slope component)</span></span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>  <span class="co"># U = X^T y - grad A(beta)</span></span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>  U <span class="ot">&lt;-</span> <span class="fu">t</span>(X_mat) <span class="sc">%*%</span> (y <span class="sc">-</span> lambda_true)</span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>  se_score <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(J_true[<span class="dv">2</span>,<span class="dv">2</span>]) <span class="co"># Variance of Score is J (not inverse)</span></span>
-<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>  score_slope_z[i] <span class="ot">&lt;-</span> U[<span class="dv">2</span>] <span class="sc">/</span> se_score</span>
-<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 3. Deviance (Likelihood Ratio vs Truth)</span></span>
-<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>  ll_hat <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">logLik</span>(fit))</span>
-<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>  ll_true <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">dpois</span>(y, <span class="at">lambda =</span> lambda_true, <span class="at">log =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>  deviance_vals[i] <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">*</span> (ll_hat <span class="sc">-</span> ll_true)</span>
-<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Plotting ---</span></span>
-<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>))</span>
-<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a><span class="co"># MLE Z-score</span></span>
-<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(mle_slope_z, <span class="at">breaks =</span> <span class="dv">20</span>, <span class="at">freq =</span> <span class="cn">FALSE</span>, <span class="at">col =</span> <span class="st">"lightblue"</span>,</span>
-<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Std. MLE (Slope)"</span>, <span class="at">xlab =</span> <span class="st">"Z value"</span>)</span>
-<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a><span class="fu">curve</span>(<span class="fu">dnorm</span>(x), <span class="at">add =</span> <span class="cn">TRUE</span>, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
-<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a><span class="co"># Score Z-score</span></span>
-<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(score_slope_z, <span class="at">breaks =</span> <span class="dv">20</span>, <span class="at">freq =</span> <span class="cn">FALSE</span>, <span class="at">col =</span> <span class="st">"lightgreen"</span>,</span>
-<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Std. Score (Slope)"</span>, <span class="at">xlab =</span> <span class="st">"Z value"</span>)</span>
-<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a><span class="fu">curve</span>(<span class="fu">dnorm</span>(x), <span class="at">add =</span> <span class="cn">TRUE</span>, <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
-<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a><span class="co"># Deviance (df = 2 parameters)</span></span>
-<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(deviance_vals, <span class="at">breaks =</span> <span class="dv">20</span>, <span class="at">freq =</span> <span class="cn">FALSE</span>, <span class="at">col =</span> <span class="st">"lightpink"</span>,</span>
-<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Deviance (p=2)"</span>, <span class="at">xlab =</span> <span class="st">"D"</span>)</span>
-<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a><span class="fu">curve</span>(<span class="fu">dchisq</span>(x, <span class="at">df =</span> <span class="dv">2</span>), <span class="at">add =</span> <span class="cn">TRUE</span>, <span class="at">col =</span> <span class="st">"darkgreen"</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span></code></pre></div>
-</details>
-<div class="cell-output-display">
-<div id="fig-poisson-sim-nn" class="quarto-float quarto-figure quarto-figure-center">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-poisson-sim-nn-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="mle_files/figure-html/fig-poisson-sim-nn-1.png" width="576" class="figure-img">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-poisson-sim-nn-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;6.5: Simulation of Poisson Regression (n=200, 2000 replicates). Left: The standardized MLE for the slope. Center: The standardized Score for the slope. Right: The Deviance for the full vector behaves as Chi-squared with p=2 degrees of freedom.
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-poisson-nr-and-fit" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-poisson-nr-and-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="mle_files/figure-html/fig-poisson-nr-and-fit-1.png" width="3000" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-poisson-nr-and-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.5: Left: Newton-Raphson path on the log-likelihood surface. Right: Observed data with the true and estimated mean functions.
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p><strong>Alternative Derivation: Sum of Individual Contributions</strong></p>
-<p>We can also derive the Score and Information by viewing the full log-likelihood as a sum of individual contributions, where each contribution follows the scalar canonical form:</p>
-<p><span class="math display">\[
-\ell(\boldsymbol{\beta}) = \sum_{i=1}^n \ell_i(\theta_i; y_i) = \sum_{i=1}^n \left[ y_i \theta_i - A(\theta_i) + \log h(y_i) \right]
-\]</span></p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-poisson-sim-asymptotics" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-poisson-sim-asymptotics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="mle_files/figure-html/fig-poisson-sim-asymptotics-1.png" width="576" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-poisson-sim-asymptotics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.6: Asymptotic distributions of MLE, Score, and Deviance.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<section id="derivation-of-score-and-information-in-poisson-regression" class="level3 unnumbered">
+<h3 class="unnumbered" data-anchor-id="derivation-of-score-and-information-in-poisson-regression">Derivation of Score and Information in Poisson Regression</h3>
+<div class="example">
+<p>In a Poisson Generalized Linear Model with a canonical link, the mean is modeled as <span class="math inline">\(\lambda_i(\boldsymbol{\beta}) = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})\)</span>. The derivation of the Score vector and the Fisher Information matrix relies on the chain rule and the properties of the exponential function.</p>
+<section id="derivation-of-the-score-vector-mathbfuboldsymbolbeta" class="level3" data-number="6.7.1">
+<h3 data-number="6.7.1" data-anchor-id="derivation-of-the-score-vector-mathbfuboldsymbolbeta"><span class="header-section-number">6.7.1</span> Derivation of the Score Vector <span class="math inline">\(\mathbf{U}(\boldsymbol{\beta})\)</span></h3>
+<p>The Score vector is defined as the gradient of the log-likelihood with respect to the parameter vector <span class="math inline">\(\boldsymbol{\beta}\)</span>.</p>
 <ol type="1">
-<li><p><strong>Exponential Family Properties</strong></p>
-<ul>
-<li><strong>Natural Parameter:</strong> <span class="math inline">\(\theta_i = \log \lambda_i = \mathbf{x}_i^\top \boldsymbol{\beta}\)</span>.</li>
-<li><strong>Log-Partition Function:</strong> <span class="math inline">\(A(\theta_i) = e^{\theta_i} = \lambda_i\)</span>.</li>
-<li><strong>Moments:</strong> <span class="math inline">\(E[Y_i] = A'(\theta_i) = \lambda_i\)</span> and <span class="math inline">\(\text{Var}(Y_i) = A''(\theta_i) = \lambda_i\)</span>.</li>
-</ul></li>
-<li><p><strong>Derivations via Chain Rule</strong> We derive the gradient and Hessian with respect to <span class="math inline">\(\boldsymbol{\beta}\)</span> using the chain rule term <span class="math inline">\(\frac{\partial \theta_i}{\partial \boldsymbol{\beta}} = \mathbf{x}_i\)</span>.</p>
-<ul>
-<li><p><strong>Score Vector (<span class="math inline">\(\mathbf{U}\)</span>):</strong> <span class="math display">\[
-  \mathbf{U}(\boldsymbol{\beta}) = \nabla_{\boldsymbol{\beta}} \sum_{i=1}^n \ell_i(\theta_i) = \sum_{i=1}^n (y_i - A'(\theta_i)) \frac{\partial \theta_i}{\partial \boldsymbol{\beta}} = \sum_{i=1}^n (y_i - \lambda_i) \mathbf{x}_i = \mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda})
-  \]</span></p></li>
-<li><p><strong>Fisher Information (<span class="math inline">\(J\)</span>):</strong> The information is the negative Hessian. The derivative of the residual <span class="math inline">\((y_i - \lambda_i)\)</span> is <span class="math inline">\(-A''(\theta_i) \frac{\partial \theta_i}{\partial \boldsymbol{\beta}}\)</span>: <span class="math display">\[
-  J(\boldsymbol{\beta}) = - \sum_{i=1}^n \frac{\partial}{\partial \boldsymbol{\beta}^\top} \left[ (y_i - \lambda_i) \mathbf{x}_i \right] = \sum_{i=1}^n A''(\theta_i) \mathbf{x}_i \mathbf{x}_i^\top = \mathbf{X}^\top \mathbf{W} \mathbf{X}
-  \]</span> where <span class="math inline">\(\mathbf{W} = \text{diag}(\lambda_i)\)</span> is the weight matrix (which equals the variance for Poisson).</p></li>
-</ul></li>
+<li><p><strong>Differentiate the Log-Likelihood</strong> Starting from the log-likelihood function: <span class="math display">\[
+\ell(\boldsymbol{\beta}) = \sum_{i=1}^n \left( y_i (\mathbf{x}_i^\top \boldsymbol{\beta}) - \exp(\mathbf{x}_i^\top \boldsymbol{\beta}) - \log(y_i!) \right)
+\]</span> We take the partial derivative with respect to a single component <span class="math inline">\(\beta_j\)</span>: <span class="math display">\[
+\frac{\partial \ell}{\partial \beta_j} = \sum_{i=1}^n \left( y_i \frac{\partial (\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} - \frac{\partial \exp(\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} \right)
+\]</span></p></li>
+<li><p><strong>Apply the Chain Rule</strong> Note that <span class="math inline">\(\frac{\partial (\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} = x_{ij}\)</span>. Using the chain rule on the exponential term: <span class="math display">\[
+\frac{\partial \exp(\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} = \exp(\mathbf{x}_i^\top \boldsymbol{\beta}) \cdot x_{ij} = \lambda_i(\boldsymbol{\beta}) x_{ij}
+\]</span></p></li>
+<li><p><strong>Form the Vector</strong> Substituting these back, we get: <span class="math display">\[
+\frac{\partial \ell}{\partial \beta_j} = \sum_{i=1}^n (y_i - \lambda_i(\boldsymbol{\beta})) x_{ij}
+\]</span> In matrix notation, this corresponds to: <span class="math display">\[
+\mathbf{U}(\boldsymbol{\beta}) = \mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda}(\boldsymbol{\beta}))
+\]</span></p></li>
 </ol>
+</section>
+<section id="derivation-of-the-observed-fisher-information-jboldsymbolbeta" class="level3" data-number="6.7.2">
+<h3 data-number="6.7.2" data-anchor-id="derivation-of-the-observed-fisher-information-jboldsymbolbeta"><span class="header-section-number">6.7.2</span> Derivation of the Observed Fisher Information <span class="math inline">\(J(\boldsymbol{\beta})\)</span></h3>
+<p>The Observed Information is the negative Hessian matrix of the log-likelihood.</p>
+<ol type="1">
+<li><p><strong>Differentiate the Score</strong> We take the derivative of the <span class="math inline">\(j\)</span>-th component of the score, <span class="math inline">\(U_j = \sum_{i=1}^n (y_i - \lambda_i(\boldsymbol{\beta})) x_{ij}\)</span>, with respect to <span class="math inline">\(\beta_k\)</span>: <span class="math display">\[
+\frac{\partial^2 \ell}{\partial \beta_j \partial \beta_k} = \frac{\partial}{\partial \beta_k} \sum_{i=1}^n (y_i - \lambda_i(\boldsymbol{\beta})) x_{ij} = \sum_{i=1}^n \left( -\frac{\partial \lambda_i(\boldsymbol{\beta})}{\partial \beta_k} \right) x_{ij}
+\]</span></p></li>
+<li><p><strong>Differentiate the Mean Function</strong> Recall <span class="math inline">\(\lambda_i(\boldsymbol{\beta}) = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})\)</span>. Its derivative with respect to <span class="math inline">\(\beta_k\)</span> is: <span class="math display">\[
+\frac{\partial \lambda_i(\boldsymbol{\beta})}{\partial \beta_k} = \lambda_i(\boldsymbol{\beta}) x_{ik}
+\]</span></p></li>
+<li><p><strong>Construct the Information Matrix</strong> The <span class="math inline">\((j, k)\)</span> element of the Hessian is: <span class="math display">\[
+H_{jk} = -\sum_{i=1}^n \lambda_i(\boldsymbol{\beta}) x_{ij} x_{ik}
+\]</span> The Observed Information <span class="math inline">\(J(\boldsymbol{\beta}) = -H\)</span> is therefore: <span class="math display">\[
+J(\boldsymbol{\beta})_{jk} = \sum_{i=1}^n \lambda_i(\boldsymbol{\beta}) x_{ij} x_{ik}
+\]</span> In matrix form, let <span class="math inline">\(\mathbf{W}(\boldsymbol{\beta})\)</span> be a diagonal matrix where <span class="math inline">\(W_{ii} = \lambda_i(\boldsymbol{\beta})\)</span>. Then: <span class="math display">\[
+J(\boldsymbol{\beta}) = \mathbf{X}^\top \mathbf{W}(\boldsymbol{\beta}) \mathbf{X}
+\]</span></p></li>
+</ol>
+<div id="rem-canonical-simplicity" class="proof remark">
+<p><span class="proof-title"><em>Remark 6.2</em> (Canonical Link Advantage). </span>Notice that because we used the canonical link (<span class="math inline">\(\log \lambda = \eta\)</span>), the second derivative of the log-likelihood (the Hessian) does not depend on the observed data <span class="math inline">\(y_i\)</span>. It only depends on the predicted means <span class="math inline">\(\lambda_i(\boldsymbol{\beta})\)</span>. Consequently, the <strong>Observed Information</strong> and the <strong>Expected Information</strong> are identical: <span class="math display">\[
+J(\boldsymbol{\beta}) = I(\boldsymbol{\beta})
+\]</span> This is a unique property of canonical links in Generalized Linear Models.</p>
+</div>
+</section>
+</div>
+</section>
+</section>
+<section id="mle-and-penalized-likelihood-in-deep-learning" class="level2" data-number="6.8">
+<h2 data-number="6.8" data-anchor-id="mle-and-penalized-likelihood-in-deep-learning"><span class="header-section-number">6.8</span> MLE and Penalized Likelihood in Deep Learning</h2>
+<p>In deep learning, the objective function is typically the negative log-likelihood of the dataset, often supplemented by a penalty term (regularization) to prevent overfitting. While the theoretical foundations of Maximum Likelihood Estimation remain the same, the practical application in high-dimensional neural networks faces significant computational challenges that necessitate specialized optimization strategies.</p>
+<section id="the-optimization-challenge" class="level3" data-number="6.8.1">
+<h3 data-number="6.8.1" data-anchor-id="the-optimization-challenge"><span class="header-section-number">6.8.1</span> The Optimization Challenge</h3>
+<p>In traditional statistical models, <span class="math inline">\(\ell(\boldsymbol{\theta})\)</span> is often globally concave, allowing algorithms like Newton-Raphson to converge reliably. Deep learning models, however, present a different landscape:</p>
+<ol type="1">
+<li><p><strong>Non-convexity</strong> The log-likelihood surface <span class="math inline">\(\ell(\boldsymbol{\theta})\)</span> is highly non-convex with numerous local minima, saddle points, and plateaus.</p></li>
+<li><p><strong>High Dimensionality</strong> The parameter vector <span class="math inline">\(\boldsymbol{\theta}\)</span> can contain millions or billions of weights. This makes the storage and inversion of the Observed Information Matrix <span class="math inline">\(\mathbf{J}(\boldsymbol{\theta})\)</span> (the <span class="math inline">\(p \times p\)</span> Hessian) computationally intractable.</p></li>
+</ol>
+</section>
+<section id="penalized-likelihood-regularization" class="level3" data-number="6.8.2">
+<h3 data-number="6.8.2" data-anchor-id="penalized-likelihood-regularization"><span class="header-section-number">6.8.2</span> Penalized Likelihood (Regularization)</h3>
+<p>To improve generalization, we often optimize a <strong>penalized log-likelihood</strong>:</p>
+<p><span class="math display">\[
+\ell_{pen}(\boldsymbol{\theta}) = \ell(\boldsymbol{\beta}) - \Omega(\boldsymbol{\theta})
+\]</span></p>
+<p>where <span class="math inline">\(\Omega(\boldsymbol{\theta})\)</span> is a penalty function. Common examples include:</p>
+<ol type="1">
+<li><strong><span class="math inline">\(L_2\)</span> Regularization (Weight Decay):</strong> <span class="math inline">\(\Omega(\boldsymbol{\theta}) = \frac{\lambda}{2} \|\boldsymbol{\theta}\|^2\)</span>, which corresponds to a Gaussian prior in a Bayesian framework.</li>
+<li><strong><span class="math inline">\(L_1\)</span> Regularization (Lasso):</strong> <span class="math inline">\(\Omega(\boldsymbol{\theta}) = \lambda \|\boldsymbol{\theta}\|_1\)</span>, which encourages sparsity in the network weights.</li>
+</ol>
+</section>
+<section id="gradient-based-methods-and-the-role-of-fisher-information" class="level3" data-number="6.8.3">
+<h3 data-number="6.8.3" data-anchor-id="gradient-based-methods-and-the-role-of-fisher-information"><span class="header-section-number">6.8.3</span> Gradient-Based Methods and the Role of Fisher Information</h3>
+<p>Because computing the Hessian <span class="math inline">\(\mathbf{H} = -\mathbf{J}\)</span> is impossible in large networks, deep learning relies on <strong>First-Order Methods</strong> (like SGD, Adam, or RMSProp). These methods primarily use the score vector <span class="math inline">\(\mathbf{U}(\boldsymbol{\theta})\)</span> to update parameters:</p>
+<p><span class="math display">\[
+\boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} + \alpha \mathbf{U}(\boldsymbol{\theta}^{(t)})
+\]</span></p>
+<p>However, the second-order information remains theoretically crucial. Modern optimizers leverage the <strong>Second Moment Identity</strong> (Bartlett’s Identity) to approximate the curvature without ever computing the second derivatives:</p>
+<div id="thm-fisher-approximation" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 6.13 (Fisher Information Approximation)</strong></span> Recall from <a href="loglike.html#thm-score-identities" class="quarto-xref">Theorem&nbsp;<span>5.1</span></a> that at the true parameter (or a good estimate), the Fisher Information is both the variance of the score and the expected Hessian:</p>
+<p><span class="math display">\[
+\mathbf{I}(\boldsymbol{\theta}) = \text{Cov}(\mathbf{U}) = E[\mathbf{J}]
+\]</span></p>
+<p>In deep learning, we approximate <span class="math inline">\(\mathbf{I}(\boldsymbol{\theta})\)</span> using the “outer product of gradients” (empirical Fisher):</p>
+<p><span class="math display">\[
+\hat{\mathbf{I}} = \frac{1}{n} \sum_{i=1}^n \nabla \ell(\boldsymbol{\theta}; Y_i) \nabla \ell(\boldsymbol{\theta}; Y_i)^\top
+\]</span></p>
+</div>
+</section>
+<section id="avoiding-the-hessian-via-the-score-covariance" class="level3" data-number="6.8.4">
+<h3 data-number="6.8.4" data-anchor-id="avoiding-the-hessian-via-the-score-covariance"><span class="header-section-number">6.8.4</span> Avoiding the Hessian via the Score Covariance</h3>
+<p>Adaptive optimizers like <strong>RMSProp</strong> and <strong>Adam</strong> use this identity to perform a coordinate-wise scaling of the learning rate. Instead of computing the full Hessian <span class="math inline">\(\mathbf{H}\)</span>, they maintain a running average of the squared scores (<span class="math inline">\(U_j^2\)</span>):</p>
+<ol type="1">
+<li><p><strong>Scaling by Variance:</strong> Since <span class="math inline">\(\text{Var}(U_j) = I_{jj}\)</span>, the squared gradients provide an estimate of the local curvature along each dimension.</p></li>
+<li><p><strong>Preconditioning:</strong> By dividing the update by <span class="math inline">\(\sqrt{\text{Var}(U_j)}\)</span>, these algorithms effectively “flatten” the likelihood surface, performing a simplified version of the Newton-Raphson update:</p>
+<p><span class="math display">\[
+\theta_j^{(t+1)} \approx \theta_j^{(t)} + \frac{\alpha}{\sqrt{\hat{I}_{jj}}} U_j(\boldsymbol{\theta}^{(t)})
+\]</span></p></li>
+</ol>
+<p>This approach allows deep learning models to benefit from the second-order geometry of the log-likelihood while only requiring first-order gradients, bypassing the <span class="math inline">\(O(p^2)\)</span> cost of the Hessian.</p>
+<div id="rem-natural-gradient" class="proof remark">
+<p><span class="proof-title"><em>Remark 6.3</em> (Natural Gradient Descent). </span>The most direct application of this theory is <strong>Natural Gradient Descent</strong>, which updates parameters using <span class="math inline">\(\Delta \boldsymbol{\theta} = \alpha \mathbf{I}(\boldsymbol{\theta})^{-1} \mathbf{U}(\boldsymbol{\theta})\)</span>. This update is invariant to the parameterization of the model, as it moves the parameters a fixed distance in the space of <em>probability distributions</em> (measured by KL divergence) rather than the space of <em>weights</em>.</p>
 </div>
 
 
