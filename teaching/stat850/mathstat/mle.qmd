@@ -323,7 +323,7 @@ $$
 
 :::
 
-## Asymptotic Theory of Maximum Likelihood
+## Asymptotic Theory of Maximized Likelihood
 
 ### Consistency of the MLE
 
@@ -331,75 +331,190 @@ $$
 
 Consistency establishes that as the sample size grows, the estimator converges in probability to the true parameter value.
 
+::: {#lem-kl-divergence-mle}
+
+### Minimization of KL Divergence at the True Density
+
+Let $f(y|\boldsymbol{\theta}_0)$ be the true density of a random variable $Y$, and let $f(y|\boldsymbol{\theta})$ be any other density in the family. The **Kullback-Leibler (KL) Divergence** (or relative entropy) between the true distribution and a candidate distribution is defined as:
+
+$$
+D_{KL}(f(\cdot|\boldsymbol{\theta}_0) \| f(\cdot|\boldsymbol{\theta})) = E_{\boldsymbol{\theta}_0} \left[ \log \left( \frac{f(Y|\boldsymbol{\theta}_0)}{f(Y|\boldsymbol{\theta})} \right) \right]
+$$
+
+This quantity satisfies the **Information Inequality**:
+
+$$
+D_{KL}(f(\cdot|\boldsymbol{\theta}_0) \| f(\cdot|\boldsymbol{\theta})) \ge 0
+$$
+
+with equality if and only if $f(y|\boldsymbol{\theta}) = f(y|\boldsymbol{\theta}_0)$ almost everywhere. This implies that the expected log-likelihood $M(\boldsymbol{\theta}) = E_{\boldsymbol{\theta}_0}[\log f(Y|\boldsymbol{\theta})]$ is uniquely maximized at the true parameter $\boldsymbol{\theta}_0$ (or true density for $Y$).
+:::
+
+::: {.proof}
+
+1. **Information Inequality via Jensen's Inequality**
+   
+   Consider the negative KL divergence, which is the expected log-likelihood ratio. By **Jensen's Inequality**, since the logarithm is a strictly concave function:
+   
+   $$
+   -D_{KL}(f(\cdot|\boldsymbol{\theta}_0) \| f(\cdot|\boldsymbol{\theta})) = E_{\boldsymbol{\theta}_0} \left[ \log \left( \frac{f(Y|\boldsymbol{\theta})}{f(Y|\boldsymbol{\theta}_0)} \right) \right] \le \log E_{\boldsymbol{\theta}_0} \left[ \frac{f(Y|\boldsymbol{\theta})}{f(Y|\boldsymbol{\theta}_0)} \right]
+   $$
+
+2. **Evaluating the Expectation**
+   
+   We evaluate the expectation on the right-hand side:
+   
+   $$
+   E_{\boldsymbol{\theta}_0} \left[ \frac{f(Y|\boldsymbol{\theta})}{f(Y|\boldsymbol{\theta}_0)} \right] = \int_{\mathcal{Y}} \left( \frac{f(y|\boldsymbol{\theta})}{f(y|\boldsymbol{\theta}_0)} \right) f(y|\boldsymbol{\theta}_0) \, dy = \int_{\mathcal{Y}} f(y|\boldsymbol{\theta}) \, dy = 1
+   $$
+
+3. **Conclusion**
+   
+   Substituting the result into the inequality:
+   
+   $$
+   -D_{KL}(f(\cdot|\boldsymbol{\theta}_0) \| f(\cdot|\boldsymbol{\theta})) \le \log(1) = 0 \implies D_{KL}(f(\cdot|\boldsymbol{\theta}_0) \| f(\cdot|\boldsymbol{\theta})) \ge 0
+   $$
+   
+   Because the log function is strictly concave, the equality $E[\log Z] = \log E[Z]$ holds if and only if $Z$ is a constant with probability 1. Here, $Z = f(Y|\boldsymbol{\theta})/f(Y|\boldsymbol{\theta}_0)$, so equality holds if and only if $f(y|\boldsymbol{\theta}) = f(y|\boldsymbol{\theta}_0)$ for almost all $y$.
+
+:::
+
+
+
 ::: {#thm-mle-consistency}
 
-#### Consistency of MLE
-Let $Y_1, \dots, Y_n$ be i.i.d. with density $f(y|\boldsymbol{\theta})$. Let $\boldsymbol{\theta}_0$ be the true parameter. Under regularity conditions (specifically identifiability and compactness), the Maximum Likelihood Estimator $\hat{\boldsymbol{\theta}}_n$ satisfies:
+### Consistency of MLE
+
+Let $Y_1, \dots, Y_n$ be i.i.d. with density $f(y|\boldsymbol{\theta})$. Let $\boldsymbol{\theta}_0$ be the true parameter. Assume the following **Identifiability** condition holds:
+   
+$$
+f(y|\boldsymbol{\theta}) = f(y|\boldsymbol{\theta}_0) \text{ for almost all } y \implies \boldsymbol{\theta} = \boldsymbol{\theta}_0
+$$
+
+Under this and other standard regularity conditions (such as compactness of the parameter space $\Theta$), the Maximum Likelihood Estimator $\hat{\boldsymbol{\theta}}_n$ satisfies:
+
 $$
 \hat{\boldsymbol{\theta}}_n \xrightarrow{p} \boldsymbol{\theta}_0 \quad \text{as } n \to \infty
 $$
 
 :::
 
+
+
+::: {#rem-identifiability}
+
+### The Role of Identifiability
+
+Identifiability is a fundamental requirement for consistency because it ensures that different parameter values correspond to different probability distributions.
+
+1. **Uniqueness of the Mapping**
+   Mathematically, it means the mapping $\boldsymbol{\theta} \to f(\cdot|\boldsymbol{\theta})$ is one-to-one. If the model were not identifiable, there would exist at least one $\boldsymbol{\theta}_1 \neq \boldsymbol{\theta}_0$ such that $f(y|\boldsymbol{\theta}_1) = f(y|\boldsymbol{\theta}_0)$.
+   
+2. **Uniqueness of the Maximum**
+   In the context of the proof, @lem-kl-divergence-mle shows that the KL divergence is zero if and only if the densities are identical. Identifiability allows us to move from the space of "densities" back to the space of "parameters," ensuring that $\boldsymbol{\theta}_0$ is the **unique** global maximum of the expected log-likelihood function $M(\boldsymbol{\theta})$.
+   
+3. **Failure of Consistency**
+   Without identifiability, the data cannot distinguish between $\boldsymbol{\theta}_0$ and $\boldsymbol{\theta}_1$. The MLE would not converge to a single point but rather to the set of all parameters that produce the true density.
+:::
+
 ::: {.proof}
 
 1. **The Objective Function**
-
+   
    The MLE maximizes the average log-likelihood:
+   
    $$
    M_n(\boldsymbol{\theta}) = \frac{1}{n} \sum_{i=1}^n \log f(Y_i|\boldsymbol{\theta})
    $$
+   
    By the **Weak Law of Large Numbers (WLLN)**, for any fixed $\boldsymbol{\theta}$, $M_n(\boldsymbol{\theta})$ converges in probability to its expectation:
+   
    $$
    M_n(\boldsymbol{\theta}) \xrightarrow{p} M(\boldsymbol{\theta}) = E_{\boldsymbol{\theta}_0} [\log f(Y|\boldsymbol{\theta})]
    $$
 
-2. **Identifying the Maximum (Information Inequality)**
-
-   We compare the expected log-likelihood at an arbitrary $\boldsymbol{\theta}$ versus the true $\boldsymbol{\theta}_0$. Consider the difference:
+2. **Convergence to the Unique Maximum**
+   
+   According to @lem-kl-divergence-mle, the limit function $M(\boldsymbol{\theta})$ is maximized when the KL divergence is zero. This happens uniquely at $\boldsymbol{\theta}_0$ due to identifiability. 
+   
+   Since $\hat{\boldsymbol{\theta}}_n$ is the maximizer of $M_n(\boldsymbol{\theta})$, and $M_n(\boldsymbol{\theta})$ converges uniformly to $M(\boldsymbol{\theta})$, the sequence of maximizers must converge to the maximizer of the limit function:
+   
    $$
-   M(\boldsymbol{\theta}) - M(\boldsymbol{\theta}_0) = E_{\boldsymbol{\theta}_0} \left[ \log f(Y|\boldsymbol{\theta}) - \log f(Y|\boldsymbol{\theta}_0) \right] = E_{\boldsymbol{\theta}_0} \left[ \log \left( \frac{f(Y|\boldsymbol{\theta})}{f(Y|\boldsymbol{\theta}_0)} \right) \right]
+   \hat{\boldsymbol{\theta}}_n \xrightarrow{p} \boldsymbol{\theta}_0
    $$
-   By **Jensen's Inequality** (since $\log(y)$ is strictly concave), $E[\log Z] \le \log E[Z]$.
-   $$
-   E_{\boldsymbol{\theta}_0} \left[ \log \left( \frac{f(Y|\boldsymbol{\theta})}{f(Y|\boldsymbol{\theta}_0)} \right) \right] \le \log E_{\boldsymbol{\theta}_0} \left[ \frac{f(Y|\boldsymbol{\theta})}{f(Y|\boldsymbol{\theta}_0)} \right]
-   $$
-   Evaluating the expectation on the right:
-   $$
-   E_{\boldsymbol{\theta}_0} \left[ \frac{f(Y|\boldsymbol{\theta})}{f(Y|\boldsymbol{\theta}_0)} \right] = \int \left( \frac{f(y|\boldsymbol{\theta})}{f(y|\boldsymbol{\theta}_0)} \right) f(y|\boldsymbol{\theta}_0) \, dy = \int f(y|\boldsymbol{\theta}) \, dy = 1
-   $$
-   Therefore:
-   $$
-   M(\boldsymbol{\theta}) - M(\boldsymbol{\theta}_0) \le \log(1) = 0 \implies M(\boldsymbol{\theta}) \le M(\boldsymbol{\theta}_0)
-   $$
-   Assuming the model is **identifiable** (i.e., $f(y|\boldsymbol{\theta}) = f(y|\boldsymbol{\theta}_0) \iff \boldsymbol{\theta} = \boldsymbol{\theta}_0$), the maximum is unique at $\boldsymbol{\theta}_0$. Since $\hat{\boldsymbol{\theta}}_n$ maximizes $M_n(\boldsymbol{\theta})$, which converges to $M(\boldsymbol{\theta})$, $\hat{\boldsymbol{\theta}}_n$ must converge to $\boldsymbol{\theta}_0$.
 
 :::
 
-```{tikz}
-%| label: fig-likelihood-consistency
-%| fig-cap: "Consistency: As n increases, the log-likelihood function concentrates around the true parameter."
-%| echo: false
-%| fig-align: "center"
+```{r}
+#| label: fig-likelihood-concentration-normal
+#| fig-cap: "Consistency: Concentration of the Average Log-Likelihood for $N(\\theta, 1)$"
+#| echo: false
+#| fig-align: center
+#| fig-width: 7
+#| fig-height: 5
+#| dpi: 300
 
-\begin{tikzpicture}
-\draw[->] (0,0) -- (6,0) node[right] {$\theta$};
-\draw[->] (0,0) -- (0,4) node[above] {$M_n(\theta)$};
+library(latex2exp)
 
-% True Limit Curve
-\draw[thick, blue] (0.5,0.5) .. controls (3,4.5) and (5,1) .. (5.5,0.5);
-\node[blue] at (5.5, 0.8) {$M(\theta)$};
+# Increase right margin for labels
+par(mar = c(5, 5, 2, 8) + 0.1, xpd = TRUE)
 
-% Finite Sample Curve (wiggly)
-\draw[dashed, red] (0.5,0.3) .. controls (1,1) and (2.8,4.2) .. (3, 4) .. controls (3.2, 4.2) and (5,0.8) .. (5.5,0.3);
-\node[red] at (5.5, 0.2) {$M_n(\theta)$};
+# 1. Setup Simulation Parameters
+set.seed(123)
+theta_0 <- 0
+theta_seq <- seq(-3, 3, length.out = 200)
 
-% Maxima
-\draw[dashed] (3,0) node[below] {$\theta_0$} -- (3,3.7);
-\filldraw (3,3.7) circle (2pt);
+# Expected log-likelihood M(theta) for N(theta, 1) when true theta = 0
+# M(theta) = -0.5 * log(2*pi) - 0.5 * E[(X - theta)^2]
+# Since E[X^2]=1 and E[X]=0, E[(X-theta)^2] = 1 + theta^2
+m_theta <- -0.5 * log(2 * pi) - 0.5 * (1 + theta_seq^2)
 
-\end{tikzpicture}
+# 2. Setup Plot (No axes, no box)
+plot(theta_seq, m_theta, type = "n", 
+     xlab = "", ylab = "", 
+     axes = FALSE, ylim = c(-6, -0.5), xlim = c(-3, 3.5))
 
+# 3. Draw Axis Lines with Arrows
+arrows(x0 = -3, y0 = -5.8, x1 = 3.5, y1 = -5.8, length = 0.1, lwd = 1) # x-axis
+arrows(x0 = -3, y0 = -5.8, x1 = -3, y1 = -0.8, length = 0.1, lwd = 1) # y-axis
+
+# 4. Generate and Plot Sample Average Log-Likelihoods M_n(theta)
+n_val <- c(5, 50)
+cols <- c("#EF9A9A", "#B71C1C") # Light red for small n, dark red for larger n
+
+for(i in 1:length(n_val)){
+   # Generate data from N(0, 1)
+   x_samp <- rnorm(n_val[i], mean = theta_0, sd = 1)
+   
+   # Calculate M_n(theta) for each theta in the sequence
+   # M_n(theta) = (1/n) * sum(log f(x_i | theta))
+   m_n <- sapply(theta_seq, function(t) {
+      mean(-0.5 * log(2 * pi) - 0.5 * (x_samp - t)^2)
+   })
+   
+   lines(theta_seq, m_n, col = cols[i], lwd = 1.5)
+}
+
+# 5. Plot the True Limit M(theta)
+lines(theta_seq, m_theta, col = "blue", lwd = 2.5)
+
+# 6. Add Reference Line for True Parameter
+segments(theta_0, -5.8, theta_0, m_theta[which.min(abs(theta_seq - theta_0))], lty = 3)
+
+# 7. Labels and Legend
+text(3.5, -6.1, TeX("$\\theta$"))
+text(-3.8, -0.8, TeX("$M_n(\\theta)$"), adj = 1)
+text(theta_0, -6.1, TeX("$\\theta_0$"))
+
+legend(x = 3.2, y = -2,
+       legend = c(TeX("$M(\\theta)$"), 
+                 TeX("$M_n(\\theta), n=5$"),
+                 TeX("$M_n(\\theta), n=50$")),
+       col = c("blue", cols[1], cols[2]),
+       lty = 1,
+       lwd = c(2.5, 1.5, 1.5),
+       bty = "n")
 ```
 
 #### Non-IID Cases
@@ -1058,6 +1173,79 @@ $$
 
 :::
 
+## The Newton-Raphson Algorithm
+
+When the score equation $\mathbf{U}(\boldsymbol{\theta}) = \mathbf{0}$ does not have a closed-form solution, we must rely on iterative numerical methods to find the Maximum Likelihood Estimator. The Newton-Raphson algorithm is the most common approach, utilizing the curvature of the log-likelihood surface to guide the search for the maximum.
+
+::: {#def-newton-raphson}
+### Newton-Raphson Iteration
+
+Starting from an initial guess $\boldsymbol{\theta}^{(0)}$, the algorithm updates the estimate of the parameter vector at each step $t$ using the following recurrence relation:
+
+$$
+\boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} + \left[ \mathbf{J}(\boldsymbol{\theta}^{(t)}) \right]^{-1} \mathbf{U}(\boldsymbol{\theta}^{(t)})
+$$
+
+where:
+
+1. **$\mathbf{U}(\boldsymbol{\theta}^{(t)})$** is the score vector (gradient) evaluated at the current estimate.
+
+2. **$\mathbf{J}(\boldsymbol{\theta}^{(t)})$** is the **Observed Fisher Information Matrix**, defined as the negative Hessian of the log-likelihood:
+   
+   $$
+   \mathbf{J}(\boldsymbol{\theta}) = - \nabla^2 \ell(\boldsymbol{\theta}) = - \frac{\partial^2 \ell(\boldsymbol{\theta})}{\partial \boldsymbol{\theta} \partial \boldsymbol{\theta}^T}
+   $$
+:::
+
+
+
+::: proof
+### Derivation via Taylor Expansion
+
+The algorithm is derived by approximating the score function $\mathbf{U}(\boldsymbol{\theta})$ with a first-order Taylor expansion around the current estimate $\boldsymbol{\theta}^{(t)}$:
+
+1. **Linear Approximation** \n
+   We approximate the score at the next step as:
+   
+   $$
+   \mathbf{U}(\boldsymbol{\theta}^{(t+1)}) \approx \mathbf{U}(\boldsymbol{\theta}^{(t)}) + \nabla \mathbf{U}(\boldsymbol{\theta}^{(t)}) (\boldsymbol{\theta}^{(t+1)} - \boldsymbol{\theta}^{(t)})
+   $$
+
+2. **Setting to Zero** \n
+   Since we want to find the root where $\mathbf{U}(\hat{\boldsymbol{\theta}}) = \mathbf{0}$, we set the left side to zero:
+   
+   $$
+   \mathbf{0} = \mathbf{U}(\boldsymbol{\theta}^{(t)}) - \mathbf{J}(\boldsymbol{\theta}^{(t)}) (\boldsymbol{\theta}^{(t+1)} - \boldsymbol{\theta}^{(t)})
+   $$
+   
+   Note that $\nabla \mathbf{U}(\boldsymbol{\theta}) = \nabla^2 \ell(\boldsymbol{\theta}) = -\mathbf{J}(\boldsymbol{\theta})$.
+
+3. **Solving for the Update** \n
+   Rearranging the terms gives the update rule:
+   
+   $$
+   \mathbf{J}(\boldsymbol{\theta}^{(t)}) (\boldsymbol{\theta}^{(t+1)} - \boldsymbol{\theta}^{(t)}) = \mathbf{U}(\boldsymbol{\theta}^{(t)})
+   $$
+   
+   $$
+   \boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} + \mathbf{J}(\boldsymbol{\theta}^{(t)})^{-1} \mathbf{U}(\boldsymbol{\theta}^{(t)})
+   $$
+:::
+
+
+
+::: {#rem-observed-vs-expected}
+### Observed vs. Expected Information
+
+The Newton-Raphson algorithm specifically uses the **Observed Information** $\mathbf{J}(\boldsymbol{\theta})$. If the expected Fisher Information $\mathbf{I}(\boldsymbol{\theta}) = E[\mathbf{J}(\boldsymbol{\theta})]$ is used instead, the method is known as **Fisher Scoring**.
+
+1. **Convergence Speed** \n
+   Newton-Raphson typically achieves quadratic convergence near the maximum, making it very fast when the initial guess is good.
+
+2. **Stability** \n
+   Because $\mathbf{J}(\boldsymbol{\theta})$ depends on the specific data observed, it can occasionally be non-positive definite in regions far from the MLE, which may cause the algorithm to diverge. Fisher Scoring is often more stable in these cases because $\mathbf{I}(\boldsymbol{\theta})$ is always positive semi-definite for regular families.
+:::
+
 ## Examples
 
 ### Simple Normal Distributions
@@ -1347,7 +1535,6 @@ $$
         $$
         where $\mathbf{W} = \text{diag}(\lambda_i)$ is the weight matrix (which equals the variance for Poisson).
 :::
-
 
 
 
