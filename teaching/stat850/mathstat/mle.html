@@ -255,8 +255,7 @@ window.Quarto = {
   <li><a href="#the-newton-raphson-algorithm" id="toc-the-newton-raphson-algorithm" class="nav-link" data-scroll-target="#the-newton-raphson-algorithm"><span class="header-section-number">6.5</span> The Newton-Raphson Algorithm</a>
   <ul>
   <li><a href="#newton-raphson-iteration" id="toc-newton-raphson-iteration" class="nav-link" data-scroll-target="#newton-raphson-iteration"><span class="header-section-number">6.5.1</span> Newton-Raphson Iteration</a></li>
-  <li><a href="#newton-raphson-iteration-1" id="toc-newton-raphson-iteration-1" class="nav-link" data-scroll-target="#newton-raphson-iteration-1"><span class="header-section-number">6.5.2</span> Newton-Raphson Iteration</a></li>
-  <li><a href="#fisher-scoring" id="toc-fisher-scoring" class="nav-link" data-scroll-target="#fisher-scoring"><span class="header-section-number">6.5.3</span> Fisher Scoring</a></li>
+  <li><a href="#fisher-scoring" id="toc-fisher-scoring" class="nav-link" data-scroll-target="#fisher-scoring"><span class="header-section-number">6.5.2</span> Fisher Scoring</a></li>
   </ul></li>
   <li><a href="#examples-1" id="toc-examples-1" class="nav-link" data-scroll-target="#examples-1"><span class="header-section-number">6.6</span> Examples</a>
   <ul>
@@ -270,8 +269,9 @@ window.Quarto = {
   <ul>
   <li><a href="#the-optimization-challenge" id="toc-the-optimization-challenge" class="nav-link" data-scroll-target="#the-optimization-challenge"><span class="header-section-number">6.8.1</span> The Optimization Challenge</a></li>
   <li><a href="#penalized-likelihood-regularization" id="toc-penalized-likelihood-regularization" class="nav-link" data-scroll-target="#penalized-likelihood-regularization"><span class="header-section-number">6.8.2</span> Penalized Likelihood (Regularization)</a></li>
-  <li><a href="#gradient-based-methods-and-the-role-of-fisher-information" id="toc-gradient-based-methods-and-the-role-of-fisher-information" class="nav-link" data-scroll-target="#gradient-based-methods-and-the-role-of-fisher-information"><span class="header-section-number">6.8.3</span> Gradient-Based Methods and the Role of Fisher Information</a></li>
-  <li><a href="#avoiding-the-hessian-via-the-score-covariance" id="toc-avoiding-the-hessian-via-the-score-covariance" class="nav-link" data-scroll-target="#avoiding-the-hessian-via-the-score-covariance"><span class="header-section-number">6.8.4</span> Avoiding the Hessian via the Score Covariance</a></li>
+  <li><a href="#purely-gradient-based-methods-op-complexity" id="toc-purely-gradient-based-methods-op-complexity" class="nav-link" data-scroll-target="#purely-gradient-based-methods-op-complexity"><span class="header-section-number">6.8.3</span> Purely Gradient-Based Methods (O(p) Complexity)</a></li>
+  <li><a href="#avoiding-the-hessian-via-score-covariance" id="toc-avoiding-the-hessian-via-score-covariance" class="nav-link" data-scroll-target="#avoiding-the-hessian-via-score-covariance"><span class="header-section-number">6.8.4</span> Avoiding the Hessian via Score Covariance</a></li>
+  <li><a href="#adaptive-methods-diagonal-covariance-scaling" id="toc-adaptive-methods-diagonal-covariance-scaling" class="nav-link" data-scroll-target="#adaptive-methods-diagonal-covariance-scaling"><span class="header-section-number">6.8.5</span> Adaptive Methods: Diagonal Covariance Scaling</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -539,9 +539,12 @@ f(y|\boldsymbol{\theta}) = f(y|\boldsymbol{\theta}_0) \text{ for almost all } y 
 <div id="rem-identifiability" class="proof remark">
 <p><span class="proof-title"><em>Remark 6.1</em> (The Role of Identifiability). </span>Identifiability is a fundamental requirement for consistency because it ensures that different parameter values correspond to different probability distributions.</p>
 <ol type="1">
-<li><p><strong>Uniqueness of the Mapping</strong> Mathematically, it means the mapping <span class="math inline">\(\boldsymbol{\theta} \to f(\cdot|\boldsymbol{\theta})\)</span> is one-to-one. If the model were not identifiable, there would exist at least one <span class="math inline">\(\boldsymbol{\theta}_1 \neq \boldsymbol{\theta}_0\)</span> such that <span class="math inline">\(f(y|\boldsymbol{\theta}_1) = f(y|\boldsymbol{\theta}_0)\)</span>.</p></li>
-<li><p><strong>Uniqueness of the Maximum</strong> In the context of the proof, <a href="#lem-kl-divergence-mle" class="quarto-xref">Lemma&nbsp;<span>6.1</span></a> shows that the KL divergence is zero if and only if the densities are identical. Identifiability allows us to move from the space of “densities” back to the space of “parameters,” ensuring that <span class="math inline">\(\boldsymbol{\theta}_0\)</span> is the <strong>unique</strong> global maximum of the expected log-likelihood function <span class="math inline">\(M(\boldsymbol{\theta})\)</span>.</p></li>
-<li><p><strong>Failure of Consistency</strong> Without identifiability, the data cannot distinguish between <span class="math inline">\(\boldsymbol{\theta}_0\)</span> and <span class="math inline">\(\boldsymbol{\theta}_1\)</span>. The MLE would not converge to a single point but rather to the set of all parameters that produce the true density.</p></li>
+<li><p><strong>Uniqueness of the Mapping</strong></p>
+<p>Mathematically, it means the mapping <span class="math inline">\(\boldsymbol{\theta} \to f(\cdot|\boldsymbol{\theta})\)</span> is one-to-one. If the model were not identifiable, there would exist at least one <span class="math inline">\(\boldsymbol{\theta}_1 \neq \boldsymbol{\theta}_0\)</span> such that <span class="math inline">\(f(y|\boldsymbol{\theta}_1) = f(y|\boldsymbol{\theta}_0)\)</span>.</p></li>
+<li><p><strong>Uniqueness of the Maximum</strong></p>
+<p>In the context of the proof, <a href="#lem-kl-divergence-mle" class="quarto-xref">Lemma&nbsp;<span>6.1</span></a> shows that the KL divergence is zero if and only if the densities are identical. Identifiability allows us to move from the space of “densities” back to the space of “parameters,” ensuring that <span class="math inline">\(\boldsymbol{\theta}_0\)</span> is the <strong>unique</strong> global maximum of the expected log-likelihood function <span class="math inline">\(M(\boldsymbol{\theta})\)</span>.</p></li>
+<li><p><strong>Failure of Consistency</strong></p>
+<p>Without identifiability, the data cannot distinguish between <span class="math inline">\(\boldsymbol{\theta}_0\)</span> and <span class="math inline">\(\boldsymbol{\theta}_1\)</span>. The MLE would not converge to a single point but rather to the set of all parameters that produce the true density.</p></li>
 </ol>
 </div>
 <div class="proof">
@@ -1113,10 +1116,7 @@ D_n \xrightarrow{d} \chi^2_k
 <p>When the score equation <span class="math inline">\(\mathbf{U}(\boldsymbol{\theta}) = \mathbf{0}\)</span> does not have a closed-form solution, we must rely on iterative numerical methods to find the Maximum Likelihood Estimator. The Newton-Raphson algorithm is the most common approach, utilizing the curvature of the log-likelihood surface to guide the search for the maximum.</p>
 <section id="newton-raphson-iteration" class="level3" data-number="6.5.1">
 <h3 data-number="6.5.1" data-anchor-id="newton-raphson-iteration"><span class="header-section-number">6.5.1</span> Newton-Raphson Iteration</h3>
-</section>
-<div id="alg-newton-raphson">
-<section id="newton-raphson-iteration-1" class="level3" data-number="6.5.2">
-<h3 data-number="6.5.2" data-anchor-id="newton-raphson-iteration-1"><span class="header-section-number">6.5.2</span> Newton-Raphson Iteration</h3>
+<div class="algorithm">
 <p>Starting from an initial guess <span class="math inline">\(\boldsymbol{\theta}^{(0)}\)</span>, the algorithm updates the estimate of the parameter vector at each step <span class="math inline">\(t\)</span> using the following recurrence relation:</p>
 <p><span class="math display">\[
 \boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} + \left[ \mathbf{J}(\boldsymbol{\theta}^{(t)}) \right]^{-1} \mathbf{U}(\boldsymbol{\theta}^{(t)})
@@ -1129,21 +1129,23 @@ D_n \xrightarrow{d} \chi^2_k
 \mathbf{J}(\boldsymbol{\theta}) = - \nabla^2 \ell(\boldsymbol{\theta}) = - \frac{\partial^2 \ell(\boldsymbol{\theta})}{\partial \boldsymbol{\theta} \partial \boldsymbol{\theta}^T}
 \]</span></p></li>
 </ol>
-</section>
 </div>
 <div class="proof">
 <p><span class="proof-title"><em>Proof</em> (Derivation via Taylor Expansion). </span>The algorithm is derived by approximating the score function <span class="math inline">\(\mathbf{U}(\boldsymbol{\theta})\)</span> with a first-order Taylor expansion around the current estimate <span class="math inline">\(\boldsymbol{\theta}^{(t)}\)</span>:</p>
 <ol type="1">
-<li><p><strong>Linear Approximation</strong> We approximate the score at the next step as:</p>
+<li><p><strong>Linear Approximation</strong> </p>
+<p>We approximate the score at the next step as:</p>
 <p><span class="math display">\[
 \mathbf{U}(\boldsymbol{\theta}^{(t+1)}) \approx \mathbf{U}(\boldsymbol{\theta}^{(t)}) + \nabla \mathbf{U}(\boldsymbol{\theta}^{(t)}) (\boldsymbol{\theta}^{(t+1)} - \boldsymbol{\theta}^{(t)})
 \]</span></p></li>
-<li><p><strong>Setting to Zero</strong> Since we want to find the root where <span class="math inline">\(\mathbf{U}(\hat{\boldsymbol{\theta}}) = \mathbf{0}\)</span>, we set the left side to zero:</p>
+<li><p><strong>Setting to Zero</strong> </p>
+<p>Since we want to find the root where <span class="math inline">\(\mathbf{U}(\hat{\boldsymbol{\theta}}) = \mathbf{0}\)</span>, we set the left side to zero:</p>
 <p><span class="math display">\[
 \mathbf{0} = \mathbf{U}(\boldsymbol{\theta}^{(t)}) - \mathbf{J}(\boldsymbol{\theta}^{(t)}) (\boldsymbol{\theta}^{(t+1)} - \boldsymbol{\theta}^{(t)})
 \]</span></p>
 <p>Note that <span class="math inline">\(\nabla \mathbf{U}(\boldsymbol{\theta}) = \nabla^2 \ell(\boldsymbol{\theta}) = -\mathbf{J}(\boldsymbol{\theta})\)</span>.</p></li>
-<li><p><strong>Solving for the Update</strong> Rearranging the terms gives the update rule:</p>
+<li><p><strong>Solving for the Update</strong> </p>
+<p>Rearranging the terms gives the update rule:</p>
 <p><span class="math display">\[
 \mathbf{J}(\boldsymbol{\theta}^{(t)}) (\boldsymbol{\theta}^{(t+1)} - \boldsymbol{\theta}^{(t)}) = \mathbf{U}(\boldsymbol{\theta}^{(t)})
 \]</span></p>
@@ -1152,12 +1154,15 @@ D_n \xrightarrow{d} \chi^2_k
 \]</span></p></li>
 </ol>
 </div>
-<section id="fisher-scoring" class="level3" data-number="6.5.3">
-<h3 data-number="6.5.3" data-anchor-id="fisher-scoring"><span class="header-section-number">6.5.3</span> Fisher Scoring</h3>
+</section>
+<section id="fisher-scoring" class="level3" data-number="6.5.2">
+<h3 data-number="6.5.2" data-anchor-id="fisher-scoring"><span class="header-section-number">6.5.2</span> Fisher Scoring</h3>
 <p>The Newton-Raphson algorithm specifically uses the <strong>Observed Information</strong> <span class="math inline">\(\mathbf{J}(\boldsymbol{\theta})\)</span>. If the expected Fisher Information <span class="math inline">\(\mathbf{I}(\boldsymbol{\theta}) = E[\mathbf{J}(\boldsymbol{\theta})]\)</span> is used instead, the method is known as <strong>Fisher Scoring</strong>.</p>
 <ol type="1">
-<li><p><strong>Convergence Speed</strong> Newton-Raphson typically achieves quadratic convergence near the maximum, making it very fast when the initial guess is good.</p></li>
-<li><p><strong>Stability</strong> Because <span class="math inline">\(\mathbf{J}(\boldsymbol{\theta})\)</span> depends on the specific data observed, it can occasionally be non-positive definite in regions far from the MLE, which may cause the algorithm to diverge. Fisher Scoring is often more stable in these cases because <span class="math inline">\(\mathbf{I}(\boldsymbol{\theta})\)</span> is always positive semi-definite for regular families.</p></li>
+<li><p><strong>Convergence Speed</strong> </p>
+<p>Newton-Raphson typically achieves quadratic convergence near the maximum, making it very fast when the initial guess is good.</p></li>
+<li><p><strong>Stability</strong> </p>
+<p>Because <span class="math inline">\(\mathbf{J}(\boldsymbol{\theta})\)</span> depends on the specific data observed, it can occasionally be non-positive definite in regions far from the MLE, which may cause the algorithm to diverge. Fisher Scoring is often more stable in these cases because <span class="math inline">\(\mathbf{I}(\boldsymbol{\theta})\)</span> is always positive semi-definite for regular families.</p></li>
 </ol>
 </section>
 </section>
@@ -1280,7 +1285,8 @@ Figure&nbsp;6.4: Simulation of Normal Mean Asymptotics (n=50, 2000 replicates). 
 <div id="exm-poisson-glm" class="theorem example">
 <p><span class="theorem-title"><strong>Example 6.5</strong></span> Consider a GLM where <span class="math inline">\(Y_i \sim \text{Poisson}(\lambda_i)\)</span>. We use the canonical link <span class="math inline">\(\log(\lambda_i(\boldsymbol{\beta})) = \mathbf{x}_i^\top \boldsymbol{\beta}\)</span>, which implies the mean function is <span class="math inline">\(\lambda_i(\boldsymbol{\beta}) = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})\)</span>.</p>
 <ol type="1">
-<li><p><strong>Exponential Family Representation</strong> We rewrite the total log-likelihood by grouping terms associated with each <span class="math inline">\(\beta_j\)</span>:</p>
+<li><p><strong>Exponential Family Representation</strong></p>
+<p>We rewrite the total log-likelihood by grouping terms associated with each <span class="math inline">\(\beta_j\)</span>:</p>
 <p><span class="math display">\[
 \begin{aligned}
 \ell(\boldsymbol{\beta}) &amp;= \sum_{i=1}^n \left( y_i (\mathbf{x}_i^\top \boldsymbol{\beta}) - \lambda_i(\boldsymbol{\beta}) - \log(y_i!) \right) \\
@@ -1294,7 +1300,8 @@ Figure&nbsp;6.4: Simulation of Normal Mean Asymptotics (n=50, 2000 replicates). 
 <li><strong>Sufficient Statistics:</strong> <span class="math inline">\(\mathbf{T}(\mathbf{y}) = \mathbf{X}^\top \mathbf{y}\)</span>.</li>
 <li><strong>Log-Partition Function:</strong> <span class="math inline">\(A(\boldsymbol{\beta}) = \sum_{i=1}^n \lambda_i(\boldsymbol{\beta})\)</span>.</li>
 </ul></li>
-<li><p><strong>Derivations via Moments of Sufficient Statistics</strong> Since we are in canonical form, the Score and Information are simply the derivatives of the log-partition function <span class="math inline">\(A(\boldsymbol{\beta})\)</span>.</p>
+<li><p><strong>Derivations via Moments of Sufficient Statistics</strong></p>
+<p>Since we are in canonical form, the Score and Information are simply the derivatives of the log-partition function <span class="math inline">\(A(\boldsymbol{\beta})\)</span>.</p>
 <ul>
 <li><p><strong>Score Vector (<span class="math inline">\(\mathbf{U}\)</span>):</strong> <span class="math display">\[
   \mathbf{U}(\boldsymbol{\beta}) = \mathbf{T}(\mathbf{y}) - \nabla A(\boldsymbol{\beta}) = \mathbf{X}^\top \mathbf{y} - \mathbf{X}^\top \boldsymbol{\lambda}(\boldsymbol{\beta}) = \mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda}(\boldsymbol{\beta}))
@@ -1303,7 +1310,8 @@ Figure&nbsp;6.4: Simulation of Normal Mean Asymptotics (n=50, 2000 replicates). 
   J(\boldsymbol{\beta}) = \nabla^2 A(\boldsymbol{\beta}) = \mathbf{X}^\top \mathbf{W}(\boldsymbol{\beta}) \mathbf{X}
   \]</span> where <span class="math inline">\(\mathbf{W}(\boldsymbol{\beta}) = \text{diag}(\lambda_1(\boldsymbol{\beta}), \dots, \lambda_n(\boldsymbol{\beta}))\)</span>.</p></li>
 </ul></li>
-<li><p><strong>Newton-Raphson Algorithm for Poisson MLE</strong> To find the MLE <span class="math inline">\(\hat{\boldsymbol{\beta}}\)</span>, we iterate until convergence:</p>
+<li><p><strong>Newton-Raphson Algorithm for Poisson MLE</strong></p>
+<p>To find the MLE <span class="math inline">\(\hat{\boldsymbol{\beta}}\)</span>, we iterate until convergence:</p>
 <p><span class="math display">\[
 \boldsymbol{\beta}^{(t+1)} = \boldsymbol{\beta}^{(t)} + [J(\boldsymbol{\beta}^{(t)})]^{-1} \mathbf{U}(\boldsymbol{\beta}^{(t)})
 \]</span></p>
@@ -1350,15 +1358,18 @@ Figure&nbsp;6.6: Asymptotic distributions of MLE, Score, and Deviance.
 <h3 data-number="6.7.1" data-anchor-id="derivation-of-the-score-vector-mathbfuboldsymbolbeta"><span class="header-section-number">6.7.1</span> Derivation of the Score Vector <span class="math inline">\(\mathbf{U}(\boldsymbol{\beta})\)</span></h3>
 <p>The Score vector is defined as the gradient of the log-likelihood with respect to the parameter vector <span class="math inline">\(\boldsymbol{\beta}\)</span>.</p>
 <ol type="1">
-<li><p><strong>Differentiate the Log-Likelihood</strong> Starting from the log-likelihood function: <span class="math display">\[
+<li><p><strong>Differentiate the Log-Likelihood</strong> </p>
+<p>Starting from the log-likelihood function: <span class="math display">\[
 \ell(\boldsymbol{\beta}) = \sum_{i=1}^n \left( y_i (\mathbf{x}_i^\top \boldsymbol{\beta}) - \exp(\mathbf{x}_i^\top \boldsymbol{\beta}) - \log(y_i!) \right)
 \]</span> We take the partial derivative with respect to a single component <span class="math inline">\(\beta_j\)</span>: <span class="math display">\[
 \frac{\partial \ell}{\partial \beta_j} = \sum_{i=1}^n \left( y_i \frac{\partial (\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} - \frac{\partial \exp(\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} \right)
 \]</span></p></li>
-<li><p><strong>Apply the Chain Rule</strong> Note that <span class="math inline">\(\frac{\partial (\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} = x_{ij}\)</span>. Using the chain rule on the exponential term: <span class="math display">\[
+<li><p><strong>Apply the Chain Rule</strong> </p>
+<p>Note that <span class="math inline">\(\frac{\partial (\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} = x_{ij}\)</span>. Using the chain rule on the exponential term: <span class="math display">\[
 \frac{\partial \exp(\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} = \exp(\mathbf{x}_i^\top \boldsymbol{\beta}) \cdot x_{ij} = \lambda_i(\boldsymbol{\beta}) x_{ij}
 \]</span></p></li>
-<li><p><strong>Form the Vector</strong> Substituting these back, we get: <span class="math display">\[
+<li><p><strong>Form the Vector</strong> </p>
+<p>Substituting these back, we get: <span class="math display">\[
 \frac{\partial \ell}{\partial \beta_j} = \sum_{i=1}^n (y_i - \lambda_i(\boldsymbol{\beta})) x_{ij}
 \]</span> In matrix notation, this corresponds to: <span class="math display">\[
 \mathbf{U}(\boldsymbol{\beta}) = \mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda}(\boldsymbol{\beta}))
@@ -1369,13 +1380,16 @@ Figure&nbsp;6.6: Asymptotic distributions of MLE, Score, and Deviance.
 <h3 data-number="6.7.2" data-anchor-id="derivation-of-the-observed-fisher-information-jboldsymbolbeta"><span class="header-section-number">6.7.2</span> Derivation of the Observed Fisher Information <span class="math inline">\(J(\boldsymbol{\beta})\)</span></h3>
 <p>The Observed Information is the negative Hessian matrix of the log-likelihood.</p>
 <ol type="1">
-<li><p><strong>Differentiate the Score</strong> We take the derivative of the <span class="math inline">\(j\)</span>-th component of the score, <span class="math inline">\(U_j = \sum_{i=1}^n (y_i - \lambda_i(\boldsymbol{\beta})) x_{ij}\)</span>, with respect to <span class="math inline">\(\beta_k\)</span>: <span class="math display">\[
+<li><p><strong>Differentiate the Score</strong> </p>
+<p>We take the derivative of the <span class="math inline">\(j\)</span>-th component of the score, <span class="math inline">\(U_j = \sum_{i=1}^n (y_i - \lambda_i(\boldsymbol{\beta})) x_{ij}\)</span>, with respect to <span class="math inline">\(\beta_k\)</span>: <span class="math display">\[
 \frac{\partial^2 \ell}{\partial \beta_j \partial \beta_k} = \frac{\partial}{\partial \beta_k} \sum_{i=1}^n (y_i - \lambda_i(\boldsymbol{\beta})) x_{ij} = \sum_{i=1}^n \left( -\frac{\partial \lambda_i(\boldsymbol{\beta})}{\partial \beta_k} \right) x_{ij}
 \]</span></p></li>
-<li><p><strong>Differentiate the Mean Function</strong> Recall <span class="math inline">\(\lambda_i(\boldsymbol{\beta}) = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})\)</span>. Its derivative with respect to <span class="math inline">\(\beta_k\)</span> is: <span class="math display">\[
+<li><p><strong>Differentiate the Mean Function</strong> </p>
+<p>Recall <span class="math inline">\(\lambda_i(\boldsymbol{\beta}) = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})\)</span>. Its derivative with respect to <span class="math inline">\(\beta_k\)</span> is: <span class="math display">\[
 \frac{\partial \lambda_i(\boldsymbol{\beta})}{\partial \beta_k} = \lambda_i(\boldsymbol{\beta}) x_{ik}
 \]</span></p></li>
-<li><p><strong>Construct the Information Matrix</strong> The <span class="math inline">\((j, k)\)</span> element of the Hessian is: <span class="math display">\[
+<li><p><strong>Construct the Information Matrix</strong> </p>
+<p>The <span class="math inline">\((j, k)\)</span> element of the Hessian is: <span class="math display">\[
 H_{jk} = -\sum_{i=1}^n \lambda_i(\boldsymbol{\beta}) x_{ij} x_{ik}
 \]</span> The Observed Information <span class="math inline">\(J(\boldsymbol{\beta}) = -H\)</span> is therefore: <span class="math display">\[
 J(\boldsymbol{\beta})_{jk} = \sum_{i=1}^n \lambda_i(\boldsymbol{\beta}) x_{ij} x_{ik}
@@ -1399,8 +1413,10 @@ J(\boldsymbol{\beta}) = I(\boldsymbol{\beta})
 <h3 data-number="6.8.1" data-anchor-id="the-optimization-challenge"><span class="header-section-number">6.8.1</span> The Optimization Challenge</h3>
 <p>In traditional statistical models, <span class="math inline">\(\ell(\boldsymbol{\theta})\)</span> is often globally concave, allowing algorithms like Newton-Raphson to converge reliably. Deep learning models, however, present a different landscape:</p>
 <ol type="1">
-<li><p><strong>Non-convexity</strong> The log-likelihood surface <span class="math inline">\(\ell(\boldsymbol{\theta})\)</span> is highly non-convex with numerous local minima, saddle points, and plateaus.</p></li>
-<li><p><strong>High Dimensionality</strong> The parameter vector <span class="math inline">\(\boldsymbol{\theta}\)</span> can contain millions or billions of weights. This makes the storage and inversion of the Observed Information Matrix <span class="math inline">\(\mathbf{J}(\boldsymbol{\theta})\)</span> (the <span class="math inline">\(p \times p\)</span> Hessian) computationally intractable.</p></li>
+<li><p><strong>Non-convexity</strong> </p>
+<p>The log-likelihood surface <span class="math inline">\(\ell(\boldsymbol{\theta})\)</span> is highly non-convex with numerous local minima, saddle points, and plateaus.</p></li>
+<li><p><strong>High Dimensionality</strong> </p>
+<p>The parameter vector <span class="math inline">\(\boldsymbol{\theta}\)</span> can contain millions or billions of weights (<span class="math inline">\(p \gg 10^6\)</span>). This makes the storage and inversion of the Observed Information Matrix <span class="math inline">\(\mathbf{J}(\boldsymbol{\theta})\)</span> (the <span class="math inline">\(p \times p\)</span> Hessian) computationally intractable, as its storage requires <span class="math inline">\(O(p^2)\)</span> memory.</p></li>
 </ol>
 </section>
 <section id="penalized-likelihood-regularization" class="level3" data-number="6.8.2">
@@ -1415,37 +1431,80 @@ J(\boldsymbol{\beta}) = I(\boldsymbol{\beta})
 <li><strong><span class="math inline">\(L_1\)</span> Regularization (Lasso):</strong> <span class="math inline">\(\Omega(\boldsymbol{\theta}) = \lambda \|\boldsymbol{\theta}\|_1\)</span>, which encourages sparsity in the network weights.</li>
 </ol>
 </section>
-<section id="gradient-based-methods-and-the-role-of-fisher-information" class="level3" data-number="6.8.3">
-<h3 data-number="6.8.3" data-anchor-id="gradient-based-methods-and-the-role-of-fisher-information"><span class="header-section-number">6.8.3</span> Gradient-Based Methods and the Role of Fisher Information</h3>
-<p>Because computing the Hessian <span class="math inline">\(\mathbf{H} = -\mathbf{J}\)</span> is impossible in large networks, deep learning relies on <strong>First-Order Methods</strong> (like SGD, Adam, or RMSProp). These methods primarily use the score vector <span class="math inline">\(\mathbf{U}(\boldsymbol{\theta})\)</span> to update parameters:</p>
-<p><span class="math display">\[
-\boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} + \alpha \mathbf{U}(\boldsymbol{\theta}^{(t)})
-\]</span></p>
-<p>However, the second-order information remains theoretically crucial. Modern optimizers leverage the <strong>Second Moment Identity</strong> (Bartlett’s Identity) to approximate the curvature without ever computing the second derivatives:</p>
+<section id="purely-gradient-based-methods-op-complexity" class="level3" data-number="6.8.3">
+<h3 data-number="6.8.3" data-anchor-id="purely-gradient-based-methods-op-complexity"><span class="header-section-number">6.8.3</span> Purely Gradient-Based Methods (O(p) Complexity)</h3>
+<p>Because the Hessian is too large to compute, the most common approach is to use methods that only require the Score vector <span class="math inline">\(\mathbf{U}(\boldsymbol{\theta})\)</span>. These methods have a memory complexity of <span class="math inline">\(O(p)\)</span>, making them feasible for large-scale problems.</p>
+<ol type="1">
+<li><p><strong>Stochastic Gradient Descent (SGD)</strong> </p>
+<p>Instead of the full score, SGD uses a “mini-batch” estimate <span class="math inline">\(\mathbf{U}_{batch}\)</span>. The update is: <span class="math display">\[
+\boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} + \alpha \mathbf{U}_{batch}(\boldsymbol{\theta}^{(t)})
+\]</span> While simple, SGD treats all dimensions equally, which is inefficient if the likelihood surface is much steeper in some directions than others.</p></li>
+<li><p><strong>Momentum-Based Methods</strong> </p>
+<p>These maintain a moving average of past scores to dampen oscillations and accelerate progress in consistent directions, effectively acting as a low-pass filter on the noisy stochastic gradients.</p></li>
+</ol>
+</section>
+<section id="avoiding-the-hessian-via-score-covariance" class="level3" data-number="6.8.4">
+<h3 data-number="6.8.4" data-anchor-id="avoiding-the-hessian-via-score-covariance"><span class="header-section-number">6.8.4</span> Avoiding the Hessian via Score Covariance</h3>
+<p>Modern optimizers leverage the <strong>Second Moment Identity</strong> (Bartlett’s Identity) to capture curvature information without the <span class="math inline">\(O(p^2)\)</span> cost of the Hessian.</p>
 <div id="thm-fisher-approximation" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 6.13 (Fisher Information Approximation)</strong></span> Recall from <a href="loglike.html#thm-score-identities" class="quarto-xref">Theorem&nbsp;<span>5.1</span></a> that at the true parameter (or a good estimate), the Fisher Information is both the variance of the score and the expected Hessian:</p>
+<p><span class="theorem-title"><strong>Theorem 6.13 (Fisher Information Approximation and the Empirical Fisher)</strong></span> In the context of high-dimensional optimization, the identity <span class="math inline">\(\mathbf{I}(\boldsymbol{\theta}) = \text{Cov}_{\boldsymbol{\theta}_0}(\mathbf{U}) = E_{\boldsymbol{\theta}_0}[\mathbf{J}]\)</span> is not just a theoretical curiosity, but a computational lifeline.</p>
+<ol type="1">
+<li><p><strong>Justification via the Second Moment</strong> </p>
+<p>Recall that for the score vector <span class="math inline">\(\mathbf{U}\)</span>, we have <span class="math inline">\(E_{\boldsymbol{\theta}_0}[\mathbf{U}] = \mathbf{0}\)</span>. Therefore, the covariance matrix simplifies to the second moment:</p>
 <p><span class="math display">\[
-\mathbf{I}(\boldsymbol{\theta}) = \text{Cov}(\mathbf{U}) = E[\mathbf{J}]
+\text{Cov}(\mathbf{U}) = E_{\boldsymbol{\theta}_0}[\mathbf{U}\mathbf{U}^\top] - E_{\boldsymbol{\theta}_0}[\mathbf{U}]E_{\boldsymbol{\theta}_0}[\mathbf{U}]^\top = E_{\boldsymbol{\theta}_0}[\mathbf{U}\mathbf{U}^\top]
 \]</span></p>
-<p>In deep learning, we approximate <span class="math inline">\(\mathbf{I}(\boldsymbol{\theta})\)</span> using the “outer product of gradients” (empirical Fisher):</p>
+<p>Under Bartlett’s Second Identity, this expectation is exactly equal to the expected Observed Information (the expected negative Hessian), <span class="math inline">\(E_{\boldsymbol{\theta}_0}[\mathbf{J}]\)</span>.</p></li>
+<li><p><strong>The Empirical Fisher Estimate</strong> </p>
+<p>In deep learning, we cannot compute the expectation over all possible data. Instead, we use the <strong>Empirical Fisher Information Matrix</strong> (<span class="math inline">\(\hat{\mathbf{I}}\)</span>), which replaces the population expectation with the sample average across <span class="math inline">\(n\)</span> observations:</p>
 <p><span class="math display">\[
-\hat{\mathbf{I}} = \frac{1}{n} \sum_{i=1}^n \nabla \ell(\boldsymbol{\theta}; Y_i) \nabla \ell(\boldsymbol{\theta}; Y_i)^\top
+\hat{\mathbf{I}} = \frac{1}{n} \sum_{i=1}^n \left( \nabla_{\boldsymbol{\theta}} \log f(y_i | \boldsymbol{\theta}) \right) \left( \nabla_{\boldsymbol{\theta}} \log f(y_i | \boldsymbol{\theta}) \right)^\top
 \]</span></p>
+<p>This estimate is constructed solely from <strong>first-order gradients</strong> (the score for each data point).</p></li>
+<li><p><strong>Handling High Dimensionality (<span class="math inline">\(p\)</span>)</strong> </p>
+<p>Since <span class="math inline">\(\hat{\mathbf{I}}\)</span> is a <span class="math inline">\(p \times p\)</span> matrix, storing it is <span class="math inline">\(O(p^2)\)</span>. For a model with 1 million parameters, the matrix would have <span class="math inline">\(10^{12}\)</span> elements. To handle this, deep learning optimizers typically use the <strong>Diagonal Empirical Fisher</strong>:</p>
+<p><span class="math display">\[
+\text{diag}(\hat{\mathbf{I}}) = \frac{1}{n} \sum_{i=1}^n [ \mathbf{U}_i \odot \mathbf{U}_i ]
+\]</span></p>
+<p>where <span class="math inline">\(\odot\)</span> is the Hadamard (element-wise) product. This reduces the complexity to <span class="math inline">\(O(p)\)</span>.</p></li>
+<li><p><strong>Why use the Score Covariance instead of the Hessian?</strong> </p>
+<p>Computing the diagonal of the Hessian <span class="math inline">\(\mathbf{J}\)</span> directly (the second derivatives <span class="math inline">\(\frac{\partial^2 \ell}{\partial \theta_j^2}\)</span>) is significantly more expensive than computing the gradient. Most deep learning frameworks are optimized for “backpropagation” (first derivatives). By using the squared gradients to approximate the diagonal of the Hessian, we get “second-order-like” curvature information for the price of first-order computation.</p></li>
+</ol>
+</div>
+<div id="rem-empirical-fisher-caveat" class="proof remark">
+<p><span class="proof-title"><em>Remark 6.3</em> (A Note on the Approximation). </span>While <span class="math inline">\(\text{Cov}(\mathbf{U}) = E[\mathbf{J}]\)</span> holds at the true parameter <span class="math inline">\(\boldsymbol{\theta}_0\)</span>, it may not hold perfectly during the early stages of training when <span class="math inline">\(\boldsymbol{\theta}\)</span> is far from the truth. In these regions, the empirical Fisher is technically an approximation of the <em>variability</em> of the gradients, which often serves as a robust proxy for the <em>sensitivity</em> (curvature) of the loss surface.</p>
 </div>
 </section>
-<section id="avoiding-the-hessian-via-the-score-covariance" class="level3" data-number="6.8.4">
-<h3 data-number="6.8.4" data-anchor-id="avoiding-the-hessian-via-the-score-covariance"><span class="header-section-number">6.8.4</span> Avoiding the Hessian via the Score Covariance</h3>
-<p>Adaptive optimizers like <strong>RMSProp</strong> and <strong>Adam</strong> use this identity to perform a coordinate-wise scaling of the learning rate. Instead of computing the full Hessian <span class="math inline">\(\mathbf{H}\)</span>, they maintain a running average of the squared scores (<span class="math inline">\(U_j^2\)</span>):</p>
+<section id="adaptive-methods-diagonal-covariance-scaling" class="level3" data-number="6.8.5">
+<h3 data-number="6.8.5" data-anchor-id="adaptive-methods-diagonal-covariance-scaling"><span class="header-section-number">6.8.5</span> Adaptive Methods: Diagonal Covariance Scaling</h3>
+<p>Algorithms like <strong>RMSProp</strong> and <strong>Adam</strong> avoid the <span class="math inline">\(p \times p\)</span> matrix entirely by assuming the Fisher Information is approximately diagonal. This reduces the memory cost back to <span class="math inline">\(O(p)\)</span>.</p>
 <ol type="1">
-<li><p><strong>Scaling by Variance:</strong> Since <span class="math inline">\(\text{Var}(U_j) = I_{jj}\)</span>, the squared gradients provide an estimate of the local curvature along each dimension.</p></li>
-<li><p><strong>Preconditioning:</strong> By dividing the update by <span class="math inline">\(\sqrt{\text{Var}(U_j)}\)</span>, these algorithms effectively “flatten” the likelihood surface, performing a simplified version of the Newton-Raphson update:</p>
+<li><p><strong>RMSProp</strong> </p>
+<p>It maintains a running average of the squared scores for each parameter <span class="math inline">\(j\)</span>: <span class="math display">\[
+v_j^{(t)} = \gamma v_j^{(t-1)} + (1-\gamma) (U_j^{(t)})^2
+\]</span> Since <span class="math inline">\((U_j)^2\)</span> is a stochastic estimate of the variance <span class="math inline">\(\text{Var}(U_j) = I_{jj}\)</span>, the term <span class="math inline">\(\sqrt{v_j}\)</span> approximates the local curvature (sensitivity) along that coordinate.</p></li>
+<li><p><strong>Adam (Adaptive Moment Estimation)</strong> </p>
+<p>Adam combines the concepts of momentum and RMSProp by maintaining moving averages of both the first and second moments of the score vector. It scales the update by the inverse square root of the estimated variance:</p>
 <p><span class="math display">\[
-\theta_j^{(t+1)} \approx \theta_j^{(t)} + \frac{\alpha}{\sqrt{\hat{I}_{jj}}} U_j(\boldsymbol{\theta}^{(t)})
+\theta_j^{(t+1)} = \theta_j^{(t)} + \alpha \frac{\hat{m}_j}{\sqrt{\hat{v}_j} + \epsilon}
+\]</span></p>
+<p>Here, the terms <span class="math inline">\(m_j\)</span> and <span class="math inline">\(v_j\)</span> are defined as:</p>
+<ul>
+<li><p><strong>The First Moment (<span class="math inline">\(m_j\)</span>):</strong> An exponentially decaying average of the score <span class="math inline">\(U_j\)</span>, which acts as momentum to smooth out noisy gradients: <span class="math display">\[
+m_j^{(t)} = \beta_1 m_j^{(t-1)} + (1 - \beta_1) U_j^{(t)}
 \]</span></p></li>
+<li><p><strong>The Second Moment (<span class="math inline">\(v_j\)</span>):</strong> An exponentially decaying average of the squared score <span class="math inline">\((U_j)^2\)</span>: <span class="math display">\[
+v_j^{(t)} = \beta_2 v_j^{(t-1)} + (1 - \beta_2) (U_j^{(t)})^2
+\]</span> Following the logic of <a href="#thm-fisher-approximation" class="quarto-xref">Theorem&nbsp;<span>6.13</span></a>, <span class="math inline">\(v_j\)</span> serves as an estimate of the diagonal of the Fisher Information Matrix (<span class="math inline">\(I_{jj}\)</span>).</p></li>
+<li><p><strong>Bias Correction:</strong> Because <span class="math inline">\(m\)</span> and <span class="math inline">\(v\)</span> are typically initialized at zero, they are biased toward zero during the initial steps. Adam uses the bias-corrected estimates <span class="math inline">\(\hat{m}_j = m_j / (1 - \beta_1^t)\)</span> and <span class="math inline">\(\hat{v}_j = v_j / (1 - \beta_2^t)\)</span> for the final update.</p></li>
+</ul>
+<p>This “preconditioning” flattens the likelihood surface by normalizing the step size for each parameter. Dimensions with high gradient variance (high <span class="math inline">\(I_{jj}\)</span>) receive smaller updates, while dimensions with low variance receive larger updates, effectively performing a coordinate-wise Newton-Raphson step using the Score Covariance as a proxy for the Hessian.</p></li>
 </ol>
-<p>This approach allows deep learning models to benefit from the second-order geometry of the log-likelihood while only requiring first-order gradients, bypassing the <span class="math inline">\(O(p^2)\)</span> cost of the Hessian.</p>
+<div id="rem-adam-interpretation" class="proof remark">
+<p><span class="proof-title"><em>Remark 6.4</em> (Adam as Quasi-Newton). </span>From a statistical perspective, Adam can be viewed as an approximation of the Fisher Scoring algorithm. Instead of calculating the full expected information matrix and its inverse, Adam uses the moving average of squared gradients to estimate the diagonal entries of the information matrix in an online fashion. This allows the algorithm to adapt to the local geometry of the log-likelihood surface at a minimal <span class="math inline">\(O(p)\)</span> computational cost.</p>
+</div>
 <div id="rem-natural-gradient" class="proof remark">
-<p><span class="proof-title"><em>Remark 6.3</em> (Natural Gradient Descent). </span>The most direct application of this theory is <strong>Natural Gradient Descent</strong>, which updates parameters using <span class="math inline">\(\Delta \boldsymbol{\theta} = \alpha \mathbf{I}(\boldsymbol{\theta})^{-1} \mathbf{U}(\boldsymbol{\theta})\)</span>. This update is invariant to the parameterization of the model, as it moves the parameters a fixed distance in the space of <em>probability distributions</em> (measured by KL divergence) rather than the space of <em>weights</em>.</p>
+<p><span class="proof-title"><em>Remark 6.5</em> (Natural Gradient and K-FAC). </span>The most sophisticated application of this theory is <strong>Natural Gradient Descent</strong>. To handle large <span class="math inline">\(p\)</span>, methods like <strong>K-FAC (Kronecker-factored Approximate Curvature)</strong> approximate the Fisher Information Matrix as a product of smaller matrices. This allows for a more “Hessian-like” update that accounts for correlations between parameters while remaining computationally efficient.</p>
 </div>
 
 
