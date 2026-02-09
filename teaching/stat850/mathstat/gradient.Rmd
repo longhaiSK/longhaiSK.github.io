@@ -1,0 +1,417 @@
+---
+title: "Understand "
+output: html_document
+date: "2026-02-08"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.width = 10, fig.height = 8)
+```
+
+```{r fig.width=10, fig.height=6}
+
+# --- Geometric Visualization: Dual Ellipses + Gradient Field ---
+
+# 1. Setup Matrix A = QDQ'
+# -----------------------------------------------------------------
+theta <- 30 * pi / 180  # Rotate by 30 degrees
+R <- matrix(c(cos(theta), sin(theta), -sin(theta), cos(theta)), 
+            nrow = 2, byrow = TRUE)
+
+# Eigenvalues (D): lambda1=4 (Stiff/Short), lambda2=1 (Flat/Long)
+lambda <- c(4, 1)
+D <- diag(lambda)
+Q <- t(R) 
+A <- Q %*% D %*% t(Q)
+
+# 2. Generate Points
+# -----------------------------------------------------------------
+theta_seq <- seq(0, 2*pi, length.out = 100)
+unit_circle <- rbind(cos(theta_seq), sin(theta_seq))
+
+# A) Contour Ellipse Points: x'Ax = 1
+sqrt_inv_D <- diag(1 / sqrt(lambda))
+A_inv_sqrt <- Q %*% sqrt_inv_D %*% t(Q)
+points_contour <- A_inv_sqrt %*% unit_circle
+
+# B) Gradient Ellipse Points: g = Ax
+points_gradient <- A %*% points_contour
+
+# 3. Plotting
+# -----------------------------------------------------------------
+# Determine limits to fit both ellipses
+max_range <- max(abs(points_gradient)) * 1.2
+
+plot(NA, xlim=c(-max_range, max_range), ylim=c(-max_range, max_range), 
+     asp=1, xlab="x1", ylab="x2", 
+     main="Dual Geometry: Contour, Gradient Locus, and Normal Field")
+grid()
+abline(h=0, v=0, col="gray85", lty=2)
+
+# Draw the Shapes (Loci)
+lines(points_contour[1,], points_contour[2,], col="gray50", lwd=2, lty=1)
+text(points_contour[1,5], points_contour[2,5], "Contour (x)", 
+     col="gray50", pos=2, cex=0.8, font=3)
+
+lines(points_gradient[1,], points_gradient[2,], col="gray50", lwd=2, lty=2)
+text(points_gradient[1,25], points_gradient[2,25], "Gradient Locus (Ax)", 
+     col="gray50", pos=4, cex=0.8, font=3)
+
+# 4. Visualizing Vectors and Field
+# -----------------------------------------------------------------
+sample_indices <- seq(1, 100, by=8) 
+n_samples <- length(sample_indices)
+vector_colors <- rainbow(n_samples, end=0.85) 
+
+for(k in 1:n_samples) {
+  i <- sample_indices[k]
+  col_vec <- vector_colors[k]
+  
+  x_pt <- points_contour[,i]  # Point on ellipse
+  g_pt <- points_gradient[,i] # Gradient vector
+  
+  # A) Position Vector x (Dashed, from Origin)
+  arrows(0, 0, x_pt[1], x_pt[2], col=col_vec, 
+         length=0, lty=2, lwd=1)
+  
+  # B) Gradient Vector Ax (Solid, from Origin - showing the Dual Shape)
+  arrows(0, 0, g_pt[1], g_pt[2], col=col_vec, 
+         length=0.1, lwd=2)
+  
+  # C) Shrunken Gradient Field (Starting at x - showing Orthogonality)
+  # Scale factor for the field arrows so they don't look huge
+  field_scale <- 0.25 
+  arrows(x_pt[1], x_pt[2], 
+         x_pt[1] + g_pt[1]*field_scale, x_pt[2] + g_pt[2]*field_scale, 
+         col=col_vec, length=0.08, lwd=1.5)
+}
+
+# Draw Principal Axes
+axis_scale <- 2.2
+arrows(0, 0, axis_scale*Q[1,1], axis_scale*Q[2,1], col="black", lwd=1)
+text(axis_scale*Q[1,1], axis_scale*Q[2,1], "q1 (Stiff)", col="black", pos=4, cex=0.7)
+arrows(0, 0, axis_scale*Q[1,2], axis_scale*Q[2,2], col="black", lwd=1)
+text(axis_scale*Q[1,2], axis_scale*Q[2,2], "q2 (Flat)", col="black", pos=4, cex=0.7)
+
+legend("topleft", legend=c("Position x", "Gradient Ax (at Origin)", "Gradient Field (at Point)"),
+       col=c("black", "black", "black"), lty=c(2, 1, 1), pch=c(NA, NA, NA), 
+       lwd=c(1, 2, 1.5), bg="white", cex=0.8)
+```
+
+```{r}
+# --- Optimization: Gradient Descent vs. Newton's Method ---
+
+# 1. Setup Matrix A (Stiff Valley)
+# -----------------------------------------------------------------
+theta <- 30 * pi / 180 
+R <- matrix(c(cos(theta), sin(theta), -sin(theta), cos(theta)), nrow = 2, byrow = TRUE)
+lambda <- c(10, 1) # Higher stiffness ratio (10:1) to exaggerate the zig-zag
+D <- diag(lambda)
+A <- Q <- t(R)
+A <- Q %*% D %*% t(Q)
+
+# Function to minimize: f(x) = 0.5 * x'Ax
+f <- function(x) as.numeric(0.5 * t(x) %*% A %*% x)
+grad_f <- function(x) A %*% x  # Gradient = Ax
+
+# 2. Run Optimization Algorithms
+# -----------------------------------------------------------------
+start_point <- c(3, 1.5) # Start somewhere on the "flat" side
+
+# A) Gradient Descent (Zig-Zag)
+path_gd <- matrix(start_point, ncol=2)
+x_curr <- start_point
+learning_rate <- 0.15 # Small step size needed for stability
+
+for(i in 1:15) {
+  g <- grad_f(x_curr)
+  x_curr <- x_curr - learning_rate * g
+  path_gd <- rbind(path_gd, as.vector(x_curr))
+}
+
+# B) Newton's Method (Straight Shot)
+# Step = - Hessian^-1 * Gradient = - A^-1 * (Ax) = -x
+path_newton <- matrix(start_point, ncol=2)
+# One step of Newton leads exactly to origin (0,0) for quadratic
+path_newton <- rbind(path_newton, c(0,0)) 
+
+# 3. Plotting
+# -----------------------------------------------------------------
+# Setup contour plot
+x_seq <- seq(-4, 4, length.out=100)
+y_seq <- seq(-4, 4, length.out=100)
+z <- outer(x_seq, y_seq, Vectorize(function(a,b) f(c(a,b))))
+
+plot(NA, xlim=c(-1, 3.5), ylim=c(-1, 3), asp=1, 
+     xlab="x1", ylab="x2", main="Why Gradient != Direction to Center")
+contour(x_seq, y_seq, z, nlevels=15, add=TRUE, col="gray80")
+grid()
+
+# Draw Paths
+lines(path_gd[,1], path_gd[,2], col="red", lwd=2, type="b", pch=19, cex=0.8)
+text(path_gd[2,1], path_gd[2,2], "Gradient Descent\n(Follows Ax)", 
+     col="red", pos=4, cex=0.8)
+
+lines(path_newton[,1], path_newton[,2], col="blue", lwd=2, type="b", pch=19, cex=0.8)
+text(1.5, 0.5, "Newton's Method\n(Follows A^-1 Ax)", 
+     col="blue", pos=1, cex=0.8)
+
+legend("topright", legend=c("Gradient Path (Zig-Zag)", "Newton Path (Direct)"),
+       col=c("red", "blue"), lwd=2, bg="white")
+```
+
+
+```{r}
+# --- The Orthogonality Trap: Steepest Descent with Exact Line Search ---
+
+# 1. Setup Matrix A (Stiff Valley)
+# -----------------------------------------------------------------
+theta <- 30 * pi / 180 
+R <- matrix(c(cos(theta), sin(theta), -sin(theta), cos(theta)), 
+            nrow = 2, byrow = TRUE)
+
+# Condition Number = 10 (Stiff, ill-conditioned)
+# This creates a long, narrow valley
+lambda <- c(10, 1) 
+A <- R %*% diag(lambda) %*% t(R)
+
+# 2. Define Helper Functions
+# -----------------------------------------------------------------
+# The Objective Function: f(x) = 0.5 * x'Ax
+f <- function(x) {
+  as.numeric(0.5 * t(x) %*% A %*% x)
+}
+
+# The Gradient: grad(f) = Ax
+grad_f <- function(x) {
+  as.vector(A %*% x)
+}
+
+# Exact Line Search Formula for Quadratics
+# We want to minimize f(x - alpha*g) with respect to alpha.
+# The analytic solution is: alpha = (g'g) / (g'Ag)
+get_exact_step_size <- function(x, g) {
+  numerator <- sum(g * g)          # g transpose g
+  denominator <- as.numeric(t(g) %*% A %*% g) # g transpose A g
+  return(numerator / denominator)
+}
+
+# 3. Run Optimization
+# -----------------------------------------------------------------
+# Start point: deliberately off the "good" axis to trigger zig-zag
+x_curr <- c(2.0, 1.5) 
+path <- matrix(x_curr, ncol=2)
+
+# Run 10 iterations
+for(i in 1:10) {
+  g <- grad_f(x_curr)
+  
+  # Check for convergence (gradient close to 0)
+  if(sqrt(sum(g^2)) < 1e-6) break
+  
+  # Calculate EXACT step size
+  alpha <- get_exact_step_size(x_curr, g)
+  
+  # Update Position
+  # Note: Direction is -g (Steepest Descent)
+  x_next <- x_curr - alpha * g
+  
+  # Store and update
+  path <- rbind(path, x_next)
+  x_curr <- x_next
+}
+
+# 4. Plotting
+# -----------------------------------------------------------------
+# Setup contour plot grid
+x_seq <- seq(-1, 2.5, length.out=100)
+y_seq <- seq(-1, 2.5, length.out=100)
+z <- outer(x_seq, y_seq, Vectorize(function(a,b) f(c(a,b))))
+
+plot(NA, xlim=c(-0.5, 2.5), ylim=c(-0.5, 2.5), asp=1, 
+     xlab="x1", ylab="x2", 
+     main="The Orthogonality Trap: Exact Line Search")
+
+# Draw Contours
+contour(x_seq, y_seq, z, nlevels=20, add=TRUE, col="gray70")
+points(0, 0, pch=3, lwd=2, col="black") # Minimum
+
+# Draw the Zig-Zag Path
+lines(path[,1], path[,2], col="blue", type="b", pch=19, lwd=1.5, cex=0.8)
+
+# 5. Visualize the Orthogonality (Right Angles)
+# -----------------------------------------------------------------
+# Let's draw a little red square at the 2nd turn to prove it's 90 degrees
+p1 <- path[2,] # The corner point
+p0 <- path[1,] # Previous point
+p2 <- path[3,] # Next point
+
+# Vectors entering and leaving the corner
+v_in <- p1 - p0
+v_out <- p2 - p1
+
+# Normalize for drawing the marker
+len <- 0.15
+u_in <- v_in / sqrt(sum(v_in^2)) * len
+u_out <- v_out / sqrt(sum(v_out^2)) * len
+
+# Draw the right-angle marker
+segments(p1[1]-u_in[1], p1[2]-u_in[2], 
+         p1[1]-u_in[1]+u_out[1], p1[2]-u_in[2]+u_out[2], col="red", lwd=2)
+segments(p1[1]+u_out[1], p1[2]+u_out[2], 
+         p1[1]-u_in[1]+u_out[1], p1[2]-u_in[2]+u_out[2], col="red", lwd=2)
+
+text(1.5, 2.0, "Every turn is exactly 90°\n(Orthogonal to previous gradient)", 
+     col="blue", pos=1, cex=0.8)
+
+legend("topright", legend=c("Steepest Descent Path", "90° Turn Marker"),
+       col=c("blue", "red"), lty=1, lwd=2, bg="white")
+```
+
+
+```{r}
+# --- BFGS Visualization: Learning the Geometry ---
+
+# 1. Setup Matrix A (The "Truth")
+# -----------------------------------------------------------------
+theta <- 30 * pi / 180 
+R <- matrix(c(cos(theta), sin(theta), -sin(theta), cos(theta)), nrow = 2, byrow = TRUE)
+# Stiffness = 15 (Significant ill-conditioning)
+lambda <- c(15, 1) 
+A <- R %*% diag(lambda) %*% t(R)
+
+# Helper Functions
+f <- function(x) as.numeric(0.5 * t(x) %*% A %*% x)
+grad_f <- function(x) as.vector(A %*% x)
+
+# Exact Line Search for Quadratic Problems
+# Returns optimal step size alpha for direction p
+get_step_size <- function(x, p) {
+  g <- grad_f(x)
+  numerator <- -sum(g * p)        # -g'p
+  denominator <- as.numeric(t(p) %*% A %*% p) # p'Ap
+  if(denominator < 1e-8) return(0)
+  return(numerator / denominator)
+}
+
+# 2. Run Gradient Descent (The "Dumb" Baseline)
+# -----------------------------------------------------------------
+x0 <- c(2.0, 1.5) # Start point
+path_gd <- matrix(x0, ncol=2)
+x_curr <- x0
+
+for(i in 1:10) {
+  g <- grad_f(x_curr)
+  if(sqrt(sum(g^2)) < 1e-4) break
+  
+  d <- -g # Direction = Negative Gradient
+  alpha <- get_step_size(x_curr, d)
+  x_curr <- x_curr + alpha * d
+  path_gd <- rbind(path_gd, x_curr)
+}
+
+# 3. Run BFGS (The "Smart" Learner)
+# -----------------------------------------------------------------
+path_bfgs <- matrix(x0, ncol=2)
+hessian_shapes <- list() # To store the H matrices for plotting
+x_curr <- x0
+n <- 2
+H <- diag(n) # Initial Inverse Hessian Estimate = Identity (Circle)
+I_mat <- diag(n)
+
+# Store initial shape
+hessian_shapes[[1]] <- list(center=x0, H=H)
+
+for(i in 1:6) {
+  g <- grad_f(x_curr)
+  if(sqrt(sum(g^2)) < 1e-6) break
+  
+  # 1. Determine Direction: p = -H * g
+  p <- as.vector(-H %*% g)
+  
+  # 2. Line Search
+  alpha <- get_step_size(x_curr, p)
+  
+  # 3. Update Position
+  s <- alpha * p          # The step vector (dx)
+  x_next <- x_curr + s
+  
+  # 4. BFGS Update of Hessian approximation
+  y <- grad_f(x_next) - g # The gradient change vector (dg)
+  
+  # Curvature condition check
+  ys <- sum(y * s)
+  if(ys > 1e-8) {
+    rho <- 1 / ys
+    term1 <- I_mat - rho * (s %*% t(y))
+    term2 <- I_mat - rho * (y %*% t(s))
+    # The BFGS Formula
+    H <- term1 %*% H %*% term2 + (rho * (s %*% t(s)))
+  }
+  
+  # Store path and shape
+  path_bfgs <- rbind(path_bfgs, x_next)
+  hessian_shapes[[i+1]] <- list(center=x_next, H=H)
+  x_curr <- x_next
+}
+
+# 4. Plotting
+# -----------------------------------------------------------------
+# Setup grid for contours
+limit <- 2.5
+x_seq <- seq(-1, limit, length.out=100)
+y_seq <- seq(-1, limit, length.out=100)
+z <- outer(x_seq, y_seq, Vectorize(function(a,b) f(c(a,b))))
+
+plot(NA, xlim=c(-0.5, limit), ylim=c(-0.5, limit), asp=1, 
+     xlab="x1", ylab="x2", 
+     main="BFGS in Action: Learning the Inverse Hessian")
+
+# Draw True Contours (Gray)
+contour(x_seq, y_seq, z, nlevels=15, add=TRUE, col="gray80", lwd=1)
+points(0, 0, pch=3, lwd=2) # Minimum
+
+# Draw Gradient Descent Path (Red Zig-Zag)
+lines(path_gd[,1], path_gd[,2], col="red", type="b", pch=19, cex=0.7, lwd=1.5)
+text(path_gd[2,1], path_gd[2,2], "GD (Zig-Zag)", col="red", pos=4, cex=0.8)
+
+# Draw BFGS Path (Blue Curve)
+lines(path_bfgs[,1], path_bfgs[,2], col="blue", type="b", pch=19, cex=0.7, lwd=2)
+text(path_bfgs[2,1], path_bfgs[2,2], "BFGS (Direct)", col="blue", pos=2, cex=0.8)
+
+# 5. Visualize the "Learned Geometry" (Green Ellipses)
+# -----------------------------------------------------------------
+# For each step, we draw the ellipse corresponding to x' H_inv x = c
+# Since H is the inverse Hessian, its eigenvectors define the shape axes
+# Axis length is proportional to sqrt(eigenvalues of H)
+
+draw_ellipse_from_H <- function(center, H, scale=0.4, col="darkgreen") {
+  # Eigendecomposition of H
+  eig <- eigen(H)
+  vals <- eig$values
+  vecs <- eig$vectors
+  
+  # Generate unit circle points
+  angles <- seq(0, 2*pi, length.out=100)
+  circle <- rbind(cos(angles), sin(angles))
+  
+  # Transform: x = Center + Scale * V * sqrt(D) * circle
+  # This visualizes the shape of the uncertainty/metric H
+  transform <- vecs %*% diag(sqrt(vals)) %*% t(vecs)
+  points <- transform %*% circle * scale
+  
+  lines(points[1,] + center[1], points[2,] + center[2], col=col, lty=2, lwd=1.5)
+}
+
+# Draw the ellipses for the first few steps
+for(i in 1:min(4, length(hessian_shapes))) {
+  shape <- hessian_shapes[[i]]
+  draw_ellipse_from_H(shape$center, shape$H)
+  text(shape$center[1], shape$center[2]-0.2, paste0("H", i-1), 
+       col="darkgreen", cex=0.7)
+}
+
+legend("topright", legend=c("True Contours (Gray)", "GD Path", "BFGS Path", "Learned Metric (H)"),
+       col=c("gray80", "red", "blue", "darkgreen"), lty=c(1,1,1,2), lwd=2, bg="white")
+```
+
