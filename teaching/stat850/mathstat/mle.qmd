@@ -1367,6 +1367,126 @@ ggplot() +
 
 ```
 
+
+### Summary of Asymptotic Approximations
+
+In the limit as $n \to \infty$ (or exactly for the Normal distribution), the log-likelihood behaves like a quadratic function. This leads to the following relationships between the Deviance ($D$), Score ($U$), Error ($\Delta \theta$), and Information ($\mathcal{I}$).
+
+| Relationship | Formula | Intuition (Geometry of Parabola) |
+| :--- | :--- | :--- |
+| **Deviance vs. Error** | $D \approx \Delta \theta^T \mathcal{I} \Delta \theta$ | The vertical drop ($D$) is proportional to the squared horizontal distance ($\Delta \theta^2$), scaled by curvature ($\mathcal{I}$). This is the **Wald Statistic**. |
+| **Score vs. Error** | $U \approx \mathcal{I} \Delta \theta$ | The slope ($U$) increases linearly with horizontal distance ($\Delta \theta$). The rate of increase is the curvature ($\mathcal{I}$). |
+| **Deviance vs. Score** | $D \approx U^T \mathcal{I}^{-1} U$ | The vertical drop ($D$) is proportional to the squared slope ($U^2$), *divided* by curvature ($\mathcal{I}$). This is the **Score Statistic**. |
+| **Information Definition** | $\mathcal{I} \approx -\nabla U$ | The curvature ($\mathcal{I}$) is the rate of change of the slope ($U$) (negative Hessian). |
+| **Information Approximation** | $\mathcal{I} \approx U U^T$ | The curvature ($\mathcal{I}$) can be approximated by the "squared slope" (outer product of scores). This relies on Bartlett's 2nd Identity: $E[\mathcal{I}] = E[U U^T]$. |
+
+```{tikz}
+%| label: fig-asymptotic-relationships-v3
+%| fig-cap: "Asymptotic Relationships: The Fisher Information $\\mathcal{I}$ bridges the spaces, and can itself be approximated by the outer product of Scores or Errors."
+%| echo: false
+%| fig-align: "center"
+%| engine.opts:
+%|   extra.preamble: "\\usepackage{amsmath}"
+
+\begin{tikzpicture}[
+    node distance=4cm,
+    auto,
+    block/.style={
+        rectangle,
+        draw=blue!60,
+        fill=blue!5,
+        very thick,
+        minimum size=1.5cm,
+        text width=3cm,
+        align=center,
+        rounded corners
+    },
+    infoblock/.style={
+        rectangle,
+        draw=red!60,
+        fill=red!5,
+        very thick,
+        minimum size=1.5cm,
+        text width=3.5cm,
+        align=center,
+        rounded corners,
+        dashed
+    },
+    arrow/.style={
+        ->,
+        >=stealth,
+        thick,
+        color=black!70
+    },
+    dashed_arrow/.style={
+        ->,
+        >=stealth,
+        thick,
+        dashed,
+        color=red!70
+    }
+]
+
+    % Nodes
+    \node[block] (error) at (0, 4) {
+        \textbf{Parameter Space} \\
+        Error ($\Delta \theta$)
+    };
+
+    \node[block] (score) at (6, 4) {
+        \textbf{Gradient Space} \\
+        Score ($U$)
+    };
+
+    \node[block] (dev) at (3, 0) {
+        \textbf{Likelihood Space} \\
+        Deviance ($D$)
+    };
+
+    \node[infoblock] (info) at (3, 7) {
+        \textbf{Information Space} \\
+        Curvature ($\mathcal{I}$)
+    };
+
+    % Edges - Main Cycle
+    
+    % Error -> Score
+    \draw[arrow] (error) -- node[midway, above, align=center] {
+        $U \approx \mathcal{I} \Delta \theta$ \\
+        (\textcolor{blue}{Multiply by $\mathcal{I}$})
+    } (score);
+
+    % Score -> Deviance
+    \draw[arrow] (score) to[bend left=20] node[midway, right=0.2cm, align=left] {
+        $D \approx U^T \mathcal{I}^{-1} U$ \\
+        (\textcolor{blue}{Square \& Divide})
+    } (dev);
+
+    % Error -> Deviance
+    \draw[arrow] (error) to[bend right=20] node[midway, left=0.2cm, align=right] {
+        $D \approx \Delta \theta^T \mathcal{I} \Delta \theta$ \\
+        (\textcolor{blue}{Square \& Multiply})
+    } (dev);
+
+    % Edges - Information Approximations
+    
+    % Score -> Info
+    \draw[dashed_arrow] (score) to[bend right=20] node[midway, right=0.1cm, align=left] {
+        $\mathcal{I} \approx U U^T$ \\
+        (\textcolor{red}{Outer Product})
+    } (info);
+
+    % Error -> Info (Less common but valid algebraically if scaled)
+    % \mathcal{I} \approx \mathcal{I} \Delta \theta \Delta \theta^T \mathcal{I} is essentially UU^T
+    % We will represent this as coming from the Error side but passing through the Score logic
+    \draw[dashed_arrow] (error) to[bend left=20] node[midway, left=0.1cm, align=right] {
+        $\mathcal{I} \approx (\mathcal{I}\Delta\theta)(\mathcal{I}\Delta\theta)^T$ \\
+        (\textcolor{red}{Scaled Outer Product})
+    } (info);
+
+\end{tikzpicture}
+```
+
 #### Generalized Wilks' Theorem (Parameter Partitioning)
 
 
@@ -1508,173 +1628,274 @@ $$
 ## Examples
 
 
-### Asympotic Distribution of Normal Sample
+### Asympotic Distributions of MLE of Normal Sample
 
-::: {#exm-normal-mean-lrt}
+::: {#exm-normal-mle-unknown-variance}
 
-### Normal Distribution: MLE and Score Convergence
+#### Example: Normal Distribution with Unknown Variance ($N(\mu, \sigma^2)$)
 
-Let $X_1, \dots, X_n \overset{iid}{\sim} N(\mu, \sigma^2)$. We define $\boldsymbol{\theta} = (\mu, \sigma^2)^T$.
+Let $X_1, \dots, X_n \overset{iid}{\sim} N(\mu, \sigma^2)$. The parameter vector is $\boldsymbol{\theta} = (\mu, \sigma^2)^T$. We assume both parameters are unknown.
 
-1. Log-Likelihood
+**1. Derivation of Key Quantities**
 
-$$
-\ell(\boldsymbol{\theta}; \mathbf{x}) = -\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} \sum_{i=1}^n (x_i - \mu)^2
-$$
-
-2. Score Function and MLE
-
-The Score vector $\mathbf{U}(\boldsymbol{\theta})$ has two components:
-
-* **Component 1 (Mean):**
+* **Log-Likelihood:**
     $$
-    U_\mu = \frac{\partial \ell}{\partial \mu} = \frac{1}{\sigma^2} \sum_{i=1}^n (x_i - \mu)
-    $$
-    Setting $U_\mu = 0$ yields $\hat{\mu}_{\text{MLE}} = \bar{x}$.
-
-* **Component 2 (Variance):**
-    $$
-    U_{\sigma^2} = \frac{\partial \ell}{\partial \sigma^2} = -\frac{n}{2\sigma^2} + \frac{1}{2\sigma^4} \sum_{i=1}^n (x_i - \mu)^2
-    $$
-    Setting $U_{\sigma^2} = 0$ yields $\hat{\sigma}^2_{\text{MLE}} = \frac{1}{n} \sum (x_i - \hat{\mu})^2$.
-
-3. Asymptotic Normality of the Score
-
-We now demonstrate that $\mathbf{U}(\boldsymbol{\theta})$ follows a Normal distribution $N(\mathbf{0}, \mathcal{I}(\boldsymbol{\theta}))$.
-
-* **For $U_\mu$:**
-    $$
-    U_\mu = \frac{n}{\sigma^2} (\bar{X} - \mu)
-    $$
-    Since $\bar{X} \sim N(\mu, \sigma^2/n)$, $U_\mu$ is a linear transformation of a Normal variable. It is **exactly Normal**:
-    $$
-    E[U_\mu] = 0, \quad \text{Var}(U_\mu) = \left(\frac{n}{\sigma^2}\right)^2 \text{Var}(\bar{X}) = \frac{n^2}{\sigma^4} \frac{\sigma^2}{n} = \frac{n}{\sigma^2}
-    $$
-    Thus, $U_\mu \sim N(0, \frac{n}{\sigma^2})$.
-
-* **For $U_{\sigma^2}$:**
-    We rewrite $U_{\sigma^2}$ as a sum of i.i.d. variables. Let $Z_i = ((X_i - \mu)/\sigma)^2$. Note that $Z_i \sim \chi^2_1$, with variance 2.
-    $$
-    U_{\sigma^2} = \frac{1}{2\sigma^2} \sum_{i=1}^n \left( \left(\frac{X_i - \mu}{\sigma}\right)^2 - 1 \right) = \frac{1}{2\sigma^2} \sum_{i=1}^n (Z_i - 1)
-    $$
-    Since this is a sum of i.i.d. random variables with mean 0, the **Central Limit Theorem** applies:
-    $$
-    U_{\sigma^2} \xrightarrow{d} \text{Normal}
-    $$
-    The limiting variance is:
-    $$
-    \text{Var}(U_{\sigma^2}) = \frac{1}{4\sigma^4} \sum \text{Var}(Z_i) = \frac{1}{4\sigma^4} (n \times 2) = \frac{n}{2\sigma^4}
+    \ell(\boldsymbol{\theta}) = -\frac{n}{2}\log(2\pi) - \frac{n}{2}\log(\sigma^2) - \frac{1}{2\sigma^2}\sum_{i=1}^n (x_i - \mu)^2
     $$
 
-5. Simulation Verification
+* **Score Vector $\mathbf{U}(\boldsymbol{\theta})$:**
+    Gradient w.r.t $\mu$ and $\sigma^2$:
+    $$
+    \mathbf{U}(\boldsymbol{\theta}) = \begin{pmatrix} \frac{\partial \ell}{\partial \mu} \\ \frac{\partial \ell}{\partial \sigma^2} \end{pmatrix} = \begin{pmatrix} \frac{1}{\sigma^2}\sum (x_i - \mu) \\ -\frac{n}{2\sigma^2} + \frac{1}{2\sigma^4}\sum (x_i - \mu)^2 \end{pmatrix}
+    $$
 
-    We simulate 2000 datasets ($n=50$) to verify that the standardized MLE and Score follow a Normal distribution, and the Deviance follows a $\chi^2_1$ distribution.
+* **Maximum Likelihood Estimator ($\hat{\boldsymbol{\theta}}$):**
+    Solving $\mathbf{U}(\hat{\boldsymbol{\theta}}) = \mathbf{0}$:
+    $$
+    \hat{\mu} = \bar{X}, \quad \hat{\sigma}^2 = \frac{1}{n}\sum_{i=1}^n (X_i - \bar{X})^2
+    $$
+
+* **Fisher Information Matrix $\mathcal{I}_n(\boldsymbol{\theta})$:**
+    The matrix of negative expected second derivatives (note that the cross-terms are zero, implying orthogonality of $\mu$ and $\sigma^2$):
+    $$
+    \mathcal{I}_n(\boldsymbol{\theta}) = \begin{pmatrix} \frac{n}{\sigma^2} & 0 \\ 0 & \frac{n}{2\sigma^4} \end{pmatrix}
+    $$
+
+**2. Asymptotic Properties**
+
+Based on the general theory, we state the asymptotic distributions for the MLE, Score, and Deviance (testing the full vector $H_0: \boldsymbol{\theta} = \boldsymbol{\theta}_0$).
+
+1.  **Estimator Normality:**
+    $$
+    \hat{\boldsymbol{\theta}} \overset{a}{\sim} N_2\left( \boldsymbol{\theta}, \mathcal{I}_n^{-1} \right) = N_2\left( \begin{pmatrix} \mu \\ \sigma^2 \end{pmatrix}, \begin{pmatrix} \frac{\sigma^2}{n} & 0 \\ 0 & \frac{2\sigma^4}{n} \end{pmatrix} \right)
+    $$
+
+2.  **Score Normality:**
+    $$
+    \mathbf{U}(\boldsymbol{\theta}) \overset{a}{\sim} N_2\left( \mathbf{0}, \mathcal{I}_n \right) = N_2\left( \begin{pmatrix} 0 \\ 0 \end{pmatrix}, \begin{pmatrix} \frac{n}{\sigma^2} & 0 \\ 0 & \frac{n}{2\sigma^4} \end{pmatrix} \right)
+    $$
+
+3.  **Deviance (Wilks' Theorem):**
+    For testing $H_0: (\mu, \sigma^2) = (\mu_0, \sigma_0^2)$ vs $H_1: \text{unrestricted}$:
+    $$
+    D = 2[\ell(\hat{\boldsymbol{\theta}}) - \ell(\boldsymbol{\theta}_0)] \xrightarrow{d} \chi^2_2
+    $$
+
+**3. Analytical Verification**
+
+We check if these asymptotic approximations match the exact finite-sample properties.
+
+* **For the Mean ($\mu$):**
+    * **Score:** $U_\mu = \frac{n}{\sigma^2}(\bar{X} - \mu)$. Since $\bar{X}$ is Normal, $U_\mu$ is **exactly Normal** for any $n$.
+    * **MLE:** $\hat{\mu} = \bar{X}$ is **exactly Normal** for any $n$.
+
+* **For the Variance ($\sigma^2$):**
+    * **Score:** $U_{\sigma^2} = \frac{1}{2\sigma^4} \left( \sum (X_i - \mu)^2 - n\sigma^2 \right)$. The term $\sum (X_i - \mu)^2$ follows a scaled Chi-squared distribution ($\sigma^2 \chi^2_n$).
+    * **Verification:** The Score is **not exactly Normal** (it is a shifted Gamma/Chi-squared). However, by the Central Limit Theorem, as $n \to \infty$, a Chi-squared random variable converges to Normality. Thus, the property holds **asymptotically**.
+
+* **For the Deviance ($D$):**
+    * The Deviance involves sums of squared errors and logarithms of sums of squares. It is **not exactly Chi-squared** for finite $n$ (unlike the known-variance case). It converges to $\chi^2_2$ as $n$ increases.
+
+**4. Simulation Verification**
+
+We simulate 5000 datasets with $n=100$. We calculate the standardized MLEs, standardized Scores, and the Deviance to check convergence.
 
 ```{r}
-#| label: fig-normal-sim
-#| fig-cap: "Simulation of Normal Mean Asymptotics (n=50, 2000 replicates). Left: The standardized MLE follows a Standard Normal. Center: The standardized Score follows a Standard Normal. Right: The Deviance follows a Chi-squared distribution with 1 degree of freedom."
+#| label: fig-normal-unknown-var-sim
+#| fig-cap: "Simulation of Normal (Unknown Variance) Asymptotics (n=100). Left/Center-Left: Standardized MLEs. Center-Right: Standardized Score for Variance. Right: Deviance (2 df)."
 #| warning: false
 #| message: false
 
-set.seed(123)
-n_sim <- 2000
-n <- 50
+set.seed(2024)
+n_sim <- 5000
+n <- 100
 mu_true <- 5
-sigma <- 1
-I_expected <- n / sigma^2 # Fisher Information = n/sigma^2
+sigma_sq_true <- 4 # sigma = 2
+
+# Expected Fisher Information Terms
+I_mu <- n / sigma_sq_true
+I_sigma2 <- n / (2 * sigma_sq_true^2)
 
 # Storage
-mle_vals <- numeric(n_sim)
-score_vals <- numeric(n_sim)
+z_mle_mu <- numeric(n_sim)
+z_mle_sigma2 <- numeric(n_sim)
+z_score_sigma2 <- numeric(n_sim)
 deviance_vals <- numeric(n_sim)
 
 for(i in 1:n_sim) {
-  x <- rnorm(n, mean = mu_true, sd = sigma)
-   
-  # MLE
+  x <- rnorm(n, mean = mu_true, sd = sqrt(sigma_sq_true))
+  
+  # 1. Calculate MLEs
   mu_hat <- mean(x)
-  mle_vals[i] <- mu_hat
-   
-  # Log-Likelihoods
-  # We use the exact function defined above
-  ll_hat <- sum(dnorm(x, mean = mu_hat, sd = sigma, log = TRUE))
-  ll_true <- sum(dnorm(x, mean = mu_true, sd = sigma, log = TRUE))
-   
-  # Score at Truth: U(mu_0) = n(x_bar - mu_0) / sigma^2
-  score_vals[i] <- (n * (mu_hat - mu_true)) / sigma^2
-   
-  # Deviance
+  # MLE for variance uses n, not n-1
+  sigma2_hat <- mean((x - mu_hat)^2) 
+  
+  # 2. Standardized MLEs (Wald Statistics)
+  z_mle_mu[i] <- (mu_hat - mu_true) * sqrt(I_mu)
+  z_mle_sigma2[i] <- (sigma2_hat - sigma_sq_true) * sqrt(I_sigma2)
+  
+  # 3. Score for Sigma^2 at Truth
+  # U_sigma2 = -n/(2*sigma^2) + sum(x-mu)^2 / (2*sigma^4)
+  rss_true <- sum((x - mu_true)^2)
+  u_sigma2 <- -n/(2*sigma_sq_true) + rss_true/(2*sigma_sq_true^2)
+  z_score_sigma2[i] <- u_sigma2 / sqrt(I_sigma2)
+  
+  # 4. Deviance (Likelihood Ratio)
+  # ll(theta) = -n/2*log(2pi) - n/2*log(sigma^2) - RSS/(2*sigma^2)
+  ll_hat <- -n/2*log(2*pi) - n/2*log(sigma2_hat) - n/2 # Second term simplifies
+  ll_true <- -n/2*log(2*pi) - n/2*log(sigma_sq_true) - rss_true/(2*sigma_sq_true)
+  
   deviance_vals[i] <- 2 * (ll_hat - ll_true)
 }
 
 # --- Plotting ---
-par(mfrow = c(1, 3))
+par(mfrow = c(2, 2))
 
-# 1. Standardized MLE: (mu_hat - mu) / SE
-
-# SE = 1/sqrt(I) = sigma/sqrt(n)
-z_mle <- (mle_vals - mu_true) * sqrt(I_expected)
-hist(z_mle, breaks = 20, freq = FALSE, col = "lightblue",
-     main = "Std. MLE", xlab = "Z value")
+# Plot 1: MLE for Mu (Exact Normal)
+hist(z_mle_mu, breaks = 30, freq = FALSE, col = "lightblue",
+     main = expression(Std. ~ hat(mu)), xlab = "Z", border = "white")
 curve(dnorm(x), add = TRUE, col = "red", lwd = 2)
 
-# 2. Standardized Score: U / sqrt(I) ~ N(0, 1)
-z_score <- score_vals / sqrt(I_expected)
-hist(z_score, breaks = 20, freq = FALSE, col = "lightgreen",
-     main = "Std. Score", xlab = "Z value")
+# Plot 2: MLE for Sigma^2 (Asymptotic Normal)
+hist(z_mle_sigma2, breaks = 30, freq = FALSE, col = "lightgreen",
+     main = expression(Std. ~ hat(sigma)^2), xlab = "Z", border = "white")
 curve(dnorm(x), add = TRUE, col = "blue", lwd = 2)
 
-# 3. Deviance: D ~ Chi-sq(1)
-hist(deviance_vals, breaks = 20, freq = FALSE, col = "lightpink",
-     main = "Deviance", xlab = "D")
-curve(dchisq(x, df = 1), add = TRUE, col = "darkgreen", lwd = 2)
-## Poisson Regression (Asymptotic Theory)
+# Plot 3: Score for Sigma^2 (Asymptotic Normal)
+hist(z_score_sigma2, breaks = 30, freq = FALSE, col = "plum1",
+     main = expression(Std. ~ U[sigma^2]), xlab = "Z", border = "white")
+curve(dnorm(x), add = TRUE, col = "darkred", lwd = 2)
 
+# Plot 4: Deviance (Asymptotic Chi-sq with 2 df)
+hist(deviance_vals, breaks = 30, freq = FALSE, col = "wheat",
+     main = "Deviance", xlab = "D", border = "white")
+curve(dchisq(x, df = 2), add = TRUE, col = "darkgreen", lwd = 2)
 ```
 
 :::
 
+### Asymptotic Distributions of Poisson Regression
 
-### Asympotic Distributions of Poisson Regression
+::: {#exm-pr-asym}
 
-:::{#exm-pr-asym}
-Consider a GLM where $Y_i \sim \text{Poisson}(\lambda_i)$. We use the canonical link $\log(\lambda_i(\boldsymbol{\beta})) = \mathbf{x}_i^\top \boldsymbol{\beta}$, which implies the mean function is $\lambda_i(\boldsymbol{\beta}) = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})$.
+#### Simulation Study: Poisson Regression Asymptotics
+
+In this example, we verify the asymptotic normality of the Maximum Likelihood Estimator (MLE) and the Chi-squared distribution of the Deviance statistic using a simulation study.
+
+**1. Simulation Setup**
+
+We consider a Generalized Linear Model (GLM) with a Poisson response and a canonical log-link function:
+$$
+Y_i \sim \text{Poisson}(\lambda_i), \quad \log(\lambda_i) = \beta_0 + \beta_1 x_i
+$$
+
+* **True Parameters:** We set the true coefficient vector to $\boldsymbol{\beta} = (0.5, 1.5)^\top$.
+* **Covariates:** We generate $n=200$ covariate values $x_i$ from a Uniform(0, 1) distribution. These remain fixed across all simulations.
+* **Data Generation:** For each simulation iteration, we generate response vector $\mathbf{y}$ using the true mean $\lambda_i = \exp(0.5 + 1.5 x_i)$.
+
+**2. Model Fitting and Statistics**
+
+For each of the `n_sim = 2000` generated datasets, we perform the following:
+
+1.  **Fit the Model:** We estimate $\hat{\boldsymbol{\beta}}$ using the `glm()` function in R.
+2.  **Calculate Standardized MLEs (Wald Statistic):**
+    $$
+    Z_{\hat{\beta}_j} = \frac{\hat{\beta}_j - \beta_{j, \text{true}}}{\text{SE}(\hat{\beta}_j)}
+    $$
+    The standard errors are derived from the inverse of the Fisher Information matrix, $\mathcal{I}^{-1} = (\mathbf{X}^\top \mathbf{W} \mathbf{X})^{-1}$.
+3.  **Calculate Standardized Score:**
+    $$
+    Z_{U_j} = \frac{U_j(\boldsymbol{\beta}_{\text{true}})}{\sqrt{\text{Var}(U_j)}}
+    $$
+    The score is evaluated at the *true* parameter values.
+4.  **Calculate Deviance:**
+    $$
+    D = 2 \left( \ell(\hat{\boldsymbol{\beta}}) - \ell(\boldsymbol{\beta}_{\text{true}}) \right)
+    $$
+    This statistic compares the fitted model to the true model. According to Wilks' theorem, this should follow a $\chi^2_p$ distribution (where $p=2$ is the number of parameters).
+
+**3. Simulation Code and Results**
+
+The histograms below overlay the theoretical asymptotic densities (Red/Blue lines) on top of the empirical histograms. The close alignment confirms that even for a moderate sample size of $n=200$, the asymptotic approximations are highly accurate.
 
 ```{r}
 #| label: fig-poisson-sim-asymptotics
-#| fig-cap: "Asymptotic distributions of MLE, Score, and Deviance."
+#| fig-cap: "Asymptotic distributions for Poisson Regression (n=200). Top Row: Standardized MLEs for Intercept and Slope (Normal). Bottom Left: Standardized Score for Slope (Normal). Bottom Right: Deviance Statistic (Chi-squared with 2 df)."
 #| echo: true
 #| warning: false
 
+library(latex2exp)
+
+# 1. Setup
 set.seed(42)
 n_sim <- 2000
 n <- 200
 beta_true <- c(0.5, 1.5)
+
+# Generate fixed covariates
 x_cov <- runif(n, 0, 1)
-X_mat <- cbind(1, x_cov)
+X_mat <- cbind(1, x_cov) # Design matrix
+
+# True mean vector and Fisher Information at Truth
 lambda_true <- exp(X_mat %*% beta_true)
-J_true <- t(X_mat) %*% diag(as.vector(lambda_true)) %*% X_mat
-inv_J <- solve(J_true)
+W <- diag(as.vector(lambda_true))
+I_fisher <- t(X_mat) %*% W %*% X_mat
+inv_I <- solve(I_fisher)
 
-mle_z <- numeric(n_sim); score_z <- numeric(n_sim); deviance_vals <- numeric(n_sim)
+# Storage vectors
+z_mle_b0 <- numeric(n_sim)
+z_mle_b1 <- numeric(n_sim)
+z_score_b1 <- numeric(n_sim)
+deviance_vals <- numeric(n_sim)
 
+# 2. Simulation Loop
 for(i in 1:n_sim) {
+  # Generate response from true model
   y_sim <- rpois(n, lambda = lambda_true)
+  
+  # Fit GLM
   fit <- glm(y_sim ~ x_cov, family = poisson)
-  mle_z[i] <- (coef(fit)[2] - beta_true[2]) / sqrt(inv_J[2,2])
+  beta_hat <- coef(fit)
+  
+  # A. Standardized MLEs (Wald)
+  # Uses the TRUE information matrix for standardization to check theory strictly
+  z_mle_b0[i] <- (beta_hat[1] - beta_true[1]) / sqrt(inv_I[1,1])
+  z_mle_b1[i] <- (beta_hat[2] - beta_true[2]) / sqrt(inv_I[2,2])
+  
+  # B. Standardized Score at Truth
+  # U = X^T (Y - lambda)
   U <- t(X_mat) %*% (y_sim - lambda_true)
-  score_z[i] <- U[2] / sqrt(J_true[2,2])
-  deviance_vals[i] <- 2 * (as.numeric(logLik(fit)) - sum(dpois(y_sim, lambda_true, log = TRUE)))
+  z_score_b1[i] <- U[2] / sqrt(I_fisher[2,2])
+  
+  # C. Deviance (Likelihood Ratio)
+  # D = 2 * (ll_hat - ll_true)
+  ll_hat <- as.numeric(logLik(fit))
+  ll_true <- sum(dpois(y_sim, lambda_true, log = TRUE))
+  deviance_vals[i] <- 2 * (ll_hat - ll_true)
 }
 
-par(mfrow = c(1, 3))
-hist(mle_z, breaks = 30, freq = FALSE, col = "lightblue", main = TeX("Std. $\\hat{\\beta}_1$"))
-curve(dnorm(x), add = TRUE, col = "red")
-hist(score_z, breaks = 30, freq = FALSE, col = "lightgreen", main = TeX("Std. $U_1$"))
-curve(dnorm(x), add = TRUE, col = "blue")
-hist(deviance_vals, breaks = 30, freq = FALSE, col = "lightpink", main = "Deviance")
-curve(dchisq(x, df = 2), add = TRUE, col = "darkgreen")
+# 3. Visualization (2x2 Grid)
+par(mfrow = c(2, 2))
 
+# Plot 1: MLE Beta 0
+hist(z_mle_b0, breaks = 30, freq = FALSE, col = "lightblue", 
+     main = TeX("Std. MLE $\\hat{\\beta}_0$"), xlab = "Z", border = "white")
+curve(dnorm(x), add = TRUE, col = "red", lwd = 2)
+
+# Plot 2: MLE Beta 1
+hist(z_mle_b1, breaks = 30, freq = FALSE, col = "lightblue", 
+     main = TeX("Std. MLE $\\hat{\\beta}_1$"), xlab = "Z", border = "white")
+curve(dnorm(x), add = TRUE, col = "red", lwd = 2)
+
+# Plot 3: Score U_1 (Slope)
+hist(z_score_b1, breaks = 30, freq = FALSE, col = "lightgreen", 
+     main = TeX("Std. Score $U(\\beta_1)$"), xlab = "Z", border = "white")
+curve(dnorm(x), add = TRUE, col = "blue", lwd = 2, lty = 2)
+
+# Plot 4: Deviance
+hist(deviance_vals, breaks = 30, freq = FALSE, col = "lightpink", 
+     main = "Deviance Statistic", xlab = "D", border = "white")
+curve(dchisq(x, df = 2), add = TRUE, col = "darkgreen", lwd = 2)
 ```
 
 :::
