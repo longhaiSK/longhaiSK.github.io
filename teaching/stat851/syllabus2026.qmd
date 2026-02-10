@@ -9,7 +9,8 @@ format:
     code-fold: true
     highlight-style: tango
     css: syllabusstyles.css
-  pdf: default
+  typst: 
+    fig-format: png
 
 
 ---
@@ -74,63 +75,53 @@ library(gt)
 library(dplyr)
 library(knitr)
 
-# 1. SETUP: Dates
-mondays <- c("Jan 05", "Jan 12", "Jan 19", "Jan 26", "Feb 02", "Feb 09", "Feb 16", 
-             "Feb 23", "Mar 02", "Mar 09", "Mar 16", "Mar 23", "Mar 30", "Apr 06")
+# Edit the text between the quotes below
+# Edit the text between the quotes below
+csv_text <- "
+Date,   Acad_Week, Topic,                                             Remarks
+Jan 05, 1,         \"1. Vector Space and Projection\",                  Jan 07: First day of class
+Jan 12, 2,         \"1. Vector Space and Projection (Cont)\",
+Jan 19, 3,         \"2. Matrix Algebra\",                               **Jan 25: Assignment 1 due**
+Jan 26, 4,         \"2. Matrix Algebra (Cont)\",
+Feb 02, 5,         \"3. Distribution of Multivariate Normal\",
+Feb 09, 6,         \"4. Distribution of Quadratic Forms\",
+Feb 16, N/A,       \"—\",                                               **Reading Week – No classes**
+Feb 23, 7,         \"4. Distribution of Quadratic Forms (Cont)\",     **Mar 01: Assignment 2 due**
+Mar 02, 8,         \"5. Theory for Multiple Regression\",               **Mar 06: Midterm (during class)**
+Mar 09, 9,         \"5. Theory for Multiple Regression (Cont)\",
+Mar 16, 10,        \"5. Theory for Multiple Regression (Cont)\",
+Mar 23, 11,        \"6. Non-full-rank Models\",
+Mar 30, 12,        \"6. Non-full-rank Models (Cont)\",                **Apr 05: Assignment 3 due**
+Apr 06, 13,        \"Review\",                                          Apr 06: Last lecture
+"
 
-# 2. CONTENT
-topics_list <- c(
-  "Jan 05" = "1. Vector Space and Projection",
-  "Jan 12" = "1. Vector Space and Projection (Cont'd)",
-  "Jan 19" = "2. Matrix Algebra",
-  "Jan 26" = "2. Matrix Algebra (Cont'd)",
-  "Feb 02" = "3. Distribution of Multivariate Normal",
-  "Feb 09" = "4. Distribution of Quadratic Forms",
-  "Feb 16" = "—", 
-  "Feb 23" = "4. Distribution of Quadratic Forms (Cont'd)",
-  "Mar 02" = "5. Theory for Multiple Regression",
-  "Mar 09" = "5. Theory for Multiple Regression (Cont'd)",
-  "Mar 16" = "5. Theory for Multiple Regression (Cont'd)",
-  "Mar 23" = "6. Non-full-rank Models",
-  "Mar 30" = "6. Non-full-rank Models (Cont'd)",
-  "Apr 06" = "Review"
-)
 
-remarks_list <- c(
-  "Jan 05" = "Jan 07: First day of class",
-  "Jan 19" = "**Jan 25: Assignment 1 due**",
-  "Feb 16" = "**Reading Week – No classes**",
-  "Feb 23" = "**Mar 01: Assignment 2 due**",
-  "Mar 02" = "**Mar 06: Midterm (during class)**",
-  "Mar 30" = "**Apr 05: Assignment 3 due**",
-  "Apr 06" = "Apr 06: Last lecture"
-)
+# 2. BUILD DATAFRAME
+schedule_data <- read.csv(text = csv_text, stringsAsFactors = FALSE)
 
-# 3. BUILD DATAFRAME
-schedule_data <- data.frame(
-  Acad_Week = c("1", "2", "3", "4", "5", "6", "N/A", "7", "8", "9", "10", "11", "12", "13"),
-  Cal_Week = c("2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"),
-  Date = mondays
-)
+# 3. CLEANUP
+schedule_data[is.na(schedule_data)] <- ""
 
-schedule_data$Topic   <- unname(topics_list[schedule_data$Date])
-schedule_data$Remarks <- ifelse(is.na(remarks_list[schedule_data$Date]), "", unname(remarks_list[schedule_data$Date]))
+
+
+
+
+# View Result
 
 # 4. CREATE THE TABLE
 gt_tbl <- schedule_data %>%
   gt() %>%
   cols_label(
-    Acad_Week = "Academic Week",
-    Cal_Week = "Calendar Week",
-    Date = "Date of Monday",
-    Topic = "Topic",
-    Remarks = "Remarks"
+    Acad_Week = "Week",
+    Date = "Date (Mon)",
+    Topic = "Lecture Topic",
+    Remarks = "Tests & Notes"
   ) %>%
   fmt_markdown(columns = c(Remarks)) %>%
-  cols_align(align = "center", columns = c(Acad_Week, Cal_Week)) %>%
+  cols_align(align = "center", columns = c(Acad_Week)) %>%
   cols_align(align = "left", columns = c(Date, Topic, Remarks)) %>%
   cols_width(
-    Topic ~ px(250),
+    Topic ~ px(300),
     Remarks ~ px(200),
     everything() ~ px(80)
   ) %>%
@@ -142,7 +133,7 @@ gt_tbl <- schedule_data %>%
     table_body.hlines.style = "solid",
     table_body.vlines.style = "solid",
     
-    # Header Grid (This adds the vlines to the header)
+    # Header Grid
     column_labels.vlines.style = "solid",
     column_labels.border.top.style = "solid",
     column_labels.border.bottom.style = "solid",
@@ -170,12 +161,11 @@ gt_tbl <- schedule_data %>%
     locations = cells_body(rows = 7)
   )
 
-# 5. SAVE & INSERT IMAGE
-if (knitr::is_latex_output()) {
-  gtsave(gt_tbl, "schedule_snapshot_stat851.png", vwidth = 1200) # Uncomment to save locally
 
-  knitr::include_graphics("schedule_snapshot_stat851.png")
-  file.remove("schedule_snapshot_stat851.png")
+# 5. SAVE & INSERT IMAGE
+if (!knitr::is_html_output()) {
+  gtsave(gt_tbl, "schedule_snapshot.png", vwidth = 1800) 
+  knitr::include_graphics("schedule_snapshot.png")
 } else{
   gt_tbl
 }

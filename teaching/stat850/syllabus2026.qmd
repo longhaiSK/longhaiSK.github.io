@@ -66,60 +66,52 @@ dput(format(dates, "%b %d"))
 library(gt)
 library(dplyr)
 library(knitr)
+# 1. SETUP: Compact CSV text block
+# (Note: Topics with commas still need quotes "")
+# 1. SETUP: Compact CSV text block
+# (Note: All Topics are now wrapped in \"quotes\" for consistency)
+# 1. SETUP: Compact CSV text block
+# (Note: All Topics are now wrapped in \"quotes\" for consistency)
+# Edit the text between the quotes below
+csv_text <- "
+Date,   Acad_Week, Topic,                                                           Remarks
+Jan 05, 1,         \"1. Introduction, Likelihood Function, and MLE\",                 Jan 06: First Lecture
+Jan 12, 2,         \"2. Decision Theory: Risk, Minimaxity Theorem\",
+Jan 19, 3,         \"3. Bayesian Inference: Posterior, Bayes Rules\",
+Jan 26, 4,         \"3. Bayesian Inference: Minimax Rules, Jame-Stein Estimator\",    **Feb 01: Assignment 1 due**
+Feb 02, 5,         \"3. Bayesian Inference: Hierachical Bayesian, MCMC, Case Study\",
+Feb 09, 6,         \"4. Sufficient Statistic\",
+Feb 16, N/A,       \"—\",                                                             **Reading Week – No classes**
+Feb 23, 7,         \"5. Likelihood Theory\",
+Mar 02, 8,         \"5. Likelihood Theory\",                                          **Mar 03: Midterm (during class)**
+Mar 09, 9,         \"6. Maximum Likelihood Estimation\",                              **Mar 15: Assignment 2 due**
+Mar 16, 10,        \"6. Maximum Likelihood Estimation\",
+Mar 23, 11,        \"7. Uniformly Minimum Variance Unbiased Tests\",
+Mar 30, 12,        \"8. Hypothesis Testing: NP Lemma, Monotone Likelihood Test\",     **Apr 05: Assignment 3 due**
+Apr 06, 13,        \"Review\",                                                        Apr 07: Last lecture
+"
 
-# 1. SETUP: Dates (Simulated for Winter 2026 based on template)
-mondays <- c("Jan 05", "Jan 12", "Jan 19", "Jan 26", "Feb 02", "Feb 09", "Feb 16", 
-             "Feb 23", "Mar 02", "Mar 09", "Mar 16", "Mar 23", "Mar 30", "Apr 06")
+# Convert the text block into a dataframe
+# strip.white = TRUE ensures the alignment spaces are ignored during import
+schedule_data <- read.csv(text = csv_text, strip.white = TRUE, stringsAsFactors = FALSE)
 
-# 2. CONTENT (Mapped from Old Syllabus Topics)
-topics_list <- c(
-  "Jan 05" = "1. Introduction, Likelihood Function, and MLE",
-  "Jan 12" = "2. Decision Theory: Risk, Minimaxity Theorem",
-  "Jan 19" = "3. Bayesian Inference: Posterior, Bayes Rules",
-  "Jan 26" = "3. Bayesian Inference: Minimax Rules, Jame-Stein Estimator",
-  "Feb 02" = "3. Bayesian Inference: Hierachical Bayesian, MCMC, Case Study",
-  "Feb 09" = "4. Sufficient Statistic",
-  "Feb 16" = "—", 
-  "Feb 23" = "5. Likelihood Theory",
-  "Mar 02" = "5. Likelihood Theory",
-  "Mar 09" = "6. Maximum Likelihood Estimation",
-  "Mar 16" = "6. Maximum Likelihood Estimation",
-  "Mar 23" = "7. Uniformly Minimum Variance Unbiased Tests",
-  "Mar 30" = "8. Hypothesis Testing: NP Lemma, Monotone Likelihood Test",
-  "Apr 06" = "Review"
-)
+# Fill empty remarks with empty strings
+schedule_data$Remarks[is.na(schedule_data$Remarks)] <- ""
 
-remarks_list <- c(
-  "Jan 05" = "Jan 06: First Lecture",
-  "Jan 26" = "**Feb 01: Assignment 1 due**",
-  "Feb 16" = "**Reading Week – No classes**",
-  "Feb 23" = "**Mar 01: Assignment 2 due**",
-  "Mar 02" = "**Mar 05: Midterm (during class)**",
-  "Mar 30" = "**Apr 05: Assignment 3 due**",
-  "Apr 06" = "Apr 07: Last lecture"
-)
-# 3. BUILD DATAFRAME
-schedule_data <- data.frame(
-  Acad_Week = c("1", "2", "3", "4", "5", "6", "N/A", "7", "8", "9", "10", "11", "12", "13"),
-  Cal_Week = c("2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"),
-  Date = mondays
-)
 
-schedule_data$Topic   <- unname(topics_list[schedule_data$Date])
-schedule_data$Remarks <- ifelse(is.na(remarks_list[schedule_data$Date]), "", unname(remarks_list[schedule_data$Date]))
+# View Result
 
 # 4. CREATE THE TABLE
 gt_tbl <- schedule_data %>%
   gt() %>%
   cols_label(
     Acad_Week = "Week",
-    Cal_Week = "Cal Week",
     Date = "Date (Mon)",
     Topic = "Lecture Topic",
     Remarks = "Tests & Notes"
   ) %>%
   fmt_markdown(columns = c(Remarks)) %>%
-  cols_align(align = "center", columns = c(Acad_Week, Cal_Week)) %>%
+  cols_align(align = "center", columns = c(Acad_Week)) %>%
   cols_align(align = "left", columns = c(Date, Topic, Remarks)) %>%
   cols_width(
     Topic ~ px(300),
@@ -165,11 +157,12 @@ gt_tbl <- schedule_data %>%
 
 # 5. SAVE & INSERT IMAGE
 if (!knitr::is_html_output()) {
-  gtsave(gt_tbl, "schedule_snapshot_stat442.png", vwidth = 1800) 
-  knitr::include_graphics("schedule_snapshot_stat442.png")
+  gtsave(gt_tbl, "schedule_snapshot.png", vwidth = 1800) 
+  knitr::include_graphics("schedule_snapshot.png")
 } else{
   gt_tbl
 }
+
 ```
 
 :::{.callout-important}
