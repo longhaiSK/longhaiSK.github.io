@@ -1256,117 +1256,6 @@ We express the likelihood difference $\Delta \ell$ in terms of the Score vector 
 
 :::
 
-```{r}
-#| label: fig-score-approx-latex-final
-#| fig-cap: "Geometric Interpretation of the Score Statistic: The shaded rectangle represents the product $\\Delta \\theta \\times \\Delta U$. The annotations highlight that the Deviance $D_n$ is approximately equal to this area."
-#| warning: false
-#| message: false
-
-library(ggplot2)
-library(dplyr)
-library(latex2exp)
-
-# --- 1. Settings and Data Generation (Cauchy) ---
-set.seed(42)
-n_sim <- 10
-n_obs <- 10
-theta_0 <- 10 
-gamma <- 1    
-
-datasets <- matrix(rcauchy(n_sim * n_obs, location = theta_0, scale = gamma), 
-                   nrow = n_sim, ncol = n_obs)
-
-score_cauchy <- function(y, theta) {
-  sum( (2 * (y - theta)) / (1 + (y - theta)^2) )
-}
-hessian_cauchy <- function(y, theta) {
-  u <- y - theta
-  sum( (2 * (u^2 - 1)) / (1 + u^2)^2 )
-}
-
-# --- 2. Analyze Main Dataset ---
-y_main <- datasets[1, ]
-mle_res <- optimize(function(th) sum(dcauchy(y_main, location = th, log = TRUE)),
-                    interval = c(theta_0 - 5, theta_0 + 5), maximum = TRUE)
-theta_hat <- mle_res$maximum
-
-u_true <- score_cauchy(y_main, theta_0)
-slope_true <- hessian_cauchy(y_main, theta_0)
-
-# --- 3. Prepare Plot Data ---
-theta_seq <- seq(8, 12, length.out = 300)
-
-plot_data <- data.frame()
-for(i in 1:n_sim) {
-  y_curr <- datasets[i, ]
-  u_vals <- sapply(theta_seq, function(th) score_cauchy(y_curr, th))
-  plot_data <- rbind(plot_data, data.frame(theta = theta_seq, U = u_vals, sim_id = as.factor(i), is_main = (i == 1)))
-}
-
-tangent_data <- data.frame(
-  theta = theta_seq,
-  U_lin = u_true + slope_true * (theta_seq - theta_0)
-)
-
-# --- 4. Plotting ---
-ggplot() +
-  geom_hline(yintercept = 0, color = "black", size = 0.5) +
-  geom_vline(xintercept = theta_0, color = "black", linetype = "dotted") +
-  
-  # A. Background Curves
-  geom_line(data = subset(plot_data, !is_main), 
-            aes(x = theta, y = U, group = sim_id), 
-            color = "grey80", alpha = 0.5) +
-  
-  # B. RECTANGLE FILL
-  annotate("rect", xmin = theta_0, xmax = theta_hat, ymin = 0, ymax = u_true,
-           fill = "darkblue", alpha = 0.2) +
-  
-  # C. Main Curve & Tangent
-  geom_line(data = subset(plot_data, is_main), aes(x = theta, y = U), 
-            color = "blue", size = 1.2) +
-  geom_line(data = tangent_data, aes(x = theta, y = U_lin), 
-            color = "red", linetype = "dashed", size = 1) +
-  
-  # D. THICK SEGMENTS
-  annotate("segment", x = theta_0, xend = theta_0, y = 0, yend = u_true,
-           color = "purple", size = 1.5) +
-  annotate("segment", x = theta_0, xend = theta_hat, y = 0, yend = 0,
-           color = "darkgreen", size = 1.5) +
-  
-  # E. Points
-  geom_point(aes(x = theta_0, y = u_true), color = "red", size = 3) +
-  geom_point(aes(x = theta_hat, y = 0), color = "darkgreen", size = 3) +
-  
-  # F. Labels
-  annotate("text", x = theta_0 + 0.15, y = u_true / 2, 
-           label = TeX("$\\Delta U$"), color = "purple", fontface = "bold", hjust = 0) +
-  annotate("text", x = (theta_0 + theta_hat)/2, y = -1.0, 
-           label = TeX("$\\Delta \\theta$"), color = "darkgreen", fontface = "bold") +
-  annotate("text", x = theta_hat, y = 1.5, label = TeX("$\\hat{\\theta}_n$"), color = "darkgreen", size = 5) +
-  annotate("text", x = theta_0, y = 1.5, label = TeX("$\\theta_0$"), color = "red", size = 5) +
-
-  # G. ANNOTATIONS (Left Aligned)
-  
-  # 1. Integral Definition (Top)
-  annotate("text", x = 9.8, y = 8, 
-           label = TeX(r"($2 \Delta l =2 \int_{\theta_0}^{\hat{\theta}} U(\theta)d\theta \approx \Delta U \times \Delta \theta$)"), 
-           size = 4.5, color = "darkblue", hjust = 0) + # hjust=0 ensures left alignment
-
-  # 2. Deviance Formula (Bottom)
-  annotate("text", x = 9.8, y = 6, 
-           label = TeX(r"($D_n = 2\Delta l \approx \Delta \theta \cdot \Delta U \approx (\Delta U)^2 J^{-1}$)"), 
-           size = 4.5, color = "black", hjust = 0) +
-
-  # H. Styling
-  coord_cartesian(ylim = c(-10, 10), xlim = c(8.5, 11.5)) +
-  labs(title = TeX("Score Function Approximation (Cauchy)"),
-       subtitle = TeX("Linear Link: $\\Delta U \\approx -J \\Delta \\theta$"),
-       x = TeX("$\\theta$"), y = TeX("$U(\\theta)$")) +
-  theme_minimal()
-
-```
-
 
 ### Summary of Asymptotic Approximations
 
@@ -1381,8 +1270,8 @@ In the limit as $n \to \infty$ (or exactly for the Normal distribution), the log
 | **Information Approximation** | $\mathcal{I} \approx U U^T$ | The curvature ($\mathcal{I}$) can be approximated by the "squared slope" (outer product of scores). This relies on Bartlett's 2nd Identity: $E[\mathcal{I}] = E[U U^T]$. |
 
 ```{tikz}
-%| label: fig-asymptotic-relationships-v3
-%| fig-cap: "Asymptotic Relationships: The Fisher Information $\\mathcal{I}$ bridges the spaces, and can itself be approximated by the outer product of Scores or Errors."
+%| label: fig-asymptotic-relationships-final
+%| fig-cap: "Asymptotic Relationships: The Information matrix $\\mathcal{I}$ bridges the spaces. Note the use of the empirical sum of outer products $\\sum \\mathbf{U}_i \\mathbf{U}_i^T$ to estimate curvature."
 %| echo: false
 %| fig-align: "center"
 %| engine.opts:
@@ -1397,7 +1286,7 @@ In the limit as $n \to \infty$ (or exactly for the Normal distribution), the log
         fill=blue!5,
         very thick,
         minimum size=1.5cm,
-        text width=3cm,
+        text width=3.5cm,
         align=center,
         rounded corners
     },
@@ -1430,20 +1319,20 @@ In the limit as $n \to \infty$ (or exactly for the Normal distribution), the log
     % Nodes
     \node[block] (error) at (0, 4) {
         \textbf{Parameter Space} \\
-        Error ($\Delta \theta$)
+        Error ($\Delta \boldsymbol{\theta}$)
     };
 
-    \node[block] (score) at (6, 4) {
+    \node[block] (score) at (7, 4) {
         \textbf{Gradient Space} \\
-        Score ($U$)
+        Total Score ($\mathbf{U} = \sum \mathbf{U}_i$)
     };
 
-    \node[block] (dev) at (3, 0) {
+    \node[block] (dev) at (3.5, 0) {
         \textbf{Likelihood Space} \\
         Deviance ($D$)
     };
 
-    \node[infoblock] (info) at (3, 7) {
+    \node[infoblock] (info) at (3.5, 7.5) {
         \textbf{Information Space} \\
         Curvature ($\mathcal{I}$)
     };
@@ -1452,42 +1341,41 @@ In the limit as $n \to \infty$ (or exactly for the Normal distribution), the log
     
     % Error -> Score
     \draw[arrow] (error) -- node[midway, above, align=center] {
-        $U \approx \mathcal{I} \Delta \theta$ \\
+        $\mathbf{U} \approx \mathcal{I} \Delta \boldsymbol{\theta}$ \\
         (\textcolor{blue}{Multiply by $\mathcal{I}$})
     } (score);
 
     % Score -> Deviance
     \draw[arrow] (score) to[bend left=20] node[midway, right=0.2cm, align=left] {
-        $D \approx U^T \mathcal{I}^{-1} U$ \\
+        $D \approx \mathbf{U}^T \mathcal{I}^{-1} \mathbf{U}$ \\
         (\textcolor{blue}{Square \& Divide})
     } (dev);
 
     % Error -> Deviance
     \draw[arrow] (error) to[bend right=20] node[midway, left=0.2cm, align=right] {
-        $D \approx \Delta \theta^T \mathcal{I} \Delta \theta$ \\
+        $D \approx \Delta \boldsymbol{\theta}^T \mathcal{I} \Delta \boldsymbol{\theta}$ \\
         (\textcolor{blue}{Square \& Multiply})
     } (dev);
 
     % Edges - Information Approximations
     
     % Score -> Info
-    \draw[dashed_arrow] (score) to[bend right=20] node[midway, right=0.1cm, align=left] {
-        $\mathcal{I} \approx U U^T$ \\
-        (\textcolor{red}{Outer Product})
+    % Connecting from the "Gradient Space" to "Information" using the sum of squares logic
+    \draw[dashed_arrow] (score) to[bend right=30] node[midway, right=0.1cm, align=left] {
+        $\mathcal{I} \approx \sum_{i} \mathbf{U}_i \mathbf{U}_i^T$ \\
+        (\textcolor{red}{Sum of Squares})
     } (info);
 
-    % Error -> Info (Less common but valid algebraically if scaled)
-    % \mathcal{I} \approx \mathcal{I} \Delta \theta \Delta \theta^T \mathcal{I} is essentially UU^T
-    % We will represent this as coming from the Error side but passing through the Score logic
-    \draw[dashed_arrow] (error) to[bend left=20] node[midway, left=0.1cm, align=right] {
-        $\mathcal{I} \approx (\mathcal{I}\Delta\theta)(\mathcal{I}\Delta\theta)^T$ \\
-        (\textcolor{red}{Scaled Outer Product})
+    % Parameter -> Info (Bartlett Identity Concept)
+    \draw[dashed_arrow] (error) to[bend left=30] node[midway, left=0.1cm, align=right] {
+        Bartlett Identity \\
+        $E[\mathcal{I}] = \text{Var}(\mathbf{U})$
     } (info);
 
 \end{tikzpicture}
 ```
 
-#### Generalized Wilks' Theorem (Parameter Partitioning)
+### Generalized Wilks' Theorem (Parameter Partitioning)
 
 
 ::: {#lem-score-decomp}
