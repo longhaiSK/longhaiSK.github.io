@@ -8,6 +8,8 @@ format:
 
 ## Completeness
 
+### Complete Statistic
+
 ::: {#def-completeness}
 
 ### Complete Statistic
@@ -29,6 +31,8 @@ Consider the range $R = X_{(n)} - X_{(1)}$. The distribution of $R$ does not dep
 Then $E[g(T)] = 0$ for all $\theta$, but $g(T)$ is not identically zero.
 
 :::
+
+### Exponential Family Completeness
 
 ::: {#lem-exponential-complete}
 
@@ -59,15 +63,81 @@ Therefore, $g^+(t)h(t) = g^-(t)h(t)$, which implies $g(t) = 0$ almost everywhere
 
 :::
 
-## UMVUE
+### Relationship Between Completeness and Minimality
 
-::: {#def-umvue}
+While sufficiency ensures that a statistic captures all information about $\theta$, and minimality ensures it does so without redundancy, completeness is a stronger property that guarantees the statistic is "uniquely informative" for unbiased estimation.
 
-### Uniformly Minimum Variance Unbiased Estimator (UMVUE)
-A statistic $T(x)$ is a UMVUE for $\theta$ if:
+::: {#thm-complete-minimal}
 
-1.  $E(T(x)|\theta) = \theta$ for all $\theta$ (Unbiased).
-2.  $Var(T(x)|\theta) \le Var(d(x)|\theta)$ for all $\theta$ and for all other unbiased estimators $d(x)$.
+### Completeness to Minimal Sufficiency
+If $T$ is a **complete sufficient statistic** for a family of distributions $\{f(x|\theta) : \theta \in \Theta\}$, then $T$ is also a **minimal sufficient statistic**.
+
+:::
+
+::: {.proof}
+To prove $T$ is minimal sufficient, we must show that for any other sufficient statistic $S$, $T$ is a function of $S$.
+
+1.  **Define a Conditional Expectation:**
+
+    Let $S$ be any sufficient statistic. Define the statistic $\phi(S) = E[T|S]$. Because $S$ is sufficient, $\phi(S)$ is a valid statistic (it does not depend on $\theta$).
+
+2.  **Compare Expectations:**
+
+    By the Law of Iterated Expectations:
+    $$E[\phi(S)] = E[E[T|S]] = E[T]$$
+    This implies that $E[\phi(S) - T] = 0$ for all $\theta \in \Theta$.
+
+3.  **Construct a Function of T:**
+
+    Define $h(T) = E[\phi(S)|T]$. Since $T$ is sufficient, $h(T)$ is a statistic. By the properties of expectation:
+    $$E[h(T)] = E[E[\phi(S)|T]] = E[\phi(S)] = E[T]$$
+    Therefore, $E[h(T) - T] = 0$ for all $\theta \in \Theta$.
+
+4.  **Apply Completeness:**
+
+    Since $g(T) = h(T) - T$ is a function of $T$ whose expectation is zero for all $\theta$, and $T$ is **complete**, it follows that:
+    $$g(T) = 0 \implies h(T) = T \quad \text{with probability 1.}$$
+
+5.  **Conclusion:**
+
+    Since $T$ is a function of $\phi(S)$ (which is a function of $S$), $T$ must be a function of $S$. Since this holds for any sufficient statistic $S$, $T$ is minimal sufficient.
+
+:::
+
+```{r fig-proof-diagram-r}
+#| label: fig-proof-diagram-r
+#| fig-cap: "Logical flow of the proof: Showing T is a function of any sufficient statistic S."
+#| echo: false
+#| fig-align: "center"
+#| fig-width: 6
+#| fig-height: 4
+#| out-extra: 'style="width: 70% !important; display: block; margin-left: auto; margin-right: auto;"'
+
+par(mar = c(1, 1, 1, 1))
+plot(0, 0, type = "n", xlim = c(0, 10), ylim = c(0, 10), axes = FALSE, xlab = "", ylab = "")
+
+# Box coordinates and text
+text(2, 8, "Sufficient Stat S", cex = 1.2, font = 2)
+text(8, 8, expression(phi(S) == E(T* "|" *S)), cex = 1.1)
+text(8, 2, expression(h(T) == E(phi(S)* "|" *T)), cex = 1.1)
+text(2, 2, "Complete Stat T", cex = 1.2, font = 2)
+
+# Arrows
+arrows(3.5, 8, 6.5, 8, length = 0.1, lwd = 2) # S -> phi(S)
+arrows(8, 7, 8, 3, length = 0.1, lwd = 2)     # phi(S) -> h(T)
+arrows(6.5, 2, 3.5, 2, length = 0.1, lwd = 2, lty = 2) # h(T) -> T (Completeness)
+arrows(2, 7, 2, 3, length = 0.1, lwd = 2, col = "blue") # S -> T (Final Result)
+
+# Annotations
+text(5, 8.5, "Extract T from S", cex = 0.8)
+text(9.2, 5, "Condition on T", cex = 0.8, srt = 270)
+text(5, 1.5, "Completeness says h(T) = T", cex = 0.8, col = "red")
+text(1, 5, "T is a function of S", cex = 0.8, col = "blue", srt = 90)
+
+```
+
+::: {.remark}
+It is important to note that the converse is not generally true. A **minimal sufficient statistic is not necessarily complete**. A standard counterexample is the $\text{Unif}(\theta-1, \theta+1)$ distribution, where the minimal sufficient statistic $(X_{(1)}, X_{(n)})$ is not complete because the range $X_{(n)} - X_{(1)}$ is an ancillary statistic.
 
 :::
 
@@ -107,7 +177,21 @@ text(0, -0.8, "Complete", font = 2)
 
 ```
 
-## Fundamental Theorems and Proofs
+## Uniformly Minimum Variance Unbiased Estimator (UMVUE)
+
+### Definition
+
+::: {#def-umvue}
+
+### Uniformly Minimum Variance Unbiased Estimator (UMVUE)
+A statistic $T(x)$ is a UMVUE for $\theta$ if:
+
+1.  $E(T(x)|\theta) = \theta$ for all $\theta$ (Unbiased).
+2.  $\text{Var}(T(x)|\theta) \le \text{Var}(d(x)|\theta)$ for all $\theta$ and for all other unbiased estimators $d(x)$.
+
+:::
+
+
 
 ### Rao-Blackwell Theorem
 
@@ -120,7 +204,7 @@ Given that $T$ is a sufficient statistic and $d_1(x)$ is an unbiased estimator (
 
 1.  $g(T)$ is a statistic (independent of $\theta$).
 2.  $E[g(T)] = \theta$ (Unbiased).
-3.  $Var(g(T)) \le Var(d_1(x))$.
+3.  $\text{Var}(g(T)) \le \text{Var}(d_1(x))$.
 
 :::
 
@@ -133,8 +217,8 @@ Given that $T$ is a sufficient statistic and $d_1(x)$ is an unbiased estimator (
 
 3.  **Variance Reduction:** Using the Law of Total Variance:
 
-    $$Var(d_1(X)) = Var(E[d_1(X)|T]) + E[Var(d_1(X)|T)] = Var(g(T)) + E[Var(d_1(X)|T)]$$
-    Since $Var(d_1(X)|T) \ge 0$, it follows that $E[Var(d_1(X)|T)] \ge 0$. Therefore, $Var(g(T)) \le Var(d_1(X))$. Equality holds only if $d_1(X) = g(T)$ almost surely.
+    $$\text{Var}(d_1(X)) = \text{Var}(E[d_1(X)|T]) + E[\text{Var}(d_1(X)|T)] = \text{Var}(g(T)) + E[\text{Var}(d_1(X)|T)]$$
+    Since $\text{Var}(d_1(X)|T) \ge 0$, it follows that $E[\text{Var}(d_1(X)|T)] \ge 0$. Therefore, $\text{Var}(g(T)) \le \text{Var}(d_1(X))$. Equality holds only if $d_1(X) = g(T)$ almost surely.
 
 :::
 
@@ -177,6 +261,8 @@ To find the UMVUE for a parameter $\theta$:
 2.  **Find an Unbiased Estimator:** Find any simple $d(X)$ such that $E[d(X)] = \theta$.
 3.  **Rao-Blackwellize:** Compute $g(T) = E[d(X)|T]$. 
 
+### Example: Poisson UMVUE for $\lambda^2$
+
 ::: {#exm-poisson-umvue}
 
 ### Poisson UMVUE for $\lambda^2$
@@ -187,3 +273,93 @@ The UMVUE is $g(T) = E[X_1(X_1-1) | T]$. Using the moments of $X_1|T \sim \text{
 $$g(T) = \frac{T(T-1)}{n^2}$$
 
 :::
+
+### Example: Joint UMVUE in the Normal Family
+
+The power of the Exponential Family lemma is most evident when dealing with distributions involving multiple parameters, such as the Normal distribution.
+
+::: {#exm-normal-joint-umvue}
+
+### Joint UMVUE for $\mu$ and $\sigma^2$
+Let $X_1, \dots, X_n \sim N(\mu, \sigma^2)$ where both parameters are unknown. The joint density can be written in the canonical exponential form:
+
+$$f(\mathbf{x}|\mu, \sigma^2) = \underbrace{(2\pi\sigma^2)^{-n/2} \exp\left(-\frac{n\mu^2}{2\sigma^2}\right)}_{C(\boldsymbol{\eta})} \exp\left( \frac{\mu}{\sigma^2}\sum x_i - \frac{1}{2\sigma^2}\sum x_i^2 \right)$$
+
+1.  **Identify Natural Statistics:**
+
+    The natural sufficient statistics are $T_1 = \sum X_i$ and $T_2 = \sum X_i^2$. Because the natural parameter space contains an open rectangle in $\mathbb{R} \times \mathbb{R}^-$, the vector $(T_1, T_2)$ is **complete and sufficient**.
+
+2.  **Transformation to Common Estimators:**
+
+    Any one-to-one mapping of a complete sufficient statistic is also complete and sufficient. We can define:
+    $$\bar{X} = \frac{T_1}{n} \quad \text{and} \quad S^2 = \frac{1}{n-1}\left( T_2 - \frac{T_1^2}{n} \right)$$
+    Since $(\bar{X}, S^2)$ is a one-to-one function of $(T_1, T_2)$, it is also a **complete sufficient statistic**.
+
+3.  **Applying Lehmann-Scheffé:**
+
+    * Since $E[\bar{X}] = \mu$ and $\bar{X}$ is a function of the complete sufficient statistic, $\bar{X}$ is the **UMVUE for $\mu$**.
+    * Since $E[S^2] = \sigma^2$ and $S^2$ is a function of the complete sufficient statistic, $S^2$ is the **UMVUE for $\sigma^2$**.
+
+:::
+
+### UMVUE for $\log(\sigma^2)$ in the Normal Family
+:::: {#exm-normal-log-variance}
+
+### UMVUE for $\log(\sigma^2)$ in the Normal Family
+While we saw that no UMVUE exists for $\log(\lambda)$ in the Poisson case, an unbiased estimator for the log-variance *does* exist in the Normal distribution $N(\mu, \sigma^2)$.
+
+1. **The Target:** We want to estimate $g(\sigma^2) = \log(\sigma^2)$.
+2. **Distributional Fact:** Recall that for a sample of size $n$, the statistic $Y = \frac{(n-1)S^2}{\sigma^2}$ follows a $\chi^2_{n-1}$ distribution (which is a $\text{Gamma}(\alpha = \frac{n-1}{2}, \beta = 2)$ distribution).
+3. **Log-Moments of Gamma:** For a variable $W \sim \text{Gamma}(\alpha, \beta)$, the expected value of its logarithm is:
+
+   $$E[\log(W)] = \psi(\alpha) + \log(\beta)$$
+   where $\psi(x) = \frac{d}{dx} \log \Gamma(x)$ is the **digamma function**.
+
+4. **Deriving the Estimator:**
+
+   Expanding the expectation of $Y$ and rearranging to isolate $\log(\sigma^2)$:
+   $$E\left[ \log(S^2) + \left( \log\left(\frac{n-1}{2}\right) - \psi\left(\frac{n-1}{2}\right) \right) \right] = \log(\sigma^2)$$
+
+5. **Conclusion:**
+
+   Since $S^2$ is a complete sufficient statistic, the **Lehmann-Scheffé Theorem** implies:
+   $$\widehat{\log(\sigma^2)}_{\text{UMVUE}} = \log(S^2) + C(n)$$
+   where $C(n) = \log\left(\frac{n-1}{2}\right) - \psi\left(\frac{n-1}{2}\right)$ is the **positive** correction term.
+
+
+
+
+
+Because the logarithm is a concave function, Jensen's Inequality tells us that $E[\log(S^2)] < \log(E[S^2]) = \log(\sigma^2)$. Therefore, $\log(S^2)$ is "too small," and we must add a positive value $C(n)$ to reach unbiasedness.
+
+**Numerical Values of the Correction**
+
+As seen in @tbl-log-bias-correction, the bias is quite severe for small samples but vanishes as $n \to \infty$.
+
+```{r}
+#| label: tbl-log-bias-correction
+#| tbl-cap: "Positive correction factors $C(n)$ to be added to $\\log(S^2)$"
+#| echo: false
+
+n_values <- c(2, 5, 10, 30, 100)
+alpha <- (n_values - 1) / 2
+
+# Now calculated as log(alpha) - digamma(alpha) to make it positive
+correction <- log(alpha) - digamma(alpha)
+
+results <- data.frame(
+  n = n_values,
+  alpha = alpha,
+  c1 = round(correction, 4)
+)
+
+knitr::kable(
+  results, 
+  col.names = c("$n$", "$\\alpha = \\frac{n-1}{2}$", "Positive Correction $C(n)$"),
+  escape = FALSE,
+  align = "ccc"
+)
+
+```
+
+::::
