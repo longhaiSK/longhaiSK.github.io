@@ -1,4 +1,3 @@
-
 ---
 title: "Maximum Likelihood Estimation"
 engine: knitr
@@ -144,6 +143,229 @@ $$
 Note that the Score equation approach fails here because the support depends on $\theta$, making the log-likelihood discontinuous at the boundary.
 
 :::
+
+## The Newton-Raphson Algorithm
+
+When the score equation $\mathbf{U}(\boldsymbol{\theta}) = \mathbf{0}$ does not have a closed-form solution, we must rely on iterative numerical methods to find the Maximum Likelihood Estimator. The Newton-Raphson algorithm is the most common approach, utilizing the curvature of the log-likelihood surface to guide the search for the maximum.
+
+
+### Newton-Raphson Iteration
+
+::: {.algorithm}
+
+Starting from an initial guess $\boldsymbol{\theta}^{(0)}$, the algorithm updates the estimate of the parameter vector at each step $t$ using the following recurrence relation:
+
+$$
+\boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} + \left[ \mathbf{J}(\boldsymbol{\theta}^{(t)}) \right]^{-1} \mathbf{U}(\boldsymbol{\theta}^{(t)})
+$$
+
+where:
+
+1. **$\mathbf{U}(\boldsymbol{\theta}^{(t)})$** is the score vector (gradient) evaluated at the current estimate.
+
+2. **$\mathbf{J}(\boldsymbol{\theta}^{(t)})$** is the **Observed Fisher Information Matrix**, defined as the negative Hessian of the log-likelihood:
+
+   
+   $$
+   \mathbf{J}(\boldsymbol{\theta}) = - \nabla^2 \ell(\boldsymbol{\theta}) = - \frac{\partial^2 \ell(\boldsymbol{\theta})}{\partial \boldsymbol{\theta} \partial \boldsymbol{\theta}^T}
+   $$
+
+:::
+
+
+::: proof
+
+### Derivation via Taylor Expansion
+
+The algorithm is derived by approximating the score function $\mathbf{U}(\boldsymbol{\theta})$ with a first-order Taylor expansion around the current estimate $\boldsymbol{\theta}^{(t)}$:
+
+1. **Linear Approximation** \n
+
+   We approximate the score at the next step as:
+   
+   $$
+   \mathbf{U}(\boldsymbol{\theta}^{(t+1)}) \approx \mathbf{U}(\boldsymbol{\theta}^{(t)}) + \nabla \mathbf{U}(\boldsymbol{\theta}^{(t)}) (\boldsymbol{\theta}^{(t+1)} - \boldsymbol{\theta}^{(t)})
+   $$
+
+2. **Setting to Zero** \n
+
+   Since we want to find the root where $\mathbf{U}(\hat{\boldsymbol{\theta}}) = \mathbf{0}$, we set the left side to zero:
+   
+   $$
+   \mathbf{0} = \mathbf{U}(\boldsymbol{\theta}^{(t)}) - \mathbf{J}(\boldsymbol{\theta}^{(t)}) (\boldsymbol{\theta}^{(t+1)} - \boldsymbol{\theta}^{(t)})
+   $$
+   
+   Note that $\nabla \mathbf{U}(\boldsymbol{\theta}) = \nabla^2 \ell(\boldsymbol{\theta}) = -\mathbf{J}(\boldsymbol{\theta})$.
+
+3. **Solving for the Update** \n
+
+   Rearranging the terms gives the update rule:
+   
+   $$
+   \mathbf{J}(\boldsymbol{\theta}^{(t)}) (\boldsymbol{\theta}^{(t+1)} - \boldsymbol{\theta}^{(t)}) = \mathbf{U}(\boldsymbol{\theta}^{(t)})
+   $$
+   
+   $$
+   \boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} + \mathbf{J}(\boldsymbol{\theta}^{(t)})^{-1} \mathbf{U}(\boldsymbol{\theta}^{(t)})
+   $$
+
+:::
+
+
+
+
+### Fisher Scoring
+
+The Newton-Raphson algorithm specifically uses the **Observed Information** $\mathbf{J}(\boldsymbol{\theta})$. If the expected Fisher Information $\mathbf{I}(\boldsymbol{\theta}) = E[\mathbf{J}(\boldsymbol{\theta})]$ is used instead, the method is known as **Fisher Scoring**.
+
+1. **Convergence Speed** \n
+
+   Newton-Raphson typically achieves quadratic convergence near the maximum, making it very fast when the initial guess is good.
+
+2. **Stability** \n
+
+   Because $\mathbf{J}(\boldsymbol{\theta})$ depends on the specific data observed, it can occasionally be non-positive definite in regions far from the MLE, which may cause the algorithm to diverge. Fisher Scoring is often more stable in these cases because $\mathbf{I}(\boldsymbol{\theta})$ is always positive semi-definite for regular families.
+
+
+### Example: Poisson Regression (MLE)
+
+::: {#exm-poisson-glm}
+Consider a GLM where $Y_i \sim \text{Poisson}(\lambda_i)$. We use the canonical link $\log(\lambda_i(\boldsymbol{\beta})) = \mathbf{x}_i^\top \boldsymbol{\beta}$, which implies the mean function is $\lambda_i(\boldsymbol{\beta}) = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})$.
+
+1.  **Exponential Family Representation**
+
+    We rewrite the total log-likelihood by grouping terms associated with each $\beta_j$:
+    
+    $$
+    \begin{aligned}
+    \ell(\boldsymbol{\beta}) &= \sum_{i=1}^n \left( y_i (\mathbf{x}_i^\top \boldsymbol{\beta}) - \lambda_i(\boldsymbol{\beta}) - \log(y_i!) \right) \\
+    &= \sum_{i=1}^n \sum_{j=0}^p y_i x_{ij} \beta_j - \sum_{i=1}^n \exp(\mathbf{x}_i^\top \boldsymbol{\beta}) - \sum_{i=1}^n \log(y_i!) \\
+    &= \sum_{j=0}^p \beta_j \underbrace{\left( \sum_{i=1}^n y_i x_{ij} \right)}_{T_j(\mathbf{y})} - \underbrace{\sum_{i=1}^n \lambda_i(\boldsymbol{\beta})}_{A(\boldsymbol{\beta})} + \text{const}
+    \end{aligned}
+    $$
+
+    This is a multivariate exponential family in **canonical form** where:
+
+    * **Natural Parameters:** The regression coefficients $\boldsymbol{\beta} = (\beta_0, \dots, \beta_p)^\top$.
+    * **Sufficient Statistics:** $\mathbf{T}(\mathbf{y}) = \mathbf{X}^\top \mathbf{y}$.
+    * **Log-Partition Function:** $A(\boldsymbol{\beta}) = \sum_{i=1}^n \lambda_i(\boldsymbol{\beta})$.
+
+2.  **Derivations via Moments of Sufficient Statistics**
+
+    Since we are in canonical form, the Score and Information are simply the derivatives of the log-partition function $A(\boldsymbol{\beta})$.
+
+    * **Score Vector ($\mathbf{U}$):**
+        $$
+        \mathbf{U}(\boldsymbol{\beta}) = \mathbf{T}(\mathbf{y}) - \nabla A(\boldsymbol{\beta}) = \mathbf{X}^\top \mathbf{y} - \mathbf{X}^\top \boldsymbol{\lambda}(\boldsymbol{\beta}) = \mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda}(\boldsymbol{\beta}))
+        $$
+        where $\boldsymbol{\lambda}(\boldsymbol{\beta}) = (\lambda_1(\boldsymbol{\beta}), \dots, \lambda_n(\boldsymbol{\beta}))^\top$.
+
+    * **Fisher Information ($J$):**
+        The information is the Hessian of the log-partition function:
+        $$
+        J(\boldsymbol{\beta}) = \nabla^2 A(\boldsymbol{\beta}) = \mathbf{X}^\top \mathbf{W}(\boldsymbol{\beta}) \mathbf{X}
+        $$
+        where $\mathbf{W}(\boldsymbol{\beta}) = \text{diag}(\lambda_1(\boldsymbol{\beta}), \dots, \lambda_n(\boldsymbol{\beta}))$.
+
+3.  **Newton-Raphson Algorithm for Poisson MLE**
+
+    To find the MLE $\hat{\boldsymbol{\beta}}$, we iterate until convergence:
+    
+    $$
+    \boldsymbol{\beta}^{(t+1)} = \boldsymbol{\beta}^{(t)} + [J(\boldsymbol{\beta}^{(t)})]^{-1} \mathbf{U}(\boldsymbol{\beta}^{(t)})
+    $$
+    
+    Substituting the Poisson-specific forms:
+    
+    $$
+    \boldsymbol{\beta}^{(t+1)} = \boldsymbol{\beta}^{(t)} + (\mathbf{X}^\top \mathbf{W}(\boldsymbol{\beta}^{(t)}) \mathbf{X})^{-1} \mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda}(\boldsymbol{\beta}^{(t)}))
+    $$
+    
+    This specific iteration is also known as **Iteratively Reweighted Least Squares (IRLS)**.
+
+:::
+
+
+
+```{r}
+#| label: fig-poisson-nr-and-fit
+#| fig-cap: "Left: Newton-Raphson path on the log-likelihood surface. Right: Observed data with the true and estimated mean functions."
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-width: 10
+#| fig-height: 5
+#| dpi: 300
+
+library(latex2exp)
+
+# 1. Data Generation
+set.seed(42)
+n <- 50
+beta_true <- c(0.5, 1.5)
+x_vals <- runif(n, -1, 1)
+X_mat <- cbind(1, x_vals)
+y_obs <- rpois(n, lambda = exp(X_mat %*% beta_true))
+
+# 2. Log-Likelihood Function for Contours
+log_lik <- function(b0, b1) {
+  eta <- b0 + b1 * x_vals
+  sum(y_obs * eta - exp(eta))
+}
+
+# 3. Newton-Raphson Implementation
+b_curr <- c(2, 3) # Initial guess
+path <- matrix(NA, nrow = 10, ncol = 2)
+path[1, ] <- b_curr
+
+for (t in 2:10) {
+  lambda <- as.vector(exp(X_mat %*% b_curr))
+  W <- diag(lambda)
+  U <- t(X_mat) %*% (y_obs - lambda)
+  J <- t(X_mat) %*% W %*% X_mat
+  
+  b_new <- b_curr + solve(J) %*% U
+  path[t, ] <- b_new
+  b_curr <- b_new
+}
+path <- na.omit(path)
+beta_mle <- path[nrow(path), ]
+
+# --- Plotting Side-by-Side ---
+par(mfrow = c(1, 2))
+
+
+# Plot B: Data and Fitted Curves
+plot(x_vals, y_obs, pch = 21, bg = "gray80", col = "gray50",
+     xlab = "x", ylab = "y", main = "Poisson Regression Fit")
+
+# Generate smooth lines for lambda
+x_smooth <- seq(-1, 1, length.out = 100)
+lambda_true <- exp(beta_true[1] + beta_true[2] * x_smooth)
+lambda_mle  <- exp(beta_mle[1] + beta_mle[2] * x_smooth)
+
+lines(x_smooth, lambda_true, col = "blue", lwd = 2, lty = 2)
+lines(x_smooth, lambda_mle, col = "red", lwd = 2)
+
+legend("topleft", legend = c("True Mean", "MLE Mean", "Observed Data"),
+       col = c("blue", "red", "gray50"), lty = c(2, 1, NA), 
+       pch = c(NA, NA, 21), pt.bg = "gray80", bty = "n", cex = 0.8)
+
+# Plot A: NR Optimization Path
+b0_grid <- seq(-0.5, 2.5, length.out = 50)
+b1_grid <- seq(0.5, 3.5, length.out = 50)
+z_vals <- outer(b0_grid, b1_grid, Vectorize(log_lik))
+
+contour(b0_grid, b1_grid, z_vals, nlevels = 20, 
+        xlab = TeX("$\\beta_0$"), ylab = TeX("$\\beta_1$"),
+        main = "Newton-Raphson Path")
+lines(path[,1], path[,2], type = "b", col = "red", pch = 19, lwd = 1.5)
+points(beta_true[1], beta_true[2], col = "blue", pch = 4, lwd = 2, cex = 1.2)
+legend("topright", legend = c("NR Path", "True Beta"), 
+       col = c("red", "blue"), pch = c(19, 4), bty = "n", cex = 0.8)
+
+```
+
 
 ## Review of Convergence Theorems for Probability
 
@@ -1191,87 +1413,6 @@ We expand the quadratic approximation of the likelihood and partition the inform
 
 :::
 
-## The Newton-Raphson Algorithm
-
-When the score equation $\mathbf{U}(\boldsymbol{\theta}) = \mathbf{0}$ does not have a closed-form solution, we must rely on iterative numerical methods to find the Maximum Likelihood Estimator. The Newton-Raphson algorithm is the most common approach, utilizing the curvature of the log-likelihood surface to guide the search for the maximum.
-
-
-### Newton-Raphson Iteration
-
-::: {.algorithm}
-
-Starting from an initial guess $\boldsymbol{\theta}^{(0)}$, the algorithm updates the estimate of the parameter vector at each step $t$ using the following recurrence relation:
-
-$$
-\boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} + \left[ \mathbf{J}(\boldsymbol{\theta}^{(t)}) \right]^{-1} \mathbf{U}(\boldsymbol{\theta}^{(t)})
-$$
-
-where:
-
-1. **$\mathbf{U}(\boldsymbol{\theta}^{(t)})$** is the score vector (gradient) evaluated at the current estimate.
-
-2. **$\mathbf{J}(\boldsymbol{\theta}^{(t)})$** is the **Observed Fisher Information Matrix**, defined as the negative Hessian of the log-likelihood:
-
-   
-   $$
-   \mathbf{J}(\boldsymbol{\theta}) = - \nabla^2 \ell(\boldsymbol{\theta}) = - \frac{\partial^2 \ell(\boldsymbol{\theta})}{\partial \boldsymbol{\theta} \partial \boldsymbol{\theta}^T}
-   $$
-
-:::
-
-
-::: proof
-
-### Derivation via Taylor Expansion
-
-The algorithm is derived by approximating the score function $\mathbf{U}(\boldsymbol{\theta})$ with a first-order Taylor expansion around the current estimate $\boldsymbol{\theta}^{(t)}$:
-
-1. **Linear Approximation** \n
-
-   We approximate the score at the next step as:
-   
-   $$
-   \mathbf{U}(\boldsymbol{\theta}^{(t+1)}) \approx \mathbf{U}(\boldsymbol{\theta}^{(t)}) + \nabla \mathbf{U}(\boldsymbol{\theta}^{(t)}) (\boldsymbol{\theta}^{(t+1)} - \boldsymbol{\theta}^{(t)})
-   $$
-
-2. **Setting to Zero** \n
-
-   Since we want to find the root where $\mathbf{U}(\hat{\boldsymbol{\theta}}) = \mathbf{0}$, we set the left side to zero:
-   
-   $$
-   \mathbf{0} = \mathbf{U}(\boldsymbol{\theta}^{(t)}) - \mathbf{J}(\boldsymbol{\theta}^{(t)}) (\boldsymbol{\theta}^{(t+1)} - \boldsymbol{\theta}^{(t)})
-   $$
-   
-   Note that $\nabla \mathbf{U}(\boldsymbol{\theta}) = \nabla^2 \ell(\boldsymbol{\theta}) = -\mathbf{J}(\boldsymbol{\theta})$.
-
-3. **Solving for the Update** \n
-
-   Rearranging the terms gives the update rule:
-   
-   $$
-   \mathbf{J}(\boldsymbol{\theta}^{(t)}) (\boldsymbol{\theta}^{(t+1)} - \boldsymbol{\theta}^{(t)}) = \mathbf{U}(\boldsymbol{\theta}^{(t)})
-   $$
-   
-   $$
-   \boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} + \mathbf{J}(\boldsymbol{\theta}^{(t)})^{-1} \mathbf{U}(\boldsymbol{\theta}^{(t)})
-   $$
-
-:::
-
-
-
-
-### Fisher Scoring
-
-The Newton-Raphson algorithm specifically uses the **Observed Information** $\mathbf{J}(\boldsymbol{\theta})$. If the expected Fisher Information $\mathbf{I}(\boldsymbol{\theta}) = E[\mathbf{J}(\boldsymbol{\theta})]$ is used instead, the method is known as **Fisher Scoring**.
-
-1. **Convergence Speed** \n
-
-   Newton-Raphson typically achieves quadratic convergence near the maximum, making it very fast when the initial guess is good.
-
-2. **Stability** \n
-
-   Because $\mathbf{J}(\boldsymbol{\theta})$ depends on the specific data observed, it can occasionally be non-positive definite in regions far from the MLE, which may cause the algorithm to diverge. Fisher Scoring is often more stable in these cases because $\mathbf{I}(\boldsymbol{\theta})$ is always positive semi-definite for regular families.
 
 ## Examples
 
@@ -1398,144 +1539,7 @@ curve(dchisq(x, df = 1), add = TRUE, col = "darkgreen", lwd = 2)
 
 :::
 
-## Poisson Regression (Canonical Exponential Family)
-
-::: {#exm-poisson-glm}
-Consider a GLM where $Y_i \sim \text{Poisson}(\lambda_i)$. We use the canonical link $\log(\lambda_i(\boldsymbol{\beta})) = \mathbf{x}_i^\top \boldsymbol{\beta}$, which implies the mean function is $\lambda_i(\boldsymbol{\beta}) = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})$.
-
-1.  **Exponential Family Representation**
-
-    We rewrite the total log-likelihood by grouping terms associated with each $\beta_j$:
-    
-    $$
-    \begin{aligned}
-    \ell(\boldsymbol{\beta}) &= \sum_{i=1}^n \left( y_i (\mathbf{x}_i^\top \boldsymbol{\beta}) - \lambda_i(\boldsymbol{\beta}) - \log(y_i!) \right) \\
-    &= \sum_{i=1}^n \sum_{j=0}^p y_i x_{ij} \beta_j - \sum_{i=1}^n \exp(\mathbf{x}_i^\top \boldsymbol{\beta}) - \sum_{i=1}^n \log(y_i!) \\
-    &= \sum_{j=0}^p \beta_j \underbrace{\left( \sum_{i=1}^n y_i x_{ij} \right)}_{T_j(\mathbf{y})} - \underbrace{\sum_{i=1}^n \lambda_i(\boldsymbol{\beta})}_{A(\boldsymbol{\beta})} + \text{const}
-    \end{aligned}
-    $$
-
-    This is a multivariate exponential family in **canonical form** where:
-
-    * **Natural Parameters:** The regression coefficients $\boldsymbol{\beta} = (\beta_0, \dots, \beta_p)^\top$.
-    * **Sufficient Statistics:** $\mathbf{T}(\mathbf{y}) = \mathbf{X}^\top \mathbf{y}$.
-    * **Log-Partition Function:** $A(\boldsymbol{\beta}) = \sum_{i=1}^n \lambda_i(\boldsymbol{\beta})$.
-
-2.  **Derivations via Moments of Sufficient Statistics**
-
-    Since we are in canonical form, the Score and Information are simply the derivatives of the log-partition function $A(\boldsymbol{\beta})$.
-
-    * **Score Vector ($\mathbf{U}$):**
-        $$
-        \mathbf{U}(\boldsymbol{\beta}) = \mathbf{T}(\mathbf{y}) - \nabla A(\boldsymbol{\beta}) = \mathbf{X}^\top \mathbf{y} - \mathbf{X}^\top \boldsymbol{\lambda}(\boldsymbol{\beta}) = \mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda}(\boldsymbol{\beta}))
-        $$
-        where $\boldsymbol{\lambda}(\boldsymbol{\beta}) = (\lambda_1(\boldsymbol{\beta}), \dots, \lambda_n(\boldsymbol{\beta}))^\top$.
-
-    * **Fisher Information ($J$):**
-        The information is the Hessian of the log-partition function:
-        $$
-        J(\boldsymbol{\beta}) = \nabla^2 A(\boldsymbol{\beta}) = \mathbf{X}^\top \mathbf{W}(\boldsymbol{\beta}) \mathbf{X}
-        $$
-        where $\mathbf{W}(\boldsymbol{\beta}) = \text{diag}(\lambda_1(\boldsymbol{\beta}), \dots, \lambda_n(\boldsymbol{\beta}))$.
-
-3.  **Newton-Raphson Algorithm for Poisson MLE**
-
-    To find the MLE $\hat{\boldsymbol{\beta}}$, we iterate until convergence:
-    
-    $$
-    \boldsymbol{\beta}^{(t+1)} = \boldsymbol{\beta}^{(t)} + [J(\boldsymbol{\beta}^{(t)})]^{-1} \mathbf{U}(\boldsymbol{\beta}^{(t)})
-    $$
-    
-    Substituting the Poisson-specific forms:
-    
-    $$
-    \boldsymbol{\beta}^{(t+1)} = \boldsymbol{\beta}^{(t)} + (\mathbf{X}^\top \mathbf{W}(\boldsymbol{\beta}^{(t)}) \mathbf{X})^{-1} \mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda}(\boldsymbol{\beta}^{(t)}))
-    $$
-    
-    This specific iteration is also known as **Iteratively Reweighted Least Squares (IRLS)**.
-
-:::
-
-
-
-```{r}
-#| label: fig-poisson-nr-and-fit
-#| fig-cap: "Left: Newton-Raphson path on the log-likelihood surface. Right: Observed data with the true and estimated mean functions."
-#| echo: false
-#| message: false
-#| warning: false
-#| fig-width: 10
-#| fig-height: 5
-#| dpi: 300
-
-library(latex2exp)
-
-# 1. Data Generation
-set.seed(42)
-n <- 50
-beta_true <- c(0.5, 1.5)
-x_vals <- runif(n, -1, 1)
-X_mat <- cbind(1, x_vals)
-y_obs <- rpois(n, lambda = exp(X_mat %*% beta_true))
-
-# 2. Log-Likelihood Function for Contours
-log_lik <- function(b0, b1) {
-  eta <- b0 + b1 * x_vals
-  sum(y_obs * eta - exp(eta))
-}
-
-# 3. Newton-Raphson Implementation
-b_curr <- c(2, 3) # Initial guess
-path <- matrix(NA, nrow = 10, ncol = 2)
-path[1, ] <- b_curr
-
-for (t in 2:10) {
-  lambda <- as.vector(exp(X_mat %*% b_curr))
-  W <- diag(lambda)
-  U <- t(X_mat) %*% (y_obs - lambda)
-  J <- t(X_mat) %*% W %*% X_mat
-  
-  b_new <- b_curr + solve(J) %*% U
-  path[t, ] <- b_new
-  b_curr <- b_new
-}
-path <- na.omit(path)
-beta_mle <- path[nrow(path), ]
-
-# --- Plotting Side-by-Side ---
-par(mfrow = c(1, 2))
-
-
-# Plot B: Data and Fitted Curves
-plot(x_vals, y_obs, pch = 21, bg = "gray80", col = "gray50",
-     xlab = "x", ylab = "y", main = "Poisson Regression Fit")
-
-# Generate smooth lines for lambda
-x_smooth <- seq(-1, 1, length.out = 100)
-lambda_true <- exp(beta_true[1] + beta_true[2] * x_smooth)
-lambda_mle  <- exp(beta_mle[1] + beta_mle[2] * x_smooth)
-
-lines(x_smooth, lambda_true, col = "blue", lwd = 2, lty = 2)
-lines(x_smooth, lambda_mle, col = "red", lwd = 2)
-
-legend("topleft", legend = c("True Mean", "MLE Mean", "Observed Data"),
-       col = c("blue", "red", "gray50"), lty = c(2, 1, NA), 
-       pch = c(NA, NA, 21), pt.bg = "gray80", bty = "n", cex = 0.8)
-
-# Plot A: NR Optimization Path
-b0_grid <- seq(-0.5, 2.5, length.out = 50)
-b1_grid <- seq(0.5, 3.5, length.out = 50)
-z_vals <- outer(b0_grid, b1_grid, Vectorize(log_lik))
-
-contour(b0_grid, b1_grid, z_vals, nlevels = 20, 
-        xlab = TeX("$\\beta_0$"), ylab = TeX("$\\beta_1$"),
-        main = "Newton-Raphson Path")
-lines(path[,1], path[,2], type = "b", col = "red", pch = 19, lwd = 1.5)
-points(beta_true[1], beta_true[2], col = "blue", pch = 4, lwd = 2, cex = 1.2)
-legend("topright", legend = c("NR Path", "True Beta"), 
-       col = c("red", "blue"), pch = c(19, 4), bty = "n", cex = 0.8)
-
-```
+## Poisson Regression (Asymptotic Theory)
 
 
 
