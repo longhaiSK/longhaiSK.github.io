@@ -58,7 +58,9 @@
 
 
 * In making plots with R, if the label/annotation/text contain math equation or symbol, always use latex2exp package with TeX wrapper for text with math symbols
-  
+
+* Hanging indentation in the list: aligning the subsequent text or equations with the start of the list item's content, rather than the bullet point or number itself.
+
 **Specific instructions for making assignments:**
 
 * Solution is put in solution division in this format:
