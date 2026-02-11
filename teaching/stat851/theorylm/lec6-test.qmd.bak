@@ -303,17 +303,17 @@ $$
 F = \frac{(C\hat{\beta} - t)^T [C(X^T X)^{-1} C^T]^{-1} (C\hat{\beta} - t) / q}{SSE_{FM} / (n - k - 1)}
 $$
 
-::: {#exm-chemical-reaction}
+:::: {#exm-chemical-reaction}
 
 ### Chemical Reaction Data
 
-[cite_start]Consider an experiment designed to optimize the yield of a chemical reaction[cite: 426]. The explanatory variables are:
+Consider an experiment designed to optimize the yield of a chemical reaction. The explanatory variables are:
 
 * $x_1$: Temperature ($^\circ C$)
 * $x_2$: Concentration of a reagent (%)
 * $x_3$: Time of reaction (hours)
 
-[cite_start]The response variable $y_1$ is the percent of unchanged starting material[cite: 430]. [cite_start]The data is provided below [cite: 434-435]:
+The response variable $y_1$ is the percent of unchanged starting material. The data is provided below :
 
 | $y_1$ | $x_1$ | $x_2$ | $x_3$ |
 | :--- | :--- | :--- | :--- |
@@ -342,29 +342,30 @@ $$
 y_1 = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_3 + \epsilon
 $$
 
-[cite_start]Suppose we wish to test the hypothesis that the effect of temperature and concentration are equal (scaled by 2) and related to time as follows: $H_0: 2\beta_1 = 2\beta_2 = \beta_3$[cite: 440]. This can be broken down into two independent linear constraints:
+Suppose we wish to test the hypothesis that the effect of temperature and concentration are equal (scaled by 2) and related to time as follows: $H_0: 2\beta_1 = 2\beta_2 = \beta_3$. This can be broken down into two independent linear constraints:
+
 1.  $2\beta_1 - 2\beta_2 = 0$
 2.  $2\beta_2 - \beta_3 = 0$
 
-[cite_start]We formulate this as a general linear hypothesis $C\beta = 0$, where $\beta = (\beta_0, \beta_1, \beta_2, \beta_3)^T$ and $C$ is a $2 \times 4$ matrix [cite: 441-443]:
+We formulate this as a general linear hypothesis $C\beta = 0$, where $\beta = (\beta_0, \beta_1, \beta_2, \beta_3)^T$ and $C$ is a $2 \times 4$ matrix :
 
 $$
 C = \begin{pmatrix} 0 & 2 & -2 & 0 \\ 0 & 0 & 2 & -1 \end{pmatrix}
 $$
 
-[cite_start]Using the data, the estimated coefficients $\hat{\beta}$ yield $C\hat{\beta} = \begin{pmatrix} -0.1214 \\ -0.6118 \end{pmatrix}$[cite: 444]. [cite_start]The variance term involving the design matrix is calculated as[cite: 447]:
+Using the data, the estimated coefficients $\hat{\beta}$ yield $C\hat{\beta} = \begin{pmatrix} -0.1214 \\ -0.6118 \end{pmatrix}$. The variance term involving the design matrix is calculated as:
 
 $$
 C(X^T X)^{-1} C^T = \begin{pmatrix} 0.003366 & -0.006943 \\ -0.006943 & 0.044974 \end{pmatrix}
 $$
 
-[cite_start]The test statistic is computed using the quadratic form[cite: 451]:
+The test statistic is computed using the quadratic form:
 
 $$
 F = \frac{(C\hat{\beta})^T [C(X^T X)^{-1} C^T]^{-1} (C\hat{\beta}) / 2}{s^2} = \frac{28.62301 / 2}{5.3449} = 2.6776
 $$
 
-where $s^2 = MSE_{FM} = 5.3449$. This statistic follows an $F(2, 15)$ distribution. [cite_start]The corresponding p-value is $0.101$, suggesting that we fail to reject the null hypothesis at the $\alpha = 0.05$ level[cite: 452].
+where $s^2 = MSE_{FM} = 5.3449$. This statistic follows an $F(2, 15)$ distribution. The corresponding p-value is $0.101$, suggesting that we fail to reject the null hypothesis at the $\alpha = 0.05$ level.
 
 **Alternative Approach (Full vs. Reduced Model):**
 The null hypothesis implies relationships between the parameters that allow us to rewrite the model. If $2\beta_1 = \beta_3$ and $2\beta_2 = \beta_3$, then $\beta_1 = 0.5\beta_3$ and $\beta_2 = 0.5\beta_3$. Substituting these into the full model:
@@ -376,21 +377,98 @@ $$
 y_1 = \beta_0 + \beta_3 (0.5 x_1 + 0.5 x_2 + x_3) + \epsilon
 $$
 
-This reduced model has only two parameters: an intercept $\beta_0$ and a slope $\beta_3$ for the constructed variable $z = 0.5x_1 + 0.5x_2 + x_3$. [cite_start]We could then calculate $F$ using the difference in SSE between the full model and this reduced model [cite: 454-460].
+This reduced model has only two parameters: an intercept $\beta_0$ and a slope $\beta_3$ for the constructed variable $z = 0.5x_1 + 0.5x_2 + x_3$. We could then calculate $F$ using the difference in SSE between the full model and this reduced model .
 
-:::
 
-::: {#exm-one-way-anova}
 
-### One-Way ANOVA
-In a one-way ANOVA model $y_{ij} \sim N(\mu_i, \sigma^2)$, we test $H_0: \mu_1 = \dots = \mu_k$. This can be framed as a full vs. reduced model problem:
+**R Implementation**
 
-1.  **Full Model:** $y = X\beta + \epsilon$ (allowing separate means).
-2.  **Reduced Model:** $y = j_n \mu + \epsilon$ (common mean).
+**Method 1: General Linear Hypothesis (Matrix Approach)**
 
-The statistic is $F = \frac{(SSE_{RM} - SSE_{FM}) / (k - 1)}{SSE_{FM} / (n - k)}$.
+In this approach, we calculate $SSH$ directly using the formula $SSH = (C\hat{\beta})^T [C(X^T X)^{-1} C^T]^{-1} (C\hat{\beta})$. We manually construct the ANOVA table and display it using `kable`.
 
-:::
+```{r}
+#| echo: true
+library(knitr)
+
+# [cite_start]Load Data [cite: 434-435]
+chemical_data <- data.frame(
+  y1 = c(41.5, 33.8, 27.7, 21.7, 19.9, 15.0, 12.2, 4.3, 19.3, 6.4, 
+         37.6, 18.0, 26.3, 9.9, 25.0, 14.1, 15.2, 15.9, 19.6),
+  x1 = c(162, 162, 162, 162, 172, 172, 172, 172, 167, 177, 
+         157, 167, 167, 167, 167, 177, 177, 160, 160),
+  x2 = c(23, 23, 30, 30, 25, 25, 30, 30, 27.5, 27.5, 
+         27.5, 32.5, 22.5, 27.5, 27.5, 20, 20, 34, 34),
+  x3 = c(3, 8, 5, 8, 5, 8, 5, 8, 6.5, 6.5, 
+         6.5, 6.5, 6.5, 9.5, 3.5, 6.5, 6.5, 7.5, 7.5)
+)
+
+# Fit Full Model
+full_model <- lm(y1 ~ x1 + x2 + x3, data = chemical_data)
+beta_hat <- coef(full_model)
+XtX_inv <- summary(full_model)$cov.unscaled
+SSE_FM <- sum(residuals(full_model)^2)
+n <- nrow(chemical_data)
+k <- 3
+
+# Define Hypothesis C*beta = 0
+C <- matrix(c(0, 2, -2,  0,
+              0, 0,  2, -1), nrow = 2, byrow = TRUE)
+q <- nrow(C) # df for Hypothesis (h in notes)
+
+# Calculate SSH (Sum of Squares for Hypothesis)
+Cb <- C %*% beta_hat
+middle_term <- solve(C %*% XtX_inv %*% t(C))
+SSH <- as.numeric(t(Cb) %*% middle_term %*% Cb)
+
+# Calculate Mean Squares and F
+MSH <- SSH / q
+MSE <- SSE_FM / (n - k - 1)
+F_stat <- MSH / MSE
+p_value <- pf(F_stat, q, n - k - 1, lower.tail = FALSE)
+
+# Construct ANOVA Table manually
+anova_table_manual <- data.frame(
+  Source = c("Hypothesis", "Error", "Total"),
+  DF = c(q, n - k - 1, n - 1),
+  SS = c(SSH, SSE_FM, SSH + SSE_FM),
+  MS = c(MSH, MSE, NA),
+  F_Value = c(F_stat, NA, NA),
+  P_Value = c(p_value, NA, NA)
+)
+
+kable(anova_table_manual, 
+      digits = 4, 
+      caption = "Manual ANOVA Table for General Linear Hypothesis")
+```
+
+**Method 2: Nested Models Approach**
+
+[cite_start]In this approach, we fit the reduced model implied by $H_0$ and use R's `anova` function to compare the Sum of Squares Error between the reduced and full models [cite: 135-136, 460].
+
+```{r}
+#| echo: true
+
+# Create the reduced variable z = 0.5*x1 + 0.5*x2 + x3
+# Derived from constraints 2*beta1 = beta3 and 2*beta2 = beta3
+chemical_data$z <- 0.5 * chemical_data$x1 + 0.5 * chemical_data$x2 + chemical_data$x3
+
+# Fit Reduced Model
+reduced_model <- lm(y1 ~ z, data = chemical_data)
+
+# Fit Full Model (re-fit for clarity, though defined above)
+full_model <- lm(y1 ~ x1 + x2 + x3, data = chemical_data)
+
+# Compare models using ANOVA
+anova_output <- anova(reduced_model, full_model)
+
+kable(anova_output, 
+      digits = 4, 
+      caption = "ANOVA Table comparing Reduced vs Full Model")
+```
+
+
+::::
 
 ## Specific Tests on Coefficients
 
