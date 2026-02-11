@@ -1083,56 +1083,40 @@ Le Cam, L. (1986). *Asymptotic Methods in Statistical Decision Theory*. Springer
 
 :::
 
-### Examples
-
 ::: {#exm-lrt-normal}
 
 **LRT for Normal Mean with Unknown Variance**
 
-
-
 Let $X_1, \dots, X_n \overset{i.i.d.}{\sim} N(\mu, \sigma^2)$ where both $\mu$ and $\sigma^2$ are unknown. The parameter vector is $\theta = (\mu, \sigma^2)$. We wish to test:
 $$H_0: \mu = \mu_0 \quad \text{vs} \quad H_1: \mu \neq \mu_0$$
 
-1.  **Find the Maximum Likelihood Estimators**
-    
-    The log-likelihood function is $\ell(\mu, \sigma^2) = -\frac{n}{2}\ln(2\pi) - \frac{n}{2}\ln(\sigma^2) - \frac{1}{2\sigma^2}\sum_{i=1}^n (x_i - \mu)^2$.
-    
-    * **Unrestricted MLEs ($\hat{\theta}$):** Maximizing over $\mathbb{R} \times (0, \infty)$ yields the sample mean and the biased sample variance:
-        $$\hat{\mu} = \bar{X}, \quad \hat{\sigma}^2 = \frac{1}{n}\sum_{i=1}^n (X_i - \bar{X})^2$$
-    
-    * **Restricted MLEs ($\hat{\theta}_0$):** Under $H_0$, $\mu$ is fixed at $\mu_0$. Maximizing with respect to $\sigma^2$ yields:
-        $$\hat{\mu}_0 = \mu_0, \quad \hat{\sigma}_0^2 = \frac{1}{n}\sum_{i=1}^n (X_i - \mu_0)^2$$
+1.  **Find the Maximum Likelihood Estimators:** The log-likelihood function is $\ell(\mu, \sigma^2) = -\frac{n}{2}\ln(2\pi) - \frac{n}{2}\ln(\sigma^2) - \frac{1}{2\sigma^2}\sum_{i=1}^n (x_i - \mu)^2$.
 
-2.  **Construct the Likelihood Ratio $\Lambda(\mathbf{x})$**
+    * **Unrestricted MLEs ($\hat{\theta}$):** $\hat{\mu} = \bar{X}, \quad \hat{\sigma}^2 = \frac{1}{n}\sum_{i=1}^n (X_i - \bar{X})^2$. 
+      The maximized log-likelihood is:
+      $$\ell(\hat{\mu}, \hat{\sigma}^2) = -\frac{n}{2}\ln(2\pi) - \frac{n}{2}\ln(\hat{\sigma}^2) - \frac{n}{2}$$
 
-    Evaluating the likelihood function $L(\theta) \propto (\sigma^2)^{-n/2} \exp\left( -\frac{1}{2\sigma^2} \sum (x_i - \mu)^2 \right)$ at the estimators:
-    $$L(\hat{\mu}, \hat{\sigma}^2) \propto (\hat{\sigma}^2)^{-n/2} e^{-n/2}$$
-    $$L(\hat{\mu}_0, \hat{\sigma}_0^2) \propto (\hat{\sigma}_0^2)^{-n/2} e^{-n/2}$$
-    
-    The ratio simplifies to a function of the variances:
-    $$\Lambda(\mathbf{x}) = \frac{(\hat{\sigma}_0^2)^{-n/2}}{(\hat{\sigma}^2)^{-n/2}} = \left( \frac{\hat{\sigma}^2}{\hat{\sigma}_0^2} \right)^{n/2}$$
+    * **Restricted MLEs ($\hat{\theta}_0$):** Under $H_0$, $\hat{\mu}_0 = \mu_0, \quad \hat{\sigma}_0^2 = \frac{1}{n}\sum_{i=1}^n (X_i - \mu_0)^2$.
+      The restricted maximized log-likelihood is:
+      $$\ell(\hat{\mu}_0, \hat{\sigma}_0^2) = -\frac{n}{2}\ln(2\pi) - \frac{n}{2}\ln(\hat{\sigma}_0^2) - \frac{n}{2}$$
 
-3.  **Relate to the t-statistic**
+2.  **Define the Test Statistic $D$:** The test statistic $D$ is defined as twice the difference between the unrestricted and restricted log-likelihoods:
+    $$D = 2 \left[ \ell(\hat{\mu}, \hat{\sigma}^2) - \ell(\hat{\mu}_0, \hat{\sigma}_0^2) \right]$$
+    Substituting the expressions above, the constant terms cancel out:
+    $$D = 2 \left[ -\frac{n}{2}\ln(\hat{\sigma}^2) - \left( -\frac{n}{2}\ln(\hat{\sigma}_0^2) \right) \right] = n \ln \left( \frac{\hat{\sigma}_0^2}{\hat{\sigma}^2} \right)$$
 
-    We use the decomposition of the sum of squares $\sum (X_i - \mu_0)^2 = \sum (X_i - \bar{X})^2 + n(\bar{X} - \mu_0)^2$. Dividing by $n$ gives $\hat{\sigma}_0^2 = \hat{\sigma}^2 + (\bar{X} - \mu_0)^2$.
-    
-    Substituting this into the ratio:
-    $$\Lambda(\mathbf{x}) = \left( \frac{\hat{\sigma}^2}{\hat{\sigma}^2 + (\bar{X} - \mu_0)^2} \right)^{n/2} = \left( \frac{1}{1 + \frac{(\bar{X} - \mu_0)^2}{\hat{\sigma}^2}} \right)^{n/2}$$
-    
-    Recall the t-statistic $T = \frac{\bar{X} - \mu_0}{S/\sqrt{n}}$, where $S^2 = \frac{n}{n-1}\hat{\sigma}^2$. The term in the denominator can be rewritten as:
-    $$\frac{(\bar{X} - \mu_0)^2}{\hat{\sigma}^2} = \frac{(\bar{X} - \mu_0)^2}{\frac{n-1}{n} S^2} = \frac{T^2}{n-1}$$
-    
-    Thus, the LRT statistic is a monotone function of $T^2$:
-    $$\Lambda(\mathbf{x}) = \left( 1 + \frac{T^2}{n-1} \right)^{-n/2}$$
-    
-    Rejecting $H_0$ for small $\Lambda$ is equivalent to rejecting for large values of $T^2$ (or $|T|$). Therefore, in this case, the LRT is equivalent to the classic **Two-Sample t-test**.
+3.  **Relate to the t-statistic:** Using the sum of squares decomposition $\hat{\sigma}_0^2 = \hat{\sigma}^2 + (\bar{X} - \mu_0)^2$, we have:
+    $$\frac{\hat{\sigma}_0^2}{\hat{\sigma}^2} = 1 + \frac{(\bar{X} - \mu_0)^2}{\hat{\sigma}^2}$$
+    Substituting the t-statistic $T = \frac{\bar{X} - \mu_0}{S/\sqrt{n}}$, where $S^2 = \frac{n}{n-1}\hat{\sigma}^2$, we find:
+    $$\frac{(\bar{X} - \mu_0)^2}{\hat{\sigma}^2} = \frac{T^2}{n-1}$$
+    Thus, $D$ is a monotone increasing function of $T^2$:
+    $$D = n \ln \left( 1 + \frac{T^2}{n-1} \right)$$
+    Rejecting $H_0$ for large $D$ is equivalent to rejecting for large $|T|$.
 
-4.  **Asymptotic Distribution (Wilks' Theorem)**
-
-    According to Wilks' Theorem, $-2 \ln \Lambda \xrightarrow{d} \chi^2_1$. We can verify this relationship using the Taylor expansion $\ln(1+x) \approx x$:
-    $$-2 \ln \Lambda = n \ln\left( 1 + \frac{T^2}{n-1} \right) \approx n \left( \frac{T^2}{n-1} \right) \approx T^2$$
-    Since $T \xrightarrow{d} Z$ as $n \to \infty$, $T^2 \xrightarrow{d} \chi^2_1$.
+4.  **Asymptotic Distribution (Wilks' Theorem):** By Wilks' Theorem, $D \xrightarrow{d} \chi^2_1$. For large $n$, using the approximation $\ln(1+x) \approx x$:
+    $$D = n \ln \left( 1 + \frac{T^2}{n-1} \right) \approx n \left( \frac{T^2}{n-1} \right) \approx T^2$$
+    
+    As $n \to \infty$, $T^2 \xrightarrow{d} \chi^2_1$, confirming the theorem.
 
 :::
 
