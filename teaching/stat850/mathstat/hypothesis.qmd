@@ -981,69 +981,110 @@ legend("top", legend=c(expression(W[right](theta)), expression(W[left](theta))),
       col=c("red", "blue"), lwd=2, bty="n")
 ```
 
+## Likelihood Ratio Tests
 
-
-## Wilks' Theorem for General Likelihood Ratio Tests
-
-The Likelihood Ratio Test (LRT) provides a unified approach for constructing hypothesis tests for parametric models. Let $X_1, \dots, X_n$ be a random sample with joint probability density function $L(\theta; \mathbf{x})$, where $\theta \in \Theta$. We consider the general hypothesis testing problem:
-$$H_0: \theta \in \Theta_0 \quad \text{vs} \quad H_1: \theta \in \Theta \setminus \Theta_0$$
+The Likelihood Ratio Test (LRT) provides a unified approach for constructing hypothesis tests for parametric models. Let $\mathbf{Y} = (Y_1, \dots, Y_n)$ be a random sample with joint probability density function $L(\boldsymbol{\theta}; \mathbf{Y})$, where $\boldsymbol{\theta} \in \Theta$. We consider the general hypothesis testing problem:
+$$H_0: \boldsymbol{\theta} \in \Theta_0 \quad \text{vs} \quad H_1: \boldsymbol{\theta} \in \Theta \setminus \Theta_0$$
 
 The **Likelihood Ratio Statistic** is defined as the ratio of the maximum likelihood achievable under the null hypothesis to the maximum likelihood achievable under the full parameter space:
 
-$$\Lambda(\mathbf{x}) = \frac{\sup_{\theta \in \Theta_0} L(\theta; \mathbf{x})}{\sup_{\theta \in \Theta} L(\theta; \mathbf{x})} = \frac{L(\hat{\theta}_0)}{L(\hat{\theta})}$$
+$$\Lambda(\mathbf{Y}) = \frac{\sup_{\boldsymbol{\theta} \in \Theta_0} L(\boldsymbol{\theta}; \mathbf{Y})}{\sup_{\boldsymbol{\theta} \in \Theta} L(\boldsymbol{\theta}; \mathbf{Y})} = \frac{L(\hat{\boldsymbol{\theta}}^{(0)})}{L(\hat{\boldsymbol{\theta}}^{(1)})}$$
 
-where $\hat{\theta}_0$ is the restricted MLE and $\hat{\theta}$ is the unrestricted (global) MLE. By definition, the likelihood ratio is bounded by $0 \le \Lambda(\mathbf{x}) \le 1$. The Likelihood Ratio Test (LRT) is defined by the decision function:
+where $\hat{\boldsymbol{\theta}}^{(0)}$ is the restricted MLE and $\hat{\boldsymbol{\theta}}^{(1)}$ is the unrestricted (global) MLE. By definition, the likelihood ratio is bounded by $0 \le \Lambda(\mathbf{Y}) \le 1$. The Likelihood Ratio Test (LRT) is defined by the decision function:
 
 $$
-\phi(\mathbf{x}) = \begin{cases} 
-1 & \text{if } \Lambda(\mathbf{x}) \le c \quad (\text{Reject } H_0) \\
-0 & \text{if } \Lambda(\mathbf{x}) > c \quad (\text{Fail to reject } H_0)
+\phi(\mathbf{Y}) = \begin{cases} 
+1 & \text{if } \Lambda(\mathbf{Y}) \le c \quad (\text{Reject } H_0) \\
+0 & \text{if } \Lambda(\mathbf{Y}) > c \quad (\text{Fail to reject } H_0)
 \end{cases}
 $$
 
-where $c \in (0, 1)$ is a critical value determined by the significance level $\alpha$. This rejection region $\{\mathbf{x} : \Lambda(\mathbf{x}) \le c\}$ corresponds to cases where the restricted likelihood (under $H_0$) is significantly smaller than the unrestricted likelihood.
+where $c \in (0, 1)$ is a critical value determined by the significance level $\alpha$. This rejection region $\{\mathbf{Y} : \Lambda(\mathbf{Y}) \le c\}$ corresponds to cases where the restricted likelihood (under $H_0$) is significantly smaller than the unrestricted likelihood.
 
+### Geometry of Likelihood
+
+Before deriving the asymptotic distribution of the LRT, we establish the geometric framework. We define the inner product on the parameter space induced by the Fisher Information $\mathcal{I}(\boldsymbol{\theta}_0)$ as $\langle \mathbf{u}, \mathbf{v} \rangle_{\mathcal{I}} = \mathbf{u}^T \mathcal{I}(\boldsymbol{\theta}_0) \mathbf{v}$.
+
+::: {#def-orthogonality}
+
+#### Definition: Orthogonal Projection under Fisher Information
+
+Let $\Theta_0$ be a linear subspace of the parameter space. The **orthogonal projection** of a point $\hat{\boldsymbol{\theta}}^{(1)}$ onto $\Theta_0$ with respect to the inner product $\langle \cdot, \cdot \rangle_{\mathcal{I}}$ is the unique vector $\tilde{\boldsymbol{\theta}}^{(0)} \in \Theta_0$ such that the residual is orthogonal to the subspace:
+$$ \langle \hat{\boldsymbol{\theta}}^{(1)} - \tilde{\boldsymbol{\theta}}^{(0)}, \mathbf{v} \rangle_{\mathcal{I}} = 0 \quad \text{for all } \mathbf{v} \in \Theta_0 $$
+
+**Consequence (Pythagorean Identity):**
+As a direct consequence of this definition, for any $\boldsymbol{\theta}_0 \in \Theta_0$, the vector $(\tilde{\boldsymbol{\theta}}^{(0)} - \boldsymbol{\theta}_0)$ lies in $\Theta_0$ and is therefore orthogonal to the residual $(\hat{\boldsymbol{\theta}}^{(1)} - \tilde{\boldsymbol{\theta}}^{(0)})$. This implies the Pythagorean relationship holds exactly:
+$$\|\hat{\boldsymbol{\theta}}^{(1)} - \boldsymbol{\theta}_0\|_{\mathcal{I}}^2 = \|\hat{\boldsymbol{\theta}}^{(1)} - \tilde{\boldsymbol{\theta}}^{(0)}\|_{\mathcal{I}}^2 + \|\tilde{\boldsymbol{\theta}}^{(0)} - \boldsymbol{\theta}_0\|_{\mathcal{I}}^2$$
+
+:::
 
 ### Wilks' Theorem
 
-The asymptotic distribution of the Likelihood Ratio Test statistic is given by the celebrated result from Wilks (1938). This theorem allows us to construct hypothesis tests without deriving the exact distribution of $\Lambda$ for every specific model.
+The asymptotic distribution of the Likelihood Ratio Test statistic is given by the celebrated result from Wilks (1938). This theorem allows us to construct hypothesis tests without deriving the exact distribution of the likelihood ratio $\Lambda$ for every specific model.
 
 ::: {#thm-wilks}
 
 ### Wilks' Theorem
 
-Let $X_1, \dots, X_n$ be an i.i.d. sample from a regular family of distributions with parameters $\theta \in \Theta \subseteq \mathbb{R}^{p_1}$. Consider the test:
-$$ H_0: \theta \in \Theta_0 \quad \text{vs} \quad H_1: \theta \in \Theta \setminus \Theta_0 $$
-where $\Theta_0$ is a smooth subset of $\Theta$ with dimension $p_0 < p_1$. Let $\Lambda_n$ be the likelihood ratio statistic. Under $H_0$, as $n \to \infty$:
-$$ -2 \ln \Lambda_n \xrightarrow{d} \chi^2_{k} $$
-where the degrees of freedom $k = p_1 - p_0$ is the difference in the number of free parameters between the full model and the null model.
+Let $\mathbf{Y} = (Y_1, \dots, Y_n)$ be an i.i.d. sample from a regular family of distributions with parameters $\boldsymbol{\theta} \in \Theta \subseteq \mathbb{R}^{p_1}$. Let $\boldsymbol{\theta}_0$ denote the true parameter value. Consider the test:
+$$H_0: \boldsymbol{\theta} \in \Theta_0 \quad \text{vs} \quad H_1: \boldsymbol{\theta} \in \Theta_1$$
+where $\Theta_0 \subset \Theta_1$ are smooth parameter spaces with dimensions $p_0 < p_1$. Let $\hat{\boldsymbol{\theta}}^{(1)}$ be the unrestricted MLE under $H_1$, and $\hat{\boldsymbol{\theta}}^{(0)}$ be the restricted MLE under $H_0$.
+
+The likelihood ratio statistic is $D = 2[\ell(\hat{\boldsymbol{\theta}}^{(1)}) - \ell(\hat{\boldsymbol{\theta}}^{(0)})]$. Under $H_0$, as $n \to \infty$:
+$$D \xrightarrow{d} \chi^2_{k}$$
+where $k = p_1 - p_0$ is the difference in dimensionality between the models.
 
 :::
 
 ::: {.proof}
 
-**Sketch of Proof:**
+**Geometric Proof via Quadratic Approximation**
 
-The proof relies on the Taylor expansion of the log-likelihood function $\ell(\theta)$ around the unrestricted MLE $\hat{\theta}$.
+We rely on the geometric interpretation of the log-likelihood function as a squared distance metric induced by the Fisher Information matrix $\mathcal{I}(\boldsymbol{\theta}_0)$.
 
-1.  **Quadratic Approximation:**
-    For large $n$, $\hat{\theta}$ is close to the true parameter $\theta_0$. We expand $\ell(\theta_0)$ around $\hat{\theta}$:
-    $$ \ell(\theta_0) \approx \ell(\hat{\theta}) + (\theta_0 - \hat{\theta})^T \nabla \ell(\hat{\theta}) + \frac{1}{2}(\theta_0 - \hat{\theta})^T \nabla^2 \ell(\hat{\theta}) (\theta_0 - \hat{\theta}) $$
-    Since $\hat{\theta}$ is the MLE, the score vector $\nabla \ell(\hat{\theta}) = 0$. The Hessian $\nabla^2 \ell(\hat{\theta}) \approx -n I(\theta_0)$, where $I(\theta_0)$ is the Fisher Information matrix. Thus:
-    $$ 2[\ell(\hat{\theta}) - \ell(\theta_0)] \approx n(\hat{\theta} - \theta_0)^T I(\theta_0) (\hat{\theta} - \theta_0) $$
-    From the asymptotic normality of the MLE, $\sqrt{n}(\hat{\theta} - \theta_0) \xrightarrow{d} N(0, I(\theta_0)^{-1})$. Therefore, the quadratic form converges to a Chi-square variable with $p_1$ degrees of freedom:
-    $$ 2[\ell(\hat{\theta}) - \ell(\theta_0)] \xrightarrow{d} \chi^2_{p_1} $$
+1.  **Quadratic Approximation of the Log-Likelihood**
 
-2.  **Decomposition of the Statistic:**
-    The LRT statistic is $D = -2 \ln \Lambda = 2[\ell(\hat{\theta}) - \ell(\hat{\theta}_0)]$. We can rewrite this by adding and subtracting the true log-likelihood $\ell(\theta_0)$:
-    $$ 2[\ell(\hat{\theta}) - \ell(\hat{\theta}_0)] = \underbrace{2[\ell(\hat{\theta}) - \ell(\theta_0)]}_{\approx \chi^2_{p_1}} - \underbrace{2[\ell(\hat{\theta}_0) - \ell(\theta_0)]}_{\approx \chi^2_{p_0}} $$
-    The term $2[\ell(\hat{\theta}_0) - \ell(\theta_0)]$ represents the deviation of the *restricted* MLE from the truth. Since $\Theta_0$ has dimension $p_0$, this term converges to $\chi^2_{p_0}$.
+    We expand the log-likelihood $\ell(\boldsymbol{\theta})$ around the unrestricted MLE $\hat{\boldsymbol{\theta}}^{(1)}$. Since $\nabla \ell(\hat{\boldsymbol{\theta}}^{(1)}) = \mathbf{0}$, the linear term vanishes. Asymptotically, the Hessian converges to $-n\mathcal{I}(\boldsymbol{\theta}_0)$:
+    $$\ell(\boldsymbol{\theta}) \approx \ell(\hat{\boldsymbol{\theta}}^{(1)}) - \frac{n}{2} (\hat{\boldsymbol{\theta}}^{(1)} - \boldsymbol{\theta})^T \mathcal{I}(\boldsymbol{\theta}_0) (\hat{\boldsymbol{\theta}}^{(1)} - \boldsymbol{\theta})$$
+    $$\ell(\boldsymbol{\theta}) \approx \ell(\hat{\boldsymbol{\theta}}^{(1)}) - \frac{n}{2} \|\hat{\boldsymbol{\theta}}^{(1)} - \boldsymbol{\theta}\|_{\mathcal{I}}^2$$
 
-3.  **Result via Cochran's Theorem Logic:**
-    Geometrically, this is analogous to projecting the data vector onto orthogonal subspaces (like in ANOVA). The difference of two nested Chi-square variables (where one represents a subspace of the other) is itself Chi-square distributed with degrees of freedom equal to the difference in dimensions:
-    $$ D \xrightarrow{d} \chi^2_{p_1} - \chi^2_{p_0} \sim \chi^2_{p_1 - p_0} = \chi^2_k $$
+    This approximation replaces the likelihood surface with a parabola $Q(\boldsymbol{\theta})$.
+
+2.  **Approximation of the Restricted Estimator (Projection)**
+
+    The true restricted MLE $\hat{\boldsymbol{\theta}}^{(0)}$ maximizes the *exact* log-likelihood $\ell(\boldsymbol{\theta})$ over $\Theta_0$. However, for the quadratic approximation, we define the **Approximate Restricted MLE** $\tilde{\boldsymbol{\theta}}^{(0)}$ as the maximizer of the *parabolic* approximation $Q(\boldsymbol{\theta})$ over $\Theta_0$. This is equivalent to minimizing the distance to the unrestricted MLE:
+    $$\tilde{\boldsymbol{\theta}}^{(0)} = \arg\min_{\boldsymbol{\theta} \in \Theta_0} \|\hat{\boldsymbol{\theta}}^{(1)} - \boldsymbol{\theta}\|_{\mathcal{I}}^2$$
+
+    Geometrically, $\tilde{\boldsymbol{\theta}}^{(0)}$ is the **orthogonal projection** (as defined in @def-orthogonality) of $\hat{\boldsymbol{\theta}}^{(1)}$ onto the subspace $\Theta_0$ with respect to the metric $\mathcal{I}$.
+
+    **Crucial Justification:** Why can we replace $\hat{\boldsymbol{\theta}}^{(0)}$ with $\tilde{\boldsymbol{\theta}}^{(0)}$?
+    According to **Le Cam's Local Asymptotic Normality (LAN)** theory (Le Cam, 1986), the likelihood surface becomes locally quadratic and the parameter space locally linear. Consequently, the difference between the true restricted maximum and the quadratic projection vanishes at a rate faster than the estimation error:
+    $$\|\hat{\boldsymbol{\theta}}^{(0)} - \tilde{\boldsymbol{\theta}}^{(0)}\| = o_p(n^{-1/2})$$
+    Thus, for the purpose of the asymptotic distribution, we use $\tilde{\boldsymbol{\theta}}^{(0)}$.
+
+3.  **Orthogonal Decomposition**
+
+    Substituting the projection $\tilde{\boldsymbol{\theta}}^{(0)}$ into the test statistic approximation:
+    $$D \approx n \|\hat{\boldsymbol{\theta}}^{(1)} - \tilde{\boldsymbol{\theta}}^{(0)}\|_{\mathcal{I}}^2$$
+    
+    Using the **Pythagorean Identity** from @def-orthogonality with $\boldsymbol{\theta}_0$ as the true parameter (which lies in $\Theta_0$ under the null hypothesis):
+    $$n \|\hat{\boldsymbol{\theta}}^{(1)} - \tilde{\boldsymbol{\theta}}^{(0)}\|_{\mathcal{I}}^2 = n \|\hat{\boldsymbol{\theta}}^{(1)} - \boldsymbol{\theta}_0\|_{\mathcal{I}}^2 - n \|\tilde{\boldsymbol{\theta}}^{(0)} - \boldsymbol{\theta}_0\|_{\mathcal{I}}^2$$
+
+4.  **Distributional Conclusion**
+
+    Multiplying by $n$, we identify the terms with Chi-square variables:
+    $$\underbrace{D}_{\text{Statistic}} \approx \underbrace{n\|\hat{\boldsymbol{\theta}}^{(1)} - \boldsymbol{\theta}_0\|_{\mathcal{I}}^2}_{\sim \chi^2_{p_1}} - \underbrace{n\|\tilde{\boldsymbol{\theta}}^{(0)} - \boldsymbol{\theta}_0\|_{\mathcal{I}}^2}_{\sim \chi^2_{p_0}}$$
+
+    By Cochran's Theorem, the squared length of the projection of a standard normal vector onto the orthogonal complement of a subspace of dimension $p_0$ is distributed as a Chi-square with degrees of freedom equal to the codimension:
+    $$D \xrightarrow{d} \chi^2_{p_1 - p_0}$$
+
+**References:**
+Le Cam, L. (1986). *Asymptotic Methods in Statistical Decision Theory*. Springer-Verlag.
 
 :::
+
+### Examples
+
 ::: {#exm-lrt-normal}
 
 **LRT for Normal Mean with Unknown Variance**
