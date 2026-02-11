@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>7&nbsp; Hypothesis Testing in Linear Models – Theory of Linear Models</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./lec7-ginv.html" rel="next">
+<link href="./lec5-est.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-0de45b8b5f35a93596f1d788d60c4c11.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-4ae8bba48d879873ce5a6b72ff9b51ba.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+<link rel="stylesheet" href="resources/bookstyles.css">
+<script src="resources/num_eq.js"></script>
+<script src="resources/merge-toc.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./lec6-test.html"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Hypothesis Testing in Linear Models</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Theory of Linear Models</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./introlm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lec1-vecspace.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Projection in Vector Space</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lec2-matrix.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Matrix Algebra</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lec3-mvn.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Multivariate Normal Distribution</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lec4-qf.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Distribution of Quadratic Forms</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lec5-est.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Inference for A Multiple Linear Regression Model</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lec6-test.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Hypothesis Testing in Linear Models</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lec7-ginv.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Generalized Inverses</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lec8-nonfullrank.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">lec8-nonfullrank.html</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#testing-reduced-model-vs-full-model" id="toc-testing-reduced-model-vs-full-model" class="nav-link active" data-scroll-target="#testing-reduced-model-vs-full-model"><span class="header-section-number">7.1</span> Testing Reduced Model vs Full Model</a>
+  <ul>
+  <li><a href="#geometric-interpretation" id="toc-geometric-interpretation" class="nav-link" data-scroll-target="#geometric-interpretation"><span class="header-section-number">7.1.1</span> Geometric Interpretation</a></li>
+  <li><a href="#distributional-properties" id="toc-distributional-properties" class="nav-link" data-scroll-target="#distributional-properties"><span class="header-section-number">7.1.2</span> Distributional Properties</a></li>
+  <li><a href="#the-f-test" id="toc-the-f-test" class="nav-link" data-scroll-target="#the-f-test"><span class="header-section-number">7.1.3</span> The F-Test</a></li>
+  </ul></li>
+  <li><a href="#overall-regression-test" id="toc-overall-regression-test" class="nav-link" data-scroll-target="#overall-regression-test"><span class="header-section-number">7.2</span> Overall Regression Test</a></li>
+  <li><a href="#the-general-linear-hypothesis" id="toc-the-general-linear-hypothesis" class="nav-link" data-scroll-target="#the-general-linear-hypothesis"><span class="header-section-number">7.3</span> The General Linear Hypothesis</a>
+  <ul>
+  <li><a href="#test-statistic-for-cbeta-0" id="toc-test-statistic-for-cbeta-0" class="nav-link" data-scroll-target="#test-statistic-for-cbeta-0"><span class="header-section-number">7.3.1</span> Test Statistic for <span class="math inline">\(C\beta = 0\)</span></a></li>
+  <li><a href="#nested-models-interpretation" id="toc-nested-models-interpretation" class="nav-link" data-scroll-target="#nested-models-interpretation"><span class="header-section-number">7.3.2</span> Nested Models Interpretation</a></li>
+  <li><a href="#extension-to-cbeta-t" id="toc-extension-to-cbeta-t" class="nav-link" data-scroll-target="#extension-to-cbeta-t"><span class="header-section-number">7.3.3</span> Extension to <span class="math inline">\(C\beta = t\)</span></a></li>
+  </ul></li>
+  <li><a href="#specific-tests-on-coefficients" id="toc-specific-tests-on-coefficients" class="nav-link" data-scroll-target="#specific-tests-on-coefficients"><span class="header-section-number">7.4</span> Specific Tests on Coefficients</a>
+  <ul>
+  <li><a href="#test-for-at-beta-0" id="toc-test-for-at-beta-0" class="nav-link" data-scroll-target="#test-for-at-beta-0"><span class="header-section-number">7.4.1</span> Test for <span class="math inline">\(a^T \beta = 0\)</span></a></li>
+  <li><a href="#test-for-beta_j-0" id="toc-test-for-beta_j-0" class="nav-link" data-scroll-target="#test-for-beta_j-0"><span class="header-section-number">7.4.2</span> Test for <span class="math inline">\(\beta_j = 0\)</span></a></li>
+  </ul></li>
+  <li><a href="#confidence-and-prediction-intervals" id="toc-confidence-and-prediction-intervals" class="nav-link" data-scroll-target="#confidence-and-prediction-intervals"><span class="header-section-number">7.5</span> Confidence and Prediction Intervals</a>
+  <ul>
+  <li><a href="#confidence-region-for-beta" id="toc-confidence-region-for-beta" class="nav-link" data-scroll-target="#confidence-region-for-beta"><span class="header-section-number">7.5.1</span> Confidence Region for <span class="math inline">\(\beta\)</span></a></li>
+  <li><a href="#confidence-interval-for-at-beta-and-ey_0" id="toc-confidence-interval-for-at-beta-and-ey_0" class="nav-link" data-scroll-target="#confidence-interval-for-at-beta-and-ey_0"><span class="header-section-number">7.5.2</span> Confidence Interval for <span class="math inline">\(a^T \beta\)</span> and <span class="math inline">\(E(y_0)\)</span></a></li>
+  <li><a href="#prediction-interval-for-y_0" id="toc-prediction-interval-for-y_0" class="nav-link" data-scroll-target="#prediction-interval-for-y_0"><span class="header-section-number">7.5.3</span> Prediction Interval for <span class="math inline">\(y_0\)</span></a></li>
+  </ul></li>
+  </ul>
+</nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content column-page-right" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Hypothesis Testing in Linear Models</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta column-page-right">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="testing-reduced-model-vs-full-model" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="testing-reduced-model-vs-full-model"><span class="header-section-number">7.1</span> Testing Reduced Model vs Full Model</h2>
+<p>Consider the general linear model partitioned as follows:</p>
+<p><span class="math display">\[
+y = X\beta + e = (X_{1}, X_{2}) \begin{pmatrix} \beta_{1} \\ \beta_{2} \end{pmatrix} + e = X_1 \beta_1 + X_2 \beta_2 + e
+\]</span></p>
+<p>where <span class="math inline">\(X\)</span> is an <span class="math inline">\(n \times (k+1)\)</span> matrix, <span class="math inline">\(X_1\)</span> corresponds to the first set of predictors, and <span class="math inline">\(X_2\)</span> corresponds to the remaining <span class="math inline">\(h\)</span> predictors . We assume <span class="math inline">\(e \sim N(0, \sigma^2 I)\)</span>.</p>
+<p>We are often interested in testing the hypothesis that the second set of coefficients is zero:</p>
+<p><span class="math display">\[
+H_0: \beta_2 = 0
+\]</span></p>
+<p>This leads to a comparison between two models:</p>
+<ol type="1">
+<li><p><strong>Full Model (FM)</strong>: The maintained hypothesis where <span class="math inline">\(\mu \in C(X) = C([X_1, X_2])\)</span> .</p>
+<p><span class="math display">\[
+y = X_1 \beta_1 + X_2 \beta_2 + e
+\]</span></p></li>
+<li><p><strong>Reduced Model (RM)</strong>: The model under <span class="math inline">\(H_0\)</span> where <span class="math inline">\(\mu \in C(X_1)\)</span>.</p>
+<p><span class="math display">\[
+y = X_1 \beta_1 + e^*
+\]</span></p></li>
+</ol>
+<p>The testing problem is to test <span class="math inline">\(H_0: \mu \in C(X_1)\)</span> versus <span class="math inline">\(H_1: \mu \in C(X)\)</span> but <span class="math inline">\(\mu \notin C(X_1)\)</span> .</p>
+<section id="geometric-interpretation" class="level3" data-number="7.1.1">
+<h3 data-number="7.1.1" class="anchored" data-anchor-id="geometric-interpretation"><span class="header-section-number">7.1.1</span> Geometric Interpretation</h3>
+<p>Since <span class="math inline">\(C(X_1) \subset C(X)\)</span>, if the Reduced Model is true, the Full Model must also be true. Under <span class="math inline">\(H_0\)</span>, the least squares estimates of the mean <span class="math inline">\(\mu\)</span> from both models, <span class="math inline">\(P_{C(X_1)}y\)</span> and <span class="math inline">\(P_{C(X)}y\)</span>, estimate the same quantity.</p>
+<p>This suggests that the difference vector :</p>
+<p><span class="math display">\[
+P_{C(X)}y - P_{C(X_1)}y = (P_{C(X)} - P_{C(X_1)})y = \hat{y} - \hat{y}_0
+\]</span></p>
+<p>should be “small” under <span class="math inline">\(H_0\)</span>. The matrix <span class="math inline">\(P_{C(X)} - P_{C(X_1)}\)</span> is the projection matrix onto <span class="math inline">\(C(X_1)^{\perp} \cap C(X)\)</span>, which is the orthogonal complement of <span class="math inline">\(C(X_1)\)</span> with respect to <span class="math inline">\(C(X)\)</span>.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-projection-geometry" class="quarto-float quarto-figure quarto-figure-center anchored" style="width: 70% !important;" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-projection-geometry-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec6-test_files/figure-html/fig-projection-geometry-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width: 70% !important;" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-projection-geometry-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.1: Geometric interpretation of the Full vs Reduced Model. The vector y is projected onto the Full Model space C(X) to get y_hat, and onto the Reduced Model space C(X1) to get y_hat0.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The squared length of this difference is used as a test statistic:</p>
+<p><span class="math display">\[
+SSH = ||\hat{y} - \hat{y}_0||^2 = y^T (P_{C(X)} - P_{C(X_1)}) y
+\]</span></p>
+</section>
+<section id="distributional-properties" class="level3" data-number="7.1.2">
+<h3 data-number="7.1.2" class="anchored" data-anchor-id="distributional-properties"><span class="header-section-number">7.1.2</span> Distributional Properties</h3>
+<p>To derive a test, we analyze the distribution of the sum of squares.</p>
+<div id="thm-quadratic-independence" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 7.1 (Distribution of Quadratic Forms)</strong></span> Suppose <span class="math inline">\(y \sim N(X\beta, \sigma^2 I)\)</span> where <span class="math inline">\(X\)</span> is <span class="math inline">\(n \times (k+1)\)</span> of full rank, <span class="math inline">\(X\beta = X_1\beta_1 + X_2\beta_2\)</span>, and <span class="math inline">\(X_2\)</span> is <span class="math inline">\(n \times h\)</span>. Let <span class="math inline">\(\hat{y} = P_{C(X)}y\)</span>, <span class="math inline">\(\hat{y}_0 = P_{C(X_1)}y\)</span>, and <span class="math inline">\(\mu_0 = P_{C(X_1)}\mu\)</span>. Then:</p>
+<ol type="1">
+<li><p><span class="math inline">\(\frac{1}{\sigma^2} ||y - \hat{y}||^2 = \frac{1}{\sigma^2} y^T (I - P_{C(X)}) y \sim \chi^2(n - k - 1)\)</span>.</p></li>
+<li><p><span class="math inline">\(\frac{1}{\sigma^2} ||\hat{y} - \hat{y}_0||^2 = \frac{1}{\sigma^2} y^T (P_{C(X)} - P_{C(X_1)}) y \sim \chi^2(h, \lambda_1)\)</span>.</p>
+<p>where the non-centrality parameter is <span class="math inline">\(\lambda_1 = \frac{1}{\sigma^2} ||(P_{C(X)} - P_{C(X_1)})\mu||^2 = \frac{1}{\sigma^2} ||\mu - \mu_0||^2\)</span>.</p></li>
+<li><p>The two quadratic forms are independent.</p></li>
+</ol>
+</div>
+<p>Under <span class="math inline">\(H_0\)</span>, <span class="math inline">\(\mu \in C(X_1)\)</span>, so <span class="math inline">\(\mu = \mu_0\)</span> and <span class="math inline">\(\lambda_1 = 0\)</span>. Thus, the numerator sum of squares follows a central <span class="math inline">\(\chi^2\)</span> distribution.</p>
+</section>
+<section id="the-f-test" class="level3" data-number="7.1.3">
+<h3 data-number="7.1.3" class="anchored" data-anchor-id="the-f-test"><span class="header-section-number">7.1.3</span> The F-Test</h3>
+<p>Based on the independence and distribution of the quadratic forms, we construct the F-statistic.</p>
+<div id="thm-f-test-reduced" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 7.2 (F-Test for Reduced Model)</strong></span> Under the conditions of <a href="#thm-quadratic-independence" class="quarto-xref">Theorem&nbsp;<span>7.1</span></a>, the statistic</p>
+<p><span class="math display">\[
+F = \frac{||\hat{y} - \hat{y}_0||^2 / h}{||y - \hat{y}||^2 / (n - k - 1)} = \frac{SSH/h}{SSE_{FM}/(n - k - 1)}
+\]</span></p>
+<p>follows a non-central F-distribution <span class="math inline">\(F(h, n - k - 1, \lambda_1)\)</span>. Under <span class="math inline">\(H_0: \beta_2 = 0\)</span>, it follows a central F-distribution <span class="math inline">\(F(h, n - k - 1)\)</span> .</p>
+</div>
+<p>Using the Pythagorean Theorem, we can express the numerator in terms of Sum of Squares for Error (SSE) or Regression (SSR):</p>
+<p><span class="math display">\[
+||\hat{y} - \hat{y}_0||^2 = SSE_{RM} - SSE_{FM}
+\]</span></p>
+<p><span class="math display">\[
+||\hat{y} - \hat{y}_0||^2 = SSR_{FM} - SSR_{RM}
+\]</span></p>
+<p>This quantity is often denoted as <span class="math inline">\(SS(\beta_2 | \beta_1)\)</span>, the “extra” regression sum of squares due to <span class="math inline">\(\beta_2\)</span> after accounting for <span class="math inline">\(\beta_1\)</span>.</p>
+<p>The ANOVA table for this comparison is constructed as follows:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Source</th>
+<th style="text-align: left;">SS</th>
+<th style="text-align: left;">MS</th>
+<th style="text-align: left;">F</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Hypothesis</td>
+<td style="text-align: left;"><span class="math inline">\(SSR_{FM} - SSR_{RM}\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(SSH/h\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\frac{SSH/h}{MSE_{FM}}\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Error</td>
+<td style="text-align: left;"><span class="math inline">\(SSE_{FM}\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(SSE_{FM}/(n-k-1)\)</span></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Total</td>
+<td style="text-align: left;"><span class="math inline">\(SST\)</span></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="overall-regression-test" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="overall-regression-test"><span class="header-section-number">7.2</span> Overall Regression Test</h2>
+<p>A special case of the test <span class="math inline">\(H_0: \beta_2 = 0\)</span> is when <span class="math inline">\(\beta_1\)</span> contains only the intercept <span class="math inline">\(\beta_0\)</span>, and <span class="math inline">\(\beta_2\)</span> contains all slope coefficients. The model is:</p>
+<p><span class="math display">\[
+y = \beta_0 j_n + X_2 \beta_2 + e
+\]</span></p>
+<p>The hypothesis <span class="math inline">\(H_0: \beta_2 = 0\)</span> is equivalent to <span class="math inline">\(H_0: \beta_1 = \beta_2 = \dots = \beta_k = 0\)</span>. In this case:</p>
+<ol type="1">
+<li>The reduced model estimates <span class="math inline">\(\hat{y}_0 = \bar{y}j_n\)</span>.</li>
+<li>The degrees of freedom <span class="math inline">\(h = k\)</span>.</li>
+<li>The numerator becomes <span class="math inline">\(SSR/k \equiv MSR\)</span>.</li>
+</ol>
+<div id="thm-overall-regression" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 7.3 (Overall Regression F-Statistic)</strong></span> The test statistic for overall regression is given by:</p>
+<p><span class="math display">\[
+F = \frac{SSR/k}{SSE_{FM}/(n - k - 1)} = \frac{MSR}{MSE}
+\]</span></p>
+<p>Under <span class="math inline">\(H_0\)</span>, <span class="math inline">\(F \sim F(k, n - k - 1)\)</span>.</p>
+</div>
+<p>This statistic can be expressed in terms of the coefficient of determination <span class="math inline">\(R^2\)</span>:</p>
+<p><span class="math display">\[
+F = \frac{R^2 / k}{(1 - R^2) / (n - k - 1)}
+\]</span></p>
+</section>
+<section id="the-general-linear-hypothesis" class="level2" data-number="7.3">
+<h2 data-number="7.3" class="anchored" data-anchor-id="the-general-linear-hypothesis"><span class="header-section-number">7.3</span> The General Linear Hypothesis</h2>
+<p>We can generalize these tests to the hypothesis <span class="math inline">\(H_0: C\beta = t\)</span>, where <span class="math inline">\(C\)</span> is a <span class="math inline">\(q \times (k+1)\)</span> matrix of rank <span class="math inline">\(q \le k+1\)</span>.</p>
+<p>Common examples include :</p>
+<ul>
+<li>Testing a subset of coefficients: <span class="math inline">\(C = (0, I_h)\)</span>.</li>
+<li>Overall regression: <span class="math inline">\(C = (0, I_k)\)</span>.</li>
+<li>Equality of coefficients (e.g., <span class="math inline">\(\beta_1 = \beta_2\)</span>).</li>
+</ul>
+<section id="test-statistic-for-cbeta-0" class="level3" data-number="7.3.1">
+<h3 data-number="7.3.1" class="anchored" data-anchor-id="test-statistic-for-cbeta-0"><span class="header-section-number">7.3.1</span> Test Statistic for <span class="math inline">\(C\beta = 0\)</span></h3>
+<p>The test compares <span class="math inline">\(C\hat{\beta}\)</span> to its null value 0 using a squared statistical distance. Since <span class="math inline">\(\hat{\beta} \sim N(\beta, \sigma^2(X^T X)^{-1})\)</span>, it follows that <span class="math inline">\(C\hat{\beta} \sim N(C\beta, \sigma^2 C(X^T X)^{-1} C^T)\)</span> .</p>
+<div id="thm-general-linear-hypothesis" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 7.4 (F-Test for General Linear Hypothesis)</strong></span> If <span class="math inline">\(y \sim N(X\beta, \sigma^2 I)\)</span> and <span class="math inline">\(C\)</span> has rank <span class="math inline">\(q\)</span>, then under <span class="math inline">\(H_0: C\beta = 0\)</span> :</p>
+<p><span class="math display">\[
+F = \frac{(C\hat{\beta})^T \{C(X^T X)^{-1} C^T\}^{-1} C\hat{\beta} / q}{SSE_{FM} / (n - k - 1)} \sim F(q, n - k - 1)
+\]</span></p>
+<p>If <span class="math inline">\(H_0\)</span> is false, it follows a non-central F distribution with parameter <span class="math inline">\(\lambda = \frac{(C\beta)^T [C(X^T X)^{-1} C^T]^{-1} C\beta}{\sigma^2}\)</span> .</p>
+</div>
+</section>
+<section id="nested-models-interpretation" class="level3" data-number="7.3.2">
+<h3 data-number="7.3.2" class="anchored" data-anchor-id="nested-models-interpretation"><span class="header-section-number">7.3.2</span> Nested Models Interpretation</h3>
+<p>The general linear hypothesis test is fundamentally a test of nested models.</p>
+<div id="thm-nested-models" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 7.5 (General Linear Hypothesis as Nested Models)</strong></span> The F-test for the general linear hypothesis <span class="math inline">\(H_0: C\beta = 0\)</span> is equivalent to a full-and-reduced model test. Specifically, testing <span class="math inline">\(H_0\)</span> is equivalent to testing whether the mean vector <span class="math inline">\(\mu\)</span> lies in a subspace <span class="math inline">\(V_0 \subset C(X)\)</span>. The test statistic satisfies:</p>
+<p><span class="math display">\[
+SSH = (C\hat{\beta})^T \{C(X^T X)^{-1} C^T\}^{-1} C\hat{\beta} = ||P_{C(Z)}y||^2
+\]</span></p>
+<p>where <span class="math inline">\(C(Z)\)</span> is the orthogonal complement of the reduced model space <span class="math inline">\(V_0\)</span> with respect to the full model space <span class="math inline">\(C(X)\)</span>.</p>
+</div>
+<div class="proof">
+<p><span class="proof-title"><em>Proof</em>. </span>Under the null hypothesis <span class="math inline">\(H_0: C\beta = 0\)</span>, we have a constrained model. We observe that:</p>
+<p><span class="math display">\[
+C\beta = 0 \implies C(X^T X)^{-1} X^T (X\beta) = 0
+\]</span></p>
+<p>Let <span class="math inline">\(Z^T = C(X^T X)^{-1} X^T\)</span>. Then the condition becomes <span class="math inline">\(Z^T \mu = 0\)</span> (since <span class="math inline">\(\mu = X\beta\)</span>). This implies that under <span class="math inline">\(H_0\)</span>, <span class="math inline">\(\mu\)</span> must be orthogonal to the column space of <span class="math inline">\(Z\)</span>, denoted <span class="math inline">\(C(Z)\)</span> .</p>
+<p>Since <span class="math inline">\(\mu\)</span> must also lie in the full model space <span class="math inline">\(C(X)\)</span>, under <span class="math inline">\(H_0\)</span>, <span class="math inline">\(\mu\)</span> belongs to the intersection:</p>
+<p><span class="math display">\[
+V_0 = C(Z)^{\perp} \cap C(X)
+\]</span></p>
+<p>This <span class="math inline">\(V_0\)</span> represents the subspace for the Reduced Model (RM), while <span class="math inline">\(C(X)\)</span> is the subspace for the Full Model (FM). The hypotheses correspond to nested models since <span class="math inline">\(V_0 \subset C(X)\)</span>.</p>
+<p>The numerator sum of squares for comparing these models is the squared length of the projection of <span class="math inline">\(y\)</span> onto the difference space. Since <span class="math inline">\(V_0\)</span> is the orthogonal complement of <span class="math inline">\(C(Z)\)</span> relative to <span class="math inline">\(C(X)\)</span>, the difference space is exactly <span class="math inline">\(C(Z)\)</span>. Note that <span class="math inline">\(Z = X(X^T X)^{-1} C^T\)</span>, and since <span class="math inline">\(C\)</span> has rank <span class="math inline">\(q\)</span>, <span class="math inline">\(Z\)</span> has rank <span class="math inline">\(q\)</span>.</p>
+<p>The sum of squares for the hypothesis is: <span class="math display">\[
+SSH = ||(P_{C(X)} - P_{V_0})y||^2 = ||P_{C(Z)}y||^2
+\]</span></p>
+<p>Expanding the projection matrix <span class="math inline">\(P_{C(Z)} = Z(Z^T Z)^{-1} Z^T\)</span>:</p>
+<p><span class="math display">\[
+y^T P_{C(Z)} y = y^T Z(Z^T Z)^{-1} Z^T y
+\]</span></p>
+<p>Substituting <span class="math inline">\(Z = X(X^T X)^{-1} C^T\)</span>:</p>
+<ol type="1">
+<li><p><strong>Term <span class="math inline">\(Z^T y\)</span></strong>:</p>
+<p><span class="math display">\[
+Z^T y = C(X^T X)^{-1} X^T y = C\hat{\beta}
+\]</span></p></li>
+<li><p><strong>Term <span class="math inline">\(Z^T Z\)</span></strong>:</p>
+<p><span class="math display">\[
+Z^T Z = C(X^T X)^{-1} X^T X (X^T X)^{-1} C^T = C(X^T X)^{-1} C^T
+\]</span></p></li>
+</ol>
+<p>Thus, the quadratic form becomes:</p>
+<p><span class="math display">\[
+y^T P_{C(Z)} y = (C\hat{\beta})^T [C(X^T X)^{-1} C^T]^{-1} (C\hat{\beta})
+\]</span></p>
+<p>This confirms that the Wald-type statistic derived for the General Linear Hypothesis is algebraically identical to the difference in sums of squares between the implied full and reduced models.</p>
+</div>
+</section>
+<section id="extension-to-cbeta-t" class="level3" data-number="7.3.3">
+<h3 data-number="7.3.3" class="anchored" data-anchor-id="extension-to-cbeta-t"><span class="header-section-number">7.3.3</span> Extension to <span class="math inline">\(C\beta = t\)</span></h3>
+<p>For the non-homogeneous case <span class="math inline">\(H_0: C\beta = t\)</span> (<span class="math inline">\(t \neq 0\)</span>), the statistic is modified to center the numerator around <span class="math inline">\(t\)</span>:</p>
+<p><span class="math display">\[
+F = \frac{(C\hat{\beta} - t)^T [C(X^T X)^{-1} C^T]^{-1} (C\hat{\beta} - t) / q}{SSE_{FM} / (n - k - 1)}
+\]</span></p>
+<div id="exm-chemical-reaction" class="theorem example">
+<p><span class="theorem-title"><strong>Example 7.1 (Chemical Reaction Data)</strong></span> Consider an experiment designed to optimize the yield of a chemical reaction. The explanatory variables are:</p>
+<ul>
+<li><span class="math inline">\(x_1\)</span>: Temperature (<span class="math inline">\(^\circ C\)</span>)</li>
+<li><span class="math inline">\(x_2\)</span>: Concentration of a reagent (%)</li>
+<li><span class="math inline">\(x_3\)</span>: Time of reaction (hours)</li>
+</ul>
+<p>The response variable <span class="math inline">\(y_1\)</span> is the percent of unchanged starting material. The data is provided below :</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;"><span class="math inline">\(y_1\)</span></th>
+<th style="text-align: left;"><span class="math inline">\(x_1\)</span></th>
+<th style="text-align: left;"><span class="math inline">\(x_2\)</span></th>
+<th style="text-align: left;"><span class="math inline">\(x_3\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">41.5</td>
+<td style="text-align: left;">162</td>
+<td style="text-align: left;">23</td>
+<td style="text-align: left;">3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">33.8</td>
+<td style="text-align: left;">162</td>
+<td style="text-align: left;">23</td>
+<td style="text-align: left;">8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">27.7</td>
+<td style="text-align: left;">162</td>
+<td style="text-align: left;">30</td>
+<td style="text-align: left;">5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">21.7</td>
+<td style="text-align: left;">162</td>
+<td style="text-align: left;">30</td>
+<td style="text-align: left;">8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">19.9</td>
+<td style="text-align: left;">172</td>
+<td style="text-align: left;">25</td>
+<td style="text-align: left;">5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">15.0</td>
+<td style="text-align: left;">172</td>
+<td style="text-align: left;">25</td>
+<td style="text-align: left;">8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">12.2</td>
+<td style="text-align: left;">172</td>
+<td style="text-align: left;">30</td>
+<td style="text-align: left;">5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">4.3</td>
+<td style="text-align: left;">172</td>
+<td style="text-align: left;">30</td>
+<td style="text-align: left;">8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">19.3</td>
+<td style="text-align: left;">167</td>
+<td style="text-align: left;">27.5</td>
+<td style="text-align: left;">6.5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">6.4</td>
+<td style="text-align: left;">177</td>
+<td style="text-align: left;">27.5</td>
+<td style="text-align: left;">6.5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">37.6</td>
+<td style="text-align: left;">157</td>
+<td style="text-align: left;">27.5</td>
+<td style="text-align: left;">6.5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">18.0</td>
+<td style="text-align: left;">167</td>
+<td style="text-align: left;">32.5</td>
+<td style="text-align: left;">6.5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">26.3</td>
+<td style="text-align: left;">167</td>
+<td style="text-align: left;">22.5</td>
+<td style="text-align: left;">6.5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">9.9</td>
+<td style="text-align: left;">167</td>
+<td style="text-align: left;">27.5</td>
+<td style="text-align: left;">9.5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">25.0</td>
+<td style="text-align: left;">167</td>
+<td style="text-align: left;">27.5</td>
+<td style="text-align: left;">3.5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">14.1</td>
+<td style="text-align: left;">177</td>
+<td style="text-align: left;">20</td>
+<td style="text-align: left;">6.5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">15.2</td>
+<td style="text-align: left;">177</td>
+<td style="text-align: left;">20</td>
+<td style="text-align: left;">6.5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">15.9</td>
+<td style="text-align: left;">160</td>
+<td style="text-align: left;">34</td>
+<td style="text-align: left;">7.5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">19.6</td>
+<td style="text-align: left;">160</td>
+<td style="text-align: left;">34</td>
+<td style="text-align: left;">7.5</td>
+</tr>
+</tbody>
+</table>
+<p>We fit the full model: <span class="math display">\[
+y_1 = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_3 + \epsilon
+\]</span></p>
+<p>Suppose we wish to test the hypothesis that the effect of temperature and concentration are equal (scaled by 2) and related to time as follows: <span class="math inline">\(H_0: 2\beta_1 = 2\beta_2 = \beta_3\)</span>. This can be broken down into two independent linear constraints:</p>
+<ol type="1">
+<li><span class="math inline">\(2\beta_1 - 2\beta_2 = 0\)</span></li>
+<li><span class="math inline">\(2\beta_2 - \beta_3 = 0\)</span></li>
+</ol>
+<p>We formulate this as a general linear hypothesis <span class="math inline">\(C\beta = 0\)</span>, where <span class="math inline">\(\beta = (\beta_0, \beta_1, \beta_2, \beta_3)^T\)</span> and <span class="math inline">\(C\)</span> is a <span class="math inline">\(2 \times 4\)</span> matrix :</p>
+<p><span class="math display">\[
+C = \begin{pmatrix} 0 &amp; 2 &amp; -2 &amp; 0 \\ 0 &amp; 0 &amp; 2 &amp; -1 \end{pmatrix}
+\]</span></p>
+<p>Using the data, the estimated coefficients <span class="math inline">\(\hat{\beta}\)</span> yield <span class="math inline">\(C\hat{\beta} = \begin{pmatrix} -0.1214 \\ -0.6118 \end{pmatrix}\)</span>. The variance term involving the design matrix is calculated as:</p>
+<p><span class="math display">\[
+C(X^T X)^{-1} C^T = \begin{pmatrix} 0.003366 &amp; -0.006943 \\ -0.006943 &amp; 0.044974 \end{pmatrix}
+\]</span></p>
+<p>The test statistic is computed using the quadratic form:</p>
+<p><span class="math display">\[
+F = \frac{(C\hat{\beta})^T [C(X^T X)^{-1} C^T]^{-1} (C\hat{\beta}) / 2}{s^2} = \frac{28.62301 / 2}{5.3449} = 2.6776
+\]</span></p>
+<p>where <span class="math inline">\(s^2 = MSE_{FM} = 5.3449\)</span>. This statistic follows an <span class="math inline">\(F(2, 15)\)</span> distribution. The corresponding p-value is <span class="math inline">\(0.101\)</span>, suggesting that we fail to reject the null hypothesis at the <span class="math inline">\(\alpha = 0.05\)</span> level.</p>
+<p><strong>Alternative Approach (Full vs.&nbsp;Reduced Model):</strong> The null hypothesis implies relationships between the parameters that allow us to rewrite the model. If <span class="math inline">\(2\beta_1 = \beta_3\)</span> and <span class="math inline">\(2\beta_2 = \beta_3\)</span>, then <span class="math inline">\(\beta_1 = 0.5\beta_3\)</span> and <span class="math inline">\(\beta_2 = 0.5\beta_3\)</span>. Substituting these into the full model:</p>
+<p><span class="math display">\[
+y_1 = \beta_0 + 0.5\beta_3 x_1 + 0.5\beta_3 x_2 + \beta_3 x_3 + \epsilon
+\]</span> <span class="math display">\[
+y_1 = \beta_0 + \beta_3 (0.5 x_1 + 0.5 x_2 + x_3) + \epsilon
+\]</span></p>
+<p>This reduced model has only two parameters: an intercept <span class="math inline">\(\beta_0\)</span> and a slope <span class="math inline">\(\beta_3\)</span> for the constructed variable <span class="math inline">\(z = 0.5x_1 + 0.5x_2 + x_3\)</span>. We could then calculate <span class="math inline">\(F\)</span> using the difference in SSE between the full model and this reduced model .</p>
+</div>
+<div id="exm-one-way-anova" class="theorem example">
+<p><span class="theorem-title"><strong>Example 7.2 (One-Way ANOVA)</strong></span> In a one-way ANOVA model <span class="math inline">\(y_{ij} \sim N(\mu_i, \sigma^2)\)</span>, we test <span class="math inline">\(H_0: \mu_1 = \dots = \mu_k\)</span>. This can be framed as a full vs.&nbsp;reduced model problem:</p>
+<ol type="1">
+<li><strong>Full Model:</strong> <span class="math inline">\(y = X\beta + \epsilon\)</span> (allowing separate means).</li>
+<li><strong>Reduced Model:</strong> <span class="math inline">\(y = j_n \mu + \epsilon\)</span> (common mean).</li>
+</ol>
+<p>The statistic is <span class="math inline">\(F = \frac{(SSE_{RM} - SSE_{FM}) / (k - 1)}{SSE_{FM} / (n - k)}\)</span>.</p>
+</div>
+</section>
+</section>
+<section id="specific-tests-on-coefficients" class="level2" data-number="7.4">
+<h2 data-number="7.4" class="anchored" data-anchor-id="specific-tests-on-coefficients"><span class="header-section-number">7.4</span> Specific Tests on Coefficients</h2>
+<p>Tests for individual coefficients or linear combinations are special cases of the general linear hypothesis where <span class="math inline">\(q=1\)</span> .</p>
+<section id="test-for-at-beta-0" class="level3" data-number="7.4.1">
+<h3 data-number="7.4.1" class="anchored" data-anchor-id="test-for-at-beta-0"><span class="header-section-number">7.4.1</span> Test for <span class="math inline">\(a^T \beta = 0\)</span></h3>
+<p>To test a linear combination <span class="math inline">\(a^T \beta = 0\)</span>, the F-statistic is:</p>
+<p><span class="math display">\[
+F = \frac{(a^T \hat{\beta})^2}{s^2 a^T (X^T X)^{-1} a} \sim F(1, n - k - 1)
+\]</span></p>
+<p>This is equivalent to the t-test:</p>
+<p><span class="math display">\[
+t = \frac{a^T \hat{\beta}}{s \sqrt{a^T (X^T X)^{-1} a}} \sim t(n - k - 1)
+\]</span></p>
+</section>
+<section id="test-for-beta_j-0" class="level3" data-number="7.4.2">
+<h3 data-number="7.4.2" class="anchored" data-anchor-id="test-for-beta_j-0"><span class="header-section-number">7.4.2</span> Test for <span class="math inline">\(\beta_j = 0\)</span></h3>
+<p>For a single coefficient <span class="math inline">\(\beta_j\)</span>, we set <span class="math inline">\(a\)</span> to extract the <span class="math inline">\(j\)</span>-th element. The test statistic becomes:</p>
+<p><span class="math display">\[
+t = \frac{\hat{\beta}_j}{s \sqrt{g_{jj}}} = \frac{\hat{\beta}_j}{s.e.(\hat{\beta}_j)}
+\]</span></p>
+<p>where <span class="math inline">\(g_{jj}\)</span> is the <span class="math inline">\(j\)</span>-th diagonal element of <span class="math inline">\((X^T X)^{-1}\)</span>.</p>
+</section>
+</section>
+<section id="confidence-and-prediction-intervals" class="level2" data-number="7.5">
+<h2 data-number="7.5" class="anchored" data-anchor-id="confidence-and-prediction-intervals"><span class="header-section-number">7.5</span> Confidence and Prediction Intervals</h2>
+<section id="confidence-region-for-beta" class="level3" data-number="7.5.1">
+<h3 data-number="7.5.1" class="anchored" data-anchor-id="confidence-region-for-beta"><span class="header-section-number">7.5.1</span> Confidence Region for <span class="math inline">\(\beta\)</span></h3>
+<p>A <span class="math inline">\(100(1-\alpha)\%\)</span> confidence region for the vector <span class="math inline">\(\beta\)</span> is the set of all vectors satisfying :</p>
+<p><span class="math display">\[
+(\hat{\beta} - \beta)^T X^T X (\hat{\beta} - \beta) \le (k + 1) s^2 F_{1-\alpha}(k + 1, n - k - 1)
+\]</span></p>
+<p>This region forms an ellipsoid centered at <span class="math inline">\(\hat{\beta}\)</span>.</p>
+</section>
+<section id="confidence-interval-for-at-beta-and-ey_0" class="level3" data-number="7.5.2">
+<h3 data-number="7.5.2" class="anchored" data-anchor-id="confidence-interval-for-at-beta-and-ey_0"><span class="header-section-number">7.5.2</span> Confidence Interval for <span class="math inline">\(a^T \beta\)</span> and <span class="math inline">\(E(y_0)\)</span></h3>
+<p>A <span class="math inline">\(100(1-\alpha)\%\)</span> confidence interval for a linear combination <span class="math inline">\(a^T \beta\)</span> is given by:</p>
+<p><span class="math display">\[
+a^T \hat{\beta} \pm t_{1-\alpha/2}(n - k - 1) s \sqrt{a^T (X^T X)^{-1} a}
+\]</span></p>
+<p>To estimate the mean response <span class="math inline">\(E(y_0) = x_0^T \beta\)</span> for a given <span class="math inline">\(x_0\)</span>, we set <span class="math inline">\(a = x_0\)</span> :</p>
+<p><span class="math display">\[
+x_0^T \hat{\beta} \pm t_{1-\alpha/2}(n - k - 1) s \sqrt{x_0^T (X^T X)^{-1} x_0}
+\]</span></p>
+</section>
+<section id="prediction-interval-for-y_0" class="level3" data-number="7.5.3">
+<h3 data-number="7.5.3" class="anchored" data-anchor-id="prediction-interval-for-y_0"><span class="header-section-number">7.5.3</span> Prediction Interval for <span class="math inline">\(y_0\)</span></h3>
+<p>When predicting a new random observation <span class="math inline">\(y_0 = x_0^T \beta + e_0\)</span>, we must account for both the variance of the estimator and the variance of the new error term.</p>
+<p><span class="math display">\[
+Var(y_0 - \hat{y}_0) = Var(e_0) + Var(x_0^T \hat{\beta}) = \sigma^2 (1 + x_0^T (X^T X)^{-1} x_0)
+\]</span></p>
+<p>The <span class="math inline">\(100(1-\alpha)\%\)</span> prediction interval is :</p>
+<p><span class="math display">\[
+\hat{y}_0 \pm t_{1-\alpha/2}(n - k - 1) s \sqrt{1 + x_0^T (X^T X)^{-1} x_0}
+\]</span></p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation column-page-right">
+  <div class="nav-page nav-page-previous">
+      <a href="./lec5-est.html" class="pagination-link" aria-label="Inference for A Multiple Linear Regression Model">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Inference for A Multiple Linear Regression Model</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./lec7-ginv.html" class="pagination-link" aria-label="Generalized Inverses">
+        <span class="nav-page-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Generalized Inverses</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
