@@ -248,8 +248,15 @@ window.Quarto = {
   <ul>
   <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples"><span class="header-section-number">9.3.1</span> Examples</a></li>
   </ul></li>
-  <li><a href="#inference-for-estimable-parameters" id="toc-inference-for-estimable-parameters" class="nav-link" data-scroll-target="#inference-for-estimable-parameters"><span class="header-section-number">9.4</span> Inference for Estimable Parameters</a></li>
-  <li><a href="#re-parametrization-and-side-conditions" id="toc-re-parametrization-and-side-conditions" class="nav-link" data-scroll-target="#re-parametrization-and-side-conditions"><span class="header-section-number">9.5</span> Re-parametrization and Side Conditions</a></li>
+  <li><a href="#inference-for-estimable-parameters" id="toc-inference-for-estimable-parameters" class="nav-link" data-scroll-target="#inference-for-estimable-parameters"><span class="header-section-number">9.4</span> Inference for Estimable Parameters</a>
+  <ul>
+  <li><a href="#estimability" id="toc-estimability" class="nav-link" data-scroll-target="#estimability"><span class="header-section-number">9.4.1</span> Estimability</a></li>
+  <li><a href="#example-checking-estimability-in-one-way-anova" id="toc-example-checking-estimability-in-one-way-anova" class="nav-link" data-scroll-target="#example-checking-estimability-in-one-way-anova"><span class="header-section-number">9.4.2</span> Example: Checking Estimability in One-Way ANOVA</a></li>
+  <li><a href="#properties-of-estimators-for-estimabile-parameters" id="toc-properties-of-estimators-for-estimabile-parameters" class="nav-link" data-scroll-target="#properties-of-estimators-for-estimabile-parameters"><span class="header-section-number">9.4.3</span> Properties of Estimators for Estimabile Parameters</a></li>
+  <li><a href="#properties-of-estimators-for-estimabile-parameters-1" id="toc-properties-of-estimators-for-estimabile-parameters-1" class="nav-link" data-scroll-target="#properties-of-estimators-for-estimabile-parameters-1"><span class="header-section-number">9.4.4</span> Properties of Estimators for Estimabile Parameters</a></li>
+  <li><a href="#testable-hypotheses-in-non-full-rank-models" id="toc-testable-hypotheses-in-non-full-rank-models" class="nav-link" data-scroll-target="#testable-hypotheses-in-non-full-rank-models"><span class="header-section-number">9.4.5</span> Testable Hypotheses in Non-Full Rank Models</a></li>
+  <li><a href="#the-general-linear-hypothesis-f-test" id="toc-the-general-linear-hypothesis-f-test" class="nav-link" data-scroll-target="#the-general-linear-hypothesis-f-test"><span class="header-section-number">9.4.6</span> The General Linear Hypothesis F-Test</a></li>
+  </ul></li>
   </ul>
 </nav>
 </nav>
@@ -414,86 +421,93 @@ F = \frac{||\hat{y} - \hat{y}_0||^2 / h}{s^2} = \frac{y^T (P_{\text{Col}(X)} - P
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>group_means_true <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">15</span>)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>n_per_group <span class="ot">&lt;-</span> <span class="dv">4</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>groups <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="at">each =</span> n_per_group))</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Adding some random noise to exact means for realism</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rnorm</span>(n_per_group, group_means_true[<span class="dv">1</span>], <span class="dv">2</span>),</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>       <span class="fu">rnorm</span>(n_per_group, group_means_true[<span class="dv">2</span>], <span class="dv">2</span>),</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>       <span class="fu">rnorm</span>(n_per_group, group_means_true[<span class="dv">3</span>], <span class="dv">2</span>))</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">length</span>(y)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Construct Non-full-rank Design Matrix X</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># j_N is the column of ones</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>j_N <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>, n)</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Indicators for all 3 groups</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>X_ind <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span> groups <span class="sc">-</span> <span class="dv">1</span>) </span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(X_ind) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"x_1"</span>, <span class="st">"x_2"</span>, <span class="st">"x_3"</span>)</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Full non-full-rank matrix</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="at">Intercept =</span> j_N, X_ind)</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Compute Projections</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Projection onto j_N (Grand Mean) - Reduced Model</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>P0 <span class="ot">&lt;-</span> j_N <span class="sc">%*%</span> <span class="fu">t</span>(j_N) <span class="sc">/</span> <span class="fu">as.numeric</span>(<span class="fu">t</span>(j_N) <span class="sc">%*%</span> j_N)</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>y_grand_mean <span class="ot">&lt;-</span> P0 <span class="sc">%*%</span> y</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Projection onto Group Means (Cell Means Model)</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>X_ind_inv <span class="ot">&lt;-</span> <span class="fu">ginv</span>(<span class="fu">t</span>(X_ind) <span class="sc">%*%</span> X_ind)</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>P_groups <span class="ot">&lt;-</span> X_ind <span class="sc">%*%</span> X_ind_inv <span class="sc">%*%</span> <span class="fu">t</span>(X_ind)</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>y_group_means <span class="ot">&lt;-</span> P_groups <span class="sc">%*%</span> y</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Adding some random noise to exact means for realism</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rnorm</span>(n_per_group, group_means_true[<span class="dv">1</span>], <span class="dv">2</span>),</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>       <span class="fu">rnorm</span>(n_per_group, group_means_true[<span class="dv">2</span>], <span class="dv">2</span>),</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>       <span class="fu">rnorm</span>(n_per_group, group_means_true[<span class="dv">3</span>], <span class="dv">2</span>))</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">length</span>(y)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Construct Non-full-rank Design Matrix X</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># j_N is the column of ones</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>j_N <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>, n)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Indicators for all 3 groups</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>X_ind <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span> groups <span class="sc">-</span> <span class="dv">1</span>) </span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(X_ind) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"x_1"</span>, <span class="st">"x_2"</span>, <span class="st">"x_3"</span>)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Full non-full-rank matrix</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="at">Intercept =</span> j_N, X_ind)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Compute Projections</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Projection onto j_N (Grand Mean) - Reduced Model</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>P0 <span class="ot">&lt;-</span> j_N <span class="sc">%*%</span> <span class="fu">t</span>(j_N) <span class="sc">/</span> <span class="fu">as.numeric</span>(<span class="fu">t</span>(j_N) <span class="sc">%*%</span> j_N)</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>y_grand_mean <span class="ot">&lt;-</span> P0 <span class="sc">%*%</span> y</span>
 <span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Projection onto [j_N, X] (Full Column Space)</span></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>XtX <span class="ot">&lt;-</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> X</span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>X_inv_gen <span class="ot">&lt;-</span> <span class="fu">ginv</span>(XtX)</span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>P_X <span class="ot">&lt;-</span> X <span class="sc">%*%</span> X_inv_gen <span class="sc">%*%</span> <span class="fu">t</span>(X)</span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>y_proj_X <span class="ot">&lt;-</span> P_X <span class="sc">%*%</span> y</span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="co"># Difference Vector (Hypothesis Space)</span></span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>y_diff <span class="ot">&lt;-</span> y_proj_X <span class="sc">-</span> y_grand_mean</span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="co"># Residuals (Error)</span></span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>e <span class="ot">&lt;-</span> y <span class="sc">-</span> y_proj_X</span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine into a data frame</span></span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>results_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>  <span class="at">j_N =</span> j_N,</span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>  <span class="at">x1 =</span> X_ind[,<span class="dv">1</span>],</span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>  <span class="at">x2 =</span> X_ind[,<span class="dv">2</span>],</span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>  <span class="at">x3 =</span> X_ind[,<span class="dv">3</span>],</span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>  <span class="at">Proj_Grand =</span> <span class="fu">as.vector</span>(y_grand_mean),</span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>  <span class="at">Proj_FullX =</span> <span class="fu">as.vector</span>(y_proj_X),</span>
-<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>  <span class="at">Diff =</span> <span class="fu">as.vector</span>(y_diff),          <span class="co"># Added Column</span></span>
-<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>  <span class="at">Residuals =</span> <span class="fu">as.vector</span>(e)</span>
-<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate Sum of Squares for each column</span></span>
-<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>SS_row <span class="ot">&lt;-</span> <span class="fu">colSums</span>(results_df<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>results_table <span class="ot">&lt;-</span> <span class="fu">rbind</span>(results_df, SS_row)</span>
-<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(results_table)[<span class="fu">nrow</span>(results_table)] <span class="ot">&lt;-</span> <span class="st">"Sum of Squares"</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Projection onto Group Means (Cell Means Model)</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>X_ind_inv <span class="ot">&lt;-</span> <span class="fu">ginv</span>(<span class="fu">t</span>(X_ind) <span class="sc">%*%</span> X_ind)</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>P_groups <span class="ot">&lt;-</span> X_ind <span class="sc">%*%</span> X_ind_inv <span class="sc">%*%</span> <span class="fu">t</span>(X_ind)</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>y_group_means <span class="ot">&lt;-</span> P_groups <span class="sc">%*%</span> y</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="co"># Projection onto [j_N, X] (Full Column Space)</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>XtX <span class="ot">&lt;-</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> X</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>X_inv_gen <span class="ot">&lt;-</span> <span class="fu">ginv</span>(XtX)</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>P_X <span class="ot">&lt;-</span> X <span class="sc">%*%</span> X_inv_gen <span class="sc">%*%</span> <span class="fu">t</span>(X)</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>y_proj_X <span class="ot">&lt;-</span> P_X <span class="sc">%*%</span> y</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="co"># Difference Vector (Hypothesis Space)</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>y_diff <span class="ot">&lt;-</span> y_proj_X <span class="sc">-</span> y_grand_mean</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="co"># Residuals (Error)</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>e <span class="ot">&lt;-</span> y <span class="sc">-</span> y_proj_X</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine into a data frame</span></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>results_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>  <span class="at">j_N =</span> j_N,</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>  <span class="at">x1 =</span> X_ind[,<span class="dv">1</span>],</span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>  <span class="at">x2 =</span> X_ind[,<span class="dv">2</span>],</span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>  <span class="at">x3 =</span> X_ind[,<span class="dv">3</span>],</span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>  <span class="at">Proj_Grand =</span> <span class="fu">as.vector</span>(y_grand_mean),</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>  <span class="at">Proj_FullX =</span> <span class="fu">as.vector</span>(y_proj_X),</span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>  <span class="at">Diff =</span> <span class="fu">as.vector</span>(y_diff),          <span class="co"># Added Column</span></span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>  <span class="at">Residuals =</span> <span class="fu">as.vector</span>(e)</span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Compute F and p-value</span></span>
-<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a><span class="co"># SSH = || Diff ||^2</span></span>
-<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>SSH <span class="ot">&lt;-</span> <span class="fu">sum</span>(y_diff<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a><span class="co"># SSE = || Residuals ||^2</span></span>
-<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>SSE <span class="ot">&lt;-</span> <span class="fu">sum</span>(e<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a><span class="co"># Degrees of Freedom</span></span>
-<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>rank_X <span class="ot">&lt;-</span> <span class="dv">3</span> </span>
-<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>df_hyp <span class="ot">&lt;-</span> rank_X <span class="sc">-</span> <span class="dv">1</span></span>
-<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>df_err <span class="ot">&lt;-</span> n <span class="sc">-</span> rank_X</span>
-<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>MSH <span class="ot">&lt;-</span> SSH <span class="sc">/</span> df_hyp</span>
-<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a>MSE <span class="ot">&lt;-</span> SSE <span class="sc">/</span> df_err</span>
-<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>F_stat <span class="ot">&lt;-</span> MSH <span class="sc">/</span> MSE</span>
-<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a>p_val <span class="ot">&lt;-</span> <span class="fu">pf</span>(F_stat, df_hyp, df_err, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a><span class="co"># Display Detailed Data Table</span></span>
-<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(results_table, <span class="at">digits =</span> <span class="dv">2</span>, </span>
-<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a>      <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"$y$"</span>, <span class="st">"$j_N$"</span>, <span class="st">"$x_1$"</span>, <span class="st">"$x_2$"</span>, <span class="st">"$x_3$"</span>, </span>
-<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"$</span><span class="sc">\\</span><span class="st">hat{y}_0$"</span>, </span>
-<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"$</span><span class="sc">\\</span><span class="st">hat{y}$"</span>, </span>
-<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"$</span><span class="sc">\\</span><span class="st">hat{y} - </span><span class="sc">\\</span><span class="st">hat{y}_0$"</span>, <span class="co"># Label for new column</span></span>
-<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"$e$"</span>),</span>
-<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption =</span> <span class="st">"Data, Projections, and Difference Vectors with Sum of Squares"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate Sum of Squares for each column</span></span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>SS_row <span class="ot">&lt;-</span> <span class="fu">colSums</span>(results_df<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>results_table <span class="ot">&lt;-</span> <span class="fu">rbind</span>(results_df, SS_row)</span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(results_table)[<span class="fu">nrow</span>(results_table)] <span class="ot">&lt;-</span> <span class="st">"Sum of Squares"</span></span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Compute F and p-value</span></span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a><span class="co"># SSH = || Diff ||^2</span></span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>SSH <span class="ot">&lt;-</span> <span class="fu">sum</span>(y_diff<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a><span class="co"># SSE = || Residuals ||^2</span></span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>SSE <span class="ot">&lt;-</span> <span class="fu">sum</span>(e<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a><span class="co"># Degrees of Freedom</span></span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a>rank_X <span class="ot">&lt;-</span> <span class="dv">3</span> </span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a>df_hyp <span class="ot">&lt;-</span> rank_X <span class="sc">-</span> <span class="dv">1</span></span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a>df_err <span class="ot">&lt;-</span> n <span class="sc">-</span> rank_X</span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a>MSH <span class="ot">&lt;-</span> SSH <span class="sc">/</span> df_hyp</span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a>MSE <span class="ot">&lt;-</span> SSE <span class="sc">/</span> df_err</span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a>F_stat <span class="ot">&lt;-</span> MSH <span class="sc">/</span> MSE</span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a>p_val <span class="ot">&lt;-</span> <span class="fu">pf</span>(F_stat, df_hyp, df_err, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a><span class="co"># Display Detailed Data Table</span></span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(results_table, <span class="at">digits =</span> <span class="dv">2</span>, </span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a>      <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"$y$"</span>, <span class="st">"$j_N$"</span>, <span class="st">"$x_1$"</span>, <span class="st">"$x_2$"</span>, <span class="st">"$x_3$"</span>, </span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"$</span><span class="sc">\\</span><span class="st">hat{y}_0$"</span>, </span>
+<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"$</span><span class="sc">\\</span><span class="st">hat{y}$"</span>, </span>
+<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"$</span><span class="sc">\\</span><span class="st">hat{y} - </span><span class="sc">\\</span><span class="st">hat{y}_0$"</span>, <span class="co"># Label for new column</span></span>
+<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"$e$"</span>),</span>
+<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption =</span> <span class="st">"Data, Projections, and Difference Vectors with Sum of Squares"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -762,71 +776,75 @@ F = \frac{||\hat{y} - \hat{y}_0||^2 / h}{s^2} = \frac{y^T (P_{\text{Col}(X)} - P
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="at">mean=</span><span class="dv">5</span>, <span class="at">sd=</span><span class="dv">2</span>)</span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="at">mean=</span><span class="dv">10</span>, <span class="at">sd=</span><span class="dv">2</span>)</span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>x3 <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="at">mean=</span><span class="dv">0</span>, <span class="at">sd=</span><span class="dv">1</span>)</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Linear Dependency</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>x4 <span class="ot">&lt;-</span> <span class="fl">0.1</span><span class="sc">*</span>x1 <span class="sc">+</span> <span class="fl">0.5</span><span class="sc">*</span>x2 <span class="sc">+</span> x3 </span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate y</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>beta_true <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">2</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">3</span>) </span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> beta_true[<span class="dv">1</span>] <span class="sc">+</span> beta_true[<span class="dv">2</span>]<span class="sc">*</span>x1 <span class="sc">+</span> beta_true[<span class="dv">3</span>]<span class="sc">*</span>x2 <span class="sc">+</span> beta_true[<span class="dv">4</span>]<span class="sc">*</span>x3 <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="at">sd=</span><span class="dv">1</span>)</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Construct Design Matrices</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>j_N <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>, n)</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>X_full <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="at">Intercept =</span> j_N, x1, x2, x3, x4)</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>X_sub  <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="at">Intercept =</span> j_N, x1, x2, x3)</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Compute Projections</span></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="co"># A. Projection onto Null Model (Grand Mean)</span></span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>P0 <span class="ot">&lt;-</span> j_N <span class="sc">%*%</span> <span class="fu">t</span>(j_N) <span class="sc">/</span> <span class="fu">as.numeric</span>(<span class="fu">t</span>(j_N) <span class="sc">%*%</span> j_N)</span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>y_0 <span class="ot">&lt;-</span> P0 <span class="sc">%*%</span> y</span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="co"># B. Projection onto Full Model Space [j_N, x1...x4] using ginv</span></span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="co">#    (Rank Deficient)</span></span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>XtX_full <span class="ot">&lt;-</span> <span class="fu">t</span>(X_full) <span class="sc">%*%</span> X_full</span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>X_inv_full <span class="ot">&lt;-</span> <span class="fu">ginv</span>(XtX_full)</span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>beta_hat_full <span class="ot">&lt;-</span> X_inv_full <span class="sc">%*%</span> <span class="fu">t</span>(X_full) <span class="sc">%*%</span> y</span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>y_hat_full <span class="ot">&lt;-</span> X_full <span class="sc">%*%</span> beta_hat_full</span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="co"># C. Projection onto Subspace [j_N, x1, x2, x3]</span></span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="co">#    (Full Rank)</span></span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>XtX_sub <span class="ot">&lt;-</span> <span class="fu">t</span>(X_sub) <span class="sc">%*%</span> X_sub</span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a><span class="co"># Standard inverse since this matrix is full rank</span></span>
-<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>X_inv_sub <span class="ot">&lt;-</span> <span class="fu">solve</span>(XtX_sub) </span>
-<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>beta_hat_sub <span class="ot">&lt;-</span> X_inv_sub <span class="sc">%*%</span> <span class="fu">t</span>(X_sub) <span class="sc">%*%</span> y</span>
-<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>y_hat_sub <span class="ot">&lt;-</span> X_sub <span class="sc">%*%</span> beta_hat_sub</span>
-<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a><span class="co"># D. Difference Vector and Residuals</span></span>
-<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>y_diff <span class="ot">&lt;-</span> y_hat_full <span class="sc">-</span> y_0</span>
-<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>e <span class="ot">&lt;-</span> y <span class="sc">-</span> y_hat_full</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Linear Dependency</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>x4 <span class="ot">&lt;-</span> <span class="fl">0.1</span><span class="sc">*</span>x1 <span class="sc">+</span> <span class="fl">0.5</span><span class="sc">*</span>x2 <span class="sc">+</span> x3 </span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate y</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>beta_true <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">2</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">3</span>) </span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> beta_true[<span class="dv">1</span>] <span class="sc">+</span> beta_true[<span class="dv">2</span>]<span class="sc">*</span>x1 <span class="sc">+</span> beta_true[<span class="dv">3</span>]<span class="sc">*</span>x2 <span class="sc">+</span> beta_true[<span class="dv">4</span>]<span class="sc">*</span>x3 <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="at">sd=</span><span class="dv">1</span>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Construct Design Matrices</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>j_N <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>, n)</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>X_full <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="at">Intercept =</span> j_N, x1, x2, x3, x4)</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>X_sub  <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="at">Intercept =</span> j_N, x1, x2, x3)</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Compute Projections</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="co"># A. Projection onto Null Model (Grand Mean)</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>P0 <span class="ot">&lt;-</span> j_N <span class="sc">%*%</span> <span class="fu">t</span>(j_N) <span class="sc">/</span> <span class="fu">as.numeric</span>(<span class="fu">t</span>(j_N) <span class="sc">%*%</span> j_N)</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>y_0 <span class="ot">&lt;-</span> P0 <span class="sc">%*%</span> y</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="co"># B. Projection onto Full Model Space [j_N, x1...x4] using ginv</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="co">#    (Rank Deficient)</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>XtX_full <span class="ot">&lt;-</span> <span class="fu">t</span>(X_full) <span class="sc">%*%</span> X_full</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>X_inv_full <span class="ot">&lt;-</span> <span class="fu">ginv</span>(XtX_full)</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>beta_hat_full <span class="ot">&lt;-</span> X_inv_full <span class="sc">%*%</span> <span class="fu">t</span>(X_full) <span class="sc">%*%</span> y</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>y_hat_full <span class="ot">&lt;-</span> X_full <span class="sc">%*%</span> beta_hat_full</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="co"># C. Projection onto Subspace [j_N, x1, x2, x3]</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a><span class="co">#    (Full Rank)</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>XtX_sub <span class="ot">&lt;-</span> <span class="fu">t</span>(X_sub) <span class="sc">%*%</span> X_sub</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a><span class="co"># Standard inverse since this matrix is full rank</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>X_inv_sub <span class="ot">&lt;-</span> <span class="fu">solve</span>(XtX_sub) </span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>beta_hat_sub <span class="ot">&lt;-</span> X_inv_sub <span class="sc">%*%</span> <span class="fu">t</span>(X_sub) <span class="sc">%*%</span> y</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>y_hat_sub <span class="ot">&lt;-</span> X_sub <span class="sc">%*%</span> beta_hat_sub</span>
 <span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Create Detailed Results Table</span></span>
-<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>results_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
-<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>  <span class="at">x1 =</span> x1,</span>
-<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>  <span class="at">x2 =</span> x2,</span>
-<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>  <span class="at">x3 =</span> x3,</span>
-<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>  <span class="at">x4 =</span> x4,</span>
-<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>  <span class="at">y_hat_0 =</span> <span class="fu">as.vector</span>(y_0),</span>
-<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>  <span class="at">y_hat_sub =</span> <span class="fu">as.vector</span>(y_hat_sub),   <span class="co"># New Column</span></span>
-<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>  <span class="at">y_hat_full =</span> <span class="fu">as.vector</span>(y_hat_full),</span>
-<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>  <span class="at">y_diff =</span> <span class="fu">as.vector</span>(y_diff),</span>
-<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>  <span class="at">e =</span> <span class="fu">as.vector</span>(e)</span>
-<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate Sum of Squares for each column</span></span>
-<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>SS_row <span class="ot">&lt;-</span> <span class="fu">colSums</span>(results_df<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>results_table <span class="ot">&lt;-</span> <span class="fu">rbind</span>(results_df, SS_row)</span>
-<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(results_table)[<span class="fu">nrow</span>(results_table)] <span class="ot">&lt;-</span> <span class="st">"Sum of Squares"</span></span>
-<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a><span class="co"># Display Table using kable (for standard rendering)</span></span>
-<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(results_table, <span class="at">digits =</span> <span class="dv">2</span>,</span>
-<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>      <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"$y$"</span>, <span class="st">"$x_1$"</span>, <span class="st">"$x_2$"</span>, <span class="st">"$x_3$"</span>, <span class="st">"$x_4$"</span>,</span>
-<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"$</span><span class="sc">\\</span><span class="st">hat{y}_0$"</span>, </span>
-<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"$</span><span class="sc">\\</span><span class="st">hat{y}_{sub}$"</span>,      <span class="co"># Projection onto x1-x3</span></span>
-<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"$</span><span class="sc">\\</span><span class="st">hat{y}_{full}$"</span>,     <span class="co"># Projection onto x1-x4</span></span>
-<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"$</span><span class="sc">\\</span><span class="st">hat{y}_{full} - </span><span class="sc">\\</span><span class="st">hat{y}_0$"</span>, </span>
-<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"$e$"</span>),</span>
-<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption =</span> <span class="st">"Comparison of Projections: Full (Rank-Deficient) vs Subspace"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a><span class="co"># D. Difference Vector and Residuals</span></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>y_diff <span class="ot">&lt;-</span> y_hat_full <span class="sc">-</span> y_0</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>e <span class="ot">&lt;-</span> y <span class="sc">-</span> y_hat_full</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Create Detailed Results Table</span></span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>results_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>  <span class="at">x1 =</span> x1,</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>  <span class="at">x2 =</span> x2,</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>  <span class="at">x3 =</span> x3,</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>  <span class="at">x4 =</span> x4,</span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>  <span class="at">y_hat_0 =</span> <span class="fu">as.vector</span>(y_0),</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>  <span class="at">y_hat_sub =</span> <span class="fu">as.vector</span>(y_hat_sub),   <span class="co"># New Column</span></span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>  <span class="at">y_hat_full =</span> <span class="fu">as.vector</span>(y_hat_full),</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>  <span class="at">y_diff =</span> <span class="fu">as.vector</span>(y_diff),</span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>  <span class="at">e =</span> <span class="fu">as.vector</span>(e)</span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate Sum of Squares for each column</span></span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>SS_row <span class="ot">&lt;-</span> <span class="fu">colSums</span>(results_df<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>results_table <span class="ot">&lt;-</span> <span class="fu">rbind</span>(results_df, SS_row)</span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(results_table)[<span class="fu">nrow</span>(results_table)] <span class="ot">&lt;-</span> <span class="st">"Sum of Squares"</span></span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a><span class="co"># Display Table using kable (for standard rendering)</span></span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(results_table, <span class="at">digits =</span> <span class="dv">2</span>,</span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>      <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"$y$"</span>, <span class="st">"$x_1$"</span>, <span class="st">"$x_2$"</span>, <span class="st">"$x_3$"</span>, <span class="st">"$x_4$"</span>,</span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"$</span><span class="sc">\\</span><span class="st">hat{y}_0$"</span>, </span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"$</span><span class="sc">\\</span><span class="st">hat{y}_{sub}$"</span>,      <span class="co"># Projection onto x1-x3</span></span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"$</span><span class="sc">\\</span><span class="st">hat{y}_{full}$"</span>,     <span class="co"># Projection onto x1-x4</span></span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"$</span><span class="sc">\\</span><span class="st">hat{y}_{full} - </span><span class="sc">\\</span><span class="st">hat{y}_0$"</span>, </span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"$e$"</span>),</span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption =</span> <span class="st">"Comparison of Projections: Full (Rank-Deficient) vs Subspace"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -1569,47 +1587,47 @@ F = \frac{||\hat{y} - \hat{y}_0||^2 / h}{s^2} = \frac{y^T (P_{\text{Col}(X)} - P
 <p><strong>Key Observation</strong></p>
 <p>Notice that the columns <span class="math inline">\(\hat{y}_{sub}\)</span> (projection onto <span class="math inline">\(x_1, x_2, x_3\)</span>) and <span class="math inline">\(\hat{y}_{full}\)</span> (projection onto <span class="math inline">\(x_1, \dots, x_4\)</span>) are identical. This confirms that adding the linearly dependent predictor <span class="math inline">\(x_4\)</span> does not change the column space of the design matrix or the fitted values, even though it makes individual coefficients non-unique.</p>
 </div>
-<div id="exm-lm-rank-deficient" class="theorem example">
-<p><span class="theorem-title"><strong>Example 9.3</strong></span> <strong>Fitting Rank-Deficient Models with <code>lm()</code></strong></p>
-<p>In R, the standard <code>lm()</code> function automatically detects singularities. It uses QR decomposition with pivoting to handle rank deficiency. If a column is found to be linearly dependent on previous columns, its coefficient is set to <code>NA</code>.</p>
-<p>We use the same dataset as before, where <span class="math inline">\(x_4 = 0.1x_1 + 0.5x_2 + x_3\)</span>.</p>
+<div id="exm-lm-anova-combined" class="theorem example">
+<p><span class="theorem-title"><strong>Example 9.3 (Rank-Deficient Model Fitting and ANOVA Analysis)</strong></span> This example demonstrates the end-to-end process of fitting a model with linear dependencies using R’s <code>lm()</code> function and generating a formatted ANOVA table. We explicitly handle the potential for fitting errors and highlight the reduced degrees of freedom resulting from the singularity.</p>
+<ol type="1">
+<li><p><strong>Data Generation and Model Fitting</strong> </p>
+<p>We first generate a dataset where <span class="math inline">\(x_4\)</span> is a perfect linear combination of <span class="math inline">\(x_1, x_2\)</span>, and <span class="math inline">\(x_3\)</span>. We then attempt to fit the full model using <code>lm()</code> within a <code>tryCatch</code> block to ensure robustness.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Data Generation (Same as previous)</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">12</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="at">mean=</span><span class="dv">5</span>, <span class="at">sd=</span><span class="dv">2</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="at">mean=</span><span class="dv">10</span>, <span class="at">sd=</span><span class="dv">2</span>)</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>x3 <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="at">mean=</span><span class="dv">0</span>, <span class="at">sd=</span><span class="dv">1</span>)</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Linear Dependency</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>x4 <span class="ot">&lt;-</span> <span class="fl">0.1</span><span class="sc">*</span>x1 <span class="sc">+</span> <span class="fl">0.5</span><span class="sc">*</span>x2 <span class="sc">+</span> x3 </span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate y</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>beta_true <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">2</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">3</span>) </span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> beta_true[<span class="dv">1</span>] <span class="sc">+</span> beta_true[<span class="dv">2</span>]<span class="sc">*</span>x1 <span class="sc">+</span> beta_true[<span class="dv">3</span>]<span class="sc">*</span>x2 <span class="sc">+</span> beta_true[<span class="dv">4</span>]<span class="sc">*</span>x3 <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="at">sd=</span><span class="dv">1</span>)</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine into data frame</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">y=</span>y, <span class="at">x1=</span>x1, <span class="at">x2=</span>x2, <span class="at">x3=</span>x3, <span class="at">x4=</span>x4)</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Fit model using lm() with tryCatch</span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Note: lm() usually just drops coefs, but we use tryCatch as requested</span></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>lm_fit <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>({</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  model <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x1 <span class="sc">+</span> x2 <span class="sc">+</span> x3 <span class="sc">+</span> x4, <span class="at">data =</span> df)</span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">"Model fitted successfully (with potential NAs)."</span>)</span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  model</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>}, <span class="at">error =</span> <span class="cf">function</span>(e) {</span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"Error in lm:"</span>, e<span class="sc">$</span>message))</span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MASS)  <span class="co"># For ginv()</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr) <span class="co"># For kable()</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)    <span class="co"># For HTML tables</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Generate Data with linear dependency: x4 = 0.1*x1 + 0.5*x2 + x3</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">12</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="at">mean=</span><span class="dv">5</span>, <span class="at">sd=</span><span class="dv">2</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="at">mean=</span><span class="dv">10</span>, <span class="at">sd=</span><span class="dv">2</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>x3 <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="at">mean=</span><span class="dv">0</span>, <span class="at">sd=</span><span class="dv">1</span>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>x4 <span class="ot">&lt;-</span> <span class="fl">0.1</span><span class="sc">*</span>x1 <span class="sc">+</span> <span class="fl">0.5</span><span class="sc">*</span>x2 <span class="sc">+</span> x3 </span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="dv">10</span> <span class="sc">+</span> <span class="dv">2</span><span class="sc">*</span>x1 <span class="sc">-</span> <span class="dv">1</span><span class="sc">*</span>x2 <span class="sc">+</span> <span class="dv">3</span><span class="sc">*</span>x3 <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="at">sd=</span><span class="dv">1</span>)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">y=</span>y, <span class="at">x1=</span>x1, <span class="at">x2=</span>x2, <span class="at">x3=</span>x3, <span class="at">x4=</span>x4)</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Fit model using lm() with tryCatch</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>lm_fit <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>({</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  model <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x1 <span class="sc">+</span> x2 <span class="sc">+</span> x3 <span class="sc">+</span> x4, <span class="at">data =</span> df)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  model</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>}, <span class="at">error =</span> <span class="cf">function</span>(e) {</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">message</span>(<span class="st">"Error in fitting: "</span>, e<span class="sc">$</span>message)</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Analyze Coefficients and ANOVA</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Note: lm() sets the coefficient of x4 to NA due to the singularity</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="st">"Estimated Coefficients:"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "Model fitted successfully (with potential NAs)."</code></pre>
+<pre><code>[1] "Estimated Coefficients:"</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Examine Coefficients</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Expecting one coefficient to be NA because of the singularity</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">coef</span>(lm_fit))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">coef</span>(lm_fit))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>(Intercept)          x1          x2          x3          x4 
@@ -1617,31 +1635,559 @@ F = \frac{||\hat{y} - \hat{y}_0||^2 / h}{s^2} = \frac{y^T (P_{\text{Col}(X)} - P
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Verify Fitted Values</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Even though coefficients are not unique (NA appears), fitted values ARE unique</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>y_hat_lm <span class="ot">&lt;-</span> <span class="fu">predict</span>(lm_fit)</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare with previous ginv result (re-calculating locally for comparison)</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(lm_fit)</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MASS)</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>beta_ginv <span class="ot">&lt;-</span> <span class="fu">ginv</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> X) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> y</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>y_hat_ginv <span class="ot">&lt;-</span> X <span class="sc">%*%</span> beta_ginv</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Check difference</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>max_diff <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">abs</span>(y_hat_lm <span class="sc">-</span> y_hat_ginv))</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"Maximum difference between lm() and ginv() fitted values:"</span>, max_diff))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>anova_results <span class="ot">&lt;-</span> <span class="fu">anova</span>(lm_fit)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>anova_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(anova_results)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>anova_df<span class="sc">$</span>Term <span class="ot">&lt;-</span> <span class="fu">rownames</span>(anova_results)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>anova_df <span class="ot">&lt;-</span> anova_df[, <span class="fu">c</span>(<span class="st">"Term"</span>, <span class="st">"Df"</span>, <span class="st">"Sum Sq"</span>, <span class="st">"Mean Sq"</span>, <span class="st">"F value"</span>, <span class="st">"Pr(&gt;F)"</span>)]</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Combined Formatting and Output</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (knitr<span class="sc">::</span><span class="fu">is_html_output</span>()) {</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># HTML Output with gt highlighting</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  anova_df <span class="sc">|&gt;</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">gt</span>() <span class="sc">|&gt;</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fmt_number</span>(<span class="at">columns =</span> <span class="fu">c</span>(<span class="st">"Sum Sq"</span>, <span class="st">"Mean Sq"</span>, <span class="st">"F value"</span>, <span class="st">"Pr(&gt;F)"</span>), <span class="at">decimals =</span> <span class="dv">4</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sub_missing</span>(<span class="at">columns =</span> <span class="fu">everything</span>(), <span class="at">missing_text =</span> <span class="st">""</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tab_style</span>(</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">style =</span> <span class="fu">cell_text</span>(<span class="at">color =</span> <span class="st">"red"</span>, <span class="at">weight =</span> <span class="st">"bold"</span>),</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">locations =</span> <span class="fu">cells_body</span>(<span class="at">columns =</span> Df, <span class="at">rows =</span> Term <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"x1"</span>, <span class="st">"x2"</span>, <span class="st">"x3"</span>)) </span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tab_header</span>(<span class="at">title =</span> <span class="st">"ANOVA Table"</span>)</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># LaTeX Output with color highlighting</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  anova_df<span class="sc">$</span>Df <span class="ot">&lt;-</span> <span class="fu">as.character</span>(anova_df<span class="sc">$</span>Df)</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Identify rows for model components and color them</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  model_rows <span class="ot">&lt;-</span> <span class="fu">which</span>(anova_df<span class="sc">$</span>Term <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"x1"</span>, <span class="st">"x2"</span>, <span class="st">"x3"</span>))</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>  anova_df<span class="sc">$</span>Df[model_rows] <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">textcolor{red}{"</span>, anova_df<span class="sc">$</span>Df[model_rows], <span class="st">"}"</span>)</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(anova_df, <span class="at">digits =</span> <span class="dv">4</span>, <span class="at">escape =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>        <span class="at">caption =</span> <span class="st">"Sequential ANOVA Table"</span>)</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "Maximum difference between lm() and ginv() fitted values: 3.76587649952853e-13"</code></pre>
+<div class="cell-output-display">
+<div id="evbrxqrenh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#evbrxqrenh table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#evbrxqrenh thead, #evbrxqrenh tbody, #evbrxqrenh tfoot, #evbrxqrenh tr, #evbrxqrenh td, #evbrxqrenh th {
+  border-style: none;
+}
+
+#evbrxqrenh p {
+  margin: 0;
+  padding: 0;
+}
+
+#evbrxqrenh .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#evbrxqrenh .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#evbrxqrenh .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#evbrxqrenh .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#evbrxqrenh .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#evbrxqrenh .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#evbrxqrenh .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#evbrxqrenh .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#evbrxqrenh .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#evbrxqrenh .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#evbrxqrenh .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#evbrxqrenh .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#evbrxqrenh .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#evbrxqrenh .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#evbrxqrenh .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#evbrxqrenh .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#evbrxqrenh .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#evbrxqrenh .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#evbrxqrenh .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#evbrxqrenh .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#evbrxqrenh .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#evbrxqrenh .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#evbrxqrenh .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#evbrxqrenh .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#evbrxqrenh .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#evbrxqrenh .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#evbrxqrenh .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#evbrxqrenh .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#evbrxqrenh .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#evbrxqrenh .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#evbrxqrenh .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#evbrxqrenh .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#evbrxqrenh .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#evbrxqrenh .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#evbrxqrenh .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#evbrxqrenh .gt_left {
+  text-align: left;
+}
+
+#evbrxqrenh .gt_center {
+  text-align: center;
+}
+
+#evbrxqrenh .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#evbrxqrenh .gt_font_normal {
+  font-weight: normal;
+}
+
+#evbrxqrenh .gt_font_bold {
+  font-weight: bold;
+}
+
+#evbrxqrenh .gt_font_italic {
+  font-style: italic;
+}
+
+#evbrxqrenh .gt_super {
+  font-size: 65%;
+}
+
+#evbrxqrenh .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#evbrxqrenh .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#evbrxqrenh .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#evbrxqrenh .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#evbrxqrenh .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#evbrxqrenh .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#evbrxqrenh .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#evbrxqrenh .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#evbrxqrenh div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="gt_heading header">
+<th colspan="6" class="gt_heading gt_title gt_font_normal gt_bottom_border">ANOVA Table</th>
+</tr>
+<tr class="gt_col_headings even">
+<th id="Term" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Term</th>
+<th id="Df" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Df</th>
+<th id="Sum-Sq" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Sum Sq</th>
+<th id="Mean-Sq" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Mean Sq</th>
+<th id="F-value" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">F value</th>
+<th id="Pr(>F)" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Pr(&gt;F)</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="Term">x1</td>
+<td class="gt_row gt_right" headers="Df" style="color: #FF0000; font-weight: bold">1</td>
+<td class="gt_row gt_right" headers="Sum Sq">184.6483</td>
+<td class="gt_row gt_right" headers="Mean Sq">184.6483</td>
+<td class="gt_row gt_right" headers="F value">191.5136</td>
+<td class="gt_row gt_right" headers="Pr(>F)">0.0000</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Term">x2</td>
+<td class="gt_row gt_right" headers="Df" style="color: #FF0000; font-weight: bold">1</td>
+<td class="gt_row gt_right" headers="Sum Sq">139.5381</td>
+<td class="gt_row gt_right" headers="Mean Sq">139.5381</td>
+<td class="gt_row gt_right" headers="F value">144.7261</td>
+<td class="gt_row gt_right" headers="Pr(>F)">0.0000</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Term">x3</td>
+<td class="gt_row gt_right" headers="Df" style="color: #FF0000; font-weight: bold">1</td>
+<td class="gt_row gt_right" headers="Sum Sq">72.8565</td>
+<td class="gt_row gt_right" headers="Mean Sq">72.8565</td>
+<td class="gt_row gt_right" headers="F value">75.5654</td>
+<td class="gt_row gt_right" headers="Pr(>F)">0.0000</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Term">Residuals</td>
+<td class="gt_row gt_right" headers="Df">8</td>
+<td class="gt_row gt_right" headers="Sum Sq">7.7132</td>
+<td class="gt_row gt_right" headers="Mean Sq">0.9642</td>
+<td class="gt_row gt_right" headers="F value"><br>
+</td>
+<td class="gt_row gt_right" headers="Pr(>F)"><br>
+</td>
+</tr>
+</tbody>
+</table>
+
 </div>
 </div>
-<p><strong>Observation</strong></p>
-<p>The <code>lm()</code> output shows <code>NA</code> for <code>x4</code> (or whichever variable is pivoted out last). This confirms that while the individual parameters are not identifiable (infinite solutions exist), the <code>lm()</code> function picks one specific solution (setting one coef to 0) to allow for prediction. The fitted values <span class="math inline">\(\hat{y}\)</span> are identical to those obtained via the generalized inverse.</p>
+</div></li>
+<li><p><strong>Interpretation of Results</strong> </p>
+<p>The <code>lm()</code> function automatically identifies that <span class="math inline">\(x_4\)</span> is aliased with the other predictors and assigns it <code>NA</code>. Consequently, in the ANOVA table, the variation is partitioned among the first three predictors, and <span class="math inline">\(x_4\)</span> contributes no additional degrees of freedom or sum of squares. This demonstrates that for non-full rank models, inference is limited to the estimable part of the parameter space.</p></li>
+</ol>
 </div>
 </section>
 </section>
 <section id="inference-for-estimable-parameters" class="level2" data-number="9.4">
 <h2 data-number="9.4" class="anchored" data-anchor-id="inference-for-estimable-parameters"><span class="header-section-number">9.4</span> Inference for Estimable Parameters</h2>
+<section id="estimability" class="level3" data-number="9.4.1">
+<h3 data-number="9.4.1" class="anchored" data-anchor-id="estimability"><span class="header-section-number">9.4.1</span> Estimability</h3>
 <div id="def-estimability" class="theorem definition">
 <p><span class="theorem-title"><strong>Definition 9.2 (Estimability)</strong></span> Let <span class="math inline">\(\lambda = (\lambda_1, ..., \lambda_p)^T\)</span> be a vector of constants. The parameter <span class="math inline">\(\lambda^T \beta = \sum_j \lambda_j \beta_j\)</span> is said to be estimable if there exists a vector <span class="math inline">\(a\)</span> in <span class="math inline">\(R^n\)</span> such that:</p>
 <p><span class="math display">\[
@@ -1659,10 +2205,196 @@ E(a^T y) = \lambda^T \beta
 <li><span class="math inline">\(\lambda \in \text{Row}(X) = \text{Col}(X^TX)\)</span></li>
 </ol>
 </div>
+<div class="proof">
+<p><span class="proof-title"><em>Proof</em>. </span>We prove the equivalence of the conditions for estimability as follows:</p>
+<ol type="1">
+<li><p><strong>Condition (1) <span class="math inline">\(\iff\)</span> Definition of Estimability</strong> </p>
+<p>By definition, <span class="math inline">\(\lambda^T \beta\)</span> is estimable if there exists a vector <span class="math inline">\(a\)</span> such that <span class="math inline">\(E(a^T y) = \lambda^T \beta\)</span> for all <span class="math inline">\(\beta\)</span>. Since <span class="math inline">\(E(a^T y) = a^T E(y) = a^T X \beta\)</span>, the requirement <span class="math inline">\(a^T X \beta = \lambda^T \beta\)</span> must hold for all <span class="math inline">\(\beta \in \mathbb{R}^p\)</span>. This is true if and only if <span class="math inline">\(a^T X = \lambda^T\)</span>, which means <span class="math inline">\(\lambda\)</span> is a linear combination of the rows of <span class="math inline">\(X\)</span>.</p></li>
+<li><p><strong>Condition (1) <span class="math inline">\(\iff\)</span> Condition (4)</strong> </p>
+<p>Condition (1) states there exists <span class="math inline">\(a\)</span> such that <span class="math inline">\(X^T a = \lambda\)</span>. This is the literal definition of <span class="math inline">\(\lambda\)</span> being in the column space of <span class="math inline">\(X^T\)</span>, which is the row space of <span class="math inline">\(X\)</span>, denoted <span class="math inline">\(\text{Col}(X^T) = \text{Row}(X)\)</span>. Furthermore, a fundamental result in matrix algebra states that <span class="math inline">\(\text{Col}(X^T) = \text{Col}(X^T X)\)</span>. Thus, <span class="math inline">\(\lambda \in \text{Row}(X) \iff \lambda \in \text{Col}(X^T X)\)</span>.</p></li>
+<li><p><strong>Condition (4) <span class="math inline">\(\iff\)</span> Condition (2)</strong> </p>
+<p>If <span class="math inline">\(\lambda \in \text{Col}(X^T X)\)</span>, then by the definition of column space, there must exist a vector <span class="math inline">\(r\)</span> such that <span class="math inline">\(X^T X r = \lambda\)</span>. Taking the transpose gives <span class="math inline">\(r^T X^T X = \lambda^T\)</span>, showing <span class="math inline">\(\lambda^T\)</span> is a linear combination of the rows of <span class="math inline">\(X^T X\)</span>.</p></li>
+<li><p><strong>Condition (2) <span class="math inline">\(\iff\)</span> Condition (3)</strong> </p>
+<p>This follows from the properties of generalized inverses. A system <span class="math inline">\(X^T X r = \lambda\)</span> is consistent if and only if <span class="math inline">\(X^T X (X^T X)^- \lambda = \lambda\)</span> for any generalized inverse <span class="math inline">\((X^T X)^-\)</span>. If such an <span class="math inline">\(r\)</span> exists, then:</p>
+<p><span class="math display">\[
+X^T X (X^T X)^- (X^T X r) = X^T X r = \lambda
+\]</span></p>
+<p>using the defining property <span class="math inline">\(AAA^- A = A\)</span>.</p></li>
+</ol>
+</div>
+</section>
+<section id="example-checking-estimability-in-one-way-anova" class="level3" data-number="9.4.2">
+<h3 data-number="9.4.2" class="anchored" data-anchor-id="example-checking-estimability-in-one-way-anova"><span class="header-section-number">9.4.2</span> Example: Checking Estimability in One-Way ANOVA</h3>
+<div id="exm-estimability-comprehensive" class="theorem example">
+<p><span class="theorem-title"><strong>Example 9.4 (Checking Estimability in One-Way ANOVA)</strong></span> We use the balanced one-way ANOVA effects model matrix <span class="math inline">\(X\)</span> (<span class="math inline">\(a=3\)</span> groups, <span class="math inline">\(n=4\)</span> observations per group) to verify different linear functions <span class="math inline">\(\lambda^T \beta\)</span>. In this model, the parameter vector is <span class="math inline">\(\beta = (\mu, \alpha_1, \alpha_2, \alpha_3)^T\)</span>.</p>
+<ol type="1">
+<li><p><strong>Defining the Vectors and Explicit Matrix Form</strong> </p>
+<p>First, we observe the explicit form of the <span class="math inline">\(X^T X\)</span> matrix. For a balanced one-way layout with <span class="math inline">\(n=4\)</span> per group, the matrix is as follows :</p>
+<p><span class="math display">\[
+X^T X = \begin{pmatrix} 12 &amp; 4 &amp; 4 &amp; 4 \\ 4 &amp; 4 &amp; 0 &amp; 0 \\ 4 &amp; 0 &amp; 4 &amp; 0 \\ 4 &amp; 0 &amp; 0 &amp; 4 \end{pmatrix}
+\]</span></p>
+<p>We examine the following functions of the parameters:</p>
+<ul>
+<li><span class="math inline">\(\lambda_1 = (1, 1, 0, 0)^T\)</span>: The cell mean for group 1 (<span class="math inline">\(\mu + \alpha_1\)</span>).</li>
+<li><span class="math inline">\(\lambda_2 = (0, 1, 0, 0)^T\)</span>: The individual treatment effect <span class="math inline">\(\alpha_1\)</span>.</li>
+<li><span class="math inline">\(\lambda_3 = (0, 1, -1, 0)^T\)</span>: The contrast between group 1 and group 2 (<span class="math inline">\(\alpha_1 - \alpha_2\)</span>).</li>
+<li><span class="math inline">\(\lambda_4 = (1, 0, 0, 1)^T\)</span>: The cell mean for group 3 (<span class="math inline">\(\mu + \alpha_3\)</span>).</li>
+<li><span class="math inline">\(\lambda_5 = (12, 4, 4, 4)^T\)</span>: This corresponds to <span class="math inline">\(12\mu + 4\sum \alpha_i\)</span>, which is the first column of <span class="math inline">\(X^TX\)</span>.</li>
+</ul></li>
+<li><p><strong>Numerical Consistency Check (Condition 3)</strong> </p>
+<p>A linear function <span class="math inline">\(\lambda^T\beta\)</span> is estimable if and only if <span class="math inline">\(X^T X (X^T X)^- \lambda = \lambda\)</span>. We perform this check for all vectors using the Moore-Penrose generalized inverse.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MASS)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup X'X for balanced one-way layout (n=4 per group) </span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>XtX <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="dv">12</span>,  <span class="dv">4</span>,  <span class="dv">4</span>,  <span class="dv">4</span>,</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>   <span class="dv">4</span>,  <span class="dv">4</span>,  <span class="dv">0</span>,  <span class="dv">0</span>,</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>   <span class="dv">4</span>,  <span class="dv">0</span>,  <span class="dv">4</span>,  <span class="dv">0</span>,</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>   <span class="dv">4</span>,  <span class="dv">0</span>,  <span class="dv">0</span>,  <span class="dv">4</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>), <span class="at">nrow =</span> <span class="dv">4</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>XtX_inv <span class="ot">&lt;-</span> <span class="fu">ginv</span>(XtX)</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Define lambda vectors</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>L1 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>)      <span class="co"># mu + alpha1 </span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>L2 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>)      <span class="co"># alpha1      </span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>L3 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>)     <span class="co"># alpha1-alpha2 </span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>L4 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>)      <span class="co"># mu + alpha3 </span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>L5 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">12</span>, <span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">4</span>)     <span class="co"># 12mu + 4(alpha1 + alpha2 + alpha3)</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute (X'X)(X'X)^- * lambda for each</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>check_L1 <span class="ot">&lt;-</span> XtX <span class="sc">%*%</span> XtX_inv <span class="sc">%*%</span> L1</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>check_L2 <span class="ot">&lt;-</span> XtX <span class="sc">%*%</span> XtX_inv <span class="sc">%*%</span> L2</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>check_L3 <span class="ot">&lt;-</span> XtX <span class="sc">%*%</span> XtX_inv <span class="sc">%*%</span> L3</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>check_L4 <span class="ot">&lt;-</span> XtX <span class="sc">%*%</span> XtX_inv <span class="sc">%*%</span> L4</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>check_L5 <span class="ot">&lt;-</span> XtX <span class="sc">%*%</span> XtX_inv <span class="sc">%*%</span> L5</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine results for display</span></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>final_comp <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">Param =</span> <span class="fu">c</span>(<span class="st">"mu"</span>, <span class="st">"alpha1"</span>, <span class="st">"alpha2"</span>, <span class="st">"alpha3"</span>),</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">L1_Target =</span> L1, <span class="at">L1_Res =</span> <span class="fu">as.vector</span>(check_L1),</span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">L2_Target =</span> L2, <span class="at">L2_Res =</span> <span class="fu">as.vector</span>(check_L2),</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">L3_Target =</span> L3, <span class="at">L3_Res =</span> <span class="fu">as.vector</span>(check_L3),</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">L4_Target =</span> L4, <span class="at">L4_Res =</span> <span class="fu">as.vector</span>(check_L4),</span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">L5_Target =</span> L5, <span class="at">L5_Res =</span> <span class="fu">as.vector</span>(check_L5)</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(final_comp, <span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>      <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Param"</span>, <span class="st">"$</span><span class="sc">\\</span><span class="st">lambda_1$"</span>, <span class="st">"$L_1$"</span>, </span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"$</span><span class="sc">\\</span><span class="st">lambda_2$"</span>, <span class="st">"$L_2$"</span>, </span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"$</span><span class="sc">\\</span><span class="st">lambda_3$"</span>, <span class="st">"$L_3$"</span>, </span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"$</span><span class="sc">\\</span><span class="st">lambda_4$"</span>, <span class="st">"$L_4$"</span>, </span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"$</span><span class="sc">\\</span><span class="st">lambda_5$"</span>, <span class="st">"$L_5$"</span>),</span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption =</span> <span class="st">"Estimability Check for Multiple Parameter Functions"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Estimability Check for Multiple Parameter Functions</caption>
+<colgroup>
+<col style="width: 7%">
+<col style="width: 12%">
+<col style="width: 6%">
+<col style="width: 12%">
+<col style="width: 6%">
+<col style="width: 12%">
+<col style="width: 6%">
+<col style="width: 12%">
+<col style="width: 6%">
+<col style="width: 12%">
+<col style="width: 6%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Param</th>
+<th style="text-align: right;"><span class="math inline">\(\lambda_1\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(L_1\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(\lambda_2\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(L_2\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(\lambda_3\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(L_3\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(\lambda_4\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(L_4\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(\lambda_5\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(L_5\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">mu</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.25</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">12</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">alpha1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.75</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">alpha2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.25</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">alpha3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.25</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">4</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div></li>
+<li><p><strong>Summary of Results</strong> </p>
+<ul>
+<li><strong>Estimable Functions</strong>: <span class="math inline">\(\lambda_1, \lambda_3, \lambda_4\)</span>, and <span class="math inline">\(\lambda_5\)</span> all satisfy the condition because their result columns (<span class="math inline">\(L_i\)</span>) match their target columns (<span class="math inline">\(\lambda_i\)</span>). These represent cell means, contrasts, and linear combinations of the rows of <span class="math inline">\(X^TX\)</span>.</li>
+<li><strong>Non-Estimable Function</strong>: <span class="math inline">\(\lambda_2\)</span> (individual <span class="math inline">\(\alpha_1\)</span>) fails the condition as the target and result do not match.</li>
+<li><strong>The First Column (<span class="math inline">\(\lambda_5\)</span>)</strong>: This vector is estimable because it is explicitly the first row/column of <span class="math inline">\(X^TX\)</span>. Since any linear combination of rows of <span class="math inline">\(X^TX\)</span> is estimable, <span class="math inline">\(\lambda_5^T \beta = 12\mu + 4\alpha_1 + 4\alpha_2 + 4\alpha_3\)</span> is estimable. Note that this is equal to <span class="math inline">\(\sum_{i,j} E(y_{ij})\)</span>, the sum of all expected cell means.</li>
+</ul></li>
+<li><p><strong>Theoretical Conclusion</strong> </p>
+<p>In non-full-rank models, we cannot estimate individual parameters that are not uniquely identified by the data. However, linear functions that lie in the row space of <span class="math inline">\(X\)</span> (or the column space of <span class="math inline">\(X^TX\)</span>)—such as cell means or treatment contrasts—are invariant to the choice of solution <span class="math inline">\(\hat{\beta}\)</span> and remain uniquely estimable.</p></li>
+</ol>
+</div>
 <div id="thm-number-estimable-functions" class="theorem">
 <p><span class="theorem-title"><strong>Theorem 9.7 (Number of Estimable Functions)</strong></span> In the non-full-rank model <span class="math inline">\(y = X\beta + e\)</span>, the number of linearly independent estimable functions of <span class="math inline">\(\beta\)</span> is the rank of <span class="math inline">\(X\)</span>.</p>
 </div>
-<p><strong>Properties of Estimators</strong></p>
+</section>
+<section id="properties-of-estimators-for-estimabile-parameters" class="level3" data-number="9.4.3">
+<h3 data-number="9.4.3" class="anchored" data-anchor-id="properties-of-estimators-for-estimabile-parameters"><span class="header-section-number">9.4.3</span> Properties of Estimators for Estimabile Parameters</h3>
 <p>Let <span class="math inline">\(\lambda^T \beta\)</span> be an estimable function. Let <span class="math inline">\(\hat{\beta}\)</span> be any solution to the normal equations. Then the estimator <span class="math inline">\(\lambda^T \hat{\beta}\)</span> has the following properties:</p>
 <ol type="1">
 <li><strong>Unbiasedness</strong>: <span class="math inline">\(E(\lambda^T \hat{\beta}) = \lambda^T \beta\)</span>.</li>
@@ -1681,28 +2413,90 @@ E(a^T y) = \lambda^T \beta
 \]</span></p></li>
 </ol>
 </div>
-<div id="thm-gauss-markov-non-full" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 9.9 (Gauss-Markov in Non-Full Rank Case)</strong></span> If <span class="math inline">\(\lambda^T \beta\)</span> is estimable in the spherical errors non-full rank linear model, then <span class="math inline">\(\lambda^T \hat{\beta}\)</span> is its Best Linear Unbiased Estimator (BLUE).</p>
-</div>
-<div id="def-testable-hypothesis" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 9.3 (Testable Hypothesis)</strong></span> A hypothesis such as <span class="math inline">\(H_0: \beta_1 = ... = \beta_q\)</span> is said to be testable if there exists a set of linearly independent estimable functions such that <span class="math inline">\(H_0\)</span> is true if and only if these functions equal zero.</p>
+<div id="thm-number-estimable-functions" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 9.9 (Number of Estimable Functions)</strong></span> In the non-full-rank model <span class="math inline">\(y = X\beta + e\)</span>, the number of linearly independent estimable functions of <span class="math inline">\(\beta\)</span> is the rank of <span class="math inline">\(X\)</span>.</p>
 </div>
 </section>
-<section id="re-parametrization-and-side-conditions" class="level2" data-number="9.5">
-<h2 data-number="9.5" class="anchored" data-anchor-id="re-parametrization-and-side-conditions"><span class="header-section-number">9.5</span> Re-parametrization and Side Conditions</h2>
-<p><strong>Re-parametrization</strong></p>
-<p>The idea is to transform from the vector of non-estimable parameters <span class="math inline">\(\beta\)</span> to a vector of linearly independent estimable functions of <span class="math inline">\(\beta\)</span>: <span class="math inline">\(\gamma = U\beta\)</span>. The new full-rank model is <span class="math inline">\(y = Z\gamma + e\)</span>, where <span class="math inline">\(Z\gamma = X\beta\)</span>.</p>
-<p>To find <span class="math inline">\(Z\)</span>, we solve <span class="math inline">\(Z U = X\)</span>. One solution is <span class="math inline">\(Z = X U^T (U U^T)^{-1}\)</span>.</p>
-<p><strong>Side Conditions</strong></p>
-<div id="thm-side-conditions" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 9.10 (Unique Solution with Side Conditions)</strong></span> If <span class="math inline">\(y = X\beta + e\)</span> where <span class="math inline">\(X\)</span> is <span class="math inline">\(n \times p\)</span> of rank <span class="math inline">\(k\)</span>, and if <span class="math inline">\(T\)</span> is a <span class="math inline">\((p-k) \times p\)</span> matrix of rank <span class="math inline">\(p-k\)</span> such that <span class="math inline">\(T\beta\)</span> is a set of non-estimable functions, then there is a unique vector <span class="math inline">\(\hat{\beta}\)</span> that satisfies both <span class="math inline">\(X^T X \hat{\beta} = X^T y\)</span> and <span class="math inline">\(T\hat{\beta} = 0\)</span>.</p>
-</div>
-<p>The solution is given by:</p>
+<section id="properties-of-estimators-for-estimabile-parameters-1" class="level3" data-number="9.4.4">
+<h3 data-number="9.4.4" class="anchored" data-anchor-id="properties-of-estimators-for-estimabile-parameters-1"><span class="header-section-number">9.4.4</span> Properties of Estimators for Estimabile Parameters</h3>
+<p>Let <span class="math inline">\(\lambda^T \beta\)</span> be an estimable function. Let <span class="math inline">\(\hat{\beta}\)</span> be any solution to the normal equations. Then the estimator <span class="math inline">\(\lambda^T \hat{\beta}\)</span> has the following properties:</p>
+<ol type="1">
+<li><strong>Unbiasedness</strong>: <span class="math inline">\(E(\lambda^T \hat{\beta}) = \lambda^T \beta\)</span>.</li>
+<li><strong>Uniqueness</strong>: <span class="math inline">\(\lambda^T \hat{\beta}\)</span> is invariant to the choice of <span class="math inline">\(\hat{\beta}\)</span> (to the choice of generalized inverse).</li>
+</ol>
+<div id="thm-variance-covariance" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 9.10 (Variance and Covariance)</strong></span> &nbsp;</p>
+<ol type="1">
+<li><p><strong>Variance</strong>: The variance of <span class="math inline">\(\lambda^T \hat{\beta}\)</span> is unique and is given by:</p>
 <p><span class="math display">\[
-\hat{\beta} = (X^T X + T^T T)^{-1} X^T y
-\]</span></p>
+\text{Var}(\lambda^T \hat{\beta}) = \sigma^2 \lambda^T (X^T X)^- \lambda
+\]</span></p></li>
+<li><p><strong>Covariance</strong>: For two estimable functions <span class="math inline">\(\lambda_1^T \beta\)</span> and <span class="math inline">\(\lambda_2^T \beta\)</span>:</p>
+<p><span class="math display">\[
+\text{Cov}(\lambda_1^T \hat{\beta}, \lambda_2^T \hat{\beta}) = \sigma^2 \lambda_1^T (X^T X)^- \lambda_2
+\]</span></p></li>
+</ol>
+</div>
+<div id="thm-gauss-markov-non-full" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 9.11 (Gauss-Markov in Non-Full Rank Case)</strong></span> If <span class="math inline">\(\lambda^T \beta\)</span> is estimable in the spherical errors non-full rank linear model, then <span class="math inline">\(\lambda^T \hat{\beta}\)</span> is its Best Linear Unbiased Estimator (BLUE).</p>
+</div>
+</section>
+<section id="testable-hypotheses-in-non-full-rank-models" class="level3" data-number="9.4.5">
+<h3 data-number="9.4.5" class="anchored" data-anchor-id="testable-hypotheses-in-non-full-rank-models"><span class="header-section-number">9.4.5</span> Testable Hypotheses in Non-Full Rank Models</h3>
+<p>In non-full rank models, we cannot test hypotheses about individual parameters that are not uniquely identified by the data. Instead, we must restrict our inference to <strong>testable hypotheses</strong>, which are formulated using estimable functions.</p>
+<div id="def-testable-hypothesis" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 9.3 (Formal Description of a Testable Hypothesis)</strong></span> A linear hypothesis <span class="math inline">\(H_0: C\beta = 0\)</span> is said to be <strong>testable</strong> if and only if every row of the <span class="math inline">\(m \times p\)</span> matrix <span class="math inline">\(C\)</span> is an estimable function of <span class="math inline">\(\beta\)</span>.</p>
+<p>This implies that there exists a matrix <span class="math inline">\(A\)</span> such that <span class="math inline">\(C = AX\)</span>. Physically, this means <span class="math inline">\(H_0\)</span> can be expressed entirely in terms of the expected values of the observations.</p>
+</div>
+</section>
+<section id="the-general-linear-hypothesis-f-test" class="level3" data-number="9.4.6">
+<h3 data-number="9.4.6" class="anchored" data-anchor-id="the-general-linear-hypothesis-f-test"><span class="header-section-number">9.4.6</span> The General Linear Hypothesis F-Test</h3>
+<p>If <span class="math inline">\(y \sim N_n(X\beta, \sigma^2 I)\)</span>, where <span class="math inline">\(X\)</span> is <span class="math inline">\(n \times p\)</span> with <span class="math inline">\(\text{rank}(X) = k &lt; p\)</span>, and <span class="math inline">\(C\beta\)</span> is a set of <span class="math inline">\(m\)</span> linearly independent estimable functions (where <span class="math inline">\(m \le k\)</span>), the following results hold:</p>
+<ol type="1">
+<li><p><strong>Distribution of the Estimator</strong> </p>
+<p>The least-squares estimator <span class="math inline">\(C\hat{\beta}\)</span> follows a multivariate normal distribution:</p>
+<p><span class="math display">\[C\hat{\beta} \sim N_m\left[C\beta, \sigma^2 C(X^T X)^- C^T\right]\]</span></p></li>
+<li><p><strong>The F-Statistic</strong> </p>
+<p>The test statistic for <span class="math inline">\(H_0: C\beta = 0\)</span> is defined as:</p>
+<p><span class="math display">\[F = \frac{SSH / m}{SSE / (n - k)}\]</span></p>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(SSH = (C\hat{\beta})^T [C(X^T X)^- C^T]^{-1} C\hat{\beta}\)</span> is the Hypothesis Sum of Squares.</li>
+<li><span class="math inline">\(SSE = y^T [I - X(X^T X)^- X^T] y\)</span> is the Error Sum of Squares.</li>
+<li><span class="math inline">\(k\)</span> is the <strong>rank</strong> of the matrix <span class="math inline">\(X\)</span>, not the number of columns <span class="math inline">\(p\)</span>.</li>
+</ul></li>
+<li><p><strong>Sampling Distribution</strong> </p>
+<p>The statistic <span class="math inline">\(F\)</span> follows an F-distribution:</p>
+<p><span class="math display">\[F \sim F(m, n - k)\]</span></p>
+<p>Under the alternative hypothesis <span class="math inline">\(H_1: C\beta \neq 0\)</span>, the statistic follows a non-central F-distribution <span class="math inline">\(F(m, n - k, \lambda)\)</span>, with non-centrality parameter:</p>
+<p><span class="math display">\[\lambda = \frac{(C\beta)^T [C(X^T X)^- C^T]^{-1} C\beta}{2\sigma^2}\]</span></p></li>
+</ol>
+<p><strong>Summary of Degrees of Freedom</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Component</th>
+<th style="text-align: left;">Degrees of Freedom</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Numerator (Model/Hypothesis)</strong></td>
+<td style="text-align: left;"><span class="math inline">\(m\)</span> (Number of linearly independent estimable constraints)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Denominator (Error)</strong></td>
+<td style="text-align: left;"><span class="math inline">\(n - k\)</span> (Total observations minus <strong>rank</strong> of <span class="math inline">\(X\)</span>)</td>
+</tr>
+</tbody>
+</table>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

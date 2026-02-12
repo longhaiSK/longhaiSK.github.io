@@ -218,6 +218,7 @@ library(knitr) # For kable()
 group_means_true <- c(10, 20, 15)
 n_per_group <- 4
 groups <- factor(rep(1:3, each = n_per_group))
+
 # Adding some random noise to exact means for realism
 set.seed(123)
 y <- c(rnorm(n_per_group, group_means_true[1], 2),
@@ -226,15 +227,19 @@ y <- c(rnorm(n_per_group, group_means_true[1], 2),
 n <- length(y)
 
 # 2. Construct Non-full-rank Design Matrix X
+
 # j_N is the column of ones
 j_N <- rep(1, n)
+
 # Indicators for all 3 groups
 X_ind <- model.matrix(~ groups - 1) 
 colnames(X_ind) <- c("x_1", "x_2", "x_3")
+
 # Full non-full-rank matrix
 X <- cbind(Intercept = j_N, X_ind)
 
 # 3. Compute Projections
+
 # Projection onto j_N (Grand Mean) - Reduced Model
 P0 <- j_N %*% t(j_N) / as.numeric(t(j_N) %*% j_N)
 y_grand_mean <- P0 %*% y
@@ -275,8 +280,10 @@ results_table <- rbind(results_df, SS_row)
 rownames(results_table)[nrow(results_table)] <- "Sum of Squares"
 
 # 4. Compute F and p-value
+
 # SSH = || Diff ||^2
 SSH <- sum(y_diff^2)
+
 # SSE = || Residuals ||^2
 SSE <- sum(e^2)
 
@@ -310,6 +317,7 @@ anova_tab <- data.frame(
 )
 
 kable(anova_tab, digits = 4, caption = "ANOVA Table derived from Projections")
+
 ```
 
 
@@ -319,6 +327,7 @@ kable(anova_tab, digits = 4, caption = "ANOVA Table derived from Projections")
 * Note that the projection onto the group means ($\hat{y}_{groups}$) and the projection onto the overparameterized space ($\hat{y} = P_{[j_N, X]}y$) are identical (Columns 7 and 8). This confirms numerically that adding the linearly dependent intercept column does not change the column space of the model; $\text{Col}(X) = \text{Col}(\text{Indicators})$.
 
 * The Sum of Squares for the new column $\hat{y} - \hat{y}_0$ (Column 8) is exactly equal to the **Between Group Sum of Squares (SSH)** in the ANOVA table. This numerically demonstrates that $SSH = ||\hat{y} - \hat{y}_0||^2$.
+
 :::
 
 
@@ -344,6 +353,7 @@ n <- 12
 x1 <- rnorm(n, mean=5, sd=2)
 x2 <- rnorm(n, mean=10, sd=2)
 x3 <- rnorm(n, mean=0, sd=1)
+
 # Linear Dependency
 x4 <- 0.1*x1 + 0.5*x2 + x3 
 
@@ -363,6 +373,7 @@ P0 <- j_N %*% t(j_N) / as.numeric(t(j_N) %*% j_N)
 y_0 <- P0 %*% y
 
 # B. Projection onto Full Model Space [j_N, x1...x4] using ginv
+
 #    (Rank Deficient)
 XtX_full <- t(X_full) %*% X_full
 X_inv_full <- ginv(XtX_full)
@@ -370,8 +381,10 @@ beta_hat_full <- X_inv_full %*% t(X_full) %*% y
 y_hat_full <- X_full %*% beta_hat_full
 
 # C. Projection onto Subspace [j_N, x1, x2, x3]
+
 #    (Full Rank)
 XtX_sub <- t(X_sub) %*% X_sub
+
 # Standard inverse since this matrix is full rank
 X_inv_sub <- solve(XtX_sub) 
 beta_hat_sub <- X_inv_sub %*% t(X_sub) %*% y
@@ -445,79 +458,97 @@ if (knitr::is_html_output()) {
   anova_df$DF[1] <- paste0("\\textcolor{red}{", anova_df$DF[1], "}")
   kable(anova_df, digits = 4, escape = FALSE, caption = "ANOVA Table")
 }
+
 ```
 
 **Key Observation**
 
 Notice that the columns $\hat{y}_{sub}$ (projection onto $x_1, x_2, x_3$) and $\hat{y}_{full}$ (projection onto $x_1, \dots, x_4$) are identical. This confirms that adding the linearly dependent predictor $x_4$ does not change the column space of the design matrix or the fitted values, even though it makes individual coefficients non-unique.
+
 :::
 
+:::{#exm-lm-anova-combined}
 
-:::{#exm-lm-rank-deficient}
+### Rank-Deficient Model Fitting and ANOVA Analysis
 
-**Fitting Rank-Deficient Models with `lm()`**
+This example demonstrates the end-to-end process of fitting a model with linear dependencies using R's `lm()` function and generating a formatted ANOVA table. We explicitly handle the potential for fitting errors and highlight the reduced degrees of freedom resulting from the singularity.
 
-In R, the standard `lm()` function automatically detects singularities. It uses QR decomposition with pivoting to handle rank deficiency. If a column is found to be linearly dependent on previous columns, its coefficient is set to `NA`.
+1. **Data Generation and Model Fitting** \n
 
-We use the same dataset as before, where $x_4 = 0.1x_1 + 0.5x_2 + x_3$.
+   We first generate a dataset where $x_4$ is a perfect linear combination of $x_1, x_2$, and $x_3$. We then attempt to fit the full model using `lm()` within a `tryCatch` block to ensure robustness.
 
-```{r}
-#| echo: true
-#| label: lm-singularity-example
-#| message: false
-#| warning: false
+   ```{r}
+   #| echo: true
+   #| label: lm-anova-combined
+   #| message: false
+   #| warning: false
+   library(MASS)  # For ginv()
+   library(knitr) # For kable()
+   library(gt)    # For HTML tables
 
-# 1. Data Generation (Same as previous)
-set.seed(42)
-n <- 12
-x1 <- rnorm(n, mean=5, sd=2)
-x2 <- rnorm(n, mean=10, sd=2)
-x3 <- rnorm(n, mean=0, sd=1)
-# Linear Dependency
-x4 <- 0.1*x1 + 0.5*x2 + x3 
-# Generate y
-beta_true <- c(10, 2, -1, 3) 
-y <- beta_true[1] + beta_true[2]*x1 + beta_true[3]*x2 + beta_true[4]*x3 + rnorm(n, sd=1)
+   # 1. Generate Data with linear dependency: x4 = 0.1*x1 + 0.5*x2 + x3
+   set.seed(42)
+   n <- 12
+   x1 <- rnorm(n, mean=5, sd=2)
+   x2 <- rnorm(n, mean=10, sd=2)
+   x3 <- rnorm(n, mean=0, sd=1)
+   x4 <- 0.1*x1 + 0.5*x2 + x3 
+   y <- 10 + 2*x1 - 1*x2 + 3*x3 + rnorm(n, sd=1)
+   df <- data.frame(y=y, x1=x1, x2=x2, x3=x3, x4=x4)
 
-# Combine into data frame
-df <- data.frame(y=y, x1=x1, x2=x2, x3=x3, x4=x4)
+   # 2. Fit model using lm() with tryCatch
+   lm_fit <- tryCatch({
+     model <- lm(y ~ x1 + x2 + x3 + x4, data = df)
+     model
+   }, error = function(e) {
+     message("Error in fitting: ", e$message)
+     return(NULL)
+   })
 
-# 2. Fit model using lm() with tryCatch
-# Note: lm() usually just drops coefs, but we use tryCatch as requested
-lm_fit <- tryCatch({
-  model <- lm(y ~ x1 + x2 + x3 + x4, data = df)
-  print("Model fitted successfully (with potential NAs).")
-  model
-}, error = function(e) {
-  print(paste("Error in lm:", e$message))
-  return(NULL)
-})
+   # 3. Analyze Coefficients and ANOVA
+   # Note: lm() sets the coefficient of x4 to NA due to the singularity
+   print("Estimated Coefficients:")
+   print(coef(lm_fit))
 
-# 3. Examine Coefficients
-# Expecting one coefficient to be NA because of the singularity
-print(coef(lm_fit))
+   anova_results <- anova(lm_fit)
+   anova_df <- as.data.frame(anova_results)
+   anova_df$Term <- rownames(anova_results)
+   anova_df <- anova_df[, c("Term", "Df", "Sum Sq", "Mean Sq", "F value", "Pr(>F)")]
 
-# 4. Verify Fitted Values
-# Even though coefficients are not unique (NA appears), fitted values ARE unique
-y_hat_lm <- predict(lm_fit)
+   # 4. Combined Formatting and Output
+   if (knitr::is_html_output()) {
+     # HTML Output with gt highlighting
+     anova_df |>
+       gt() |>
+       fmt_number(columns = c("Sum Sq", "Mean Sq", "F value", "Pr(>F)"), decimals = 4) |>
+       sub_missing(columns = everything(), missing_text = "") |>
+       tab_style(
+         style = cell_text(color = "red", weight = "bold"),
+         locations = cells_body(columns = Df, rows = Term %in% c("x1", "x2", "x3")) 
+       ) |>
+       tab_header(title = "ANOVA Table")
+       
+   } else {
+     # LaTeX Output with color highlighting
+     anova_df$Df <- as.character(anova_df$Df)
+     # Identify rows for model components and color them
+     model_rows <- which(anova_df$Term %in% c("x1", "x2", "x3"))
+     anova_df$Df[model_rows] <- paste0("\\textcolor{red}{", anova_df$Df[model_rows], "}")
+     
+     kable(anova_df, digits = 4, escape = FALSE, 
+           caption = "Sequential ANOVA Table")
+   }
+   ```
 
-# Compare with previous ginv result (re-calculating locally for comparison)
-X <- model.matrix(lm_fit)
-library(MASS)
-beta_ginv <- ginv(t(X) %*% X) %*% t(X) %*% y
-y_hat_ginv <- X %*% beta_ginv
+2. **Interpretation of Results** \n
 
-# Check difference
-max_diff <- max(abs(y_hat_lm - y_hat_ginv))
-print(paste("Maximum difference between lm() and ginv() fitted values:", max_diff))
-```
+   The `lm()` function automatically identifies that $x_4$ is aliased with the other predictors and assigns it `NA`. Consequently, in the ANOVA table, the variation is partitioned among the first three predictors, and $x_4$ contributes no additional degrees of freedom or sum of squares. This demonstrates that for non-full rank models, inference is limited to the estimable part of the parameter space.
 
-**Observation**
-
-The `lm()` output shows `NA` for `x4` (or whichever variable is pivoted out last). This confirms that while the individual parameters are not identifiable (infinite solutions exist), the `lm()` function picks one specific solution (setting one coef to 0) to allow for prediction. The fitted values $\hat{y}$ are identical to those obtained via the generalized inverse.
 :::
 
 ## Inference for Estimable Parameters
+
+### Estimability
 
 ::: {#def-estimability}
 
@@ -546,6 +577,123 @@ In the model $y = X\beta + e$, the linear function $\lambda^T \beta$ is estimabl
 
 :::
 
+::: {.proof}
+We prove the equivalence of the conditions for estimability as follows:
+
+1. **Condition (1) $\iff$ Definition of Estimability** \n
+
+   By definition, $\lambda^T \beta$ is estimable if there exists a vector $a$ such that $E(a^T y) = \lambda^T \beta$ for all $\beta$. Since $E(a^T y) = a^T E(y) = a^T X \beta$, the requirement $a^T X \beta = \lambda^T \beta$ must hold for all $\beta \in \mathbb{R}^p$. This is true if and only if $a^T X = \lambda^T$, which means $\lambda$ is a linear combination of the rows of $X$.
+
+2. **Condition (1) $\iff$ Condition (4)** \n
+
+   Condition (1) states there exists $a$ such that $X^T a = \lambda$. This is the literal definition of $\lambda$ being in the column space of $X^T$, which is the row space of $X$, denoted $\text{Col}(X^T) = \text{Row}(X)$. Furthermore, a fundamental result in matrix algebra states that $\text{Col}(X^T) = \text{Col}(X^T X)$. Thus, $\lambda \in \text{Row}(X) \iff \lambda \in \text{Col}(X^T X)$.
+
+3. **Condition (4) $\iff$ Condition (2)** \n
+
+   If $\lambda \in \text{Col}(X^T X)$, then by the definition of column space, there must exist a vector $r$ such that $X^T X r = \lambda$. Taking the transpose gives $r^T X^T X = \lambda^T$, showing $\lambda^T$ is a linear combination of the rows of $X^T X$.
+
+4. **Condition (2) $\iff$ Condition (3)** \n
+
+   This follows from the properties of generalized inverses. A system $X^T X r = \lambda$ is consistent if and only if $X^T X (X^T X)^- \lambda = \lambda$ for any generalized inverse $(X^T X)^-$. If such an $r$ exists, then:
+   
+   $$
+   X^T X (X^T X)^- (X^T X r) = X^T X r = \lambda
+   $$
+   
+   using the defining property $AAA^- A = A$.
+
+:::
+
+### Example: Checking Estimability in One-Way ANOVA
+
+:::{#exm-estimability-comprehensive}
+
+### Checking Estimability in One-Way ANOVA
+
+We use the balanced one-way ANOVA effects model matrix $X$ ($a=3$ groups, $n=4$ observations per group) to verify different linear functions $\lambda^T \beta$. In this model, the parameter vector is $\beta = (\mu, \alpha_1, \alpha_2, \alpha_3)^T$.
+
+1. **Defining the Vectors and Explicit Matrix Form** \n
+
+   
+   First, we observe the explicit form of the $X^T X$ matrix. For a balanced one-way layout with $n=4$ per group, the matrix is as follows :
+
+   $$ 
+   X^T X = \begin{pmatrix} 12 & 4 & 4 & 4 \\ 4 & 4 & 0 & 0 \\ 4 & 0 & 4 & 0 \\ 4 & 0 & 0 & 4 \end{pmatrix} 
+   $$
+   
+   We examine the following functions of the parameters:
+
+   * $\lambda_1 = (1, 1, 0, 0)^T$: The cell mean for group 1 ($\mu + \alpha_1$).
+   * $\lambda_2 = (0, 1, 0, 0)^T$: The individual treatment effect $\alpha_1$.
+   * $\lambda_3 = (0, 1, -1, 0)^T$: The contrast between group 1 and group 2 ($\alpha_1 - \alpha_2$).
+   * $\lambda_4 = (1, 0, 0, 1)^T$: The cell mean for group 3 ($\mu + \alpha_3$).
+   * $\lambda_5 = (12, 4, 4, 4)^T$: This corresponds to $12\mu + 4\sum \alpha_i$, which is the first column of $X^TX$.
+
+2. **Numerical Consistency Check (Condition 3)** \n
+
+   A linear function $\lambda^T\beta$ is estimable if and only if $X^T X (X^T X)^- \lambda = \lambda$. We perform this check for all vectors using the Moore-Penrose generalized inverse.
+
+   ```{r}
+   #| echo: true
+   #| label: comprehensive-estimability-check
+   library(MASS)
+   library(knitr)
+
+   # Setup X'X for balanced one-way layout (n=4 per group) 
+   XtX <- matrix(c(
+     12,  4,  4,  4,
+      4,  4,  0,  0,
+      4,  0,  4,  0,
+      4,  0,  0,  4
+   ), nrow = 4, byrow = TRUE)
+   
+   XtX_inv <- ginv(XtX)
+
+   # Define lambda vectors
+   L1 <- c(1, 1, 0, 0)      # mu + alpha1 
+   L2 <- c(0, 1, 0, 0)      # alpha1      
+   L3 <- c(0, 1, -1, 0)     # alpha1-alpha2 
+   L4 <- c(1, 0, 0, 1)      # mu + alpha3 
+   L5 <- c(12, 4, 4, 4)     # 12mu + 4(alpha1 + alpha2 + alpha3)
+
+   # Compute (X'X)(X'X)^- * lambda for each
+   check_L1 <- XtX %*% XtX_inv %*% L1
+   check_L2 <- XtX %*% XtX_inv %*% L2
+   check_L3 <- XtX %*% XtX_inv %*% L3
+   check_L4 <- XtX %*% XtX_inv %*% L4
+   check_L5 <- XtX %*% XtX_inv %*% L5
+
+   # Combine results for display
+   final_comp <- data.frame(
+     Param = c("mu", "alpha1", "alpha2", "alpha3"),
+     L1_Target = L1, L1_Res = as.vector(check_L1),
+     L2_Target = L2, L2_Res = as.vector(check_L2),
+     L3_Target = L3, L3_Res = as.vector(check_L3),
+     L4_Target = L4, L4_Res = as.vector(check_L4),
+     L5_Target = L5, L5_Res = as.vector(check_L5)
+   )
+
+   kable(final_comp, digits = 3,
+         col.names = c("Param", "$\\lambda_1$", "$L_1$", 
+                       "$\\lambda_2$", "$L_2$", 
+                       "$\\lambda_3$", "$L_3$", 
+                       "$\\lambda_4$", "$L_4$", 
+                       "$\\lambda_5$", "$L_5$"),
+         caption = "Estimability Check for Multiple Parameter Functions")
+   ```
+
+3. **Summary of Results** \n
+
+   * **Estimable Functions**: $\lambda_1, \lambda_3, \lambda_4$, and $\lambda_5$ all satisfy the condition because their result columns ($L_i$) match their target columns ($\lambda_i$). These represent cell means, contrasts, and linear combinations of the rows of $X^TX$.
+   * **Non-Estimable Function**: $\lambda_2$ (individual $\alpha_1$) fails the condition as the target and result do not match.
+   * **The First Column ($\lambda_5$)**: This vector is estimable because it is explicitly the first row/column of $X^TX$. Since any linear combination of rows of $X^TX$ is estimable, $\lambda_5^T \beta = 12\mu + 4\alpha_1 + 4\alpha_2 + 4\alpha_3$ is estimable. Note that this is equal to $\sum_{i,j} E(y_{ij})$, the sum of all expected cell means.
+
+4. **Theoretical Conclusion** \n
+
+   In non-full-rank models, we cannot estimate individual parameters that are not uniquely identified by the data. However, linear functions that lie in the row space of $X$ (or the column space of $X^TX$)—such as cell means or treatment contrasts—are invariant to the choice of solution $\hat{\beta}$ and remain uniquely estimable.
+
+:::
+
 ::: {#thm-number-estimable-functions}
 
 #### Number of Estimable Functions
@@ -553,7 +701,43 @@ In the non-full-rank model $y = X\beta + e$, the number of linearly independent 
 
 :::
 
-**Properties of Estimators**
+### Properties of Estimators for Estimabile Parameters
+
+Let $\lambda^T \beta$ be an estimable function. Let $\hat{\beta}$ be any solution to the normal equations. Then the estimator $\lambda^T \hat{\beta}$ has the following properties:
+
+1.  **Unbiasedness**: $E(\lambda^T \hat{\beta}) = \lambda^T \beta$.
+2.  **Uniqueness**: $\lambda^T \hat{\beta}$ is invariant to the choice of $\hat{\beta}$ (to the choice of generalized inverse).
+
+::: {#thm-variance-covariance}
+
+#### Variance and Covariance
+
+1.  **Variance**: The variance of $\lambda^T \hat{\beta}$ is unique and is given by:
+
+    
+    $$
+    \text{Var}(\lambda^T \hat{\beta}) = \sigma^2 \lambda^T (X^T X)^- \lambda
+    $$
+    
+
+2.  **Covariance**: For two estimable functions $\lambda_1^T \beta$ and $\lambda_2^T \beta$:
+
+    
+    $$
+    \text{Cov}(\lambda_1^T \hat{\beta}, \lambda_2^T \hat{\beta}) = \sigma^2 \lambda_1^T (X^T X)^- \lambda_2
+    $$
+    
+
+:::
+
+::: {#thm-number-estimable-functions}
+
+#### Number of Estimable Functions
+In the non-full-rank model $y = X\beta + e$, the number of linearly independent estimable functions of $\beta$ is the rank of $X$.
+
+:::
+
+### Properties of Estimators for Estimabile Parameters
 
 Let $\lambda^T \beta$ be an estimable function. Let $\hat{\beta}$ be any solution to the normal equations. Then the estimator $\lambda^T \hat{\beta}$ has the following properties:
 
@@ -587,34 +771,60 @@ If $\lambda^T \beta$ is estimable in the spherical errors non-full rank linear m
 
 :::
 
+### Testable Hypotheses in Non-Full Rank Models
+
+In non-full rank models, we cannot test hypotheses about individual parameters that are not uniquely identified by the data. Instead, we must restrict our inference to **testable hypotheses**, which are formulated using estimable functions.
+
 ::: {#def-testable-hypothesis}
 
-#### Testable Hypothesis
-A hypothesis such as $H_0: \beta_1 = ... = \beta_q$ is said to be testable if there exists a set of linearly independent estimable functions such that $H_0$ is true if and only if these functions equal zero.
+#### Formal Description of a Testable Hypothesis
+A linear hypothesis $H_0: C\beta = 0$ is said to be **testable** if and only if every row of the $m \times p$ matrix $C$ is an estimable function of $\beta$. 
+
+This implies that there exists a matrix $A$ such that $C = AX$. Physically, this means $H_0$ can be expressed entirely in terms of the expected values of the observations.
 
 :::
 
-## Re-parametrization and Side Conditions
 
-**Re-parametrization**
 
-The idea is to transform from the vector of non-estimable parameters $\beta$ to a vector of linearly independent estimable functions of $\beta$: $\gamma = U\beta$.
-The new full-rank model is $y = Z\gamma + e$, where $Z\gamma = X\beta$.
+### The General Linear Hypothesis F-Test
 
-To find $Z$, we solve $Z U = X$. One solution is $Z = X U^T (U U^T)^{-1}$.
+If $y \sim N_n(X\beta, \sigma^2 I)$, where $X$ is $n \times p$ with $\text{rank}(X) = k < p$, and $C\beta$ is a set of $m$ linearly independent estimable functions (where $m \le k$), the following results hold:
 
-**Side Conditions**
+1.  **Distribution of the Estimator** \n
 
-::: {#thm-side-conditions}
+    The least-squares estimator $C\hat{\beta}$ follows a multivariate normal distribution:
+    
+    $$C\hat{\beta} \sim N_m\left[C\beta, \sigma^2 C(X^T X)^- C^T\right]$$ 
 
-#### Unique Solution with Side Conditions
-If $y = X\beta + e$ where $X$ is $n \times p$ of rank $k$, and if $T$ is a $(p-k) \times p$ matrix of rank $p-k$ such that $T\beta$ is a set of non-estimable functions, then there is a unique vector $\hat{\beta}$ that satisfies both $X^T X \hat{\beta} = X^T y$ and $T\hat{\beta} = 0$.
+2.  **The F-Statistic** \n
 
-:::
+    The test statistic for $H_0: C\beta = 0$ is defined as:
+    
+    $$F = \frac{SSH / m}{SSE / (n - k)}$$ 
+    
+    where:
 
-The solution is given by:
+    * $SSH = (C\hat{\beta})^T [C(X^T X)^- C^T]^{-1} C\hat{\beta}$ is the Hypothesis Sum of Squares.
+    * $SSE = y^T [I - X(X^T X)^- X^T] y$ is the Error Sum of Squares.
+    * $k$ is the **rank** of the matrix $X$, not the number of columns $p$.
 
-$$
-\hat{\beta} = (X^T X + T^T T)^{-1} X^T y
-$$
+3.  **Sampling Distribution** \n
+
+    The statistic $F$ follows an F-distribution:
+    
+    $$F \sim F(m, n - k)$$ 
+    
+    Under the alternative hypothesis $H_1: C\beta \neq 0$, the statistic follows a non-central F-distribution $F(m, n - k, \lambda)$, with non-centrality parameter:
+    
+    $$\lambda = \frac{(C\beta)^T [C(X^T X)^- C^T]^{-1} C\beta}{2\sigma^2}$$ 
+
+
+
+**Summary of Degrees of Freedom**
+
+| Component | Degrees of Freedom |
+| :--- | :--- |
+| **Numerator (Model/Hypothesis)** | $m$ (Number of linearly independent estimable constraints)  |
+| **Denominator (Error)** | $n - k$ (Total observations minus **rank** of $X$)  |
+
 
