@@ -59,7 +59,9 @@ Before stating the theorem, we define the following notations for the score and 
 :::
 
 
-## Example: Exponential Likelihood
+## Examples
+
+### Exponential Likelihood
 
 ::: {#exm-exponential-crlb}
 Let $X_1, \dots, X_n \overset{iid}{\sim} \operatorname{Exp}(\theta)$, where the density is $f(x|\theta) = \frac{1}{\theta} e^{-x/\theta}$. We use this setting to explore the theoretical connections provided by **Bartlett's Identities** and the **Cramér-Rao Lower Bound (CRLB)**.
@@ -122,45 +124,51 @@ Let $X_1, \dots, X_n \overset{iid}{\sim} \operatorname{Exp}(\theta)$, where the 
    **Conclusion:** Since $\text{Var}(T(\mathbf{X})) = \text{CRLB}$, the estimator $\bar{X}$ exhausts the information in the sample and is an **efficient estimator** for $\theta$.
 :::
 
----
-title: "Likelihood and Efficiency"
-format: html
----
+### Cauchy Likelihood (R Illustration)
 
-### R Illustration
+To illustrate the concepts visually, we use the **Cauchy distribution**, known for its heavy tails. We assume a known scale of 1 and estimate the location parameter $\theta$.
 
-We visualize the Log-Likelihoods (solid lines) and Score functions (dashed lines) for two different sample sizes ($n=10$ and $n=20$) using a true parameter $\theta^* = 5$.
+The probability density function is $f(x; \theta) = \frac{1}{\pi (1 + (x-\theta)^2)}$.
 
-* **Global Scaling:** The y-axis ranges are fixed across both plots to show how $n=20$ results in steeper curves (more information).
-* **MLE ($\hat{\theta}$):** The triangles on the x-axis mark the Maximum Likelihood Estimate (where $U(\theta)=0$).
-* **Score at True Parameter ($U(\theta^*)$):** The solid circles on the vertical dashed line mark the value of the Score function at the true parameter. Notice how these points fluctuate around the zero line (Bartlett's First Identity).
+The **Score Function** $U(\theta)$ is the derivative of the log-likelihood with respect to $\theta$:
+$$
+U(\theta; \mathbf{x}) = \sum_{i=1}^n \frac{2(x_i - \theta)}{1 + (x_i - \theta)^2}
+$$
+
+We visualize the Log-Likelihoods (dashed lines) and Score functions (solid lines) for two different sample sizes ($n=10$ and $n=20$) using a true parameter $\theta^* = 0$.
+
+* **Global Scaling:** The y-axis ranges are fixed across both plots. Note how the "hills" of the likelihood become sharper and the "slopes" of the score become steeper as $n$ increases.
+* **MLE ($\hat{\theta}$):** The triangles on the x-axis mark the Maximum Likelihood Estimate. Unlike the exponential case, the Cauchy MLE has no closed form and must be found numerically (where the Score crosses zero).
+* **Score at True Parameter ($U(\theta^*)$):** The solid circles on the vertical dashed line mark the value of the Score function at the true parameter.
 
 ```{r}
 #| fig-width: 10
 #| fig-height: 6
-
+#| fig-cap: Visualization of the Log-Likelihood, Score Function, MLE of Cauchy Models.
 # Parameters
-set.seed(102)
-theta_true <- 5  
-n_sizes <- c(10, 50)
-theta_grid <- seq(3, 8, length.out = 200) 
+set.seed(1)
+theta_true <- 2  # True location parameter
+n_sizes <- c(10, 100)
+# Grid centered around theta_true
+theta_grid <- seq(theta_true-2, theta_true+2, length.out = 300) 
 
-# Define functions
+# Define functions for Cauchy (scale=1)
+# Log Likelihood: sum( log( 1 / (pi * (1 + (x-theta)^2)) ) )
 log_lik_fn <- function(theta, data) {
-  n <- length(data)
-  -n * log(theta) - sum(data) / theta
+  sum(dt(data - theta, df = 1, log = TRUE))
 }
 
+# Score Function: Gradient of log-likelihood
+# d/d_theta [ -log(1 + (x-theta)^2) ] = 2(x-theta) / (1 + (x-theta)^2)
 score_fn <- function(theta, data) {
-  n <- length(data)
-  -n / theta + sum(data) / theta^2
+  sum( (2 * (data - theta)) / (1 + (data - theta)^2) )
 }
 
 # 1. Generate All Data First
 data_list <- list()
 for(n in n_sizes) {
-  # Generate 3 datasets per sample size
-  data_list[[paste0("n", n)]] <- replicate(3, rexp(n, rate = 1/theta_true), simplify = FALSE)
+  # Generate 3 datasets per sample size (rcauchy)
+  data_list[[paste0("n", n)]] <- replicate(3, rcauchy(n, location = theta_true), simplify = FALSE)
 }
 
 # 2. Calculate Global Ranges for Consistent Axes
@@ -188,15 +196,16 @@ for (n in n_sizes) {
   datasets <- data_list[[paste0("n", n)]]
   
   # --- Plot A: Log-Likelihood (Left Axis) ---
+  # NOW DASHED (lty = 2)
   plot(theta_grid, sapply(theta_grid, log_lik_fn, data=datasets[[1]]), 
-       type = "l", col = cols[1], lwd = 2, lty = 1,
+       type = "l", col = cols[1], lwd = 1.5, lty = 2,
        ylim = global_ylim_lik,  # Global Range
        ylab = "Log-Likelihood", xlab = expression(theta),
        main = paste0("Sample Size n = ", n))
   
   for(i in 2:3){
     lines(theta_grid, sapply(theta_grid, log_lik_fn, data=datasets[[i]]), 
-          col = cols[i], lwd = 2, lty = 1)
+          col = cols[i], lwd = 1.5, lty = 2)
   }
   
   # Mark True Theta Line
@@ -205,14 +214,15 @@ for (n in n_sizes) {
   # --- Plot B: Score Function (Right Axis) ---
   par(new = TRUE)
   
+  # NOW SOLID (lty = 1)
   plot(theta_grid, sapply(theta_grid, score_fn, data=datasets[[1]]), 
-       type = "l", col = cols[1], lwd = 1.5, lty = 2, 
+       type = "l", col = cols[1], lwd = 2, lty = 1, 
        axes = FALSE, xlab = "", ylab = "", 
        ylim = global_ylim_score) # Global Range
   
   for(i in 2:3){
     lines(theta_grid, sapply(theta_grid, score_fn, data=datasets[[i]]), 
-          col = cols[i], lwd = 1.5, lty = 2)
+          col = cols[i], lwd = 2, lty = 1)
   }
   
   # Right Axis
@@ -229,16 +239,20 @@ for (n in n_sizes) {
     points(theta_true, sc_val, pch = 19, col = cols[i], cex = 1.5)
     
     # 2. Mark MLE on x-axis (Root finding)
-    mle <- mean(datasets[[i]])
+    # Numerical optimization needed for Cauchy MLE
+    mle_res <- optimize(f = function(th) log_lik_fn(th, datasets[[i]]), 
+                        interval = c(-10, 10), maximum = TRUE)
+    mle <- mle_res$maximum
+    
     # Place marker at bottom of plot
     points(mle, par("usr")[3], pch = 17, col = cols[i], cex = 2, xpd = TRUE)
   }
   
   # Legend (Only on first plot)
-  if (n == n_sizes[1]) { 
+  if (n == n_sizes[2]) { 
      legend("topright", 
-            legend = c("Log-Lik (Solid)", "Score (Dashed)", "Score at True Theta", "MLE (x-axis)"),
-            lty = c(1, 2, NA, NA), 
+            legend = c("Log-Lik (Dashed)", "Score (Solid)", "Score at True Theta", "MLE (x-axis)"),
+            lty = c(2, 1, NA, NA), 
             pch = c(NA, NA, 19, 17),
             col = "black", bg="white", cex=0.7)
   }
