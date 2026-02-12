@@ -1,0 +1,240 @@
+---
+engine: knitr
+format: 
+  html: default
+  pdf: default
+---
+
+# Non-full-rank Models
+
+## Estimation and F-test in Non-full-rank Models
+
+**The One-way Model**
+
+[cite_start]Consider the balanced one-way layout model for $y_{ij}$, a response on the $j^{th}$ unit in the $i^{th}$ treatment group[cite: 12]. [cite_start]Suppose that there are $a$ treatments and $n$ units in the $i^{th}$ treatment group[cite: 13].
+
+The cell-means model for this situation is:
+
+$$
+y_{ij} = \mu_i + e_{ij}, \quad i=1,...,a, \quad j=1,...,n
+$$
+
+where the $e_{ij}$ are i.i.d. [cite_start]$N(0, \sigma^2)$[cite: 14, 15, 18].
+
+An alternative, but equivalent, linear model is the effects model for the one-way layout:
+
+$$
+y_{ij} = \mu + \alpha_i + e_{ij}, \quad i=1,...,a, \quad j=1,...,n
+$$
+
+[cite_start]with the same assumptions on the errors[cite: 19, 20, 22].
+
+The cell means model can be written in vector notation as:
+
+$$
+y = \mu_1 x_1 + \mu_2 x_2 + \dots + \mu_a x_a + e, \quad e \sim N(0, \sigma^2 I)
+$$
+
+and the effects model can be written as:
+
+$$
+y = \mu j_N + \alpha_1 x_1 + \alpha_2 x_2 + \dots + \alpha_a x_a + e, \quad e \sim N(0, \sigma^2 I)
+$$
+
+[cite_start]where $x_i$ is an indicator for treatment $i$, and $N=an$ is the total sample size[cite: 24, 26, 29, 30].
+
+1.  [cite_start]That is, the effects model has the same model matrix as the cell-means model, but with one extra column, a column of ones, in the first position[cite: 31].
+2.  Notice that $\sum_i x_i = j_N$. [cite_start]Therefore, the columns of the model matrix for the effects model are linearly dependent[cite: 32].
+
+[cite_start]Let $X_1$ denote the model matrix in the cell-means model, and $X_2 = (j_N, X_1)$ denote the model matrix in the effects model[cite: 33]. [cite_start]Note that $\text{Col}(X_1) = \text{Col}(X_2)$[cite: 34].
+
+::: {#def-equivalent-models}
+### Equivalent Linear Models
+[cite_start]In general, two linear models $y = X_1 \beta_1 + e_1$ and $y = X_2 \beta_2 + e_2$ with the same assumptions on $e_1$ and $e_2$ are equivalent linear models if $\text{Col}(X_1) = \text{Col}(X_2)$[cite: 35].
+:::
+
+### Interpretation of Parameters and Constraints
+
+[cite_start]Subject to the constraint $\sum_i \alpha_i = 0$, the parameters of the effects model have the following interpretations[cite: 62]:
+
+1.  [cite_start]$\mu$: grand mean response across all treatments[cite: 63].
+2.  [cite_start]$\alpha_i$: deviation from the grand mean placing $\mu_i$ (the $i^{th}$ treatment mean) up or down from the grand mean; i.e., the effect of the $i^{th}$ treatment[cite: 64, 65].
+
+Without the constraint, $\mu$ is not constrained to fall in the center of the $\mu_i$. [cite_start]It is just an arbitrary baseline value[cite: 66, 67]. [cite_start]Adding the constraint $\sum_i \alpha_i = 0$ essentially has the effect of reparameterizing from the overparameterized (non-full rank) effects model to a just-parameterized (full rank) model that is equivalent to the cell means model[cite: 68].
+
+For example, consider the one-way effects model with $a=3$ and $n=2$. [cite_start]Then $\sum_{i=1}^a \alpha_i = 0$ implies $\alpha_3 = -(\alpha_1 + \alpha_2)$[cite: 69]. The model becomes:
+
+$$
+y = \mu j_N + \alpha_1 x_1 + \alpha_2 x_2 + (-\alpha_1 - \alpha_2)x_3 + e
+$$
+
+$$
+= \mu j_N + \alpha_1 (x_1 - x_3) + \alpha_2 (x_2 - x_3) + e
+$$
+
+[cite_start]which has the same model space as the cell-means model[cite: 73, 75].
+
+### Approaches to Non-Full Rank Models
+
+[cite_start]When faced with a non-full rank model like the one-way effects model, we have three ways to proceed[cite: 103]:
+
+1.  **Reparameterize to a full rank model**
+    [cite_start]E.g., switch from the effects model to the cell-means model[cite: 104, 105].
+
+2.  **Add constraints to the model parameters**
+    Remove the overparameterization by adding constraints (side-conditions), such as $\sum_{i=1}^a \alpha_i = 0$. [cite_start]This essentially accomplishes a reparameterization to a full rank model[cite: 106, 107, 109].
+
+3.  **Analyze the model as a non-full rank model**
+    Limit estimation and inference to those functions of the parameters that can be uniquely estimated. [cite_start]Such functions are called **estimable**[cite: 110, 111].
+
+### Least Squares Estimation
+
+[cite_start]Even if $X$ is not of full rank, the least-squares criterion is still reasonable and leads to the normal equations[cite: 123]:
+
+$$
+X^T X \hat{\beta} = X^T y
+$$
+
+::: {#thm-consistency-normal-equations}
+### Consistency of Normal Equations
+[cite_start]For $X$ an $n \times p$ matrix of rank $k < p \le n$, the normal equations $X^T X \hat{\beta} = X^T y$ form a consistent system of equations because $\text{Col}(X^T X) = \text{Col}(X^T)$[cite: 125, 126].
+:::
+
+Since the system is consistent, it has a (non-unique) solution given by:
+
+$$
+\hat{\beta} = (X^T X)^- X^T y
+$$
+
+[cite_start]where $(X^T X)^-$ is some (any) generalized inverse of $X^T X$[cite: 128, 129].
+
+::: {#thm-projection-uniqueness}
+### Uniqueness of Projection
+[cite_start]$\hat{\beta} = (X^T X)^- X^T y$ is a solution to $(X^T X)\beta = X^T y$[cite: 145, 148].
+[cite_start]Then $\hat{y} = X\hat{\beta} = X(X^T X)^- X^T y$ is the projection of $y$ onto $\text{Col}(X)$[cite: 151, 152].
+[cite_start]Since the projection onto a subspace is unique, $\hat{y}$ is unique regardless of the choice of generalized inverse[cite: 161, 163].
+:::
+
+### Distribution of $\hat{\beta}$ and $s^2$
+
+[cite_start]In the model $y = X\beta + e$, where $E(e)=0$, $\text{Var}(e) = \sigma^2 I$, and $X$ is $n \times p$ of rank $k \le p \le n$, we have the following properties[cite: 196]:
+
+1.  [cite_start]**Unbiasedness**: $E(s^2) = \sigma^2$[cite: 198].
+2.  [cite_start]**Uniqueness**: $s^2$ is invariant to the choice of $\hat{\beta}$ (i.e., to the choice of $(X^T X)^-$)[cite: 198].
+
+$$
+s^2 = \frac{SSE}{n-k} = \frac{||y - X\hat{\beta}||^2}{n-k}
+$$
+
+[cite_start]where $k = \text{rank}(X)$[cite: 200, 202].
+
+[cite_start]In the normal-errors model, distributions can be obtained[cite: 206].
+
+::: {#thm-distributions-non-full-rank}
+### Distributions in Non-Full Rank Models
+In the model $y \sim N(X\beta, \sigma^2 I)$:
+1.  For any given choice of $(X^T X)^-$:
+    
+    $$
+    \hat{\beta} \sim N_p [(X^T X)^- X^T X \beta, \sigma^2 (X^T X)^- X^T X \{(X^T X)^-\}^T]
+    $$
+
+2.  [cite_start]$(n-k)s^2 / \sigma^2 \sim \chi^2(n-k)$ and $SSE/\sigma^2 \sim \chi^2(n-k)$[cite: 211].
+3.  [cite_start]For any given choice of $(X^T X)^-$, $\hat{\beta}$ and $s^2$ are independent[cite: 212].
+:::
+
+### Hypothesis Testing and Nested Models
+
+Suppose $y \sim N_n(X\beta, \sigma^2 I)$ where $X$ is a matrix with rank $k+1$. [cite_start]Let $X = [X_1, X_2]$ where $\text{rank}(X) = k+1$ and assume we are testing a reduced model involving $X_1$[cite: 216].
+
+Let:
+* $\hat{y} = P_{\text{Col}(X)} y$ (Full Model Projection)
+* $\hat{y}_0 = P_{\text{Col}(X_1)} y$ (Reduced Model Projection)
+* $\mu_0 = P_{\text{Col}(X_1)} (X\beta)$
+
+::: {#thm-partitioning-chi-square}
+### Partitioning of Sum of Squares
+1.  Full Model Residual Sum of Squares:
+    
+    $$
+    \frac{1}{\sigma^2} ||y - \hat{y}||^2 = \frac{1}{\sigma^2} y^T (I - P_{\text{Col}(X)}) y \sim \chi^2(n - k - 1)
+    $$
+
+2.  Difference in Sum of Squares (Hypothesis):
+    
+    $$
+    \frac{1}{\sigma^2} ||\hat{y} - \hat{y}_0||^2 = \frac{1}{\sigma^2} y^T (P_{\text{Col}(X)} - P_{\text{Col}(X_1)}) y \sim \chi^2(h, \lambda_1)
+    $$
+    
+    where $h$ is the difference in rank (degrees of freedom) and the non-centrality parameter is:
+    
+    $$
+    \lambda_1 = \frac{1}{2\sigma^2} ||(P_{\text{Col}(X)} - P_{\text{Col}(X_1)}) \mu||^2 = \frac{1}{2\sigma^2} ||\mu - \mu_0||^2
+    $$
+
+3.  [cite_start]Independence: The two quadratic forms above are independent[cite: 221].
+:::
+
+::: {#thm-f-test-statistic}
+### F-Statistic for Nested Models
+Under the conditions of the previous theorem:
+
+$$
+F = \frac{||\hat{y} - \hat{y}_0||^2 / h}{s^2} = \frac{y^T (P_{\text{Col}(X)} - P_{\text{Col}(X_1)}) y / h}{y^T (I - P_{\text{Col}(X)}) y / (n - k - 1)}
+$$
+
+$$
+\sim \begin{cases} F(h, n - k - 1), & \text{under } H_0 \\ F(h, n - k - 1, \lambda_1), & \text{under } H_1 \end{cases}
+$$
+
+[cite_start]where $\lambda_1$ is as given in the previous theorem[cite: 222, 223].
+:::
+
+The geometric interpretation corresponds to testing if the mean vector $\mu$ lies in a subspace $V_0 = \text{Col}(X_1)$. [cite_start]The sum of squares for the hypothesis is the projection onto the difference space $\text{Col}(Z) = \text{Col}(X_1)^\perp \cap \text{Col}(X)$[cite: 232].
+
+```{tikz}
+%| label: fig-nested-models-geometry
+%| fig-cap: "Geometric Interpretation of the Nested Models Test"
+%| echo: false
+%| fig-align: "center"
+%| out-extra: 'style="width: 80% !important;"'
+%| engine.opts:
+%|   extra.preamble: "\\usepackage{amssymb} \\usepackage{amsmath} \\usepackage{xcolor}"
+
+\begin{tikzpicture}[font=\sffamily, scale=1.2]
+  % Define colors
+  \definecolor{fillcolor}{RGB}{255, 204, 51} % Yellowish-orange (for Col(Z))
+  \definecolor{linecolor}{RGB}{70, 130, 200} % Light Blue (for lines and text)
+  \definecolor{textcolor}{RGB}{230, 80, 50}  % Red/Orange (for Col(Z) text)
+  \definecolor{v0color}{RGB}{255, 255, 255}  % White for V0 hole
+
+  % 1. Outer Universe Circle (R^n)
+  \draw[linecolor, thick] (0,0) circle (4.0cm);
+  \node[linecolor] at (3.5, -3.5) {\Large $\mathbb{R}^n$};
+
+  % 2. The Full Model Space Col(X) - Large circle
+  % Fill with yellow to represent the difference space Col(Z)
+  \fill[fillcolor] (0,0) circle (3.0cm);
+  \draw[linecolor, thick] (0,0) circle (3.0cm);
+
+  % 3. The Reduced Model Space V0 - Inner circle
+  % Fill with white
+  \fill[v0color] (0,0) circle (1.2cm);
+  \draw[linecolor, thick] (0,0) circle (1.2cm);
+
+  % 4. Inner Label (H0) inside V0
+  \node[linecolor, align=center] at (0, 0) {\large $H_0:$\\[0.2em] \Large $\mu \in V_0$};
+
+  % 5. Label for Col(Z) INSIDE the yellow region
+  \node[textcolor, align=center] at (0, 2.1) {\large $\text{Col}(Z) = V_0^\perp \cap \text{Col}(X)$};
+
+  % 6. Label for V0 definition
+  \node[linecolor] (v0_label) at (0, -2.0) {\large $V_0 = \text{Col}(X_1)$};
+  \draw[->, linecolor, thick] (v0_label.north) -- (0, -1.25);
+  
+  % 7. Label for Col(X)
+  \node[linecolor] (cx_label) at (3.8, 0) {\Large $\text{Col}(X)$};
+  \draw[->, linecolor, thick] (cx_label.west) -- (3.05, 0);
+
+\end{tikzpicture}
+```

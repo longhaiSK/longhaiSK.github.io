@@ -73,6 +73,35 @@ ul.task-list li input[type="checkbox"] {
 <script src="resources/num_eq.js"></script>
 <script src="resources/merge-toc.js"></script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -172,7 +201,20 @@ ul.task-list li input[type="checkbox"] {
 </li>
     </ul>
     </div>
-    
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#estimation-and-f-test-in-non-full-rank-models" id="toc-estimation-and-f-test-in-non-full-rank-models" class="nav-link active" data-scroll-target="#estimation-and-f-test-in-non-full-rank-models"><span class="header-section-number">9.1</span> Estimation and F-test in Non-full-rank Models</a>
+  <ul>
+  <li><a href="#interpretation-of-parameters-and-constraints" id="toc-interpretation-of-parameters-and-constraints" class="nav-link" data-scroll-target="#interpretation-of-parameters-and-constraints"><span class="header-section-number">9.1.1</span> Interpretation of Parameters and Constraints</a></li>
+  <li><a href="#approaches-to-non-full-rank-models" id="toc-approaches-to-non-full-rank-models" class="nav-link" data-scroll-target="#approaches-to-non-full-rank-models"><span class="header-section-number">9.1.2</span> Approaches to Non-Full Rank Models</a></li>
+  <li><a href="#least-squares-estimation" id="toc-least-squares-estimation" class="nav-link" data-scroll-target="#least-squares-estimation"><span class="header-section-number">9.1.3</span> Least Squares Estimation</a></li>
+  <li><a href="#distribution-of-hatbeta-and-s2" id="toc-distribution-of-hatbeta-and-s2" class="nav-link" data-scroll-target="#distribution-of-hatbeta-and-s2"><span class="header-section-number">9.1.4</span> Distribution of <span class="math inline">\(\hat{\beta}\)</span> and <span class="math inline">\(s^2\)</span></a></li>
+  <li><a href="#hypothesis-testing-and-nested-models" id="toc-hypothesis-testing-and-nested-models" class="nav-link" data-scroll-target="#hypothesis-testing-and-nested-models"><span class="header-section-number">9.1.5</span> Hypothesis Testing and Nested Models</a></li>
+  </ul></li>
+  </ul>
+</nav>
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
@@ -200,8 +242,164 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="estimation-and-f-test-in-non-full-rank-models" class="level2" data-number="9.1">
+<h2 data-number="9.1" class="anchored" data-anchor-id="estimation-and-f-test-in-non-full-rank-models"><span class="header-section-number">9.1</span> Estimation and F-test in Non-full-rank Models</h2>
+<p><strong>The One-way Model</strong></p>
+<p>Consider the balanced one-way layout model for <span class="math inline">\(y_{ij}\)</span>, a response on the <span class="math inline">\(j^{th}\)</span> unit in the <span class="math inline">\(i^{th}\)</span> treatment group. Suppose that there are <span class="math inline">\(a\)</span> treatments and <span class="math inline">\(n\)</span> units in the <span class="math inline">\(i^{th}\)</span> treatment group.</p>
+<p>The cell-means model for this situation is:</p>
+<p><span class="math display">\[
+y_{ij} = \mu_i + e_{ij}, \quad i=1,...,a, \quad j=1,...,n
+\]</span></p>
+<p>where the <span class="math inline">\(e_{ij}\)</span> are i.i.d. <span class="math inline">\(N(0, \sigma^2)\)</span>.</p>
+<p>An alternative, but equivalent, linear model is the effects model for the one-way layout:</p>
+<p><span class="math display">\[
+y_{ij} = \mu + \alpha_i + e_{ij}, \quad i=1,...,a, \quad j=1,...,n
+\]</span></p>
+<p>with the same assumptions on the errors.</p>
+<p>The cell means model can be written in vector notation as:</p>
+<p><span class="math display">\[
+y = \mu_1 x_1 + \mu_2 x_2 + \dots + \mu_a x_a + e, \quad e \sim N(0, \sigma^2 I)
+\]</span></p>
+<p>and the effects model can be written as:</p>
+<p><span class="math display">\[
+y = \mu j_N + \alpha_1 x_1 + \alpha_2 x_2 + \dots + \alpha_a x_a + e, \quad e \sim N(0, \sigma^2 I)
+\]</span></p>
+<p>where <span class="math inline">\(x_i\)</span> is an indicator for treatment <span class="math inline">\(i\)</span>, and <span class="math inline">\(N=an\)</span> is the total sample size.</p>
+<ol type="1">
+<li>That is, the effects model has the same model matrix as the cell-means model, but with one extra column, a column of ones, in the first position.</li>
+<li>Notice that <span class="math inline">\(\sum_i x_i = j_N\)</span>. Therefore, the columns of the model matrix for the effects model are linearly dependent.</li>
+</ol>
+<p>Let <span class="math inline">\(X_1\)</span> denote the model matrix in the cell-means model, and <span class="math inline">\(X_2 = (j_N, X_1)\)</span> denote the model matrix in the effects model. Note that <span class="math inline">\(\text{Col}(X_1) = \text{Col}(X_2)\)</span>.</p>
+<div id="def-equivalent-models" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 9.1 (Equivalent Linear Models)</strong></span> In general, two linear models <span class="math inline">\(y = X_1 \beta_1 + e_1\)</span> and <span class="math inline">\(y = X_2 \beta_2 + e_2\)</span> with the same assumptions on <span class="math inline">\(e_1\)</span> and <span class="math inline">\(e_2\)</span> are equivalent linear models if <span class="math inline">\(\text{Col}(X_1) = \text{Col}(X_2)\)</span>.</p>
+</div>
+<section id="interpretation-of-parameters-and-constraints" class="level3" data-number="9.1.1">
+<h3 data-number="9.1.1" class="anchored" data-anchor-id="interpretation-of-parameters-and-constraints"><span class="header-section-number">9.1.1</span> Interpretation of Parameters and Constraints</h3>
+<p>Subject to the constraint <span class="math inline">\(\sum_i \alpha_i = 0\)</span>, the parameters of the effects model have the following interpretations:</p>
+<ol type="1">
+<li><span class="math inline">\(\mu\)</span>: grand mean response across all treatments.</li>
+<li><span class="math inline">\(\alpha_i\)</span>: deviation from the grand mean placing <span class="math inline">\(\mu_i\)</span> (the <span class="math inline">\(i^{th}\)</span> treatment mean) up or down from the grand mean; i.e., the effect of the <span class="math inline">\(i^{th}\)</span> treatment.</li>
+</ol>
+<p>Without the constraint, <span class="math inline">\(\mu\)</span> is not constrained to fall in the center of the <span class="math inline">\(\mu_i\)</span>. It is just an arbitrary baseline value. Adding the constraint <span class="math inline">\(\sum_i \alpha_i = 0\)</span> essentially has the effect of reparameterizing from the overparameterized (non-full rank) effects model to a just-parameterized (full rank) model that is equivalent to the cell means model.</p>
+<p>For example, consider the one-way effects model with <span class="math inline">\(a=3\)</span> and <span class="math inline">\(n=2\)</span>. Then <span class="math inline">\(\sum_{i=1}^a \alpha_i = 0\)</span> implies <span class="math inline">\(\alpha_3 = -(\alpha_1 + \alpha_2)\)</span>. The model becomes:</p>
+<p><span class="math display">\[
+y = \mu j_N + \alpha_1 x_1 + \alpha_2 x_2 + (-\alpha_1 - \alpha_2)x_3 + e
+\]</span></p>
+<p><span class="math display">\[
+= \mu j_N + \alpha_1 (x_1 - x_3) + \alpha_2 (x_2 - x_3) + e
+\]</span></p>
+<p>which has the same model space as the cell-means model.</p>
+</section>
+<section id="approaches-to-non-full-rank-models" class="level3" data-number="9.1.2">
+<h3 data-number="9.1.2" class="anchored" data-anchor-id="approaches-to-non-full-rank-models"><span class="header-section-number">9.1.2</span> Approaches to Non-Full Rank Models</h3>
+<p>When faced with a non-full rank model like the one-way effects model, we have three ways to proceed:</p>
+<ol type="1">
+<li><p><strong>Reparameterize to a full rank model</strong></p>
+<p>E.g., switch from the effects model to the cell-means model.</p></li>
+<li><p><strong>Add constraints to the model parameters</strong></p>
+<p>Remove the overparameterization by adding constraints (side-conditions), such as <span class="math inline">\(\sum_{i=1}^a \alpha_i = 0\)</span>. This essentially accomplishes a reparameterization to a full rank model.</p></li>
+<li><p><strong>Analyze the model as a non-full rank model</strong></p>
+<p>Limit estimation and inference to those functions of the parameters that can be uniquely estimated. Such functions are called <strong>estimable</strong>.</p></li>
+</ol>
+</section>
+<section id="least-squares-estimation" class="level3" data-number="9.1.3">
+<h3 data-number="9.1.3" class="anchored" data-anchor-id="least-squares-estimation"><span class="header-section-number">9.1.3</span> Least Squares Estimation</h3>
+<p>Even if <span class="math inline">\(X\)</span> is not of full rank, the least-squares criterion is still reasonable and leads to the normal equations:</p>
+<p><span class="math display">\[
+X^T X \hat{\beta} = X^T y
+\]</span></p>
+<div id="thm-consistency-normal-equations" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 9.1 (Consistency of Normal Equations)</strong></span> For <span class="math inline">\(X\)</span> an <span class="math inline">\(n \times p\)</span> matrix of rank <span class="math inline">\(k &lt; p \le n\)</span>, the normal equations <span class="math inline">\(X^T X \hat{\beta} = X^T y\)</span> form a consistent system of equations because <span class="math inline">\(\text{Col}(X^T X) = \text{Col}(X^T)\)</span>.</p>
+</div>
+<p>Since the system is consistent, it has a (non-unique) solution given by:</p>
+<p><span class="math display">\[
+\hat{\beta} = (X^T X)^- X^T y
+\]</span></p>
+<p>where <span class="math inline">\((X^T X)^-\)</span> is some (any) generalized inverse of <span class="math inline">\(X^T X\)</span>.</p>
+<div id="thm-projection-uniqueness" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 9.2 (Uniqueness of Projection)</strong></span> <span class="math inline">\(\hat{\beta} = (X^T X)^- X^T y\)</span> is a solution to <span class="math inline">\((X^T X)\beta = X^T y\)</span>. Then <span class="math inline">\(\hat{y} = X\hat{\beta} = X(X^T X)^- X^T y\)</span> is the projection of <span class="math inline">\(y\)</span> onto <span class="math inline">\(\text{Col}(X)\)</span>. Since the projection onto a subspace is unique, <span class="math inline">\(\hat{y}\)</span> is unique regardless of the choice of generalized inverse.</p>
+</div>
+</section>
+<section id="distribution-of-hatbeta-and-s2" class="level3" data-number="9.1.4">
+<h3 data-number="9.1.4" class="anchored" data-anchor-id="distribution-of-hatbeta-and-s2"><span class="header-section-number">9.1.4</span> Distribution of <span class="math inline">\(\hat{\beta}\)</span> and <span class="math inline">\(s^2\)</span></h3>
+<p>In the model <span class="math inline">\(y = X\beta + e\)</span>, where <span class="math inline">\(E(e)=0\)</span>, <span class="math inline">\(\text{Var}(e) = \sigma^2 I\)</span>, and <span class="math inline">\(X\)</span> is <span class="math inline">\(n \times p\)</span> of rank <span class="math inline">\(k \le p \le n\)</span>, we have the following properties:</p>
+<ol type="1">
+<li><strong>Unbiasedness</strong>: <span class="math inline">\(E(s^2) = \sigma^2\)</span>.</li>
+<li><strong>Uniqueness</strong>: <span class="math inline">\(s^2\)</span> is invariant to the choice of <span class="math inline">\(\hat{\beta}\)</span> (i.e., to the choice of <span class="math inline">\((X^T X)^-\)</span>).</li>
+</ol>
+<p><span class="math display">\[
+s^2 = \frac{SSE}{n-k} = \frac{||y - X\hat{\beta}||^2}{n-k}
+\]</span></p>
+<p>where <span class="math inline">\(k = \text{rank}(X)\)</span>.</p>
+<p>In the normal-errors model, distributions can be obtained.</p>
+<div id="thm-distributions-non-full-rank" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 9.3 (Distributions in Non-Full Rank Models)</strong></span> In the model <span class="math inline">\(y \sim N(X\beta, \sigma^2 I)\)</span>:</p>
+<ol type="1">
+<li><p>For any given choice of <span class="math inline">\((X^T X)^-\)</span>:</p>
+<p><span class="math display">\[
+\hat{\beta} \sim N_p [(X^T X)^- X^T X \beta, \sigma^2 (X^T X)^- X^T X \{(X^T X)^-\}^T]
+\]</span></p></li>
+<li><p><span class="math inline">\((n-k)s^2 / \sigma^2 \sim \chi^2(n-k)\)</span> and <span class="math inline">\(SSE/\sigma^2 \sim \chi^2(n-k)\)</span>.</p></li>
+<li><p>For any given choice of <span class="math inline">\((X^T X)^-\)</span>, <span class="math inline">\(\hat{\beta}\)</span> and <span class="math inline">\(s^2\)</span> are independent.</p></li>
+</ol>
+</div>
+</section>
+<section id="hypothesis-testing-and-nested-models" class="level3" data-number="9.1.5">
+<h3 data-number="9.1.5" class="anchored" data-anchor-id="hypothesis-testing-and-nested-models"><span class="header-section-number">9.1.5</span> Hypothesis Testing and Nested Models</h3>
+<p>Suppose <span class="math inline">\(y \sim N_n(X\beta, \sigma^2 I)\)</span> where <span class="math inline">\(X\)</span> is a matrix with rank <span class="math inline">\(k+1\)</span>. Let <span class="math inline">\(X = [X_1, X_2]\)</span> where <span class="math inline">\(\text{rank}(X) = k+1\)</span> and assume we are testing a reduced model involving <span class="math inline">\(X_1\)</span>.</p>
+<p>Let:</p>
+<ul>
+<li><span class="math inline">\(\hat{y} = P_{\text{Col}(X)} y\)</span> (Full Model Projection)</li>
+<li><span class="math inline">\(\hat{y}_0 = P_{\text{Col}(X_1)} y\)</span> (Reduced Model Projection)</li>
+<li><span class="math inline">\(\mu_0 = P_{\text{Col}(X_1)} (X\beta)\)</span></li>
+</ul>
+<div id="thm-partitioning-chi-square" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 9.4 (Partitioning of Sum of Squares)</strong></span> &nbsp;</p>
+<ol type="1">
+<li><p>Full Model Residual Sum of Squares:</p>
+<p><span class="math display">\[
+\frac{1}{\sigma^2} ||y - \hat{y}||^2 = \frac{1}{\sigma^2} y^T (I - P_{\text{Col}(X)}) y \sim \chi^2(n - k - 1)
+\]</span></p></li>
+<li><p>Difference in Sum of Squares (Hypothesis):</p>
+<p><span class="math display">\[
+\frac{1}{\sigma^2} ||\hat{y} - \hat{y}_0||^2 = \frac{1}{\sigma^2} y^T (P_{\text{Col}(X)} - P_{\text{Col}(X_1)}) y \sim \chi^2(h, \lambda_1)
+\]</span></p>
+<p>where <span class="math inline">\(h\)</span> is the difference in rank (degrees of freedom) and the non-centrality parameter is:</p>
+<p><span class="math display">\[
+\lambda_1 = \frac{1}{2\sigma^2} ||(P_{\text{Col}(X)} - P_{\text{Col}(X_1)}) \mu||^2 = \frac{1}{2\sigma^2} ||\mu - \mu_0||^2
+\]</span></p></li>
+<li><p>Independence: The two quadratic forms above are independent.</p></li>
+</ol>
+</div>
+<div id="thm-f-test-statistic" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 9.5 (F-Statistic for Nested Models)</strong></span> Under the conditions of the previous theorem:</p>
+<p><span class="math display">\[
+F = \frac{||\hat{y} - \hat{y}_0||^2 / h}{s^2} = \frac{y^T (P_{\text{Col}(X)} - P_{\text{Col}(X_1)}) y / h}{y^T (I - P_{\text{Col}(X)}) y / (n - k - 1)}
+\]</span></p>
+<p><span class="math display">\[
+\sim \begin{cases} F(h, n - k - 1), &amp; \text{under } H_0 \\ F(h, n - k - 1, \lambda_1), &amp; \text{under } H_1 \end{cases}
+\]</span></p>
+<p>where <span class="math inline">\(\lambda_1\)</span> is as given in the previous theorem.</p>
+</div>
+<p>The geometric interpretation corresponds to testing if the mean vector <span class="math inline">\(\mu\)</span> lies in a subspace <span class="math inline">\(V_0 = \text{Col}(X_1)\)</span>. The sum of squares for the hypothesis is the projection onto the difference space <span class="math inline">\(\text{Col}(Z) = \text{Col}(X_1)^\perp \cap \text{Col}(X)\)</span>.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-nested-models-geometry" class="quarto-float quarto-figure quarto-figure-center anchored" style="width: 80% !important;" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-nested-models-geometry-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lec8-nonfullrank_files/figure-html/fig-nested-models-geometry-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width: 80% !important;" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-nested-models-geometry-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9.1: Geometric Interpretation of the Nested Models Test
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
