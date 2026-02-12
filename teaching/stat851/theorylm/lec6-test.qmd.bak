@@ -153,7 +153,7 @@ $$
 ||\hat{y} - \hat{y}_0||^2 = SSR_{FM} - SSR_{RM}
 $$
 
-This quantity is often denoted as $SS(\beta_2 | \beta_1)$, the "extra" regression sum of squares due to $\beta_2$ after accounting for $\beta_1$.
+This quantity is often denoted as $\text{SS}(\beta_2 | \beta_1)$, the "extra" regression sum of squares due to $\beta_2$ after accounting for $\beta_1$.
 
 The ANOVA table for this comparison is constructed as follows:
 
@@ -161,7 +161,7 @@ The ANOVA table for this comparison is constructed as follows:
 | :--- | :--- | :--- | :--- |
 | Hypothesis | $SSR_{FM} - SSR_{RM}$ | $SSH/h$ | $\frac{SSH/h}{MSE_{FM}}$ |
 | Error | $SSE_{FM}$ | $SSE_{FM}/(n-k-1)$ | |
-| Total | $SST$ | | |
+| Total | $\text{SST}$ | | |
 
 ## Overall Regression Test
 
@@ -175,7 +175,7 @@ The hypothesis $H_0: \beta_2 = 0$ is equivalent to $H_0: \beta_1 = \beta_2 = \do
 
 1.  The reduced model estimates $\hat{y}_0 = \bar{y}j_n$.
 2.  The degrees of freedom $h = k$.
-3.  The numerator becomes $SSR/k \equiv MSR$.
+3.  The numerator becomes $\text{SSR}/k \equiv MSR$.
 
 ::: {#thm-overall-regression}
 
@@ -183,7 +183,7 @@ The hypothesis $H_0: \beta_2 = 0$ is equivalent to $H_0: \beta_1 = \beta_2 = \do
 The test statistic for overall regression is given by:
 
 $$
-F = \frac{SSR/k}{SSE_{FM}/(n - k - 1)} = \frac{MSR}{MSE}
+F = \frac{\text{SSR}/k}{SSE_{FM}/(n - k - 1)} = \frac{MSR}{\text{MSE}}
 $$
 
 Under $H_0$, $F \sim F(k, n - k - 1)$.
@@ -391,7 +391,7 @@ In this approach, we calculate $SSH$ directly using the formula $SSH = (C\hat{\b
 #| echo: true
 library(knitr)
 
-# [cite_start]Load Data [cite: 434-435]
+# Load Data 
 chemical_data <- data.frame(
   y1 = c(41.5, 33.8, 27.7, 21.7, 19.9, 15.0, 12.2, 4.3, 19.3, 6.4, 
          37.6, 18.0, 26.3, 9.9, 25.0, 14.1, 15.2, 15.9, 19.6),
@@ -440,16 +440,18 @@ anova_table_manual <- data.frame(
 kable(anova_table_manual, 
       digits = 4, 
       caption = "Manual ANOVA Table for General Linear Hypothesis")
+
 ```
 
 **Method 2: Nested Models Approach**
 
-[cite_start]In this approach, we fit the reduced model implied by $H_0$ and use R's `anova` function to compare the Sum of Squares Error between the reduced and full models [cite: 135-136, 460].
+In this approach, we fit the reduced model implied by $H_0$ and use R's `anova` function to compare the Sum of Squares Error between the reduced and full models .
 
 ```{r}
 #| echo: true
 
 # Create the reduced variable z = 0.5*x1 + 0.5*x2 + x3
+
 # Derived from constraints 2*beta1 = beta3 and 2*beta2 = beta3
 chemical_data$z <- 0.5 * chemical_data$x1 + 0.5 * chemical_data$x2 + chemical_data$x3
 
@@ -465,6 +467,7 @@ anova_output <- anova(reduced_model, full_model)
 kable(anova_output, 
       digits = 4, 
       caption = "ANOVA Table comparing Reduced vs Full Model")
+
 ```
 
 
@@ -493,7 +496,7 @@ $$
 For a single coefficient $\beta_j$, we set $a$ to extract the $j$-th element. The test statistic becomes:
 
 $$
-t = \frac{\hat{\beta}_j}{s \sqrt{g_{jj}}} = \frac{\hat{\beta}_j}{s.e.(\hat{\beta}_j)}
+t = \frac{\hat{\beta}_j}{s \sqrt{g_{jj}}} = \frac{\hat{\beta}_j}{\text{SE}(\hat{\beta}_j)}
 $$
 
 where $g_{jj}$ is the $j$-th diagonal element of $(X^T X)^{-1}$.
@@ -529,7 +532,7 @@ $$
 When predicting a new random observation $y_0 = x_0^T \beta + e_0$, we must account for both the variance of the estimator and the variance of the new error term.
 
 $$
-Var(y_0 - \hat{y}_0) = Var(e_0) + Var(x_0^T \hat{\beta}) = \sigma^2 (1 + x_0^T (X^T X)^{-1} x_0)
+\text{Var}(y_0 - \hat{y}_0) = \text{Var}(e_0) + \text{Var}(x_0^T \hat{\beta}) = \sigma^2 (1 + x_0^T (X^T X)^{-1} x_0)
 $$
 
 The $100(1-\alpha)\%$ prediction interval is :
