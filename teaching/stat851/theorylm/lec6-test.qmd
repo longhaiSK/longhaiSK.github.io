@@ -5,7 +5,7 @@ format:
   pdf: default
 ---
 
-# Hypothesis Testing in Linear Models
+# Hypothesis Testing  in Linear Models
 
 ## Testing Reduced Model vs Full Model (Partial F-test)
 
@@ -163,7 +163,7 @@ The ANOVA table for this comparison is constructed as follows:
 | Error | $\text{SSE}_{\text{FM}}$ | $\text{SSE}_{\text{FM}}/(n-k-1)$ | |
 | Total | $\text{SST}$ | | |
 
-## Overall Regression Test
+### Overall Regression Test
 
 A special case of the test $H_0: \beta_2 = 0$ is when $\beta_1$ contains only the intercept $\beta_0$, and $\beta_2$ contains all slope coefficients. The model is:
 
@@ -223,6 +223,8 @@ If $H_0$ is false, it follows a non-central F distribution with parameter $\lamb
 
 :::
 
+
+
 ### Nested Models Interpretation
 
 The general linear hypothesis test is fundamentally a test of nested models.
@@ -241,6 +243,7 @@ where $C(Z)$ is the orthogonal complement of the reduced model space $V_0$ with 
 :::
 
 ::: {.proof}
+**Geometric Proof (Projections)**
 
 Under the null hypothesis $H_0: C\beta = 0$, we have a constrained model. We observe that:
 
@@ -248,27 +251,27 @@ $$
 C\beta = 0 \implies C(X^T X)^{-1} X^T (X\beta) = 0
 $$
 
-Let $Z^T = C(X^T X)^{-1} X^T$. Then the condition becomes $Z^T \mu = 0$ (since $\mu = X\beta$). This implies that under $H_0$, $\mu$ must be orthogonal to the column space of $Z$, denoted $C(Z)$ .
+Let $Z^T = C(X^T X)^{-1} X^T$. Then the condition becomes $Z^T \mu = 0$ (since $\mu = X\beta$). This implies that under $H_0$, $\mu$ must be orthogonal to the column space of $Z$, denoted $\text{Col}(Z)$.
 
-Since $\mu$ must also lie in the full model space $C(X)$, under $H_0$, $\mu$ belongs to the intersection:
+Since $\mu$ must also lie in the full model space $\text{Col}(X)$, under $H_0$, $\mu$ belongs to the intersection:
 
 $$
-V_0 = C(Z)^{\perp} \cap C(X)
+V_0 = \text{Col}(Z)^{\perp} \cap \text{Col}(X)
 $$
 
-This $V_0$ represents the subspace for the Reduced Model (RM), while $C(X)$ is the subspace for the Full Model (FM). The hypotheses correspond to nested models since $V_0 \subset C(X)$.
+This $V_0$ represents the subspace for the Reduced Model (RM), while $\text{Col}(X)$ is the subspace for the Full Model (FM). The hypotheses correspond to nested models since $V_0 \subset \text{Col}(X)$.
 
-The numerator sum of squares for comparing these models is the squared length of the projection of $y$ onto the difference space. Since $V_0$ is the orthogonal complement of $C(Z)$ relative to $C(X)$, the difference space is exactly $C(Z)$. Note that $Z = X(X^T X)^{-1} C^T$, and since $C$ has rank $q$, $Z$ has rank $q$.
+The numerator sum of squares for comparing these models is the squared length of the projection of $y$ onto the difference space. Since $V_0$ is the orthogonal complement of $\text{Col}(Z)$ relative to $\text{Col}(X)$, the difference space is exactly $\text{Col}(Z)$. Note that $Z = X(X^T X)^{-1} C^T$, and since $C$ has rank $q$, $Z$ has rank $q$.
 
 The sum of squares for the hypothesis is:
 $$
-\text{SSH} = ||(P_{C(X)} - P_{V_0})y||^2 = ||P_{C(Z)}y||^2
+\text{SSH} = ||(P_{\text{Col}(X)} - P_{V_0})y||^2 = ||P_{\text{Col}(Z)}y||^2
 $$
 
-Expanding the projection matrix $P_{C(Z)} = Z(Z^T Z)^{-1} Z^T$:
+Expanding the projection matrix $P_{\text{Col}(Z)} = Z(Z^T Z)^{-1} Z^T$:
 
 $$
-y^T P_{C(Z)} y = y^T Z(Z^T Z)^{-1} Z^T y
+y^T P_{\text{Col}(Z)} y = y^T Z(Z^T Z)^{-1} Z^T y
 $$
 
 Substituting $Z = X(X^T X)^{-1} C^T$:
@@ -288,20 +291,119 @@ Substituting $Z = X(X^T X)^{-1} C^T$:
 Thus, the quadratic form becomes:
 
 $$
-y^T P_{C(Z)} y = (C\hat{\beta})^T [C(X^T X)^{-1} C^T]^{-1} (C\hat{\beta})
+y^T P_{\text{Col}(Z)} y = (C\hat{\beta})^T [C(X^T X)^{-1} C^T]^{-1} (C\hat{\beta})
 $$
 
 This confirms that the Wald-type statistic derived for the General Linear Hypothesis is algebraically identical to the difference in sums of squares between the implied full and reduced models.
-
 :::
 
-### Extension to $C\beta = t$
+```{tikz}
+%| label: fig-nested-models-geometry
+%| fig-cap: "Geometric Interpretation of the General Linear Hypothesis"
+%| echo: false
+%| fig-align: "center"
+%| out-extra: 'style="width: 80% !important;"'
+%| engine.opts:
+%|   extra.preamble: "\\usepackage{amssymb} \\usepackage{amsmath} \\usepackage{xcolor}"
 
-For the non-homogeneous case $H_0: C\beta = t$ ($t \neq 0$), the statistic is modified to center the numerator around $t$:
+\begin{tikzpicture}[font=\sffamily, scale=1.2]
+  % Define colors
+  \definecolor{fillcolor}{RGB}{255, 204, 51} % Yellowish-orange (for Col(Z))
+  \definecolor{linecolor}{RGB}{70, 130, 200} % Light Blue (for lines and text)
+  \definecolor{textcolor}{RGB}{230, 80, 50}  % Red/Orange (for Col(Z) text)
+  \definecolor{v0color}{RGB}{100, 150, 250}  % Blue (for V0)
+
+  % 1. Outer Universe Circle (R^n)
+  \draw[linecolor, thick] (0,0) circle (4.0cm);
+  \node[linecolor] at (3.5, -3.5) {\Large $\mathbb{R}^n$};
+
+  % 2. The Full Model Space Col(X) - Large circle
+  % Fill with yellow to represent the difference space Col(Z)
+  \fill[fillcolor] (0,0) circle (3.0cm);
+  \draw[linecolor, thick] (0,0) circle (3.0cm);
+
+  % 3. The Reduced Model Space V0 - Inner circle
+  % Fill with blue
+  \fill[v0color] (0,0) circle (1.2cm);
+  \draw[linecolor, thick] (0,0) circle (1.2cm);
+
+  % 4. Inner Label (H0) inside V0
+  % Using white text for better contrast on the blue background
+  \node[white, align=center] at (0, 0) {\large $H_0:$\\[0.2em] \Large $\mu \in V_0$};
+
+  % 5. Label for Col(Z) INSIDE the yellow region
+  \node[textcolor, align=center] at (0, 2.1) {\large $\text{Col}(Z) = V_0^\perp \cap \text{Col}(X)$};
+
+  % 6. Label for V0 definition
+  \node[linecolor] (v0_label) at (0, -2.0) {\large $V_0 = \text{Col}(Z)^\perp \cap \text{Col}(X)$};
+  \draw[->, linecolor, thick] (v0_label.north) -- (0, -1.25);
+  
+  % 7. Label for Col(X)
+  \node[linecolor] (cx_label) at (3.8, 0) {\Large $\text{Col}(X)$};
+  \draw[->, linecolor, thick] (cx_label.west) -- (3.05, 0);
+
+\end{tikzpicture}
+```
+
+### F-Test for Non-Zero General Linear Hypothesis
+
+::: {#thm-general-linear-hypothesis-non-homogeneous}
+
+### F-Test for Non-Zero  General Linear Hypothesis
+
+Consider the general linear model $y = X\beta + \epsilon$ with $\epsilon \sim N(0, \sigma^2 I)$. To test the non-homogeneous hypothesis $H_0: C\beta = t$ where $t$ is a known vector and $C$ has rank $q$, the test statistic is:
 
 $$
 F = \frac{(C\hat{\beta} - t)^T [C(X^T X)^{-1} C^T]^{-1} (C\hat{\beta} - t) / q}{\text{SSE}_{\text{FM}} / (n - k - 1)}
 $$
+
+Under $H_0$, this statistic follows an $F$ distribution with $q$ and $n - k - 1$ degrees of freedom:
+
+$$
+F \sim F(q, n - k - 1)
+$$
+
+:::
+
+::: {.proof}
+**Distributional Proof (Alternative)**
+
+This proof derives the F-statistic directly from the multivariate normal distribution of the coefficients, without explicitly invoking the geometry of projections.
+
+**Step 1: Distribution of the Linear Combination**
+Recall that $\hat{\beta} \sim N_{k+1}(\beta, \sigma^2(X^T X)^{-1})$.
+Under the null hypothesis $H_0: C\beta = t$, we define the random vector $\theta = C\hat{\beta} - t$. Its expected value is:
+$$E[\theta] = C E[\hat{\beta}] - t = C\beta - t = 0$$
+
+Its variance-covariance matrix is:
+$$\text{Var}(\theta) = C \text{Var}(\hat{\beta}) C^T = C [\sigma^2(X^T X)^{-1}] C^T = \sigma^2 [C(X^T X)^{-1} C^T]$$
+
+Let $V = C(X^T X)^{-1} C^T$. Since $C$ has full row rank $q$, $V$ is positive definite. Thus:
+$$\theta \sim N_q(0, \sigma^2 V)$$
+
+**Step 2: Formation of the Chi-Squared Variable**
+A standard result in multivariate statistics states that if $x \sim N_q(0, \Sigma)$, then the quadratic form $x^T \Sigma^{-1} x \sim \chi^2_q$. Applying this to $\theta$:
+
+$$
+\theta^T (\sigma^2 V)^{-1} \theta = \frac{(C\hat{\beta} - t)^T [C(X^T X)^{-1} C^T]^{-1} (C\hat{\beta} - t)}{\sigma^2} \sim \chi^2_q
+$$
+
+Let $Q_H = (C\hat{\beta} - t)^T [C(X^T X)^{-1} C^T]^{-1} (C\hat{\beta} - t)$. We have established that $Q_H / \sigma^2 \sim \chi^2_q$.
+
+**Step 3: Independence and the F-Ratio**
+From the properties of Least Squares, $\hat{\beta}$ is independent of the residuals (and thus independent of $\text{SSE}$). Consequently, the numerator $Q_H$ is independent of the denominator $\text{SSE}$.
+We know that $\text{SSE} / \sigma^2 \sim \chi^2_{n-k-1}$.
+
+The F-statistic is constructed as the ratio of two independent Chi-squared variables divided by their respective degrees of freedom:
+
+$$
+F = \frac{(Q_H / \sigma^2) / q}{(\text{SSE} / \sigma^2) / (n - k - 1)} = \frac{Q_H / q}{\text{SSE} / (n - k - 1)}
+$$
+
+The $\sigma^2$ terms cancel out, leaving the standard General Linear Test statistic.
+:::
+
+### Numerical Examples
 
 :::: {#exm-chemical-reaction}
 
@@ -433,6 +535,7 @@ print(as.table(as.matrix(anova_manual)))
 # --- Verification with car package ---
 hypotheses <- c("2*x1 - 2*x2 = 0", "2*x2 - x3 = 0")
 print(linearHypothesis(full_model, hypotheses))
+
 ```
 
 ---
@@ -496,73 +599,167 @@ ggplot(viz_data, aes(x = p, y = sse)) +
 
 # Display raw text output from anova for nested models
 anova(reduced_model, full_model)
+
 ```
 ::::
 
-## Specific Tests on Coefficients
+## Speficic Tests for Linear Combinations of $\boldsymbol{\beta}$
 
-Tests for individual coefficients or linear combinations are special cases of the general linear hypothesis where $q=1$ .
-
-### Test for $a^T \beta = 0$
+**Test for $a^T \beta = 0$**
 
 To test a linear combination $a^T \beta = 0$, the F-statistic is:
 
-$$
-F = \frac{(a^T \hat{\beta})^2}{s^2 a^T (X^T X)^{-1} a} \sim F(1, n - k - 1)
-$$
+$$F = \frac{(a^T \hat{\beta})^2}{s^2 a^T (X^T X)^{-1} a} \sim F(1, n - k - 1)$$
 
 This is equivalent to the t-test:
 
-$$
-t = \frac{a^T \hat{\beta}}{s \sqrt{a^T (X^T X)^{-1} a}} \sim t(n - k - 1)
-$$
+$$t = \frac{a^T \hat{\beta}}{s \sqrt{a^T (X^T X)^{-1} a}} \sim t(n - k - 1)$$
 
-### Test for $\beta_j = 0$
+**Test for $\beta_j = 0$**
 
 For a single coefficient $\beta_j$, we set $a$ to extract the $j$-th element. The test statistic becomes:
 
-$$
-t = \frac{\hat{\beta}_j}{s \sqrt{g_{jj}}} = \frac{\hat{\beta}_j}{\text{SE}(\hat{\beta}_j)}
-$$
+$$t = \frac{\hat{\beta}_j}{s \sqrt{g_{jj}}} = \frac{\hat{\beta}_j}{\text{SE}(\hat{\beta}_j)}$$
 
 where $g_{jj}$ is the $j$-th diagonal element of $(X^T X)^{-1}$.
 
-## Confidence and Prediction Intervals
+---
 
-### Confidence Region for $\beta$
+**Confidence Region for $\beta$**
 
-A $100(1-\alpha)\%$ confidence region for the vector $\beta$ is the set of all vectors satisfying :
+A $100(1-\alpha)\%$ confidence region for the vector $\beta$ is the set of all vectors satisfying:
 
-$$
-(\hat{\beta} - \beta)^T X^T X (\hat{\beta} - \beta) \le (k + 1) s^2 F_{1-\alpha}(k + 1, n - k - 1)
-$$
+$$(\hat{\beta} - \beta)^T X^T X (\hat{\beta} - \beta) \le (k + 1) s^2 F_{1-\alpha}(k + 1, n - k - 1)$$
 
 This region forms an ellipsoid centered at $\hat{\beta}$.
 
-### Confidence Interval for $a^T \beta$ and $E(y_0)$
+
+
+**Confidence Interval for $a^T \beta$ and $E(y_0)$**
 
 A $100(1-\alpha)\%$ confidence interval for a linear combination $a^T \beta$ is given by:
 
-$$
-a^T \hat{\beta} \pm t_{1-\alpha/2}(n - k - 1) s \sqrt{a^T (X^T X)^{-1} a}
-$$
+$$a^T \hat{\beta} \pm t_{1-\alpha/2}(n - k - 1) s \sqrt{a^T (X^T X)^{-1} a}$$
 
-To estimate the mean response $E(y_0) = x_0^T \beta$ for a given $x_0$, we set $a = x_0$ :
+To estimate the mean response $E(y_0) = x_0^T \beta$ for a given $x_0$, we set $a = x_0$:
 
-$$
-x_0^T \hat{\beta} \pm t_{1-\alpha/2}(n - k - 1) s \sqrt{x_0^T (X^T X)^{-1} x_0}
-$$
+$$x_0^T \hat{\beta} \pm t_{1-\alpha/2}(n - k - 1) s \sqrt{x_0^T (X^T X)^{-1} x_0}$$
 
-### Prediction Interval for $y_0$
+**Prediction Interval for $y_0$**
 
 When predicting a new random observation $y_0 = x_0^T \beta + e_0$, we must account for both the variance of the estimator and the variance of the new error term.
 
-$$
-\text{Var}(y_0 - \hat{y}_0) = \text{Var}(e_0) + \text{Var}(x_0^T \hat{\beta}) = \sigma^2 (1 + x_0^T (X^T X)^{-1} x_0)
-$$
+$$\text{Var}(y_0 - \hat{y}_0) = \text{Var}(e_0) + \text{Var}(x_0^T \hat{\beta}) = \sigma^2 (1 + x_0^T (X^T X)^{-1} x_0)$$
 
-The $100(1-\alpha)\%$ prediction interval is :
+The $100(1-\alpha)\%$ prediction interval is:
 
-$$
-\hat{y}_0 \pm t_{1-\alpha/2}(n - k - 1) s \sqrt{1 + x_0^T (X^T X)^{-1} x_0}
-$$
+$$\hat{y}_0 \pm t_{1-\alpha/2}(n - k - 1) s \sqrt{1 + x_0^T (X^T X)^{-1} x_0}$$
+
+
+### Numerical Examples
+
+:::: {#exm-inference-linercomb}
+**Specific Tests and Intervals Implementation**
+
+This example demonstrates how to:
+
+1.  Test a specific linear combination of coefficients (Manually).
+2.  Calculate Confidence and Prediction intervals using R's `predict()` function.
+3.  Verify those intervals using manual matrix algebra.
+
+```{r}
+#| echo: true
+#| label: specific-tests-intervals
+#| message: false
+library(knitr)
+library(ggplot2)
+
+# --- 0. Setup: Load Data and Fit Model ---
+chemical_data <- data.frame(
+  y1 = c(41.5, 33.8, 27.7, 21.7, 19.9, 15.0, 12.2, 4.3, 19.3, 6.4, 
+         37.6, 18.0, 26.3, 9.9, 25.0, 14.1, 15.2, 15.9, 19.6),
+  x1 = c(162, 162, 162, 162, 172, 172, 172, 172, 167, 177, 
+         157, 167, 167, 167, 167, 177, 177, 160, 160),
+  x2 = c(23, 23, 30, 30, 25, 25, 30, 30, 27.5, 27.5, 
+         27.5, 32.5, 22.5, 27.5, 27.5, 20, 20, 34, 34),
+  x3 = c(3, 8, 5, 8, 5, 8, 5, 8, 6.5, 6.5, 
+         6.5, 6.5, 6.5, 9.5, 3.5, 6.5, 6.5, 7.5, 7.5)
+)
+
+full_model <- lm(y1 ~ x1 + x2 + x3, data = chemical_data)
+beta_hat <- coef(full_model)
+s_sq <- summary(full_model)$sigma^2
+XtX_inv <- summary(full_model)$cov.unscaled
+
+# --- 1. Test for Linear Combination: H0: beta1 + beta2 = 50 ---
+
+# Define 'a' vector (Intercept, x1, x2, x3)
+a <- c(0, 1, 1, 0) 
+
+# Manual t-statistic calculation
+est <- sum(a * beta_hat)
+se_est <- sqrt(s_sq * t(a) %*% XtX_inv %*% a)
+t_stat <- (est - 50) / se_est
+p_val_t <- 2 * pt(abs(t_stat), df = full_model$df.residual, lower.tail = FALSE)
+
+# --- 2. Confidence and Prediction Intervals using predict() ---
+
+# Point of interest: x0 = (165, 25, 5)
+new_pt <- data.frame(x1=165, x2=25, x3=5)
+
+# Confidence Interval (for the Mean Response)
+ci_r <- predict(full_model, newdata = new_pt, interval = "confidence", level = 0.95)
+
+# Prediction Interval (for a New Observation)
+pi_r <- predict(full_model, newdata = new_pt, interval = "prediction", level = 0.95)
+
+# --- 3. Manual Verification of Intervals ---
+x0_vec <- matrix(c(1, 165, 25, 5), ncol = 1) # Note the 1 for intercept
+y_hat  <- as.numeric(t(x0_vec) %*% beta_hat)
+t_crit <- qt(0.975, full_model$df.residual)
+
+# Standard Errors
+se_mean <- sqrt(as.numeric(s_sq * (t(x0_vec) %*% XtX_inv %*% x0_vec)))
+se_pred <- sqrt(as.numeric(s_sq * (1 + t(x0_vec) %*% XtX_inv %*% x0_vec)))
+
+# Manual Intervals
+ci_man <- c(y_hat - t_crit * se_mean, y_hat + t_crit * se_mean)
+pi_man <- c(y_hat - t_crit * se_pred, y_hat + t_crit * se_pred)
+
+# --- 4. Display Results ---
+results <- data.frame(
+  Method = c("R predict()", "Manual Calc", "R predict()", "Manual Calc"),
+  Type   = c("Confidence (Mean)", "Confidence (Mean)", "Prediction (New)", "Prediction (New)"),
+  Lower  = c(ci_r[2], ci_man[1], pi_r[2], pi_man[1]),
+  Upper  = c(ci_r[3], ci_man[2], pi_r[3], pi_man[2])
+)
+
+kable(results, digits = 4, caption = "Comparison of R functions vs Manual Matrix Algebra")
+
+# --- 5. Visualization ---
+
+# Varying x1 while holding x2 and x3 constant at their means
+x_range <- data.frame(
+  x1 = seq(min(chemical_data$x1), max(chemical_data$x1), length.out = 100),
+  x2 = mean(chemical_data$x2),
+  x3 = mean(chemical_data$x3)
+)
+
+c_bands <- predict(full_model, newdata = x_range, interval = "confidence")
+p_bands <- predict(full_model, newdata = x_range, interval = "prediction")
+
+plot_df <- data.frame(x_range, c_bands)
+plot_df$p_lwr <- p_bands[,2]
+plot_df$p_upr <- p_bands[,3]
+
+ggplot(plot_df, aes(x = x1, y = fit)) +
+  geom_ribbon(aes(ymin = p_lwr, ymax = p_upr), fill = "blue", alpha = 0.1) +
+  geom_ribbon(aes(ymin = lwr, ymax = upr), fill = "blue", alpha = 0.3) +
+  geom_line(color = "black") +
+  labs(title = "95% Confidence (Dark) vs. Prediction (Light) Bands",
+       subtitle = "Prediction bands are wider due to added variance of individual errors",
+       x = "x1 (Holding x2, x3 at Mean)", y = "Predicted y1") +
+  theme_minimal()
+
+```
+::::
