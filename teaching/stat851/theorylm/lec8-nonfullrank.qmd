@@ -5,23 +5,23 @@ format:
   pdf: default
 ---
 
-# Non-full-rank Models
+# Estimation and Inference with Non-full-rank Models
 
-## Estimation and F-test in Non-full-rank Models
+## Non-full-rank Models and Parameter Non-identifiability
 
 **The One-way Model**
 
-Consider the balanced one-way layout model for $y_{ij}$, a response on the $j^{th}$ unit in the $i^{th}$ treatment group. Suppose that there are $a$ treatments and $n$ units in the $i^{th}$ treatment group.
+Consider the balanced one-way layout model for $y_{ij}$ a response on the $j^{th}$ unit in the $i^{th}$ treatment group. Suppose that there are $a$ treatments and $n$ units in the $i^{th}$ treatment group.
 
-The cell-means model for this situation is:
+The **cell-means model** for this situation is:
 
 $$
 y_{ij} = \mu_i + e_{ij}, \quad i=1,...,a, \quad j=1,...,n
 $$
 
-where the $e_{ij}$ are i.i.d. $N(0, \sigma^2)$.
+where the $e_{ij}$ are i.i.d. $N(0,\sigma^2)$.
 
-An alternative, but equivalent, linear model is the effects model for the one-way layout:
+An alternative, but equivalent, linear model is the **effects model** for the one-way layout:
 
 $$
 y_{ij} = \mu + \alpha_i + e_{ij}, \quad i=1,...,a, \quad j=1,...,n
@@ -43,67 +43,53 @@ $$
 
 where $x_i$ is an indicator for treatment $i$, and $N=an$ is the total sample size.
 
-1.  That is, the effects model has the same model matrix as the cell-means model, but with one extra column, a column of ones, in the first position.
-2.  Notice that $\sum_i x_i = j_N$. Therefore, the columns of the model matrix for the effects model are linearly dependent.
+
+The effects model has the same model matrix as the cell-means model, but with one extra column, a column of ones, in the first position.
+
+Notice that $\sum_i x_i = j_N$. Therefore, the columns of the model matrix for the effects model are linearly dependent.
 
 Let $X_1$ denote the model matrix in the cell-means model, and $X_2 = (j_N, X_1)$ denote the model matrix in the effects model. Note that $\text{Col}(X_1) = \text{Col}(X_2)$.
 
+
+
+
+Without constraints, the parameters in the effects model are not uniquely identified. $\mu$ is in no sense the grand mean; it is just an arbitrary baseline value.
+However, subject to the constraint $\sum_i \alpha_i = 0$, the parameters have specific interpretations:
+
+1.  **Grand Mean ($\mu$)**: The grand mean response across all treatments.
+2.  **Treatment Effect ($\alpha_i$)**: The deviation from the grand mean.
+
+Adding the constraint $\sum_i \alpha_i = 0$ essentially reparameterizes the overparameterized (non-full rank) effects model to a just-parameterized (full rank) model equivalent to the cell means model.
+
+
 ::: {#def-equivalent-models}
 
-### Equivalent Linear Models
+#### Equivalent Linear Models
 In general, two linear models $y = X_1 \beta_1 + e_1$ and $y = X_2 \beta_2 + e_2$ with the same assumptions on $e_1$ and $e_2$ are equivalent linear models if $\text{Col}(X_1) = \text{Col}(X_2)$.
 
 :::
 
-### Interpretation of Parameters and Constraints
 
-Subject to the constraint $\sum_i \alpha_i = 0$, the parameters of the effects model have the following interpretations:
+**Strategies for Non-Full Rank Models**
 
-1.  $\mu$: grand mean response across all treatments.
-2.  $\alpha_i$: deviation from the grand mean placing $\mu_i$ (the $i^{th}$ treatment mean) up or down from the grand mean; i.e., the effect of the $i^{th}$ treatment.
+When faced with a non-full rank model, we have three ways to proceed:
 
-Without the constraint, $\mu$ is not constrained to fall in the center of the $\mu_i$. It is just an arbitrary baseline value. Adding the constraint $\sum_i \alpha_i = 0$ essentially has the effect of reparameterizing from the overparameterized (non-full rank) effects model to a just-parameterized (full rank) model that is equivalent to the cell means model.
+1.  **Reparameterize to a full rank model** (e.g., cell-means model).
+2.  **Add constraints (side-conditions)** to the model parameters (e.g., $\sum \alpha_i = 0$).
+3.  **Analyze the model as a non-full rank model**, limiting inference to **estimable** functions.
 
-For example, consider the one-way effects model with $a=3$ and $n=2$. Then $\sum_{i=1}^a \alpha_i = 0$ implies $\alpha_3 = -(\alpha_1 + \alpha_2)$. The model becomes:
+## Least Square Estimation of $\beta$ and $\mu=X\beta$
 
-$$
-y = \mu j_N + \alpha_1 x_1 + \alpha_2 x_2 + (-\alpha_1 - \alpha_2)x_3 + e
-$$
-
-$$
-= \mu j_N + \alpha_1 (x_1 - x_3) + \alpha_2 (x_2 - x_3) + e
-$$
-
-which has the same model space as the cell-means model.
-
-### Approaches to Non-Full Rank Models
-
-When faced with a non-full rank model like the one-way effects model, we have three ways to proceed:
-
-1.  **Reparameterize to a full rank model**
-
-    E.g., switch from the effects model to the cell-means model.
-
-2.  **Add constraints to the model parameters**
-
-    Remove the overparameterization by adding constraints (side-conditions), such as $\sum_{i=1}^a \alpha_i = 0$. This essentially accomplishes a reparameterization to a full rank model.
-
-3.  **Analyze the model as a non-full rank model**
-
-    Limit estimation and inference to those functions of the parameters that can be uniquely estimated. Such functions are called **estimable**.
-
-### Least Squares Estimation
-
-Even if $X$ is not of full rank, the least-squares criterion is still reasonable and leads to the normal equations:
+Even if $X$ is not of full rank, the least-squares criterion is still reasonable and leads to the normal equation:
 
 $$
 X^T X \hat{\beta} = X^T y
 $$
 
-::: {#thm-consistency-normal-equations}
+::: {#thm-consistency-normal-eqn}
 
-### Consistency of Normal Equations
-For $X$ an $n \times p$ matrix of rank $k < p \le n$, the normal equations $X^T X \hat{\beta} = X^T y$ form a consistent system of equations because $\text{Col}(X^T X) = \text{Col}(X^T)$.
+#### Consistency of Normal Equations
+For $X$ an $n \times p$ matrix of rank $k < p \le n$, the normal equations form a consistent system of equations because $\text{Col}(X^T X) = \text{Col}(X^T)$.
 
 :::
 
@@ -117,16 +103,17 @@ where $(X^T X)^-$ is some (any) generalized inverse of $X^T X$.
 
 ::: {#thm-projection-uniqueness}
 
-### Uniqueness of Projection
+#### Uniqueness of Projection
 $\hat{\beta} = (X^T X)^- X^T y$ is a solution to $(X^T X)\beta = X^T y$.
 Then $\hat{y} = X\hat{\beta} = X(X^T X)^- X^T y$ is the projection of $y$ onto $\text{Col}(X)$.
+
 Since the projection onto a subspace is unique, $\hat{y}$ is unique regardless of the choice of generalized inverse.
 
 :::
 
 ### Distribution of $\hat{\beta}$ and $s^2$
 
-In the model $y = X\beta + e$, where $E(e)=0$, $\text{Var}(e) = \sigma^2 I$, and $X$ is $n \times p$ of rank $k \le p \le n$, we have the following properties:
+In the model $y = X\beta + e$, where $E(e)=0$, $\text{Var}(e)=\sigma^2 I$, and $X$ is $n \times p$ of rank $k \le p \le n$:
 
 1.  **Unbiasedness**: $E(s^2) = \sigma^2$.
 2.  **Uniqueness**: $s^2$ is invariant to the choice of $\hat{\beta}$ (i.e., to the choice of $(X^T X)^-$).
@@ -137,12 +124,10 @@ $$
 
 where $k = \text{rank}(X)$.
 
-In the normal-errors model, distributions can be obtained.
-
 ::: {#thm-distributions-non-full-rank}
 
-### Distributions in Non-Full Rank Models
-In the model $y \sim N(X\beta, \sigma^2 I)$:
+#### Distributions in Non-Full Rank Models
+In the normal-errors model $y \sim N(X\beta, \sigma^2 I)$:
 
 1.  For any given choice of $(X^T X)^-$:
 
@@ -156,7 +141,7 @@ In the model $y \sim N(X\beta, \sigma^2 I)$:
 
 :::
 
-### Hypothesis Testing and Nested Models
+## Sum Squares and F-test
 
 Suppose $y \sim N_n(X\beta, \sigma^2 I)$ where $X$ is a matrix with rank $k+1$. Let $X = [X_1, X_2]$ where $\text{rank}(X) = k+1$ and assume we are testing a reduced model involving $X_1$.
 
@@ -164,39 +149,42 @@ Let:
 
 * $\hat{y} = P_{\text{Col}(X)} y$ (Full Model Projection)
 * $\hat{y}_0 = P_{\text{Col}(X_1)} y$ (Reduced Model Projection)
-* $\mu_0 = P_{\text{Col}(X_1)} (X\beta)$
 
 ::: {#thm-partitioning-chi-square}
 
-### Partitioning of Sum of Squares
+#### Partitioning of Sum of Squares
 
-1.  Full Model Residual Sum of Squares:
+1.  **Full Model Residual Sum of Squares**:
 
     
     $$
     \frac{1}{\sigma^2} ||y - \hat{y}||^2 = \frac{1}{\sigma^2} y^T (I - P_{\text{Col}(X)}) y \sim \chi^2(n - k - 1)
     $$
+    
+    
 
-2.  Difference in Sum of Squares (Hypothesis):
+2.  **Difference in Sum of Squares (Hypothesis)**:
 
     
     $$
     \frac{1}{\sigma^2} ||\hat{y} - \hat{y}_0||^2 = \frac{1}{\sigma^2} y^T (P_{\text{Col}(X)} - P_{\text{Col}(X_1)}) y \sim \chi^2(h, \lambda_1)
     $$
     
-    where $h$ is the difference in rank (degrees of freedom) and the non-centrality parameter is:
+    where $h$ is the difference in rank (degrees of freedom). The non-centrality parameter is:
     
     $$
     \lambda_1 = \frac{1}{2\sigma^2} ||(P_{\text{Col}(X)} - P_{\text{Col}(X_1)}) \mu||^2 = \frac{1}{2\sigma^2} ||\mu - \mu_0||^2
     $$
+    
+    
 
-3.  Independence: The two quadratic forms above are independent.
+3.  **Independence**: The two quadratic forms above are independent.
 
 :::
 
 ::: {#thm-f-test-statistic}
 
-### F-Statistic for Nested Models
+#### F-Statistic for Nested Models
 Under the conditions of the previous theorem:
 
 $$
@@ -207,56 +195,426 @@ $$
 \sim \begin{cases} F(h, n - k - 1), & \text{under } H_0 \\ F(h, n - k - 1, \lambda_1), & \text{under } H_1 \end{cases}
 $$
 
-where $\lambda_1$ is as given in the previous theorem.
 
 :::
 
-The geometric interpretation corresponds to testing if the mean vector $\mu$ lies in a subspace $V_0 = \text{Col}(X_1)$. The sum of squares for the hypothesis is the projection onto the difference space $\text{Col}(Z) = \text{Col}(X_1)^\perp \cap \text{Col}(X)$.
+### Examples
 
-```{tikz}
-%| label: fig-nested-models-geometry
-%| fig-cap: "Geometric Interpretation of the Nested Models Test"
-%| echo: false
-%| fig-align: "center"
-%| out-extra: 'style="width: 80% !important;"'
-%| engine.opts:
-%|   extra.preamble: "\\usepackage{amssymb} \\usepackage{amsmath} \\usepackage{xcolor}"
 
-\begin{tikzpicture}[font=\sffamily, scale=1.2]
-  % Define colors
-  \definecolor{fillcolor}{RGB}{255, 204, 51} % Yellowish-orange (for Col(Z))
-  \definecolor{linecolor}{RGB}{70, 130, 200} % Light Blue (for lines and text)
-  \definecolor{textcolor}{RGB}{230, 80, 50}  % Red/Orange (for Col(Z) text)
-  \definecolor{v0color}{RGB}{255, 255, 255}  % White for V0 hole
+:::{#exm-anova-non-full-rank}
 
-  % 1. Outer Universe Circle (R^n)
-  \draw[linecolor, thick] (0,0) circle (4.0cm);
-  \node[linecolor] at (3.5, -3.5) {\Large $\mathbb{R}^n$};
+**Numerical Example: One-way ANOVA with Non-Full Rank Matrix**
 
-  % 2. The Full Model Space Col(X) - Large circle
-  % Fill with yellow to represent the difference space Col(Z)
-  \fill[fillcolor] (0,0) circle (3.0cm);
-  \draw[linecolor, thick] (0,0) circle (3.0cm);
+We generate a balanced dataset with $a=3$ groups and $n=4$ observations per group. We then explicitly construct the non-full-rank design matrix $X = [j_N, x_1, x_2, x_3]$ and compute projections. We add a column for $\hat{y} - \hat{y}_0$ to explicitly show the vector whose squared length equals the Between Group Sum of Squares.
 
-  % 3. The Reduced Model Space V0 - Inner circle
-  % Fill with white
-  \fill[v0color] (0,0) circle (1.2cm);
-  \draw[linecolor, thick] (0,0) circle (1.2cm);
+```{r}
+#| echo: true
+#| label: anova-ginv-example
+#| message: false
+library(MASS)  # For ginv()
+library(knitr) # For kable()
 
-  % 4. Inner Label (H0) inside V0
-  \node[linecolor, align=center] at (0, 0) {\large $H_0:$\\[0.2em] \Large $\mu \in V_0$};
+# 1. Data Generation (3 Groups, 4 obs per group)
+group_means_true <- c(10, 20, 15)
+n_per_group <- 4
+groups <- factor(rep(1:3, each = n_per_group))
+# Adding some random noise to exact means for realism
+set.seed(123)
+y <- c(rnorm(n_per_group, group_means_true[1], 2),
+       rnorm(n_per_group, group_means_true[2], 2),
+       rnorm(n_per_group, group_means_true[3], 2))
+n <- length(y)
 
-  % 5. Label for Col(Z) INSIDE the yellow region
-  \node[textcolor, align=center] at (0, 2.1) {\large $\text{Col}(Z) = V_0^\perp \cap \text{Col}(X)$};
+# 2. Construct Non-full-rank Design Matrix X
+# j_N is the column of ones
+j_N <- rep(1, n)
+# Indicators for all 3 groups
+X_ind <- model.matrix(~ groups - 1) 
+colnames(X_ind) <- c("x_1", "x_2", "x_3")
+# Full non-full-rank matrix
+X <- cbind(Intercept = j_N, X_ind)
 
-  % 6. Label for V0 definition
-  \node[linecolor] (v0_label) at (0, -2.0) {\large $V_0 = \text{Col}(X_1)$};
-  \draw[->, linecolor, thick] (v0_label.north) -- (0, -1.25);
-  
-  % 7. Label for Col(X)
-  \node[linecolor] (cx_label) at (3.8, 0) {\Large $\text{Col}(X)$};
-  \draw[->, linecolor, thick] (cx_label.west) -- (3.05, 0);
+# 3. Compute Projections
+# Projection onto j_N (Grand Mean) - Reduced Model
+P0 <- j_N %*% t(j_N) / as.numeric(t(j_N) %*% j_N)
+y_grand_mean <- P0 %*% y
 
-\end{tikzpicture}
+# Projection onto Group Means (Cell Means Model)
+X_ind_inv <- ginv(t(X_ind) %*% X_ind)
+P_groups <- X_ind %*% X_ind_inv %*% t(X_ind)
+y_group_means <- P_groups %*% y
 
+# Projection onto [j_N, X] (Full Column Space)
+XtX <- t(X) %*% X
+X_inv_gen <- ginv(XtX)
+P_X <- X %*% X_inv_gen %*% t(X)
+y_proj_X <- P_X %*% y
+
+# Difference Vector (Hypothesis Space)
+y_diff <- y_proj_X - y_grand_mean
+
+# Residuals (Error)
+e <- y - y_proj_X
+
+# Combine into a data frame
+results_df <- data.frame(
+  y = y,
+  j_N = j_N,
+  x1 = X_ind[,1],
+  x2 = X_ind[,2],
+  x3 = X_ind[,3],
+  Proj_Grand = as.vector(y_grand_mean),
+  Proj_FullX = as.vector(y_proj_X),
+  Diff = as.vector(y_diff),          # Added Column
+  Residuals = as.vector(e)
+)
+
+# Calculate Sum of Squares for each column
+SS_row <- colSums(results_df^2)
+results_table <- rbind(results_df, SS_row)
+rownames(results_table)[nrow(results_table)] <- "Sum of Squares"
+
+# 4. Compute F and p-value
+# SSH = || Diff ||^2
+SSH <- sum(y_diff^2)
+# SSE = || Residuals ||^2
+SSE <- sum(e^2)
+
+# Degrees of Freedom
+rank_X <- 3 
+df_hyp <- rank_X - 1
+df_err <- n - rank_X
+
+MSH <- SSH / df_hyp
+MSE <- SSE / df_err
+F_stat <- MSH / MSE
+p_val <- pf(F_stat, df_hyp, df_err, lower.tail = FALSE)
+
+# Display Detailed Data Table
+kable(results_table, digits = 2, 
+      col.names = c("$y$", "$j_N$", "$x_1$", "$x_2$", "$x_3$", 
+                    "$\\hat{y}_0$", 
+                    "$\\hat{y}$", 
+                    "$\\hat{y} - \\hat{y}_0$", # Label for new column
+                    "$e$"),
+      caption = "Data, Projections, and Difference Vectors with Sum of Squares")
+
+# 5. Output ANOVA Table
+anova_tab <- data.frame(
+  Source = c("Groups (Model)", "Residuals (Error)", "Total"),
+  DF = c(df_hyp, df_err, n - 1),
+  SS = c(SSH, SSE, SSH + SSE),
+  MS = c(MSH, MSE, NA),
+  F = c(F_stat, NA, NA),
+  P_value = c(p_val, NA, NA)
+)
+
+kable(anova_tab, digits = 4, caption = "ANOVA Table derived from Projections")
 ```
+
+
+
+**Key Observation from the Table**
+
+* Note that the projection onto the group means ($\hat{y}_{groups}$) and the projection onto the overparameterized space ($\hat{y} = P_{[j_N, X]}y$) are identical (Columns 7 and 8). This confirms numerically that adding the linearly dependent intercept column does not change the column space of the model; $\text{Col}(X) = \text{Col}(\text{Indicators})$.
+
+* The Sum of Squares for the new column $\hat{y} - \hat{y}_0$ (Column 8) is exactly equal to the **Between Group Sum of Squares (SSH)** in the ANOVA table. This numerically demonstrates that $SSH = ||\hat{y} - \hat{y}_0||^2$.
+:::
+
+
+
+:::{#exm-regression-non-full-rank}
+
+**Numerical Example: Regression with Linear Dependency**
+
+We generate a dataset with $n=12$ observations and 4 predictors where $x_4 = 0.1x_1 + 0.5x_2 + x_3$. This makes the design matrix rank-deficient. We use the generalized inverse to compute projections onto the full model space and compare them with projections onto the subspace of just $x_1, x_2, x_3$.
+
+```{r}
+#| echo: true
+#| label: regression-ginv-example
+#| message: false
+#| warning: false
+library(MASS)  # For ginv()
+library(knitr) # For kable()
+library(gt)    # For HTML tables
+
+# 1. Data Generation
+set.seed(42)
+n <- 12
+x1 <- rnorm(n, mean=5, sd=2)
+x2 <- rnorm(n, mean=10, sd=2)
+x3 <- rnorm(n, mean=0, sd=1)
+# Linear Dependency
+x4 <- 0.1*x1 + 0.5*x2 + x3 
+
+# Generate y
+beta_true <- c(10, 2, -1, 3) 
+y <- beta_true[1] + beta_true[2]*x1 + beta_true[3]*x2 + beta_true[4]*x3 + rnorm(n, sd=1)
+
+# 2. Construct Design Matrices
+j_N <- rep(1, n)
+X_full <- cbind(Intercept = j_N, x1, x2, x3, x4)
+X_sub  <- cbind(Intercept = j_N, x1, x2, x3)
+
+# 3. Compute Projections
+
+# A. Projection onto Null Model (Grand Mean)
+P0 <- j_N %*% t(j_N) / as.numeric(t(j_N) %*% j_N)
+y_0 <- P0 %*% y
+
+# B. Projection onto Full Model Space [j_N, x1...x4] using ginv
+#    (Rank Deficient)
+XtX_full <- t(X_full) %*% X_full
+X_inv_full <- ginv(XtX_full)
+beta_hat_full <- X_inv_full %*% t(X_full) %*% y
+y_hat_full <- X_full %*% beta_hat_full
+
+# C. Projection onto Subspace [j_N, x1, x2, x3]
+#    (Full Rank)
+XtX_sub <- t(X_sub) %*% X_sub
+# Standard inverse since this matrix is full rank
+X_inv_sub <- solve(XtX_sub) 
+beta_hat_sub <- X_inv_sub %*% t(X_sub) %*% y
+y_hat_sub <- X_sub %*% beta_hat_sub
+
+# D. Difference Vector and Residuals
+y_diff <- y_hat_full - y_0
+e <- y - y_hat_full
+
+# 4. Create Detailed Results Table
+results_df <- data.frame(
+  y = y,
+  x1 = x1,
+  x2 = x2,
+  x3 = x3,
+  x4 = x4,
+  y_hat_0 = as.vector(y_0),
+  y_hat_sub = as.vector(y_hat_sub),   # New Column
+  y_hat_full = as.vector(y_hat_full),
+  y_diff = as.vector(y_diff),
+  e = as.vector(e)
+)
+
+# Calculate Sum of Squares for each column
+SS_row <- colSums(results_df^2)
+results_table <- rbind(results_df, SS_row)
+rownames(results_table)[nrow(results_table)] <- "Sum of Squares"
+
+# Display Table using kable (for standard rendering)
+kable(results_table, digits = 2,
+      col.names = c("$y$", "$x_1$", "$x_2$", "$x_3$", "$x_4$",
+                    "$\\hat{y}_0$", 
+                    "$\\hat{y}_{sub}$",      # Projection onto x1-x3
+                    "$\\hat{y}_{full}$",     # Projection onto x1-x4
+                    "$\\hat{y}_{full} - \\hat{y}_0$", 
+                    "$e$"),
+      caption = "Comparison of Projections: Full (Rank-Deficient) vs Subspace")
+
+# 5. ANOVA Statistics
+SSH <- sum(y_diff^2)
+SSE <- sum(e^2)
+rank_X <- qr(X_full)$rank 
+df_hyp <- rank_X - 1 
+df_err <- n - rank_X
+MSH <- SSH / df_hyp
+MSE <- SSE / df_err
+F_stat <- MSH / MSE
+p_val <- pf(F_stat, df_hyp, df_err, lower.tail = FALSE)
+
+# 6. Output ANOVA Table with Coloring
+anova_df <- data.frame(
+  Source = c("Regression (Model)", "Residuals (Error)", "Total"),
+  DF = c(df_hyp, df_err, n - 1),
+  SS = c(SSH, SSE, SSH + SSE),
+  MS = c(MSH, MSE, NA),
+  F = c(F_stat, NA, NA),
+  P_value = c(p_val, NA, NA)
+)
+
+if (knitr::is_html_output()) {
+  anova_df |>
+    gt() |>
+    fmt_number(columns = c(SS, MS, F, P_value), decimals = 4) |>
+    tab_style(
+      style = cell_text(color = "red", weight = "bold"),
+      locations = cells_body(columns = DF, rows = Source == "Regression (Model)")
+    ) |>
+    tab_header(title = "ANOVA Table")
+} else {
+  anova_df$DF <- as.character(anova_df$DF)
+  anova_df$DF[1] <- paste0("\\textcolor{red}{", anova_df$DF[1], "}")
+  kable(anova_df, digits = 4, escape = FALSE, caption = "ANOVA Table")
+}
+```
+
+**Key Observation**
+
+Notice that the columns $\hat{y}_{sub}$ (projection onto $x_1, x_2, x_3$) and $\hat{y}_{full}$ (projection onto $x_1, \dots, x_4$) are identical. This confirms that adding the linearly dependent predictor $x_4$ does not change the column space of the design matrix or the fitted values, even though it makes individual coefficients non-unique.
+:::
+
+
+:::{#exm-lm-rank-deficient}
+
+**Fitting Rank-Deficient Models with `lm()`**
+
+In R, the standard `lm()` function automatically detects singularities. It uses QR decomposition with pivoting to handle rank deficiency. If a column is found to be linearly dependent on previous columns, its coefficient is set to `NA`.
+
+We use the same dataset as before, where $x_4 = 0.1x_1 + 0.5x_2 + x_3$.
+
+```{r}
+#| echo: true
+#| label: lm-singularity-example
+#| message: false
+#| warning: false
+
+# 1. Data Generation (Same as previous)
+set.seed(42)
+n <- 12
+x1 <- rnorm(n, mean=5, sd=2)
+x2 <- rnorm(n, mean=10, sd=2)
+x3 <- rnorm(n, mean=0, sd=1)
+# Linear Dependency
+x4 <- 0.1*x1 + 0.5*x2 + x3 
+# Generate y
+beta_true <- c(10, 2, -1, 3) 
+y <- beta_true[1] + beta_true[2]*x1 + beta_true[3]*x2 + beta_true[4]*x3 + rnorm(n, sd=1)
+
+# Combine into data frame
+df <- data.frame(y=y, x1=x1, x2=x2, x3=x3, x4=x4)
+
+# 2. Fit model using lm() with tryCatch
+# Note: lm() usually just drops coefs, but we use tryCatch as requested
+lm_fit <- tryCatch({
+  model <- lm(y ~ x1 + x2 + x3 + x4, data = df)
+  print("Model fitted successfully (with potential NAs).")
+  model
+}, error = function(e) {
+  print(paste("Error in lm:", e$message))
+  return(NULL)
+})
+
+# 3. Examine Coefficients
+# Expecting one coefficient to be NA because of the singularity
+print(coef(lm_fit))
+
+# 4. Verify Fitted Values
+# Even though coefficients are not unique (NA appears), fitted values ARE unique
+y_hat_lm <- predict(lm_fit)
+
+# Compare with previous ginv result (re-calculating locally for comparison)
+X <- model.matrix(lm_fit)
+library(MASS)
+beta_ginv <- ginv(t(X) %*% X) %*% t(X) %*% y
+y_hat_ginv <- X %*% beta_ginv
+
+# Check difference
+max_diff <- max(abs(y_hat_lm - y_hat_ginv))
+print(paste("Maximum difference between lm() and ginv() fitted values:", max_diff))
+```
+
+**Observation**
+
+The `lm()` output shows `NA` for `x4` (or whichever variable is pivoted out last). This confirms that while the individual parameters are not identifiable (infinite solutions exist), the `lm()` function picks one specific solution (setting one coef to 0) to allow for prediction. The fitted values $\hat{y}$ are identical to those obtained via the generalized inverse.
+:::
+
+## Inference for Estimable Parameters
+
+::: {#def-estimability}
+
+#### Estimability
+Let $\lambda = (\lambda_1, ..., \lambda_p)^T$ be a vector of constants. The parameter $\lambda^T \beta = \sum_j \lambda_j \beta_j$ is said to be estimable if there exists a vector $a$ in $R^n$ such that:
+
+$$
+E(a^T y) = \lambda^T \beta
+$$
+
+for all $\beta \in \mathcal{R}^p$.
+
+:::
+
+This condition is equivalent to $\lambda^T \beta$ being estimable if and only if there exists $a$ such that $X^T a = \lambda$ (i.e., iff $\lambda$ lies in the row space of $X$).
+
+::: {#thm-estimability-conditions}
+
+#### Equivalent Conditions for Estimability
+In the model $y = X\beta + e$, the linear function $\lambda^T \beta$ is estimable if and only if any one of the following equivalent conditions holds:
+
+1.  $\lambda^T$ is a linear combination of the rows of $X$; that is, there exists a vector $a$ such that $a^T X = \lambda^T$.
+2.  $\lambda^T$ is a linear combination of the rows of $X^T X$, or $\lambda$ is a linear combination of the columns of $X^T X$; that is, there exists a vector $r$ such that $X^T X r = \lambda$.
+3.  $\lambda$ is such that $X^T X (X^T X)^- \lambda = \lambda$.
+4.  $\lambda \in \text{Row}(X) = \text{Col}(X^TX)$
+
+:::
+
+::: {#thm-number-estimable-functions}
+
+#### Number of Estimable Functions
+In the non-full-rank model $y = X\beta + e$, the number of linearly independent estimable functions of $\beta$ is the rank of $X$.
+
+:::
+
+**Properties of Estimators**
+
+Let $\lambda^T \beta$ be an estimable function. Let $\hat{\beta}$ be any solution to the normal equations. Then the estimator $\lambda^T \hat{\beta}$ has the following properties:
+
+1.  **Unbiasedness**: $E(\lambda^T \hat{\beta}) = \lambda^T \beta$.
+2.  **Uniqueness**: $\lambda^T \hat{\beta}$ is invariant to the choice of $\hat{\beta}$ (to the choice of generalized inverse).
+
+::: {#thm-variance-covariance}
+
+#### Variance and Covariance
+
+1.  **Variance**: The variance of $\lambda^T \hat{\beta}$ is unique and is given by:
+
+    
+    $$
+    \text{Var}(\lambda^T \hat{\beta}) = \sigma^2 \lambda^T (X^T X)^- \lambda
+    $$
+
+2.  **Covariance**: For two estimable functions $\lambda_1^T \beta$ and $\lambda_2^T \beta$:
+
+    
+    $$
+    \text{Cov}(\lambda_1^T \hat{\beta}, \lambda_2^T \hat{\beta}) = \sigma^2 \lambda_1^T (X^T X)^- \lambda_2
+    $$
+
+:::
+
+::: {#thm-gauss-markov-non-full}
+
+#### Gauss-Markov in Non-Full Rank Case
+If $\lambda^T \beta$ is estimable in the spherical errors non-full rank linear model, then $\lambda^T \hat{\beta}$ is its Best Linear Unbiased Estimator (BLUE).
+
+:::
+
+::: {#def-testable-hypothesis}
+
+#### Testable Hypothesis
+A hypothesis such as $H_0: \beta_1 = ... = \beta_q$ is said to be testable if there exists a set of linearly independent estimable functions such that $H_0$ is true if and only if these functions equal zero.
+
+:::
+
+## Re-parametrization and Side Conditions
+
+**Re-parametrization**
+
+The idea is to transform from the vector of non-estimable parameters $\beta$ to a vector of linearly independent estimable functions of $\beta$: $\gamma = U\beta$.
+The new full-rank model is $y = Z\gamma + e$, where $Z\gamma = X\beta$.
+
+To find $Z$, we solve $Z U = X$. One solution is $Z = X U^T (U U^T)^{-1}$.
+
+**Side Conditions**
+
+::: {#thm-side-conditions}
+
+#### Unique Solution with Side Conditions
+If $y = X\beta + e$ where $X$ is $n \times p$ of rank $k$, and if $T$ is a $(p-k) \times p$ matrix of rank $p-k$ such that $T\beta$ is a set of non-estimable functions, then there is a unique vector $\hat{\beta}$ that satisfies both $X^T X \hat{\beta} = X^T y$ and $T\hat{\beta} = 0$.
+
+:::
+
+The solution is given by:
+
+$$
+\hat{\beta} = (X^T X + T^T T)^{-1} X^T y
+$$
+
