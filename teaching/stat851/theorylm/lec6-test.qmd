@@ -367,17 +367,6 @@ $$
 
 where $s^2 = \text{MSE}_{\text{FM}} = 5.3449$. This statistic follows an $F(2, 15)$ distribution. The corresponding p-value is $0.101$, suggesting that we fail to reject the null hypothesis at the $\alpha = 0.05$ level.
 
-**Alternative Approach (Full vs. Reduced Model):**
-The null hypothesis implies relationships between the parameters that allow us to rewrite the model. If $2\beta_1 = \beta_3$ and $2\beta_2 = \beta_3$, then $\beta_1 = 0.5\beta_3$ and $\beta_2 = 0.5\beta_3$. Substituting these into the full model:
-
-$$
-y_1 = \beta_0 + 0.5\beta_3 x_1 + 0.5\beta_3 x_2 + \beta_3 x_3 + \epsilon
-$$
-$$
-y_1 = \beta_0 + \beta_3 (0.5 x_1 + 0.5 x_2 + x_3) + \epsilon
-$$
-
-This reduced model has only two parameters: an intercept $\beta_0$ and a slope $\beta_3$ for the constructed variable $z = 0.5x_1 + 0.5x_2 + x_3$. We could then calculate $F$ using the difference in SSE between the full model and this reduced model .
 
 
 **Method 1: General Linear Hypothesis (Manual Matrix & car Package)**
@@ -450,7 +439,16 @@ print(linearHypothesis(full_model, hypotheses))
 
 **Method 2: Nested Models Approach**
 
-In this method, we analyze the change in error when moving from the Full Model to a Reduced Model. The plot illustrates $SSE$ against the number of parameters $p$. Labels are positioned to the right of each data point for clarity.
+The null hypothesis implies relationships between the parameters that allow us to rewrite the model. If $2\beta_1 = \beta_3$ and $2\beta_2 = \beta_3$, then $\beta_1 = 0.5\beta_3$ and $\beta_2 = 0.5\beta_3$. Substituting these into the full model:
+
+$$
+y_1 = \beta_0 + 0.5\beta_3 x_1 + 0.5\beta_3 x_2 + \beta_3 x_3 + \epsilon
+$$
+$$
+y_1 = \beta_0 + \beta_3 (0.5 x_1 + 0.5 x_2 + x_3) + \epsilon
+$$
+
+This reduced model has only two parameters: an intercept $\beta_0$ and a slope $\beta_3$ for the constructed variable $z = 0.5x_1 + 0.5x_2 + x_3$. We could then calculate $F$ using the difference in SSE between the full model and this reduced model. We analyze the change in error when moving from the Full Model to a Reduced Model. The plot illustrates $SSE$ against the number of parameters $p$. Labels are positioned to the right of each data point for clarity.
 
 
 
@@ -493,8 +491,8 @@ ggplot(viz_data, aes(x = p, y = sse)) +
                                 "Reduced Model" = "blue", 
                                 "Saturated" = "darkgreen")) +
   # Expand x-axis slightly to make room for text on the right
-  scale_x_continuous(expand = expansion(mult = c(0.1, 0.3))) +
-  ylim(0, max(viz_data$sse) * 1.1)
+  scale_x_continuous(expand = expansion(mult = c(0.1, 0.4))) +
+  ylim(0, max(viz_data$sse) * 1.01)
 
 # Display raw text output from anova for nested models
 anova(reduced_model, full_model)
