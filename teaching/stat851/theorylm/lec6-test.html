@@ -666,13 +666,6 @@ C(X^T X)^{-1} C^T = \begin{pmatrix} 0.003366 &amp; -0.006943 \\ -0.006943 &amp; 
 F = \frac{(C\hat{\beta})^T [C(X^T X)^{-1} C^T]^{-1} (C\hat{\beta}) / 2}{s^2} = \frac{28.62301 / 2}{5.3449} = 2.6776
 \]</span></p>
 <p>where <span class="math inline">\(s^2 = \text{MSE}_{\text{FM}} = 5.3449\)</span>. This statistic follows an <span class="math inline">\(F(2, 15)\)</span> distribution. The corresponding p-value is <span class="math inline">\(0.101\)</span>, suggesting that we fail to reject the null hypothesis at the <span class="math inline">\(\alpha = 0.05\)</span> level.</p>
-<p><strong>Alternative Approach (Full vs.&nbsp;Reduced Model):</strong> The null hypothesis implies relationships between the parameters that allow us to rewrite the model. If <span class="math inline">\(2\beta_1 = \beta_3\)</span> and <span class="math inline">\(2\beta_2 = \beta_3\)</span>, then <span class="math inline">\(\beta_1 = 0.5\beta_3\)</span> and <span class="math inline">\(\beta_2 = 0.5\beta_3\)</span>. Substituting these into the full model:</p>
-<p><span class="math display">\[
-y_1 = \beta_0 + 0.5\beta_3 x_1 + 0.5\beta_3 x_2 + \beta_3 x_3 + \epsilon
-\]</span> <span class="math display">\[
-y_1 = \beta_0 + \beta_3 (0.5 x_1 + 0.5 x_2 + x_3) + \epsilon
-\]</span></p>
-<p>This reduced model has only two parameters: an intercept <span class="math inline">\(\beta_0\)</span> and a slope <span class="math inline">\(\beta_3\)</span> for the constructed variable <span class="math inline">\(z = 0.5x_1 + 0.5x_2 + x_3\)</span>. We could then calculate <span class="math inline">\(F\)</span> using the difference in SSE between the full model and this reduced model .</p>
 <p><strong>Method 1: General Linear Hypothesis (Manual Matrix &amp; car Package)</strong></p>
 <p>This approach tests the hypothesis <span class="math inline">\(H_0: C\beta = 0\)</span>. We calculate the Sum of Squares for the Hypothesis (<span class="math inline">\(SSH\)</span>) using the general linear hypothesis formula and then structure the results into a standard ANOVA table format. <strong>Method 1: General Linear Hypothesis (Manual Matrix &amp; car Package)</strong></p>
 <p>This approach tests the hypothesis <span class="math inline">\(H_0: C\beta = 0\)</span>. We calculate the Sum of Squares for the Hypothesis (<span class="math inline">\(SSH\)</span>) using the general linear hypothesis formula and then structure the results into a standard ANOVA table format.</p>
@@ -756,7 +749,13 @@ Model 2: y1 ~ x1 + x2 + x3
 </div>
 <hr>
 <p><strong>Method 2: Nested Models Approach</strong></p>
-<p>In this method, we analyze the change in error when moving from the Full Model to a Reduced Model. The plot illustrates <span class="math inline">\(SSE\)</span> against the number of parameters <span class="math inline">\(p\)</span>. Labels are positioned to the right of each data point for clarity.</p>
+<p>The null hypothesis implies relationships between the parameters that allow us to rewrite the model. If <span class="math inline">\(2\beta_1 = \beta_3\)</span> and <span class="math inline">\(2\beta_2 = \beta_3\)</span>, then <span class="math inline">\(\beta_1 = 0.5\beta_3\)</span> and <span class="math inline">\(\beta_2 = 0.5\beta_3\)</span>. Substituting these into the full model:</p>
+<p><span class="math display">\[
+y_1 = \beta_0 + 0.5\beta_3 x_1 + 0.5\beta_3 x_2 + \beta_3 x_3 + \epsilon
+\]</span> <span class="math display">\[
+y_1 = \beta_0 + \beta_3 (0.5 x_1 + 0.5 x_2 + x_3) + \epsilon
+\]</span></p>
+<p>This reduced model has only two parameters: an intercept <span class="math inline">\(\beta_0\)</span> and a slope <span class="math inline">\(\beta_3\)</span> for the constructed variable <span class="math inline">\(z = 0.5x_1 + 0.5x_2 + x_3\)</span>. We could then calculate <span class="math inline">\(F\)</span> using the difference in SSE between the full model and this reduced model. We analyze the change in error when moving from the Full Model to a Reduced Model. The plot illustrates <span class="math inline">\(SSE\)</span> against the number of parameters <span class="math inline">\(p\)</span>. Labels are positioned to the right of each data point for clarity.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -795,8 +794,8 @@ Model 2: y1 ~ x1 + x2 + x3
 <span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>                                <span class="st">"Reduced Model"</span> <span class="ot">=</span> <span class="st">"blue"</span>, </span>
 <span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>                                <span class="st">"Saturated"</span> <span class="ot">=</span> <span class="st">"darkgreen"</span>)) <span class="sc">+</span></span>
 <span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Expand x-axis slightly to make room for text on the right</span></span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">expand =</span> <span class="fu">expansion</span>(<span class="at">mult =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.3</span>))) <span class="sc">+</span></span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="dv">0</span>, <span class="fu">max</span>(viz_data<span class="sc">$</span>sse) <span class="sc">*</span> <span class="fl">1.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">expand =</span> <span class="fu">expansion</span>(<span class="at">mult =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.4</span>))) <span class="sc">+</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="dv">0</span>, <span class="fu">max</span>(viz_data<span class="sc">$</span>sse) <span class="sc">*</span> <span class="fl">1.01</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
