@@ -959,6 +959,9 @@ To correct for the inflation of $R^2$ due to model complexity ($k$), we introduc
 
 $$ R^2_a = 1 - \frac{\text{SSE}/(n-k-1)}{\text{SST}/(n-1)} = 1 - \frac{\text{MSE}}{\text{MST}} = 1 - (1 - R^2) \frac{n-1}{n-k-1} $$
 
+In terms of $1-R^2_a$:
+$$1 - R^2_a = (1 - R^2) \frac{n-1}{n-k-1}$$
+
 **Expectation:**
 
 Under $H_0$, since $E[\text{MSE}] = E[\text{MST}] = \sigma^2$, the estimator is asymptotically unbiased:
@@ -984,21 +987,22 @@ As the model complexity $k$ increases relative to $n$:
 
 This implies that for high-dimensional models (large $k/n$), $R^2_a$ becomes an extremely noisy estimator, often yielding large negative values even for null models.
 
-## Population Proportion of Signals ($\rho^2$)
+## Inference for Population Proportion's Multiple Correlation ($\rho^2$)
 
-The formula for the expected Adjusted $R^2$ reveals a deep connection to the decomposition of variance in population quantities. Recall the Rao-Blackwell theorem (or Law of Total Variance), which decomposes the total variance of a single observation $Y_i$ into the expected conditional variance (noise) and the variance of the conditional expectation (signal). Let $\sigma^2_\mu$ denote the signal variance and $\sigma^2$ denote the noise variance:
+### Expectation of Adjusted $R^2$
 
-$$ \text{Var}(Y_i) = E[\text{Var}(Y_i|x_{(i)})] + \text{Var}(E[Y_i|x_{(i)}]) $$
-$$ \sigma^2_Y = \sigma^2 + \sigma^2_\mu $$
+The formula for the expected Adjusted $R^2$ reveals a deep connection to the decomposition of variance in population quantities. Recall the Rao-Blackwell theorem (or Law of Total Variance), which decomposes the total variance of a single observation $Y_i$ into the expected conditional variance (noise) and the variance of the conditional expectation (signal).
 
-In our derived expectation for $R^2_a$:
-$$ E[R^2_a] \approx \frac{\frac{\|X_c\beta_1\|^2}{n-1}}{\sigma^2 + \frac{\|X_c\beta_1\|^2}{n-1}} $$
+Using the approximation $E[f/g] \approx E[f]/E[g]$ for large $n$, we can express the expectation of $R^2_a$ in terms of the underlying true signal. Let $\mu = X\beta$ be the vector of true means. The centered signal vector is $X_c\beta = (I - P_{j_n})\mu$.
 
-The term in the numerator, $\frac{\|X_c\beta_1\|^2}{n-1}$, is precisely the **sample variance of the true means** $\mu_i$.
-Let $\mu = X\beta$. We can expand the centered signal vector $X_c\beta_1$ to see this explicitly. Since $\mu \in \text{Col}(X)$, we know $H\mu = \mu$:
+$$E[R^2_a] \approx \frac{\frac{\|X_c\beta\|^2}{n}}{\sigma^2 + \frac{\|X_c\beta\|^2}{n}}$$
+
+### Derivation of Signal Variance ($\sigma^2_\mu$)
+
+The term in the numerator relies on the squared norm of the centered true means. We can expand the centered signal vector $X_c\beta$ to see this explicitly. Since $\mu \in \text{Col}(X)$, we know $H\mu = \mu$:
 
 $$
-X_c\beta_1 = P_{X_c} \mu = (H - P_{j_n})\mu = H\mu - P_{j_n}\mu = \mu - \bar{\mu}j_n = 
+X_c\beta = P_{X_c} \mu = (H - P_{j_n})\mu = \mu - \bar{\mu}j_n = 
 \begin{pmatrix} 
 \mu_1 - \bar{\mu} \\ 
 \mu_2 - \bar{\mu} \\ 
@@ -1007,90 +1011,82 @@ X_c\beta_1 = P_{X_c} \mu = (H - P_{j_n})\mu = H\mu - P_{j_n}\mu = \mu - \bar{\mu
 \end{pmatrix}
 $$
 
-This vector represents the deviation of each observation's true mean from the grand mean. Consequently, the squared norm divided by degrees of freedom is:
-$$ \frac{\|X_c\beta_1\|^2}{n-1} = \frac{\sum_{i=1}^n (\mu_i - \bar{\mu})^2}{n-1} = \sigma^2_\mu $$
+This vector represents the deviation of each observation's true mean from the grand mean. Consequently, we define the **Signal Variance** ($\sigma^2_\mu$) as the average squared deviation (using $n$ as the divisor):
 
+$$\sigma^2_\mu = \frac{\|X_c\beta\|^2}{n} = \frac{\sum_{i=1}^n (\mu_i - \bar{\mu})^2}{n}$$
 
+Substituting this back into our expectation formula, we see that $R^2_a$ is an asymptotically unbiased estimator for the **proportion of variance explained by the signal** in the population, which we denote by $\rho^2$:
 
-Thus, $R^2_a$ is therefore an unbiased estimator for the **proportion of variance explained by the signal** in the population:
-$$ E[R^2_a] \approx \frac{\sigma^2_\mu}{\sigma^2 + \sigma^2_\mu}$$
+$$ E[R^2_a] \approx \frac{\sigma^2_\mu}{\sigma^2 + \sigma^2_\mu} = \rho^2$$
 
-We will denote this 'parameter' by $\rho^2$:
+where the total variance is $\sigma^2_Y = \sigma^2 + \sigma^2_\mu$.
 
-$$ \rho^2 = 1 - \frac{\sigma^2}{\sigma^2_Y} = \frac{\sigma^2_\mu}{\sigma^2_Y} $$
-
-::: {.remark}
+::: {.callout-note}
+## Fixed vs. Random Covariates
 In the fixed covariate framework, the 'parameter' $\rho^2$ is a function of the specific design matrix $X$, the coefficients $\beta$, and the sample size $n$. If we assume the $x_i$ are random draws from a population, then as $n \to \infty$, $\sigma^2_\mu$ converges to $\text{Var}(x^T\beta)$ (where $x$ is a random vector), and $\rho^2$ converges to the true population proportion of variance explained.
 :::
 
-::: {.callout-important title="MSR Is Not a Variance Estimator"}
+::: {.callout-note}
+## MSR Is Not a Variance Estimator
+It is critical to distinguish between hypothesis testing statistics and variance estimators:
 
-* Observing that $E[\text{MST}] \approx \sigma^2 + \sigma^2_\mu$ and $E[\text{MSE}] = \sigma^2$, we can see that the difference $\text{MST} - \text{MSE}$ provides a direct method-of-moments estimator for the variance of the signal itself ($\sigma^2_\mu$). 
+1.  **Estimating Signal Variance ($\sigma^2_\mu$):**
+    Observing that $E[\text{MST}] \approx \sigma^2 + \sigma^2_\mu$ and $E[\text{MSE}] = \sigma^2$, the difference $\text{MST} - \text{MSE}$ provides a direct method-of-moments estimator for the variance of the signal itself.
 
-* It is important to recognize that the commonly used **Mean Square Regression (MSR)**, defined as $\text{SSR}/k$, is **not** an estimator of the signal variance. Because $E[\text{MSR}] = \sigma^2 + \frac{\|X_c\beta_1\|^2}{k}$, it scales with the sample size $n$ (via the squared norm) rather than converging to a population parameter. MSR is designed for hypothesis testing (detecting *existence* of signal), not for estimating the *magnitude* of the signal variance.
+2.  **Testing for Signal Existence (MSR):**
+    The commonly used **Mean Square Regression (MSR)**, defined as $\text{SSR}/k$, is **not** an estimator of the signal variance. Because $E[\text{MSR}] = \sigma^2 + \frac{n}{k}\sigma^2_\mu$, it scales linearly with the sample size $n$. MSR is designed to explode as $n \to \infty$ to ensure power for hypothesis testing, not to estimate the magnitude of the signal.
 :::
 
-## Relationship between $R^2$ and $F$ Test
+### Relationship between $R^2$ and $F$ Test
 
 The $F$-statistic for the overall regression effect is a monotonic function of the coefficient of determination. We can express $F$ directly in terms of both the standard $R^2$ and the adjusted $R^2_a$, as well as relate its expected value to the population variance components.
 
 1.  **Expressing $F$ via Standard $R^2$:**
     Since $R^2 = \text{SSR}/\text{SST}$ and $1 - R^2 = \text{SSE}/\text{SST}$, we can substitute these into the definition of $F$:
     $$
-    F = \frac{\text{SSR}/k}{\text{SSE}/(n-k-1)} = \frac{(R^2 \cdot \text{SST}) / k}{((1 - R^2) \cdot \text{SST}) / (n - k - 1)} = \frac{R^2}{1 - R^2} \cdot \frac{n - k - 1}{k}
+    F = \frac{\text{SSR}/k}{\text{SSE}/(n-k-1)} = \frac{R^2}{1 - R^2} \cdot \frac{n - k - 1}{k}
     $$
 
-2.  **Expressing $F$ via Adjusted $R^2_a$:**
-    The relationship becomes structurally identical to the population expectation if we use the estimated Signal-to-Noise Ratio. Since $\frac{R^2_a}{1 - R^2_a} = \frac{\hat{\sigma}^2_\mu}{\hat{\sigma}^2}$, we have:
+2.  **Expected Value of $F$ as a function of $\sigma^2_\mu$ and $\sigma^2$:**
+    Using the new definition of population signal variance $\sigma^2_\mu = \frac{\|X_c\beta\|^2}{n}$ and noise variance $\sigma^2$, we can approximate the expected value of the $F$-statistic.
+    
+    Recall that $E[\text{SSR}] \approx \|X_c\beta\|^2 + k\sigma^2 = n\sigma^2_\mu + k\sigma^2$. Thus:
     $$
-    F = 1 + \frac{n-1}{k} \left( \frac{R^2_a}{1 - R^2_a} \right)
+    E[F] \approx \frac{E[\text{MSR}]}{E[\text{MSE}]} \approx \frac{(n\sigma^2_\mu + k\sigma^2)/k}{\sigma^2} = 1 + \frac{n}{k} \left( \frac{\sigma^2_\mu}{\sigma^2} \right)
     $$
-    This form highlights that $F$ starts at a baseline of 1 (pure noise) and increases proportional to the estimated signal strength.
-
-3.  **Expected Value of $F$ as a function of $\sigma^2_\mu$ and $\sigma^2$:**
-    Using the population signal variance $\sigma^2_\mu$ and noise variance $\sigma^2$, the expected value of the $F$-statistic (using the first-order approximation $E[F] \approx E[\text{MSR}]/E[\text{MSE}]$) is:
+    
+    The exact mean, derived from the non-central $F$ distribution $F(k, n-k-1, \lambda)$, is:
     $$
-    E[F] \approx 1 + \frac{n-1}{k} \left( \frac{\sigma^2_\mu}{\sigma^2} \right)
-    $$
-    The exact mean, derived from the non-central $F$ distribution, is:
-    $$
-    E[F] = \frac{n-k-1}{n-k-3} \left( 1 + \frac{n-1}{k} \frac{\sigma^2_\mu}{\sigma^2} \right), \quad \text{for } n-k-1 > 3
+    E[F] = \frac{n-k-1}{n-k-3} \left( 1 + \frac{n}{k} \frac{\sigma^2_\mu}{\sigma^2} \right), \quad \text{for } n-k-1 > 3
     $$
 
-## Confidence Interval of Population $\rho^2$
-
-
+### Confidence Interval of Population $\rho^2$
 
 While $R^2_a$ provides a point estimate, we can construct an exact confidence interval for $\rho^2$ by exploiting the distribution of the $F$-statistic.
 
 **1. The link between $\lambda$ and $\rho^2$:**
 
+Recall that the $F$-statistic follows a non-central distribution $F(k, n-k-1, \lambda)$. The non-centrality parameter $\lambda$ is directly related to the population $\rho^2$. Using the definition $\sigma^2_\mu = \frac{\|X_c\beta\|^2}{n}$:
 
-Recall that the $F$-statistic follows a non-central distribution $F(k, n-k-1, \lambda)$. The non-centrality parameter $\lambda$ is directly related to the population $\rho^2$. Using the variance decomposition derived above:
-
-$$ \lambda = \frac{\|X_c \beta_1\|^2}{\sigma^2} = (n-1) \left( \frac{\sigma^2_\mu}{\sigma^2} \right) $$
+$$ \lambda = \frac{\|X_c \beta\|^2}{\sigma^2} = \frac{n \sigma^2_\mu}{\sigma^2} = n \left( \frac{\sigma^2_\mu}{\sigma^2} \right) $$
 
 Substituting the signal-to-noise ratio $\frac{\sigma^2_\mu}{\sigma^2} = \frac{\rho^2}{1-\rho^2}$, we obtain a one-to-one mapping between $\lambda$ and $\rho^2$:
 
-$$ \lambda(\rho^2) = (n-1) \left( \frac{\rho^2}{1-\rho^2} \right) $$
-
+$$ \boxed{\lambda(\rho^2) = n \left( \frac{\rho^2}{1-\rho^2} \right)} $$
 
 To recover $\rho^2$ from $\lambda$, we invert the mapping:
 
-$$ \rho^2(\lambda) = \frac{\lambda}{\lambda + n - 1} $$
+$$ \boxed{\rho^2(\lambda) = \frac{\lambda}{\lambda + n}} $$
 
 **2. Inverting the Test Statistic:**
 
 We find a confidence interval $[\lambda_L, \lambda_U]$ for $\lambda$ by "inverting" the observed $F$-statistic ($F_{obs}$). We search for two specific non-central F-distributions: one where $F_{obs}$ cuts off the upper $\alpha/2$ tail, and one where it cuts off the lower $\alpha/2$ tail.
 
-* **Lower Bound ($\lambda_L$):** The non-centrality parameter such that $F_{obs}$ is the $1-\alpha/2$ quantile.
-* **Upper Bound ($\lambda_U$):** The non-centrality parameter such that $F_{obs}$ is the $\alpha/2$ quantile.
-
 This concept is illustrated in the figure below.
 
 ```{r}
 #| label: fig-ci-inversion
-#| fig-cap: "Illustration of constructing a confidence interval for the non-centrality parameter $\\lambda$ by inverting the F-test. The observed $F_{obs}$ (dashed line) is the $97.5^{th}$ percentile of the distribution defined by the lower bound $\\lambda_L$ (blue), and the $2.5^{th}$ percentile of the distribution defined by the upper bound $\\lambda_U$ (red). The shaded areas each represent $\\alpha/2$."
+#| fig-cap: "Illustration of constructing a confidence interval for the non-centrality parameter $\\lambda$ by inverting the F-test. The observed $F_{obs}$ (dashed line) is the $97.5^{th}$ percentile of the distribution defined by the lower bound $\\lambda_L$ (blue), and the $2.5^{th}$ percentile of the distribution defined by the upper bound $\\lambda_U$ (red)."
 #| echo: false
 #| warning: false
 #| message: false
@@ -1159,12 +1155,11 @@ ggplot() +
 
 **3. The Interval for $\rho^2$:**
 
-Once $[\lambda_L, \lambda_U]$ are found numerically, we map them back to the population $R^2$ scale using the inverse relationship:
+Once $[\lambda_L, \lambda_U]$ are found numerically, we map them back to the population $R^2$ scale using the updated inverse relationship:
 
-$$ \rho^2 = \frac{\lambda}{\lambda + (n-1)} $$
+$$ \rho^2 = \frac{\lambda}{\lambda + n} $$
 
 This produces an exact confidence interval $[\rho^2_L, \rho^2_U]$ for the proportion of variance explained by the model in the population.
-
 
 ## An Animation for Illustrating $R^2_a$ Under $H_0$ and $H_1$
 
@@ -1178,7 +1173,7 @@ We simulate a dataset with $n=30$ observations and consider a sequence of nested
 4.  **Group 4 ($k=20$):** Add $x_{12}, \dots, x_{20}$ (Noise).
 
 ```{r}
-#| label: generate-all-animations
+#| label: generate-all-animations-v2
 #| include: false
 #| cache: true
 
@@ -1193,7 +1188,7 @@ n_frames <- 30
 fps      <- 2
 n        <- 30
 sigma    <- 1
-beta1    <- 2 # Explicitly set to 2 as per text description
+beta1    <- 2 
 
 # [FLEXIBLE] Define your Steps Here.
 model_steps <- c(0, 1, 6, 11, 20) 
@@ -1221,19 +1216,14 @@ generate_animation <- function(scenario = "H0", filename) {
     y_min_limit <- -0.2
   }
 
-  # B. Theoretical Expectations
+  # B. Theoretical Expectations using sigma^2_mu = ||Xc_beta||^2 / n
   var_x <- 1 
   
-  # Calculate Total Variance (Var(Y))
-  # H0: beta=0 -> Total Var = sigma^2
-  # H1: beta=2 -> Total Var = sigma^2 + beta^2*var(x)
+  # Calculate Total Variance (Var(Y) = sigma^2 + sigma^2_mu)
+  # Under H1, sigma^2_mu = beta^2 * var(x) (asymptotically)
+  # So Total Var = sigma^2 + beta1^2 * var_x
   total_var <- if(scenario == "H1") (sigma^2 + beta1^2 * var_x) else sigma^2
   
-  # Calculate Expected Residual Variance (Sigma^2_k)
-  # k=0: Model has no predictors, so Residual Var = Total Var
-  # k>=1: Model includes x1. 
-  #       In H1, x1 explains signal, so Residual Var drops to sigma^2.
-  #       In H0, x1 is noise, so Residual Var is still sigma^2 (which is also Total Var).
   get_expected_residual_var <- function(k) {
     if (k == 0) return(total_var)
     return(sigma^2)
@@ -1242,7 +1232,8 @@ generate_animation <- function(scenario = "H0", filename) {
   theory_df <- data.frame(k = model_steps)
   theory_df$expected_mse <- sapply(theory_df$k, get_expected_residual_var)
   
-  # Calculate Theoretical R^2 = 1 - (Residual Var / Total Var)
+  # Theoretical R^2 = rho^2 = sigma^2_mu / (sigma^2 + sigma^2_mu)
+  # equivalently: 1 - (sigma^2 / sigma^2_Y)
   theory_df$expected_r2 <- 1 - (theory_df$expected_mse / total_var)
 
   # --- Frame Loop ---
@@ -1321,7 +1312,6 @@ generate_animation <- function(scenario = "H0", filename) {
       geom_point(aes(y = R2_adj, color = "Corrected (Adj R^2)"), size = 2, shape = 17) +
       
       scale_color_manual(values = c("Naive (R^2)" = "firebrick", "Corrected (Adj R^2)" = "blue")) +
-      # Re-use linetype scale to match top plot style
       scale_linetype_manual(values = c("Theoretical" = "dotted"), name=NULL) +
       
       scale_x_continuous(breaks = model_steps) +
@@ -1351,8 +1341,8 @@ generate_animation <- function(scenario = "H0", filename) {
 }
 
 # --- Execution ---
-generate_animation("H0", "figs/rss-h0-v6.mp4")
-generate_animation("H1", "figs/rss-h1-v6.mp4")
+generate_animation("H0", "figs/rss-h0-v7.mp4")
+generate_animation("H1", "figs/rss-h1-v7.mp4")
 ```
 
 ::: {.panel-tabset}
@@ -1369,10 +1359,10 @@ Under $H_0$, the true coefficient for $x_1$ is $\beta_1 = 0$. All predictors are
 if (knitr::is_html_output()) {
   htmltools::tags$video(
     controls = "controls", width = "100%", 
-    htmltools::tags$source(src = "figs/rss-h0-v6.mp4", type = "video/mp4")
+    htmltools::tags$source(src = "figs/rss-h0-v7.mp4", type = "video/mp4")
   )
 } else {
-  knitr::include_graphics("figs/rss-h0-v6.png")
+  knitr::include_graphics("figs/rss-h0-v7.png")
 }
 ```
 
@@ -1388,15 +1378,14 @@ Under $H_1$, $x_1$ is a true predictor ($\beta_1 = 2$). The subsequent groups ($
 if (knitr::is_html_output()) {
   htmltools::tags$video(
     controls = "controls", width = "100%", 
-    htmltools::tags$source(src = "figs/rss-h1-v6.mp4", type = "video/mp4")
+    htmltools::tags$source(src = "figs/rss-h1-v7.mp4", type = "video/mp4")
   )
 } else {
-  knitr::include_graphics("figs/rss-h1-v6.png")
+  knitr::include_graphics("figs/rss-h1-v7.png")
 }
 ```
 
 :::
-
 
 
 ## A Data Example with House Price Valuation
