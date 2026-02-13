@@ -1447,90 +1447,90 @@ if (knitr::is_html_output()) {
 
 We will solve for the coefficients $\hat{\beta}$ using three distinct methods.
 
-#### Method 1: Naive Matrix Formula {.unnumbered}
+1.  **Method 1: Naive Matrix Formula**
 
-This method solves the normal equations directly on the raw data: $\hat{\beta} = (X^{\prime}X)^{-1}X^{\prime}y$.
+    This method solves the normal equations directly on the raw data: $\hat{\beta} = (X^{\prime}X)^{-1}X^{\prime}y$.
 
-```{r}
-#| label: method-1-naive
+    ```{r}
+    #| label: method-1-naive
 
-# 1. Define Y and X (add Column of 1s for Intercept)
-y <- as.matrix(df$Price)
-# Note: "lawn" Is Included Here, Even Though It Is Irrelevant
-X_naive <- as.matrix(cbind(Intercept = 1, 
-                           df[, c("Size", "Age", "Beds", "Garage", "Lawn")]))
+    # 1. Define Y and X (add Column of 1s for Intercept)
+    y <- as.matrix(df$Price)
+    # Note: "lawn" Is Included Here, Even Though It Is Irrelevant
+    X_naive <- as.matrix(cbind(Intercept = 1, 
+                               df[, c("Size", "Age", "Beds", "Garage", "Lawn")]))
 
-# 2. Compute Intermediate Matrices
-XtX <- t(X_naive) %*% X_naive
-Xty <- t(X_naive) %*% y
+    # 2. Compute Intermediate Matrices
+    XtX <- t(X_naive) %*% X_naive
+    Xty <- t(X_naive) %*% y
 
-# Display Intermediate Steps
-cat("Matrix X'X (Cross-products of predictors):\n")
-print(round(XtX, 0))
+    # Display Intermediate Steps
+    cat("Matrix X'X (Cross-products of predictors):\n")
+    print(round(XtX, 0))
 
-cat("\nMatrix X'y (Cross-products with response):\n")
-print(round(Xty, 0))
+    cat("\nMatrix X'y (Cross-products with response):\n")
+    print(round(Xty, 0))
 
-# 3. Solve Beta
-beta_naive <- solve(XtX) %*% Xty
+    # 3. Solve Beta
+    beta_naive <- solve(XtX) %*% Xty
 
-# Display Result
-cat("\nSolved Coefficients (Beta):\n")
-print(t(beta_naive))
-```
+    # Display Result
+    cat("\nSolved Coefficients (Beta):\n")
+    print(t(beta_naive))
+    ```
 
-#### Method 2: Centralized Formula {.unnumbered}
+2.  **Method 2: Centralized Formula**
 
-This method reduces multicollinearity issues. Formula: $\hat{\beta}_{\text{slope}} = (X_c^{\prime}X_c)^{-1}X_c^{\prime}y_c$.
+    This method reduces multicollinearity issues. Formula: $\hat{\beta}_{\text{slope}} = (X_c^{\prime}X_c)^{-1}X_c^{\prime}y_c$.
 
-```{r}
-#| label: method-2-centralized
+    ```{r}
+    #| label: method-2-centralized
 
-# 1. Center the Data
-y_bar <- mean(y)
-X_raw <- as.matrix(df[, c("Size", "Age", "Beds", "Garage", "Lawn")])
-X_means <- colMeans(X_raw)
+    # 1. Center the Data
+    y_bar <- mean(y)
+    X_raw <- as.matrix(df[, c("Size", "Age", "Beds", "Garage", "Lawn")])
+    X_means <- colMeans(X_raw)
 
-y_c <- y - y_bar
-X_c <- sweep(X_raw, 2, X_means) 
+    y_c <- y - y_bar
+    X_c <- sweep(X_raw, 2, X_means) 
 
-# 2. Compute Intermediate Matrices
-XctXc <- t(X_c) %*% X_c
-Xctyc <- t(X_c) %*% y_c
+    # 2. Compute Intermediate Matrices
+    XctXc <- t(X_c) %*% X_c
+    Xctyc <- t(X_c) %*% y_c
 
-# Display Intermediate Steps
-cat("Matrix X_c'X_c (Centered Sum of Squares):\n")
-print(round(XctXc, 0))
+    # Display Intermediate Steps
+    cat("Matrix X_c'X_c (Centered Sum of Squares):\n")
+    print(round(XctXc, 0))
 
-cat("\nMatrix X_c'y_c (Centered Cross-products):\n")
-print(round(Xctyc, 0))
+    cat("\nMatrix X_c'y_c (Centered Cross-products):\n")
+    print(round(Xctyc, 0))
 
-# 3. Solve for Slope Coefficients
-beta_slope <- solve(XctXc) %*% Xctyc
+    # 3. Solve for Slope Coefficients
+    beta_slope <- solve(XctXc) %*% Xctyc
 
-# 4. Recover Intercept
-beta_0 <- y_bar - sum(X_means * beta_slope)
-beta_central <- rbind(Intercept = beta_0, beta_slope)
+    # 4. Recover Intercept
+    beta_0 <- y_bar - sum(X_means * beta_slope)
+    beta_central <- rbind(Intercept = beta_0, beta_slope)
 
-# Display Result
-cat("\nSolved Coefficients (Beta):\n")
-print(t(beta_central))
-```
+    # Display Result
+    cat("\nSolved Coefficients (Beta):\n")
+    print(t(beta_central))
+    ```
 
-#### Method 3: Using R's `lm` Function {.unnumbered}
+3.  **Method 3: Using R's `lm` Function**
 
-This is the standard approach for practitioners.
+    This is the standard approach for practitioners.
 
-```{r}
-#| label: method-3-lm
+    ```{r}
+    #| label: method-3-lm
 
-# Fit Model
-model_lm <- lm(Price ~ ., data = df)
-y_hat_lm <- fitted(model_lm)
+    # Fit Model
+    model_lm <- lm(Price ~ ., data = df)
+    y_hat_lm <- fitted(model_lm)
 
-# Extract Coefficients
-print(summary(model_lm))
-```
+    # Extract Coefficients
+    print(summary(model_lm))
+    ```
 
 ### Visualization of Fitted Values vs Mean
 
@@ -1570,326 +1570,334 @@ $$ \bar y = \bar{\hat{y}} ?$$
 
 We compare different methods to calculate the sources of variation.
 
-#### 1. Naive Sum of Squared Errors
-This uses the standard summation definitions: $\sum (Difference)^2$.
+1.  **Naive Sum of Squared Errors**
 
-* **SST (Total):** Variation of $y$ around $\hat{y}_0$ (Mean).
-* **SSR (Regression):** Variation of $\hat{y}$ around $\hat{y}_0$ (Mean).
-* **SSE (Error):** Variation of $y$ around $\hat{y}$ (Model).
+    This uses the standard summation definitions: $\sum (Difference)^2$.
 
-```{r}
-#| label: ss-naive
+    * **SST (Total):** Variation of $y$ around $\hat{y}_0$ (Mean).
+    * **SSR (Regression):** Variation of $\hat{y}$ around $\hat{y}_0$ (Mean).
+    * **SSE (Error):** Variation of $y$ around $\hat{y}$ (Model).
 
-# Vectors
-y_vec <- as.vector(y)
-y_hat <- as.vector(y_hat_lm)
-y_bar_vec <- rep(mean(y), length(y))
+    ```{r}
+    #| label: ss-naive
 
-# Calculations
-SST_naive <- sum((y_vec - y_bar_vec)^2)
-SSR_naive <- sum((y_hat - y_bar_vec)^2)
-SSE_naive <- sum((y_vec - y_hat)^2)
+    # Vectors
+    y_vec <- as.vector(y)
+    y_hat <- as.vector(y_hat_lm)
+    y_bar_vec <- rep(mean(y), length(y))
 
-cat("Naive Calculation:\n")
-cat("SST:", SST_naive, " SSR:", SSR_naive, " SSE:", SSE_naive, "\n")
-```
+    # Calculations
+    SST_naive <- sum((y_vec - y_bar_vec)^2)
+    SSR_naive <- sum((y_hat - y_bar_vec)^2)
+    SSE_naive <- sum((y_vec - y_hat)^2)
 
-#### 2. Pythagorean Shortcut (Vector Lengths)
-Based on the geometry of least squares, we can treat the variables as vectors. Because the vectors are orthogonal, we can use squared lengths (dot products with themselves).
+    cat("Naive Calculation:\n")
+    cat("SST:", SST_naive, " SSR:", SSR_naive, " SSE:", SSE_naive, "\n")
+    ```
 
-Formula: $\text{SSR} = ||\hat{y}||^2 - ||\hat{y}_0||^2$
+2.  **Pythagorean Shortcut (Vector Lengths)**
 
-```{r}
-#| label: ss-pythagorean
+    Based on the geometry of least squares, we can treat the variables as vectors. Because the vectors are orthogonal, we can use squared lengths (dot products with themselves).
 
-# Function for squared Euclidean norm (length squared)
-len_sq <- function(v) sum(v^2)
+    Formula: $\text{SSR} = ||\hat{y}||^2 - ||\hat{y}_0||^2$
 
-# SST = ||y||^2 - ||y_0||^2
-SST_pyth <- len_sq(y_vec) - len_sq(y_bar_vec)
+    ```{r}
+    #| label: ss-pythagorean
 
-# SSR = ||y_hat||^2 - ||y_0||^2
-SSR_pyth <- len_sq(y_hat) - len_sq(y_bar_vec)
+    # Function for squared Euclidean norm (length squared)
+    len_sq <- function(v) sum(v^2)
 
-# SSE = ||y||^2 - ||y_hat||^2
-SSE_pyth <- len_sq(y_vec) - len_sq(y_hat)
+    # SST = ||y||^2 - ||y_0||^2
+    SST_pyth <- len_sq(y_vec) - len_sq(y_bar_vec)
 
-cat("Pythagorean Calculation:\n")
-cat("SST:", SST_pyth, " SSR:", SSR_pyth, " SSE:", SSE_pyth, "\n")
-```
+    # SSR = ||y_hat||^2 - ||y_0||^2
+    SSR_pyth <- len_sq(y_hat) - len_sq(y_bar_vec)
 
-#### Matrix Algebra Shortcuts
+    # SSE = ||y||^2 - ||y_hat||^2
+    SSE_pyth <- len_sq(y_vec) - len_sq(y_hat)
 
-These formulas use the $\beta$ and $X$ matrices directly. This is computationally efficient for large datasets.
+    cat("Pythagorean Calculation:\n")
+    cat("SST:", SST_pyth, " SSR:", SSR_pyth, " SSE:", SSE_pyth, "\n")
+    ```
 
-* Formula A (Centered with $y_c$): $\text{SSR} = \hat{\beta}_c^{\prime} X_c^{\prime} y_c$
-* Formula B (Alternative with $y$): $\text{SSR} = \hat{\beta}_c^{\prime} X_c^{\prime} y$
-* Formula C (Uncentered): $\text{SSR} = \hat{\beta}^{\prime} X^{\prime} y - n\bar{y}^2$
+3.  **Matrix Algebra Shortcuts**
 
-```{r}
-#| label: ss-matrix-equivalence
+    These formulas use the $\beta$ and $X$ matrices directly. This is computationally efficient for large datasets.
 
-n <- length(y)
-term_correction <- n * mean(y)^2 
+    * Formula A (Centered with $y_c$): $\text{SSR} = \hat{\beta}_c^{\prime} X_c^{\prime} y_c$
+    * Formula B (Alternative with $y$): $\text{SSR} = \hat{\beta}_c^{\prime} X_c^{\prime} y$
+    * Formula C (Uncentered): $\text{SSR} = \hat{\beta}^{\prime} X^{\prime} y - n\bar{y}^2$
 
-# --- SSR Calculations ---
+    ```{r}
+    #| label: ss-matrix-equivalence
 
-# 1. SSR Formula A (Centered, using y_c)
-SSR_centered_yc <- t(beta_slope) %*% t(X_c) %*% y_c
+    n <- length(y)
+    term_correction <- n * mean(y)^2 
 
-# 2. SSR Formula A (Alternative, using raw y)
-# Since X_c is centered, X_c' * 1 = 0, so X_c'y_c is equivalent to X_c'y
-SSR_centered_y <- t(beta_slope) %*% t(X_c) %*% y
+    # --- SSR Calculations ---
 
-# 3. SSR Formula B (Uncentered Matrix)
-# beta_naive includes intercept, X_naive includes column of 1s
-term_beta_X_y <- t(beta_naive) %*% t(X_naive) %*% y
-SSR_uncentered <- term_beta_X_y - term_correction
+    # 1. SSR Formula A (Centered, using y_c)
+    SSR_centered_yc <- t(beta_slope) %*% t(X_c) %*% y_c
 
-# --- Equivalence Check Table ---
+    # 2. SSR Formula A (Alternative, using raw y)
+    # Since X_c is centered, X_c' * 1 = 0, so X_c'y_c is equivalent to X_c'y
+    SSR_centered_y <- t(beta_slope) %*% t(X_c) %*% y
 
-results_table <- data.frame(
-  Metric = c("SSR (Centered $X_c,y_c$)", 
-             "SSR (Centered $X_c$)", 
-             "SSR (Uncentered)"),
-  Formula = c("$\\hat{\\beta}_c' X_c' y_c$", 
-              "$\\hat{\\beta}_c' X_c' y$", 
-              "$\\hat{\\beta}' X' y - n\\bar{y}^2$"),
-  Value = c(as.numeric(SSR_centered_yc), 
-            as.numeric(SSR_centered_y), 
-            as.numeric(SSR_uncentered))
-)
+    # 3. SSR Formula B (Uncentered Matrix)
+    # beta_naive includes intercept, X_naive includes column of 1s
+    term_beta_X_y <- t(beta_naive) %*% t(X_naive) %*% y
+    SSR_uncentered <- term_beta_X_y - term_correction
 
-# Render the table
-knitr::kable(results_table, 
-             digits = 4, 
-             caption = "Demonstration of SSR Formula Equivalence")
-```
+    # --- Equivalence Check Table ---
+
+    results_table <- data.frame(
+      Metric = c("SSR (Centered $X_c,y_c$)", 
+                 "SSR (Centered $X_c$)", 
+                 "SSR (Uncentered)"),
+      Formula = c("$\\hat{\\beta}_c' X_c' y_c$", 
+                  "$\\hat{\\beta}_c' X_c' y$", 
+                  "$\\hat{\\beta}' X' y - n\\bar{y}^2$"),
+      Value = c(as.numeric(SSR_centered_yc), 
+                as.numeric(SSR_centered_y), 
+                as.numeric(SSR_uncentered))
+    )
+
+    # Render the table
+    knitr::kable(results_table, 
+                 digits = 4, 
+                 caption = "Demonstration of SSR Formula Equivalence")
+    ```
 
 
 ### Analysis of Variance (ANOVA)
 
 We now evaluate the sources of variation to test the overall model significance.
 
-#### 1. Computing Sums of Squares {.unnumbered}
+1.  **Computing Sums of Squares**
 
-We calculate the following components:
+    We calculate the following components:
 
-* Total Sum of Squares: $\text{SST} = \sum (y_i - \bar{y})^2$
-* Regression Sum of Squares: $\text{SSR} = \sum (\hat{y}_i - \bar{y})^2$
-* Sum of Squared Errors: $\text{SSE} = \sum (y_i - \hat{y}_i)^2$
+    * Total Sum of Squares: $\text{SST} = \sum (y_i - \bar{y})^2$
+    * Regression Sum of Squares: $\text{SSR} = \sum (\hat{y}_i - \bar{y})^2$
+    * Sum of Squared Errors: $\text{SSE} = \sum (y_i - \hat{y}_i)^2$
 
-```{r}
-#| label: ss-calc
-#| code-fold: true
+    ```{r}
+    #| label: ss-calc
+    #| code-fold: true
 
-# Vectors
-y_vec <- as.vector(y)
-y_hat <- as.vector(y_hat_lm)
-y_bar_vec <- rep(mean(y), length(y))
+    # Vectors
+    y_vec <- as.vector(y)
+    y_hat <- as.vector(y_hat_lm)
+    y_bar_vec <- rep(mean(y), length(y))
 
-# Calculations
-SST_naive <- sum((y_vec - y_bar_vec)^2)
-SSR_naive <- sum((y_hat - y_bar_vec)^2)
-SSE_naive <- sum((y_vec - y_hat)^2)
+    # Calculations
+    SST_naive <- sum((y_vec - y_bar_vec)^2)
+    SSR_naive <- sum((y_hat - y_bar_vec)^2)
+    SSE_naive <- sum((y_vec - y_hat)^2)
 
-cat("SST:", SST_naive, " SSR:", SSR_naive, " SSE:", SSE_naive, "\n")
-```
+    cat("SST:", SST_naive, " SSR:", SSR_naive, " SSE:", SSE_naive, "\n")
+    ```
 
-#### 2. Manual ANOVA Construction {.unnumbered}
+2.  **Manual ANOVA Construction**
 
-We build the table manually using the sums of squares and degrees of freedom. We calculate the Mean Squares and the F-statistic:
+    We build the table manually using the sums of squares and degrees of freedom. We calculate the Mean Squares and the F-statistic:
 
-* $\text{MSR} = \text{SSR} / k$
-* $\text{MSE} = \text{SSE} / (n - k - 1)$
-* $\text{MST} = \text{SST} / (n - 1)$
-* $F = \text{MSR} / \text{MSE}$
+    * $\text{MSR} = \text{SSR} / k$
+    * $\text{MSE} = \text{SSE} / (n - k - 1)$
+    * $\text{MST} = \text{SST} / (n - 1)$
+    * $F = \text{MSR} / \text{MSE}$
 
-```{r}
-#| label: anova-manual
+    ```{r}
+    #| label: anova-manual
 
-# Parameters
-k <- 5             # Predictors
-df_e <- n - k - 1  # Error DF
-df_t <- n - 1      # Total DF
+    # Parameters
+    k <- 5             # Predictors
+    df_e <- n - k - 1  # Error DF
+    df_t <- n - 1      # Total DF
 
-# Mean Squares
-MSR <- SSR_naive / k
-MSE <- SSE_naive / df_e
-MST <- SST_naive / df_t # Mean Square Total (Variance of Y)
+    # Mean Squares
+    MSR <- SSR_naive / k
+    MSE <- SSE_naive / df_e
+    MST <- SST_naive / df_t # Mean Square Total (Variance of Y)
 
-# F-statistic
-F_stat <- MSR / MSE
+    # F-statistic
+    F_stat <- MSR / MSE
 
-# P-value
-p_val <- pf(F_stat, k, df_e, lower.tail = FALSE)
+    # P-value
+    p_val <- pf(F_stat, k, df_e, lower.tail = FALSE)
 
-# Assemble Table
-anova_manual <- data.frame(
-  Source = c("Regression (Model)", "Error (Residual)", "Total"),
-  DF = c(k, df_e, df_t),
-  SS = c(SSR_naive, SSE_naive, SST_naive),
-  MS = c(MSR, MSE, MST), # Included MST here
-  F_Statistic = c(F_stat, NA, NA),
-  P_Value = c(p_val, NA, NA)
-)
+    # Assemble Table
+    anova_manual <- data.frame(
+      Source = c("Regression (Model)", "Error (Residual)", "Total"),
+      DF = c(k, df_e, df_t),
+      SS = c(SSR_naive, SSE_naive, SST_naive),
+      MS = c(MSR, MSE, MST), # Included MST here
+      F_Statistic = c(F_stat, NA, NA),
+      P_Value = c(p_val, NA, NA)
+    )
 
-knitr::kable(anova_manual, digits = 4, caption = "Manual ANOVA Table")
-```
+    knitr::kable(anova_manual, digits = 4, caption = "Manual ANOVA Table")
+    ```
 
-#### 3. Standard R Output (`anova`) {.unnumbered}
+3.  **Standard R Output (`anova`)**
 
-We display the standard `summary()` which provides the coefficients, t-tests, and the overall F-statistic found at the bottom. We also show `anova()` which gives the sequential sum of squares.
+    We display the standard `summary()` which provides the coefficients, t-tests, and the overall F-statistic found at the bottom. We also show `anova()` which gives the sequential sum of squares.
 
-```{r}
-#| label: r-summary-output
+    ```{r}
+    #| label: r-summary-output
 
-# Fit an intercept-only (null) model and compare to the fitted model
-model_null <- lm(Price ~ 1, data = df)
-cat("\nANOVA comparing intercept-only model to fitted model:\n")
-print(anova(model_null, model_lm))
+    # Fit an intercept-only (null) model and compare to the fitted model
+    model_null <- lm(Price ~ 1, data = df)
+    cat("\nANOVA comparing intercept-only model to fitted model:\n")
+    print(anova(model_null, model_lm))
 
-# One can call anova directly to model_lm
-print(anova(model_lm))
-```
+    # One can call anova directly to model_lm
+    print(anova(model_lm))
+    ```
 
 ### Coefficient of Determination and Variance Decomposition
 
 We calculate $R^2$ and Adjusted $R^2$, and then present them in a **Variance Decomposition Table**.
 
-#### 1. Calculation {.unnumbered}
+1.  **Calculation**
 
-We calculate the coefficients of determination:
+    We calculate the coefficients of determination:
 
-* Standard $R^2 = 1 - \frac{\text{SSE}}{\text{SST}}$
-* Adjusted $R^2_a = 1 - \frac{\text{MSE}}{\text{MST}}$
+    * Standard $R^2 = 1 - \frac{\text{SSE}}{\text{SST}}$
+    * Adjusted $R^2_a = 1 - \frac{\text{MSE}}{\text{MST}}$
 
-```{r}
-#| label: calc-r2
+    ```{r}
+    #| label: calc-r2
 
-# Standard R-squared
-R2 <- 1 - (SSE_naive / SST_naive)
+    # Standard R-squared
+    R2 <- 1 - (SSE_naive / SST_naive)
 
-# Adjusted R-squared
-# Formula: 1 - (MSE / MST)
-R2_adj <- 1 - (MSE / MST)
+    # Adjusted R-squared
+    # Formula: 1 - (MSE / MST)
+    R2_adj <- 1 - (MSE / MST)
 
-cat("Standard R^2:  ", round(R2, 4), "\n")
-cat("Adjusted R^2:  ", round(R2_adj, 4), "\n")
-```
+    cat("Standard R^2:  ", round(R2, 4), "\n")
+    cat("Adjusted R^2:  ", round(R2_adj, 4), "\n")
+    ```
 
-#### 2. Variance Decomposition Table {.unnumbered}
+2.  **Variance Decomposition Table**
 
-This table extends standard ANOVA. While ANOVA focuses on **Mean Squares (MS)** for hypothesis testing (is $\text{MSR} > \text{MSE}$?), this table focuses on **Variance Components ($\hat{\sigma}^2$)** for estimation (how much variance is Signal vs. Noise?). We estimate the variance components as follows:
+    This table extends standard ANOVA. While ANOVA focuses on **Mean Squares (MS)** for hypothesis testing (is $\text{MSR} > \text{MSE}$?), this table focuses on **Variance Components ($\hat{\sigma}^2$)** for estimation (how much variance is Signal vs. Noise?). We estimate the variance components as follows:
 
-* Signal Variance: $\hat{\sigma}^2_\mu = \text{MST} - \text{MSE}$
-* Noise Variance: $\hat{\sigma}^2 = \text{MSE}$
-* Total Variance: $\hat{\sigma}^2_Y = \text{MST}$
+    * Signal Variance: $\hat{\sigma}^2_\mu = \text{MST} - \text{MSE}$
+    * Noise Variance: $\hat{\sigma}^2 = \text{MSE}$
+    * Total Variance: $\hat{\sigma}^2_Y = \text{MST}$
 
-* **Signal Variance ($\hat{\sigma}^2_\mu$):** Estimated by $\text{MST} - \text{MSE}$. (Note: $\text{MSR}$ is biased and overestimates signal).
-* **Noise Variance ($\hat{\sigma}^2$):** Estimated by $\text{MSE}$.
-* **Total Variance ($\hat{\sigma}^2_Y$):** Estimated by $\text{MST}$.
+    * **Signal Variance ($\hat{\sigma}^2_\mu$):** Estimated by $\text{MST} - \text{MSE}$. (Note: $\text{MSR}$ is biased and overestimates signal).
+    * **Noise Variance ($\hat{\sigma}^2$):** Estimated by $\text{MSE}$.
+    * **Total Variance ($\hat{\sigma}^2_Y$):** Estimated by $\text{MST}$.
 
-```{r}
-#| label: variance-decomp-table
+    ```{r}
+    #| label: variance-decomp-table
 
-# Variance Component Estimators (Method of Moments)
-sigma2_noise_est  <- MSE
-sigma2_total_est  <- MST
-sigma2_signal_est <- MST - MSE
+    # Variance Component Estimators (Method of Moments)
+    sigma2_noise_est  <- MSE
+    sigma2_total_est  <- MST
+    sigma2_signal_est <- MST - MSE
 
-# Proportions
-prop_signal <- sigma2_signal_est / sigma2_total_est # Equals R^2_adj
-prop_noise  <- sigma2_noise_est / sigma2_total_est  # Equals 1 - R^2_adj
+    # Proportions
+    prop_signal <- sigma2_signal_est / sigma2_total_est # Equals R^2_adj
+    prop_noise  <- sigma2_noise_est / sigma2_total_est  # Equals 1 - R^2_adj
 
-# Assemble Table
-decomp_table <- data.frame(
-  Component = c("Signal (Model)", "Noise (Error)", "Total (Y)"),
-  DF = c(k, df_e, df_t),
-  SS = c(SSR_naive, SSE_naive, SST_naive),
-  MS = c(NA, MSE, MST),
-  Estimator_Sigma2 = c(sigma2_signal_est, sigma2_noise_est, sigma2_total_est),
-  Proportion = c(prop_signal, prop_noise, 1.0)
-)
+    # Assemble Table
+    decomp_table <- data.frame(
+      Component = c("Signal (Model)", "Noise (Error)", "Total (Y)"),
+      DF = c(k, df_e, df_t),
+      SS = c(SSR_naive, SSE_naive, SST_naive),
+      MS = c(NA, MSE, MST),
+      Estimator_Sigma2 = c(sigma2_signal_est, sigma2_noise_est, sigma2_total_est),
+      Proportion = c(prop_signal, prop_noise, 1.0)
+    )
 
-# Display
-knitr::kable(decomp_table, 
-             digits = 4, 
-             col.names = c("Component", "DF", "SS", "MS", "Value ($\\hat{\\sigma}^2$)", "Proportion"),
-             caption = "Variance Decomposition Table: Estimating Signal vs. Noise")
-```
+    # Display
+    knitr::kable(decomp_table, 
+                 digits = 4, 
+                 col.names = c("Component", "DF", "SS", "MS", "Value ($\\hat{\\sigma}^2$)", "Proportion"),
+                 caption = "Variance Decomposition Table: Estimating Signal vs. Noise")
+    ```
 
 ### Confidence Interval for Population $R^2$ ($\rho^2$)
 
 We construct a 95% confidence interval for the population proportion of variance explained ($\rho^2$).
 
-#### 1. Manual Inversion Method {.unnumbered}
+1.  **Manual Inversion Method**
 
-We solve for the non-centrality parameters $\lambda_L$ and $\lambda_U$ such that our observed $F_{obs}$ corresponds to the appropriate quantiles.
+    We solve for the non-centrality parameters $\lambda_L$ and $\lambda_U$ such that our observed $F_{obs}$ corresponds to the appropriate quantiles.
 
+    ```{r}
+    #| label: ci-rho2-manual
+    # 1. Define Helper Function
+    ci_R2_F <- function(F_stat, df1, df2, n, conf_level = 0.95) {
+      
+      # Helper to find NCP (Lambda)
+      get_lambda <- function(target_prob, F_val, df1, df2) {
+        f_root <- function(lam) pf(F_val, df1, df2, ncp = lam) - target_prob
+        
+        # Try to find root in likely interval
+        tryCatch({
+          uniroot(f_root, interval = c(0, 10000))$root
+        }, error = function(e) return(NA))
+      }
+      
+      alpha <- 1 - conf_level
+      
+      # Calculate Lambda Bounds
+      # Lower Bound: F_obs is the (1 - alpha/2) quantile
+      lambda_Lower <- get_lambda(1 - alpha/2, F_stat, df1, df2)
+      
+      # Upper Bound: F_obs is the (alpha/2) quantile
+      lambda_Upper <- get_lambda(alpha/2, F_stat, df1, df2)
+      
+      # Handle cases where F is not significant (Lambda_Lower -> 0)
+      if (is.na(lambda_Lower)) lambda_Lower <- 0
+      if (is.na(lambda_Upper)) lambda_Upper <- 0 # Should rare, but safe
+      
+      # Convert Lambda to Rho^2 using: rho^2 = lambda / (lambda + n)
+      rho2_Lower <- lambda_Lower / (lambda_Lower + n)
+      rho2_Upper <- lambda_Upper / (lambda_Upper + n)
+      
+      return(c(lower = rho2_Lower, upper = rho2_Upper))
+    }
 
-```{r}
-#| label: ci-rho2-manual
+    # 2. Call the function
+    # Assuming k (df1) and df_e (df2) are defined in your environment
+    ci <- ci_R2_F(F_stat, k, df_e, n)
 
-# 1. Define Helper Function to Find Lambda
-# We want to find lambda such that: pf(F_stat, df1, df2, ncp = lambda) = target_prob
-get_lambda <- function(target_prob, F_val, df1, df2) {
-  f_root <- function(lam) {
-    pf(F_val, df1, df2, ncp = lam) - target_prob
-  }
-  tryCatch({
-    res <- uniroot(f_root, interval = c(0, 1000))$root
-    return(res)
-  }, error = function(e) return(NA))
-}
+    cat("Manual Calculation using ci_R2_F:\n")
+    cat("95% CI for Population Rho^2: [", round(ci['lower'], 4), ", ", round(ci['upper'], 4), "]\n")
+    ```
 
-# 2. Calculate Lambda Bounds (95% CI -> alpha = 0.05)
-alpha <- 0.05
-# Lower Bound Lambda: F_obs is the (1 - alpha/2) quantile
-lambda_Lower <- get_lambda(1 - alpha/2, F_stat, k, df_e)
-# Upper Bound Lambda: F_obs is the (alpha/2) quantile
-lambda_Upper <- get_lambda(alpha/2, F_stat, k, df_e)
+2.  **Using R Package `MBESS`**
 
-if (is.na(lambda_Lower)) lambda_Lower <- 0
+    The `MBESS` package automates this procedure. We use `Random.Predictors = FALSE` to match the fixed-predictor assumption used in our manual calculation.
 
-# 3. Convert Lambda to Rho^2
-# Formula for Fixed Predictors: rho^2 = lambda / (lambda + n)
-rho2_Lower <- lambda_Lower / (lambda_Lower + n)
-rho2_Upper <- lambda_Upper / (lambda_Upper + n)
+    ```{r}
+    #| label: ci-rho2-mbess
+    #| warning: false
+    #| message: false
 
-cat("Manual Calculation:\n")
-cat("95% CI for Population Rho^2: [", round(rho2_Lower, 4), ", ", round(rho2_Upper, 4), "]\n")
-```
-
-#### 2. Using R Package `MBESS` {.unnumbered}
-
-The `MBESS` package automates this procedure. We use `Random.Predictors = FALSE` to match the fixed-predictor assumption used in our manual calculation.
-
-```{r}
-#| label: ci-rho2-mbess
-#| warning: false
-#| message: false
-
-if (requireNamespace("MBESS", quietly = TRUE)) {
-  
-  # Use N (sample size) and p (number of predictors) 
-  # instead of df.1/df.2 to avoid the redundancy error.
-  ci_res <- MBESS::ci.R2(F.value = F_stat, 
-                         p = k,      # Number of predictors
-                         N = n,      # Sample size
-                         conf.level = 0.95,
-                         Random.Predictors = FALSE)
-  
-  print(ci_res)
-  
-} else {
-  cat("Package 'MBESS' is not installed.")
-}
-```
-
-
-
-
+    if (requireNamespace("MBESS", quietly = TRUE)) {
+      
+      # Use N (sample size) and p (number of predictors) 
+      # instead of df.1/df.2 to avoid the redundancy error.
+      ci_res <- MBESS::ci.R2(F.value = F_stat, 
+                            p = k,      # Number of predictors
+                            N = n,      # Sample size
+                            conf.level = 0.95,
+                            Random.Predictors = FALSE)
+      
+      print(ci_res)
+      
+    } else {
+      cat("Package 'MBESS' is not installed.")
+    }
+    ```
+    
 ## Underfitting and Overfitting
 
 We compare the properties of two competing estimators for the mean response vector $\mu = E[y]$.
