@@ -271,7 +271,7 @@ It is crucial to recognize that the Gauss-Markov theorem only guarantees optimal
 * **Unbiasedness Constraint:** The theorem does not compare $\hat{\beta}$ to biased estimators. It is possible for a biased estimator (e.g., shrinkage estimators) to have a smaller Mean Squared Error (MSE) than the BLUE by accepting some bias to significantly reduce variance. The LSE is only "best" (minimum variance) among those estimators that satisfy the unbiasedness constraint.
 
 
-## Estimator of Error Variance
+## Unbiased Estimator of Error Variance
 
 We estimate $\sigma^{2}$ by the residual mean square:
 
@@ -342,25 +342,62 @@ Under assumptions A1-A5:
 ## Maximum Likelihood Estimator (MLE)
 
 ::: {#thm-mle name="MLE for Linear Regression"}
-If $y \sim N_n(X\beta, \sigma^2 I)$, the Maximum Likelihood Estimators are:
+If $y \sim N_n(X\beta, \sigma^2 I)$, the Maximum Likelihood Estimators (MLE) for the coefficients and the error variance are:
+
 $$
 \hat{\beta}_{\text{MLE}} = (X'X)^{-1}X'y
 $$
 $$
-\hat{\sigma}^2_{\text{MLE}} = \frac{1}{n}(y - X\hat{\beta})'(y - X\hat{\beta}) = \frac{\text{SSE}}{n}
+\hat{\sigma}^2_{\text{MLE},e} = \frac{\text{SSE}}{n}
+$$
+
+Similarly, under the Null Model ($y \sim N(\mu, \sigma_y^2)$), the MLE for the total variance of $y$ is:
+
+$$
+\hat{\sigma}^2_{\text{MLE},y} = \frac{\text{SST}}{n}
 $$
 :::
 
 ::: {.proof}
-The log-likelihood function is:
-$$ \ln L(\beta, \sigma^2) = -\frac{n}{2}\ln(2\pi) - \frac{n}{2}\ln(\sigma^2) - \frac{1}{2\sigma^2}(y - X\beta)'(y - X\beta) $$
-Maximizing this with respect to $\beta$ is equivalent to minimizing the quadratic term $(y - X\beta)'(y - X\beta)$, which yields the Least Squares Estimator.
-Differentiating with respect to $\sigma^2$ and setting to zero yields $\hat{\sigma}^2 = \text{SSE}/n$.
+**1. Derivation of Error Variance ($\hat{\sigma}^2_{\text{MLE},e}$)**
+
+The probability density function for the multivariate normal distribution $y \sim N(X\beta, \sigma^2 I)$ is:
+$$f(y) = (2\pi\sigma^2)^{-n/2} \exp\left( -\frac{1}{2\sigma^2}(y - X\beta)'(y - X\beta) \right)$$
+
+The log-likelihood function is $\ln L = \ln f(y)$:
+$$\ln L(\beta, \sigma^2) = -\frac{n}{2}\ln(2\pi) - \frac{n}{2}\ln(\sigma^2) - \frac{1}{2\sigma^2}(y - X\beta)'(y - X\beta)$$
+
+First, we maximize with respect to $\beta$. Since only the last term involves $\beta$, maximizing the likelihood is equivalent to minimizing the sum of squared errors:
+$$\text{SSE}(\beta) = (y - X\beta)'(y - X\beta)$$
+This yields the standard Least Squares estimator $\hat{\beta} = (X'X)^{-1}X'y$. Substituting this back into the SSE term gives the minimized sum of squares, $\text{SSE}$.
+
+Next, we maximize with respect to the variance $\sigma^2$. Let $v = \sigma^2$. The log-likelihood becomes:
+$$\ln L(v) = C - \frac{n}{2}\ln(v) - \frac{\text{SSE}}{2v}$$
+
+Differentiating with respect to $v$:
+$$\frac{\partial \ln L}{\partial v} = -\frac{n}{2v} + \frac{\text{SSE}}{2v^2}$$
+
+Setting the derivative to zero to find the critical point:
+$$-\frac{n}{2\hat{v}} + \frac{\text{SSE}}{2\hat{v}^2} = 0$$
+$$\frac{n}{2\hat{v}} = \frac{\text{SSE}}{2\hat{v}^2}$$
+$$n = \frac{\text{SSE}}{\hat{v}} \implies \hat{v} = \frac{\text{SSE}}{n}$$
+
+Thus, the MLE for the error variance is:
+$$\hat{\sigma}^2_{\text{MLE},e} = \frac{\text{SSE}}{n}$$
+
+**2. Derivation of Total Variance ($\hat{\sigma}^2_{\text{MLE},y}$)**
+
+Under the Null Model (intercept only), we assume $y_i \sim N(\mu, \sigma_y^2)$. The design matrix $X$ is simply a column of ones ($j_n$).
+Maximizing the likelihood for $\mu$ yields the sample mean $\hat{\mu} = \bar{y}$.
+
+The term $(y - X\beta)'(y - X\beta)$ simplifies to the Total Sum of Squares:
+$$\text{SST} = \sum_{i=1}^n (y_i - \bar{y})^2$$
+
+Following the exact same differentiation steps as above (replacing SSE with SST), the MLE for the variance of $y$ is:
+$$\hat{\sigma}^2_{\text{MLE},y} = \frac{\text{SST}}{n}$$
 :::
 
-**Note:** The MLE for $\sigma^2$ is biased (denominator $n$), whereas $s^2$ is unbiased (denominator $n-k-1$).
-
-
+**Note:** The MLEs for variance are biased. They divide by the sample size $n$, whereas the unbiased estimators (used in standard ANOVA tables) divide by the degrees of freedom ($n-k-1$ for error, $n-1$ for total).
 
 ## Linear Models in Centered Form
 
@@ -620,7 +657,7 @@ render_3d <- function(fig, filename) {
 #| message: false
 #| warning: false
 #| out-width: "100%"
-#| fig-cap: "Scenario 1: Significant regression effect ($\\beta_1 \not= 0$). The mean vector projects significantly onto the predictor space."
+#| fig-cap: "Scenario 1: Significant regression effect ($\\beta_1 \\not= 0$). The mean vector projects significantly onto the predictor space."
 
 data_A <- get_data(beta_effect = TRUE)
 fig_A  <- create_3d_plot(data_A, "Scenario A: Effect Exists")
@@ -731,26 +768,99 @@ The decomposition of the total variation is visualized below. The total deviatio
 
 We apply the general theory of projections to the specific components defined in @def-ss-components.
 
-::: {#thm-distribution-ss-v2 name="Distribution of Sum of Squares"}
+::: {#thm-distribution-ss-v2}
+### Distribution of Sum of Squares
 Let $y \sim N(\mu, \sigma^2 I_n)$, where $\mu \in \text{Col}(X)$.
 Consider the decomposition defined by the projection matrices $P_{X_c}$ and $M = I - H$.
 
-* **Independence:** The quadratic forms $\text{SSR}$ and $\text{SSE}$ are statistically independent because the subspaces $L(X_c)$ and $\text{Col}(X)^\perp$ are orthogonal.
+1. **Independence**
+   
+   The quadratic forms $\text{SSR}$ and $\text{SSE}$ are statistically independent because the subspaces $L(X_c)$ and $\text{Col}(X)^\perp$ are orthogonal.
 
-* **Distribution of SSE:** The scaled sum of squared errors follows a central Chi-squared distribution:
-  $$ \frac{\text{SSE}}{\sigma^2} = \frac{\|(I - H)y\|^2}{\sigma^2} \sim \chi^2(n-k-1) $$
-  **Mean:**
-  $$ E[\text{SSE}] = \sigma^2(n-k-1) $$
+2. **Distribution of SSE**
+   
+   The scaled sum of squared errors follows a central Chi-squared distribution:
+   
+   $$
+   \frac{\text{SSE}}{\sigma^2} = \frac{\|(I - H)y\|^2}{\sigma^2} \sim \chi^2(n-k-1)
+   $$
+   
+   **Mean:**
+   
+   $$
+   E[\text{SSE}] = \sigma^2(n-k-1)
+   $$
 
-* **Distribution of SSR:** The scaled regression sum of squares follows a **non-central** Chi-squared distribution:
-  $$ \frac{\text{SSR}}{\sigma^2} = \frac{\|P_{X_c}y\|^2}{\sigma^2} \sim \chi^2(k, \lambda) $$
-  **Mean:**
-  $$ E[\text{SSR}] = \sigma^2 k + \|P_{X_c}\mu\|^2 $$
+3. **Distribution of SSR**
+   
+   The scaled regression sum of squares follows a **non-central** Chi-squared distribution:
+   
+   $$
+   \frac{\text{SSR}}{\sigma^2} = \frac{\|P_{X_c}y\|^2}{\sigma^2} \sim \chi^2(k, \lambda)
+   $$
+   
+   **Mean:**
+   
+   $$
+   E[\text{SSR}] = \sigma^2 k + \|P_{X_c}\mu\|^2
+   $$
 
 **Non-centrality Parameter ($\lambda$):**
-$$ \lambda = \frac{1}{\sigma^2} \|P_{X_c} \mu\|^2 $$
-where $$\|P_{X_c} \mu\|^2 = \|X_c \beta_1\|^2 = (X_c \beta_1)' (X_c \beta_1) = \beta_1' X_c' X_c \beta_1$$
+
+$$
+\lambda = \frac{1}{\sigma^2} \|P_{X_c} \mu\|^2
+$$
+
+where 
+
+$$
+\|P_{X_c} \mu\|^2 = \|X_c \beta_1\|^2 = (X_c \beta_1)' (X_c \beta_1) = \beta_1' X_c' X_c \beta_1
+$$
 :::
+
+```{tikz}
+%| label: fig-SS-stick
+%| fig-cap: "Geometric Decomposition: SST = SSE + SSR"
+%| fig-align: "center"
+%| echo: false
+%| engine.opts:
+%|   extra.preamble: "\\usetikzlibrary{decorations.pathreplacing}"
+
+\begin{tikzpicture}[xscale=1.2, yscale=1]
+  % Define coordinates
+  \coordinate (O) at (0,0);
+  \coordinate (SSE) at (6,0);
+  \coordinate (SST) at (10,0);
+
+  % Draw the main axis
+  \draw[thick] (-0.5,0) -- (10.5,0);
+
+  % Draw Ticks
+  \foreach \x in {0, 6, 10}
+    \draw[thick] (\x, 0.2) -- (\x, -0.2);
+
+  % Labels for Ticks
+  \node[above=5pt] at (O) {\textbf{0}};
+  \node[above=5pt] at (SSE) {\textbf{SSE}};
+  \node[above=5pt] at (SST) {\textbf{SST}};
+
+  % Brace 1: SSE (0 to SSE)
+  \draw[decorate, decoration={brace, amplitude=10pt, mirror, raise=5pt}, thick]
+    (O) -- (SSE) 
+    node[midway, below=20pt] {$E[\text{SSE}] = \sigma^2(n-k-1)$};
+
+  % Brace 2: SSR (SSE to SST)
+  \draw[decorate, decoration={brace, amplitude=10pt, mirror, raise=5pt}, thick]
+    (SSE) -- (SST) 
+    node[midway, below=20pt] {$E[\text{SSR}] = \sigma^2(k + \lambda)$};
+
+  % Brace 3: SST (0 to SST) - Total
+  \draw[decorate, decoration={brace, amplitude=10pt, mirror, raise=45pt}, thick]
+    (O) -- (SST) 
+    node[midway, below=60pt] {$E[\text{SST}] = \sigma^2(n-1 + \lambda)$};
+\end{tikzpicture}
+```
+
 
 ::: proof
 We apply @thm-proj-dist to the specific projection matrices identified in the definitions.
@@ -1897,7 +2007,7 @@ We construct a 95% confidence interval for the population proportion of variance
       cat("Package 'MBESS' is not installed.")
     }
     ```
-    
+
 ## Underfitting and Overfitting
 
 We compare the properties of two competing estimators for the mean response vector $\mu = E[y]$.
