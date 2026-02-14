@@ -1350,27 +1350,18 @@ $$
 \boxed{\lambda = (n-1) f^2 = (n-1) \frac{\rho^2}{1 - \rho^2}}
 $$
 
-::: {.callout-note}
+### Remarks on Variance Estimation and Effect Size
 
-## Fixed vs. Random Covariates
-In the fixed covariate framework, the 'parameter' $\rho^2$ is a function of the specific design matrix $X$, the coefficients $\beta$, and the sample size $n$. If we assume the $x_i$ are random draws from a population, then as $n \to \infty$, $\sigma^2_\mu$ converges to $\text{Var}(x^T\beta)$ (where $x$ is a random vector), and $\rho^2$ converges to the true population proportion of variance explained.
+1.  **Fixed vs. Random Covariates**
+    In the fixed covariate framework, the "parameter" $\rho^2$ is a function of the specific design matrix $X$, the coefficients $\beta$, and the sample size $n$. If we assume the $x_i$ are random draws from a population, then as $n \to \infty$, $\sigma^2_\mu$ converges to $\text{Var}(x^T\beta)$ (where $x$ is a random vector), and $\rho^2$ converges to the true population proportion of variance explained.
 
-:::
+2.  **MSR Is Not a Variance Estimator**
+    It is critical to distinguish between hypothesis testing statistics and variance estimators:
+    * **Estimating Signal Variance ($\sigma^2_\mu$):** Observing that $E[\text{MST}] = \sigma^2 + \sigma^2_\mu$ and $E[\text{MSE}] = \sigma^2$, the difference $\text{MST} - \text{MSE}$ provides a direct method-of-moments estimator for the variance of the signal itself.
+    * **Testing for Signal Existence (MSR):** The commonly used **Mean Square Regression (MSR)**, defined as $\text{SSR}/k$, is **not** an estimator of the signal variance. Because $E[\text{MSR}] = \sigma^2 + \frac{n-1}{k}\sigma^2_\mu$, it scales linearly with the sample size $n$. MSR is designed to explode as $n \to \infty$ to ensure power for hypothesis testing, not to estimate the magnitude of the signal.
 
-::: {.callout-note}
-
-## MSR Is Not a Variance Estimator
-It is critical to distinguish between hypothesis testing statistics and variance estimators:
-
-1.  **Estimating Signal Variance ($\sigma^2_\mu$):**
-
-    Observing that $E[\text{MST}] \approx \sigma^2 + \sigma^2_\mu$ and $E[\text{MSE}] = \sigma^2$, the difference $\text{MST} - \text{MSE}$ provides a direct method-of-moments estimator for the variance of the signal itself.
-
-2.  **Testing for Signal Existence (MSR):**
-
-    The commonly used **Mean Square Regression (MSR)**, defined as $\text{SSR}/k$, is **not** an estimator of the signal variance. Because $E[\text{MSR}] = \sigma^2 + \frac{n}{k}\sigma^2_\mu$, it scales linearly with the sample size $n$. MSR is designed to explode as $n \to \infty$ to ensure power for hypothesis testing, not to estimate the magnitude of the signal.
-
-:::
+3.  **Significance vs. Predictive Effect Size**
+    The $F$-test $p$-value measures **statistical significance**—the strength of evidence against the null hypothesis—rather than the magnitude of the effect. In large datasets, even a negligible predictive effect (a very small $\rho^2$) can produce a highly significant $p$-value. Conversely, $\rho^2$ and $R^2_a$ provide measures of **predictive effect size**, indicating the practical utility of the model regardless of the sample size.
 
 ### Confidence Interval of Population $\rho^2$
 
@@ -1389,6 +1380,14 @@ While $R^2_a$ provides a point estimate, we can construct an exact confidence in
    To recover $\rho^2$ from $\lambda$, we invert the mapping:
 
    $$ \boxed{\rho^2(\lambda) = \frac{\lambda}{\lambda + (n-1)}} $$
+
+
+   ::: {#rem-lambda-divisor}
+
+   ### Remark on Divisor Conventions
+   It is important to note that different authors and software packages use different conventions for the divisor in the definition of signal variance. For example, the R package `MBESS` for fixed predictors defines signal variance as $\sigma^2_\mu = \|X_c\beta\|^2/n$. With this definiton, $\lambda = n \frac{\rho^2}{1-\rho^2}$.
+
+   :::
 
 2. Inverting the Test Statistic
 
@@ -1475,12 +1474,6 @@ ggplot() +
 
    This produces an exact confidence interval $[\rho^2_L, \rho^2_U]$ for the proportion of variance explained by the model in the population.
 
-::: {#rem-lambda-divisor}
-
-### Remark on Divisor Conventions
-It is important to note that different authors and software packages use different conventions for the divisor in the definition of signal variance. For example, the R package `MBESS` for fixed predictors defines signal variance as $\sigma^2_\mu = \|X_c\beta\|^2/n$. With this definiton, $\lambda = n \frac{\rho^2}{1-\rho^2}$.
-
-:::
 
 4. R function for finding the CI with F quantiles
 
