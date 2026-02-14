@@ -1013,7 +1013,7 @@ ggplot(df, aes(x, y)) +
 
 ## Raw Coefficient of Determination ($R^2$)
 
-### Definition
+**Definition**
 
 The $R^2$ statistic measures the proportion of total variation explained by the regression model. It is formally defined as the ratio of the Regression Sum of Squares to the Total Sum of Squares.
 
@@ -1023,7 +1023,7 @@ $$R^2 = \frac{\text{SSR}}{\text{SST}} = 1 - \frac{\text{SSE}}{\text{SST}}$$
 Since $0 \le \text{SSE} \le \text{SST}$, it follows that $0 \le R^2 \le 1$.
 :::
 
-### Relationship to MLE Variances
+**Relationship to MLE Variances**
 
 A crucial insight is that the unexplained variance term ($1 - R^2$) is simply the ratio of the **biased** Maximum Likelihood Estimators for the error variance and the total variance.
 
@@ -1035,7 +1035,18 @@ $$ 1 - R^2 = \frac{\text{SSE}}{\text{SST}} = \frac{n \cdot \hat{\sigma}^2_{\text
 
 This highlights that $R^2$ is constructed from estimators that divide by $n$, ignoring degrees of freedom.
 
-### Expectation and Bias
+
+**Exact Distribution**
+
+The $R^2$ statistic follows the Type I Non-central Beta distribution derived from the ratio of independent Chi-squared variables.
+
+::: {#thm-r2-dist}
+### Distribution of R-Squared
+$$ R^2 \sim \text{Beta}_1\left( \frac{k}{2}, \frac{n-k-1}{2}, \lambda \right) $$
+where the shape parameters correspond to half the degrees of freedom: $\alpha = k/2$ and $\beta = (n-k-1)/2$.
+:::
+
+**Expectation and Bias**
 
 To understand the bias in $R^2$, we analyze the expectation of this ratio.
 
@@ -1054,7 +1065,7 @@ $$ E[R^2 | H_0] = \frac{k/2}{k/2 + (n-k-1)/2} = \frac{k}{n-1} $$
 
 Consequently, the expected unexplained variance is:
 
-$$ E[1 - R^2 | H_0] = 1 - \frac{k}{n-1} = \frac{n-k-1}{n-1} $$
+$$ E[1 - R^2 | H_0] = \frac{n-k-1}{n-1} $$
 
 (This is an exact equality, explained by the properties of the Beta distribution).
 
@@ -1065,28 +1076,17 @@ The expectation is **strictly less than 1**. This confirms that $R^2$ is **posit
 This specific bias factor $\frac{n-k-1}{n-1}$ is the exact inverse of the correction applied by **Adjusted R-squared ($R^2_a$)**.
 :::
 
-### Exact Distribution
-
-The $R^2$ statistic follows the Type I Non-central Beta distribution derived from the ratio of independent Chi-squared variables.
-
-::: {#thm-r2-dist}
-### Distribution of R-Squared
-$$ R^2 \sim \text{Beta}_1\left( \frac{k}{2}, \frac{n-k-1}{2}, \lambda \right) $$
-where the shape parameters correspond to half the degrees of freedom: $\alpha = k/2$ and $\beta = (n-k-1)/2$.
-:::
-
 **A Visualization of Bias**
 
 
 The figure below aligns these three scales. Note how the Unbiased Estimator for error ($s^2_e$) shifts significantly to the right of the MLE ($\hat{\sigma}^2_e$) due to the loss of $k+1$ degrees of freedom, whereas the Total Variance estimator ($s^2_y$) shifts only slightly.
-
 ```{tikz}
-%| label: fig-variance-sticks-v4
-%| fig-cap: "Comparison of Variance Estimators. The vertical positions of the braces are slightly offset to avoid overlap, but the Expectation labels are aligned horizontally for easier comparison."
+%| label: fig-variance-sticks-v9
+%| fig-cap: "Comparison of Variance Estimators. "
 %| echo: false
 %| fig-align: "center"
 %| engine.opts:
-%|   extra.preamble: "\\usetikzlibrary{decorations.pathreplacing, arrows.meta}"
+%|   extra.preamble: "\\usetikzlibrary{decorations.pathreplacing, arrows.meta, calc}"
 
 \begin{tikzpicture}[xscale=1, yscale=1.3]
   % Define Styles
@@ -1096,11 +1096,12 @@ The figure below aligns these three scales. Note how the Unbiased Estimator for 
   \tikzstyle{shiftarrow} = [->, >=latex, color=red, thick]
 
   % --- Parameters ---
-  % n=20, k=5. Visual Scale: 1 unit = 20 units of SS
-  \def\xSSErr{3.0}
-  \def\xSSTot{10.0}
-  \def\xStwoE{4.28}
-  \def\xStwoY{10.53}
+  % n=20, k=10 
+  % Scale: 1 unit = 20 units of SS
+  \def\xSSErr{2.0}   % 40 / 20
+  \def\xSSTot{10.0}  % 200 / 20
+  \def\xStwoE{4.44}  % s^2_e
+  \def\xStwoY{10.53} % s^2_y
 
   % --- Stick 1: Sum of Squares (SS) ---
   \coordinate (O1) at (0, 0);
@@ -1112,63 +1113,63 @@ The figure below aligns these three scales. Note how the Unbiased Estimator for 
   \draw[tick] (\xSSTot, 0) -- ++(0, -0.15) node[below] {SST};
 
   % --- Stick 2: MLE Variance (SS / n) ---
-  % Y-shift: -2.5
-  \coordinate (O2) at (0, -2.5);
-  \coordinate (End2) at (12, -2.5);
+  \coordinate (O2) at (0, -2.0);
+  \coordinate (End2) at (12, -2.0);
 
-  \draw[axis] (-0.5, -2.5) -- (End2) node[right] {\textbf{MLE} ($\hat{\sigma}^2$)};
+  \draw[axis] (-0.5, -2.0) -- (End2) node[right] {\textbf{MLE} ($\hat{\sigma}^2$)};
   \draw[tick] (O2) -- ++(0, -0.15);
-  \draw[tick] (\xSSErr, -2.5) -- ++(0, -0.15) node[below] {$\hat{\sigma}^2_e$};
-  \draw[tick] (\xSSTot, -2.5) -- ++(0, -0.15) node[below] {$\hat{\sigma}^2_y$};
+  \draw[tick] (\xSSErr, -2.0) -- ++(0, -0.15) node[below] {$\hat{\sigma}^2_e$};
+  \draw[tick] (\xSSTot, -2.0) -- ++(0, -0.15) node[below] {$\hat{\sigma}^2_y$};
 
-  \draw[dashedline] (\xSSErr, 0) -- (\xSSErr, -2.5);
-  \draw[dashedline] (\xSSTot, 0) -- (\xSSTot, -2.5);
+  \draw[dashedline] (\xSSErr, 0) -- (\xSSErr, -2.0);
+  \draw[dashedline] (\xSSTot, 0) -- (\xSSTot, -2.0);
 
   % --- MLE Braces ---
-  % Strategy for alignment:
-  % Brace 1 (Error): raise=15pt. Node offset: below=20pt. Total depth ~ 35pt.
-  % Brace 2 (Total): raise=25pt. Node offset: below=10pt. Total depth ~ 35pt.
-  
-  \draw[decorate, decoration={brace, amplitude=5pt, mirror, raise=15pt}, thick, color=blue!80]
-    (O2) -- (\xSSErr, -2.5) 
-    node[midway, below=20pt] {$E = \sigma^2 \frac{n-k-1}{n}$};
+  \draw[decorate, decoration={brace, amplitude=5pt, mirror, raise=20pt}, thick, color=blue!80]
+    (O2) -- (\xSSErr, -2.0) coordinate[midway] (M1);
     
-  \draw[decorate, decoration={brace, amplitude=5pt, mirror, raise=25pt}, thick, color=blue!80]
-    (O2) -- (\xSSTot, -2.5) 
-    node[midway, below=10pt] {$E = \sigma^2 \frac{n-1+\lambda}{n}$};
+  \draw[decorate, decoration={brace, amplitude=5pt, mirror, raise=30pt}, thick, color=blue!80]
+    (O2) -- (\xSSTot, -2.0) coordinate[midway] (M2);
+    
+  % Text Nodes - UPDATED FONT
+  \node[text=blue!80, font=\normalsize\boldmath, anchor=north] at (M1 |- 0, -3.4) {$E = \sigma^2 \frac{n-k-1}{n}$};
+  \node[text=blue!80, font=\normalsize\boldmath, anchor=north] at (M2 |- 0, -3.4) {$E = \sigma^2 \frac{n-1+\lambda}{n}$};
+
 
   % --- Stick 3: Unbiased Estimator (SS / df) ---
-  % Y-shift: -6.5
-  \coordinate (O3) at (0, -6.5);
-  \coordinate (End3) at (12, -6.5);
+  \coordinate (O3) at (0, -5.0);
+  \coordinate (End3) at (12, -5.0);
 
-  \draw[axis] (-0.5, -6.5) -- (End3) node[right] {\textbf{Unbiased} ($s^2$)};
+  \draw[axis] (-0.5, -5.0) -- (End3) node[right] {\textbf{Unbiased} ($s^2$)};
   \draw[tick] (O3) -- ++(0, -0.15);
-  \draw[tick] (\xStwoE, -6.5) -- ++(0, -0.15) node[below] {$s^2_e$};
-  \draw[tick] (\xStwoY, -6.5) -- ++(0, -0.15) node[below] {$s^2_y$};
+  \draw[tick] (\xStwoE, -5.0) -- ++(0, -0.15) node[below] {$s^2_e$};
+  \draw[tick] (\xStwoY, -5.0) -- ++(0, -0.15) node[below] {$s^2_y$};
 
-  \draw[dashedline] (\xSSErr, -2.5) -- (\xSSErr, -6.5);
-  \draw[dashedline] (\xSSTot, -2.5) -- (\xSSTot, -6.5);
+  \draw[dashedline] (\xSSErr, -2.0) -- (\xSSErr, -5.0);
+  \draw[dashedline] (\xSSTot, -2.0) -- (\xSSTot, -5.0);
 
-  \draw[shiftarrow] (\xSSErr, -6.5) -- (\xStwoE, -6.5) node[midway, above, font=\scriptsize] {$\times \frac{n}{n-k-1}$};
-  \draw[shiftarrow] (\xSSTot, -6.5) -- (\xStwoY, -6.5) node[midway, above, font=\scriptsize] {$\times \frac{n}{n-1}$};
+  % Arrows with FORMULAS
+  \draw[shiftarrow] (\xSSErr, -5.0) -- (\xStwoE, -5.0) 
+    node[midway, above, font=\scriptsize, yshift=2pt] {$\times \frac{1}{1 - \frac{k+1}{n}}$};
+    
+  \draw[shiftarrow] (\xSSTot, -5.0) -- (\xStwoY, -5.0) 
+    node[midway, above, font=\scriptsize, yshift=2pt] {$\times \frac{1}{1 - \frac{1}{n}}$};
   
   % --- Unbiased Braces ---
-  % Same alignment strategy
-  
-  \draw[decorate, decoration={brace, amplitude=5pt, mirror, raise=15pt}, thick, color=green!60!black]
-    (O3) -- (\xStwoE, -6.5) 
-    node[midway, below=20pt] {$E = \sigma^2$};
+  \draw[decorate, decoration={brace, amplitude=5pt, mirror, raise=20pt}, thick, color=green!60!black]
+    (O3) -- (\xStwoE, -5.0) coordinate[midway] (M3);
 
-  \draw[decorate, decoration={brace, amplitude=5pt, mirror, raise=25pt}, thick, color=green!60!black]
-    (O3) -- (\xStwoY, -6.5) 
-    node[midway, below=10pt] {$E = \sigma^2 (1 + \frac{\lambda}{n-1})$};
+  \draw[decorate, decoration={brace, amplitude=5pt, mirror, raise=30pt}, thick, color=green!60!black]
+    (O3) -- (\xStwoY, -5.0) coordinate[midway] (M4);
+
+  % Text Nodes - UPDATED FONT
+  \node[text=green!60!black, font=\normalsize\boldmath, anchor=north] at (M3 |- 0, -6.4) {$E = \sigma^2$};
+  \node[text=green!60!black, font=\normalsize\boldmath, anchor=north] at (M4 |- 0, -6.4) {$E = \sigma^2 (1 + \frac{\lambda}{n-1})$};
 
 \end{tikzpicture}
-
 ```
 
-## Adjusted R-squared ($R^2_a$)
+## Adjusted R-squared ($R^2_a$) and Population Proportion's Multiple Correlation ($\rho^2$)
 
 To correct for the inflation of $R^2$ due to model complexity ($k$), we introduce the Adjusted $R^2$. This statistic penalizes the sum of squares by their degrees of freedom:
 
@@ -1202,7 +1203,6 @@ As the model complexity $k$ increases relative to $n$:
 
 This implies that for high-dimensional models (large $k/n$), $R^2_a$ becomes an extremely noisy estimator, often yielding large negative values even for null models.
 
-## Inference for Population Proportion's Multiple Correlation ($\rho^2$)
 
 ### Expectation of Adjusted $R^2$
 
@@ -1212,7 +1212,7 @@ Using the approximation $E[f/g] \approx E[f]/E[g]$ for large $n$, we can express
 
 $$E[R^2_a] \approx \frac{\frac{\|X_c\beta\|^2}{n}}{\sigma^2 + \frac{\|X_c\beta\|^2}{n}}$$
 
-### Derivation of Signal Variance ($\sigma^2_\mu$)
+### Definition of Signal Variance ($\sigma^2_\mu$)
 
 The term in the numerator relies on the squared norm of the centered true means. We can expand the centered signal vector $X_c\beta$ to see this explicitly. Since $\mu \in \text{Col}(X)$, we know $H\mu = \mu$:
 
@@ -1251,29 +1251,6 @@ It is critical to distinguish between hypothesis testing statistics and variance
 2.  **Testing for Signal Existence (MSR):**
     The commonly used **Mean Square Regression (MSR)**, defined as $\text{SSR}/k$, is **not** an estimator of the signal variance. Because $E[\text{MSR}] = \sigma^2 + \frac{n}{k}\sigma^2_\mu$, it scales linearly with the sample size $n$. MSR is designed to explode as $n \to \infty$ to ensure power for hypothesis testing, not to estimate the magnitude of the signal.
 :::
-
-### Relationship between $R^2$ and $F$ Test
-
-The $F$-statistic for the overall regression effect is a monotonic function of the coefficient of determination. We can express $F$ directly in terms of both the standard $R^2$ and the adjusted $R^2_a$, as well as relate its expected value to the population variance components.
-
-1.  **Expressing $F$ via Standard $R^2$:**
-    Since $R^2 = \text{SSR}/\text{SST}$ and $1 - R^2 = \text{SSE}/\text{SST}$, we can substitute these into the definition of $F$:
-    $$
-    F = \frac{\text{SSR}/k}{\text{SSE}/(n-k-1)} = \frac{R^2}{1 - R^2} \cdot \frac{n - k - 1}{k}
-    $$
-
-2.  **Expected Value of $F$ as a function of $\sigma^2_\mu$ and $\sigma^2$:**
-    Using the new definition of population signal variance $\sigma^2_\mu = \frac{\|X_c\beta\|^2}{n}$ and noise variance $\sigma^2$, we can approximate the expected value of the $F$-statistic.
-    
-    Recall that $E[\text{SSR}] \approx \|X_c\beta\|^2 + k\sigma^2 = n\sigma^2_\mu + k\sigma^2$. Thus:
-    $$
-    E[F] \approx \frac{E[\text{MSR}]}{E[\text{MSE}]} \approx \frac{(n\sigma^2_\mu + k\sigma^2)/k}{\sigma^2} = 1 + \frac{n}{k} \left( \frac{\sigma^2_\mu}{\sigma^2} \right)
-    $$
-    
-    The exact mean, derived from the non-central $F$ distribution $F(k, n-k-1, \lambda)$, is:
-    $$
-    E[F] = \frac{n-k-1}{n-k-3} \left( 1 + \frac{n}{k} \frac{\sigma^2_\mu}{\sigma^2} \right), \quad \text{for } n-k-1 > 3
-    $$
 
 ### Confidence Interval of Population $\rho^2$
 
