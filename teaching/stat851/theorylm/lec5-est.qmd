@@ -818,10 +818,38 @@ $$
 $$
 :::
 
+
+
+::: proof
+We apply @thm-proj-dist to the specific projection matrices identified in the definitions.
+
+* **For SSE (Error Space):**
+  $\text{SSE}$ is defined by the projection matrix $P_V = I - H$.
+
+  - **Dimension:** The rank of $(I - H)$ is $n - \text{rank}(X) = n - (k+1) = n - k - 1$.
+  - **Non-centrality:** Since $\mu \in \text{Col}(X)$, the projection onto the orthogonal complement is zero: $\|(I - H)\mu\|^2 = 0$. Thus, $\lambda = 0$.
+  - **Expectation:** Using Part 2 of @thm-proj-dist ($E(\|P_V y\|^2) = \sigma^2 \text{rank}(P_V) + \|P_V \mu\|^2$):
+    $$ E[\text{SSE}] = \sigma^2(n-k-1) + 0 = \sigma^2(n-k-1) $$
+
+* **For SSR (Regression Space):**
+  $\text{SSR}$ is defined by the projection matrix $P_V = P_{X_c}$.
+
+  - **Dimension:** The rank of $P_{X_c}$ is $(k+1) - 1 = k$.
+  - **Non-centrality:** The projection of $\mu$ onto $L(X_c)$ is $P_{X_c}\mu$.
+    $$ \lambda = \frac{1}{2\sigma^2} \|P_{X_c} \mu\|^2 $$
+
+  - **Expectation:** Using Part 2 of @thm-proj-dist:
+    $$ E[\text{SSR}] = \sigma^2 k + \|P_{X_c}\mu\|^2 $$
+
+  This shows that while $E[\text{SSE}]$ depends only on the noise variance and sample size, $E[\text{SSR}]$ is inflated by the magnitude of the true regression signal $\|P_{X_c}\mu\|^2$.
+:::
+
+
 ```{tikz}
 %| label: fig-SS-stick
-%| fig-cap: "Geometric Decomposition: SST = SSE + SSR"
+%| fig-cap: "Stick Diagram of Mean of SSE, SSR, and SST"
 %| fig-align: "center"
+%| out-extra: 'style="width: 90% !important;"'
 %| echo: false
 %| engine.opts:
 %|   extra.preamble: "\\usetikzlibrary{decorations.pathreplacing}"
@@ -860,32 +888,6 @@ $$
     node[midway, below=60pt] {$E[\text{SST}] = \sigma^2(n-1 + \lambda)$};
 \end{tikzpicture}
 ```
-
-
-::: proof
-We apply @thm-proj-dist to the specific projection matrices identified in the definitions.
-
-* **For SSE (Error Space):**
-  $\text{SSE}$ is defined by the projection matrix $P_V = I - H$.
-
-  - **Dimension:** The rank of $(I - H)$ is $n - \text{rank}(X) = n - (k+1) = n - k - 1$.
-  - **Non-centrality:** Since $\mu \in \text{Col}(X)$, the projection onto the orthogonal complement is zero: $\|(I - H)\mu\|^2 = 0$. Thus, $\lambda = 0$.
-  - **Expectation:** Using Part 2 of @thm-proj-dist ($E(\|P_V y\|^2) = \sigma^2 \text{rank}(P_V) + \|P_V \mu\|^2$):
-    $$ E[\text{SSE}] = \sigma^2(n-k-1) + 0 = \sigma^2(n-k-1) $$
-
-* **For SSR (Regression Space):**
-  $\text{SSR}$ is defined by the projection matrix $P_V = P_{X_c}$.
-
-  - **Dimension:** The rank of $P_{X_c}$ is $(k+1) - 1 = k$.
-  - **Non-centrality:** The projection of $\mu$ onto $L(X_c)$ is $P_{X_c}\mu$.
-    $$ \lambda = \frac{1}{2\sigma^2} \|P_{X_c} \mu\|^2 $$
-
-  - **Expectation:** Using Part 2 of @thm-proj-dist:
-    $$ E[\text{SSR}] = \sigma^2 k + \|P_{X_c}\mu\|^2 $$
-
-  This shows that while $E[\text{SSE}]$ depends only on the noise variance and sample size, $E[\text{SSR}]$ is inflated by the magnitude of the true regression signal $\|P_{X_c}\mu\|^2$.
-:::
-
 
 ## F-test for Testing Overall Regression Effect
 
@@ -1013,55 +1015,158 @@ ggplot(df, aes(x, y)) +
 
 ### Definition
 
-The $R^2$ statistic measures the proportion of total variation explained by the regression model.
+The $R^2$ statistic measures the proportion of total variation explained by the regression model. It is formally defined as the ratio of the Regression Sum of Squares to the Total Sum of Squares.
 
-::: {#def-r2 name="R-Squared"}
+::: {#def-r2}
+### R-Squared
 $$R^2 = \frac{\text{SSR}}{\text{SST}} = 1 - \frac{\text{SSE}}{\text{SST}}$$
 Since $0 \le \text{SSE} \le \text{SST}$, it follows that $0 \le R^2 \le 1$.
 :::
 
+### Relationship to MLE Variances
+
+A crucial insight is that the unexplained variance term ($1 - R^2$) is simply the ratio of the **biased** Maximum Likelihood Estimators for the error variance and the total variance.
+
+Recall that:
+$$ \hat{\sigma}^2_{\text{MLE}, e} = \frac{\text{SSE}}{n} \quad \text{and} \quad \hat{\sigma}^2_{\text{MLE}, y} = \frac{\text{SST}}{n} $$
+
+Therefore:
+$$ 1 - R^2 = \frac{\text{SSE}}{\text{SST}} = \frac{n \cdot \hat{\sigma}^2_{\text{MLE}, e}}{n \cdot \hat{\sigma}^2_{\text{MLE}, y}} = \frac{\hat{\sigma}^2_{\text{MLE}, e}}{\hat{\sigma}^2_{\text{MLE}, y}} $$
+
+This highlights that $R^2$ is constructed from estimators that divide by $n$, ignoring degrees of freedom.
 
 ### Expectation and Bias
 
-To understand the bias in $R^2$, it is more illuminating to analyze the expectation of the **unexplained variance** ($1 - R^2$). This term represents the ratio of error sum of squares to the total sum of squares:
+To understand the bias in $R^2$, we analyze the expectation of this ratio.
 
-$$ E[1 - R^2] = E\left[ \frac{\text{SSE}}{\text{SST}} \right] $$
+**1. General Approximation:**
+Using the first-order approximation $E[X/Y] \approx E[X]/E[Y]$:
 
-Using the first-order approximation $E[X/Y] \approx E[X]/E[Y]$, we examine the numerator and denominator separately:
+$$ E[1 - R^2] \approx \frac{E[\text{SSE}]}{E[\text{SST}]} = \frac{\sigma^2(n-k-1)}{\sigma^2(n-1 + \lambda)} = \frac{n-k-1}{n-1 + \lambda} $$
 
-$$
-\begin{aligned}
-E[\text{SSE}] &= \sigma^2(n-k-1) \\
-E[\text{SST}] &= \sigma^2(n-1) + \sigma^2\lambda = \sigma^2 \left( (n-1) + \frac{\|X_c \beta_1\|^2}{\sigma^2} \right)
-\end{aligned}
-$$
+**2. Exact Behavior under Null Hypothesis ($H_0$):**
 
-Substituting these back, we approximate the expected unexplained fraction:
+When there is no true signal ($\beta_1 = 0$), the non-centrality parameter $\lambda$ vanishes. In this specific case, $R^2$ follows a central Beta distribution with shape parameters $\alpha = k/2$ and $\beta = (n-k-1)/2$.
 
-$$ E[1 - R^2] \approx \frac{\sigma^2(n-k-1)}{\sigma^2 \left( (n-1) + \frac{\|X_c \beta_1\|^2}{\sigma^2} \right)} = \frac{n-k-1}{(n-1) + \frac{\|X_c \beta_1\|^2}{\sigma^2}} $$
+Using the standard mean of a Beta distribution ($E[X] = \frac{\alpha}{\alpha+\beta}$), we find that the expectation is **exact**:
 
-**Behavior under Null Hypothesis ($H_0$):**
-When there is no true signal ($\beta_1 = 0$), the term $\frac{\|X_c \beta_1\|^2}{\sigma^2}$ vanishes. The expected proportion of unexplained variance becomes:
+$$ E[R^2 | H_0] = \frac{k/2}{k/2 + (n-k-1)/2} = \frac{k}{n-1} $$
 
-$$ E[1 - R^2 | H_0] \approx \frac{n-k-1}{n-1} $$
+Consequently, the expected unexplained variance is:
 
-:::{.callout-note collapse="true"}
-This result reveals the source of the bias:
+$$ E[1 - R^2 | H_0] = 1 - \frac{k}{n-1} = \frac{n-k-1}{n-1} $$
 
-1.  Ideally, if predictors are noise, the model should explain nothing, and $E[1-R^2]$ should be $1$.
-2.  Instead, the expected error ratio is **less than 1**, specifically scaled by $\frac{n-k-1}{n-1}$.
-3.  This scaling factor is exactly what the **Adjusted R-squared ($R^2_a$)** attempts to correct by multiplying the observed ratio by the inverse $\frac{n-1}{n-k-1}$.
+(This is an exact equality, explained by the properties of the Beta distribution).
+
+:::{.callout-important}
+### Source of Bias
+The expectation is **strictly less than 1**. This confirms that $R^2$ is **positively biased** (it inflates the perceived fit). The model "eats up" $k$ degrees of freedom to fit noise, reducing the SSE artificially relative to the SST.
+
+This specific bias factor $\frac{n-k-1}{n-1}$ is the exact inverse of the correction applied by **Adjusted R-squared ($R^2_a$)**.
 :::
 
 ### Exact Distribution
 
 The $R^2$ statistic follows the Type I Non-central Beta distribution derived from the ratio of independent Chi-squared variables.
 
-::: {#thm-r2-dist name="Distribution of R-Squared"}
+::: {#thm-r2-dist}
+### Distribution of R-Squared
 $$ R^2 \sim \text{Beta}_1\left( \frac{k}{2}, \frac{n-k-1}{2}, \lambda \right) $$
-where $\text{df}_1 = k$ and $\text{df}_2 = n-k-1$.
+where the shape parameters correspond to half the degrees of freedom: $\alpha = k/2$ and $\beta = (n-k-1)/2$.
 :::
 
+**A Visualization of Bias**
+
+
+The figure below aligns these three scales. Note how the Unbiased Estimator for error ($s^2_e$) shifts significantly to the right of the MLE ($\hat{\sigma}^2_e$) due to the loss of $k+1$ degrees of freedom, whereas the Total Variance estimator ($s^2_y$) shifts only slightly.
+
+```{tikz}
+%| label: fig-variance-sticks-v4
+%| fig-cap: "Comparison of Variance Estimators. The vertical positions of the braces are slightly offset to avoid overlap, but the Expectation labels are aligned horizontally for easier comparison."
+%| echo: false
+%| fig-align: "center"
+%| engine.opts:
+%|   extra.preamble: "\\usetikzlibrary{decorations.pathreplacing, arrows.meta}"
+
+\begin{tikzpicture}[xscale=1, yscale=1.3]
+  % Define Styles
+  \tikzstyle{axis} = [thick, ->, >=latex]
+  \tikzstyle{tick} = [thick]
+  \tikzstyle{dashedline} = [dashed, color=gray!50]
+  \tikzstyle{shiftarrow} = [->, >=latex, color=red, thick]
+
+  % --- Parameters ---
+  % n=20, k=5. Visual Scale: 1 unit = 20 units of SS
+  \def\xSSErr{3.0}
+  \def\xSSTot{10.0}
+  \def\xStwoE{4.28}
+  \def\xStwoY{10.53}
+
+  % --- Stick 1: Sum of Squares (SS) ---
+  \coordinate (O1) at (0, 0);
+  \coordinate (End1) at (12, 0);
+
+  \draw[axis] (-0.5, 0) -- (End1) node[right] {\textbf{Sum of Squares}};
+  \draw[tick] (O1) -- ++(0, -0.15) node[below] {0};
+  \draw[tick] (\xSSErr, 0) -- ++(0, -0.15) node[below] {SSE};
+  \draw[tick] (\xSSTot, 0) -- ++(0, -0.15) node[below] {SST};
+
+  % --- Stick 2: MLE Variance (SS / n) ---
+  % Y-shift: -2.5
+  \coordinate (O2) at (0, -2.5);
+  \coordinate (End2) at (12, -2.5);
+
+  \draw[axis] (-0.5, -2.5) -- (End2) node[right] {\textbf{MLE} ($\hat{\sigma}^2$)};
+  \draw[tick] (O2) -- ++(0, -0.15);
+  \draw[tick] (\xSSErr, -2.5) -- ++(0, -0.15) node[below] {$\hat{\sigma}^2_e$};
+  \draw[tick] (\xSSTot, -2.5) -- ++(0, -0.15) node[below] {$\hat{\sigma}^2_y$};
+
+  \draw[dashedline] (\xSSErr, 0) -- (\xSSErr, -2.5);
+  \draw[dashedline] (\xSSTot, 0) -- (\xSSTot, -2.5);
+
+  % --- MLE Braces ---
+  % Strategy for alignment:
+  % Brace 1 (Error): raise=15pt. Node offset: below=20pt. Total depth ~ 35pt.
+  % Brace 2 (Total): raise=25pt. Node offset: below=10pt. Total depth ~ 35pt.
+  
+  \draw[decorate, decoration={brace, amplitude=5pt, mirror, raise=15pt}, thick, color=blue!80]
+    (O2) -- (\xSSErr, -2.5) 
+    node[midway, below=20pt] {$E = \sigma^2 \frac{n-k-1}{n}$};
+    
+  \draw[decorate, decoration={brace, amplitude=5pt, mirror, raise=25pt}, thick, color=blue!80]
+    (O2) -- (\xSSTot, -2.5) 
+    node[midway, below=10pt] {$E = \sigma^2 \frac{n-1+\lambda}{n}$};
+
+  % --- Stick 3: Unbiased Estimator (SS / df) ---
+  % Y-shift: -6.5
+  \coordinate (O3) at (0, -6.5);
+  \coordinate (End3) at (12, -6.5);
+
+  \draw[axis] (-0.5, -6.5) -- (End3) node[right] {\textbf{Unbiased} ($s^2$)};
+  \draw[tick] (O3) -- ++(0, -0.15);
+  \draw[tick] (\xStwoE, -6.5) -- ++(0, -0.15) node[below] {$s^2_e$};
+  \draw[tick] (\xStwoY, -6.5) -- ++(0, -0.15) node[below] {$s^2_y$};
+
+  \draw[dashedline] (\xSSErr, -2.5) -- (\xSSErr, -6.5);
+  \draw[dashedline] (\xSSTot, -2.5) -- (\xSSTot, -6.5);
+
+  \draw[shiftarrow] (\xSSErr, -6.5) -- (\xStwoE, -6.5) node[midway, above, font=\scriptsize] {$\times \frac{n}{n-k-1}$};
+  \draw[shiftarrow] (\xSSTot, -6.5) -- (\xStwoY, -6.5) node[midway, above, font=\scriptsize] {$\times \frac{n}{n-1}$};
+  
+  % --- Unbiased Braces ---
+  % Same alignment strategy
+  
+  \draw[decorate, decoration={brace, amplitude=5pt, mirror, raise=15pt}, thick, color=green!60!black]
+    (O3) -- (\xStwoE, -6.5) 
+    node[midway, below=20pt] {$E = \sigma^2$};
+
+  \draw[decorate, decoration={brace, amplitude=5pt, mirror, raise=25pt}, thick, color=green!60!black]
+    (O3) -- (\xStwoY, -6.5) 
+    node[midway, below=10pt] {$E = \sigma^2 (1 + \frac{\lambda}{n-1})$};
+
+\end{tikzpicture}
+
+```
 
 ## Adjusted R-squared ($R^2_a$)
 
