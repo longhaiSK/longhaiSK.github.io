@@ -271,7 +271,7 @@ It is crucial to recognize that the Gauss-Markov theorem only guarantees optimal
 * **Unbiasedness Constraint:** The theorem does not compare $\hat{\beta}$ to biased estimators. It is possible for a biased estimator (e.g., shrinkage estimators) to have a smaller Mean Squared Error (MSE) than the BLUE by accepting some bias to significantly reduce variance. The LSE is only "best" (minimum variance) among those estimators that satisfy the unbiasedness constraint.
 
 
-## Estimator of Error Variance
+## Unbiased Estimator of Error Variance
 
 We estimate $\sigma^{2}$ by the residual mean square:
 
@@ -342,25 +342,62 @@ Under assumptions A1-A5:
 ## Maximum Likelihood Estimator (MLE)
 
 ::: {#thm-mle name="MLE for Linear Regression"}
-If $y \sim N_n(X\beta, \sigma^2 I)$, the Maximum Likelihood Estimators are:
+If $y \sim N_n(X\beta, \sigma^2 I)$, the Maximum Likelihood Estimators (MLE) for the coefficients and the error variance are:
+
 $$
 \hat{\beta}_{\text{MLE}} = (X'X)^{-1}X'y
 $$
 $$
-\hat{\sigma}^2_{\text{MLE}} = \frac{1}{n}(y - X\hat{\beta})'(y - X\hat{\beta}) = \frac{\text{SSE}}{n}
+\hat{\sigma}^2_{\text{MLE},e} = \frac{\text{SSE}}{n}
+$$
+
+Similarly, under the Null Model ($y \sim N(\mu, \sigma_y^2)$), the MLE for the total variance of $y$ is:
+
+$$
+\hat{\sigma}^2_{\text{MLE},y} = \frac{\text{SST}}{n}
 $$
 :::
 
 ::: {.proof}
-The log-likelihood function is:
-$$ \ln L(\beta, \sigma^2) = -\frac{n}{2}\ln(2\pi) - \frac{n}{2}\ln(\sigma^2) - \frac{1}{2\sigma^2}(y - X\beta)'(y - X\beta) $$
-Maximizing this with respect to $\beta$ is equivalent to minimizing the quadratic term $(y - X\beta)'(y - X\beta)$, which yields the Least Squares Estimator.
-Differentiating with respect to $\sigma^2$ and setting to zero yields $\hat{\sigma}^2 = \text{SSE}/n$.
+**1. Derivation of Error Variance ($\hat{\sigma}^2_{\text{MLE},e}$)**
+
+The probability density function for the multivariate normal distribution $y \sim N(X\beta, \sigma^2 I)$ is:
+$$f(y) = (2\pi\sigma^2)^{-n/2} \exp\left( -\frac{1}{2\sigma^2}(y - X\beta)'(y - X\beta) \right)$$
+
+The log-likelihood function is $\ln L = \ln f(y)$:
+$$\ln L(\beta, \sigma^2) = -\frac{n}{2}\ln(2\pi) - \frac{n}{2}\ln(\sigma^2) - \frac{1}{2\sigma^2}(y - X\beta)'(y - X\beta)$$
+
+First, we maximize with respect to $\beta$. Since only the last term involves $\beta$, maximizing the likelihood is equivalent to minimizing the sum of squared errors:
+$$\text{SSE}(\beta) = (y - X\beta)'(y - X\beta)$$
+This yields the standard Least Squares estimator $\hat{\beta} = (X'X)^{-1}X'y$. Substituting this back into the SSE term gives the minimized sum of squares, $\text{SSE}$.
+
+Next, we maximize with respect to the variance $\sigma^2$. Let $v = \sigma^2$. The log-likelihood becomes:
+$$\ln L(v) = C - \frac{n}{2}\ln(v) - \frac{\text{SSE}}{2v}$$
+
+Differentiating with respect to $v$:
+$$\frac{\partial \ln L}{\partial v} = -\frac{n}{2v} + \frac{\text{SSE}}{2v^2}$$
+
+Setting the derivative to zero to find the critical point:
+$$-\frac{n}{2\hat{v}} + \frac{\text{SSE}}{2\hat{v}^2} = 0$$
+$$\frac{n}{2\hat{v}} = \frac{\text{SSE}}{2\hat{v}^2}$$
+$$n = \frac{\text{SSE}}{\hat{v}} \implies \hat{v} = \frac{\text{SSE}}{n}$$
+
+Thus, the MLE for the error variance is:
+$$\hat{\sigma}^2_{\text{MLE},e} = \frac{\text{SSE}}{n}$$
+
+**2. Derivation of Total Variance ($\hat{\sigma}^2_{\text{MLE},y}$)**
+
+Under the Null Model (intercept only), we assume $y_i \sim N(\mu, \sigma_y^2)$. The design matrix $X$ is simply a column of ones ($j_n$).
+Maximizing the likelihood for $\mu$ yields the sample mean $\hat{\mu} = \bar{y}$.
+
+The term $(y - X\beta)'(y - X\beta)$ simplifies to the Total Sum of Squares:
+$$\text{SST} = \sum_{i=1}^n (y_i - \bar{y})^2$$
+
+Following the exact same differentiation steps as above (replacing SSE with SST), the MLE for the variance of $y$ is:
+$$\hat{\sigma}^2_{\text{MLE},y} = \frac{\text{SST}}{n}$$
 :::
 
-**Note:** The MLE for $\sigma^2$ is biased (denominator $n$), whereas $s^2$ is unbiased (denominator $n-k-1$).
-
-
+**Note:** The MLEs for variance are biased. They divide by the sample size $n$, whereas the unbiased estimators (used in standard ANOVA tables) divide by the degrees of freedom ($n-k-1$ for error, $n-1$ for total).
 
 ## Linear Models in Centered Form
 
@@ -620,7 +657,7 @@ render_3d <- function(fig, filename) {
 #| message: false
 #| warning: false
 #| out-width: "100%"
-#| fig-cap: "Scenario 1: Significant regression effect ($\\beta_1 \not= 0$). The mean vector projects significantly onto the predictor space."
+#| fig-cap: "Scenario 1: Significant regression effect ($\\beta_1 \\not= 0$). The mean vector projects significantly onto the predictor space."
 
 data_A <- get_data(beta_effect = TRUE)
 fig_A  <- create_3d_plot(data_A, "Scenario A: Effect Exists")
@@ -731,26 +768,57 @@ The decomposition of the total variation is visualized below. The total deviatio
 
 We apply the general theory of projections to the specific components defined in @def-ss-components.
 
-::: {#thm-distribution-ss-v2 name="Distribution of Sum of Squares"}
+::: {#thm-distribution-ss-v2}
+### Distribution of Sum of Squares
 Let $y \sim N(\mu, \sigma^2 I_n)$, where $\mu \in \text{Col}(X)$.
 Consider the decomposition defined by the projection matrices $P_{X_c}$ and $M = I - H$.
 
-* **Independence:** The quadratic forms $\text{SSR}$ and $\text{SSE}$ are statistically independent because the subspaces $L(X_c)$ and $\text{Col}(X)^\perp$ are orthogonal.
+1. **Independence**
+   
+   The quadratic forms $\text{SSR}$ and $\text{SSE}$ are statistically independent because the subspaces $L(X_c)$ and $\text{Col}(X)^\perp$ are orthogonal.
 
-* **Distribution of SSE:** The scaled sum of squared errors follows a central Chi-squared distribution:
-  $$ \frac{\text{SSE}}{\sigma^2} = \frac{\|(I - H)y\|^2}{\sigma^2} \sim \chi^2(n-k-1) $$
-  **Mean:**
-  $$ E[\text{SSE}] = \sigma^2(n-k-1) $$
+2. **Distribution of SSE**
+   
+   The scaled sum of squared errors follows a central Chi-squared distribution:
+   
+   $$
+   \frac{\text{SSE}}{\sigma^2} = \frac{\|(I - H)y\|^2}{\sigma^2} \sim \chi^2(n-k-1)
+   $$
+   
+   **Mean:**
+   
+   $$
+   E[\text{SSE}] = \sigma^2(n-k-1)
+   $$
 
-* **Distribution of SSR:** The scaled regression sum of squares follows a **non-central** Chi-squared distribution:
-  $$ \frac{\text{SSR}}{\sigma^2} = \frac{\|P_{X_c}y\|^2}{\sigma^2} \sim \chi^2(k, \lambda) $$
-  **Mean:**
-  $$ E[\text{SSR}] = \sigma^2 k + \|P_{X_c}\mu\|^2 $$
+3. **Distribution of SSR**
+   
+   The scaled regression sum of squares follows a **non-central** Chi-squared distribution:
+   
+   $$
+   \frac{\text{SSR}}{\sigma^2} = \frac{\|P_{X_c}y\|^2}{\sigma^2} \sim \chi^2(k, \lambda)
+   $$
+   
+   **Mean:**
+   
+   $$
+   E[\text{SSR}] = \sigma^2 k + \|P_{X_c}\mu\|^2
+   $$
 
 **Non-centrality Parameter ($\lambda$):**
-$$ \lambda = \frac{1}{\sigma^2} \|P_{X_c} \mu\|^2 $$
-where $$\|P_{X_c} \mu\|^2 = \|X_c \beta_1\|^2 = (X_c \beta_1)' (X_c \beta_1) = \beta_1' X_c' X_c \beta_1$$
+
+$$
+\lambda = \frac{1}{\sigma^2} \|P_{X_c} \mu\|^2
+$$
+
+where 
+
+$$
+\|P_{X_c} \mu\|^2 = \|X_c \beta_1\|^2 = (X_c \beta_1)' (X_c \beta_1) = \beta_1' X_c' X_c \beta_1
+$$
 :::
+
+
 
 ::: proof
 We apply @thm-proj-dist to the specific projection matrices identified in the definitions.
@@ -776,6 +844,50 @@ We apply @thm-proj-dist to the specific projection matrices identified in the de
   This shows that while $E[\text{SSE}]$ depends only on the noise variance and sample size, $E[\text{SSR}]$ is inflated by the magnitude of the true regression signal $\|P_{X_c}\mu\|^2$.
 :::
 
+
+```{tikz}
+%| label: fig-SS-stick
+%| fig-cap: "Stick Diagram of Mean of SSE, SSR, and SST"
+%| fig-align: "center"
+%| out-extra: 'style="width: 90% !important;"'
+%| echo: false
+%| engine.opts:
+%|   extra.preamble: "\\usetikzlibrary{decorations.pathreplacing}"
+
+\begin{tikzpicture}[xscale=1.2, yscale=1]
+  % Define coordinates
+  \coordinate (O) at (0,0);
+  \coordinate (SSE) at (6,0);
+  \coordinate (SST) at (10,0);
+
+  % Draw the main axis
+  \draw[thick] (-0.5,0) -- (10.5,0);
+
+  % Draw Ticks
+  \foreach \x in {0, 6, 10}
+    \draw[thick] (\x, 0.2) -- (\x, -0.2);
+
+  % Labels for Ticks
+  \node[above=5pt] at (O) {\textbf{0}};
+  \node[above=5pt] at (SSE) {\textbf{SSE}};
+  \node[above=5pt] at (SST) {\textbf{SST}};
+
+  % Brace 1: SSE (0 to SSE)
+  \draw[decorate, decoration={brace, amplitude=10pt, mirror, raise=5pt}, thick]
+    (O) -- (SSE) 
+    node[midway, below=20pt] {$E[\text{SSE}] = \sigma^2(n-k-1)$};
+
+  % Brace 2: SSR (SSE to SST)
+  \draw[decorate, decoration={brace, amplitude=10pt, mirror, raise=5pt}, thick]
+    (SSE) -- (SST) 
+    node[midway, below=20pt] {$E[\text{SSR}] = \sigma^2(k + \lambda)$};
+
+  % Brace 3: SST (0 to SST) - Total
+  \draw[decorate, decoration={brace, amplitude=10pt, mirror, raise=45pt}, thick]
+    (O) -- (SST) 
+    node[midway, below=60pt] {$E[\text{SST}] = \sigma^2(n-1 + \lambda)$};
+\end{tikzpicture}
+```
 
 ## F-test for Testing Overall Regression Effect
 
@@ -901,104 +1013,216 @@ ggplot(df, aes(x, y)) +
 
 ## Raw Coefficient of Determination ($R^2$)
 
-### Definition
+**Definition**
 
-The $R^2$ statistic measures the proportion of total variation explained by the regression model.
+The $R^2$ statistic measures the proportion of total variation explained by the regression model. It is formally defined as the ratio of the Regression Sum of Squares to the Total Sum of Squares.
 
-::: {#def-r2 name="R-Squared"}
+::: {#def-r2}
+### R-Squared
 $$R^2 = \frac{\text{SSR}}{\text{SST}} = 1 - \frac{\text{SSE}}{\text{SST}}$$
 Since $0 \le \text{SSE} \le \text{SST}$, it follows that $0 \le R^2 \le 1$.
 :::
 
+**Relationship to MLE Variances**
 
-### Expectation and Bias
+A crucial insight is that the unexplained variance term ($1 - R^2$) is simply the ratio of the **biased** Maximum Likelihood Estimators for the error variance and the total variance.
 
-To understand the bias in $R^2$, it is more illuminating to analyze the expectation of the **unexplained variance** ($1 - R^2$). This term represents the ratio of error sum of squares to the total sum of squares:
+Recall that:
+$$ \hat{\sigma}^2_{\text{MLE}, e} = \frac{\text{SSE}}{n} \quad \text{and} \quad \hat{\sigma}^2_{\text{MLE}, y} = \frac{\text{SST}}{n} $$
 
-$$ E[1 - R^2] = E\left[ \frac{\text{SSE}}{\text{SST}} \right] $$
+Therefore:
+$$ 1 - R^2 = \frac{\text{SSE}}{\text{SST}} = \frac{n \cdot \hat{\sigma}^2_{\text{MLE}, e}}{n \cdot \hat{\sigma}^2_{\text{MLE}, y}} = \frac{\hat{\sigma}^2_{\text{MLE}, e}}{\hat{\sigma}^2_{\text{MLE}, y}} $$
 
-Using the first-order approximation $E[X/Y] \approx E[X]/E[Y]$, we examine the numerator and denominator separately:
+This highlights that $R^2$ is constructed from estimators that divide by $n$, ignoring degrees of freedom.
 
-$$
-\begin{aligned}
-E[\text{SSE}] &= \sigma^2(n-k-1) \\
-E[\text{SST}] &= \sigma^2(n-1) + \sigma^2\lambda = \sigma^2 \left( (n-1) + \frac{\|X_c \beta_1\|^2}{\sigma^2} \right)
-\end{aligned}
-$$
 
-Substituting these back, we approximate the expected unexplained fraction:
-
-$$ E[1 - R^2] \approx \frac{\sigma^2(n-k-1)}{\sigma^2 \left( (n-1) + \frac{\|X_c \beta_1\|^2}{\sigma^2} \right)} = \frac{n-k-1}{(n-1) + \frac{\|X_c \beta_1\|^2}{\sigma^2}} $$
-
-**Behavior under Null Hypothesis ($H_0$):**
-When there is no true signal ($\beta_1 = 0$), the term $\frac{\|X_c \beta_1\|^2}{\sigma^2}$ vanishes. The expected proportion of unexplained variance becomes:
-
-$$ E[1 - R^2 | H_0] \approx \frac{n-k-1}{n-1} $$
-
-:::{.callout-note collapse="true"}
-This result reveals the source of the bias:
-
-1.  Ideally, if predictors are noise, the model should explain nothing, and $E[1-R^2]$ should be $1$.
-2.  Instead, the expected error ratio is **less than 1**, specifically scaled by $\frac{n-k-1}{n-1}$.
-3.  This scaling factor is exactly what the **Adjusted R-squared ($R^2_a$)** attempts to correct by multiplying the observed ratio by the inverse $\frac{n-1}{n-k-1}$.
-:::
-
-### Exact Distribution
+**Exact Distribution**
 
 The $R^2$ statistic follows the Type I Non-central Beta distribution derived from the ratio of independent Chi-squared variables.
 
-::: {#thm-r2-dist name="Distribution of R-Squared"}
+::: {#thm-r2-dist}
+### Distribution of R-Squared
 $$ R^2 \sim \text{Beta}_1\left( \frac{k}{2}, \frac{n-k-1}{2}, \lambda \right) $$
-where $\text{df}_1 = k$ and $\text{df}_2 = n-k-1$.
+where the shape parameters correspond to half the degrees of freedom: $\alpha = k/2$ and $\beta = (n-k-1)/2$.
 :::
 
+**Expectation and Bias**
 
-## Adjusted R-squared ($R^2_a$)
+To understand the bias in $R^2$, we analyze the expectation of this ratio.
 
-To correct for the inflation of $R^2$ due to model complexity ($k$), we introduce the Adjusted $R^2$. This statistic penalizes the sum of squares by their degrees of freedom:
+**1. General Approximation:**
+Using the first-order approximation $E[X/Y] \approx E[X]/E[Y]$:
 
-$$ R^2_a = 1 - \frac{\text{SSE}/(n-k-1)}{\text{SST}/(n-1)} = 1 - \frac{\text{MSE}}{\text{MST}} = 1 - (1 - R^2) \frac{n-1}{n-k-1} $$
+$$ E[1 - R^2] \approx \frac{E[\text{SSE}]}{E[\text{SST}]} = \frac{\sigma^2(n-k-1)}{\sigma^2(n-1 + \lambda)} = \frac{n-k-1}{n-1 + \lambda} $$
 
-**Expectation:**
+**2. Exact Behavior under Null Hypothesis ($H_0$):**
 
-Under $H_0$, since $E[\text{MSE}] = E[\text{MST}] = \sigma^2$, the estimator is asymptotically unbiased:
+When there is no true signal ($\beta_1 = 0$), the non-centrality parameter $\lambda$ vanishes. In this specific case, $R^2$ follows a central Beta distribution with shape parameters $\alpha = k/2$ and $\beta = (n-k-1)/2$.
 
-$$ E[R^2_a | H_0] \approx 0 $$
+Using the standard mean of a Beta distribution ($E[X] = \frac{\alpha}{\alpha+\beta}$), we find that the expectation is **exact**:
 
-**Variance and Stability:**
+$$ E[R^2 | H_0] = \frac{k/2}{k/2 + (n-k-1)/2} = \frac{k}{n-1} $$
 
-While $R^2_a$ corrects the bias, it introduces instability. The variance of $R^2_a$ under $H_0$ can be derived from the variance of the Beta distribution:
+Consequently, the expected unexplained variance is:
 
-$$ \text{Var}(R^2_a | H_0) = \left( \frac{n-1}{n-k-1} \right)^2 \text{Var}(R^2 | H_0) $$
+$$ E[1 - R^2 | H_0] = \frac{n-k-1}{n-1} $$
 
-Substituting $\text{Var}(R^2 | H_0) = \frac{2k(n-k-1)}{(n-1)^2(n+1)}$, we obtain:
+(This is an exact equality, explained by the properties of the Beta distribution).
 
-$$ \text{Var}(R^2_a | H_0) = \frac{2k}{(n-k-1)(n+1)} $$
+:::{.callout-important}
+### Source of Bias
+The expectation is **strictly less than 1**. This confirms that $R^2$ is **positively biased** (it inflates the perceived fit). The model "eats up" $k$ degrees of freedom to fit noise, reducing the SSE artificially relative to the SST.
 
-**Key Insight:**
+This specific bias factor $\frac{n-k-1}{n-1}$ is the exact inverse of the correction applied by **Adjusted R-squared ($R^2_a$)**.
+:::
 
-As the model complexity $k$ increases relative to $n$:
+**A Visualization of Bias**
 
-1.  The denominator $(n-k-1)$ shrinks.
-2.  The variance $\text{Var}(R^2_a)$ explodes.
 
-This implies that for high-dimensional models (large $k/n$), $R^2_a$ becomes an extremely noisy estimator, often yielding large negative values even for null models.
+The figure below aligns these three scales. Note how the Unbiased Estimator for error ($s^2_e$) shifts significantly to the right of the MLE ($\hat{\sigma}^2_e$) due to the loss of $k+1$ degrees of freedom, whereas the Total Variance estimator ($s^2_y$) shifts only slightly.
+```{tikz}
+%| label: fig-variance-sticks-v9
+%| fig-cap: "Comparison of Variance Estimators. "
+%| echo: false
+%| fig-align: "center"
+%| engine.opts:
+%|   extra.preamble: "\\usetikzlibrary{decorations.pathreplacing, arrows.meta, calc}"
 
-## Population Proportion of Signals ($\rho^2$)
+\begin{tikzpicture}[xscale=1, yscale=1.3]
+  % Define Styles
+  \tikzstyle{axis} = [thick, ->, >=latex]
+  \tikzstyle{tick} = [thick]
+  \tikzstyle{dashedline} = [dashed, color=gray!50]
+  \tikzstyle{shiftarrow} = [->, >=latex, color=red, thick]
 
-The formula for the expected Adjusted $R^2$ reveals a deep connection to the decomposition of variance in population quantities. Recall the Rao-Blackwell theorem (or Law of Total Variance), which decomposes the total variance of a single observation $Y_i$ into the expected conditional variance (noise) and the variance of the conditional expectation (signal). Let $\sigma^2_\mu$ denote the signal variance and $\sigma^2$ denote the noise variance:
+  % --- Parameters ---
+  % n=20, k=10 
+  % Scale: 1 unit = 20 units of SS
+  \def\xSSErr{2.0}   % 40 / 20
+  \def\xSSTot{10.0}  % 200 / 20
+  \def\xStwoE{4.44}  % s^2_e
+  \def\xStwoY{10.53} % s^2_y
 
-$$ \text{Var}(Y_i) = E[\text{Var}(Y_i|x_{(i)})] + \text{Var}(E[Y_i|x_{(i)}]) $$
-$$ \sigma^2_Y = \sigma^2 + \sigma^2_\mu $$
+  % --- Stick 1: Sum of Squares (SS) ---
+  \coordinate (O1) at (0, 0);
+  \coordinate (End1) at (12, 0);
 
-In our derived expectation for $R^2_a$:
-$$ E[R^2_a] \approx \frac{\frac{\|X_c\beta_1\|^2}{n-1}}{\sigma^2 + \frac{\|X_c\beta_1\|^2}{n-1}} $$
+  \draw[axis] (-0.5, 0) -- (End1) node[right] {\textbf{Sum of Squares}};
+  \draw[tick] (O1) -- ++(0, -0.15) node[below] {0};
+  \draw[tick] (\xSSErr, 0) -- ++(0, -0.15) node[below] {SSE};
+  \draw[tick] (\xSSTot, 0) -- ++(0, -0.15) node[below] {SST};
 
-The term in the numerator, $\frac{\|X_c\beta_1\|^2}{n-1}$, is precisely the **sample variance of the true means** $\mu_i$.
-Let $\mu = X\beta$. We can expand the centered signal vector $X_c\beta_1$ to see this explicitly. Since $\mu \in \text{Col}(X)$, we know $H\mu = \mu$:
+  % --- Stick 2: MLE Variance (SS / n) ---
+  \coordinate (O2) at (0, -2.0);
+  \coordinate (End2) at (12, -2.0);
+
+  \draw[axis] (-0.5, -2.0) -- (End2) node[right] {\textbf{MLE} ($\hat{\sigma}^2$)};
+  \draw[tick] (O2) -- ++(0, -0.15);
+  \draw[tick] (\xSSErr, -2.0) -- ++(0, -0.15) node[below] {$\hat{\sigma}^2_e$};
+  \draw[tick] (\xSSTot, -2.0) -- ++(0, -0.15) node[below] {$\hat{\sigma}^2_y$};
+
+  \draw[dashedline] (\xSSErr, 0) -- (\xSSErr, -2.0);
+  \draw[dashedline] (\xSSTot, 0) -- (\xSSTot, -2.0);
+
+  % --- MLE Braces ---
+  \draw[decorate, decoration={brace, amplitude=5pt, mirror, raise=20pt}, thick, color=blue!80]
+    (O2) -- (\xSSErr, -2.0) coordinate[midway] (M1);
+    
+  \draw[decorate, decoration={brace, amplitude=5pt, mirror, raise=30pt}, thick, color=blue!80]
+    (O2) -- (\xSSTot, -2.0) coordinate[midway] (M2);
+    
+  % Text Nodes - UPDATED FONT
+  \node[text=blue!80, font=\normalsize\boldmath, anchor=north] at (M1 |- 0, -3.4) {$E = \sigma^2 \frac{n-k-1}{n}$};
+  \node[text=blue!80, font=\normalsize\boldmath, anchor=north] at (M2 |- 0, -3.4) {$E = \sigma^2 \frac{n-1+\lambda}{n}$};
+
+
+  % --- Stick 3: Unbiased Estimator (SS / df) ---
+  \coordinate (O3) at (0, -5.0);
+  \coordinate (End3) at (12, -5.0);
+
+  \draw[axis] (-0.5, -5.0) -- (End3) node[right] {\textbf{Unbiased} ($s^2$)};
+  \draw[tick] (O3) -- ++(0, -0.15);
+  \draw[tick] (\xStwoE, -5.0) -- ++(0, -0.15) node[below] {$s^2_e$};
+  \draw[tick] (\xStwoY, -5.0) -- ++(0, -0.15) node[below] {$s^2_y$};
+
+  \draw[dashedline] (\xSSErr, -2.0) -- (\xSSErr, -5.0);
+  \draw[dashedline] (\xSSTot, -2.0) -- (\xSSTot, -5.0);
+
+  % Arrows with FORMULAS
+  \draw[shiftarrow] (\xSSErr, -5.0) -- (\xStwoE, -5.0) 
+    node[midway, above, font=\scriptsize, yshift=2pt] {$\times \frac{1}{1 - \frac{k+1}{n}}$};
+    
+  \draw[shiftarrow] (\xSSTot, -5.0) -- (\xStwoY, -5.0) 
+    node[midway, above, font=\scriptsize, yshift=2pt] {$\times \frac{1}{1 - \frac{1}{n}}$};
+  
+  % --- Unbiased Braces ---
+  \draw[decorate, decoration={brace, amplitude=5pt, mirror, raise=20pt}, thick, color=green!60!black]
+    (O3) -- (\xStwoE, -5.0) coordinate[midway] (M3);
+
+  \draw[decorate, decoration={brace, amplitude=5pt, mirror, raise=30pt}, thick, color=green!60!black]
+    (O3) -- (\xStwoY, -5.0) coordinate[midway] (M4);
+
+  % Text Nodes - UPDATED FONT
+  \node[text=green!60!black, font=\normalsize\boldmath, anchor=north] at (M3 |- 0, -6.4) {$E = \sigma^2$};
+  \node[text=green!60!black, font=\normalsize\boldmath, anchor=north] at (M4 |- 0, -6.4) {$E = \sigma^2 (1 + \frac{\lambda}{n-1})$};
+
+\end{tikzpicture}
+```
+
+## Adjusted R-squared ($R^2_a$) and Population Proportion ($\rho^2$)
+
+To correct for the inflation of $R^2$ due to model complexity, we introduce the Adjusted $R^2$. 
+
+### Definition
+
+The Adjusted $R^2$ is defined not as a ratio of Sums of Squares (which are biased by sample size), but as the ratio of the **unbiased variance estimators**: the Mean Squared Error ($s^2_e$) and the Sample Variance of $Y$ ($s^2_y$).
+
+::: {#def-adj-r2}
+### Adjusted R-squared
+$$
+R^2_a = 1 - \frac{s^2_e}{s^2_y} = 1 - \frac{\text{MSE}}{\text{MST}}
+$$
+:::
+
+This definition naturally incorporates the degrees of freedom correction:
 
 $$
-X_c\beta_1 = P_{X_c} \mu = (H - P_{j_n})\mu = H\mu - P_{j_n}\mu = \mu - \bar{\mu}j_n = 
+R^2_a = 1 - \frac{\text{SSE} / (n-k-1)}{\text{SST} / (n-1)} = 1 - (1 - R^2) \frac{n-1}{n-k-1}
+$$
+
+### Expectation in terms of $\lambda$
+
+We can derive the expectation of $R^2_a$ using the first-order approximation $E[f/g] \approx E[f]/E[g]$.
+
+Recall the expectations of the mean squares:
+
+1.  **Error Mean Square:**
+    
+    $$
+    E[\text{MSE}] = \sigma^2
+    $$
+
+2.  **Total Mean Square:**
+    
+    $$
+    E[\text{MST}] = \frac{E[\text{SST}]}{n-1} = \frac{\sigma^2(n-1+\lambda)}{n-1} = \sigma^2 \left(1 + \frac{\lambda}{n-1}\right)
+    $$
+
+Substituting these into the expectation formula:
+
+$$\begin{aligned}
+E[R^2_a] &\approx 1 - \frac{E[\text{MSE}]}{E[\text{MST}]} \\
+&= 1 - \frac{\sigma^2}{\sigma^2 \left(1 + \frac{\lambda}{n-1}\right)} \\
+&= 1 - \frac{1}{1 + \frac{\|X_c\beta\|^2}{(n-1)\sigma^2}} \\
+&= \frac{\frac{\|X_c\beta\|^2}{n-1}}{\sigma^2 + \frac{\|X_c\beta\|^2}{n-1}}
+\end{aligned}$$
+
+### Definitions of Population Metrics for Predictivity
+
+The term in the numerator relies on the squared norm of the centered true means. We can expand the centered signal vector $X_c\beta$ to see this explicitly. Since $\mu \in \text{Col}(X)$, we know $H\mu = \mu$:
+
+$$
+X_c\beta = P_{X_c} \mu = (H - P_{j_n})\mu = \mu - \bar{\mu}j_n = 
 \begin{pmatrix} 
 \mu_1 - \bar{\mu} \\ 
 \mu_2 - \bar{\mu} \\ 
@@ -1007,90 +1231,101 @@ X_c\beta_1 = P_{X_c} \mu = (H - P_{j_n})\mu = H\mu - P_{j_n}\mu = \mu - \bar{\mu
 \end{pmatrix}
 $$
 
-This vector represents the deviation of each observation's true mean from the grand mean. Consequently, the squared norm divided by degrees of freedom is:
-$$ \frac{\|X_c\beta_1\|^2}{n-1} = \frac{\sum_{i=1}^n (\mu_i - \bar{\mu})^2}{n-1} = \sigma^2_\mu $$
+This vector represents the deviation of each observation's true mean from the grand mean. Consequently, we define the **Signal Variance** ($\sigma^2_\mu$) as the average squared deviation. 
 
+::: {#def-signal-variance}
+### Population Signal Variance
+$$
+\sigma^2_\mu = \frac{\|X_c\beta\|^2}{n-1} = \frac{\sum_{i=1}^n (\mu_i - \bar{\mu})^2}{n-1}
+$$
+:::
 
+Using this definition, we can define two key population parameters that characterize the strength of the relationship.
 
-Thus, $R^2_a$ is therefore an unbiased estimator for the **proportion of variance explained by the signal** in the population:
-$$ E[R^2_a] \approx \frac{\sigma^2_\mu}{\sigma^2 + \sigma^2_\mu}$$
+**Population Coefficient of Determination ($\rho^2$)**
 
-We will denote this 'parameter' by $\rho^2$:
+The expected Adjusted $R^2$ estimates the proportion of the **total variance** ($\sigma^2_Y = \sigma^2_\mu + \sigma^2$) that is attributable to the signal.
 
-$$ \rho^2 = 1 - \frac{\sigma^2}{\sigma^2_Y} = \frac{\sigma^2_\mu}{\sigma^2_Y} $$
+::: {#def-rho2}
+### Population $\rho^2$
+$$
+\rho^2 = \frac{\text{Signal Variance}}{\text{Total Variance}} = \frac{\sigma^2_\mu}{\sigma^2_\mu + \sigma^2}
+$$
+:::
 
-::: {.remark}
+**Cohen's Effect Size ($f^2$)**
+
+In power analysis, it is often more useful to look at the **Signal-to-Noise Ratio (SNR)** directly. This is known as Cohen's $f^2$.
+
+::: {#def-cohen-f2}
+### Cohen's $f^2$ (Signal-to-Noise Ratio)
+$$
+f^2 = \frac{\text{Signal Variance}}{\text{Noise Variance}} = \frac{\sigma^2_\mu}{\sigma^2}
+$$
+:::
+
+**Relationships and Non-Centrality Parameter ($\lambda$)**
+
+There is a simple functional relationship between $\rho^2$ and $f^2$:
+
+$$f^2 = \frac{\rho^2}{1 - \rho^2}$$
+
+Finally, we can express the non-centrality parameter $\lambda$ directly in terms of these parameters. Since $\lambda = \frac{\|X_c\beta\|^2}{\sigma^2}$ and $\|X_c\beta\|^2 = (n-1)\sigma^2_\mu$:
+
+$$
+\lambda = (n-1) \frac{\sigma^2_\mu}{\sigma^2} = (n-1) f^2
+$$
+
+Substituting $f^2$ with $\rho^2$, we obtain the mapping used to invert the $F$-test for confidence intervals:
+
+$$
+\boxed{\lambda = (n-1) f^2 = (n-1) \frac{\rho^2}{1 - \rho^2}}
+$$
+
+::: {.callout-note}
+## Fixed vs. Random Covariates
 In the fixed covariate framework, the 'parameter' $\rho^2$ is a function of the specific design matrix $X$, the coefficients $\beta$, and the sample size $n$. If we assume the $x_i$ are random draws from a population, then as $n \to \infty$, $\sigma^2_\mu$ converges to $\text{Var}(x^T\beta)$ (where $x$ is a random vector), and $\rho^2$ converges to the true population proportion of variance explained.
 :::
 
-::: {.callout-important title="MSR Is Not a Variance Estimator"}
+::: {.callout-note}
+## MSR Is Not a Variance Estimator
+It is critical to distinguish between hypothesis testing statistics and variance estimators:
 
-* Observing that $E[\text{MST}] \approx \sigma^2 + \sigma^2_\mu$ and $E[\text{MSE}] = \sigma^2$, we can see that the difference $\text{MST} - \text{MSE}$ provides a direct method-of-moments estimator for the variance of the signal itself ($\sigma^2_\mu$). 
+1.  **Estimating Signal Variance ($\sigma^2_\mu$):**
+    Observing that $E[\text{MST}] \approx \sigma^2 + \sigma^2_\mu$ and $E[\text{MSE}] = \sigma^2$, the difference $\text{MST} - \text{MSE}$ provides a direct method-of-moments estimator for the variance of the signal itself.
 
-* It is important to recognize that the commonly used **Mean Square Regression (MSR)**, defined as $\text{SSR}/k$, is **not** an estimator of the signal variance. Because $E[\text{MSR}] = \sigma^2 + \frac{\|X_c\beta_1\|^2}{k}$, it scales with the sample size $n$ (via the squared norm) rather than converging to a population parameter. MSR is designed for hypothesis testing (detecting *existence* of signal), not for estimating the *magnitude* of the signal variance.
+2.  **Testing for Signal Existence (MSR):**
+    The commonly used **Mean Square Regression (MSR)**, defined as $\text{SSR}/k$, is **not** an estimator of the signal variance. Because $E[\text{MSR}] = \sigma^2 + \frac{n}{k}\sigma^2_\mu$, it scales linearly with the sample size $n$. MSR is designed to explode as $n \to \infty$ to ensure power for hypothesis testing, not to estimate the magnitude of the signal.
 :::
 
-## Relationship between $R^2$ and $F$ Test
-
-The $F$-statistic for the overall regression effect is a monotonic function of the coefficient of determination. We can express $F$ directly in terms of both the standard $R^2$ and the adjusted $R^2_a$, as well as relate its expected value to the population variance components.
-
-1.  **Expressing $F$ via Standard $R^2$:**
-    Since $R^2 = \text{SSR}/\text{SST}$ and $1 - R^2 = \text{SSE}/\text{SST}$, we can substitute these into the definition of $F$:
-    $$
-    F = \frac{\text{SSR}/k}{\text{SSE}/(n-k-1)} = \frac{(R^2 \cdot \text{SST}) / k}{((1 - R^2) \cdot \text{SST}) / (n - k - 1)} = \frac{R^2}{1 - R^2} \cdot \frac{n - k - 1}{k}
-    $$
-
-2.  **Expressing $F$ via Adjusted $R^2_a$:**
-    The relationship becomes structurally identical to the population expectation if we use the estimated Signal-to-Noise Ratio. Since $\frac{R^2_a}{1 - R^2_a} = \frac{\hat{\sigma}^2_\mu}{\hat{\sigma}^2}$, we have:
-    $$
-    F = 1 + \frac{n-1}{k} \left( \frac{R^2_a}{1 - R^2_a} \right)
-    $$
-    This form highlights that $F$ starts at a baseline of 1 (pure noise) and increases proportional to the estimated signal strength.
-
-3.  **Expected Value of $F$ as a function of $\sigma^2_\mu$ and $\sigma^2$:**
-    Using the population signal variance $\sigma^2_\mu$ and noise variance $\sigma^2$, the expected value of the $F$-statistic (using the first-order approximation $E[F] \approx E[\text{MSR}]/E[\text{MSE}]$) is:
-    $$
-    E[F] \approx 1 + \frac{n-1}{k} \left( \frac{\sigma^2_\mu}{\sigma^2} \right)
-    $$
-    The exact mean, derived from the non-central $F$ distribution, is:
-    $$
-    E[F] = \frac{n-k-1}{n-k-3} \left( 1 + \frac{n-1}{k} \frac{\sigma^2_\mu}{\sigma^2} \right), \quad \text{for } n-k-1 > 3
-    $$
-
-## Confidence Interval of Population $\rho^2$
-
-
+### Confidence Interval of Population $\rho^2$
 
 While $R^2_a$ provides a point estimate, we can construct an exact confidence interval for $\rho^2$ by exploiting the distribution of the $F$-statistic.
 
-**1. The link between $\lambda$ and $\rho^2$:**
+**1. The link between $\lambda$, $f^2$, and $\rho^2$**
 
+Recall that the $F$-statistic follows a non-central distribution $F(k, n-k-1, \lambda)$. The non-centrality parameter $\lambda$ is directly related to the population parameters. Using our definition of signal variance $\sigma^2_\mu$ (with the $n-1$ divisor):
 
-Recall that the $F$-statistic follows a non-central distribution $F(k, n-k-1, \lambda)$. The non-centrality parameter $\lambda$ is directly related to the population $\rho^2$. Using the variance decomposition derived above:
+$$ \lambda = \frac{\|X_c \beta\|^2}{\sigma^2} = (n-1) \frac{\sigma^2_\mu}{\sigma^2} $$
 
-$$ \lambda = \frac{\|X_c \beta_1\|^2}{\sigma^2} = (n-1) \left( \frac{\sigma^2_\mu}{\sigma^2} \right) $$
+Substituting Cohen's effect size $f^2 = \frac{\sigma^2_\mu}{\sigma^2}$ and the relationship $f^2 = \frac{\rho^2}{1-\rho^2}$, we obtain the following mapping:
 
-Substituting the signal-to-noise ratio $\frac{\sigma^2_\mu}{\sigma^2} = \frac{\rho^2}{1-\rho^2}$, we obtain a one-to-one mapping between $\lambda$ and $\rho^2$:
-
-$$ \lambda(\rho^2) = (n-1) \left( \frac{\rho^2}{1-\rho^2} \right) $$
-
+$$ \boxed{\lambda = (n-1) f^2 = (n-1) \left( \frac{\rho^2}{1-\rho^2} \right)} $$
 
 To recover $\rho^2$ from $\lambda$, we invert the mapping:
 
-$$ \rho^2(\lambda) = \frac{\lambda}{\lambda + n - 1} $$
+$$ \boxed{\rho^2(\lambda) = \frac{\lambda}{\lambda + (n-1)}} $$
 
-**2. Inverting the Test Statistic:**
+**2. Inverting the Test Statistic**
 
 We find a confidence interval $[\lambda_L, \lambda_U]$ for $\lambda$ by "inverting" the observed $F$-statistic ($F_{obs}$). We search for two specific non-central F-distributions: one where $F_{obs}$ cuts off the upper $\alpha/2$ tail, and one where it cuts off the lower $\alpha/2$ tail.
 
-* **Lower Bound ($\lambda_L$):** The non-centrality parameter such that $F_{obs}$ is the $1-\alpha/2$ quantile.
-* **Upper Bound ($\lambda_U$):** The non-centrality parameter such that $F_{obs}$ is the $\alpha/2$ quantile.
-
 This concept is illustrated in the figure below.
+
 
 ```{r}
 #| label: fig-ci-inversion
-#| fig-cap: "Illustration of constructing a confidence interval for the non-centrality parameter $\\lambda$ by inverting the F-test. The observed $F_{obs}$ (dashed line) is the $97.5^{th}$ percentile of the distribution defined by the lower bound $\\lambda_L$ (blue), and the $2.5^{th}$ percentile of the distribution defined by the upper bound $\\lambda_U$ (red). The shaded areas each represent $\\alpha/2$."
+#| fig-cap: "Illustration of constructing a confidence interval for the non-centrality parameter $\\lambda$ by inverting the F-test. The observed $F_{obs}$ (dashed line) is the $97.5^{th}$ percentile of the distribution defined by the lower bound $\\lambda_L$ (blue), and the $2.5^{th}$ percentile of the distribution defined by the upper bound $\\lambda_U$ (red)."
 #| echo: false
 #| warning: false
 #| message: false
@@ -1157,14 +1392,23 @@ ggplot() +
   coord_cartesian(ylim = c(0, max(plot_data$y)*1.1), xlim=c(0, 16))
 ```
 
-**3. The Interval for $\rho^2$:**
+**3. The Interval for $\rho^2$**
 
-Once $[\lambda_L, \lambda_U]$ are found numerically, we map them back to the population $R^2$ scale using the inverse relationship:
+Once $[\lambda_L, \lambda_U]$ are found numerically, we map them back to the population $R^2$ scale using the updated inverse relationship:
 
 $$ \rho^2 = \frac{\lambda}{\lambda + (n-1)} $$
 
 This produces an exact confidence interval $[\rho^2_L, \rho^2_U]$ for the proportion of variance explained by the model in the population.
 
+::: {#rem-lambda-divisor}
+### Remark on Divisor Conventions
+It is important to note that different authors and software packages use different conventions for the divisor in the definition of signal variance. 
+
+1. **Our Convention ($n-1$):** We use $\sigma^2_\mu = \|X_c\beta\|^2/(n-1)$. This aligns with the unbiased estimator $s^2_y$ and the expectation $E[R^2_a] \approx \rho^2$. Under this convention, $\lambda = (n-1) \frac{\rho^2}{1-\rho^2}$.
+2. **Standard Convention ($n$):** Some literature (and software like `MBESS` for fixed predictors) defines signal variance as $\sigma^2_\mu = \|X_c\beta\|^2/n$. This aligns with the Maximum Likelihood (MLE) perspective of $R^2$. Under that convention, $\lambda = n \frac{\rho^2}{1-\rho^2}$.
+
+Asymptotically ($n \to \infty$), these two conventions converge to the same result.
+:::
 
 ## An Animation for Illustrating $R^2_a$ Under $H_0$ and $H_1$
 
@@ -1178,7 +1422,7 @@ We simulate a dataset with $n=30$ observations and consider a sequence of nested
 4.  **Group 4 ($k=20$):** Add $x_{12}, \dots, x_{20}$ (Noise).
 
 ```{r}
-#| label: generate-all-animations
+#| label: generate-all-animations-v2
 #| include: false
 #| cache: true
 
@@ -1193,7 +1437,7 @@ n_frames <- 30
 fps      <- 2
 n        <- 30
 sigma    <- 1
-beta1    <- 2 # Explicitly set to 2 as per text description
+beta1    <- 2 
 
 # [FLEXIBLE] Define your Steps Here.
 model_steps <- c(0, 1, 6, 11, 20) 
@@ -1221,19 +1465,14 @@ generate_animation <- function(scenario = "H0", filename) {
     y_min_limit <- -0.2
   }
 
-  # B. Theoretical Expectations
+  # B. Theoretical Expectations using sigma^2_mu = ||Xc_beta||^2 / n
   var_x <- 1 
   
-  # Calculate Total Variance (Var(Y))
-  # H0: beta=0 -> Total Var = sigma^2
-  # H1: beta=2 -> Total Var = sigma^2 + beta^2*var(x)
+  # Calculate Total Variance (Var(Y) = sigma^2 + sigma^2_mu)
+  # Under H1, sigma^2_mu = beta^2 * var(x) (asymptotically)
+  # So Total Var = sigma^2 + beta1^2 * var_x
   total_var <- if(scenario == "H1") (sigma^2 + beta1^2 * var_x) else sigma^2
   
-  # Calculate Expected Residual Variance (Sigma^2_k)
-  # k=0: Model has no predictors, so Residual Var = Total Var
-  # k>=1: Model includes x1. 
-  #       In H1, x1 explains signal, so Residual Var drops to sigma^2.
-  #       In H0, x1 is noise, so Residual Var is still sigma^2 (which is also Total Var).
   get_expected_residual_var <- function(k) {
     if (k == 0) return(total_var)
     return(sigma^2)
@@ -1242,7 +1481,8 @@ generate_animation <- function(scenario = "H0", filename) {
   theory_df <- data.frame(k = model_steps)
   theory_df$expected_mse <- sapply(theory_df$k, get_expected_residual_var)
   
-  # Calculate Theoretical R^2 = 1 - (Residual Var / Total Var)
+  # Theoretical R^2 = rho^2 = sigma^2_mu / (sigma^2 + sigma^2_mu)
+  # equivalently: 1 - (sigma^2 / sigma^2_Y)
   theory_df$expected_r2 <- 1 - (theory_df$expected_mse / total_var)
 
   # --- Frame Loop ---
@@ -1321,7 +1561,6 @@ generate_animation <- function(scenario = "H0", filename) {
       geom_point(aes(y = R2_adj, color = "Corrected (Adj R^2)"), size = 2, shape = 17) +
       
       scale_color_manual(values = c("Naive (R^2)" = "firebrick", "Corrected (Adj R^2)" = "blue")) +
-      # Re-use linetype scale to match top plot style
       scale_linetype_manual(values = c("Theoretical" = "dotted"), name=NULL) +
       
       scale_x_continuous(breaks = model_steps) +
@@ -1351,8 +1590,8 @@ generate_animation <- function(scenario = "H0", filename) {
 }
 
 # --- Execution ---
-generate_animation("H0", "figs/rss-h0-v6.mp4")
-generate_animation("H1", "figs/rss-h1-v6.mp4")
+generate_animation("H0", "figs/rss-h0-v7.mp4")
+generate_animation("H1", "figs/rss-h1-v7.mp4")
 ```
 
 ::: {.panel-tabset}
@@ -1369,10 +1608,10 @@ Under $H_0$, the true coefficient for $x_1$ is $\beta_1 = 0$. All predictors are
 if (knitr::is_html_output()) {
   htmltools::tags$video(
     controls = "controls", width = "100%", 
-    htmltools::tags$source(src = "figs/rss-h0-v6.mp4", type = "video/mp4")
+    htmltools::tags$source(src = "figs/rss-h0-v7.mp4", type = "video/mp4")
   )
 } else {
-  knitr::include_graphics("figs/rss-h0-v6.png")
+  knitr::include_graphics("figs/rss-h0-v7.png")
 }
 ```
 
@@ -1388,15 +1627,14 @@ Under $H_1$, $x_1$ is a true predictor ($\beta_1 = 2$). The subsequent groups ($
 if (knitr::is_html_output()) {
   htmltools::tags$video(
     controls = "controls", width = "100%", 
-    htmltools::tags$source(src = "figs/rss-h1-v6.mp4", type = "video/mp4")
+    htmltools::tags$source(src = "figs/rss-h1-v7.mp4", type = "video/mp4")
   )
 } else {
-  knitr::include_graphics("figs/rss-h1-v6.png")
+  knitr::include_graphics("figs/rss-h1-v7.png")
 }
 ```
 
 :::
-
 
 
 ## A Data Example with House Price Valuation
@@ -1458,90 +1696,90 @@ if (knitr::is_html_output()) {
 
 We will solve for the coefficients $\hat{\beta}$ using three distinct methods.
 
-#### Method 1: Naive Matrix Formula {.unnumbered}
+1.  **Method 1: Naive Matrix Formula**
 
-This method solves the normal equations directly on the raw data: $\hat{\beta} = (X^{\prime}X)^{-1}X^{\prime}y$.
+    This method solves the normal equations directly on the raw data: $\hat{\beta} = (X^{\prime}X)^{-1}X^{\prime}y$.
 
-```{r}
-#| label: method-1-naive
+    ```{r}
+    #| label: method-1-naive
 
-# 1. Define Y and X (add Column of 1s for Intercept)
-y <- as.matrix(df$Price)
-# Note: "lawn" Is Included Here, Even Though It Is Irrelevant
-X_naive <- as.matrix(cbind(Intercept = 1, 
-                           df[, c("Size", "Age", "Beds", "Garage", "Lawn")]))
+    # 1. Define Y and X (add Column of 1s for Intercept)
+    y <- as.matrix(df$Price)
+    # Note: "lawn" Is Included Here, Even Though It Is Irrelevant
+    X_naive <- as.matrix(cbind(Intercept = 1, 
+                               df[, c("Size", "Age", "Beds", "Garage", "Lawn")]))
 
-# 2. Compute Intermediate Matrices
-XtX <- t(X_naive) %*% X_naive
-Xty <- t(X_naive) %*% y
+    # 2. Compute Intermediate Matrices
+    XtX <- t(X_naive) %*% X_naive
+    Xty <- t(X_naive) %*% y
 
-# Display Intermediate Steps
-cat("Matrix X'X (Cross-products of predictors):\n")
-print(round(XtX, 0))
+    # Display Intermediate Steps
+    cat("Matrix X'X (Cross-products of predictors):\n")
+    print(round(XtX, 0))
 
-cat("\nMatrix X'y (Cross-products with response):\n")
-print(round(Xty, 0))
+    cat("\nMatrix X'y (Cross-products with response):\n")
+    print(round(Xty, 0))
 
-# 3. Solve Beta
-beta_naive <- solve(XtX) %*% Xty
+    # 3. Solve Beta
+    beta_naive <- solve(XtX) %*% Xty
 
-# Display Result
-cat("\nSolved Coefficients (Beta):\n")
-print(t(beta_naive))
-```
+    # Display Result
+    cat("\nSolved Coefficients (Beta):\n")
+    print(t(beta_naive))
+    ```
 
-#### Method 2: Centralized Formula {.unnumbered}
+2.  **Method 2: Centralized Formula**
 
-This method reduces multicollinearity issues. Formula: $\hat{\beta}_{\text{slope}} = (X_c^{\prime}X_c)^{-1}X_c^{\prime}y_c$.
+    This method reduces multicollinearity issues. Formula: $\hat{\beta}_{\text{slope}} = (X_c^{\prime}X_c)^{-1}X_c^{\prime}y_c$.
 
-```{r}
-#| label: method-2-centralized
+    ```{r}
+    #| label: method-2-centralized
 
-# 1. Center the Data
-y_bar <- mean(y)
-X_raw <- as.matrix(df[, c("Size", "Age", "Beds", "Garage", "Lawn")])
-X_means <- colMeans(X_raw)
+    # 1. Center the Data
+    y_bar <- mean(y)
+    X_raw <- as.matrix(df[, c("Size", "Age", "Beds", "Garage", "Lawn")])
+    X_means <- colMeans(X_raw)
 
-y_c <- y - y_bar
-X_c <- sweep(X_raw, 2, X_means) 
+    y_c <- y - y_bar
+    X_c <- sweep(X_raw, 2, X_means) 
 
-# 2. Compute Intermediate Matrices
-XctXc <- t(X_c) %*% X_c
-Xctyc <- t(X_c) %*% y_c
+    # 2. Compute Intermediate Matrices
+    XctXc <- t(X_c) %*% X_c
+    Xctyc <- t(X_c) %*% y_c
 
-# Display Intermediate Steps
-cat("Matrix X_c'X_c (Centered Sum of Squares):\n")
-print(round(XctXc, 0))
+    # Display Intermediate Steps
+    cat("Matrix X_c'X_c (Centered Sum of Squares):\n")
+    print(round(XctXc, 0))
 
-cat("\nMatrix X_c'y_c (Centered Cross-products):\n")
-print(round(Xctyc, 0))
+    cat("\nMatrix X_c'y_c (Centered Cross-products):\n")
+    print(round(Xctyc, 0))
 
-# 3. Solve for Slope Coefficients
-beta_slope <- solve(XctXc) %*% Xctyc
+    # 3. Solve for Slope Coefficients
+    beta_slope <- solve(XctXc) %*% Xctyc
 
-# 4. Recover Intercept
-beta_0 <- y_bar - sum(X_means * beta_slope)
-beta_central <- rbind(Intercept = beta_0, beta_slope)
+    # 4. Recover Intercept
+    beta_0 <- y_bar - sum(X_means * beta_slope)
+    beta_central <- rbind(Intercept = beta_0, beta_slope)
 
-# Display Result
-cat("\nSolved Coefficients (Beta):\n")
-print(t(beta_central))
-```
+    # Display Result
+    cat("\nSolved Coefficients (Beta):\n")
+    print(t(beta_central))
+    ```
 
-#### Method 3: Using R's `lm` Function {.unnumbered}
+3.  **Method 3: Using R's `lm` Function**
 
-This is the standard approach for practitioners.
+    This is the standard approach for practitioners.
 
-```{r}
-#| label: method-3-lm
+    ```{r}
+    #| label: method-3-lm
 
-# Fit Model
-model_lm <- lm(Price ~ ., data = df)
-y_hat_lm <- fitted(model_lm)
+    # Fit Model
+    model_lm <- lm(Price ~ ., data = df)
+    y_hat_lm <- fitted(model_lm)
 
-# Extract Coefficients
-print(summary(model_lm))
-```
+    # Extract Coefficients
+    print(summary(model_lm))
+    ```
 
 ### Visualization of Fitted Values vs Mean
 
@@ -1581,325 +1819,333 @@ $$ \bar y = \bar{\hat{y}} ?$$
 
 We compare different methods to calculate the sources of variation.
 
-#### 1. Naive Sum of Squared Errors
-This uses the standard summation definitions: $\sum (Difference)^2$.
+1.  **Naive Sum of Squared Errors**
 
-* **SST (Total):** Variation of $y$ around $\hat{y}_0$ (Mean).
-* **SSR (Regression):** Variation of $\hat{y}$ around $\hat{y}_0$ (Mean).
-* **SSE (Error):** Variation of $y$ around $\hat{y}$ (Model).
+    This uses the standard summation definitions: $\sum (Difference)^2$.
 
-```{r}
-#| label: ss-naive
+    * **SST (Total):** Variation of $y$ around $\hat{y}_0$ (Mean).
+    * **SSR (Regression):** Variation of $\hat{y}$ around $\hat{y}_0$ (Mean).
+    * **SSE (Error):** Variation of $y$ around $\hat{y}$ (Model).
 
-# Vectors
-y_vec <- as.vector(y)
-y_hat <- as.vector(y_hat_lm)
-y_bar_vec <- rep(mean(y), length(y))
+    ```{r}
+    #| label: ss-naive
 
-# Calculations
-SST_naive <- sum((y_vec - y_bar_vec)^2)
-SSR_naive <- sum((y_hat - y_bar_vec)^2)
-SSE_naive <- sum((y_vec - y_hat)^2)
+    # Vectors
+    y_vec <- as.vector(y)
+    y_hat <- as.vector(y_hat_lm)
+    y_bar_vec <- rep(mean(y), length(y))
 
-cat("Naive Calculation:\n")
-cat("SST:", SST_naive, " SSR:", SSR_naive, " SSE:", SSE_naive, "\n")
-```
+    # Calculations
+    SST_naive <- sum((y_vec - y_bar_vec)^2)
+    SSR_naive <- sum((y_hat - y_bar_vec)^2)
+    SSE_naive <- sum((y_vec - y_hat)^2)
 
-#### 2. Pythagorean Shortcut (Vector Lengths)
-Based on the geometry of least squares, we can treat the variables as vectors. Because the vectors are orthogonal, we can use squared lengths (dot products with themselves).
+    cat("Naive Calculation:\n")
+    cat("SST:", SST_naive, " SSR:", SSR_naive, " SSE:", SSE_naive, "\n")
+    ```
 
-Formula: $\text{SSR} = ||\hat{y}||^2 - ||\hat{y}_0||^2$
+2.  **Pythagorean Shortcut (Vector Lengths)**
 
-```{r}
-#| label: ss-pythagorean
+    Based on the geometry of least squares, we can treat the variables as vectors. Because the vectors are orthogonal, we can use squared lengths (dot products with themselves).
 
-# Function for squared Euclidean norm (length squared)
-len_sq <- function(v) sum(v^2)
+    Formula: $\text{SSR} = ||\hat{y}||^2 - ||\hat{y}_0||^2$
 
-# SST = ||y||^2 - ||y_0||^2
-SST_pyth <- len_sq(y_vec) - len_sq(y_bar_vec)
+    ```{r}
+    #| label: ss-pythagorean
 
-# SSR = ||y_hat||^2 - ||y_0||^2
-SSR_pyth <- len_sq(y_hat) - len_sq(y_bar_vec)
+    # Function for squared Euclidean norm (length squared)
+    len_sq <- function(v) sum(v^2)
 
-# SSE = ||y||^2 - ||y_hat||^2
-SSE_pyth <- len_sq(y_vec) - len_sq(y_hat)
+    # SST = ||y||^2 - ||y_0||^2
+    SST_pyth <- len_sq(y_vec) - len_sq(y_bar_vec)
 
-cat("Pythagorean Calculation:\n")
-cat("SST:", SST_pyth, " SSR:", SSR_pyth, " SSE:", SSE_pyth, "\n")
-```
+    # SSR = ||y_hat||^2 - ||y_0||^2
+    SSR_pyth <- len_sq(y_hat) - len_sq(y_bar_vec)
 
-#### Matrix Algebra Shortcuts
+    # SSE = ||y||^2 - ||y_hat||^2
+    SSE_pyth <- len_sq(y_vec) - len_sq(y_hat)
 
-These formulas use the $\beta$ and $X$ matrices directly. This is computationally efficient for large datasets.
+    cat("Pythagorean Calculation:\n")
+    cat("SST:", SST_pyth, " SSR:", SSR_pyth, " SSE:", SSE_pyth, "\n")
+    ```
 
-* Formula A (Centered with $y_c$): $\text{SSR} = \hat{\beta}_c^{\prime} X_c^{\prime} y_c$
-* Formula B (Alternative with $y$): $\text{SSR} = \hat{\beta}_c^{\prime} X_c^{\prime} y$
-* Formula C (Uncentered): $\text{SSR} = \hat{\beta}^{\prime} X^{\prime} y - n\bar{y}^2$
+3.  **Matrix Algebra Shortcuts**
 
-```{r}
-#| label: ss-matrix-equivalence
+    These formulas use the $\beta$ and $X$ matrices directly. This is computationally efficient for large datasets.
 
-n <- length(y)
-term_correction <- n * mean(y)^2 
+    * Formula A (Centered with $y_c$): $\text{SSR} = \hat{\beta}_c^{\prime} X_c^{\prime} y_c$
+    * Formula B (Alternative with $y$): $\text{SSR} = \hat{\beta}_c^{\prime} X_c^{\prime} y$
+    * Formula C (Uncentered): $\text{SSR} = \hat{\beta}^{\prime} X^{\prime} y - n\bar{y}^2$
 
-# --- SSR Calculations ---
+    ```{r}
+    #| label: ss-matrix-equivalence
 
-# 1. SSR Formula A (Centered, using y_c)
-SSR_centered_yc <- t(beta_slope) %*% t(X_c) %*% y_c
+    n <- length(y)
+    term_correction <- n * mean(y)^2 
 
-# 2. SSR Formula A (Alternative, using raw y)
-# Since X_c is centered, X_c' * 1 = 0, so X_c'y_c is equivalent to X_c'y
-SSR_centered_y <- t(beta_slope) %*% t(X_c) %*% y
+    # --- SSR Calculations ---
 
-# 3. SSR Formula B (Uncentered Matrix)
-# beta_naive includes intercept, X_naive includes column of 1s
-term_beta_X_y <- t(beta_naive) %*% t(X_naive) %*% y
-SSR_uncentered <- term_beta_X_y - term_correction
+    # 1. SSR Formula A (Centered, using y_c)
+    SSR_centered_yc <- t(beta_slope) %*% t(X_c) %*% y_c
 
-# --- Equivalence Check Table ---
+    # 2. SSR Formula A (Alternative, using raw y)
+    # Since X_c is centered, X_c' * 1 = 0, so X_c'y_c is equivalent to X_c'y
+    SSR_centered_y <- t(beta_slope) %*% t(X_c) %*% y
 
-results_table <- data.frame(
-  Metric = c("SSR (Centered $X_c,y_c$)", 
-             "SSR (Centered $X_c$)", 
-             "SSR (Uncentered)"),
-  Formula = c("$\\hat{\\beta}_c' X_c' y_c$", 
-              "$\\hat{\\beta}_c' X_c' y$", 
-              "$\\hat{\\beta}' X' y - n\\bar{y}^2$"),
-  Value = c(as.numeric(SSR_centered_yc), 
-            as.numeric(SSR_centered_y), 
-            as.numeric(SSR_uncentered))
-)
+    # 3. SSR Formula B (Uncentered Matrix)
+    # beta_naive includes intercept, X_naive includes column of 1s
+    term_beta_X_y <- t(beta_naive) %*% t(X_naive) %*% y
+    SSR_uncentered <- term_beta_X_y - term_correction
 
-# Render the table
-knitr::kable(results_table, 
-             digits = 4, 
-             caption = "Demonstration of SSR Formula Equivalence")
-```
+    # --- Equivalence Check Table ---
+
+    results_table <- data.frame(
+      Metric = c("SSR (Centered $X_c,y_c$)", 
+                 "SSR (Centered $X_c$)", 
+                 "SSR (Uncentered)"),
+      Formula = c("$\\hat{\\beta}_c' X_c' y_c$", 
+                  "$\\hat{\\beta}_c' X_c' y$", 
+                  "$\\hat{\\beta}' X' y - n\\bar{y}^2$"),
+      Value = c(as.numeric(SSR_centered_yc), 
+                as.numeric(SSR_centered_y), 
+                as.numeric(SSR_uncentered))
+    )
+
+    # Render the table
+    knitr::kable(results_table, 
+                 digits = 4, 
+                 caption = "Demonstration of SSR Formula Equivalence")
+    ```
 
 
 ### Analysis of Variance (ANOVA)
 
 We now evaluate the sources of variation to test the overall model significance.
 
-#### 1. Computing Sums of Squares {.unnumbered}
+1.  **Computing Sums of Squares**
 
-We calculate the following components:
+    We calculate the following components:
 
-* Total Sum of Squares: $\text{SST} = \sum (y_i - \bar{y})^2$
-* Regression Sum of Squares: $\text{SSR} = \sum (\hat{y}_i - \bar{y})^2$
-* Sum of Squared Errors: $\text{SSE} = \sum (y_i - \hat{y}_i)^2$
+    * Total Sum of Squares: $\text{SST} = \sum (y_i - \bar{y})^2$
+    * Regression Sum of Squares: $\text{SSR} = \sum (\hat{y}_i - \bar{y})^2$
+    * Sum of Squared Errors: $\text{SSE} = \sum (y_i - \hat{y}_i)^2$
 
-```{r}
-#| label: ss-calc
-#| code-fold: true
+    ```{r}
+    #| label: ss-calc
+    #| code-fold: true
 
-# Vectors
-y_vec <- as.vector(y)
-y_hat <- as.vector(y_hat_lm)
-y_bar_vec <- rep(mean(y), length(y))
+    # Vectors
+    y_vec <- as.vector(y)
+    y_hat <- as.vector(y_hat_lm)
+    y_bar_vec <- rep(mean(y), length(y))
 
-# Calculations
-SST_naive <- sum((y_vec - y_bar_vec)^2)
-SSR_naive <- sum((y_hat - y_bar_vec)^2)
-SSE_naive <- sum((y_vec - y_hat)^2)
+    # Calculations
+    SST_naive <- sum((y_vec - y_bar_vec)^2)
+    SSR_naive <- sum((y_hat - y_bar_vec)^2)
+    SSE_naive <- sum((y_vec - y_hat)^2)
 
-cat("SST:", SST_naive, " SSR:", SSR_naive, " SSE:", SSE_naive, "\n")
-```
+    cat("SST:", SST_naive, " SSR:", SSR_naive, " SSE:", SSE_naive, "\n")
+    ```
 
-#### 2. Manual ANOVA Construction {.unnumbered}
+2.  **Manual ANOVA Construction**
 
-We build the table manually using the sums of squares and degrees of freedom. We calculate the Mean Squares and the F-statistic:
+    We build the table manually using the sums of squares and degrees of freedom. We calculate the Mean Squares and the F-statistic:
 
-* $\text{MSR} = \text{SSR} / k$
-* $\text{MSE} = \text{SSE} / (n - k - 1)$
-* $\text{MST} = \text{SST} / (n - 1)$
-* $F = \text{MSR} / \text{MSE}$
+    * $\text{MSR} = \text{SSR} / k$
+    * $\text{MSE} = \text{SSE} / (n - k - 1)$
+    * $\text{MST} = \text{SST} / (n - 1)$
+    * $F = \text{MSR} / \text{MSE}$
 
-```{r}
-#| label: anova-manual
+    ```{r}
+    #| label: anova-manual
 
-# Parameters
-k <- 5             # Predictors
-df_e <- n - k - 1  # Error DF
-df_t <- n - 1      # Total DF
+    # Parameters
+    k <- 5             # Predictors
+    df_e <- n - k - 1  # Error DF
+    df_t <- n - 1      # Total DF
 
-# Mean Squares
-MSR <- SSR_naive / k
-MSE <- SSE_naive / df_e
-MST <- SST_naive / df_t # Mean Square Total (Variance of Y)
+    # Mean Squares
+    MSR <- SSR_naive / k
+    MSE <- SSE_naive / df_e
+    MST <- SST_naive / df_t # Mean Square Total (Variance of Y)
 
-# F-statistic
-F_stat <- MSR / MSE
+    # F-statistic
+    F_stat <- MSR / MSE
 
-# P-value
-p_val <- pf(F_stat, k, df_e, lower.tail = FALSE)
+    # P-value
+    p_val <- pf(F_stat, k, df_e, lower.tail = FALSE)
 
-# Assemble Table
-anova_manual <- data.frame(
-  Source = c("Regression (Model)", "Error (Residual)", "Total"),
-  DF = c(k, df_e, df_t),
-  SS = c(SSR_naive, SSE_naive, SST_naive),
-  MS = c(MSR, MSE, MST), # Included MST here
-  F_Statistic = c(F_stat, NA, NA),
-  P_Value = c(p_val, NA, NA)
-)
+    # Assemble Table
+    anova_manual <- data.frame(
+      Source = c("Regression (Model)", "Error (Residual)", "Total"),
+      DF = c(k, df_e, df_t),
+      SS = c(SSR_naive, SSE_naive, SST_naive),
+      MS = c(MSR, MSE, MST), # Included MST here
+      F_Statistic = c(F_stat, NA, NA),
+      P_Value = c(p_val, NA, NA)
+    )
 
-knitr::kable(anova_manual, digits = 4, caption = "Manual ANOVA Table")
-```
+    knitr::kable(anova_manual, digits = 4, caption = "Manual ANOVA Table")
+    ```
 
-#### 3. Standard R Output (`anova`) {.unnumbered}
+3.  **Standard R Output (`anova`)**
 
-We display the standard `summary()` which provides the coefficients, t-tests, and the overall F-statistic found at the bottom. We also show `anova()` which gives the sequential sum of squares.
+    We display the standard `summary()` which provides the coefficients, t-tests, and the overall F-statistic found at the bottom. We also show `anova()` which gives the sequential sum of squares.
 
-```{r}
-#| label: r-summary-output
+    ```{r}
+    #| label: r-summary-output
 
-# Fit an intercept-only (null) model and compare to the fitted model
-model_null <- lm(Price ~ 1, data = df)
-cat("\nANOVA comparing intercept-only model to fitted model:\n")
-print(anova(model_null, model_lm))
+    # Fit an intercept-only (null) model and compare to the fitted model
+    model_null <- lm(Price ~ 1, data = df)
+    cat("\nANOVA comparing intercept-only model to fitted model:\n")
+    print(anova(model_null, model_lm))
 
-# One can call anova directly to model_lm
-print(anova(model_lm))
-```
+    # One can call anova directly to model_lm
+    print(anova(model_lm))
+    ```
 
 ### Coefficient of Determination and Variance Decomposition
 
 We calculate $R^2$ and Adjusted $R^2$, and then present them in a **Variance Decomposition Table**.
 
-#### 1. Calculation {.unnumbered}
+1.  **Calculation**
 
-We calculate the coefficients of determination:
+    We calculate the coefficients of determination:
 
-* Standard $R^2 = 1 - \frac{\text{SSE}}{\text{SST}}$
-* Adjusted $R^2_a = 1 - \frac{\text{MSE}}{\text{MST}}$
+    * Standard $R^2 = 1 - \frac{\text{SSE}}{\text{SST}}$
+    * Adjusted $R^2_a = 1 - \frac{\text{MSE}}{\text{MST}}$
 
-```{r}
-#| label: calc-r2
+    ```{r}
+    #| label: calc-r2
 
-# Standard R-squared
-R2 <- 1 - (SSE_naive / SST_naive)
+    # Standard R-squared
+    R2 <- 1 - (SSE_naive / SST_naive)
 
-# Adjusted R-squared
-# Formula: 1 - (MSE / MST)
-R2_adj <- 1 - (MSE / MST)
+    # Adjusted R-squared
+    # Formula: 1 - (MSE / MST)
+    R2_adj <- 1 - (MSE / MST)
 
-cat("Standard R^2:  ", round(R2, 4), "\n")
-cat("Adjusted R^2:  ", round(R2_adj, 4), "\n")
-```
+    cat("Standard R^2:  ", round(R2, 4), "\n")
+    cat("Adjusted R^2:  ", round(R2_adj, 4), "\n")
+    ```
 
-#### 2. Variance Decomposition Table {.unnumbered}
+2.  **Variance Decomposition Table**
 
-This table extends standard ANOVA. While ANOVA focuses on **Mean Squares (MS)** for hypothesis testing (is $\text{MSR} > \text{MSE}$?), this table focuses on **Variance Components ($\hat{\sigma}^2$)** for estimation (how much variance is Signal vs. Noise?). We estimate the variance components as follows:
+    This table extends standard ANOVA. While ANOVA focuses on **Mean Squares (MS)** for hypothesis testing (is $\text{MSR} > \text{MSE}$?), this table focuses on **Variance Components ($\hat{\sigma}^2$)** for estimation (how much variance is Signal vs. Noise?). We estimate the variance components as follows:
 
-* Signal Variance: $\hat{\sigma}^2_\mu = \text{MST} - \text{MSE}$
-* Noise Variance: $\hat{\sigma}^2 = \text{MSE}$
-* Total Variance: $\hat{\sigma}^2_Y = \text{MST}$
+    * Signal Variance: $\hat{\sigma}^2_\mu = \text{MST} - \text{MSE}$
+    * Noise Variance: $\hat{\sigma}^2 = \text{MSE}$
+    * Total Variance: $\hat{\sigma}^2_Y = \text{MST}$
 
-* **Signal Variance ($\hat{\sigma}^2_\mu$):** Estimated by $\text{MST} - \text{MSE}$. (Note: $\text{MSR}$ is biased and overestimates signal).
-* **Noise Variance ($\hat{\sigma}^2$):** Estimated by $\text{MSE}$.
-* **Total Variance ($\hat{\sigma}^2_Y$):** Estimated by $\text{MST}$.
+    * **Signal Variance ($\hat{\sigma}^2_\mu$):** Estimated by $\text{MST} - \text{MSE}$. (Note: $\text{MSR}$ is biased and overestimates signal).
+    * **Noise Variance ($\hat{\sigma}^2$):** Estimated by $\text{MSE}$.
+    * **Total Variance ($\hat{\sigma}^2_Y$):** Estimated by $\text{MST}$.
 
-```{r}
-#| label: variance-decomp-table
+    ```{r}
+    #| label: variance-decomp-table
 
-# Variance Component Estimators (Method of Moments)
-sigma2_noise_est  <- MSE
-sigma2_total_est  <- MST
-sigma2_signal_est <- MST - MSE
+    # Variance Component Estimators (Method of Moments)
+    sigma2_noise_est  <- MSE
+    sigma2_total_est  <- MST
+    sigma2_signal_est <- MST - MSE
 
-# Proportions
-prop_signal <- sigma2_signal_est / sigma2_total_est # Equals R^2_adj
-prop_noise  <- sigma2_noise_est / sigma2_total_est  # Equals 1 - R^2_adj
+    # Proportions
+    prop_signal <- sigma2_signal_est / sigma2_total_est # Equals R^2_adj
+    prop_noise  <- sigma2_noise_est / sigma2_total_est  # Equals 1 - R^2_adj
 
-# Assemble Table
-decomp_table <- data.frame(
-  Component = c("Signal (Model)", "Noise (Error)", "Total (Y)"),
-  DF = c(k, df_e, df_t),
-  SS = c(SSR_naive, SSE_naive, SST_naive),
-  MS = c(NA, MSE, MST),
-  Estimator_Sigma2 = c(sigma2_signal_est, sigma2_noise_est, sigma2_total_est),
-  Proportion = c(prop_signal, prop_noise, 1.0)
-)
+    # Assemble Table
+    decomp_table <- data.frame(
+      Component = c("Signal (Model)", "Noise (Error)", "Total (Y)"),
+      DF = c(k, df_e, df_t),
+      SS = c(SSR_naive, SSE_naive, SST_naive),
+      MS = c(NA, MSE, MST),
+      Estimator_Sigma2 = c(sigma2_signal_est, sigma2_noise_est, sigma2_total_est),
+      Proportion = c(prop_signal, prop_noise, 1.0)
+    )
 
-# Display
-knitr::kable(decomp_table, 
-             digits = 4, 
-             col.names = c("Component", "DF", "SS", "MS", "Value ($\\hat{\\sigma}^2$)", "Proportion"),
-             caption = "Variance Decomposition Table: Estimating Signal vs. Noise")
-```
+    # Display
+    knitr::kable(decomp_table, 
+                 digits = 4, 
+                 col.names = c("Component", "DF", "SS", "MS", "Value ($\\hat{\\sigma}^2$)", "Proportion"),
+                 caption = "Variance Decomposition Table: Estimating Signal vs. Noise")
+    ```
 
 ### Confidence Interval for Population $R^2$ ($\rho^2$)
 
 We construct a 95% confidence interval for the population proportion of variance explained ($\rho^2$).
 
-#### 1. Manual Inversion Method {.unnumbered}
+1.  **Manual Inversion Method**
 
-We solve for the non-centrality parameters $\lambda_L$ and $\lambda_U$ such that our observed $F_{obs}$ corresponds to the appropriate quantiles.
+    We solve for the non-centrality parameters $\lambda_L$ and $\lambda_U$ such that our observed $F_{obs}$ corresponds to the appropriate quantiles.
 
+    ```{r}
+    #| label: ci-rho2-manual
+    # 1. Define Helper Function
+    ci_R2_F <- function(F_stat, df1, df2, n, conf_level = 0.95) {
+      
+      # Helper to find NCP (Lambda)
+      get_lambda <- function(target_prob, F_val, df1, df2) {
+        f_root <- function(lam) pf(F_val, df1, df2, ncp = lam) - target_prob
+        
+        # Try to find root in likely interval
+        tryCatch({
+          uniroot(f_root, interval = c(0, 10000))$root
+        }, error = function(e) return(NA))
+      }
+      
+      alpha <- 1 - conf_level
+      
+      # Calculate Lambda Bounds
+      # Lower Bound: F_obs is the (1 - alpha/2) quantile
+      lambda_Lower <- get_lambda(1 - alpha/2, F_stat, df1, df2)
+      
+      # Upper Bound: F_obs is the (alpha/2) quantile
+      lambda_Upper <- get_lambda(alpha/2, F_stat, df1, df2)
+      
+      # Handle cases where F is not significant (Lambda_Lower -> 0)
+      if (is.na(lambda_Lower)) lambda_Lower <- 0
+      if (is.na(lambda_Upper)) lambda_Upper <- 0 # Should rare, but safe
+      
+      # Convert Lambda to Rho^2 using: rho^2 = lambda / (lambda + n)
+      rho2_Lower <- lambda_Lower / (lambda_Lower + n)
+      rho2_Upper <- lambda_Upper / (lambda_Upper + n)
+      
+      return(c(lower = rho2_Lower, upper = rho2_Upper))
+    }
 
-```{r}
-#| label: ci-rho2-manual
+    # 2. Call the function
+    # Assuming k (df1) and df_e (df2) are defined in your environment
+    ci <- ci_R2_F(F_stat, k, df_e, n)
 
-# 1. Define Helper Function to Find Lambda
-# We want to find lambda such that: pf(F_stat, df1, df2, ncp = lambda) = target_prob
-get_lambda <- function(target_prob, F_val, df1, df2) {
-  f_root <- function(lam) {
-    pf(F_val, df1, df2, ncp = lam) - target_prob
-  }
-  tryCatch({
-    res <- uniroot(f_root, interval = c(0, 1000))$root
-    return(res)
-  }, error = function(e) return(NA))
-}
+    cat("Manual Calculation using ci_R2_F:\n")
+    cat("95% CI for Population Rho^2: [", round(ci['lower'], 4), ", ", round(ci['upper'], 4), "]\n")
+    ```
 
-# 2. Calculate Lambda Bounds (95% CI -> alpha = 0.05)
-alpha <- 0.05
-# Lower Bound Lambda: F_obs is the (1 - alpha/2) quantile
-lambda_Lower <- get_lambda(1 - alpha/2, F_stat, k, df_e)
-# Upper Bound Lambda: F_obs is the (alpha/2) quantile
-lambda_Upper <- get_lambda(alpha/2, F_stat, k, df_e)
+2.  **Using R Package `MBESS`**
 
-if (is.na(lambda_Lower)) lambda_Lower <- 0
+    The `MBESS` package automates this procedure. We use `Random.Predictors = FALSE` to match the fixed-predictor assumption used in our manual calculation.
 
-# 3. Convert Lambda to Rho^2
-# Formula for Fixed Predictors: rho^2 = lambda / (lambda + n)
-rho2_Lower <- lambda_Lower / (lambda_Lower + n)
-rho2_Upper <- lambda_Upper / (lambda_Upper + n)
+    ```{r}
+    #| label: ci-rho2-mbess
+    #| warning: false
+    #| message: false
 
-cat("Manual Calculation:\n")
-cat("95% CI for Population Rho^2: [", round(rho2_Lower, 4), ", ", round(rho2_Upper, 4), "]\n")
-```
-
-#### 2. Using R Package `MBESS` {.unnumbered}
-
-The `MBESS` package automates this procedure. We use `Random.Predictors = FALSE` to match the fixed-predictor assumption used in our manual calculation.
-
-```{r}
-#| label: ci-rho2-mbess
-#| warning: false
-#| message: false
-
-if (requireNamespace("MBESS", quietly = TRUE)) {
-  
-  # Use N (sample size) and p (number of predictors) 
-  # instead of df.1/df.2 to avoid the redundancy error.
-  ci_res <- MBESS::ci.R2(F.value = F_stat, 
-                         p = k,      # Number of predictors
-                         N = n,      # Sample size
-                         conf.level = 0.95,
-                         Random.Predictors = FALSE)
-  
-  print(ci_res)
-  
-} else {
-  cat("Package 'MBESS' is not installed.")
-}
-```
-
-
-
+    if (requireNamespace("MBESS", quietly = TRUE)) {
+      
+      # Use N (sample size) and p (number of predictors) 
+      # instead of df.1/df.2 to avoid the redundancy error.
+      ci_res <- MBESS::ci.R2(F.value = F_stat, 
+                            p = k,      # Number of predictors
+                            N = n,      # Sample size
+                            conf.level = 0.95,
+                            Random.Predictors = FALSE)
+      
+      print(ci_res)
+      
+    } else {
+      cat("Package 'MBESS' is not installed.")
+    }
+    ```
 
 ## Underfitting and Overfitting
 
