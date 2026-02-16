@@ -270,6 +270,16 @@ SS_row <- colSums(results_df^2)
 results_table <- rbind(results_df, SS_row)
 rownames(results_table)[nrow(results_table)] <- "Sum of Squares"
 
+# Display Detailed Data Table
+kable(results_table, digits = 2, 
+      col.names = c("$y$", "$j_N$", "$x_1$", "$x_2$", "$x_3$", 
+                    "$\\hat{y}_0$", 
+                    "$\\hat{y}$", 
+                    "$\\bar{y}_{i\\cdot}$", # <--- Verification Header
+                    "$\\hat{y} - \\hat{y}_0$", 
+                    "$e$"),
+      caption = "Data, Projections, and Verification of Group Means")
+
 # 4. Compute F and p-value
 SSH <- sum(y_diff^2)
 SSE <- sum(e^2)
@@ -349,9 +359,9 @@ n <- 12
 x1 <- rnorm(n, mean=5, sd=2)
 x2 <- rnorm(n, mean=10, sd=2)
 x3 <- rnorm(n, mean=0, sd=1)
-x4 <- 0.1*x1 + 0.5*x2 + x3 
-beta_true <- c(10, 2, -1, 3) 
-y <- beta_true[1] + beta_true[2]*x1 + beta_true[3]*x2 + beta_true[4]*x3 + rnorm(n, sd=1)
+x4 <- 0.1*x1 + 0.5*x2 + 0.1*x3 
+beta_true <- c(10, 1, -1, 1) 
+y <- beta_true[1] + beta_true[2]*x1 + beta_true[3]*x2 + beta_true[4]*x3 + rnorm(n, sd=3)
 
 # 2. Projections (Condensed for brevity, same as before)
 j_N <- rep(1, n)
@@ -360,29 +370,65 @@ X_sub  <- cbind(Intercept = j_N, x1, x2, x3)
 P0 <- j_N %*% t(j_N) / as.numeric(t(j_N) %*% j_N)
 y_0 <- P0 %*% y
 
-X_inv_full <- ginv(t(X_full) %*% X_full)
-y_hat_full <- X_full %*% X_inv_full %*% t(X_full) %*% y
+# B. Projection onto Full Model Space (Rank Deficient)
+XtX_full <- t(X_full) %*% X_full
+X_inv_full <- ginv(XtX_full)
+beta_hat_full <- X_inv_full %*% t(X_full) %*% y
+y_hat_full <- X_full %*% beta_hat_full
 
+# C. Projection onto Subspace (Full Rank)
+XtX_sub <- t(X_sub) %*% X_sub
+X_inv_sub <- solve(XtX_sub) 
+beta_hat_sub <- X_inv_sub %*% t(X_sub) %*% y
+y_hat_sub <- X_sub %*% beta_hat_sub
+
+# D. Difference Vector and Residuals
 y_diff <- y_hat_full - y_0
 e <- y - y_hat_full
 
-# 3. ANOVA Statistics
+# 4. Create Detailed Results Table
+results_df <- data.frame(
+y = y,
+x1 = x1,
+x2 = x2,
+x3 = x3,
+x4 = x4,
+y_hat_0 = as.vector(y_0),
+y_hat_sub = as.vector(y_hat_sub),   # New Column
+y_hat_full = as.vector(y_hat_full),
+y_diff = as.vector(y_diff),
+e = as.vector(e)
+)
+
+# Calculate Sum of Squares for each column
+SS_row <- colSums(results_df^2)
+results_table <- rbind(results_df, SS_row)
+rownames(results_table)[nrow(results_table)] <- "Sum of Squares"
+
+# Display Table using kable (for standard rendering)
+kable(results_table, digits = 2,
+      col.names = c("$y$", "$x_1$", "$x_2$", "$x_3$", "$x_4$",
+                  "$\\hat{y}_0$", 
+                  "$\\hat{y}_{sub}$",      # Projection onto x1-x3
+                  "$\\hat{y}_{full}$",     # Projection onto x1-x4
+                  "$\\hat{y}_{full} - \\hat{y}_0$", 
+                  "$e$"),
+      caption = "Comparison of Projections: Full (Rank-Deficient) vs Subspace")
+
+# 5. ANOVA Statistics
 SSH <- sum(y_diff^2)
 SSE <- sum(e^2)
-SST <- SSH + SSE 
-
 rank_X <- qr(X_full)$rank 
 df_hyp <- rank_X - 1 
 df_err <- n - rank_X
-df_tot <- n - 1
-
+df_tol <- df_hyp + df_err
 MSH <- SSH / df_hyp
 MSE <- SSE / df_err
-MST <- SST / df_tot 
-
 F_stat <- MSH / MSE
 p_val <- pf(F_stat, df_hyp, df_err, lower.tail = FALSE)
-R2_adj <- 1 - (MSE / MST)
+SST <- SSH + SSE 
+MST <- SST/df_tol
+R2_adj <- 1-MSE/MST
 
 # 4. Create ANOVA Data Frame
 anova_df <- data.frame(
