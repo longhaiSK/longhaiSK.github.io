@@ -7,23 +7,22 @@ $themes: (
   "example":    (bg: #fffbf0, border: #ffeebb, header-bg: #ffeebb, text: #664d03),
   "proof":      (bg: #e2e3e5, border: #e2e3e5, header-bg: #a6a4a4, text: #41464b),
   "sol":        (bg: #f9f2f4, border: #d9534f, header-bg: #d9534f, text: #ffffff),
-  "solution":   (bg: #f9f2f4, border: #d9534f, header-bg: #d9534f, text: #ffffff), /* Added Solution */
+  "solution":   (bg: #f9f2f4, border: #d9534f, header-bg: #d9534f, text: #ffffff),
   "algorithm":  (bg: #f3f0ff, border: #e0cffc, header-bg: #e0cffc, text: #440099),
   "remark":     (bg: #f3fcfc, border: #cff4fc, header-bg: #cff4fc, text: #055160),
-  );
+);
 
 /* 2. Create a "Mixin" */
 @mixin title-bar-style {
   display: block;
   font-weight: bold;
-  margin: -1em -1em 1em -1em;
+  margin: -1em -1em 1em -1em !important; 
   padding: 0.6em 1em;
   border-bottom: 1px solid rgba(0,0,0,0.05);
 }
 
 /* 3. Base Container Styling */
-/* Added div.solution to the list */
-div.theorem, div.definition, div.example, div.remark, div.proof, div.sol, div.remark
+div.theorem, div.definition, div.example, div.remark, div.proof, div.sol, 
 div.solution, div.algorithm {
   padding: 1em; 
   margin-bottom: 2em;
@@ -31,6 +30,7 @@ div.solution, div.algorithm {
   border-radius: 5px;
   overflow: hidden; 
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  text-align: left; 
   
   > p:first-child {
     margin-top: 0;
@@ -40,27 +40,37 @@ div.solution, div.algorithm {
 /* 4. Apply Colors and Header Logic */
 @each $name, $colors in $themes {
   div.#{$name} {
-    background-color: map-get($colors, "bg");
-    border-color:     map-get($colors, "border");
+    background-color: map-get($colors, "bg") !important;
+    border-color:     map-get($colors, "border") !important;
 
-    /* CASE A: Dynamic Titles (Theorems, Proofs, Algorithms) */
+    /* CASE A: Standard Quarto Titles */
     span.theorem-title, 
     span.proof-title,
-    span.remark-title
-    span.algorithm-title {
+    span.remark-title,
+    span.definition-title,
+    span.example-title {
       @include title-bar-style; 
-      background-color: map-get($colors, "header-bg");
-      color:            map-get($colors, "text");
+      background-color: map-get($colors, "header-bg") !important;
+      color:            map-get($colors, "text") !important;
     }
 
-    /* CASE B: Static Titles (sol & solution) */
-    /* Checks if the class is 'sol' OR 'solution' */
+    /* CASE B: Static Titles (Solution) */
     @if $name == "sol" or $name == "solution" {
       &::before {
-        content: "Solution"; /* Hardcoded Title */
+        content: "Solution"; 
         @include title-bar-style; 
-        background-color: map-get($colors, "header-bg");
-        color:            map-get($colors, "text");
+        background-color: map-get($colors, "header-bg") !important;
+        color:            map-get($colors, "text") !important;
+      }
+    }
+
+    /* CASE C: Static Titles (Algorithm) */
+    @if $name == "algorithm" {
+      &::before {
+        content: "Algorithm"; 
+        @include title-bar-style; 
+        background-color: map-get($colors, "header-bg") !important;
+        color:            map-get($colors, "text") !important;
       }
     }
   }
