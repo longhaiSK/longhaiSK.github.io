@@ -1,7 +1,7 @@
 
 **Instructions for Writing quarto Documents**
-* wrap all code with ```, eg. ```{r} ... ```, and wrap everything with ````{markdown} ... ```` so the qmd code is in textbox that is copiable. 
-* Don't add yaml header. 
+
+* Don't add yaml header.
 * Always add 4 backticks ```` around qmd code
 * Don't use the direct numbering such as 3.1, or Chapter 1
 * Dont use direct numbering to make a list such as **1. Factor into Components:**. Instead, using auto numbering: 
@@ -15,10 +15,6 @@
    2. Item 2
       More discussion of Item 2
 
-
-* Ensure that the text under a list item is indented to at least the level of the text after the number.
-  
-  
 * Put definitions/theorem/corrallary/proof/example/remark in respective divisions in this format:
 
    ::: {#thm-admissibility-unique}
@@ -56,10 +52,6 @@
    \end{tikzpicture}
    ```
 
-
-* In making plots with R, if the label/annotation/text contain math equation or symbol, always use latex2exp package with TeX wrapper for text with math symbols
-
-* Hanging indentation in the list: aligning the subsequent text or equations with the start of the list item's content, rather than the bullet point or number itself.
 
 **Specific instructions for making assignments:**
 
