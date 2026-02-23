@@ -101,7 +101,7 @@ $$
 
 where $(X^T X)^-$ is some (any) generalized inverse of $X^T X$.
 
-::: {#thm-projection-uniqueness}
+::: {#thm-projection-uniqueness-nonfulrank}
 
 #### Uniqueness of Projection
 $\hat{\beta} = (X^T X)^- X^T y$ is a solution to $(X^T X)\beta = X^T y$.
@@ -582,7 +582,7 @@ if (knitr::is_html_output()) {
 
 This example demonstrates the end-to-end process of fitting a model with linear dependencies using R's `lm()` function and generating a formatted ANOVA table. We explicitly handle the potential for fitting errors and highlight the reduced degrees of freedom resulting from the singularity.
 
-1. **Data Generation and Model Fitting** \n
+1. **Data Generation and Model Fitting** 
 
    We first generate a dataset where $x_4$ is a perfect linear combination of $x_1, x_2$, and $x_3$. We then attempt to fit the full model using `lm()` within a `tryCatch` block to ensure robustness.
 
@@ -649,7 +649,7 @@ This example demonstrates the end-to-end process of fitting a model with linear 
    }
    ```
 
-2. **Interpretation of Results** \n
+2. **Interpretation of Results** 
 
    The `lm()` function automatically identifies that $x_4$ is aliased with the other predictors and assigns it `NA`. Consequently, in the ANOVA table, the variation is partitioned among the first three predictors, and $x_4$ contributes no additional degrees of freedom or sum of squares. This demonstrates that for non-full rank models, inference is limited to the estimable part of the parameter space.
 
@@ -689,19 +689,19 @@ In the model $y = X\beta + e$, the linear function $\lambda^T \beta$ is estimabl
 ::: {.proof}
 We prove the equivalence of the conditions for estimability as follows:
 
-1. **Condition (1) $\iff$ Definition of Estimability** \n
+1. **Condition (1) $\iff$ Definition of Estimability** 
 
    By definition, $\lambda^T \beta$ is estimable if there exists a vector $a$ such that $E(a^T y) = \lambda^T \beta$ for all $\beta$. Since $E(a^T y) = a^T E(y) = a^T X \beta$, the requirement $a^T X \beta = \lambda^T \beta$ must hold for all $\beta \in \mathbb{R}^p$. This is true if and only if $a^T X = \lambda^T$, which means $\lambda$ is a linear combination of the rows of $X$.
 
-2. **Condition (1) $\iff$ Condition (4)** \n
+2. **Condition (1) $\iff$ Condition (4)** 
 
    Condition (1) states there exists $a$ such that $X^T a = \lambda$. This is the literal definition of $\lambda$ being in the column space of $X^T$, which is the row space of $X$, denoted $\text{Col}(X^T) = \text{Row}(X)$. Furthermore, a fundamental result in matrix algebra states that $\text{Col}(X^T) = \text{Col}(X^T X)$. Thus, $\lambda \in \text{Row}(X) \iff \lambda \in \text{Col}(X^T X)$.
 
-3. **Condition (4) $\iff$ Condition (2)** \n
+3. **Condition (4) $\iff$ Condition (2)** 
 
    If $\lambda \in \text{Col}(X^T X)$, then by the definition of column space, there must exist a vector $r$ such that $X^T X r = \lambda$. Taking the transpose gives $r^T X^T X = \lambda^T$, showing $\lambda^T$ is a linear combination of the rows of $X^T X$.
 
-4. **Condition (2) $\iff$ Condition (3)** \n
+4. **Condition (2) $\iff$ Condition (3)** 
 
    This follows from the properties of generalized inverses. A system $X^T X r = \lambda$ is consistent if and only if $X^T X (X^T X)^- \lambda = \lambda$ for any generalized inverse $(X^T X)^-$. If such an $r$ exists, then:
    
@@ -721,7 +721,7 @@ We prove the equivalence of the conditions for estimability as follows:
 
 We use the balanced one-way ANOVA effects model matrix $X$ ($a=3$ groups, $n=4$ observations per group) to verify different linear functions $\lambda^T \beta$. In this model, the parameter vector is $\beta = (\mu, \alpha_1, \alpha_2, \alpha_3)^T$.
 
-1. **Defining the Vectors and Explicit Matrix Form** \n
+1. **Defining the Vectors and Explicit Matrix Form** 
 
    
    First, we observe the explicit form of the $X^T X$ matrix. For a balanced one-way layout with $n=4$ per group, the matrix is as follows :
@@ -738,7 +738,7 @@ We use the balanced one-way ANOVA effects model matrix $X$ ($a=3$ groups, $n=4$ 
    * $\lambda_4 = (1, 0, 0, 1)^T$: The cell mean for group 3 ($\mu + \alpha_3$).
    * $\lambda_5 = (12, 4, 4, 4)^T$: This corresponds to $12\mu + 4\sum \alpha_i$, which is the first column of $X^TX$.
 
-2. **Numerical Consistency Check (Condition 3)** \n
+2. **Numerical Consistency Check (Condition 3)** 
 
    A linear function $\lambda^T\beta$ is estimable if and only if $X^T X (X^T X)^- \lambda = \lambda$. We perform this check for all vectors using the Moore-Penrose generalized inverse.
 
@@ -791,19 +791,19 @@ We use the balanced one-way ANOVA effects model matrix $X$ ($a=3$ groups, $n=4$ 
          caption = "Estimability Check for Multiple Parameter Functions")
    ```
 
-3. **Summary of Results** \n
+3. **Summary of Results** 
 
    * **Estimable Functions**: $\lambda_1, \lambda_3, \lambda_4$, and $\lambda_5$ all satisfy the condition because their result columns ($L_i$) match their target columns ($\lambda_i$). These represent cell means, contrasts, and linear combinations of the rows of $X^TX$.
    * **Non-Estimable Function**: $\lambda_2$ (individual $\alpha_1$) fails the condition as the target and result do not match.
    * **The First Column ($\lambda_5$)**: This vector is estimable because it is explicitly the first row/column of $X^TX$. Since any linear combination of rows of $X^TX$ is estimable, $\lambda_5^T \beta = 12\mu + 4\alpha_1 + 4\alpha_2 + 4\alpha_3$ is estimable. Note that this is equal to $\sum_{i,j} E(y_{ij})$, the sum of all expected cell means.
 
-4. **Theoretical Conclusion** \n
+4. **Theoretical Conclusion** 
 
    In non-full-rank models, we cannot estimate individual parameters that are not uniquely identified by the data. However, linear functions that lie in the row space of $X$ (or the column space of $X^TX$)—such as cell means or treatment contrasts—are invariant to the choice of solution $\hat{\beta}$ and remain uniquely estimable.
 
 :::
 
-::: {#thm-number-estimable-functions}
+::: {#thm-number-estimable-functions-nonfullrank}
 
 #### Number of Estimable Functions
 In the non-full-rank model $y = X\beta + e$, the number of linearly independent estimable functions of $\beta$ is the rank of $X$.
@@ -839,12 +839,6 @@ Let $\lambda^T \beta$ be an estimable function. Let $\hat{\beta}$ be any solutio
 
 :::
 
-::: {#thm-number-estimable-functions}
-
-#### Number of Estimable Functions
-In the non-full-rank model $y = X\beta + e$, the number of linearly independent estimable functions of $\beta$ is the rank of $X$.
-
-:::
 
 ### Properties of Estimators for Estimabile Parameters
 
@@ -853,7 +847,7 @@ Let $\lambda^T \beta$ be an estimable function. Let $\hat{\beta}$ be any solutio
 1.  **Unbiasedness**: $E(\lambda^T \hat{\beta}) = \lambda^T \beta$.
 2.  **Uniqueness**: $\lambda^T \hat{\beta}$ is invariant to the choice of $\hat{\beta}$ (to the choice of generalized inverse).
 
-::: {#thm-variance-covariance}
+::: {#thm-variance-covariance-nonfullrank}
 
 #### Variance and Covariance
 
@@ -899,13 +893,13 @@ This implies that there exists a matrix $A$ such that $C = AX$. Physically, this
 
 If $y \sim N_n(X\beta, \sigma^2 I)$, where $X$ is $n \times p$ with $\text{rank}(X) = k < p$, and $C\beta$ is a set of $m$ linearly independent estimable functions (where $m \le k$), the following results hold:
 
-1.  **Distribution of the Estimator** \n
+1.  **Distribution of the Estimator** 
 
     The least-squares estimator $C\hat{\beta}$ follows a multivariate normal distribution:
     
     $$C\hat{\beta} \sim N_m\left[C\beta, \sigma^2 C(X^T X)^- C^T\right]$$ 
 
-2.  **The F-Statistic** \n
+2.  **The F-Statistic** 
 
     The test statistic for $H_0: C\beta = 0$ is defined as:
     
@@ -917,13 +911,13 @@ If $y \sim N_n(X\beta, \sigma^2 I)$, where $X$ is $n \times p$ with $\text{rank}
     * $SSE = y^T [I - X(X^T X)^- X^T] y$ is the Error Sum of Squares.
     * $k$ is the **rank** of the matrix $X$, not the number of columns $p$.
 
-3.  **Sampling Distribution** \n
+3.  **Sampling Distribution** 
 
     The statistic $F$ follows an F-distribution:
     
     $$F \sim F(m, n - k)$$ 
     
-    Under the alternative hypothesis $H_1: C\beta \neq 0$, the statistic follows a non-central F-distribution $F(m, n - k, \lambda)$, with non-centrality parameter:
+    Under the alternative hypothesis $H_1: C\beta eq 0$, the statistic follows a non-central F-distribution $F(m, n - k, \lambda)$, with non-centrality parameter:
     
     $$\lambda = \frac{(C\beta)^T [C(X^T X)^- C^T]^{-1} C\beta}{2\sigma^2}$$ 
 
