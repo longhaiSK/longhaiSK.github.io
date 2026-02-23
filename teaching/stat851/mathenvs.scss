@@ -1,0 +1,67 @@
+/*-- scss:rules --*/
+
+/* 1. Define the Color Palette */
+$themes: (
+  "theorem":    (bg: #f0f7ff, border: #cfe2ff, header-bg: #cfe2ff, text: #084298),
+  "definition": (bg: #f0fff4, border: #badbcc, header-bg: #badbcc, text: #0f5132),
+  "example":    (bg: #fffbf0, border: #ffeebb, header-bg: #ffeebb, text: #664d03),
+  "proof":      (bg: #e2e3e5, border: #e2e3e5, header-bg: #a6a4a4, text: #41464b),
+  "sol":        (bg: #f9f2f4, border: #d9534f, header-bg: #d9534f, text: #ffffff),
+  "solution":   (bg: #f9f2f4, border: #d9534f, header-bg: #d9534f, text: #ffffff), /* Added Solution */
+  "algorithm":  (bg: #f3f0ff, border: #e0cffc, header-bg: #e0cffc, text: #440099),
+  "remark":     (bg: #f3fcfc, border: #cff4fc, header-bg: #cff4fc, text: #055160),
+  );
+
+/* 2. Create a "Mixin" */
+@mixin title-bar-style {
+  display: block;
+  font-weight: bold;
+  margin: -1em -1em 1em -1em;
+  padding: 0.6em 1em;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+/* 3. Base Container Styling */
+/* Added div.solution to the list */
+div.theorem, div.definition, div.example, div.remark, div.proof, div.sol, div.remark
+div.solution, div.algorithm {
+  padding: 1em; 
+  margin-bottom: 2em;
+  border: 2px solid; 
+  border-radius: 5px;
+  overflow: hidden; 
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  
+  > p:first-child {
+    margin-top: 0;
+  }
+}
+
+/* 4. Apply Colors and Header Logic */
+@each $name, $colors in $themes {
+  div.#{$name} {
+    background-color: map-get($colors, "bg");
+    border-color:     map-get($colors, "border");
+
+    /* CASE A: Dynamic Titles (Theorems, Proofs, Algorithms) */
+    span.theorem-title, 
+    span.proof-title,
+    span.remark-title
+    span.algorithm-title {
+      @include title-bar-style; 
+      background-color: map-get($colors, "header-bg");
+      color:            map-get($colors, "text");
+    }
+
+    /* CASE B: Static Titles (sol & solution) */
+    /* Checks if the class is 'sol' OR 'solution' */
+    @if $name == "sol" or $name == "solution" {
+      &::before {
+        content: "Solution"; /* Hardcoded Title */
+        @include title-bar-style; 
+        background-color: map-get($colors, "header-bg");
+        color:            map-get($colors, "text");
+      }
+    }
+  }
+}
