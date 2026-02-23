@@ -73,7 +73,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-0de45b8b5f35a93596f1d788d60c4c11.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-4ae8bba48d879873ce5a6b72ff9b51ba.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-e7757d9c9686abdec7d3e06884a68076.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -347,7 +347,7 @@ X^T X \hat{\beta} = X^T y
 \hat{\beta} = (X^T X)^- X^T y
 \]</span></p>
 <p>where <span class="math inline">\((X^T X)^-\)</span> is some (any) generalized inverse of <span class="math inline">\(X^T X\)</span>.</p>
-<div id="thm-projection-uniqueness" class="theorem">
+<div id="thm-projection-uniqueness-nonfulrank" class="theorem">
 <p><span class="theorem-title"><strong>Theorem 9.2 (Uniqueness of Projection)</strong></span> <span class="math inline">\(\hat{\beta} = (X^T X)^- X^T y\)</span> is a solution to <span class="math inline">\((X^T X)\beta = X^T y\)</span>. Then <span class="math inline">\(\hat{y} = X\hat{\beta} = X(X^T X)^- X^T y\)</span> is the projection of <span class="math inline">\(y\)</span> onto <span class="math inline">\(\text{Col}(X)\)</span>.</p>
 <p>Since the projection onto a subspace is unique, <span class="math inline">\(\hat{y}\)</span> is unique regardless of the choice of generalized inverse.</p>
 </div>
@@ -1774,7 +1774,7 @@ F = \frac{||\hat{y} - \hat{y}_0||^2 / h}{s^2} = \frac{y^T (P_{\text{Col}(X)} - P
 <div id="exm-lm-anova-combined" class="theorem example">
 <p><span class="theorem-title"><strong>Example 9.3 (Rank-Deficient Model Fitting and ANOVA Analysis)</strong></span> This example demonstrates the end-to-end process of fitting a model with linear dependencies using R’s <code>lm()</code> function and generating a formatted ANOVA table. We explicitly handle the potential for fitting errors and highlight the reduced degrees of freedom resulting from the singularity.</p>
 <ol type="1">
-<li><p><strong>Data Generation and Model Fitting</strong> </p>
+<li><p><strong>Data Generation and Model Fitting</strong></p>
 <p>We first generate a dataset where <span class="math inline">\(x_4\)</span> is a perfect linear combination of <span class="math inline">\(x_1, x_2\)</span>, and <span class="math inline">\(x_3\)</span>. We then attempt to fit the full model using <code>lm()</code> within a <code>tryCatch</code> block to ensure robustness.</p>
 <div class="cell">
 <details class="code-fold">
@@ -2362,7 +2362,7 @@ F = \frac{||\hat{y} - \hat{y}_0||^2 / h}{s^2} = \frac{y^T (P_{\text{Col}(X)} - P
 </div>
 </div>
 </div></li>
-<li><p><strong>Interpretation of Results</strong> </p>
+<li><p><strong>Interpretation of Results</strong></p>
 <p>The <code>lm()</code> function automatically identifies that <span class="math inline">\(x_4\)</span> is aliased with the other predictors and assigns it <code>NA</code>. Consequently, in the ANOVA table, the variation is partitioned among the first three predictors, and <span class="math inline">\(x_4\)</span> contributes no additional degrees of freedom or sum of squares. This demonstrates that for non-full rank models, inference is limited to the estimable part of the parameter space.</p></li>
 </ol>
 </div>
@@ -2393,13 +2393,13 @@ E(a^T y) = \lambda^T \beta
 <div class="proof">
 <p><span class="proof-title"><em>Proof</em>. </span>We prove the equivalence of the conditions for estimability as follows:</p>
 <ol type="1">
-<li><p><strong>Condition (1) <span class="math inline">\(\iff\)</span> Definition of Estimability</strong> </p>
+<li><p><strong>Condition (1) <span class="math inline">\(\iff\)</span> Definition of Estimability</strong></p>
 <p>By definition, <span class="math inline">\(\lambda^T \beta\)</span> is estimable if there exists a vector <span class="math inline">\(a\)</span> such that <span class="math inline">\(E(a^T y) = \lambda^T \beta\)</span> for all <span class="math inline">\(\beta\)</span>. Since <span class="math inline">\(E(a^T y) = a^T E(y) = a^T X \beta\)</span>, the requirement <span class="math inline">\(a^T X \beta = \lambda^T \beta\)</span> must hold for all <span class="math inline">\(\beta \in \mathbb{R}^p\)</span>. This is true if and only if <span class="math inline">\(a^T X = \lambda^T\)</span>, which means <span class="math inline">\(\lambda\)</span> is a linear combination of the rows of <span class="math inline">\(X\)</span>.</p></li>
-<li><p><strong>Condition (1) <span class="math inline">\(\iff\)</span> Condition (4)</strong> </p>
+<li><p><strong>Condition (1) <span class="math inline">\(\iff\)</span> Condition (4)</strong></p>
 <p>Condition (1) states there exists <span class="math inline">\(a\)</span> such that <span class="math inline">\(X^T a = \lambda\)</span>. This is the literal definition of <span class="math inline">\(\lambda\)</span> being in the column space of <span class="math inline">\(X^T\)</span>, which is the row space of <span class="math inline">\(X\)</span>, denoted <span class="math inline">\(\text{Col}(X^T) = \text{Row}(X)\)</span>. Furthermore, a fundamental result in matrix algebra states that <span class="math inline">\(\text{Col}(X^T) = \text{Col}(X^T X)\)</span>. Thus, <span class="math inline">\(\lambda \in \text{Row}(X) \iff \lambda \in \text{Col}(X^T X)\)</span>.</p></li>
-<li><p><strong>Condition (4) <span class="math inline">\(\iff\)</span> Condition (2)</strong> </p>
+<li><p><strong>Condition (4) <span class="math inline">\(\iff\)</span> Condition (2)</strong></p>
 <p>If <span class="math inline">\(\lambda \in \text{Col}(X^T X)\)</span>, then by the definition of column space, there must exist a vector <span class="math inline">\(r\)</span> such that <span class="math inline">\(X^T X r = \lambda\)</span>. Taking the transpose gives <span class="math inline">\(r^T X^T X = \lambda^T\)</span>, showing <span class="math inline">\(\lambda^T\)</span> is a linear combination of the rows of <span class="math inline">\(X^T X\)</span>.</p></li>
-<li><p><strong>Condition (2) <span class="math inline">\(\iff\)</span> Condition (3)</strong> </p>
+<li><p><strong>Condition (2) <span class="math inline">\(\iff\)</span> Condition (3)</strong></p>
 <p>This follows from the properties of generalized inverses. A system <span class="math inline">\(X^T X r = \lambda\)</span> is consistent if and only if <span class="math inline">\(X^T X (X^T X)^- \lambda = \lambda\)</span> for any generalized inverse <span class="math inline">\((X^T X)^-\)</span>. If such an <span class="math inline">\(r\)</span> exists, then:</p>
 <p><span class="math display">\[
 X^T X (X^T X)^- (X^T X r) = X^T X r = \lambda
@@ -2413,7 +2413,7 @@ X^T X (X^T X)^- (X^T X r) = X^T X r = \lambda
 <div id="exm-estimability-comprehensive" class="theorem example">
 <p><span class="theorem-title"><strong>Example 9.4 (Checking Estimability in One-Way ANOVA)</strong></span> We use the balanced one-way ANOVA effects model matrix <span class="math inline">\(X\)</span> (<span class="math inline">\(a=3\)</span> groups, <span class="math inline">\(n=4\)</span> observations per group) to verify different linear functions <span class="math inline">\(\lambda^T \beta\)</span>. In this model, the parameter vector is <span class="math inline">\(\beta = (\mu, \alpha_1, \alpha_2, \alpha_3)^T\)</span>.</p>
 <ol type="1">
-<li><p><strong>Defining the Vectors and Explicit Matrix Form</strong> </p>
+<li><p><strong>Defining the Vectors and Explicit Matrix Form</strong></p>
 <p>First, we observe the explicit form of the <span class="math inline">\(X^T X\)</span> matrix. For a balanced one-way layout with <span class="math inline">\(n=4\)</span> per group, the matrix is as follows :</p>
 <p><span class="math display">\[
 X^T X = \begin{pmatrix} 12 &amp; 4 &amp; 4 &amp; 4 \\ 4 &amp; 4 &amp; 0 &amp; 0 \\ 4 &amp; 0 &amp; 4 &amp; 0 \\ 4 &amp; 0 &amp; 0 &amp; 4 \end{pmatrix}
@@ -2426,7 +2426,7 @@ X^T X = \begin{pmatrix} 12 &amp; 4 &amp; 4 &amp; 4 \\ 4 &amp; 4 &amp; 0 &amp; 0 
 <li><span class="math inline">\(\lambda_4 = (1, 0, 0, 1)^T\)</span>: The cell mean for group 3 (<span class="math inline">\(\mu + \alpha_3\)</span>).</li>
 <li><span class="math inline">\(\lambda_5 = (12, 4, 4, 4)^T\)</span>: This corresponds to <span class="math inline">\(12\mu + 4\sum \alpha_i\)</span>, which is the first column of <span class="math inline">\(X^TX\)</span>.</li>
 </ul></li>
-<li><p><strong>Numerical Consistency Check (Condition 3)</strong> </p>
+<li><p><strong>Numerical Consistency Check (Condition 3)</strong></p>
 <p>A linear function <span class="math inline">\(\lambda^T\beta\)</span> is estimable if and only if <span class="math inline">\(X^T X (X^T X)^- \lambda = \lambda\)</span>. We perform this check for all vectors using the Moore-Penrose generalized inverse.</p>
 <div class="cell">
 <details class="code-fold">
@@ -2564,17 +2564,17 @@ X^T X = \begin{pmatrix} 12 &amp; 4 &amp; 4 &amp; 4 \\ 4 &amp; 4 &amp; 0 &amp; 0 
 </table>
 </div>
 </div></li>
-<li><p><strong>Summary of Results</strong> </p>
+<li><p><strong>Summary of Results</strong></p>
 <ul>
 <li><strong>Estimable Functions</strong>: <span class="math inline">\(\lambda_1, \lambda_3, \lambda_4\)</span>, and <span class="math inline">\(\lambda_5\)</span> all satisfy the condition because their result columns (<span class="math inline">\(L_i\)</span>) match their target columns (<span class="math inline">\(\lambda_i\)</span>). These represent cell means, contrasts, and linear combinations of the rows of <span class="math inline">\(X^TX\)</span>.</li>
 <li><strong>Non-Estimable Function</strong>: <span class="math inline">\(\lambda_2\)</span> (individual <span class="math inline">\(\alpha_1\)</span>) fails the condition as the target and result do not match.</li>
 <li><strong>The First Column (<span class="math inline">\(\lambda_5\)</span>)</strong>: This vector is estimable because it is explicitly the first row/column of <span class="math inline">\(X^TX\)</span>. Since any linear combination of rows of <span class="math inline">\(X^TX\)</span> is estimable, <span class="math inline">\(\lambda_5^T \beta = 12\mu + 4\alpha_1 + 4\alpha_2 + 4\alpha_3\)</span> is estimable. Note that this is equal to <span class="math inline">\(\sum_{i,j} E(y_{ij})\)</span>, the sum of all expected cell means.</li>
 </ul></li>
-<li><p><strong>Theoretical Conclusion</strong> </p>
+<li><p><strong>Theoretical Conclusion</strong></p>
 <p>In non-full-rank models, we cannot estimate individual parameters that are not uniquely identified by the data. However, linear functions that lie in the row space of <span class="math inline">\(X\)</span> (or the column space of <span class="math inline">\(X^TX\)</span>)—such as cell means or treatment contrasts—are invariant to the choice of solution <span class="math inline">\(\hat{\beta}\)</span> and remain uniquely estimable.</p></li>
 </ol>
 </div>
-<div id="thm-number-estimable-functions" class="theorem">
+<div id="thm-number-estimable-functions-nonfullrank" class="theorem">
 <p><span class="theorem-title"><strong>Theorem 9.7 (Number of Estimable Functions)</strong></span> In the non-full-rank model <span class="math inline">\(y = X\beta + e\)</span>, the number of linearly independent estimable functions of <span class="math inline">\(\beta\)</span> is the rank of <span class="math inline">\(X\)</span>.</p>
 </div>
 </section>
@@ -2598,9 +2598,6 @@ X^T X = \begin{pmatrix} 12 &amp; 4 &amp; 4 &amp; 4 \\ 4 &amp; 4 &amp; 0 &amp; 0 
 \]</span></p></li>
 </ol>
 </div>
-<div id="thm-number-estimable-functions" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 9.9 (Number of Estimable Functions)</strong></span> In the non-full-rank model <span class="math inline">\(y = X\beta + e\)</span>, the number of linearly independent estimable functions of <span class="math inline">\(\beta\)</span> is the rank of <span class="math inline">\(X\)</span>.</p>
-</div>
 </section>
 <section id="properties-of-estimators-for-estimabile-parameters-1" class="level3" data-number="9.4.4">
 <h3 data-number="9.4.4" class="anchored" data-anchor-id="properties-of-estimators-for-estimabile-parameters-1"><span class="header-section-number">9.4.4</span> Properties of Estimators for Estimabile Parameters</h3>
@@ -2610,7 +2607,7 @@ X^T X = \begin{pmatrix} 12 &amp; 4 &amp; 4 &amp; 4 \\ 4 &amp; 4 &amp; 0 &amp; 0 
 <li><strong>Uniqueness</strong>: <span class="math inline">\(\lambda^T \hat{\beta}\)</span> is invariant to the choice of <span class="math inline">\(\hat{\beta}\)</span> (to the choice of generalized inverse).</li>
 </ol>
 <div id="thm-variance-covariance" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 9.10 (Variance and Covariance)</strong></span> &nbsp;</p>
+<p><span class="theorem-title"><strong>Theorem 9.9 (Variance and Covariance)</strong></span> &nbsp;</p>
 <ol type="1">
 <li><p><strong>Variance</strong>: The variance of <span class="math inline">\(\lambda^T \hat{\beta}\)</span> is unique and is given by:</p>
 <p><span class="math display">\[
@@ -2623,7 +2620,7 @@ X^T X = \begin{pmatrix} 12 &amp; 4 &amp; 4 &amp; 4 \\ 4 &amp; 4 &amp; 0 &amp; 0 
 </ol>
 </div>
 <div id="thm-gauss-markov-non-full" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 9.11 (Gauss-Markov in Non-Full Rank Case)</strong></span> If <span class="math inline">\(\lambda^T \beta\)</span> is estimable in the spherical errors non-full rank linear model, then <span class="math inline">\(\lambda^T \hat{\beta}\)</span> is its Best Linear Unbiased Estimator (BLUE).</p>
+<p><span class="theorem-title"><strong>Theorem 9.10 (Gauss-Markov in Non-Full Rank Case)</strong></span> If <span class="math inline">\(\lambda^T \beta\)</span> is estimable in the spherical errors non-full rank linear model, then <span class="math inline">\(\lambda^T \hat{\beta}\)</span> is its Best Linear Unbiased Estimator (BLUE).</p>
 </div>
 </section>
 <section id="testable-hypotheses-in-non-full-rank-models" class="level3" data-number="9.4.5">
@@ -2638,10 +2635,10 @@ X^T X = \begin{pmatrix} 12 &amp; 4 &amp; 4 &amp; 4 \\ 4 &amp; 4 &amp; 0 &amp; 0 
 <h3 data-number="9.4.6" class="anchored" data-anchor-id="the-general-linear-hypothesis-f-test"><span class="header-section-number">9.4.6</span> The General Linear Hypothesis F-Test</h3>
 <p>If <span class="math inline">\(y \sim N_n(X\beta, \sigma^2 I)\)</span>, where <span class="math inline">\(X\)</span> is <span class="math inline">\(n \times p\)</span> with <span class="math inline">\(\text{rank}(X) = k &lt; p\)</span>, and <span class="math inline">\(C\beta\)</span> is a set of <span class="math inline">\(m\)</span> linearly independent estimable functions (where <span class="math inline">\(m \le k\)</span>), the following results hold:</p>
 <ol type="1">
-<li><p><strong>Distribution of the Estimator</strong> </p>
+<li><p><strong>Distribution of the Estimator</strong></p>
 <p>The least-squares estimator <span class="math inline">\(C\hat{\beta}\)</span> follows a multivariate normal distribution:</p>
 <p><span class="math display">\[C\hat{\beta} \sim N_m\left[C\beta, \sigma^2 C(X^T X)^- C^T\right]\]</span></p></li>
-<li><p><strong>The F-Statistic</strong> </p>
+<li><p><strong>The F-Statistic</strong></p>
 <p>The test statistic for <span class="math inline">\(H_0: C\beta = 0\)</span> is defined as:</p>
 <p><span class="math display">\[F = \frac{SSH / m}{SSE / (n - k)}\]</span></p>
 <p>where:</p>
@@ -2650,10 +2647,10 @@ X^T X = \begin{pmatrix} 12 &amp; 4 &amp; 4 &amp; 4 \\ 4 &amp; 4 &amp; 0 &amp; 0 
 <li><span class="math inline">\(SSE = y^T [I - X(X^T X)^- X^T] y\)</span> is the Error Sum of Squares.</li>
 <li><span class="math inline">\(k\)</span> is the <strong>rank</strong> of the matrix <span class="math inline">\(X\)</span>, not the number of columns <span class="math inline">\(p\)</span>.</li>
 </ul></li>
-<li><p><strong>Sampling Distribution</strong> </p>
+<li><p><strong>Sampling Distribution</strong></p>
 <p>The statistic <span class="math inline">\(F\)</span> follows an F-distribution:</p>
 <p><span class="math display">\[F \sim F(m, n - k)\]</span></p>
-<p>Under the alternative hypothesis <span class="math inline">\(H_1: C\beta \neq 0\)</span>, the statistic follows a non-central F-distribution <span class="math inline">\(F(m, n - k, \lambda)\)</span>, with non-centrality parameter:</p>
+<p>Under the alternative hypothesis <span class="math inline">\(H_1: C\beta eq 0\)</span>, the statistic follows a non-central F-distribution <span class="math inline">\(F(m, n - k, \lambda)\)</span>, with non-centrality parameter:</p>
 <p><span class="math display">\[\lambda = \frac{(C\beta)^T [C(X^T X)^- C^T]^{-1} C\beta}{2\sigma^2}\]</span></p></li>
 </ol>
 <p><strong>Summary of Degrees of Freedom</strong></p>
