@@ -266,7 +266,7 @@ where:
 
 The algorithm is derived by approximating the score function $\mathbf{U}(\boldsymbol{\theta})$ with a first-order Taylor expansion around the current estimate $\boldsymbol{\theta}^{(t)}$:
 
-1. **Linear Approximation** \n
+1. **Linear Approximation** 
 
    We approximate the score at the next step as:
    
@@ -274,7 +274,7 @@ The algorithm is derived by approximating the score function $\mathbf{U}(\boldsy
    \mathbf{U}(\boldsymbol{\theta}^{(t+1)}) \approx \mathbf{U}(\boldsymbol{\theta}^{(t)}) + \nabla \mathbf{U}(\boldsymbol{\theta}^{(t)}) (\boldsymbol{\theta}^{(t+1)} - \boldsymbol{\theta}^{(t)})
    $$
 
-2. **Setting to Zero** \n
+2. **Setting to Zero** 
 
    Since we want to find the root where $\mathbf{U}(\hat{\boldsymbol{\theta}}) = \mathbf{0}$, we set the left side to zero:
    
@@ -284,7 +284,7 @@ The algorithm is derived by approximating the score function $\mathbf{U}(\boldsy
    
    Note that $\nabla \mathbf{U}(\boldsymbol{\theta}) = \nabla^2 \ell(\boldsymbol{\theta}) = -\mathbf{J}(\boldsymbol{\theta})$.
 
-3. **Solving for the Update** \n
+3. **Solving for the Update** 
 
    Rearranging the terms gives the update rule:
    
@@ -307,11 +307,11 @@ The algorithm is derived by approximating the score function $\mathbf{U}(\boldsy
 The Newton-Raphson algorithm specifically uses the **Observed Information** $\mathbf{J}(\boldsymbol{\theta})$. If the expected Fisher Information $\mathcal{I}(\boldsymbol{\theta}) = E[\mathbf{J}(\boldsymbol{\theta})]$ is used instead, the method is known as **Fisher Scoring**.
 
 
-1. **Convergence Speed** \n
+1. **Convergence Speed** 
 
    Newton-Raphson typically achieves quadratic convergence near the maximum, making it very fast when the initial guess is good.
 
-2. **Stability** \n
+2. **Stability** 
 
    Because $\mathbf{J}(\boldsymbol{\theta})$ depends on the specific data observed, it can occasionally be non-positive definite in regions far from the MLE, which may cause the algorithm to diverge. Fisher Scoring is often more stable in these cases because $\mathcal{I}(\boldsymbol{\theta})$ is always positive semi-definite for regular families.
 
@@ -1662,12 +1662,12 @@ In deep learning, the objective function is typically the negative log-likelihoo
 
 In traditional statistical models, $\ell(\boldsymbol{\theta})$ is often globally concave, allowing algorithms like Newton-Raphson to converge reliably. Deep learning models, however, present a different landscape:
 
-1. **Non-convexity** \n
+1. **Non-convexity** 
 
    The log-likelihood surface $\ell(\boldsymbol{\theta})$ is highly non-convex with numerous local minima, saddle points, and plateaus.
    
    
-2. **High Dimensionality** \n
+2. **High Dimensionality** 
 
    The parameter vector $\boldsymbol{\theta}$ can contain millions or billions of weights ($p \gg 10^6$). This makes the storage and inversion of the Observed Information Matrix $\mathbf{J}(\boldsymbol{\theta})$ (the $p \times p$ Hessian) computationally intractable, as its storage requires $O(p^2)$ memory.
 
@@ -1688,7 +1688,7 @@ where $\Omega(\boldsymbol{\theta})$ is a penalty function. Common examples inclu
 
 Because the Hessian is too large to compute, the most common approach is to use methods that only require the Score vector $\mathbf{U}(\boldsymbol{\theta})$. These methods have a memory complexity of $O(p)$, making them feasible for large-scale problems.
 
-1. **Stochastic Gradient Descent (SGD)** \n
+1. **Stochastic Gradient Descent (SGD)** 
 
    Instead of the full score, SGD uses a "mini-batch" estimate $\mathbf{U}_{batch}$. The update is:
    $$
@@ -1696,7 +1696,7 @@ Because the Hessian is too large to compute, the most common approach is to use 
    $$
    While simple, SGD treats all dimensions equally, which is inefficient if the likelihood surface is much steeper in some directions than others.
 
-2. **Momentum-Based Methods** \n
+2. **Momentum-Based Methods** 
 
    These maintain a moving average of past scores to dampen oscillations and accelerate progress in consistent directions, effectively acting as a low-pass filter on the noisy stochastic gradients.
 
@@ -1710,7 +1710,7 @@ Modern optimizers leverage the **Second Moment Identity** (Bartlett's Identity) 
 
 In the context of high-dimensional optimization, the identity $\mathcal{I}(\boldsymbol{\theta}) = \text{Cov}_{\boldsymbol{\theta}_0}(\mathbf{U}) = E_{\boldsymbol{\theta}_0}[\mathbf{J}]$ is not just a theoretical curiosity, but a computational lifeline. 
 
-1. **Justification via the Second Moment** \n
+1. **Justification via the Second Moment** 
 
    Recall that for the score vector $\mathbf{U}$, we have $E_{\boldsymbol{\theta}_0}[\mathbf{U}] = \mathbf{0}$. Therefore, the covariance matrix simplifies to the second moment:
    
@@ -1720,7 +1720,7 @@ In the context of high-dimensional optimization, the identity $\mathcal{I}(\bold
    
    Under Bartlett's Second Identity, this expectation is exactly equal to the expected Observed Information (the expected negative Hessian), $E_{\boldsymbol{\theta}_0}[\mathbf{J}]$.
 
-2. **The Empirical Fisher Estimate** \n
+2. **The Empirical Fisher Estimate** 
 
    In deep learning, we cannot compute the expectation over all possible data. Instead, we use the **Empirical Fisher Information Matrix** ($\hat{\mathcal{I}}$), which replaces the population expectation with the sample average across $n$ observations:
    
@@ -1730,7 +1730,7 @@ In the context of high-dimensional optimization, the identity $\mathcal{I}(\bold
    
    This estimate is constructed solely from **first-order gradients** (the score for each data point).
 
-3. **Handling High Dimensionality ($p$)** \n
+3. **Handling High Dimensionality ($p$)** 
 
    Since $\hat{\mathcal{I}}$ is a $p \times p$ matrix, storing it is $O(p^2)$. For a model with 1 million parameters, the matrix would have $10^{12}$ elements. To handle this, deep learning optimizers typically use the **Diagonal Empirical Fisher**:
    
@@ -1740,7 +1740,7 @@ In the context of high-dimensional optimization, the identity $\mathcal{I}(\bold
    
    where $\odot$ is the Hadamard (element-wise) product. This reduces the complexity to $O(p)$.
 
-4. **Why use the Score Covariance instead of the Hessian?** \n
+4. **Why use the Score Covariance instead of the Hessian?** 
 
    Computing the diagonal of the Hessian $\mathbf{J}$ directly (the second derivatives $\frac{\partial^2 \ell}{\partial \theta_j^2}$) is significantly more expensive than computing the gradient. Most deep learning frameworks are optimized for "backpropagation" (first derivatives). By using the squared gradients to approximate the diagonal of the Hessian, we get "second-order-like" curvature information for the price of first-order computation.
 
@@ -1759,7 +1759,7 @@ While $\text{Cov}(\mathbf{U}) = E[\mathbf{J}]$ holds at the true parameter $\bol
 
 Algorithms like **RMSProp** and **Adam** avoid the $p \times p$ matrix entirely by assuming the Fisher Information is approximately diagonal. This reduces the memory cost back to $O(p)$.
 
-1. **RMSProp** \n
+1. **RMSProp** 
 
    It maintains a running average of the squared scores for each parameter $j$:
    $$
@@ -1767,7 +1767,7 @@ Algorithms like **RMSProp** and **Adam** avoid the $p \times p$ matrix entirely 
    $$
    Since $(U_j)^2$ is a stochastic estimate of the variance $\text{Var}(U_j) = \mathcal{I}_{jj}$, the term $\sqrt{v_j}$ approximates the local curvature (sensitivity) along that coordinate.
 
-2. **Adam (Adaptive Moment Estimation)** \n
+2. **Adam (Adaptive Moment Estimation)** 
 
    Adam combines the concepts of momentum and RMSProp by maintaining moving averages of both the first and second moments of the score vector. It scales the update by the inverse square root of the estimated variance:
    
@@ -1819,7 +1819,7 @@ In a Poisson Generalized Linear Model with a canonical link, the mean is modeled
 The Score vector is defined as the gradient of the log-likelihood with respect to the parameter vector $\boldsymbol{\beta}$.
 
 
-1. **Differentiate the Log-Likelihood** \n
+1. **Differentiate the Log-Likelihood** 
 
    Starting from the log-likelihood function:
    $$
@@ -1830,14 +1830,14 @@ The Score vector is defined as the gradient of the log-likelihood with respect t
    \frac{\partial \ell}{\partial \beta_j} = \sum_{i=1}^n \left( y_i \frac{\partial (\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} - \frac{\partial \exp(\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} \right)
    $$
 
-2. **Apply the Chain Rule** \n
+2. **Apply the Chain Rule** 
 
    Note that $\frac{\partial (\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} = x_{ij}$. Using the chain rule on the exponential term:
    $$
    \frac{\partial \exp(\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} = \exp(\mathbf{x}_i^\top \boldsymbol{\beta}) \cdot x_{ij} = \lambda_i(\boldsymbol{\beta}) x_{ij}
    $$
 
-3. **Form the Vector** \n
+3. **Form the Vector** 
 
    Substituting these back, we get:
    $$
@@ -1856,21 +1856,21 @@ The Score vector is defined as the gradient of the log-likelihood with respect t
 The Observed Information is the negative Hessian matrix of the log-likelihood.
 
 
-1. **Differentiate the Score** \n
+1. **Differentiate the Score** 
 
    We take the derivative of the $j$-th component of the score, $U_j = \sum_{i=1}^n (y_i - \lambda_i(\boldsymbol{\beta})) x_{ij}$, with respect to $\beta_k$:
    $$
    \frac{\partial^2 \ell}{\partial \beta_j \partial \beta_k} = \frac{\partial}{\partial \beta_k} \sum_{i=1}^n (y_i - \lambda_i(\boldsymbol{\beta})) x_{ij} = \sum_{i=1}^n \left( -\frac{\partial \lambda_i(\boldsymbol{\beta})}{\partial \beta_k} \right) x_{ij}
    $$
 
-2. **Differentiate the Mean Function** \n
+2. **Differentiate the Mean Function** 
 
    Recall $\lambda_i(\boldsymbol{\beta}) = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})$. Its derivative with respect to $\beta_k$ is:
    $$
    \frac{\partial \lambda_i(\boldsymbol{\beta})}{\partial \beta_k} = \lambda_i(\boldsymbol{\beta}) x_{ik}
    $$
 
-3. **Construct the Information Matrix** \n
+3. **Construct the Information Matrix** 
 
    The $(j, k)$ element of the Hessian is:
    $$
