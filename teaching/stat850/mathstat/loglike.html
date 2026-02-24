@@ -277,8 +277,12 @@ window.Quarto = {
   <li><a href="#mean-and-variance-of-sufficient-statistics" id="toc-mean-and-variance-of-sufficient-statistics" class="nav-link" data-scroll-target="#mean-and-variance-of-sufficient-statistics"><span class="header-section-number">5.6.3.3</span> Mean and Variance of Sufficient Statistics</a></li>
   <li><a href="#examples-2" id="toc-examples-2" class="nav-link" data-scroll-target="#examples-2"><span class="header-section-number">5.6.3.4</span> Examples</a></li>
   </ul></li>
+  <li><a href="#maximum-likelihood-and-moment-matching-estimation-scheme" id="toc-maximum-likelihood-and-moment-matching-estimation-scheme" class="nav-link" data-scroll-target="#maximum-likelihood-and-moment-matching-estimation-scheme"><span class="header-section-number">5.6.4</span> Maximum Likelihood and Moment Matching Estimation Scheme</a>
+  <ul class="collapse">
+  <li><a href="#example-1-poisson-distribution-with-a-common-mean" id="toc-example-1-poisson-distribution-with-a-common-mean" class="nav-link" data-scroll-target="#example-1-poisson-distribution-with-a-common-mean"><span class="header-section-number">5.6.4.1</span> Example 1: Poisson Distribution with a Common Mean</a></li>
   </ul></li>
-  <li><a href="#methods-of-moment-matching-for-estimating-parameters-in-exponential-families" id="toc-methods-of-moment-matching-for-estimating-parameters-in-exponential-families" class="nav-link" data-scroll-target="#methods-of-moment-matching-for-estimating-parameters-in-exponential-families"><span class="header-section-number">5.7</span> Methods of Moment Matching for Estimating Parameters in Exponential Families</a></li>
+  <li><a href="#example-poisson-regression-mle" id="toc-example-poisson-regression-mle" class="nav-link" data-scroll-target="#example-poisson-regression-mle"><span class="header-section-number">5.6.5</span> Example: Poisson Regression (MLE)</a></li>
+  </ul></li>
   </ul>
 </nav>
 </nav>
@@ -1140,29 +1144,139 @@ n\theta^2 = (2n\theta^2) - \theta(n\theta) = 2n\theta^2 - n\theta^2 = n\theta^2
 </section>
 </section>
 </section>
+<section id="maximum-likelihood-and-moment-matching-estimation-scheme" class="level3" data-number="5.6.4">
+<h3 data-number="5.6.4" class="anchored" data-anchor-id="maximum-likelihood-and-moment-matching-estimation-scheme"><span class="header-section-number">5.6.4</span> Maximum Likelihood and Moment Matching Estimation Scheme</h3>
+<p>For a multiparameter exponential family, the inner product <span class="math inline">\(\boldsymbol{\eta}^\top \mathbf{T}(\mathbf{y})\)</span> can be written explicitly as a sum over the <span class="math inline">\(p\)</span> components of the canonical parameter and sufficient statistic vectors: <span class="math inline">\(\sum_{j=1}^p \eta_j T_j(\mathbf{y})\)</span>.</p>
+<p>Given a sample of data <span class="math inline">\(\mathbf{y}\)</span>, the log-likelihood function parameterized by the canonical parameters <span class="math inline">\(\boldsymbol{\eta}\)</span> takes the explicit form: <span class="math display">\[
+\ell(\boldsymbol{\eta}; \mathbf{y}) = \sum_{j=1}^p \eta_j T_j(\mathbf{y}) - A(\boldsymbol{\eta}) + h(\mathbf{y})
+\]</span></p>
+<p>Taking the partial derivative of the log-likelihood with respect to each canonical parameter <span class="math inline">\(\eta_j\)</span> yields the components of the score function. Setting these to zero gives the Maximum Likelihood Estimator (MLE) equations: <span class="math display">\[
+\frac{\partial}{\partial \eta_j} \ell(\boldsymbol{\eta}; \mathbf{y}) = T_j(\mathbf{y}) - \frac{\partial A(\boldsymbol{\eta})}{\partial \eta_j} = 0
+\]</span></p>
+<p>Therefore, finding the MLE in a canonical exponential family is exactly equivalent to solving the system of equations formed by equating each observed sufficient statistic directly to the corresponding partial derivative of the log-partition function: <span class="math display">\[
+T_j(\mathbf{y}) = \frac{\partial A(\boldsymbol{\eta})}{\partial \eta_j} \quad \text{for } j = 1, \dots, p
+\]</span></p>
+<p>This establishes a powerful estimating scheme: the maximum likelihood estimates for the canonical parameters are found by constructing a system of equations where the observed sufficient statistics are matched to their theoretical expectations (the derivatives of the log-partition function).</p>
+<section id="example-1-poisson-distribution-with-a-common-mean" class="level4" data-number="5.6.4.1">
+<h4 data-number="5.6.4.1" class="anchored" data-anchor-id="example-1-poisson-distribution-with-a-common-mean"><span class="header-section-number">5.6.4.1</span> Example 1: Poisson Distribution with a Common Mean</h4>
+<p>Consider an independent and identically distributed (i.i.d.) sample <span class="math inline">\(y_1, y_2, \dots, y_n \sim \text{Poisson}(\lambda)\)</span>. The joint probability mass function can be written in exponential family form: <span class="math display">\[
+f(\mathbf{y}; \lambda) = \prod_{i=1}^n \frac{\lambda^{y_i} e^{-\lambda}}{y_i!} = \exp\left( \log(\lambda) \sum_{i=1}^n y_i - n\lambda - \sum_{i=1}^n \log(y_i!) \right)
+\]</span></p>
+<p>From this expression, we can identify the components of the canonical exponential family:</p>
+<ul>
+<li><strong>Canonical parameter:</strong> There is a single parameter (<span class="math inline">\(p=1\)</span>), <span class="math inline">\(\eta = \log(\lambda)\)</span>. This implies <span class="math inline">\(\lambda = e^\eta\)</span>.</li>
+<li><strong>Sufficient statistic:</strong> <span class="math inline">\(T(\mathbf{y}) = \sum_{i=1}^n y_i\)</span>.</li>
+<li><strong>Log-partition function:</strong> Expressed in terms of the canonical parameter, <span class="math inline">\(A(\eta) = n\lambda = n e^\eta\)</span>.</li>
+</ul>
+<p>Applying the estimating scheme, we first find the derivative of the log-partition function with respect to the canonical parameter: <span class="math display">\[
+\frac{\partial A(\eta)}{\partial \eta} = n e^\eta
+\]</span></p>
+<p>We then set the observed sufficient statistic equal to this derivative: <span class="math display">\[
+T(\mathbf{y}) = \frac{\partial A(\eta)}{\partial \eta}
+\]</span> <span class="math display">\[
+\sum_{i=1}^n y_i = n e^{\hat{\eta}}
+\]</span></p>
+<p>Substituting back <span class="math inline">\(\hat{\lambda} = e^{\hat{\eta}}\)</span>, we arrive at the familiar estimator: <span class="math display">\[
+\sum_{i=1}^n y_i = n \hat{\lambda} \implies \hat{\lambda} = \frac{1}{n}\sum_{i=1}^n y_i = \bar{y}
+\]</span></p>
 </section>
-<section id="methods-of-moment-matching-for-estimating-parameters-in-exponential-families" class="level2" data-number="5.7">
-<h2 data-number="5.7" class="anchored" data-anchor-id="methods-of-moment-matching-for-estimating-parameters-in-exponential-families"><span class="header-section-number">5.7</span> Methods of Moment Matching for Estimating Parameters in Exponential Families</h2>
-<div id="def-moment-matching-canonical" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 5.6 (Maximum Likelihood via Moment Matching)</strong></span> Let <span class="math inline">\(\mathbf{X}_1, \dots, \mathbf{X}_n\)</span> be an independent sample from an exponential family in canonical form. The log-likelihood function is proportional to:</p>
-<p><span class="math display">\[
-\ell(\boldsymbol{\eta}) = \sum_{i=1}^n \boldsymbol{\eta}^\top \mathbf{T}(\mathbf{X}_i) - n A(\boldsymbol{\eta})
-\]</span></p>
-<p>Taking the gradient with respect to the parameter vector <span class="math inline">\(\boldsymbol{\eta}\)</span> and setting it to zero yields the score equation:</p>
-<p><span class="math display">\[
-\nabla \ell(\boldsymbol{\eta}) = \sum_{i=1}^n \mathbf{T}(\mathbf{X}_i) - n \nabla A(\boldsymbol{\eta}) = \mathbf{0}
-\]</span></p>
-<p>Substituting the first moment identity <span class="math inline">\(E[\mathbf{T}(\mathbf{X})] = \nabla A(\boldsymbol{\eta})\)</span> from the Cumulant Generating Theorem, we obtain the fundamental moment matching condition:</p>
-<p><span class="math display">\[
-\frac{1}{n} \sum_{i=1}^n \mathbf{T}(\mathbf{X}_i) = E[\mathbf{T}(\mathbf{X})]
-\]</span></p>
-<p>Thus, the method of moment matching in a canonical exponential family simplifies to equating the empirical sample average of each sufficient statistic to its theoretical expected value:</p>
-<p><span class="math display">\[
-\bar{T}_j = \frac{\partial A(\boldsymbol{\eta})}{\partial \eta_j} \quad \text{for } j = 1, \dots, k
-\]</span></p>
+</section>
+<section id="example-poisson-regression-mle" class="level3" data-number="5.6.5">
+<h3 data-number="5.6.5" class="anchored" data-anchor-id="example-poisson-regression-mle"><span class="header-section-number">5.6.5</span> Example: Poisson Regression (MLE)</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Set seed for reproducibility</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Generate 100 observations for the predictor x</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">runif</span>(n, <span class="at">min =</span> <span class="dv">0</span>, <span class="at">max =</span> <span class="dv">5</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Define true parameters (negative slope)</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>beta_0 <span class="ot">&lt;-</span> <span class="fl">3.0</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>beta_1 <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fl">0.6</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Calculate the true mean (lambda) using the log-link</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>lambda <span class="ot">&lt;-</span> <span class="fu">exp</span>(beta_0 <span class="sc">+</span> beta_1 <span class="sc">*</span> x)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Generate the observed counts (y) from the Poisson distribution</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">rpois</span>(n, lambda)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co"># 6. Combine into a data frame</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>sim_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> x, <span class="at">y =</span> y)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="co"># 7. Plot the raw data and overlay the true generative mean curve</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sim_data, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y)) <span class="sc">+</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">size =</span> <span class="fl">2.5</span>, <span class="at">color =</span> <span class="st">"#2c3e50"</span>) <span class="sc">+</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  <span class="co"># stat_function draws the true theoretical curve, rather than fitting to the data</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> <span class="cf">function</span>(val) <span class="fu">exp</span>(beta_0 <span class="sc">+</span> beta_1 <span class="sc">*</span> val), </span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>                <span class="at">color =</span> <span class="st">"#e74c3c"</span>, </span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>                <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">expression</span>(Predictor<span class="sc">~</span>(x)),</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="fu">expression</span>(Observed<span class="sc">~</span>Counts<span class="sc">~</span>(y))) <span class="sc">+</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">14</span>) <span class="sc">+</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-poisson-dgp" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-poisson-dgp-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="loglike_files/figure-html/fig-poisson-dgp-1.png" class="img-fluid figure-img" width="576">
 </div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-poisson-dgp-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.2: Simulated Poisson regression data (<span class="math inline">\(n=100\)</span>) with a true negative slope parameter (<span class="math inline">\(\beta_1 = -0.6\)</span>). The red curve represents the true underlying expected mean function, <span class="math inline">\(\lambda(x) = \exp(\beta_0 + \beta_1 x)\)</span>.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Consider a GLM where <span class="math inline">\(Y_i \sim \text{Poisson}(\lambda_i)\)</span>. We use the canonical link <span class="math inline">\(\log(\lambda_i(\boldsymbol{\beta})) = \mathbf{x}_i^\top \boldsymbol{\beta}\)</span>, which implies the mean function is <span class="math inline">\(\lambda_i(\boldsymbol{\beta}) = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})\)</span>.</p>
+<ol type="1">
+<li><p><strong>Exponential Family Representation</strong></p>
+<p>We rewrite the total log-likelihood by grouping terms associated with each <span class="math inline">\(\beta_j\)</span>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+\ell(\boldsymbol{\beta}) &amp;= \sum_{i=1}^n \left( y_i (\mathbf{x}_i^\top \boldsymbol{\beta}) - \lambda_i(\boldsymbol{\beta}) - \log(y_i!) \right) \\
+&amp;= \sum_{i=1}^n \sum_{j=0}^p y_i x_{ij} \beta_j - \sum_{i=1}^n \exp(\mathbf{x}_i^\top \boldsymbol{\beta}) - \sum_{i=1}^n \log(y_i!) \\
+&amp;= \sum_{j=0}^p \beta_j \underbrace{\left( \sum_{i=1}^n y_i x_{ij} \right)}_{T_j(\mathbf{y})} - \underbrace{\sum_{i=1}^n \lambda_i(\boldsymbol{\beta})}_{A(\boldsymbol{\beta})} + \text{const}
+\end{aligned}
+\]</span></p>
+<p>This is a multivariate exponential family in <strong>canonical form</strong> where:</p>
+<ul>
+<li><strong>Natural Parameters:</strong> The regression coefficients <span class="math inline">\(\boldsymbol{\beta} = (\beta_0, \dots, \beta_p)^\top\)</span>.</li>
+<li><strong>Sufficient Statistics:</strong> <span class="math inline">\(\mathbf{T}(\mathbf{y}) = \mathbf{X}^\top \mathbf{y}\)</span>.</li>
+<li><strong>Log-Partition Function:</strong> <span class="math inline">\(A(\boldsymbol{\beta}) = \sum_{i=1}^n \lambda_i(\boldsymbol{\beta})\)</span>.</li>
+</ul></li>
+<li><p><strong>Derivations via Moments of Sufficient Statistics</strong></p>
+<p>According to the properties of the canonical exponential family, the expected value of the sufficient statistic vector is exactly the gradient of the log-partition function: <span class="math inline">\(E[\mathbf{T}(\mathbf{Y})] = \nabla A(\boldsymbol{\beta})\)</span>.</p>
+<p>To find <span class="math inline">\(\nabla A(\boldsymbol{\beta})\)</span>, we first take the partial derivative of <span class="math inline">\(A(\boldsymbol{\beta})\)</span> with respect to an individual regression coefficient <span class="math inline">\(\beta_j\)</span>. Applying the chain rule to the sum of exponentials: <span class="math display">\[
+\begin{aligned}
+\frac{\partial A(\boldsymbol{\beta})}{\partial \beta_j} &amp;= \frac{\partial}{\partial \beta_j} \sum_{i=1}^n \exp\left( \mathbf{x}_i^\top \boldsymbol{\beta} \right) \\
+&amp;= \sum_{i=1}^n \exp\left( \mathbf{x}_i^\top \boldsymbol{\beta} \right) \cdot \frac{\partial}{\partial \beta_j} \left( \sum_{k=0}^p x_{ik} \beta_k \right) \\
+&amp;= \sum_{i=1}^n \lambda_i(\boldsymbol{\beta}) x_{ij}
+\end{aligned}
+\]</span> Collecting these partial derivatives for <span class="math inline">\(j = 0, \dots, p\)</span> into a single column vector allows us to express the full gradient compactly in matrix notation: <span class="math display">\[
+\nabla A(\boldsymbol{\beta}) = \mathbf{X}^\top \boldsymbol{\lambda}(\boldsymbol{\beta})
+\]</span> where <span class="math inline">\(\boldsymbol{\lambda}(\boldsymbol{\beta}) = (\lambda_1(\boldsymbol{\beta}), \dots, \lambda_n(\boldsymbol{\beta}))^\top\)</span> is the vector of conditional means.</p>
+<p>The <strong>Method of Moments</strong> estimating scheme constructs estimators by equating the observed sufficient statistics <span class="math inline">\(\mathbf{T}(\mathbf{y})\)</span> to their theoretical expectations <span class="math inline">\(\nabla A(\boldsymbol{\beta})\)</span>. Substituting our derived terms yields the parameter estimating equations: <span class="math display">\[
+\mathbf{X}^\top \mathbf{y} = \mathbf{X}^\top \boldsymbol{\lambda}(\boldsymbol{\beta})
+\]</span> Rearranging this system gives the explicit residual condition that must be satisfied by the estimated parameters: <span class="math display">\[
+\mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda}(\boldsymbol{\beta})) = \mathbf{0}
+\]</span></p></li>
+</ol>
+<p><strong>Connection to Least Squares Theory</strong></p>
+<p>The resulting score equation for the MLE, <span class="math inline">\(\mathbf{U}(\hat{\boldsymbol{\beta}}) = \mathbf{0}\)</span>, simplifies to <span class="math inline">\(\mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda}(\hat{\boldsymbol{\beta}})) = \mathbf{0}\)</span>. This reveals a profound structural and geometric connection to standard Least Squares Theory (LST) for linear models.</p>
+<p>In Ordinary Least Squares, assuming a Gaussian error structure (which is also an exponential family) with an identity link, the estimated mean vector is given directly by the linear predictor: <span class="math inline">\(\hat{\boldsymbol{\mu}} = \mathbf{X}\hat{\boldsymbol{\beta}}\)</span>. The standard normal equations used to find <span class="math inline">\(\hat{\boldsymbol{\beta}}\)</span> are typically written explicitly in terms of the residuals: <span class="math display">\[
+\mathbf{X}^\top (\mathbf{y} - \hat{\boldsymbol{\mu}}) = \mathbf{0}
+\]</span></p>
+<p>Comparing this to the Poisson regression result, where the estimated mean is <span class="math inline">\(\hat{\boldsymbol{\lambda}} = \boldsymbol{\lambda}(\hat{\boldsymbol{\beta}})\)</span>, we see that the canonical link function forces the exact same algebraic condition. In both settings, the estimating equations demand that the raw residual vector—whether it is <span class="math inline">\(\mathbf{y} - \hat{\boldsymbol{\mu}}\)</span> for the Gaussian case or <span class="math inline">\(\mathbf{y} - \hat{\boldsymbol{\lambda}}\)</span> for the Poisson case—must be strictly orthogonal to every column of the design matrix <span class="math inline">\(\mathbf{X}\)</span>.</p>
+<p>Geometrically, this establishes that the maximum likelihood estimates obtained via a canonical link ensure the residuals are orthogonal to the column space of <span class="math inline">\(\mathbf{X}\)</span>, denoted as <span class="math inline">\(\mathcal{C}(\mathbf{X})\)</span>. The moment-matching property of the canonical exponential family thereby elegantly preserves the fundamental projection-based geometry of standard linear models, extending it into the broader framework of Generalized Linear Models.</p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
