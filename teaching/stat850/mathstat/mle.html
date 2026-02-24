@@ -293,12 +293,13 @@ window.Quarto = {
   <li><a href="#purely-gradient-based-methods-op-complexity" id="toc-purely-gradient-based-methods-op-complexity" class="nav-link" data-scroll-target="#purely-gradient-based-methods-op-complexity"><span class="header-section-number">6.6.3</span> Purely Gradient-Based Methods (O(p) Complexity)</a></li>
   <li><a href="#avoiding-the-hessian-via-score-covariance" id="toc-avoiding-the-hessian-via-score-covariance" class="nav-link" data-scroll-target="#avoiding-the-hessian-via-score-covariance"><span class="header-section-number">6.6.4</span> Avoiding the Hessian via Score Covariance</a></li>
   <li><a href="#adaptive-methods-diagonal-covariance-scaling" id="toc-adaptive-methods-diagonal-covariance-scaling" class="nav-link" data-scroll-target="#adaptive-methods-diagonal-covariance-scaling"><span class="header-section-number">6.6.5</span> Adaptive Methods: Diagonal Covariance Scaling</a></li>
-  <li><a href="#example-high-diemensional-poisson-regression" id="toc-example-high-diemensional-poisson-regression" class="nav-link" data-scroll-target="#example-high-diemensional-poisson-regression"><span class="header-section-number">6.6.6</span> Example: High-diemensional Poisson Regression</a>
+  <li><a href="#example-the-poisson-regression-problem-and-experimental-setup" id="toc-example-the-poisson-regression-problem-and-experimental-setup" class="nav-link" data-scroll-target="#example-the-poisson-regression-problem-and-experimental-setup"><span class="header-section-number">6.6.6</span> Example: The Poisson Regression Problem and Experimental Setup</a>
   <ul class="collapse">
   <li><a href="#data-generation-strategy" id="toc-data-generation-strategy" class="nav-link" data-scroll-target="#data-generation-strategy"><span class="header-section-number">6.6.6.1</span> Data Generation Strategy</a></li>
-  <li><a href="#algorithm-tuning-and-hyperparameters" id="toc-algorithm-tuning-and-hyperparameters" class="nav-link" data-scroll-target="#algorithm-tuning-and-hyperparameters"><span class="header-section-number">6.6.6.2</span> Algorithm Tuning and Hyperparameters</a></li>
+  <li><a href="#algorithm-comparison-and-hyperparameters" id="toc-algorithm-comparison-and-hyperparameters" class="nav-link" data-scroll-target="#algorithm-comparison-and-hyperparameters"><span class="header-section-number">6.6.6.2</span> Algorithm Comparison and Hyperparameters</a></li>
+  <li><a href="#optimization-trajectories-by-wall-clock-time" id="toc-optimization-trajectories-by-wall-clock-time" class="nav-link" data-scroll-target="#optimization-trajectories-by-wall-clock-time"><span class="header-section-number">6.6.6.3</span> Optimization Trajectories by Wall-Clock Time</a></li>
+  <li><a href="#interpretation-of-convergence-behaviors" id="toc-interpretation-of-convergence-behaviors" class="nav-link" data-scroll-target="#interpretation-of-convergence-behaviors"><span class="header-section-number">6.6.6.4</span> Interpretation of Convergence Behaviors</a></li>
   </ul></li>
-  <li><a href="#optimization-trajectories-by-wall-clock-time" id="toc-optimization-trajectories-by-wall-clock-time" class="nav-link" data-scroll-target="#optimization-trajectories-by-wall-clock-time"><span class="header-section-number">6.6.7</span> Optimization Trajectories by Wall-Clock Time</a></li>
   </ul></li>
   <li><a href="#appendix-derivation-of-score-and-information-in-poisson-regression" id="toc-appendix-derivation-of-score-and-information-in-poisson-regression" class="nav-link" data-scroll-target="#appendix-derivation-of-score-and-information-in-poisson-regression"><span class="header-section-number">6.7</span> Appendix: Derivation of Score and Information in Poisson Regression</a></li>
   </ul>
@@ -1747,56 +1748,72 @@ v_j^{(t)} = \beta_2 v_j^{(t-1)} + (1 - \beta_2) (U_j^{(t)})^2
 </ul>
 <p>This “preconditioning” flattens the likelihood surface by normalizing the step size for each parameter. Dimensions with high gradient variance (high <span class="math inline">\(\mathcal{I}_{jj}\)</span>) receive smaller updates, while dimensions with low variance receive larger updates, effectively performing a coordinate-wise Newton-Raphson step using the Score Covariance as a proxy for the Hessian.</p></li>
 </ol>
-<div id="rem-adam-interpretation" class="proof remark">
-<p><span class="proof-title"><em>Remark 6.3</em> (Adam as Quasi-Newton). </span>From a statistical perspective, Adam can be viewed as an approximation of the Fisher Scoring algorithm. Instead of calculating the full expected information matrix and its inverse, Adam uses the moving average of squared gradients to estimate the diagonal entries of the information matrix in an online fashion. This allows the algorithm to adapt to the local geometry of the log-likelihood surface at a minimal <span class="math inline">\(O(p)\)</span> computational cost.</p>
-</div>
-<div id="rem-natural-gradient" class="proof remark">
-<p><span class="proof-title"><em>Remark 6.4</em> (Natural Gradient and K-FAC). </span>The most sophisticated application of this theory is <strong>Natural Gradient Descent</strong>. To handle large <span class="math inline">\(p\)</span>, methods like <strong>K-FAC (Kronecker-factored Approximate Curvature)</strong> approximate the Fisher Information Matrix as a product of smaller matrices. This allows for a more “Hessian-like” update that accounts for correlations between parameters while remaining computationally efficient.</p>
-</div>
 </section>
-<section id="example-high-diemensional-poisson-regression" class="level3" data-number="6.6.6">
-<h3 data-number="6.6.6" class="anchored" data-anchor-id="example-high-diemensional-poisson-regression"><span class="header-section-number">6.6.6</span> Example: High-diemensional Poisson Regression</h3>
+<section id="example-the-poisson-regression-problem-and-experimental-setup" class="level3" data-number="6.6.6">
+<h3 data-number="6.6.6" class="anchored" data-anchor-id="example-the-poisson-regression-problem-and-experimental-setup"><span class="header-section-number">6.6.6</span> Example: The Poisson Regression Problem and Experimental Setup</h3>
 <p>In Poisson regression, we model count data <span class="math inline">\(y_i \in \{0, 1, 2, \dots\}\)</span> given a vector of covariates <span class="math inline">\(\mathbf{x}_i \in \mathbb{R}^p\)</span>. Assuming <span class="math inline">\(y_i \sim \text{Poisson}(\lambda_i)\)</span>, the canonical log-link function connects the expected mean to the linear predictor: <span class="math display">\[
 \lambda_i = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})
-\]</span> The goal of optimization is to find the parameter vector <span class="math inline">\(\boldsymbol{\beta}\)</span> that minimizes the negative log-likelihood. The gradient of this objective is <span class="math inline">\(\mathbf{g} = \mathbf{X}^\top(\boldsymbol{\lambda} - \mathbf{y})\)</span>, and the true Fisher Information Matrix (FIM), which acts as the Hessian, is <span class="math inline">\(\mathcal{I} = \mathbf{X}^\top \mathbf{W} \mathbf{X}\)</span>, where <span class="math inline">\(\mathbf{W} = \text{diag}(\boldsymbol{\lambda})\)</span>.</p>
+\]</span> The goal of optimization is to find the parameter vector <span class="math inline">\(\boldsymbol{\beta}\)</span> that minimizes the negative log-likelihood. The true gradient of this objective is <span class="math inline">\(\mathbf{g} = \mathbf{X}^\top(\boldsymbol{\lambda} - \mathbf{y})\)</span>, and the true Fisher Information Matrix (FIM), which acts as the Hessian, is <span class="math inline">\(\mathcal{I} = \mathbf{X}^\top \text{diag}(\boldsymbol{\lambda}) \mathbf{X}\)</span>.</p>
 <section id="data-generation-strategy" class="level4" data-number="6.6.6.1">
 <h4 data-number="6.6.6.1" class="anchored" data-anchor-id="data-generation-strategy"><span class="header-section-number">6.6.6.1</span> Data Generation Strategy</h4>
-<p>To test these algorithms in a realistic, challenging environment, we simulate a high-dimensional dataset with significant collinearity: * <strong>Dimensions:</strong> <span class="math inline">\(n = 5000\)</span> observations and <span class="math inline">\(p = 100\)</span> features (plus an intercept). * <strong>Collinearity:</strong> The covariates <span class="math inline">\(\mathbf{X}\)</span> are drawn from a Multivariate Normal distribution where every pair of variables has a high correlation of <span class="math inline">\(\rho = 0.8\)</span>. This ill-conditioned design matrix makes the curvature of the optimization landscape highly skewed, punishing methods that ignore the off-diagonal elements of the Fisher Information Matrix. * <strong>True Parameters:</strong> The underlying ground-truth vector <span class="math inline">\(\boldsymbol{\beta}^*\)</span> is sparse. Only the intercept and the first three predictors are active: <span class="math inline">\(\boldsymbol{\beta}^* = (0.5, -0.5, 0.3, -0.2, 0, \dots, 0)^\top\)</span>.</p>
+<p>To test these algorithms in a realistic, challenging environment, we simulate a high-dimensional dataset with significant collinearity: * <strong>Dimensions:</strong> <span class="math inline">\(n = 5000\)</span> observations and <span class="math inline">\(p = 100\)</span> features (plus an intercept). * <strong>Collinearity:</strong> The covariates <span class="math inline">\(\mathbf{X}\)</span> are drawn from a Multivariate Normal distribution where every pair of variables has a high correlation of <span class="math inline">\(\rho = 0.8\)</span>. This ill-conditioned design matrix makes the curvature of the optimization landscape highly skewed, punishing methods that ignore parameter correlations. * <strong>True Parameters:</strong> The underlying ground-truth vector <span class="math inline">\(\boldsymbol{\beta}^*\)</span> is sparse. Only the intercept and the first three predictors are active, with alternating signs and magnitudes: <span class="math inline">\(\boldsymbol{\beta}^* = (0.5, -1.0, -0.5, 1.0, 0, \dots, 0)^\top\)</span>. The remaining 97 parameters are identically zero.</p>
 </section>
-<section id="algorithm-tuning-and-hyperparameters" class="level4" data-number="6.6.6.2">
-<h4 data-number="6.6.6.2" class="anchored" data-anchor-id="algorithm-tuning-and-hyperparameters"><span class="header-section-number">6.6.6.2</span> Algorithm Tuning and Hyperparameters</h4>
-<p>All stochastic methods attempt to approximate the optimal Newton step <span class="math inline">\(\boldsymbol{\beta}^{(t+1)} = \boldsymbol{\beta}^{(t)} - \eta \mathcal{H}^{-1} \mathbf{g}\)</span>. They are compared against a baseline deterministic Newton-Raphson approach. The specific tuning parameters for this experiment are:</p>
-<ol type="1">
-<li><strong>Naive Newton-Raphson (NR)</strong>
-<ul>
-<li><strong>Mechanism:</strong> Computes the exact gradient and the exact full <span class="math inline">\(p \times p\)</span> FIM using the entire dataset at every step.</li>
-<li><strong>Curvature (<span class="math inline">\(\mathcal{H}\)</span>):</strong> <span class="math inline">\(\mathcal{I}_{full} = \mathbf{X}^\top \text{diag}(\boldsymbol{\lambda}) \mathbf{X}\)</span>.</li>
-<li><strong>Settings:</strong> Full batch (<span class="math inline">\(n=5000\)</span>), Step size = 1.0 (standard Newton step), Max iterations = 10.</li>
-</ul></li>
-<li><strong>Diagonal Natural SGD (DSGD)</strong>
-<ul>
-<li><strong>Mechanism:</strong> Abandons the off-diagonal elements of the FIM to achieve <span class="math inline">\(\mathcal{O}(p)\)</span> inversion speed. It computes only the diagonal elements using a mini-batch and smooths them via an Exponential Moving Average (EMA).</li>
-<li><strong>Curvature (<span class="math inline">\(\mathcal{H}\)</span>):</strong> <span class="math inline">\(\mathcal{H}_{jj} = \sum_{i \in batch} x_{ij}^2 \lambda_i\)</span>.</li>
-<li><strong>Settings:</strong> Batch size = 64, Learning Rate (<span class="math inline">\(\eta\)</span>) = 0.05, EMA decay (<span class="math inline">\(\rho\)</span>) = 0.95, Max iterations = 2500.</li>
-</ul></li>
-<li><strong>Full Matrix Natural SGD (F-NSGD)</strong>
-<ul>
-<li><strong>Mechanism:</strong> Computes the exact FIM for a mini-batch and uses EMA to smooth it over time. It provides excellent directional guidance but requires a massive <span class="math inline">\(\mathcal{O}(p^3)\)</span> matrix inversion at every step.</li>
-<li><strong>Curvature (<span class="math inline">\(\mathcal{H}\)</span>):</strong> <span class="math inline">\(\mathcal{I}_{batch} = \mathbf{X}_b^\top \text{diag}(\boldsymbol{\lambda}_b) \mathbf{X}_b\)</span>.</li>
-<li><strong>Settings:</strong> Batch size = 64, Learning Rate (<span class="math inline">\(\eta\)</span>) = 0.05, EMA decay (<span class="math inline">\(\rho\)</span>) = 0.95, Max iterations = 1000 (fewer iterations due to extreme computational bottleneck per step).</li>
-</ul></li>
-<li><strong>Re-sampling Natural SGD (RS-NSGD)</strong>
-<ul>
-<li><strong>Mechanism:</strong> Bypasses analytical derivatives for the FIM. It uses the identity <span class="math inline">\(\mathcal{I} = \text{Cov}(\mathbf{g})\)</span> by simulating “fake” target data <span class="math inline">\(\mathbf{y}_{sim} \sim \text{Poisson}(\boldsymbol{\lambda})\)</span> from the current model. It computes a simulated gradient <span class="math inline">\(\mathbf{g}_{sim}\)</span> and uses <span class="math inline">\(\mathbf{g}_{sim}^2\)</span> as a Monte Carlo estimate of the diagonal curvature.</li>
-<li><strong>Curvature (<span class="math inline">\(\mathcal{H}\)</span>):</strong> <span class="math inline">\(\mathcal{H}_{jj} \approx g_{sim, j}^2\)</span>.</li>
-<li><strong>Settings:</strong> Batch size = 64, Learning Rate (<span class="math inline">\(\eta\)</span>) = 0.05, EMA decay (<span class="math inline">\(\rho\)</span>) = 0.95, Max iterations = 2500.</li>
-</ul></li>
-</ol>
+<section id="algorithm-comparison-and-hyperparameters" class="level4" data-number="6.6.6.2">
+<h4 data-number="6.6.6.2" class="anchored" data-anchor-id="algorithm-comparison-and-hyperparameters"><span class="header-section-number">6.6.6.2</span> Algorithm Comparison and Hyperparameters</h4>
+<p>All stochastic methods attempt to approximate the optimal update step <span class="math inline">\(\boldsymbol{\beta}^{(t+1)} = \boldsymbol{\beta}^{(t)} - \eta \mathcal{H}^{-1} \mathbf{g}\)</span> using a mini-batch of data. They differ fundamentally in how they compute the curvature matrix <span class="math inline">\(\mathcal{H}\)</span>, whether they leverage the model’s statistical properties, and if they rely on simulated data.</p>
+<p>To stabilize the variance across iterations, the Natural SGD methods utilize an Exponential Moving Average (EMA) with a decay rate of <span class="math inline">\(\rho = 0.95\)</span> to smooth their Fisher Information estimates over time.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Method</th>
+<th style="text-align: left;">Gradient (<span class="math inline">\(\mathbf{g}\)</span>) Computation</th>
+<th style="text-align: left;">Fisher/Curvature (<span class="math inline">\(\mathcal{H}\)</span>) Computation</th>
+<th style="text-align: left;">Re-sampling Used?</th>
+<th style="text-align: left;">Tuning Settings</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>1. Standard SGD</strong></td>
+<td style="text-align: left;">Analytical on real data: <span class="math inline">\(\mathbf{X}_b^\top(\boldsymbol{\lambda}_b - \mathbf{y}_b)\)</span></td>
+<td style="text-align: left;">None (Identity Matrix <span class="math inline">\(\mathbf{I}\)</span>)</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;"><span class="math inline">\(\eta = 0.0001\)</span>, Batch = 50, Iter = 10k</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>2. Diagonal NSGD</strong></td>
+<td style="text-align: left;">Analytical on real data: <span class="math inline">\(\mathbf{X}_b^\top(\boldsymbol{\lambda}_b - \mathbf{y}_b)\)</span></td>
+<td style="text-align: left;">Analytical Diagonal: <span class="math inline">\(\mathcal{H}_{jj} = \sum_{i \in b} x_{ij}^2 \lambda_i\)</span></td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;"><span class="math inline">\(\eta = 0.01\)</span>, Batch = 50, Iter = 3.5k</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>3. Full-Matrix NSGD</strong></td>
+<td style="text-align: left;">Analytical on real data: <span class="math inline">\(\mathbf{X}_b^\top(\boldsymbol{\lambda}_b - \mathbf{y}_b)\)</span></td>
+<td style="text-align: left;">Analytical Full FIM: <span class="math inline">\(\mathbf{X}_b^\top \text{diag}(\boldsymbol{\lambda}_b) \mathbf{X}_b\)</span></td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;"><span class="math inline">\(\eta = 0.05\)</span>, Batch = 50, Iter = 1.5k</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>4. Re-sampling NSGD</strong></td>
+<td style="text-align: left;">Analytical on real data: <span class="math inline">\(\mathbf{X}_b^\top(\boldsymbol{\lambda}_b - \mathbf{y}_b)\)</span></td>
+<td style="text-align: left;">Monte Carlo Diagonal: <span class="math inline">\(\mathcal{H}_{jj} \approx g_{sim, j}^2\)</span></td>
+<td style="text-align: left;">Yes (<span class="math inline">\(y_{sim} \sim \text{Poisson}(\boldsymbol{\lambda})\)</span>)</td>
+<td style="text-align: left;"><span class="math inline">\(\eta = 0.005\)</span>, Batch = 50, Iter = 8k</td>
+</tr>
+</tbody>
+</table>
 </section>
-</section>
-<section id="optimization-trajectories-by-wall-clock-time" class="level3" data-number="6.6.7">
-<h3 data-number="6.6.7" class="anchored" data-anchor-id="optimization-trajectories-by-wall-clock-time"><span class="header-section-number">6.6.7</span> Optimization Trajectories by Wall-Clock Time</h3>
-<p>By plotting the parameter estimates against actual execution time (in seconds) rather than iteration count, we visualize the fundamental trade-off in high-dimensional optimization: the cost of accurate curvature calculation versus the speed of frequent, noisy updates.</p>
+<section id="optimization-trajectories-by-wall-clock-time" class="level4" data-number="6.6.6.3">
+<h4 data-number="6.6.6.3" class="anchored" data-anchor-id="optimization-trajectories-by-wall-clock-time"><span class="header-section-number">6.6.6.3</span> Optimization Trajectories by Wall-Clock Time</h4>
+<p>By plotting the parameter estimates against actual execution time (in seconds) rather than iteration count, we visualize the fundamental trade-off in high-dimensional optimization: the cost of accurate curvature calculation versus the speed of frequent updates.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -1820,225 +1837,235 @@ v_j^{(t)} = \beta_2 v_j^{(t-1)} + (1 - \beta_2) (U_j^{(t)})^2
 <span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">X =</span> X, <span class="at">y =</span> y, <span class="at">true_beta =</span> true_beta)</span>
 <span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 2. Naive Newton-Raphson (Full Batch) ---</span></span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>run_nr <span class="ot">&lt;-</span> <span class="cf">function</span>(X, y, <span class="at">max_iter =</span> <span class="dv">10</span>) {</span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">ncol</span>(X)</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 2. Standard SGD (No Curvature Correction) ---</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>run_sgd <span class="ot">&lt;-</span> <span class="cf">function</span>(X, y, <span class="at">batch_size =</span> <span class="dv">50</span>, <span class="at">lr =</span> <span class="fl">0.0001</span>, <span class="at">max_iter =</span> <span class="dv">10000</span>) {</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(X); p <span class="ot">&lt;-</span> <span class="fu">ncol</span>(X)</span>
 <span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, p)</span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  beta_trace <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="at">nrow =</span> <span class="dv">0</span>, <span class="at">ncol =</span> p <span class="sc">+</span> <span class="dv">1</span>)</span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>  beta_trace <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="at">nrow =</span> <span class="dv">0</span>, <span class="at">ncol =</span> p <span class="sc">+</span> <span class="dv">1</span>)</span>
 <span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>  start_time <span class="ot">&lt;-</span> <span class="fu">Sys.time</span>()</span>
 <span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>  beta_trace <span class="ot">&lt;-</span> <span class="fu">rbind</span>(beta_trace, <span class="fu">c</span>(beta, <span class="dv">0</span>))</span>
 <span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>max_iter) {</span>
-<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    lam <span class="ot">&lt;-</span> <span class="fu">exp</span>(X <span class="sc">%*%</span> beta); lam <span class="ot">&lt;-</span> <span class="fu">pmin</span>(lam, <span class="fl">1e10</span>)</span>
-<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    g <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> (lam <span class="sc">-</span> y))</span>
-<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    H <span class="ot">&lt;-</span> <span class="fu">t</span>(X <span class="sc">*</span> <span class="fu">as.vector</span>(lam)) <span class="sc">%*%</span> X </span>
-<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>    step <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(<span class="fu">solve</span>(H, g), <span class="at">error =</span> <span class="cf">function</span>(e) g <span class="sc">*</span> <span class="fl">0.01</span>)</span>
-<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>    beta <span class="ot">&lt;-</span> beta <span class="sc">-</span> step<span class="sc">*</span><span class="fl">0.5</span></span>
-<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>    cur_time <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">difftime</span>(<span class="fu">Sys.time</span>(), start_time, <span class="at">units =</span> <span class="st">"secs"</span>))</span>
-<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>    beta_trace <span class="ot">&lt;-</span> <span class="fu">rbind</span>(beta_trace, <span class="fu">c</span>(beta, cur_time))</span>
-<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span>(<span class="fu">max</span>(<span class="fu">abs</span>(step)) <span class="sc">&lt;</span> <span class="fl">1e-5</span>) <span class="cf">break</span></span>
-<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(beta_trace)</span>
-<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(df) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">paste0</span>(<span class="st">"Beta"</span>, <span class="dv">0</span><span class="sc">:</span>(p<span class="dv">-1</span>)), <span class="st">"Time"</span>)</span>
-<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(df)</span>
-<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 3. Diagonal Natural SGD (DSGD) ---</span></span>
-<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>run_diag_ngd <span class="ot">&lt;-</span> <span class="cf">function</span>(X, y, <span class="at">batch_size =</span> <span class="dv">50</span>, <span class="at">lr =</span> <span class="fl">0.01</span>, <span class="at">max_iter =</span> <span class="dv">3500</span>) {</span>
-<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>  n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(X); p <span class="ot">&lt;-</span> <span class="fu">ncol</span>(X)</span>
-<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, p); S_diag <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>, p) </span>
-<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>  rho <span class="ot">&lt;-</span> <span class="fl">0.95</span>; epsilon <span class="ot">&lt;-</span> <span class="fl">1e-4</span></span>
-<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>  beta_trace <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="at">nrow =</span> <span class="dv">0</span>, <span class="at">ncol =</span> p <span class="sc">+</span> <span class="dv">1</span>)</span>
-<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a>  start_time <span class="ot">&lt;-</span> <span class="fu">Sys.time</span>()</span>
-<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a>  beta_trace <span class="ot">&lt;-</span> <span class="fu">rbind</span>(beta_trace, <span class="fu">c</span>(beta, <span class="dv">0</span>))</span>
-<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a>  global_step <span class="ot">&lt;-</span> <span class="dv">0</span>; idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(n); current_idx_ptr <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> (global_step <span class="sc">&lt;</span> max_iter) {</span>
-<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a>    global_step <span class="ot">&lt;-</span> global_step <span class="sc">+</span> <span class="dv">1</span></span>
-<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (current_idx_ptr <span class="sc">+</span> batch_size <span class="sc">&gt;</span> n) {</span>
-<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a>      idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(n); current_idx_ptr <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a>    batch_indices <span class="ot">&lt;-</span> idx[current_idx_ptr <span class="sc">:</span> (current_idx_ptr <span class="sc">+</span> batch_size <span class="sc">-</span> <span class="dv">1</span>)]</span>
-<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a>    current_idx_ptr <span class="ot">&lt;-</span> current_idx_ptr <span class="sc">+</span> batch_size</span>
-<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a>    X_b <span class="ot">&lt;-</span> X[batch_indices, , drop<span class="ot">=</span><span class="cn">FALSE</span>]; y_b <span class="ot">&lt;-</span> y[batch_indices]</span>
-<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a>    lam <span class="ot">&lt;-</span> <span class="fu">exp</span>(X_b <span class="sc">%*%</span> beta); lam <span class="ot">&lt;-</span> <span class="fu">pmin</span>(lam, <span class="fl">1e10</span>)</span>
-<span id="cb6-74"><a href="#cb6-74" aria-hidden="true" tabindex="-1"></a>    g <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(<span class="fu">t</span>(X_b) <span class="sc">%*%</span> (lam <span class="sc">-</span> y_b))</span>
-<span id="cb6-75"><a href="#cb6-75" aria-hidden="true" tabindex="-1"></a>    F_diag <span class="ot">&lt;-</span> <span class="fu">colSums</span>(X_b<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">as.vector</span>(lam))</span>
-<span id="cb6-76"><a href="#cb6-76" aria-hidden="true" tabindex="-1"></a>    S_diag <span class="ot">&lt;-</span> rho <span class="sc">*</span> S_diag <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> rho) <span class="sc">*</span> F_diag</span>
-<span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-78"><a href="#cb6-78" aria-hidden="true" tabindex="-1"></a>    beta <span class="ot">&lt;-</span> beta <span class="sc">-</span> lr <span class="sc">*</span> (g <span class="sc">/</span> (S_diag <span class="sc">+</span> epsilon))</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>  global_step <span class="ot">&lt;-</span> <span class="dv">0</span>; idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(n); current_idx_ptr <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> (global_step <span class="sc">&lt;</span> max_iter) {</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    global_step <span class="ot">&lt;-</span> global_step <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (current_idx_ptr <span class="sc">+</span> batch_size <span class="sc">&gt;</span> n) {</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>      idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(n); current_idx_ptr <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>    batch_indices <span class="ot">&lt;-</span> idx[current_idx_ptr <span class="sc">:</span> (current_idx_ptr <span class="sc">+</span> batch_size <span class="sc">-</span> <span class="dv">1</span>)]</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>    current_idx_ptr <span class="ot">&lt;-</span> current_idx_ptr <span class="sc">+</span> batch_size</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>    X_b <span class="ot">&lt;-</span> X[batch_indices, , drop<span class="ot">=</span><span class="cn">FALSE</span>]; y_b <span class="ot">&lt;-</span> y[batch_indices]</span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>    lam <span class="ot">&lt;-</span> <span class="fu">exp</span>(X_b <span class="sc">%*%</span> beta); lam <span class="ot">&lt;-</span> <span class="fu">pmin</span>(lam, <span class="fl">1e10</span>)</span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>    g <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(<span class="fu">t</span>(X_b) <span class="sc">%*%</span> (lam <span class="sc">-</span> y_b))</span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Standard SGD step: No division by Fisher Info/Variance</span></span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>    beta <span class="ot">&lt;-</span> beta <span class="sc">-</span> lr <span class="sc">*</span> g</span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (global_step <span class="sc">%%</span> <span class="dv">50</span> <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>      cur_time <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">difftime</span>(<span class="fu">Sys.time</span>(), start_time, <span class="at">units =</span> <span class="st">"secs"</span>))</span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>      beta_trace <span class="ot">&lt;-</span> <span class="fu">rbind</span>(beta_trace, <span class="fu">c</span>(beta, cur_time))</span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(beta_trace)</span>
+<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(df) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">paste0</span>(<span class="st">"Beta"</span>, <span class="dv">0</span><span class="sc">:</span>(p<span class="dv">-1</span>)), <span class="st">"Time"</span>)</span>
+<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(df)</span>
+<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 3. Diagonal Natural SGD (DSGD) ---</span></span>
+<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a>run_diag_ngd <span class="ot">&lt;-</span> <span class="cf">function</span>(X, y, <span class="at">batch_size =</span> <span class="dv">50</span>, <span class="at">lr =</span> <span class="fl">0.01</span>, <span class="at">max_iter =</span> <span class="dv">3500</span>) {</span>
+<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a>  n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(X); p <span class="ot">&lt;-</span> <span class="fu">ncol</span>(X)</span>
+<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, p); S_diag <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>, p) </span>
+<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a>  rho <span class="ot">&lt;-</span> <span class="fl">0.95</span>; epsilon <span class="ot">&lt;-</span> <span class="fl">1e-4</span></span>
+<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>  beta_trace <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="at">nrow =</span> <span class="dv">0</span>, <span class="at">ncol =</span> p <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a>  start_time <span class="ot">&lt;-</span> <span class="fu">Sys.time</span>()</span>
+<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a>  beta_trace <span class="ot">&lt;-</span> <span class="fu">rbind</span>(beta_trace, <span class="fu">c</span>(beta, <span class="dv">0</span>))</span>
+<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a>  global_step <span class="ot">&lt;-</span> <span class="dv">0</span>; idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(n); current_idx_ptr <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> (global_step <span class="sc">&lt;</span> max_iter) {</span>
+<span id="cb6-74"><a href="#cb6-74" aria-hidden="true" tabindex="-1"></a>    global_step <span class="ot">&lt;-</span> global_step <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb6-75"><a href="#cb6-75" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-76"><a href="#cb6-76" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (current_idx_ptr <span class="sc">+</span> batch_size <span class="sc">&gt;</span> n) {</span>
+<span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a>      idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(n); current_idx_ptr <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb6-78"><a href="#cb6-78" aria-hidden="true" tabindex="-1"></a>    }</span>
 <span id="cb6-79"><a href="#cb6-79" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (global_step <span class="sc">%%</span> <span class="dv">50</span> <span class="sc">==</span> <span class="dv">0</span>) {</span>
-<span id="cb6-81"><a href="#cb6-81" aria-hidden="true" tabindex="-1"></a>      cur_time <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">difftime</span>(<span class="fu">Sys.time</span>(), start_time, <span class="at">units =</span> <span class="st">"secs"</span>))</span>
-<span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a>      beta_trace <span class="ot">&lt;-</span> <span class="fu">rbind</span>(beta_trace, <span class="fu">c</span>(beta, cur_time))</span>
-<span id="cb6-83"><a href="#cb6-83" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb6-84"><a href="#cb6-84" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-86"><a href="#cb6-86" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(beta_trace)</span>
-<span id="cb6-87"><a href="#cb6-87" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(df) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">paste0</span>(<span class="st">"Beta"</span>, <span class="dv">0</span><span class="sc">:</span>(p<span class="dv">-1</span>)), <span class="st">"Time"</span>)</span>
-<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(df)</span>
-<span id="cb6-89"><a href="#cb6-89" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb6-90"><a href="#cb6-90" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-91"><a href="#cb6-91" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 4. Full Matrix Natural SGD (F-NSGD) ---</span></span>
-<span id="cb6-92"><a href="#cb6-92" aria-hidden="true" tabindex="-1"></a>run_full_ngd <span class="ot">&lt;-</span> <span class="cf">function</span>(X, y, <span class="at">batch_size =</span> <span class="dv">50</span>, <span class="at">lr =</span> <span class="fl">0.05</span>, <span class="at">max_iter =</span> <span class="dv">1500</span>) {</span>
-<span id="cb6-93"><a href="#cb6-93" aria-hidden="true" tabindex="-1"></a>  n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(X); p <span class="ot">&lt;-</span> <span class="fu">ncol</span>(X)</span>
-<span id="cb6-94"><a href="#cb6-94" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, p); F_mat <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="dv">1</span>, p)</span>
-<span id="cb6-95"><a href="#cb6-95" aria-hidden="true" tabindex="-1"></a>  rho <span class="ot">&lt;-</span> <span class="fl">0.95</span>; epsilon <span class="ot">&lt;-</span> <span class="fl">1e-3</span></span>
-<span id="cb6-96"><a href="#cb6-96" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-97"><a href="#cb6-97" aria-hidden="true" tabindex="-1"></a>  beta_trace <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="at">nrow =</span> <span class="dv">0</span>, <span class="at">ncol =</span> p <span class="sc">+</span> <span class="dv">1</span>)</span>
-<span id="cb6-98"><a href="#cb6-98" aria-hidden="true" tabindex="-1"></a>  start_time <span class="ot">&lt;-</span> <span class="fu">Sys.time</span>()</span>
-<span id="cb6-99"><a href="#cb6-99" aria-hidden="true" tabindex="-1"></a>  beta_trace <span class="ot">&lt;-</span> <span class="fu">rbind</span>(beta_trace, <span class="fu">c</span>(beta, <span class="dv">0</span>))</span>
-<span id="cb6-100"><a href="#cb6-100" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-101"><a href="#cb6-101" aria-hidden="true" tabindex="-1"></a>  global_step <span class="ot">&lt;-</span> <span class="dv">0</span>; idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(n); current_idx_ptr <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb6-102"><a href="#cb6-102" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-103"><a href="#cb6-103" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> (global_step <span class="sc">&lt;</span> max_iter) {</span>
-<span id="cb6-104"><a href="#cb6-104" aria-hidden="true" tabindex="-1"></a>    global_step <span class="ot">&lt;-</span> global_step <span class="sc">+</span> <span class="dv">1</span></span>
-<span id="cb6-105"><a href="#cb6-105" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-106"><a href="#cb6-106" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (current_idx_ptr <span class="sc">+</span> batch_size <span class="sc">&gt;</span> n) {</span>
-<span id="cb6-107"><a href="#cb6-107" aria-hidden="true" tabindex="-1"></a>      idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(n); current_idx_ptr <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb6-108"><a href="#cb6-108" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb6-109"><a href="#cb6-109" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-110"><a href="#cb6-110" aria-hidden="true" tabindex="-1"></a>    batch_indices <span class="ot">&lt;-</span> idx[current_idx_ptr <span class="sc">:</span> (current_idx_ptr <span class="sc">+</span> batch_size <span class="sc">-</span> <span class="dv">1</span>)]</span>
-<span id="cb6-111"><a href="#cb6-111" aria-hidden="true" tabindex="-1"></a>    current_idx_ptr <span class="ot">&lt;-</span> current_idx_ptr <span class="sc">+</span> batch_size</span>
-<span id="cb6-112"><a href="#cb6-112" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-113"><a href="#cb6-113" aria-hidden="true" tabindex="-1"></a>    X_b <span class="ot">&lt;-</span> X[batch_indices, , drop<span class="ot">=</span><span class="cn">FALSE</span>]; y_b <span class="ot">&lt;-</span> y[batch_indices]</span>
-<span id="cb6-114"><a href="#cb6-114" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-115"><a href="#cb6-115" aria-hidden="true" tabindex="-1"></a>    lam <span class="ot">&lt;-</span> <span class="fu">exp</span>(X_b <span class="sc">%*%</span> beta); lam <span class="ot">&lt;-</span> <span class="fu">pmin</span>(lam, <span class="fl">1e10</span>)</span>
-<span id="cb6-116"><a href="#cb6-116" aria-hidden="true" tabindex="-1"></a>    g <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(<span class="fu">t</span>(X_b) <span class="sc">%*%</span> (lam <span class="sc">-</span> y_b))</span>
+<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a>    batch_indices <span class="ot">&lt;-</span> idx[current_idx_ptr <span class="sc">:</span> (current_idx_ptr <span class="sc">+</span> batch_size <span class="sc">-</span> <span class="dv">1</span>)]</span>
+<span id="cb6-81"><a href="#cb6-81" aria-hidden="true" tabindex="-1"></a>    current_idx_ptr <span class="ot">&lt;-</span> current_idx_ptr <span class="sc">+</span> batch_size</span>
+<span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-83"><a href="#cb6-83" aria-hidden="true" tabindex="-1"></a>    X_b <span class="ot">&lt;-</span> X[batch_indices, , drop<span class="ot">=</span><span class="cn">FALSE</span>]; y_b <span class="ot">&lt;-</span> y[batch_indices]</span>
+<span id="cb6-84"><a href="#cb6-84" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a>    lam <span class="ot">&lt;-</span> <span class="fu">exp</span>(X_b <span class="sc">%*%</span> beta); lam <span class="ot">&lt;-</span> <span class="fu">pmin</span>(lam, <span class="fl">1e10</span>)</span>
+<span id="cb6-86"><a href="#cb6-86" aria-hidden="true" tabindex="-1"></a>    g <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(<span class="fu">t</span>(X_b) <span class="sc">%*%</span> (lam <span class="sc">-</span> y_b))</span>
+<span id="cb6-87"><a href="#cb6-87" aria-hidden="true" tabindex="-1"></a>    F_diag <span class="ot">&lt;-</span> <span class="fu">colSums</span>(X_b<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">as.vector</span>(lam))</span>
+<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a>    S_diag <span class="ot">&lt;-</span> rho <span class="sc">*</span> S_diag <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> rho) <span class="sc">*</span> F_diag</span>
+<span id="cb6-89"><a href="#cb6-89" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-90"><a href="#cb6-90" aria-hidden="true" tabindex="-1"></a>    beta <span class="ot">&lt;-</span> beta <span class="sc">-</span> lr <span class="sc">*</span> (g <span class="sc">/</span> (S_diag <span class="sc">+</span> epsilon))</span>
+<span id="cb6-91"><a href="#cb6-91" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-92"><a href="#cb6-92" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (global_step <span class="sc">%%</span> <span class="dv">50</span> <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb6-93"><a href="#cb6-93" aria-hidden="true" tabindex="-1"></a>      cur_time <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">difftime</span>(<span class="fu">Sys.time</span>(), start_time, <span class="at">units =</span> <span class="st">"secs"</span>))</span>
+<span id="cb6-94"><a href="#cb6-94" aria-hidden="true" tabindex="-1"></a>      beta_trace <span class="ot">&lt;-</span> <span class="fu">rbind</span>(beta_trace, <span class="fu">c</span>(beta, cur_time))</span>
+<span id="cb6-95"><a href="#cb6-95" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-96"><a href="#cb6-96" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-97"><a href="#cb6-97" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-98"><a href="#cb6-98" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(beta_trace)</span>
+<span id="cb6-99"><a href="#cb6-99" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(df) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">paste0</span>(<span class="st">"Beta"</span>, <span class="dv">0</span><span class="sc">:</span>(p<span class="dv">-1</span>)), <span class="st">"Time"</span>)</span>
+<span id="cb6-100"><a href="#cb6-100" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(df)</span>
+<span id="cb6-101"><a href="#cb6-101" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-102"><a href="#cb6-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-103"><a href="#cb6-103" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 4. Full Matrix Natural SGD (F-NSGD) ---</span></span>
+<span id="cb6-104"><a href="#cb6-104" aria-hidden="true" tabindex="-1"></a>run_full_ngd <span class="ot">&lt;-</span> <span class="cf">function</span>(X, y, <span class="at">batch_size =</span> <span class="dv">50</span>, <span class="at">lr =</span> <span class="fl">0.05</span>, <span class="at">max_iter =</span> <span class="dv">1500</span>) {</span>
+<span id="cb6-105"><a href="#cb6-105" aria-hidden="true" tabindex="-1"></a>  n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(X); p <span class="ot">&lt;-</span> <span class="fu">ncol</span>(X)</span>
+<span id="cb6-106"><a href="#cb6-106" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, p); F_mat <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="dv">1</span>, p)</span>
+<span id="cb6-107"><a href="#cb6-107" aria-hidden="true" tabindex="-1"></a>  rho <span class="ot">&lt;-</span> <span class="fl">0.95</span>; epsilon <span class="ot">&lt;-</span> <span class="fl">1e-3</span></span>
+<span id="cb6-108"><a href="#cb6-108" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-109"><a href="#cb6-109" aria-hidden="true" tabindex="-1"></a>  beta_trace <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="at">nrow =</span> <span class="dv">0</span>, <span class="at">ncol =</span> p <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb6-110"><a href="#cb6-110" aria-hidden="true" tabindex="-1"></a>  start_time <span class="ot">&lt;-</span> <span class="fu">Sys.time</span>()</span>
+<span id="cb6-111"><a href="#cb6-111" aria-hidden="true" tabindex="-1"></a>  beta_trace <span class="ot">&lt;-</span> <span class="fu">rbind</span>(beta_trace, <span class="fu">c</span>(beta, <span class="dv">0</span>))</span>
+<span id="cb6-112"><a href="#cb6-112" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-113"><a href="#cb6-113" aria-hidden="true" tabindex="-1"></a>  global_step <span class="ot">&lt;-</span> <span class="dv">0</span>; idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(n); current_idx_ptr <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb6-114"><a href="#cb6-114" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-115"><a href="#cb6-115" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> (global_step <span class="sc">&lt;</span> max_iter) {</span>
+<span id="cb6-116"><a href="#cb6-116" aria-hidden="true" tabindex="-1"></a>    global_step <span class="ot">&lt;-</span> global_step <span class="sc">+</span> <span class="dv">1</span></span>
 <span id="cb6-117"><a href="#cb6-117" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-118"><a href="#cb6-118" aria-hidden="true" tabindex="-1"></a>    F_batch <span class="ot">&lt;-</span> <span class="fu">t</span>(X_b <span class="sc">*</span> <span class="fu">as.vector</span>(lam)) <span class="sc">%*%</span> X_b</span>
-<span id="cb6-119"><a href="#cb6-119" aria-hidden="true" tabindex="-1"></a>    F_mat <span class="ot">&lt;-</span> rho <span class="sc">*</span> F_mat <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> rho) <span class="sc">*</span> F_batch</span>
-<span id="cb6-120"><a href="#cb6-120" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-121"><a href="#cb6-121" aria-hidden="true" tabindex="-1"></a>    step <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(<span class="fu">solve</span>(F_mat <span class="sc">+</span> <span class="fu">diag</span>(epsilon, p), g), <span class="at">error=</span><span class="cf">function</span>(e) g<span class="sc">*</span><span class="fl">0.01</span>)</span>
-<span id="cb6-122"><a href="#cb6-122" aria-hidden="true" tabindex="-1"></a>    beta <span class="ot">&lt;-</span> beta <span class="sc">-</span> lr <span class="sc">*</span> step</span>
-<span id="cb6-123"><a href="#cb6-123" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-124"><a href="#cb6-124" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (global_step <span class="sc">%%</span> <span class="dv">50</span> <span class="sc">==</span> <span class="dv">0</span>) {</span>
-<span id="cb6-125"><a href="#cb6-125" aria-hidden="true" tabindex="-1"></a>      cur_time <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">difftime</span>(<span class="fu">Sys.time</span>(), start_time, <span class="at">units =</span> <span class="st">"secs"</span>))</span>
-<span id="cb6-126"><a href="#cb6-126" aria-hidden="true" tabindex="-1"></a>      beta_trace <span class="ot">&lt;-</span> <span class="fu">rbind</span>(beta_trace, <span class="fu">c</span>(beta, cur_time))</span>
-<span id="cb6-127"><a href="#cb6-127" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb6-128"><a href="#cb6-128" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb6-129"><a href="#cb6-129" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-130"><a href="#cb6-130" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(beta_trace)</span>
-<span id="cb6-131"><a href="#cb6-131" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(df) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">paste0</span>(<span class="st">"Beta"</span>, <span class="dv">0</span><span class="sc">:</span>(p<span class="dv">-1</span>)), <span class="st">"Time"</span>)</span>
-<span id="cb6-132"><a href="#cb6-132" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(df)</span>
-<span id="cb6-133"><a href="#cb6-133" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb6-134"><a href="#cb6-134" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-135"><a href="#cb6-135" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 5. Re-sampling Natural SGD (RS-NSGD) ---</span></span>
-<span id="cb6-136"><a href="#cb6-136" aria-hidden="true" tabindex="-1"></a>run_resampling_ngd <span class="ot">&lt;-</span> <span class="cf">function</span>(X, y, <span class="at">batch_size =</span> <span class="dv">32</span>, <span class="at">lr =</span> <span class="fl">0.005</span>, <span class="at">max_iter =</span> <span class="dv">5000</span>) {</span>
-<span id="cb6-137"><a href="#cb6-137" aria-hidden="true" tabindex="-1"></a>  n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(X); p <span class="ot">&lt;-</span> <span class="fu">ncol</span>(X)</span>
-<span id="cb6-138"><a href="#cb6-138" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, p); S_diag <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>, p) </span>
-<span id="cb6-139"><a href="#cb6-139" aria-hidden="true" tabindex="-1"></a>  rho <span class="ot">&lt;-</span> <span class="fl">0.95</span>; epsilon <span class="ot">&lt;-</span> <span class="fl">1e-4</span></span>
-<span id="cb6-140"><a href="#cb6-140" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-141"><a href="#cb6-141" aria-hidden="true" tabindex="-1"></a>  beta_trace <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="at">nrow =</span> <span class="dv">0</span>, <span class="at">ncol =</span> p <span class="sc">+</span> <span class="dv">1</span>)</span>
-<span id="cb6-142"><a href="#cb6-142" aria-hidden="true" tabindex="-1"></a>  start_time <span class="ot">&lt;-</span> <span class="fu">Sys.time</span>()</span>
-<span id="cb6-143"><a href="#cb6-143" aria-hidden="true" tabindex="-1"></a>  beta_trace <span class="ot">&lt;-</span> <span class="fu">rbind</span>(beta_trace, <span class="fu">c</span>(beta, <span class="dv">0</span>))</span>
-<span id="cb6-144"><a href="#cb6-144" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-145"><a href="#cb6-145" aria-hidden="true" tabindex="-1"></a>  global_step <span class="ot">&lt;-</span> <span class="dv">0</span>; idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(n); current_idx_ptr <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb6-146"><a href="#cb6-146" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-147"><a href="#cb6-147" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> (global_step <span class="sc">&lt;</span> max_iter) {</span>
-<span id="cb6-148"><a href="#cb6-148" aria-hidden="true" tabindex="-1"></a>    global_step <span class="ot">&lt;-</span> global_step <span class="sc">+</span> <span class="dv">1</span></span>
-<span id="cb6-149"><a href="#cb6-149" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-150"><a href="#cb6-150" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (current_idx_ptr <span class="sc">+</span> batch_size <span class="sc">&gt;</span> n) {</span>
-<span id="cb6-151"><a href="#cb6-151" aria-hidden="true" tabindex="-1"></a>      idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(n); current_idx_ptr <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb6-152"><a href="#cb6-152" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb6-153"><a href="#cb6-153" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-154"><a href="#cb6-154" aria-hidden="true" tabindex="-1"></a>    batch_idx <span class="ot">&lt;-</span> idx[current_idx_ptr <span class="sc">:</span> (current_idx_ptr <span class="sc">+</span> batch_size <span class="sc">-</span> <span class="dv">1</span>)]</span>
-<span id="cb6-155"><a href="#cb6-155" aria-hidden="true" tabindex="-1"></a>    current_idx_ptr <span class="ot">&lt;-</span> current_idx_ptr <span class="sc">+</span> batch_size</span>
-<span id="cb6-156"><a href="#cb6-156" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-157"><a href="#cb6-157" aria-hidden="true" tabindex="-1"></a>    X_b <span class="ot">&lt;-</span> X[batch_idx, , drop<span class="ot">=</span><span class="cn">FALSE</span>]; y_b <span class="ot">&lt;-</span> y[batch_idx] </span>
-<span id="cb6-158"><a href="#cb6-158" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-159"><a href="#cb6-159" aria-hidden="true" tabindex="-1"></a>    lam <span class="ot">&lt;-</span> <span class="fu">exp</span>(X_b <span class="sc">%*%</span> beta); lam <span class="ot">&lt;-</span> <span class="fu">pmin</span>(lam, <span class="fl">1e10</span>)</span>
-<span id="cb6-160"><a href="#cb6-160" aria-hidden="true" tabindex="-1"></a>    g_real <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(<span class="fu">t</span>(X_b) <span class="sc">%*%</span> (lam <span class="sc">-</span> y_b))</span>
+<span id="cb6-118"><a href="#cb6-118" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (current_idx_ptr <span class="sc">+</span> batch_size <span class="sc">&gt;</span> n) {</span>
+<span id="cb6-119"><a href="#cb6-119" aria-hidden="true" tabindex="-1"></a>      idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(n); current_idx_ptr <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb6-120"><a href="#cb6-120" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-121"><a href="#cb6-121" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-122"><a href="#cb6-122" aria-hidden="true" tabindex="-1"></a>    batch_indices <span class="ot">&lt;-</span> idx[current_idx_ptr <span class="sc">:</span> (current_idx_ptr <span class="sc">+</span> batch_size <span class="sc">-</span> <span class="dv">1</span>)]</span>
+<span id="cb6-123"><a href="#cb6-123" aria-hidden="true" tabindex="-1"></a>    current_idx_ptr <span class="ot">&lt;-</span> current_idx_ptr <span class="sc">+</span> batch_size</span>
+<span id="cb6-124"><a href="#cb6-124" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-125"><a href="#cb6-125" aria-hidden="true" tabindex="-1"></a>    X_b <span class="ot">&lt;-</span> X[batch_indices, , drop<span class="ot">=</span><span class="cn">FALSE</span>]; y_b <span class="ot">&lt;-</span> y[batch_indices]</span>
+<span id="cb6-126"><a href="#cb6-126" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-127"><a href="#cb6-127" aria-hidden="true" tabindex="-1"></a>    lam <span class="ot">&lt;-</span> <span class="fu">exp</span>(X_b <span class="sc">%*%</span> beta); lam <span class="ot">&lt;-</span> <span class="fu">pmin</span>(lam, <span class="fl">1e10</span>)</span>
+<span id="cb6-128"><a href="#cb6-128" aria-hidden="true" tabindex="-1"></a>    g <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(<span class="fu">t</span>(X_b) <span class="sc">%*%</span> (lam <span class="sc">-</span> y_b))</span>
+<span id="cb6-129"><a href="#cb6-129" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-130"><a href="#cb6-130" aria-hidden="true" tabindex="-1"></a>    F_batch <span class="ot">&lt;-</span> <span class="fu">t</span>(X_b <span class="sc">*</span> <span class="fu">as.vector</span>(lam)) <span class="sc">%*%</span> X_b</span>
+<span id="cb6-131"><a href="#cb6-131" aria-hidden="true" tabindex="-1"></a>    F_mat <span class="ot">&lt;-</span> rho <span class="sc">*</span> F_mat <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> rho) <span class="sc">*</span> F_batch</span>
+<span id="cb6-132"><a href="#cb6-132" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-133"><a href="#cb6-133" aria-hidden="true" tabindex="-1"></a>    step <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(<span class="fu">solve</span>(F_mat <span class="sc">+</span> <span class="fu">diag</span>(epsilon, p), g), <span class="at">error=</span><span class="cf">function</span>(e) g<span class="sc">*</span><span class="fl">0.01</span>)</span>
+<span id="cb6-134"><a href="#cb6-134" aria-hidden="true" tabindex="-1"></a>    beta <span class="ot">&lt;-</span> beta <span class="sc">-</span> lr <span class="sc">*</span> step</span>
+<span id="cb6-135"><a href="#cb6-135" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-136"><a href="#cb6-136" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (global_step <span class="sc">%%</span> <span class="dv">50</span> <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb6-137"><a href="#cb6-137" aria-hidden="true" tabindex="-1"></a>      cur_time <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">difftime</span>(<span class="fu">Sys.time</span>(), start_time, <span class="at">units =</span> <span class="st">"secs"</span>))</span>
+<span id="cb6-138"><a href="#cb6-138" aria-hidden="true" tabindex="-1"></a>      beta_trace <span class="ot">&lt;-</span> <span class="fu">rbind</span>(beta_trace, <span class="fu">c</span>(beta, cur_time))</span>
+<span id="cb6-139"><a href="#cb6-139" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-140"><a href="#cb6-140" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-141"><a href="#cb6-141" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-142"><a href="#cb6-142" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(beta_trace)</span>
+<span id="cb6-143"><a href="#cb6-143" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(df) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">paste0</span>(<span class="st">"Beta"</span>, <span class="dv">0</span><span class="sc">:</span>(p<span class="dv">-1</span>)), <span class="st">"Time"</span>)</span>
+<span id="cb6-144"><a href="#cb6-144" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(df)</span>
+<span id="cb6-145"><a href="#cb6-145" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-146"><a href="#cb6-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-147"><a href="#cb6-147" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 5. Re-sampling Natural SGD (RS-NSGD) ---</span></span>
+<span id="cb6-148"><a href="#cb6-148" aria-hidden="true" tabindex="-1"></a>run_resampling_ngd <span class="ot">&lt;-</span> <span class="cf">function</span>(X, y, <span class="at">batch_size =</span> <span class="dv">50</span>, <span class="at">lr =</span> <span class="fl">0.005</span>, <span class="at">max_iter =</span> <span class="dv">8000</span>) {</span>
+<span id="cb6-149"><a href="#cb6-149" aria-hidden="true" tabindex="-1"></a>  n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(X); p <span class="ot">&lt;-</span> <span class="fu">ncol</span>(X)</span>
+<span id="cb6-150"><a href="#cb6-150" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, p); S_diag <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>, p) </span>
+<span id="cb6-151"><a href="#cb6-151" aria-hidden="true" tabindex="-1"></a>  rho <span class="ot">&lt;-</span> <span class="fl">0.95</span>; epsilon <span class="ot">&lt;-</span> <span class="fl">1e-4</span></span>
+<span id="cb6-152"><a href="#cb6-152" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-153"><a href="#cb6-153" aria-hidden="true" tabindex="-1"></a>  beta_trace <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="at">nrow =</span> <span class="dv">0</span>, <span class="at">ncol =</span> p <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb6-154"><a href="#cb6-154" aria-hidden="true" tabindex="-1"></a>  start_time <span class="ot">&lt;-</span> <span class="fu">Sys.time</span>()</span>
+<span id="cb6-155"><a href="#cb6-155" aria-hidden="true" tabindex="-1"></a>  beta_trace <span class="ot">&lt;-</span> <span class="fu">rbind</span>(beta_trace, <span class="fu">c</span>(beta, <span class="dv">0</span>))</span>
+<span id="cb6-156"><a href="#cb6-156" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-157"><a href="#cb6-157" aria-hidden="true" tabindex="-1"></a>  global_step <span class="ot">&lt;-</span> <span class="dv">0</span>; idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(n); current_idx_ptr <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb6-158"><a href="#cb6-158" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-159"><a href="#cb6-159" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> (global_step <span class="sc">&lt;</span> max_iter) {</span>
+<span id="cb6-160"><a href="#cb6-160" aria-hidden="true" tabindex="-1"></a>    global_step <span class="ot">&lt;-</span> global_step <span class="sc">+</span> <span class="dv">1</span></span>
 <span id="cb6-161"><a href="#cb6-161" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-162"><a href="#cb6-162" aria-hidden="true" tabindex="-1"></a>    y_sim <span class="ot">&lt;-</span> <span class="fu">rpois</span>(<span class="fu">length</span>(lam), lam) </span>
-<span id="cb6-163"><a href="#cb6-163" aria-hidden="true" tabindex="-1"></a>    g_sim <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(<span class="fu">t</span>(X_b) <span class="sc">%*%</span> (lam <span class="sc">-</span> y_sim))</span>
-<span id="cb6-164"><a href="#cb6-164" aria-hidden="true" tabindex="-1"></a>    I_monte_carlo <span class="ot">&lt;-</span> g_sim<span class="sc">^</span><span class="dv">2</span> </span>
+<span id="cb6-162"><a href="#cb6-162" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (current_idx_ptr <span class="sc">+</span> batch_size <span class="sc">&gt;</span> n) {</span>
+<span id="cb6-163"><a href="#cb6-163" aria-hidden="true" tabindex="-1"></a>      idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(n); current_idx_ptr <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb6-164"><a href="#cb6-164" aria-hidden="true" tabindex="-1"></a>    }</span>
 <span id="cb6-165"><a href="#cb6-165" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-166"><a href="#cb6-166" aria-hidden="true" tabindex="-1"></a>    S_diag <span class="ot">&lt;-</span> rho <span class="sc">*</span> S_diag <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> rho) <span class="sc">*</span> I_monte_carlo</span>
-<span id="cb6-167"><a href="#cb6-167" aria-hidden="true" tabindex="-1"></a>    beta <span class="ot">&lt;-</span> beta <span class="sc">-</span> lr <span class="sc">*</span> (g_real <span class="sc">/</span> (S_diag <span class="sc">+</span> epsilon))</span>
+<span id="cb6-166"><a href="#cb6-166" aria-hidden="true" tabindex="-1"></a>    batch_idx <span class="ot">&lt;-</span> idx[current_idx_ptr <span class="sc">:</span> (current_idx_ptr <span class="sc">+</span> batch_size <span class="sc">-</span> <span class="dv">1</span>)]</span>
+<span id="cb6-167"><a href="#cb6-167" aria-hidden="true" tabindex="-1"></a>    current_idx_ptr <span class="ot">&lt;-</span> current_idx_ptr <span class="sc">+</span> batch_size</span>
 <span id="cb6-168"><a href="#cb6-168" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-169"><a href="#cb6-169" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (global_step <span class="sc">%%</span> <span class="dv">50</span> <span class="sc">==</span> <span class="dv">0</span>) {</span>
-<span id="cb6-170"><a href="#cb6-170" aria-hidden="true" tabindex="-1"></a>      cur_time <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">difftime</span>(<span class="fu">Sys.time</span>(), start_time, <span class="at">units =</span> <span class="st">"secs"</span>))</span>
-<span id="cb6-171"><a href="#cb6-171" aria-hidden="true" tabindex="-1"></a>      beta_trace <span class="ot">&lt;-</span> <span class="fu">rbind</span>(beta_trace, <span class="fu">c</span>(beta, cur_time))</span>
-<span id="cb6-172"><a href="#cb6-172" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb6-173"><a href="#cb6-173" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb6-174"><a href="#cb6-174" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-175"><a href="#cb6-175" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(beta_trace)</span>
-<span id="cb6-176"><a href="#cb6-176" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(df) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">paste0</span>(<span class="st">"Beta"</span>, <span class="dv">0</span><span class="sc">:</span>(p<span class="dv">-1</span>)), <span class="st">"Time"</span>)</span>
-<span id="cb6-177"><a href="#cb6-177" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(df)</span>
-<span id="cb6-178"><a href="#cb6-178" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb6-179"><a href="#cb6-179" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-180"><a href="#cb6-180" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 6. Execution &amp; Visualization ---</span></span>
-<span id="cb6-181"><a href="#cb6-181" aria-hidden="true" tabindex="-1"></a>p_val <span class="ot">&lt;-</span> <span class="dv">100</span></span>
-<span id="cb6-182"><a href="#cb6-182" aria-hidden="true" tabindex="-1"></a>n_val <span class="ot">&lt;-</span> <span class="dv">5000</span></span>
-<span id="cb6-183"><a href="#cb6-183" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">generate_data</span>(<span class="at">n =</span> n_val, <span class="at">p =</span> p_val)</span>
-<span id="cb6-184"><a href="#cb6-184" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-185"><a href="#cb6-185" aria-hidden="true" tabindex="-1"></a>trace_nr <span class="ot">&lt;-</span> <span class="fu">run_nr</span>(data<span class="sc">$</span>X, data<span class="sc">$</span>y, <span class="at">max_iter =</span> <span class="dv">10</span>)</span>
-<span id="cb6-186"><a href="#cb6-186" aria-hidden="true" tabindex="-1"></a>trace_nr<span class="sc">$</span>Method <span class="ot">&lt;-</span> <span class="st">"1. Naive NR"</span></span>
-<span id="cb6-187"><a href="#cb6-187" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-188"><a href="#cb6-188" aria-hidden="true" tabindex="-1"></a>trace_diag <span class="ot">&lt;-</span> <span class="fu">run_diag_ngd</span>(data<span class="sc">$</span>X, data<span class="sc">$</span>y, <span class="at">batch_size =</span> <span class="dv">50</span>, <span class="at">lr =</span> <span class="fl">0.01</span>, <span class="at">max_iter =</span> <span class="dv">3500</span>)</span>
-<span id="cb6-189"><a href="#cb6-189" aria-hidden="true" tabindex="-1"></a>trace_diag<span class="sc">$</span>Method <span class="ot">&lt;-</span> <span class="st">"2. Diagonal NSGD"</span></span>
-<span id="cb6-190"><a href="#cb6-190" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-191"><a href="#cb6-191" aria-hidden="true" tabindex="-1"></a>trace_full <span class="ot">&lt;-</span> <span class="fu">run_full_ngd</span>(data<span class="sc">$</span>X, data<span class="sc">$</span>y, <span class="at">batch_size =</span> <span class="dv">50</span>, <span class="at">lr =</span> <span class="fl">0.05</span>, <span class="at">max_iter =</span> <span class="dv">1500</span>)</span>
-<span id="cb6-192"><a href="#cb6-192" aria-hidden="true" tabindex="-1"></a>trace_full<span class="sc">$</span>Method <span class="ot">&lt;-</span> <span class="st">"3. Full-Matrix NSGD"</span></span>
-<span id="cb6-193"><a href="#cb6-193" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-194"><a href="#cb6-194" aria-hidden="true" tabindex="-1"></a><span class="co"># Notice the very small learning rate (0.001) required for the re-sampling approach to converge stably</span></span>
-<span id="cb6-195"><a href="#cb6-195" aria-hidden="true" tabindex="-1"></a>trace_resample <span class="ot">&lt;-</span> <span class="fu">run_resampling_ngd</span>(data<span class="sc">$</span>X, data<span class="sc">$</span>y, <span class="at">batch_size =</span> <span class="dv">32</span>, <span class="at">lr =</span> <span class="fl">0.005</span>, <span class="at">max_iter =</span> <span class="dv">8000</span>)</span>
-<span id="cb6-196"><a href="#cb6-196" aria-hidden="true" tabindex="-1"></a>trace_resample<span class="sc">$</span>Method <span class="ot">&lt;-</span> <span class="st">"4. Re-sampling NSGD"</span></span>
-<span id="cb6-197"><a href="#cb6-197" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-198"><a href="#cb6-198" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 7. Plotting Setup ---</span></span>
-<span id="cb6-199"><a href="#cb6-199" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the active and inactive parameters to plot</span></span>
-<span id="cb6-200"><a href="#cb6-200" aria-hidden="true" tabindex="-1"></a>active_params <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"Beta"</span>, <span class="dv">0</span><span class="sc">:</span><span class="dv">3</span>)</span>
-<span id="cb6-201"><a href="#cb6-201" aria-hidden="true" tabindex="-1"></a>zero_params <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"Beta"</span>, <span class="dv">4</span><span class="sc">:</span><span class="dv">13</span>)</span>
-<span id="cb6-202"><a href="#cb6-202" aria-hidden="true" tabindex="-1"></a>plot_params <span class="ot">&lt;-</span> <span class="fu">c</span>(active_params, zero_params)</span>
-<span id="cb6-203"><a href="#cb6-203" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-204"><a href="#cb6-204" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine and shape for plotting</span></span>
-<span id="cb6-205"><a href="#cb6-205" aria-hidden="true" tabindex="-1"></a>plot_data <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(trace_nr, trace_diag, trace_full, trace_resample) <span class="sc">%&gt;%</span></span>
-<span id="cb6-206"><a href="#cb6-206" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"Beta"</span>), <span class="at">names_to =</span> <span class="st">"Parameter"</span>, <span class="at">values_to =</span> <span class="st">"Value"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb6-207"><a href="#cb6-207" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Parameter <span class="sc">%in%</span> plot_params)</span>
+<span id="cb6-169"><a href="#cb6-169" aria-hidden="true" tabindex="-1"></a>    X_b <span class="ot">&lt;-</span> X[batch_idx, , drop<span class="ot">=</span><span class="cn">FALSE</span>]; y_b <span class="ot">&lt;-</span> y[batch_idx] </span>
+<span id="cb6-170"><a href="#cb6-170" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-171"><a href="#cb6-171" aria-hidden="true" tabindex="-1"></a>    lam <span class="ot">&lt;-</span> <span class="fu">exp</span>(X_b <span class="sc">%*%</span> beta); lam <span class="ot">&lt;-</span> <span class="fu">pmin</span>(lam, <span class="fl">1e10</span>)</span>
+<span id="cb6-172"><a href="#cb6-172" aria-hidden="true" tabindex="-1"></a>    g_real <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(<span class="fu">t</span>(X_b) <span class="sc">%*%</span> (lam <span class="sc">-</span> y_b))</span>
+<span id="cb6-173"><a href="#cb6-173" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-174"><a href="#cb6-174" aria-hidden="true" tabindex="-1"></a>    y_sim <span class="ot">&lt;-</span> <span class="fu">rpois</span>(<span class="fu">length</span>(lam), lam) </span>
+<span id="cb6-175"><a href="#cb6-175" aria-hidden="true" tabindex="-1"></a>    g_sim <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(<span class="fu">t</span>(X_b) <span class="sc">%*%</span> (lam <span class="sc">-</span> y_sim))</span>
+<span id="cb6-176"><a href="#cb6-176" aria-hidden="true" tabindex="-1"></a>    I_monte_carlo <span class="ot">&lt;-</span> g_sim<span class="sc">^</span><span class="dv">2</span> </span>
+<span id="cb6-177"><a href="#cb6-177" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-178"><a href="#cb6-178" aria-hidden="true" tabindex="-1"></a>    S_diag <span class="ot">&lt;-</span> rho <span class="sc">*</span> S_diag <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> rho) <span class="sc">*</span> I_monte_carlo</span>
+<span id="cb6-179"><a href="#cb6-179" aria-hidden="true" tabindex="-1"></a>    beta <span class="ot">&lt;-</span> beta <span class="sc">-</span> lr <span class="sc">*</span> (g_real <span class="sc">/</span> (S_diag <span class="sc">+</span> epsilon))</span>
+<span id="cb6-180"><a href="#cb6-180" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-181"><a href="#cb6-181" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (global_step <span class="sc">%%</span> <span class="dv">50</span> <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb6-182"><a href="#cb6-182" aria-hidden="true" tabindex="-1"></a>      cur_time <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">difftime</span>(<span class="fu">Sys.time</span>(), start_time, <span class="at">units =</span> <span class="st">"secs"</span>))</span>
+<span id="cb6-183"><a href="#cb6-183" aria-hidden="true" tabindex="-1"></a>      beta_trace <span class="ot">&lt;-</span> <span class="fu">rbind</span>(beta_trace, <span class="fu">c</span>(beta, cur_time))</span>
+<span id="cb6-184"><a href="#cb6-184" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-185"><a href="#cb6-185" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-186"><a href="#cb6-186" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-187"><a href="#cb6-187" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(beta_trace)</span>
+<span id="cb6-188"><a href="#cb6-188" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(df) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">paste0</span>(<span class="st">"Beta"</span>, <span class="dv">0</span><span class="sc">:</span>(p<span class="dv">-1</span>)), <span class="st">"Time"</span>)</span>
+<span id="cb6-189"><a href="#cb6-189" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(df)</span>
+<span id="cb6-190"><a href="#cb6-190" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-191"><a href="#cb6-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-192"><a href="#cb6-192" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 6. Execution &amp; Visualization ---</span></span>
+<span id="cb6-193"><a href="#cb6-193" aria-hidden="true" tabindex="-1"></a>p_val <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb6-194"><a href="#cb6-194" aria-hidden="true" tabindex="-1"></a>n_val <span class="ot">&lt;-</span> <span class="dv">5000</span></span>
+<span id="cb6-195"><a href="#cb6-195" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">generate_data</span>(<span class="at">n =</span> n_val, <span class="at">p =</span> p_val)</span>
+<span id="cb6-196"><a href="#cb6-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-197"><a href="#cb6-197" aria-hidden="true" tabindex="-1"></a>trace_sgd <span class="ot">&lt;-</span> <span class="fu">run_sgd</span>(data<span class="sc">$</span>X, data<span class="sc">$</span>y, <span class="at">batch_size =</span> <span class="dv">50</span>, <span class="at">lr =</span> <span class="fl">0.0001</span>, <span class="at">max_iter =</span> <span class="dv">10000</span>)</span>
+<span id="cb6-198"><a href="#cb6-198" aria-hidden="true" tabindex="-1"></a>trace_sgd<span class="sc">$</span>Method <span class="ot">&lt;-</span> <span class="st">"1. Standard SGD"</span></span>
+<span id="cb6-199"><a href="#cb6-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-200"><a href="#cb6-200" aria-hidden="true" tabindex="-1"></a>trace_diag <span class="ot">&lt;-</span> <span class="fu">run_diag_ngd</span>(data<span class="sc">$</span>X, data<span class="sc">$</span>y, <span class="at">batch_size =</span> <span class="dv">50</span>, <span class="at">lr =</span> <span class="fl">0.01</span>, <span class="at">max_iter =</span> <span class="dv">3500</span>)</span>
+<span id="cb6-201"><a href="#cb6-201" aria-hidden="true" tabindex="-1"></a>trace_diag<span class="sc">$</span>Method <span class="ot">&lt;-</span> <span class="st">"2. Diagonal NSGD"</span></span>
+<span id="cb6-202"><a href="#cb6-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-203"><a href="#cb6-203" aria-hidden="true" tabindex="-1"></a>trace_full <span class="ot">&lt;-</span> <span class="fu">run_full_ngd</span>(data<span class="sc">$</span>X, data<span class="sc">$</span>y, <span class="at">batch_size =</span> <span class="dv">50</span>, <span class="at">lr =</span> <span class="fl">0.05</span>, <span class="at">max_iter =</span> <span class="dv">1500</span>)</span>
+<span id="cb6-204"><a href="#cb6-204" aria-hidden="true" tabindex="-1"></a>trace_full<span class="sc">$</span>Method <span class="ot">&lt;-</span> <span class="st">"3. Full-Matrix NSGD"</span></span>
+<span id="cb6-205"><a href="#cb6-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-206"><a href="#cb6-206" aria-hidden="true" tabindex="-1"></a>trace_resample <span class="ot">&lt;-</span> <span class="fu">run_resampling_ngd</span>(data<span class="sc">$</span>X, data<span class="sc">$</span>y, <span class="at">batch_size =</span> <span class="dv">50</span>, <span class="at">lr =</span> <span class="fl">0.005</span>, <span class="at">max_iter =</span> <span class="dv">8000</span>)</span>
+<span id="cb6-207"><a href="#cb6-207" aria-hidden="true" tabindex="-1"></a>trace_resample<span class="sc">$</span>Method <span class="ot">&lt;-</span> <span class="st">"4. Re-sampling NSGD"</span></span>
 <span id="cb6-208"><a href="#cb6-208" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-209"><a href="#cb6-209" aria-hidden="true" tabindex="-1"></a><span class="co"># Reorder factor levels so active betas appear first in the legend</span></span>
-<span id="cb6-210"><a href="#cb6-210" aria-hidden="true" tabindex="-1"></a>plot_data<span class="sc">$</span>Parameter <span class="ot">&lt;-</span> <span class="fu">factor</span>(plot_data<span class="sc">$</span>Parameter, <span class="at">levels =</span> plot_params)</span>
-<span id="cb6-211"><a href="#cb6-211" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-212"><a href="#cb6-212" aria-hidden="true" tabindex="-1"></a>true_vals <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb6-213"><a href="#cb6-213" aria-hidden="true" tabindex="-1"></a>  <span class="at">Parameter =</span> <span class="fu">factor</span>(plot_params, <span class="at">levels =</span> plot_params), </span>
-<span id="cb6-214"><a href="#cb6-214" aria-hidden="true" tabindex="-1"></a>  <span class="at">TrueValue =</span> <span class="fu">c</span>(data<span class="sc">$</span>true_beta[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>], <span class="fu">rep</span>(<span class="dv">0</span>, <span class="dv">10</span>))</span>
-<span id="cb6-215"><a href="#cb6-215" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-216"><a href="#cb6-216" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-217"><a href="#cb6-217" aria-hidden="true" tabindex="-1"></a><span class="co"># Assign distinct colors to the active parameters, and grey to the 10 zero parameters</span></span>
-<span id="cb6-218"><a href="#cb6-218" aria-hidden="true" tabindex="-1"></a>color_mapping <span class="ot">&lt;-</span> <span class="fu">setNames</span>(</span>
-<span id="cb6-219"><a href="#cb6-219" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(scales<span class="sc">::</span><span class="fu">hue_pal</span>()(<span class="dv">4</span>), <span class="fu">rep</span>(<span class="st">"#b3b3b3"</span>, <span class="dv">10</span>)),</span>
-<span id="cb6-220"><a href="#cb6-220" aria-hidden="true" tabindex="-1"></a>  plot_params</span>
-<span id="cb6-221"><a href="#cb6-221" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-209"><a href="#cb6-209" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 7. Plotting Setup ---</span></span>
+<span id="cb6-210"><a href="#cb6-210" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the active and inactive parameters to plot</span></span>
+<span id="cb6-211"><a href="#cb6-211" aria-hidden="true" tabindex="-1"></a>active_params <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"Beta"</span>, <span class="dv">0</span><span class="sc">:</span><span class="dv">3</span>)</span>
+<span id="cb6-212"><a href="#cb6-212" aria-hidden="true" tabindex="-1"></a>zero_params <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"Beta"</span>, <span class="dv">4</span><span class="sc">:</span><span class="dv">13</span>)</span>
+<span id="cb6-213"><a href="#cb6-213" aria-hidden="true" tabindex="-1"></a>plot_params <span class="ot">&lt;-</span> <span class="fu">c</span>(active_params, zero_params)</span>
+<span id="cb6-214"><a href="#cb6-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-215"><a href="#cb6-215" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine and shape for plotting</span></span>
+<span id="cb6-216"><a href="#cb6-216" aria-hidden="true" tabindex="-1"></a>plot_data <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(trace_sgd, trace_diag, trace_full, trace_resample) <span class="sc">%&gt;%</span></span>
+<span id="cb6-217"><a href="#cb6-217" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"Beta"</span>), <span class="at">names_to =</span> <span class="st">"Parameter"</span>, <span class="at">values_to =</span> <span class="st">"Value"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-218"><a href="#cb6-218" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Parameter <span class="sc">%in%</span> plot_params)</span>
+<span id="cb6-219"><a href="#cb6-219" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-220"><a href="#cb6-220" aria-hidden="true" tabindex="-1"></a><span class="co"># Reorder factor levels so active betas appear first in the legend</span></span>
+<span id="cb6-221"><a href="#cb6-221" aria-hidden="true" tabindex="-1"></a>plot_data<span class="sc">$</span>Parameter <span class="ot">&lt;-</span> <span class="fu">factor</span>(plot_data<span class="sc">$</span>Parameter, <span class="at">levels =</span> plot_params)</span>
 <span id="cb6-222"><a href="#cb6-222" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-223"><a href="#cb6-223" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(plot_data, <span class="fu">aes</span>(<span class="at">x =</span> Time, <span class="at">y =</span> Value, <span class="at">color =</span> Parameter, <span class="at">group =</span> Parameter)) <span class="sc">+</span></span>
-<span id="cb6-224"><a href="#cb6-224" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">0.8</span>, <span class="at">alpha =</span> <span class="fl">0.85</span>) <span class="sc">+</span></span>
-<span id="cb6-225"><a href="#cb6-225" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> <span class="fu">filter</span>(plot_data, Method <span class="sc">==</span> <span class="st">"1. Naive NR"</span>), <span class="at">size =</span> <span class="fl">1.5</span>) <span class="sc">+</span></span>
-<span id="cb6-226"><a href="#cb6-226" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">data =</span> true_vals, <span class="fu">aes</span>(<span class="at">yintercept =</span> TrueValue, <span class="at">color =</span> Parameter), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
-<span id="cb6-227"><a href="#cb6-227" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>Method, <span class="at">scales =</span> <span class="st">"free_x"</span>) <span class="sc">+</span></span>
-<span id="cb6-228"><a href="#cb6-228" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> color_mapping) <span class="sc">+</span></span>
-<span id="cb6-229"><a href="#cb6-229" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span></span>
-<span id="cb6-230"><a href="#cb6-230" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb6-231"><a href="#cb6-231" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.spacing.x =</span> <span class="fu">unit</span>(<span class="fl">1.5</span>, <span class="st">"lines"</span>),      <span class="co"># Increase gap between horizontal plots</span></span>
-<span id="cb6-232"><a href="#cb6-232" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"right"</span>,</span>
-<span id="cb6-233"><a href="#cb6-233" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.key.size =</span> <span class="fu">unit</span>(<span class="fl">0.4</span>, <span class="st">"cm"</span>),         <span class="co"># Shrink legend size</span></span>
-<span id="cb6-234"><a href="#cb6-234" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">8</span>),</span>
-<span id="cb6-235"><a href="#cb6-235" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>)</span>
-<span id="cb6-236"><a href="#cb6-236" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb6-237"><a href="#cb6-237" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="fu">paste0</span>(<span class="st">"Optimization Trajectories by Time (n="</span>, n_val, <span class="st">", p="</span>, p_val, <span class="st">")"</span>),</span>
-<span id="cb6-238"><a href="#cb6-238" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Wall-Clock Time (Seconds)"</span>,</span>
-<span id="cb6-239"><a href="#cb6-239" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Parameter Value"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-223"><a href="#cb6-223" aria-hidden="true" tabindex="-1"></a>true_vals <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb6-224"><a href="#cb6-224" aria-hidden="true" tabindex="-1"></a>  <span class="at">Parameter =</span> <span class="fu">factor</span>(plot_params, <span class="at">levels =</span> plot_params), </span>
+<span id="cb6-225"><a href="#cb6-225" aria-hidden="true" tabindex="-1"></a>  <span class="at">TrueValue =</span> <span class="fu">c</span>(data<span class="sc">$</span>true_beta[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>], <span class="fu">rep</span>(<span class="dv">0</span>, <span class="dv">10</span>))</span>
+<span id="cb6-226"><a href="#cb6-226" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-227"><a href="#cb6-227" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-228"><a href="#cb6-228" aria-hidden="true" tabindex="-1"></a><span class="co"># Assign distinct colors to the active parameters, and grey to the 10 zero parameters</span></span>
+<span id="cb6-229"><a href="#cb6-229" aria-hidden="true" tabindex="-1"></a>color_mapping <span class="ot">&lt;-</span> <span class="fu">setNames</span>(</span>
+<span id="cb6-230"><a href="#cb6-230" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(scales<span class="sc">::</span><span class="fu">hue_pal</span>()(<span class="dv">4</span>), <span class="fu">rep</span>(<span class="st">"#b3b3b3"</span>, <span class="dv">10</span>)),</span>
+<span id="cb6-231"><a href="#cb6-231" aria-hidden="true" tabindex="-1"></a>  plot_params</span>
+<span id="cb6-232"><a href="#cb6-232" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-233"><a href="#cb6-233" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-234"><a href="#cb6-234" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(plot_data, <span class="fu">aes</span>(<span class="at">x =</span> Time, <span class="at">y =</span> Value, <span class="at">color =</span> Parameter, <span class="at">group =</span> Parameter)) <span class="sc">+</span></span>
+<span id="cb6-235"><a href="#cb6-235" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">0.8</span>, <span class="at">alpha =</span> <span class="fl">0.85</span>) <span class="sc">+</span></span>
+<span id="cb6-236"><a href="#cb6-236" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">data =</span> true_vals, <span class="fu">aes</span>(<span class="at">yintercept =</span> TrueValue, <span class="at">color =</span> Parameter), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb6-237"><a href="#cb6-237" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>Method, <span class="at">scales =</span> <span class="st">"free_x"</span>) <span class="sc">+</span></span>
+<span id="cb6-238"><a href="#cb6-238" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> color_mapping) <span class="sc">+</span></span>
+<span id="cb6-239"><a href="#cb6-239" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span></span>
+<span id="cb6-240"><a href="#cb6-240" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb6-241"><a href="#cb6-241" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.spacing.x =</span> <span class="fu">unit</span>(<span class="fl">1.5</span>, <span class="st">"lines"</span>),      </span>
+<span id="cb6-242"><a href="#cb6-242" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"right"</span>,</span>
+<span id="cb6-243"><a href="#cb6-243" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.key.size =</span> <span class="fu">unit</span>(<span class="fl">0.4</span>, <span class="st">"cm"</span>),         </span>
+<span id="cb6-244"><a href="#cb6-244" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">8</span>),</span>
+<span id="cb6-245"><a href="#cb6-245" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>)</span>
+<span id="cb6-246"><a href="#cb6-246" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb6-247"><a href="#cb6-247" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="fu">paste0</span>(<span class="st">"Stochastic Optimization Trajectories (n="</span>, n_val, <span class="st">", p="</span>, p_val, <span class="st">")"</span>),</span>
+<span id="cb6-248"><a href="#cb6-248" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Wall-Clock Time (Seconds)"</span>,</span>
+<span id="cb6-249"><a href="#cb6-249" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Parameter Value"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div id="fig-poisson-optimization-time" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -2047,12 +2074,18 @@ v_j^{(t)} = \beta_2 v_j^{(t-1)} + (1 - \beta_2) (U_j^{(t)})^2
 <img src="mle_files/figure-html/fig-poisson-optimization-time-1.png" class="img-fluid figure-img" width="576">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-poisson-optimization-time-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;6.8: Informal demonstration of parameter traces over wall-clock execution time for four optimization strategies (<span class="math inline">\(n=5000, p=100\)</span>). Dashed lines represent the true parameter values. Inactive parameters (Beta4 to Beta13) are plotted in grey to demonstrate shrinkage and noise around zero.
+Figure&nbsp;6.8: Informal demonstration of parameter traces over wall-clock execution time for four stochastic optimization strategies (<span class="math inline">\(n=5000, p=100\)</span>). Dashed lines represent the true parameter values. Inactive parameters (Beta4 to Beta13) are plotted in grey to demonstrate shrinkage and noise around zero.
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
+</section>
+<section id="interpretation-of-convergence-behaviors" class="level4" data-number="6.6.6.4">
+<h4 data-number="6.6.6.4" class="anchored" data-anchor-id="interpretation-of-convergence-behaviors"><span class="header-section-number">6.6.6.4</span> Interpretation of Convergence Behaviors</h4>
+<p>The visual results clearly underscore the weaknesses of uncorrected gradients in highly collinear spaces. <strong>Standard SGD</strong> requires a severely restricted learning rate to prevent divergence, causing the parameters to drift aimlessly; the inactive coefficients (in grey) completely fail to shrink back to zero within the allotted time limit.</p>
+<p>In contrast, incorporating the Fisher Information corrects for the warped geometry. <strong>Diagonal NSGD</strong> rapidly pushes the grey noise parameters toward zero, though it chatters slightly around the true active values due to ignoring the off-diagonal correlations. The <strong>Full-Matrix NSGD</strong> provides the most direct, stable path to convergence with minimal variance, but takes noticeably longer per step to invert the full <span class="math inline">\(100 \times 100\)</span> matrix. Finally, the <strong>Re-sampling NSGD</strong> demonstrates that we can successfully approximate the diagonal Fisher geometrically by injecting simulated model noise, achieving shrinkage comparable to the analytical diagonal method despite requiring a slightly more conservative learning rate to manage the Monte Carlo variance.</p>
+</section>
 </section>
 </section>
 <section id="appendix-derivation-of-score-and-information-in-poisson-regression" class="level2" data-number="6.7">
@@ -2103,7 +2136,7 @@ J(\boldsymbol{\beta}) = \mathbf{X}^\top \mathbf{W}(\boldsymbol{\beta}) \mathbf{X
 \]</span></p></li>
 </ol>
 <div id="rem-canonical-simplicity" class="proof remark">
-<p><span class="proof-title"><em>Remark 6.5</em> (Canonical Link Advantage). </span>Notice that because we used the canonical link (<span class="math inline">\(\log \lambda = \eta\)</span>), the second derivative of the log-likelihood (the Hessian) does not depend on the observed data <span class="math inline">\(y_i\)</span>. It only depends on the predicted means <span class="math inline">\(\lambda_i(\boldsymbol{\beta})\)</span>. Consequently, the <strong>Observed Information</strong> and the <strong>Expected Information</strong> are identical: <span class="math display">\[
+<p><span class="proof-title"><em>Remark 6.3</em> (Canonical Link Advantage). </span>Notice that because we used the canonical link (<span class="math inline">\(\log \lambda = \eta\)</span>), the second derivative of the log-likelihood (the Hessian) does not depend on the observed data <span class="math inline">\(y_i\)</span>. It only depends on the predicted means <span class="math inline">\(\lambda_i(\boldsymbol{\beta})\)</span>. Consequently, the <strong>Observed Information</strong> and the <strong>Expected Information</strong> are identical: <span class="math display">\[
 J(\boldsymbol{\beta}) = \mathcal{I}(\boldsymbol{\beta})
 \]</span> This is a unique property of canonical links in Generalized Linear Models.</p>
 </div>

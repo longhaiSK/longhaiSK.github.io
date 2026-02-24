@@ -1992,65 +1992,41 @@ Algorithms like **RMSProp** and **Adam** avoid the $p \times p$ matrix entirely 
 
 
 
-::: {#rem-adam-interpretation}
-
-### Adam as Quasi-Newton
-From a statistical perspective, Adam can be viewed as an approximation of the Fisher Scoring algorithm. Instead of calculating the full expected information matrix and its inverse, Adam uses the moving average of squared gradients to estimate the diagonal entries of the information matrix in an online fashion. This allows the algorithm to adapt to the local geometry of the log-likelihood surface at a minimal $O(p)$ computational cost.
-
-:::
-
-::: {#rem-natural-gradient}
-
-### Natural Gradient and K-FAC
-The most sophisticated application of this theory is **Natural Gradient Descent**. To handle large $p$, methods like **K-FAC (Kronecker-factored Approximate Curvature)** approximate the Fisher Information Matrix as a product of smaller matrices. This allows for a more "Hessian-like" update that accounts for correlations between parameters while remaining computationally efficient.
-
-:::
-
-### Example: High-diemensional Poisson Regression
-
+### Example: The Poisson Regression Problem and Experimental Setup
 
 In Poisson regression, we model count data $y_i \in \{0, 1, 2, \dots\}$ given a vector of covariates $\mathbf{x}_i \in \mathbb{R}^p$. Assuming $y_i \sim \text{Poisson}(\lambda_i)$, the canonical log-link function connects the expected mean to the linear predictor:
 $$
 \lambda_i = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})
 $$
-The goal of optimization is to find the parameter vector $\boldsymbol{\beta}$ that minimizes the negative log-likelihood. The gradient of this objective is $\mathbf{g} = \mathbf{X}^\top(\boldsymbol{\lambda} - \mathbf{y})$, and the true Fisher Information Matrix (FIM), which acts as the Hessian, is $\mathcal{I} = \mathbf{X}^\top \mathbf{W} \mathbf{X}$, where $\mathbf{W} = \text{diag}(\boldsymbol{\lambda})$.
+The goal of optimization is to find the parameter vector $\boldsymbol{\beta}$ that minimizes the negative log-likelihood. The true gradient of this objective is $\mathbf{g} = \mathbf{X}^\top(\boldsymbol{\lambda} - \mathbf{y})$, and the true Fisher Information Matrix (FIM), which acts as the Hessian, is $\mathcal{I} = \mathbf{X}^\top \text{diag}(\boldsymbol{\lambda}) \mathbf{X}$.
 
 #### Data Generation Strategy
 
 To test these algorithms in a realistic, challenging environment, we simulate a high-dimensional dataset with significant collinearity:
 * **Dimensions:** $n = 5000$ observations and $p = 100$ features (plus an intercept).
-* **Collinearity:** The covariates $\mathbf{X}$ are drawn from a Multivariate Normal distribution where every pair of variables has a high correlation of $\rho = 0.8$. This ill-conditioned design matrix makes the curvature of the optimization landscape highly skewed, punishing methods that ignore the off-diagonal elements of the Fisher Information Matrix.
-* **True Parameters:** The underlying ground-truth vector $\boldsymbol{\beta}^*$ is sparse. Only the intercept and the first three predictors are active: $\boldsymbol{\beta}^* = (0.5, -0.5, 0.3, -0.2, 0, \dots, 0)^\top$. 
+* **Collinearity:** The covariates $\mathbf{X}$ are drawn from a Multivariate Normal distribution where every pair of variables has a high correlation of $\rho = 0.8$. This ill-conditioned design matrix makes the curvature of the optimization landscape highly skewed, punishing methods that ignore parameter correlations.
+* **True Parameters:** The underlying ground-truth vector $\boldsymbol{\beta}^*$ is sparse. Only the intercept and the first three predictors are active, with alternating signs and magnitudes: $\boldsymbol{\beta}^* = (0.5, -1.0, -0.5, 1.0, 0, \dots, 0)^\top$. The remaining 97 parameters are identically zero. 
 
-#### Algorithm Tuning and Hyperparameters
+#### Algorithm Comparison and Hyperparameters
 
-All stochastic methods attempt to approximate the optimal Newton step $\boldsymbol{\beta}^{(t+1)} = \boldsymbol{\beta}^{(t)} - \eta \mathcal{H}^{-1} \mathbf{g}$. They are compared against a baseline deterministic Newton-Raphson approach. The specific tuning parameters for this experiment are:
+All stochastic methods attempt to approximate the optimal update step $\boldsymbol{\beta}^{(t+1)} = \boldsymbol{\beta}^{(t)} - \eta \mathcal{H}^{-1} \mathbf{g}$ using a mini-batch of data. They differ fundamentally in how they compute the curvature matrix $\mathcal{H}$, whether they leverage the model's statistical properties, and if they rely on simulated data. 
 
-1. **Naive Newton-Raphson (NR)**
-    * **Mechanism:** Computes the exact gradient and the exact full $p \times p$ FIM using the entire dataset at every step. 
-    * **Curvature ($\mathcal{H}$):** $\mathcal{I}_{full} = \mathbf{X}^\top \text{diag}(\boldsymbol{\lambda}) \mathbf{X}$.
-    * **Settings:** Full batch ($n=5000$), Step size = 1.0 (standard Newton step), Max iterations = 10.
-2. **Diagonal Natural SGD (DSGD)**
-    * **Mechanism:** Abandons the off-diagonal elements of the FIM to achieve $\mathcal{O}(p)$ inversion speed. It computes only the diagonal elements using a mini-batch and smooths them via an Exponential Moving Average (EMA).
-    * **Curvature ($\mathcal{H}$):** $\mathcal{H}_{jj} = \sum_{i \in batch} x_{ij}^2 \lambda_i$.
-    * **Settings:** Batch size = 64, Learning Rate ($\eta$) = 0.05, EMA decay ($\rho$) = 0.95, Max iterations = 2500.
-3. **Full Matrix Natural SGD (F-NSGD)**
-    * **Mechanism:** Computes the exact FIM for a mini-batch and uses EMA to smooth it over time. It provides excellent directional guidance but requires a massive $\mathcal{O}(p^3)$ matrix inversion at every step.
-    * **Curvature ($\mathcal{H}$):** $\mathcal{I}_{batch} = \mathbf{X}_b^\top \text{diag}(\boldsymbol{\lambda}_b) \mathbf{X}_b$.
-    * **Settings:** Batch size = 64, Learning Rate ($\eta$) = 0.05, EMA decay ($\rho$) = 0.95, Max iterations = 1000 (fewer iterations due to extreme computational bottleneck per step).
-4. **Re-sampling Natural SGD (RS-NSGD)**
-    * **Mechanism:** Bypasses analytical derivatives for the FIM. It uses the identity $\mathcal{I} = \text{Cov}(\mathbf{g})$ by simulating "fake" target data $\mathbf{y}_{sim} \sim \text{Poisson}(\boldsymbol{\lambda})$ from the current model. It computes a simulated gradient $\mathbf{g}_{sim}$ and uses $\mathbf{g}_{sim}^2$ as a Monte Carlo estimate of the diagonal curvature.
-    * **Curvature ($\mathcal{H}$):** $\mathcal{H}_{jj} \approx g_{sim, j}^2$.
-    * **Settings:** Batch size = 64, Learning Rate ($\eta$) = 0.05, EMA decay ($\rho$) = 0.95, Max iterations = 2500.
+To stabilize the variance across iterations, the Natural SGD methods utilize an Exponential Moving Average (EMA) with a decay rate of $\rho = 0.95$ to smooth their Fisher Information estimates over time.
 
-### Optimization Trajectories by Wall-Clock Time
+| Method | Gradient ($\mathbf{g}$) Computation | Fisher/Curvature ($\mathcal{H}$) Computation | Re-sampling Used? | Tuning Settings |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Standard SGD** | Analytical on real data: $\mathbf{X}_b^\top(\boldsymbol{\lambda}_b - \mathbf{y}_b)$ | None (Identity Matrix $\mathbf{I}$) | No | $\eta = 0.0001$, Batch = 50, Iter = 10k |
+| **2. Diagonal NSGD** | Analytical on real data: $\mathbf{X}_b^\top(\boldsymbol{\lambda}_b - \mathbf{y}_b)$ | Analytical Diagonal: $\mathcal{H}_{jj} = \sum_{i \in b} x_{ij}^2 \lambda_i$ | No | $\eta = 0.01$, Batch = 50, Iter = 3.5k |
+| **3. Full-Matrix NSGD** | Analytical on real data: $\mathbf{X}_b^\top(\boldsymbol{\lambda}_b - \mathbf{y}_b)$ | Analytical Full FIM: $\mathbf{X}_b^\top \text{diag}(\boldsymbol{\lambda}_b) \mathbf{X}_b$ | No | $\eta = 0.05$, Batch = 50, Iter = 1.5k |
+| **4. Re-sampling NSGD** | Analytical on real data: $\mathbf{X}_b^\top(\boldsymbol{\lambda}_b - \mathbf{y}_b)$ | Monte Carlo Diagonal: $\mathcal{H}_{jj} \approx g_{sim, j}^2$ | Yes ($y_{sim} \sim \text{Poisson}(\boldsymbol{\lambda})$) | $\eta = 0.005$, Batch = 50, Iter = 8k |
 
-By plotting the parameter estimates against actual execution time (in seconds) rather than iteration count, we visualize the fundamental trade-off in high-dimensional optimization: the cost of accurate curvature calculation versus the speed of frequent, noisy updates.
+#### Optimization Trajectories by Wall-Clock Time
 
+By plotting the parameter estimates against actual execution time (in seconds) rather than iteration count, we visualize the fundamental trade-off in high-dimensional optimization: the cost of accurate curvature calculation versus the speed of frequent updates.
 
 ```{r}
 #| label: fig-poisson-optimization-time
-#| fig-cap: "Informal demonstration of parameter traces over wall-clock execution time for four optimization strategies ($n=5000, p=100$). Dashed lines represent the true parameter values. Inactive parameters (Beta4 to Beta13) are plotted in grey to demonstrate shrinkage and noise around zero."
+#| fig-cap: "Informal demonstration of parameter traces over wall-clock execution time for four stochastic optimization strategies ($n=5000, p=100$). Dashed lines represent the true parameter values. Inactive parameters (Beta4 to Beta13) are plotted in grey to demonstrate shrinkage and noise around zero."
 #| warning: false
 #| message: false
 
@@ -2074,27 +2050,39 @@ generate_data <- function(n = 5000, p = 10, seed = 123) {
   list(X = X, y = y, true_beta = true_beta)
 }
 
-# --- 2. Naive Newton-Raphson (Full Batch) ---
-run_nr <- function(X, y, max_iter = 10) {
-  p <- ncol(X)
+# --- 2. Standard SGD (No Curvature Correction) ---
+run_sgd <- function(X, y, batch_size = 50, lr = 0.0001, max_iter = 10000) {
+  n <- nrow(X); p <- ncol(X)
   beta <- rep(0, p)
-  beta_trace <- matrix(NA, nrow = 0, ncol = p + 1)
   
+  beta_trace <- matrix(NA, nrow = 0, ncol = p + 1)
   start_time <- Sys.time()
   beta_trace <- rbind(beta_trace, c(beta, 0))
   
-  for (i in 1:max_iter) {
-    lam <- exp(X %*% beta); lam <- pmin(lam, 1e10)
-    g <- as.vector(t(X) %*% (lam - y))
+  global_step <- 0; idx <- sample(n); current_idx_ptr <- 1
+  
+  while (global_step < max_iter) {
+    global_step <- global_step + 1
     
-    H <- t(X * as.vector(lam)) %*% X 
-    step <- tryCatch(solve(H, g), error = function(e) g * 0.01)
-    beta <- beta - step*0.5
+    if (current_idx_ptr + batch_size > n) {
+      idx <- sample(n); current_idx_ptr <- 1
+    }
     
-    cur_time <- as.numeric(difftime(Sys.time(), start_time, units = "secs"))
-    beta_trace <- rbind(beta_trace, c(beta, cur_time))
+    batch_indices <- idx[current_idx_ptr : (current_idx_ptr + batch_size - 1)]
+    current_idx_ptr <- current_idx_ptr + batch_size
     
-    if(max(abs(step)) < 1e-5) break
+    X_b <- X[batch_indices, , drop=FALSE]; y_b <- y[batch_indices]
+    
+    lam <- exp(X_b %*% beta); lam <- pmin(lam, 1e10)
+    g <- as.vector(t(X_b) %*% (lam - y_b))
+    
+    # Standard SGD step: No division by Fisher Info/Variance
+    beta <- beta - lr * g
+    
+    if (global_step %% 50 == 0) {
+      cur_time <- as.numeric(difftime(Sys.time(), start_time, units = "secs"))
+      beta_trace <- rbind(beta_trace, c(beta, cur_time))
+    }
   }
   
   df <- as.data.frame(beta_trace)
@@ -2189,7 +2177,7 @@ run_full_ngd <- function(X, y, batch_size = 50, lr = 0.05, max_iter = 1500) {
 }
 
 # --- 5. Re-sampling Natural SGD (RS-NSGD) ---
-run_resampling_ngd <- function(X, y, batch_size = 32, lr = 0.005, max_iter = 5000) {
+run_resampling_ngd <- function(X, y, batch_size = 50, lr = 0.005, max_iter = 8000) {
   n <- nrow(X); p <- ncol(X)
   beta <- rep(0, p); S_diag <- rep(1, p) 
   rho <- 0.95; epsilon <- 1e-4
@@ -2235,11 +2223,11 @@ run_resampling_ngd <- function(X, y, batch_size = 32, lr = 0.005, max_iter = 500
 
 # --- 6. Execution & Visualization ---
 p_val <- 100
-n_val <- 1000
+n_val <- 5000
 data <- generate_data(n = n_val, p = p_val)
 
-trace_nr <- run_nr(data$X, data$y, max_iter = 10)
-trace_nr$Method <- "1. Naive NR"
+trace_sgd <- run_sgd(data$X, data$y, batch_size = 50, lr = 0.0001, max_iter = 10000)
+trace_sgd$Method <- "1. Standard SGD"
 
 trace_diag <- run_diag_ngd(data$X, data$y, batch_size = 50, lr = 0.01, max_iter = 3500)
 trace_diag$Method <- "2. Diagonal NSGD"
@@ -2247,8 +2235,7 @@ trace_diag$Method <- "2. Diagonal NSGD"
 trace_full <- run_full_ngd(data$X, data$y, batch_size = 50, lr = 0.05, max_iter = 1500)
 trace_full$Method <- "3. Full-Matrix NSGD"
 
-# Notice the very small learning rate (0.001) required for the re-sampling approach to converge stably
-trace_resample <- run_resampling_ngd(data$X, data$y, batch_size = 32, lr = 0.005, max_iter = 8000)
+trace_resample <- run_resampling_ngd(data$X, data$y, batch_size = 50, lr = 0.005, max_iter = 8000)
 trace_resample$Method <- "4. Re-sampling NSGD"
 
 # --- 7. Plotting Setup ---
@@ -2258,7 +2245,7 @@ zero_params <- paste0("Beta", 4:13)
 plot_params <- c(active_params, zero_params)
 
 # Combine and shape for plotting
-plot_data <- bind_rows(trace_nr, trace_diag, trace_full, trace_resample) %>%
+plot_data <- bind_rows(trace_sgd, trace_diag, trace_full, trace_resample) %>%
   pivot_longer(cols = starts_with("Beta"), names_to = "Parameter", values_to = "Value") %>%
   filter(Parameter %in% plot_params)
 
@@ -2278,22 +2265,27 @@ color_mapping <- setNames(
 
 ggplot(plot_data, aes(x = Time, y = Value, color = Parameter, group = Parameter)) +
   geom_line(linewidth = 0.8, alpha = 0.85) +
-  geom_point(data = filter(plot_data, Method == "1. Naive NR"), size = 1.5) +
   geom_hline(data = true_vals, aes(yintercept = TrueValue, color = Parameter), linetype = "dashed", alpha = 0.7) +
   facet_wrap(~Method, scales = "free_x") +
   scale_color_manual(values = color_mapping) +
   theme_minimal(base_size = 13) +
   theme(
-    panel.spacing.x = unit(1.5, "lines"),      # Increase gap between horizontal plots
+    panel.spacing.x = unit(1.5, "lines"),      
     legend.position = "right",
-    legend.key.size = unit(0.4, "cm"),         # Shrink legend size
+    legend.key.size = unit(0.4, "cm"),         
     legend.text = element_text(size = 8),
     legend.title = element_text(size = 10)
   ) +
-  labs(title = paste0("Optimization Trajectories by Time (n=", n_val, ", p=", p_val, ")"),
+  labs(title = paste0("Stochastic Optimization Trajectories (n=", n_val, ", p=", p_val, ")"),
        x = "Wall-Clock Time (Seconds)",
        y = "Parameter Value")
 ```
+
+#### Interpretation of Convergence Behaviors
+
+The visual results clearly underscore the weaknesses of uncorrected gradients in highly collinear spaces. **Standard SGD** requires a severely restricted learning rate to prevent divergence, causing the parameters to drift aimlessly; the inactive coefficients (in grey) completely fail to shrink back to zero within the allotted time limit. 
+
+In contrast, incorporating the Fisher Information corrects for the warped geometry. **Diagonal NSGD** rapidly pushes the grey noise parameters toward zero, though it chatters slightly around the true active values due to ignoring the off-diagonal correlations. The **Full-Matrix NSGD** provides the most direct, stable path to convergence with minimal variance, but takes noticeably longer per step to invert the full $100 \times 100$ matrix. Finally, the **Re-sampling NSGD** demonstrates that we can successfully approximate the diagonal Fisher geometrically by injecting simulated model noise, achieving shrinkage comparable to the analytical diagonal method despite requiring a slightly more conservative learning rate to manage the Monte Carlo variance.
 
 ## Appendix: Derivation of Score and Information in Poisson Regression
 
