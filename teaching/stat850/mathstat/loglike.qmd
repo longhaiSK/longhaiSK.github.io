@@ -1212,31 +1212,162 @@ Consider a sample $X_1, \dots, X_n \overset{iid}{\sim} N(\theta, \theta^2)$. Thi
    The identity holds, demonstrating that the theorem correctly relates the moments even when the sufficient statistics are "mixed" by the parameter constraints.
 :::
 
-## Methods of Moment Matching for Estimating Parameters in Exponential Families
+### Maximum Likelihood and Moment Matching Estimation Scheme
 
-::: {#def-moment-matching-canonical}
-### Maximum Likelihood via Moment Matching
-Let $\mathbf{X}_1, \dots, \mathbf{X}_n$ be an independent sample from an exponential family in canonical form. The log-likelihood function is proportional to:
+For a multiparameter exponential family, the inner product $\boldsymbol{\eta}^\top \mathbf{T}(\mathbf{y})$ can be written explicitly as a sum over the $p$ components of the canonical parameter and sufficient statistic vectors: $\sum_{j=1}^p \eta_j T_j(\mathbf{y})$. 
 
+Given a sample of data $\mathbf{y}$, the log-likelihood function parameterized by the canonical parameters $\boldsymbol{\eta}$ takes the explicit form:
 $$
-\ell(\boldsymbol{\eta}) = \sum_{i=1}^n \boldsymbol{\eta}^\top \mathbf{T}(\mathbf{X}_i) - n A(\boldsymbol{\eta})
-$$
-
-Taking the gradient with respect to the parameter vector $\boldsymbol{\eta}$ and setting it to zero yields the score equation:
-
-$$
-\nabla \ell(\boldsymbol{\eta}) = \sum_{i=1}^n \mathbf{T}(\mathbf{X}_i) - n \nabla A(\boldsymbol{\eta}) = \mathbf{0}
+\ell(\boldsymbol{\eta}; \mathbf{y}) = \sum_{j=1}^p \eta_j T_j(\mathbf{y}) - A(\boldsymbol{\eta}) + h(\mathbf{y})
 $$
 
-Substituting the first moment identity $E[\mathbf{T}(\mathbf{X})] = \nabla A(\boldsymbol{\eta})$ from the Cumulant Generating Theorem, we obtain the fundamental moment matching condition:
+Taking the partial derivative of the log-likelihood with respect to each canonical parameter $\eta_j$ yields the components of the score function. Setting these to zero gives the Maximum Likelihood Estimator (MLE) equations:
+$$
+\frac{\partial}{\partial \eta_j} \ell(\boldsymbol{\eta}; \mathbf{y}) = T_j(\mathbf{y}) - \frac{\partial A(\boldsymbol{\eta})}{\partial \eta_j} = 0
+$$
 
+Therefore, finding the MLE in a canonical exponential family is exactly equivalent to solving the system of equations formed by equating each observed sufficient statistic directly to the corresponding partial derivative of the log-partition function:
 $$
-\frac{1}{n} \sum_{i=1}^n \mathbf{T}(\mathbf{X}_i) = E[\mathbf{T}(\mathbf{X})]
+T_j(\mathbf{y}) = \frac{\partial A(\boldsymbol{\eta})}{\partial \eta_j} \quad \text{for } j = 1, \dots, p
 $$
 
-Thus, the method of moment matching in a canonical exponential family simplifies to equating the empirical sample average of each sufficient statistic to its theoretical expected value:
+This establishes a powerful estimating scheme: the maximum likelihood estimates for the canonical parameters are found by constructing a system of equations where the observed sufficient statistics are matched to their theoretical expectations (the derivatives of the log-partition function).
 
+#### Example 1: Poisson Distribution with a Common Mean
+
+Consider an independent and identically distributed (i.i.d.) sample $y_1, y_2, \dots, y_n \sim \text{Poisson}(\lambda)$. The joint probability mass function can be written in exponential family form:
 $$
-\bar{T}_j = \frac{\partial A(\boldsymbol{\eta})}{\partial \eta_j} \quad \text{for } j = 1, \dots, k
+f(\mathbf{y}; \lambda) = \prod_{i=1}^n \frac{\lambda^{y_i} e^{-\lambda}}{y_i!} = \exp\left( \log(\lambda) \sum_{i=1}^n y_i - n\lambda - \sum_{i=1}^n \log(y_i!) \right)
 $$
-:::
+
+From this expression, we can identify the components of the canonical exponential family:
+
+* **Canonical parameter:** There is a single parameter ($p=1$), $\eta = \log(\lambda)$. This implies $\lambda = e^\eta$.
+* **Sufficient statistic:** $T(\mathbf{y}) = \sum_{i=1}^n y_i$.
+* **Log-partition function:** Expressed in terms of the canonical parameter, $A(\eta) = n\lambda = n e^\eta$.
+
+Applying the estimating scheme, we first find the derivative of the log-partition function with respect to the canonical parameter:
+$$
+\frac{\partial A(\eta)}{\partial \eta} = n e^\eta
+$$
+
+We then set the observed sufficient statistic equal to this derivative:
+$$
+T(\mathbf{y}) = \frac{\partial A(\eta)}{\partial \eta}
+$$
+$$
+\sum_{i=1}^n y_i = n e^{\hat{\eta}}
+$$
+
+Substituting back $\hat{\lambda} = e^{\hat{\eta}}$, we arrive at the familiar estimator:
+$$
+\sum_{i=1}^n y_i = n \hat{\lambda} \implies \hat{\lambda} = \frac{1}{n}\sum_{i=1}^n y_i = \bar{y}
+$$
+
+### Example: Poisson Regression (MLE)
+
+
+
+```{r}
+#| label: fig-poisson-dgp
+#| fig-cap: "Simulated Poisson regression data ($n=100$) with a true negative slope parameter ($\\beta_1 = -0.6$). The red curve represents the true underlying expected mean function, $\\lambda(x) = \\exp(\\beta_0 + \\beta_1 x)$."
+#| warning: false
+#| message: false
+
+library(ggplot2)
+
+# 1. Set seed for reproducibility
+set.seed(42)
+
+# 2. Generate 100 observations for the predictor x
+n <- 100
+x <- runif(n, min = 0, max = 5)
+
+# 3. Define true parameters (negative slope)
+beta_0 <- 3.0
+beta_1 <- -0.6
+
+# 4. Calculate the true mean (lambda) using the log-link
+lambda <- exp(beta_0 + beta_1 * x)
+
+# 5. Generate the observed counts (y) from the Poisson distribution
+y <- rpois(n, lambda)
+
+# 6. Combine into a data frame
+sim_data <- data.frame(x = x, y = y)
+
+# 7. Plot the raw data and overlay the true generative mean curve
+ggplot(sim_data, aes(x = x, y = y)) +
+  geom_point(alpha = 0.8, size = 2.5, color = "#2c3e50") +
+  # stat_function draws the true theoretical curve, rather than fitting to the data
+  stat_function(fun = function(val) exp(beta_0 + beta_1 * val), 
+                color = "#e74c3c", 
+                linewidth = 1.2) +
+  labs(x = expression(Predictor~(x)),
+       y = expression(Observed~Counts~(y))) +
+  theme_minimal(base_size = 14) +
+  theme(panel.grid.minor = element_blank())
+```
+
+
+Consider a GLM where $Y_i \sim \text{Poisson}(\lambda_i)$. We use the canonical link $\log(\lambda_i(\boldsymbol{\beta})) = \mathbf{x}_i^\top \boldsymbol{\beta}$, which implies the mean function is $\lambda_i(\boldsymbol{\beta}) = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})$.
+
+1. **Exponential Family Representation**
+
+    We rewrite the total log-likelihood by grouping terms associated with each $\beta_j$:
+     
+    $$
+    \begin{aligned}
+    \ell(\boldsymbol{\beta}) &= \sum_{i=1}^n \left( y_i (\mathbf{x}_i^\top \boldsymbol{\beta}) - \lambda_i(\boldsymbol{\beta}) - \log(y_i!) \right) \\
+    &= \sum_{i=1}^n \sum_{j=0}^p y_i x_{ij} \beta_j - \sum_{i=1}^n \exp(\mathbf{x}_i^\top \boldsymbol{\beta}) - \sum_{i=1}^n \log(y_i!) \\
+    &= \sum_{j=0}^p \beta_j \underbrace{\left( \sum_{i=1}^n y_i x_{ij} \right)}_{T_j(\mathbf{y})} - \underbrace{\sum_{i=1}^n \lambda_i(\boldsymbol{\beta})}_{A(\boldsymbol{\beta})} + \text{const}
+    \end{aligned}
+    $$
+
+    This is a multivariate exponential family in **canonical form** where:
+
+    * **Natural Parameters:** The regression coefficients $\boldsymbol{\beta} = (\beta_0, \dots, \beta_p)^\top$.
+    * **Sufficient Statistics:** $\mathbf{T}(\mathbf{y}) = \mathbf{X}^\top \mathbf{y}$.
+    * **Log-Partition Function:** $A(\boldsymbol{\beta}) = \sum_{i=1}^n \lambda_i(\boldsymbol{\beta})$.
+
+2. **Derivations via Moments of Sufficient Statistics**
+
+    According to the properties of the canonical exponential family, the expected value of the sufficient statistic vector is exactly the gradient of the log-partition function: $E[\mathbf{T}(\mathbf{Y})] = \nabla A(\boldsymbol{\beta})$. 
+
+    To find $\nabla A(\boldsymbol{\beta})$, we first take the partial derivative of $A(\boldsymbol{\beta})$ with respect to an individual regression coefficient $\beta_j$. Applying the chain rule to the sum of exponentials:
+    $$
+    \begin{aligned}
+    \frac{\partial A(\boldsymbol{\beta})}{\partial \beta_j} &= \frac{\partial}{\partial \beta_j} \sum_{i=1}^n \exp\left( \mathbf{x}_i^\top \boldsymbol{\beta} \right) \\
+    &= \sum_{i=1}^n \exp\left( \mathbf{x}_i^\top \boldsymbol{\beta} \right) \cdot \frac{\partial}{\partial \beta_j} \left( \sum_{k=0}^p x_{ik} \beta_k \right) \\
+    &= \sum_{i=1}^n \lambda_i(\boldsymbol{\beta}) x_{ij}
+    \end{aligned}
+    $$
+    Collecting these partial derivatives for $j = 0, \dots, p$ into a single column vector allows us to express the full gradient compactly in matrix notation:
+    $$
+    \nabla A(\boldsymbol{\beta}) = \mathbf{X}^\top \boldsymbol{\lambda}(\boldsymbol{\beta})
+    $$
+    where $\boldsymbol{\lambda}(\boldsymbol{\beta}) = (\lambda_1(\boldsymbol{\beta}), \dots, \lambda_n(\boldsymbol{\beta}))^\top$ is the vector of conditional means.
+
+    The **Method of Moments** estimating scheme constructs estimators by equating the observed sufficient statistics $\mathbf{T}(\mathbf{y})$ to their theoretical expectations $\nabla A(\boldsymbol{\beta})$. Substituting our derived terms yields the parameter estimating equations:
+    $$
+    \mathbf{X}^\top \mathbf{y} = \mathbf{X}^\top \boldsymbol{\lambda}(\boldsymbol{\beta})
+    $$
+    Rearranging this system gives the explicit residual condition that must be satisfied by the estimated parameters:
+    $$
+    \mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda}(\boldsymbol{\beta})) = \mathbf{0}
+    $$
+
+**Connection to Least Squares Theory**
+
+The resulting score equation for the MLE, $\mathbf{U}(\hat{\boldsymbol{\beta}}) = \mathbf{0}$, simplifies to $\mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda}(\hat{\boldsymbol{\beta}})) = \mathbf{0}$. This reveals a profound structural and geometric connection to standard Least Squares Theory (LST) for linear models. 
+
+In Ordinary Least Squares, assuming a Gaussian error structure (which is also an exponential family) with an identity link, the estimated mean vector is given directly by the linear predictor: $\hat{\boldsymbol{\mu}} = \mathbf{X}\hat{\boldsymbol{\beta}}$. The standard normal equations used to find $\hat{\boldsymbol{\beta}}$ are typically written explicitly in terms of the residuals:
+$$
+\mathbf{X}^\top (\mathbf{y} - \hat{\boldsymbol{\mu}}) = \mathbf{0}
+$$
+
+Comparing this to the Poisson regression result, where the estimated mean is $\hat{\boldsymbol{\lambda}} = \boldsymbol{\lambda}(\hat{\boldsymbol{\beta}})$, we see that the canonical link function forces the exact same algebraic condition. In both settings, the estimating equations demand that the raw residual vector—whether it is $\mathbf{y} - \hat{\boldsymbol{\mu}}$ for the Gaussian case or $\mathbf{y} - \hat{\boldsymbol{\lambda}}$ for the Poisson case—must be strictly orthogonal to every column of the design matrix $\mathbf{X}$. 
+
+
+
+Geometrically, this establishes that the maximum likelihood estimates obtained via a canonical link ensure the residuals are orthogonal to the column space of $\mathbf{X}$, denoted as $\mathcal{C}(\mathbf{X})$. The moment-matching property of the canonical exponential family thereby elegantly preserves the fundamental projection-based geometry of standard linear models, extending it into the broader framework of Generalized Linear Models.
