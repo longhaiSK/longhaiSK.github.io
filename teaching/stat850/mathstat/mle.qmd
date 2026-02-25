@@ -60,6 +60,228 @@ format:
 
 :::
 
+
+### Example: MLE of Normal Sample
+
+::: {#exm-normal-mle-asymptotics}
+
+#### Example: Normal Distribution (Exact Asymptotics)
+
+Let $X_1, \dots, X_n \overset{iid}{\sim} N(\theta, \sigma^2)$ with $\sigma^2$ known. We explicitly derive the key quantities and map them to the four general asymptotic results under $H_0: \theta = \theta_0$.
+
+1. Derivation of Key Quantities
+
+* **Log-Likelihood:**
+    Using the identity $\sum (x_i - \theta)^2 = \sum (x_i - \bar{x})^2 + n(\bar{x} - \theta)^2$, the log-likelihood is a perfect quadratic centered at $\bar{x}$:
+    $$
+    \ell(\theta) = \underbrace{-\frac{n}{2}\log(2\pi\sigma^2) - \frac{1}{2\sigma^2}\sum_{i=1}^n (x_i - \bar{x})^2}_{C} - \frac{n}{2\sigma^2}(\theta - \bar{x})^2
+    $$
+
+* **Score Function ($U_n$):**
+    Differentiating with respect to $\theta$:
+    $$
+    U_n(\theta) = \ell'(\theta) = \frac{n}{\sigma^2}(\bar{X}_n - \theta)
+    $$
+
+* **Maximum Likelihood Estimator ($\hat{\theta}_n$):**
+    Setting $U_n(\hat{\theta}) = 0 \implies \hat{\theta}_n = \bar{X}_n$.
+
+* **Fisher Information ($\mathcal{I}_n$):**
+    Taking the negative second derivative:
+    $$
+    \mathcal{I}_n(\theta) = -E[\ell''(\theta)] = \frac{n}{\sigma^2}
+    $$
+
+2. Visualizing Log-Sampling Distribution vs. Log-Likelihoods
+
+The following plot illustrates the log-density of the sampling distribution of $\bar{x}$ (where the true $\theta_0 = 2$) alongside 10 realized log-likelihood functions. The colored points on the x-axis mark the MLE ($\bar{x}$) for each realization.
+
+```{r}
+#| label: fig-base-r-viz-score-legend
+#| fig-cap: "Log-PDF of the sampling distribution and 10 realized log-likelihoods. The largest sample is highlighted in blue, showing the 1/2 Deviance gap. The MLEs are marked on the Score = 0 line."
+
+# Parameters
+theta_0 <- 2
+sigma <- 10
+n <- 100
+se <- sigma / sqrt(n)  # Standard Error = 1
+
+# Define range for x-axis
+x_vals <- seq(theta_0 - 4*se, theta_0 + 4*se, length.out = 500)
+
+# 1. Calculate Log-PDF of x_bar ~ N(theta_0, se^2)
+log_pdf_xbar <- dnorm(x_vals, mean = theta_0, sd = se, log = TRUE)
+
+# Determine plot limits for the left y-axis
+y_min <- min(log_pdf_xbar)
+# Expanded top limit to make room for the legend
+y_max <- dnorm(0, sd = se, log = TRUE) + 2.5 
+
+# 2. Draw 10 random x_bar samples
+set.seed(123)
+x_bar_samples <- rnorm(10, mean = theta_0, sd = se)
+
+# Find the largest positive x_bar
+idx_max <- which.max(x_bar_samples)
+x_bar_max <- x_bar_samples[idx_max]
+
+# Define colors
+grey_color <- "grey70"
+highlight_color <- "blue"
+score_color <- "green"
+null_color <- "red"
+
+# 3. Create Base R Plot
+# Adjust margins to make room for the right-hand y-axis
+par(mar = c(5, 4, 4, 4) + 0.3)
+
+# Setup the empty plot with axes and labels for Log-Likelihoods
+plot(x_vals, log_pdf_xbar, type = "n", 
+     ylim = c(y_min, y_max),
+     xlab = expression(theta), 
+     ylab = "Log-Value",
+     main = "Log-Likelihoods, Deviance (1/2 D), and Score Function",
+     frame.plot = TRUE)
+
+# Add the Log-PDF of the sampling distribution
+lines(x_vals, log_pdf_xbar, lwd = 3, col = "black")
+
+# Add the true theta line
+abline(v = theta_0, col = null_color, lty = 1, lwd = 2)
+
+# Loop to add all Likelihood curves
+for (i in 1:10) {
+  log_lik_vals <- dnorm(x_bar_samples[i], mean = x_vals, sd = se, log = TRUE)
+  
+  # Determine color and width based on whether it's the maximum
+  if (i == idx_max) {
+    current_col <- highlight_color
+    l_width <- 2
+  } else {
+    current_col <- grey_color
+    l_width <- 1
+  }
+  
+  # Draw likelihood curve
+  lines(x_vals, log_lik_vals, col = current_col, lty = 2, lwd = l_width)
+}
+
+# 4. Draw Deviance (1/2 D) segments for the largest x_bar
+peak_y <- dnorm(x_bar_max, mean = x_bar_max, sd = se, log = TRUE)
+null_y <- dnorm(x_bar_max, mean = theta_0, sd = se, log = TRUE)
+
+# Horizontal line at l(theta_0) from theta_0 to x_bar
+segments(x0 = theta_0, y0 = null_y, x1 = x_bar_max, y1 = null_y, 
+         col = highlight_color, lwd = 2, lty = 1)
+
+# Vertical line at x_bar from l(theta_0) up to peak l(x_bar)
+segments(x0 = x_bar_max, y0 = null_y, x1 = x_bar_max, y1 = peak_y, 
+         col = highlight_color, lwd = 3, lty = 1)
+
+# Label 1/2 D next to the vertical segment (pos = 4 places it to the right)
+text(x_bar_max, (null_y + peak_y)/2, labels = expression((1/2)*D), 
+     pos = 4, col = highlight_color, font = 2, cex = 1)
+
+# Mark intersection on the likelihood curve
+points(theta_0, null_y, pch = 16, col = highlight_color, cex = 1.5)
+
+# 5. Add Score Function using a 2nd y-axis
+par(new = TRUE)
+
+# Score U(theta) = (n/sigma^2)*(x_bar - theta). Here n/sigma^2 = 1.
+score_vals <- x_bar_max - x_vals
+
+# Setup the secondary plot window (empty)
+# Expanded upper ylim from 5 to 9 to match the top space created in the first plot
+plot(x_vals, score_vals, type = "n", 
+     axes = FALSE, xlab = "", ylab = "", ylim = c(-5, 9))
+
+# Add horizontal line for Score = 0
+abline(h = 0, col = "gray", lty = 3, lwd = 2)
+
+# Plot the score line
+lines(x_vals, score_vals, col = score_color, lwd = 3, lty = 1)
+
+# Add the MLE points (x_bar) precisely on the Score = 0 line
+for (i in 1:10) {
+  if (i == idx_max) {
+    points(x_bar_samples[i], 0, col = highlight_color, pch = 16, cex = 1.5)
+  } else {
+    points(x_bar_samples[i], 0, col = grey_color, pch = 16, cex = 1.2)
+  }
+}
+
+# Add right axis and label for the Score function
+axis(4, col = score_color, col.axis = score_color, lwd = 2)
+mtext(expression(paste("Score Function ", U(theta))), side = 4, line = 2.5, col = score_color, font = 2)
+
+# 6. Add Legend
+legend("topright", 
+       legend = c("Log-PDF of Sampling Dist.", "Realized Log-Likelihoods", 
+                  expression(paste("True Null ", theta[0])), "Score Function"),
+       col = c("black", grey_color, null_color, score_color),
+       lty = c(1, 2, 1, 1),
+       lwd = c(3, 1, 2, 3),
+       bg = "white", cex = 0.85)
+```
+
+3. Asympototic Distributions
+   
+    We now illustrate the four main theorems using these derived forms under $H_0: \theta = \theta_0$:
+
+    1. **Consistency:**
+        The MLE $\hat{\theta}_n = \bar{X}_n \xrightarrow{p} \theta_0$ by the Weak Law of Large Numbers.
+
+    2. **Asymptotic Normality of the Score:**
+        Evaluated at the null, the score follows a Normal distribution exactly:
+        $$
+        U_n(\theta_0) \sim N(0, \mathcal{I}_n(\theta_0))
+        $$
+
+    3. **Asymptotic Normality of the Estimator:**
+        The distribution of the standardized MLE centered at the null value is:
+        $$
+        \sqrt{n}(\hat{\theta}_n - \theta_0) \sim N(0, \sigma^2) = N(0, \mathcal{I}_1(\theta_0)^{-1})
+        $$
+
+    4. **Wilks' Theorem (Deviance Approximation):**
+        For $H_0: \theta = \theta_0$, the Deviance is $D = 2[\ell(\hat{\theta}) - \ell(\theta_0)]$.
+        
+        * **Step A: Taylor Expansion:** Because the log-likelihood is exactly quadratic, the expansion around the MLE $\hat{\theta}$ is exact:
+        $$
+        \ell(\theta_0) = \ell(\hat{\theta}) + 0 + \frac{1}{2}(\theta_0 - \hat{\theta})^2 \left(-\frac{n}{\sigma^2}\right)
+        $$
+        
+        * **Step B: Exactness:**
+        $D = \frac{n}{\sigma^2}(\hat{\theta} - \theta_0)^2$. The Deviance is algebraically identical to the Wald statistic.
+        
+        * **Step C: Equivalence:**
+        $$D = (\hat{\theta} - \theta_0)^2 \mathcal{I}_n(\theta_0) = U_n(\theta_0)^T \mathcal{I}_n(\theta_0)^{-1} U_n(\theta_0)$$
+        
+        * **Step D: Conclusion:**
+        Since $(\hat{\theta} - \theta_0) \sim N(0, \sigma^2/n)$, the statistic $D$ is the square of a standard Normal variable:
+        $$D = Z^2 \sim \chi^2_1$$
+
+:::
+
+#### Uniform Distribution (Boundary Case)
+
+::: {#exm-uniform-mle-boundary}
+
+
+Let $X_1, \dots, X_n \overset{iid}{\sim} \operatorname{\text{Unif}}(0, \theta)$. The likelihood is:
+$$
+L(\theta; \mathbf{x}) = \frac{1}{\theta^n} I(x_{(n)} \le \theta)
+$$
+This function strictly decreases for $\theta \ge x_{(n)}$ and is zero otherwise. Thus:
+$$
+\hat{\theta}_{\text{MLE}} = x_{(n)}
+$$
+Note that the Score equation approach fails here because the support depends on $\theta$, making the log-likelihood discontinuous at the boundary.
+
+:::
+
+
 ### Summary of Key Asymptotic Results for MLE
 
 Under standard regularity conditions (e.g., i.i.d. observations, smooth density, and $\boldsymbol{\theta}$ in the interior of $\Theta$), the MLE exhibits the following asymptotic properties as $n \to \infty$:
@@ -100,151 +322,6 @@ Under standard regularity conditions (e.g., i.i.d. observations, smooth density,
     $$
     *(The degrees of freedom equal the difference in the number of parameters).*
 
-### Examples
-#### Example: Normal Distribution (Exact Asymptotics)
-
-::: {#exm-normal-mle-asymptotics}
-
-#### Example: Normal Distribution (Exact Asymptotics)
-
-Let $X_1, \dots, X_n \overset{iid}{\sim} N(\theta, \sigma^2)$ with $\sigma^2$ known. We explicitly derive the key quantities and map them to the four general asymptotic results under $H_0: \theta = \theta_0$.
-
-1. Derivation of Key Quantities
-
-* **Log-Likelihood:**
-    Using the identity $\sum (x_i - \theta)^2 = \sum (x_i - \bar{x})^2 + n(\bar{x} - \theta)^2$, the log-likelihood is a perfect quadratic centered at $\bar{x}$:
-    $$
-    \ell(\theta) = \underbrace{-\frac{n}{2}\log(2\pi\sigma^2) - \frac{1}{2\sigma^2}\sum_{i=1}^n (x_i - \bar{x})^2}_{C} - \frac{n}{2\sigma^2}(\theta - \bar{x})^2
-    $$
-
-* **Score Function ($U_n$):**
-    Differentiating with respect to $\theta$:
-    $$
-    U_n(\theta) = \ell'(\theta) = \frac{n}{\sigma^2}(\bar{X}_n - \theta)
-    $$
-
-* **Maximum Likelihood Estimator ($\hat{\theta}_n$):**
-    Setting $U_n(\hat{\theta}) = 0 \implies \hat{\theta}_n = \bar{X}_n$.
-
-* **Fisher Information ($\mathcal{I}_n$):**
-    Taking the negative second derivative:
-    $$
-    \mathcal{I}_n(\theta) = -E[\ell''(\theta)] = \frac{n}{\sigma^2}
-    $$
-
-2. Visualizing Log-Sampling Distribution vs. Log-Likelihoods
-
-The following plot illustrates the log-density of the sampling distribution of $\bar{x}$ (where the true $\theta_0 = 2$) alongside 10 realized log-likelihood functions. The colored points on the x-axis mark the MLE ($\bar{x}$) for each realization.
-
-```{r}
-#| label: fig-log-lik-viz
-#| fig-cap: "Log-PDF of the sampling distribution (black) and 10 realized log-likelihoods (colored dashed lines). Points on the x-axis represent the realized MLEs."
-#| message: false
-
-library(ggplot2)
-
-# Parameters
-theta_0 <- 2
-sigma <- 10
-n <- 100
-se <- sigma / sqrt(n)  # Standard Error = 1
-
-# Define range for x-axis
-x_vals <- seq(theta_0 - 4*se, theta_0 + 4*se, length.out = 500)
-
-# 1. Log-PDF of x_bar ~ N(theta_0, se^2)
-log_pdf_xbar <- dnorm(x_vals, mean = theta_0, sd = se, log = TRUE)
-y_min <- min(log_pdf_xbar)
-
-# 2. Draw 10 random x_bar samples
-set.seed(123)
-x_bar_samples <- rnorm(10, mean = theta_0, sd = se)
-
-# 3. Create Plot
-df_log_pdf <- data.frame(x = x_vals, y = log_pdf_xbar)
-colors <- scales::hue_pal()(10)
-
-p <- ggplot() +
-  geom_line(data = df_log_pdf, aes(x, y), size = 1.2, color = "black") +
-  geom_vline(xintercept = theta_0, linetype = "dotted", color = "red", size = 1) +
-  labs(x = expression(paste(bar(x), " or ", theta)), 
-       y = "Log-Value",
-       title = "Log-Sampling Distribution vs. 10 Realized Log-Likelihoods") +
-  theme_minimal()
-
-for (i in 1:10) {
-  # Log-likelihood l(theta) centered at the observed x_bar
-  log_lik_vals <- dnorm(x_bar_samples[i], mean = x_vals, sd = se, log = TRUE)
-  df_lik <- data.frame(x = x_vals, y = log_lik_vals)
-  
-  p <- p + 
-    geom_line(data = df_lik, aes(x, y), linetype = "dashed", alpha = 0.5, color = colors[i]) +
-    # Mark the x_bar on the x-axis (bottom of plot)
-    geom_point(aes(x = x_bar_samples[i], y = y_min), color = colors[i], size = 3) +
-    # Vertical line segment connecting x-axis point to the peak of the likelihood
-    geom_segment(aes(x = x_bar_samples[i], xend = x_bar_samples[i], 
-                     y = y_min, yend = dnorm(0, sd = se, log = TRUE)), 
-                 color = colors[i], linetype = "dotted", alpha = 0.3)
-}
-
-p
-```
-
-3. Asymptotic Properties
-
-We now illustrate the four main theorems using these derived forms under $H_0: \theta = \theta_0$:
-
-1. **Consistency:**
-    The MLE $\hat{\theta}_n = \bar{X}_n \xrightarrow{p} \theta_0$ by the Weak Law of Large Numbers.
-
-2. **Asymptotic Normality of the Score:**
-    Evaluated at the null, the score follows a Normal distribution exactly:
-    $$
-    U_n(\theta_0) \sim N(0, \mathcal{I}_n(\theta_0))
-    $$
-
-3. **Asymptotic Normality of the Estimator:**
-    The distribution of the standardized MLE centered at the null value is:
-    $$
-    \sqrt{n}(\hat{\theta}_n - \theta_0) \sim N(0, \sigma^2) = N(0, \mathcal{I}_1(\theta_0)^{-1})
-    $$
-
-4. **Wilks' Theorem (Deviance Approximation):**
-    For $H_0: \theta = \theta_0$, the Deviance is $D = 2[\ell(\hat{\theta}) - \ell(\theta_0)]$.
-    
-    * **Step A: Taylor Expansion:** Because the log-likelihood is exactly quadratic, the expansion around the MLE $\hat{\theta}$ is exact:
-      $$
-      \ell(\theta_0) = \ell(\hat{\theta}) + 0 + \frac{1}{2}(\theta_0 - \hat{\theta})^2 \left(-\frac{n}{\sigma^2}\right)
-      $$
-    
-    * **Step B: Exactness:**
-      $D = \frac{n}{\sigma^2}(\hat{\theta} - \theta_0)^2$. The Deviance is algebraically identical to the Wald statistic.
-      
-    * **Step C: Equivalence:**
-      $$D = (\hat{\theta} - \theta_0)^2 \mathcal{I}_n(\theta_0) = U_n(\theta_0)^T \mathcal{I}_n(\theta_0)^{-1} U_n(\theta_0)$$
-      
-    * **Step D: Conclusion:**
-      Since $(\hat{\theta} - \theta_0) \sim N(0, \sigma^2/n)$, the statistic $D$ is the square of a standard Normal variable:
-      $$D = Z^2 \sim \chi^2_1$$
-
-:::
-
-#### Uniform Distribution (Boundary Case)
-
-::: {#exm-uniform-mle-boundary}
-
-
-Let $X_1, \dots, X_n \overset{iid}{\sim} \operatorname{\text{Unif}}(0, \theta)$. The likelihood is:
-$$
-L(\theta; \mathbf{x}) = \frac{1}{\theta^n} I(x_{(n)} \le \theta)
-$$
-This function strictly decreases for $\theta \ge x_{(n)}$ and is zero otherwise. Thus:
-$$
-\hat{\theta}_{\text{MLE}} = x_{(n)}
-$$
-Note that the Score equation approach fails here because the support depends on $\theta$, making the log-likelihood discontinuous at the boundary.
-
-:::
 
 ## Newton-Raphson and Fisher Scoring Algorithms for Finding MLE
 
