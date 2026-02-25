@@ -1882,115 +1882,100 @@ where $\Omega(\boldsymbol{\theta})$ is a penalty function. Common examples inclu
 1. **$L_2$ Regularization (Weight Decay):** $\Omega(\boldsymbol{\theta}) = \frac{\lambda}{2} \|\boldsymbol{\theta}\|^2$, which corresponds to a Gaussian prior in a Bayesian framework.
 2. **$L_1$ Regularization (Lasso):** $\Omega(\boldsymbol{\theta}) = \lambda \|\boldsymbol{\theta}\|_1$, which encourages sparsity in the network weights.
 
-### Purely Gradient-Based Methods (O(p) Complexity)
+### Scalable First-Order and Adaptive Optimization Methods
 
-Because the Hessian is too large to compute, the most common approach is to use methods that only require the Score vector $\mathbf{U}(\boldsymbol{\theta})$. These methods have a memory complexity of $O(p)$, making them feasible for large-scale problems.
+Because the exact Hessian is computationally prohibitive in high-dimensional settings, scalable optimization strategies rely on the Score vector (the gradient of the log-likelihood) to either take direct steps or approximate local curvature. By avoiding full $\mathcal{O}(p^3)$ matrix inversions, these methods maintain a feasible memory and computational complexity of roughly $\mathcal{O}(p)$, making them the standard for large-scale problems.
 
-1. **Stochastic Gradient Descent (SGD)** 
+#### 1. Stochastic Gradient and Momentum Methods
 
-   Instead of the full score, SGD uses a "mini-batch" estimate $\mathbf{U}_{batch}$. The update is:
-   $$
-   \boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} + \alpha \mathbf{U}_{batch}(\boldsymbol{\theta}^{(t)})
-   $$
-   While simple, SGD treats all dimensions equally, which is inefficient if the likelihood surface is much steeper in some directions than others.
+* **Stochastic Gradient Descent (SGD):** Instead of computing the full score over the entire dataset, SGD uses a stochastic "mini-batch" estimate $\mathbf{U}_{batch}$. The standard update rule is:
+    $$
+    \boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} + \alpha \mathbf{U}_{batch}(\boldsymbol{\theta}^{(t)})
+    $$
+    While computationally trivial, SGD treats the parameter space as Euclidean (flat). It treats all dimensions equally, which leads to erratic zig-zagging if the likelihood surface is highly skewed.
 
-2. **Momentum-Based Methods** 
-
-   These maintain a moving average of past scores to dampen oscillations and accelerate progress in consistent directions, effectively acting as a low-pass filter on the noisy stochastic gradients.
-
-### Avoiding the Hessian via Score Covariance
-
-Modern optimizers leverage the **Second Moment Identity** (Bartlett's Identity) to capture curvature information without the $O(p^2)$ cost of the Hessian.
-
-::: {#thm-fisher-approximation}
-
-### Fisher Information Approximation and the Empirical Fisher
-
-In the context of high-dimensional optimization, the identity $\mathcal{I}(\boldsymbol{\theta}) = \text{Cov}_{\boldsymbol{\theta}_0}(\mathbf{U}) = E_{\boldsymbol{\theta}_0}[\mathbf{J}]$ is not just a theoretical curiosity, but a computational lifeline. 
-
-1. **Justification via the Second Moment** 
-
-   Recall that for the score vector $\mathbf{U}$, we have $E_{\boldsymbol{\theta}_0}[\mathbf{U}] = \mathbf{0}$. Therefore, the covariance matrix simplifies to the second moment:
-   
-   $$
-   \text{Cov}(\mathbf{U}) = E_{\boldsymbol{\theta}_0}[\mathbf{U}\mathbf{U}^\top] - E_{\boldsymbol{\theta}_0}[\mathbf{U}]E_{\boldsymbol{\theta}_0}[\mathbf{U}]^\top = E_{\boldsymbol{\theta}_0}[\mathbf{U}\mathbf{U}^\top]
-   $$
-   
-   Under Bartlett's Second Identity, this expectation is exactly equal to the expected Observed Information (the expected negative Hessian), $E_{\boldsymbol{\theta}_0}[\mathbf{J}]$.
-
-2. **The Empirical Fisher Estimate** 
-
-   In deep learning, we cannot compute the expectation over all possible data. Instead, we use the **Empirical Fisher Information Matrix** ($\hat{\mathcal{I}}$), which replaces the population expectation with the sample average across $n$ observations:
-   
-   $$
-   \hat{\mathcal{I}} = \frac{1}{n} \sum_{i=1}^n \left( \nabla_{\boldsymbol{\theta}} \log f(y_i | \boldsymbol{\theta}) \right) \left( \nabla_{\boldsymbol{\theta}} \log f(y_i | \boldsymbol{\theta}) \right)^\top
-   $$
-   
-   This estimate is constructed solely from **first-order gradients** (the score for each data point).
-
-3. **Handling High Dimensionality ($p$)** 
-
-   Since $\hat{\mathcal{I}}$ is a $p \times p$ matrix, storing it is $O(p^2)$. For a model with 1 million parameters, the matrix would have $10^{12}$ elements. To handle this, deep learning optimizers typically use the **Diagonal Empirical Fisher**:
-   
-   $$
-   \text{diag}(\hat{\mathcal{I}}) = \frac{1}{n} \sum_{i=1}^n [ \mathbf{U}_i \odot \mathbf{U}_i ]
-   $$
-   
-   where $\odot$ is the Hadamard (element-wise) product. This reduces the complexity to $O(p)$.
-
-4. **Why use the Score Covariance instead of the Hessian?** 
-
-   Computing the diagonal of the Hessian $\mathbf{J}$ directly (the second derivatives $\frac{\partial^2 \ell}{\partial \theta_j^2}$) is significantly more expensive than computing the gradient. Most deep learning frameworks are optimized for "backpropagation" (first derivatives). By using the squared gradients to approximate the diagonal of the Hessian, we get "second-order-like" curvature information for the price of first-order computation.
-
-:::
+* **Momentum-Based Methods:** To mitigate the noise of stochastic mini-batches and navigate steep ravines, momentum maintains an exponentially decaying moving average of past scores. This acts as a low-pass filter, dampening orthogonal oscillations and accelerating the optimizer along consistent directions.
 
 
+
+#### 2. Natural SGD with Empirical Fisher Information
+
+To correct the flat geometry of SGD, modern optimizers leverage the **Second Moment Identity** (Bartlett's Identity) to capture curvature information without the $\mathcal{O}(p^2)$ cost of computing the actual Hessian. 
+
+According to this identity, the Fisher Information Matrix $\mathcal{I}(\boldsymbol{\theta})$ is exactly the covariance matrix of the score. Since $E[\mathbf{U}] = \mathbf{0}$, this simplifies to the expected second moment:
+$$
+\mathcal{I}(\boldsymbol{\theta}) = \text{Cov}_{\boldsymbol{\theta}_0}(\mathbf{U}) = E_{\boldsymbol{\theta}_0}[\mathbf{U}\mathbf{U}^\top]
+$$
+This provides a computational lifeline: we can estimate second-order curvature using only first-order gradients.
+
+
+
+* **The Empirical Fisher Estimate:** In practical optimization, we cannot compute the expectation over all possible data. Instead, we compute the sample average of the cross-products of the score vectors using the observed mini-batch data:
+    $$
+    \hat{\mathcal{I}}_{\text{empirical}} = \frac{1}{n_{batch}} \sum_{i=1}^{n_{batch}} \mathbf{U}_i(\mathbf{y}_i) \mathbf{U}_i(\mathbf{y}_i)^\top
+    $$
+* **Full-Matrix NSGD:** Using the full $p \times p$ Empirical Fisher perfectly captures parameter correlations. The update step is $\boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} + \alpha \hat{\mathcal{I}}^{-1} \mathbf{U}_{batch}$. However, inverting this matrix requires $\mathcal{O}(p^3)$ operations, rendering it impossible for massive models.
+* **Diagonal NSGD:** To handle high dimensionality, practitioners drop the off-diagonal elements, assuming parameters are roughly independent. The diagonal elements are computed via the element-wise (Hadamard) product:
+    $$
+    \text{diag}(\hat{\mathcal{I}}) = \frac{1}{n_{batch}} \sum_{i=1}^{n_{batch}} [ \mathbf{U}_i \odot \mathbf{U}_i ]
+    $$
+    This reduces the inversion complexity to $\mathcal{O}(p)$ scalar divisions, scaling the gradient coordinate-wise.
 
 ::: {#rem-empirical-fisher-caveat}
-
-### A Note on the Approximation
-While $\text{Cov}(\mathbf{U}) = E[\mathbf{J}]$ holds at the true parameter $\boldsymbol{\theta}_0$, it may not hold perfectly during the early stages of training when $\boldsymbol{\theta}$ is far from the truth. In these regions, the empirical Fisher is technically an approximation of the *variability* of the gradients, which often serves as a robust proxy for the *sensitivity* (curvature) of the loss surface.
-
+**A Note on the Empirical Approximation**
+While $\text{Cov}(\mathbf{U}) = E[\mathbf{J}]$ holds at the true parameter $\boldsymbol{\theta}_0$, it may not hold perfectly when $\boldsymbol{\theta}$ is far from the truth. In these regions, the empirical Fisher is technically an approximation of the *variability* of the gradients drawn from the training data, rather than the true geometric curvature of the model.
 :::
 
-### Adaptive Methods: Diagonal Covariance Scaling
+#### 3. Re-sampling Natural SGD
 
-Algorithms like **RMSProp** and **Adam** avoid the $p \times p$ matrix entirely by assuming the Fisher Information is approximately diagonal. This reduces the memory cost back to $O(p)$.
+To obtain a mathematically rigorous Natural Gradient, the expectation $E[\mathbf{U}\mathbf{U}^\top]$ must be taken over the **model's predicted distribution**, not the observed training data. 
 
-1. **RMSProp** 
+**Re-sampling Natural SGD** achieves this by bypassing the empirical training targets:
+1. At each step, it simulates "fake" target data $\mathbf{y}_{sim}$ from the current postulated model, $p(\cdot | \mathbf{X}, \boldsymbol{\theta}^{(t)})$. 
+2. It calculates a simulated score vector $\mathbf{U}_{sim}$ based on this generated data.
+3. It estimates the true Fisher Information using the cross-products of the simulated scores: $\hat{\mathcal{I}}_{\text{true}} \approx \mathbf{U}_{sim} \mathbf{U}_{sim}^\top$.
 
-   It maintains a running average of the squared scores for each parameter $j$:
+This Monte Carlo approach ensures the optimizer is navigating the actual probability manifold defined by the model, though it often requires a smaller learning rate to manage the variance introduced by the simulation step.
+
+#### 4. Adam, AdamW, and Adaptive Equivalents
+
+Algorithms like RMSProp and Adam build directly upon the concept of the Diagonal Empirical Fisher, introducing moving averages and specific geometric modifications to handle the chaotic, non-convex landscapes of deep neural networks.
+
+* **RMSProp:** Maintains a running average of the squared scores for each parameter $j$:
+    $$
+    v_j^{(t)} = \gamma v_j^{(t-1)} + (1-\gamma) (U_j^{(t)})^2
+    $$
+* **Adam (Adaptive Moment Estimation):** Combines momentum (first moment) with the RMSProp variance estimate (second moment). It maintains bias-corrected running averages:
+    * **First Moment ($m_j$):** $m_j^{(t)} = \beta_1 m_j^{(t-1)} + (1 - \beta_1) U_j^{(t)}$
+    * **Second Moment ($v_j$):** $v_j^{(t)} = \beta_2 v_j^{(t-1)} + (1 - \beta_2) (U_j^{(t)})^2$
+    
+    The Adam update rule is:
+    $$
+    \theta_j^{(t+1)} = \theta_j^{(t)} + \alpha \frac{\hat{m}_j}{\sqrt{\hat{v}_j} + \epsilon}
+    $$
+    **The Square Root Departure:** Notice that $v_j$ serves as an estimate of the diagonal Fisher ($\mathcal{I}_{jj}$). True Natural SGD divides by the variance to maintain Riemannian invariance. Adam divides by the *square root* of the variance (the standard deviation). This makes Adam roughly bound its step sizes by $\pm \alpha$, acting more like a smoothed "sign descent" algorithm than a mathematically strict Natural Gradient method.
+
+::: {#rem-adamw-weight-decay}
+**AdamW: Decoupling Weight Decay from the Gradient**
+
+The transition from Adam to **AdamW** resolves a subtle but critical mathematical conflation between $L_2$ regularization and weight decay that occurs in adaptive gradient methods.
+
+1. **The Breakdown in Standard Adam**
+   In standard SGD, adding an $L_2$ penalty to the loss ($\ell_{reg} = \ell + \frac{\lambda}{2} \|\boldsymbol{\theta}\|^2$) is mathematically equivalent to decaying the weights. However, if we pass the $L_2$-regularized gradient ($\mathbf{U}_{reg} = \mathbf{U} + \lambda \boldsymbol{\theta}$) into Adam, the regularization term $\lambda \boldsymbol{\theta}$ gets divided by the adaptive denominator $\sqrt{\hat{v}_j}$:
    $$
-   v_j^{(t)} = \gamma v_j^{(t-1)} + (1-\gamma) (U_j^{(t)})^2
+   \theta_j^{(t+1)} = \theta_j^{(t)} - \alpha \frac{\hat{m}_j(\mathbf{U}_{reg})}{\sqrt{\hat{v}_j(\mathbf{U}_{reg})} + \epsilon}
    $$
-   Since $(U_j)^2$ is a stochastic estimate of the variance $\text{Var}(U_j) = \mathcal{I}_{jj}$, the term $\sqrt{v_j}$ approximates the local curvature (sensitivity) along that coordinate.
+   This causes a severe structural problem: parameters with high historical gradients (large $\hat{v}_j$) receive *less* regularization penalty. The geometry of the likelihood surface inappropriately scales the geometric prior, often leading to poor generalization.
 
-2. **Adam (Adaptive Moment Estimation)** 
-
-   Adam combines the concepts of momentum and RMSProp by maintaining moving averages of both the first and second moments of the score vector. It scales the update by the inverse square root of the estimated variance:
-   
+2. **The AdamW Solution**
+   AdamW fixes this by explicitly separating the two mechanisms. It computes the first and second moments strictly using the unregularized gradient $\mathbf{U}$ to capture the true geometric curvature of the data. It then applies the weight decay directly to the parameter update, bypassing the adaptive scaling entirely:
    $$
-   \theta_j^{(t+1)} = \theta_j^{(t)} + \alpha \frac{\hat{m}_j}{\sqrt{\hat{v}_j} + \epsilon}
+   \theta_j^{(t+1)} = \theta_j^{(t)} (1 - \eta \lambda) - \alpha \frac{\hat{m}_j(\mathbf{U})}{\sqrt{\hat{v}_j(\mathbf{U})} + \epsilon}
    $$
-   
-   Here, the terms $m_j$ and $v_j$ are defined as:
-   
-   * **The First Moment ($m_j$):** An exponentially decaying average of the score $U_j$, which acts as momentum to smooth out noisy gradients:
-     $$
-     m_j^{(t)} = \beta_1 m_j^{(t-1)} + (1 - \beta_1) U_j^{(t)}
-     $$
-   
-   * **The Second Moment ($v_j$):** An exponentially decaying average of the squared score $(U_j)^2$:
-     $$
-     v_j^{(t)} = \beta_2 v_j^{(t-1)} + (1 - \beta_2) (U_j^{(t)})^2
-     $$
-     Following the logic of @thm-fisher-approximation, $v_j$ serves as an estimate of the diagonal of the Fisher Information Matrix ($\mathcal{I}_{jj}$).
-   
-   * **Bias Correction:** Because $m$ and $v$ are typically initialized at zero, they are biased toward zero during the initial steps. Adam uses the bias-corrected estimates $\hat{m}_j = m_j / (1 - \beta_1^t)$ and $\hat{v}_j = v_j / (1 - \beta_2^t)$ for the final update.
-
-   This "preconditioning" flattens the likelihood surface by normalizing the step size for each parameter. Dimensions with high gradient variance (high $\mathcal{I}_{jj}$) receive smaller updates, while dimensions with low variance receive larger updates, effectively performing a coordinate-wise Newton-Raphson step using the Score Covariance as a proxy for the Hessian.
+   This decoupling ensures that the regularizer decays all weights uniformly, while the gradients are still adaptively scaled. This exact modification established AdamW as the foundational optimizer for training modern Large Language Models.
 
 
+:::
 
 ### Example: The Poisson Regression Problem and Experimental Setup
 
