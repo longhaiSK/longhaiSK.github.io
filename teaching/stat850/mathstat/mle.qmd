@@ -101,125 +101,131 @@ Under standard regularity conditions (e.g., i.i.d. observations, smooth density,
     *(The degrees of freedom equal the difference in the number of parameters).*
 
 ### Examples
-
 #### Example: Normal Distribution (Exact Asymptotics)
 
 ::: {#exm-normal-mle-asymptotics}
 
 #### Example: Normal Distribution (Exact Asymptotics)
 
-Let $X_1, \dots, X_n \overset{iid}{\sim} N(\theta, \sigma^2)$ with $\sigma^2$ known. We explicitly derive the key quantities and map them to the four general asymptotic results.
+Let $X_1, \dots, X_n \overset{iid}{\sim} N(\theta, \sigma^2)$ with $\sigma^2$ known. We explicitly derive the key quantities and map them to the four general asymptotic results under $H_0: \theta = \theta_0$.
 
 1. Derivation of Key Quantities
 
 * **Log-Likelihood:**
+    Using the identity $\sum (x_i - \theta)^2 = \sum (x_i - \bar{x})^2 + n(\bar{x} - \theta)^2$, the log-likelihood is a perfect quadratic centered at $\bar{x}$:
     $$
-    \ell(\theta) = -\frac{n}{2}\log(2\pi\sigma^2) - \frac{1}{2\sigma^2}\sum_{i=1}^n (x_i - \theta)^2
+    \ell(\theta) = \underbrace{-\frac{n}{2}\log(2\pi\sigma^2) - \frac{1}{2\sigma^2}\sum_{i=1}^n (x_i - \bar{x})^2}_{C} - \frac{n}{2\sigma^2}(\theta - \bar{x})^2
     $$
 
 * **Score Function ($U_n$):**
     Differentiating with respect to $\theta$:
     $$
-    U_n(\theta) = \ell'(\theta) = \frac{1}{\sigma^2}\sum_{i=1}^n (x_i - \theta) = \frac{n}{\sigma^2}(\bar{X}_n - \theta)
+    U_n(\theta) = \ell'(\theta) = \frac{n}{\sigma^2}(\bar{X}_n - \theta)
     $$
 
 * **Maximum Likelihood Estimator ($\hat{\theta}_n$):**
-    Setting $U_n(\hat{\theta}) = 0$:
-    $$
-    \frac{n}{\sigma^2}(\bar{X}_n - \hat{\theta}) = 0 \implies \hat{\theta}_n = \bar{X}_n
-    $$
+    Setting $U_n(\hat{\theta}) = 0 \implies \hat{\theta}_n = \bar{X}_n$.
 
 * **Fisher Information ($\mathcal{I}_n$):**
     Taking the negative second derivative:
     $$
-    \mathcal{I}_n(\theta) = -E[\ell''(\theta)] = -E\left[ -\frac{n}{\sigma^2} \right] = \frac{n}{\sigma^2}
+    \mathcal{I}_n(\theta) = -E[\ell''(\theta)] = \frac{n}{\sigma^2}
     $$
-    *(Note: For a single observation, $\mathcal{I}_1 = 1/\sigma^2$).*
 
-2. Asymptotic Properties
+2. Visualizing Log-Sampling Distribution vs. Log-Likelihoods
 
-We now illustrate the four main theorems using these derived forms:
+The following plot illustrates the log-density of the sampling distribution of $\bar{x}$ (where the true $\theta_0 = 2$) alongside 10 realized log-likelihood functions. The colored points on the x-axis mark the MLE ($\bar{x}$) for each realization.
 
-1.  **Consistency**
+```{r}
+#| label: fig-log-lik-viz
+#| fig-cap: "Log-PDF of the sampling distribution (black) and 10 realized log-likelihoods (colored dashed lines). Points on the x-axis represent the realized MLEs."
+#| message: false
 
+library(ggplot2)
+
+# Parameters
+theta_0 <- 2
+sigma <- 10
+n <- 100
+se <- sigma / sqrt(n)  # Standard Error = 1
+
+# Define range for x-axis
+x_vals <- seq(theta_0 - 4*se, theta_0 + 4*se, length.out = 500)
+
+# 1. Log-PDF of x_bar ~ N(theta_0, se^2)
+log_pdf_xbar <- dnorm(x_vals, mean = theta_0, sd = se, log = TRUE)
+y_min <- min(log_pdf_xbar)
+
+# 2. Draw 10 random x_bar samples
+set.seed(123)
+x_bar_samples <- rnorm(10, mean = theta_0, sd = se)
+
+# 3. Create Plot
+df_log_pdf <- data.frame(x = x_vals, y = log_pdf_xbar)
+colors <- scales::hue_pal()(10)
+
+p <- ggplot() +
+  geom_line(data = df_log_pdf, aes(x, y), size = 1.2, color = "black") +
+  geom_vline(xintercept = theta_0, linetype = "dotted", color = "red", size = 1) +
+  labs(x = expression(paste(bar(x), " or ", theta)), 
+       y = "Log-Value",
+       title = "Log-Sampling Distribution vs. 10 Realized Log-Likelihoods") +
+  theme_minimal()
+
+for (i in 1:10) {
+  # Log-likelihood l(theta) centered at the observed x_bar
+  log_lik_vals <- dnorm(x_bar_samples[i], mean = x_vals, sd = se, log = TRUE)
+  df_lik <- data.frame(x = x_vals, y = log_lik_vals)
+  
+  p <- p + 
+    geom_line(data = df_lik, aes(x, y), linetype = "dashed", alpha = 0.5, color = colors[i]) +
+    # Mark the x_bar on the x-axis (bottom of plot)
+    geom_point(aes(x = x_bar_samples[i], y = y_min), color = colors[i], size = 3) +
+    # Vertical line segment connecting x-axis point to the peak of the likelihood
+    geom_segment(aes(x = x_bar_samples[i], xend = x_bar_samples[i], 
+                     y = y_min, yend = dnorm(0, sd = se, log = TRUE)), 
+                 color = colors[i], linetype = "dotted", alpha = 0.3)
+}
+
+p
+```
+
+3. Asymptotic Properties
+
+We now illustrate the four main theorems using these derived forms under $H_0: \theta = \theta_0$:
+
+1. **Consistency:**
+    The MLE $\hat{\theta}_n = \bar{X}_n \xrightarrow{p} \theta_0$ by the Weak Law of Large Numbers.
+
+2. **Asymptotic Normality of the Score:**
+    Evaluated at the null, the score follows a Normal distribution exactly:
+    $$
+    U_n(\theta_0) \sim N(0, \mathcal{I}_n(\theta_0))
+    $$
+
+3. **Asymptotic Normality of the Estimator:**
+    The distribution of the standardized MLE centered at the null value is:
+    $$
+    \sqrt{n}(\hat{\theta}_n - \theta_0) \sim N(0, \sigma^2) = N(0, \mathcal{I}_1(\theta_0)^{-1})
+    $$
+
+4. **Wilks' Theorem (Deviance Approximation):**
+    For $H_0: \theta = \theta_0$, the Deviance is $D = 2[\ell(\hat{\theta}) - \ell(\theta_0)]$.
     
-    The MLE is $\hat{\theta}_n = \bar{X}_n$. By the Weak Law of Large Numbers, we know that:
-    $$
-    \bar{X}_n \xrightarrow{p} \theta
-    $$
-    Thus, the estimator is consistent.
-
-2.  **Asymptotic Normality of the Score**
-
+    * **Step A: Taylor Expansion:** Because the log-likelihood is exactly quadratic, the expansion around the MLE $\hat{\theta}$ is exact:
+      $$
+      \ell(\theta_0) = \ell(\hat{\theta}) + 0 + \frac{1}{2}(\theta_0 - \hat{\theta})^2 \left(-\frac{n}{\sigma^2}\right)
+      $$
     
-    The score function is $U_n(\theta) = \frac{n}{\sigma^2}(\bar{X}_n - \theta)$. Since $\bar{X}_n$ is normally distributed, the Score is **exactly** Normal for any $n$:
-    $$
-    U_n(\theta) \sim N\left(0, \frac{n}{\sigma^2}\right) = N(0, \mathcal{I}_n)
-    $$
-    Scaling by $1/\sqrt{n}$, we recover the asymptotic result:
-    $$
-    \frac{1}{\sqrt{n}} U_n(\theta) \sim N(0, \mathcal{I}_1)
-    $$
-
-3.  **Asymptotic Normality of the Estimator**
-
-    
-    The distribution of the standardized MLE is derived from the properties of the sample mean:
-    $$
-    \sqrt{n}(\hat{\theta}_n - \theta) = \sqrt{n}(\bar{X}_n - \theta) \sim N(0, \sigma^2)
-    $$
-    Note that $\sigma^2 = 1/\mathcal{I}_1$. Therefore:
-    $$
-    \sqrt{n}(\hat{\theta}_n - \theta) \sim N(0, \mathcal{I}_1^{-1})
-    $$
-    Again, the asymptotic approximation holds exactly for finite sample sizes here.
-
-4.  **Wilks' Theorem (Deviance Approximation)**
-
-    
-    We test $H_0: \theta = \theta_0$. The Deviance is $D = 2[\ell(\hat{\theta}) - \ell(\theta_0)]$.
-    
-    **Step A: Taylor Expansion**
-    We expand the log-likelihood around the MLE. In general, this is an approximation, but for the Normal distribution (where the log-likelihood is exactly quadratic), the expansion is **exact**:
-    $$
-    \ell(\theta_0) = \ell(\hat{\theta}) + (\theta_0 - \hat{\theta}) \underbrace{\ell'(\hat{\theta})}_{0} + \frac{1}{2}(\theta_0 - \hat{\theta})^2 \ell''(\hat{\theta})
-    $$
-    Substituting the constant curvature $\ell''(\theta) = -n/\sigma^2$:
-    $$
-    2[\ell(\hat{\theta}) - \ell(\theta_0)] = -(\theta_0 - \hat{\theta})^2 \left( -\frac{n}{\sigma^2} \right) = \frac{n}{\sigma^2}(\hat{\theta} - \theta_0)^2
-    $$
-    
-    **Step B: Exactness in the Normal Case**
-    Because the log-likelihood for the Normal mean is a perfect quadratic (a parabola), the third derivatives are zero. Therefore, the Taylor approximation is **exact**:
-    $$
-    D = \frac{n}{\sigma^2}(\hat{\theta} - \theta_0)^2
-    $$
-
-    **Step C: Equivalence of Forms ($D = \text{Wald} = \text{Score}$)**
-    
-    Let $\Delta \hat \theta = \hat{\theta} - \theta_0$ be the estimation error. We can rewrite the exact Deviance derived above in terms of the Information ($\mathcal{I}_n = n/\sigma^2$) and the Score at the null ($U_0 = \mathcal{I}_n \Delta \hat \theta$).
-
-    * **Deviance Form:** From Step B, we see directly:
-        $$
-        D = \left( \frac{n}{\sigma^2} \right) (\hat{\theta} - \theta_0)^2 = \mathcal{I}_n (\Delta \hat \theta)^2
-        $$
-        
-    * **Score Statistic Form:** The Score at the null hypothesis is $U(\theta_0) = \mathcal{I}_n (\hat{\theta} - \theta_0)$.
-        $$
-        U^T \mathcal{I}^{-1} U = [\mathcal{I}_n \Delta \hat \theta] \cdot [\mathcal{I}_n^{-1}] \cdot [\mathcal{I}_n \Delta \hat \theta] = \Delta \hat \theta \cdot \mathcal{I}_n \cdot \Delta \hat \theta = \mathcal{I}_n (\Delta \hat \theta)^2
-        $$
-
-    * **Result:** In the Normal case (perfect quadratic likelihood), the three statistics are identical:
-        $$
-        \boxed{ D = \Delta \hat \theta^T \mathcal{I}_n \Delta \hat \theta = U_n(\theta_0)^T \mathcal{I}_n^{-1} U_n(\theta_0) }
-        $$
-    
-    **Step D: Conclusion**
-    The term inside the Deviance is the standard Z-statistic squared ($Z \sim N(0,1)$):
-    $$
-    D = \left( \frac{\bar{X}_n - \theta_0}{\sigma/\sqrt{n}} \right)^2 = Z^2 \sim \chi^2_1
-    $$
-    This illustrates Wilks' theorem: the deviance statistic converges to a Chi-squared distribution (degrees of freedom = 1).
+    * **Step B: Exactness:**
+      $D = \frac{n}{\sigma^2}(\hat{\theta} - \theta_0)^2$. The Deviance is algebraically identical to the Wald statistic.
+      
+    * **Step C: Equivalence:**
+      $$D = (\hat{\theta} - \theta_0)^2 \mathcal{I}_n(\theta_0) = U_n(\theta_0)^T \mathcal{I}_n(\theta_0)^{-1} U_n(\theta_0)$$
+      
+    * **Step D: Conclusion:**
+      Since $(\hat{\theta} - \theta_0) \sim N(0, \sigma^2/n)$, the statistic $D$ is the square of a standard Normal variable:
+      $$D = Z^2 \sim \chi^2_1$$
 
 :::
 
@@ -240,7 +246,7 @@ Note that the Score equation approach fails here because the support depends on 
 
 :::
 
-## Optimization Algorithms for Finding MLE
+## Newton-Raphson and Fisher Scoring Algorithms for Finding MLE
 
 When the score equation $\mathbf{U}(\boldsymbol{\theta}) = \mathbf{0}$ does not have a closed-form solution, we must rely on iterative numerical methods to find the Maximum Likelihood Estimator. The Newton-Raphson algorithm is the most common approach, utilizing the curvature of the log-likelihood surface to guide the search for the maximum.
 
@@ -468,7 +474,7 @@ legend("bottomright", legend = c("NR Path", "True Beta"),
 ```
 
 
-## Review of Convergence Theorems for Probability
+## Convergence Theorems in Probability Theory
 
 
 ### Weak Law of Large Numbers (WLLN)
@@ -825,6 +831,7 @@ plot_cdfs(n = 50)
 
 # Reset plotting parameters to default
 par(mfrow = c(1, 1))
+
 ```
 
 ## Asymptotic Theory of Maximized Likelihood
@@ -1852,7 +1859,7 @@ curve(dchisq(x, df = 2), add = TRUE, col = "darkgreen", lwd = 2)
 
 :::
 
-## MLE and Penalized Likelihood in Deep Learning
+## Optimization in Deep Learning
 
 In deep learning, the objective function is typically the negative log-likelihood of the dataset, often supplemented by a penalty term (regularization) to prevent overfitting. While the theoretical foundations of Maximum Likelihood Estimation remain the same, the practical application in high-dimensional neural networks faces significant computational challenges that necessitate specialized optimization strategies.
 
@@ -1886,7 +1893,7 @@ where $\Omega(\boldsymbol{\theta})$ is a penalty function. Common examples inclu
 
 Because the exact Hessian is computationally prohibitive in high-dimensional settings, scalable optimization strategies rely on the Score vector (the gradient of the log-likelihood) to either take direct steps or approximate local curvature. By avoiding full $\mathcal{O}(p^3)$ matrix inversions, these methods maintain a feasible memory and computational complexity of roughly $\mathcal{O}(p)$, making them the standard for large-scale problems.
 
-#### 1. Stochastic Gradient and Momentum Methods
+#### Stochastic Gradient and Momentum Methods
 
 * **Stochastic Gradient Descent (SGD):** Instead of computing the full score over the entire dataset, SGD uses a stochastic "mini-batch" estimate $\mathbf{U}_{batch}$. The standard update rule is:
     $$
@@ -1898,7 +1905,7 @@ Because the exact Hessian is computationally prohibitive in high-dimensional set
 
 
 
-#### 2. Natural SGD with Empirical Fisher Information
+#### Natural SGD with Empirical Fisher Information
 
 To correct the flat geometry of SGD, modern optimizers leverage the **Second Moment Identity** (Bartlett's Identity) to capture curvature information without the $\mathcal{O}(p^2)$ cost of computing the actual Hessian. 
 
@@ -1914,6 +1921,7 @@ This provides a computational lifeline: we can estimate second-order curvature u
     $$
     \hat{\mathcal{I}}_{\text{empirical}} = \frac{1}{n_{batch}} \sum_{i=1}^{n_{batch}} \mathbf{U}_i(\mathbf{y}_i) \mathbf{U}_i(\mathbf{y}_i)^\top
     $$
+
 * **Full-Matrix NSGD:** Using the full $p \times p$ Empirical Fisher perfectly captures parameter correlations. The update step is $\boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} + \alpha \hat{\mathcal{I}}^{-1} \mathbf{U}_{batch}$. However, inverting this matrix requires $\mathcal{O}(p^3)$ operations, rendering it impossible for massive models.
 * **Diagonal NSGD:** To handle high dimensionality, practitioners drop the off-diagonal elements, assuming parameters are roughly independent. The diagonal elements are computed via the element-wise (Hadamard) product:
     $$
@@ -1924,20 +1932,11 @@ This provides a computational lifeline: we can estimate second-order curvature u
 ::: {#rem-empirical-fisher-caveat}
 **A Note on the Empirical Approximation**
 While $\text{Cov}(\mathbf{U}) = E[\mathbf{J}]$ holds at the true parameter $\boldsymbol{\theta}_0$, it may not hold perfectly when $\boldsymbol{\theta}$ is far from the truth. In these regions, the empirical Fisher is technically an approximation of the *variability* of the gradients drawn from the training data, rather than the true geometric curvature of the model.
+
 :::
 
-#### 3. Re-sampling Natural SGD
 
-To obtain a mathematically rigorous Natural Gradient, the expectation $E[\mathbf{U}\mathbf{U}^\top]$ must be taken over the **model's predicted distribution**, not the observed training data. 
-
-**Re-sampling Natural SGD** achieves this by bypassing the empirical training targets:
-1. At each step, it simulates "fake" target data $\mathbf{y}_{sim}$ from the current postulated model, $p(\cdot | \mathbf{X}, \boldsymbol{\theta}^{(t)})$. 
-2. It calculates a simulated score vector $\mathbf{U}_{sim}$ based on this generated data.
-3. It estimates the true Fisher Information using the cross-products of the simulated scores: $\hat{\mathcal{I}}_{\text{true}} \approx \mathbf{U}_{sim} \mathbf{U}_{sim}^\top$.
-
-This Monte Carlo approach ensures the optimizer is navigating the actual probability manifold defined by the model, though it often requires a smaller learning rate to manage the variance introduced by the simulation step.
-
-#### 4. Adam, AdamW, and Adaptive Equivalents
+#### Adam, AdamW, and Adaptive Equivalents
 
 Algorithms like RMSProp and Adam build directly upon the concept of the Diagonal Empirical Fisher, introducing moving averages and specific geometric modifications to handle the chaotic, non-convex landscapes of deep neural networks.
 
@@ -1945,6 +1944,7 @@ Algorithms like RMSProp and Adam build directly upon the concept of the Diagonal
     $$
     v_j^{(t)} = \gamma v_j^{(t-1)} + (1-\gamma) (U_j^{(t)})^2
     $$
+
 * **Adam (Adaptive Moment Estimation):** Combines momentum (first moment) with the RMSProp variance estimate (second moment). It maintains bias-corrected running averages:
     * **First Moment ($m_j$):** $m_j^{(t)} = \beta_1 m_j^{(t-1)} + (1 - \beta_1) U_j^{(t)}$
     * **Second Moment ($v_j$):** $v_j^{(t)} = \beta_2 v_j^{(t-1)} + (1 - \beta_2) (U_j^{(t)})^2$
@@ -1955,12 +1955,14 @@ Algorithms like RMSProp and Adam build directly upon the concept of the Diagonal
     $$
     **The Square Root Departure:** Notice that $v_j$ serves as an estimate of the diagonal Fisher ($\mathcal{I}_{jj}$). True Natural SGD divides by the variance to maintain Riemannian invariance. Adam divides by the *square root* of the variance (the standard deviation). This makes Adam roughly bound its step sizes by $\pm \alpha$, acting more like a smoothed "sign descent" algorithm than a mathematically strict Natural Gradient method.
 
+
 ::: {#rem-adamw-weight-decay}
 **AdamW: Decoupling Weight Decay from the Gradient**
 
 The transition from Adam to **AdamW** resolves a subtle but critical mathematical conflation between $L_2$ regularization and weight decay that occurs in adaptive gradient methods.
 
 1. **The Breakdown in Standard Adam**
+
    In standard SGD, adding an $L_2$ penalty to the loss ($\ell_{reg} = \ell + \frac{\lambda}{2} \|\boldsymbol{\theta}\|^2$) is mathematically equivalent to decaying the weights. However, if we pass the $L_2$-regularized gradient ($\mathbf{U}_{reg} = \mathbf{U} + \lambda \boldsymbol{\theta}$) into Adam, the regularization term $\lambda \boldsymbol{\theta}$ gets divided by the adaptive denominator $\sqrt{\hat{v}_j}$:
    $$
    \theta_j^{(t+1)} = \theta_j^{(t)} - \alpha \frac{\hat{m}_j(\mathbf{U}_{reg})}{\sqrt{\hat{v}_j(\mathbf{U}_{reg})} + \epsilon}
@@ -1968,6 +1970,7 @@ The transition from Adam to **AdamW** resolves a subtle but critical mathematica
    This causes a severe structural problem: parameters with high historical gradients (large $\hat{v}_j$) receive *less* regularization penalty. The geometry of the likelihood surface inappropriately scales the geometric prior, often leading to poor generalization.
 
 2. **The AdamW Solution**
+
    AdamW fixes this by explicitly separating the two mechanisms. It computes the first and second moments strictly using the unregularized gradient $\mathbf{U}$ to capture the true geometric curvature of the data. It then applies the weight decay directly to the parameter update, bypassing the adaptive scaling entirely:
    $$
    \theta_j^{(t+1)} = \theta_j^{(t)} (1 - \eta \lambda) - \alpha \frac{\hat{m}_j(\mathbf{U})}{\sqrt{\hat{v}_j(\mathbf{U})} + \epsilon}
@@ -1976,6 +1979,19 @@ The transition from Adam to **AdamW** resolves a subtle but critical mathematica
 
 
 :::
+
+#### Re-sampling Natural SGD
+
+To obtain a mathematically rigorous Natural Gradient, the expectation $E[\mathbf{U}\mathbf{U}^\top]$ must be taken over the **model's predicted distribution**, not the observed training data. 
+
+**Re-sampling Natural SGD** achieves this by bypassing the empirical training targets:
+
+1. At each step, it simulates "fake" target data $\mathbf{y}_{sim}$ from the current postulated model, $p(\cdot | \mathbf{X}, \boldsymbol{\theta}^{(t)})$. 
+2. It calculates a simulated score vector $\mathbf{U}_{sim}$ based on this generated data.
+3. It estimates the true Fisher Information using the cross-products of the simulated scores: $\hat{\mathcal{I}}_{\text{true}} \approx \mathbf{U}_{sim} \mathbf{U}_{sim}^\top$.
+
+This Monte Carlo approach ensures the optimizer is navigating the actual probability manifold defined by the model, though it often requires a smaller learning rate to manage the variance introduced by the simulation step.
+
 
 ### Example: The Poisson Regression Problem and Experimental Setup
 
@@ -1988,6 +2004,7 @@ The goal of optimization is to find the parameter vector $\boldsymbol{\beta}$ th
 #### Data Generation Strategy
 
 To test these algorithms in a realistic, challenging environment, we simulate a high-dimensional dataset with significant collinearity:
+
 * **Dimensions:** $n = 5000$ observations and $p = 100$ features (plus an intercept).
 * **Collinearity:** The covariates $\mathbf{X}$ are drawn from a Multivariate Normal distribution where every pair of variables has a high correlation of $\rho = 0.8$. This ill-conditioned design matrix makes the curvature of the optimization landscape highly skewed, punishing methods that ignore parameter correlations.
 * **True Parameters:** The underlying ground-truth vector $\boldsymbol{\beta}^*$ is sparse. Only the intercept and the first three predictors are active, with alternating signs and magnitudes: $\boldsymbol{\beta}^* = (0.5, -1.0, -0.5, 1.0, 0, \dots, 0)^\top$. The remaining 97 parameters are identically zero. 
@@ -2000,10 +2017,10 @@ To stabilize the variance across iterations, the Natural SGD methods utilize an 
 
 | Method | Gradient ($\mathbf{g}$) Computation | Fisher/Curvature ($\mathcal{H}$) Computation | Re-sampling Used? | Tuning Settings |
 | :--- | :--- | :--- | :--- | :--- |
-| **1. Standard SGD** | Analytical on real data: $\mathbf{X}_b^\top(\boldsymbol{\lambda}_b - \mathbf{y}_b)$ | None (Identity Matrix $\mathbf{I}$) | No | $\eta = 0.0001$, Batch = 50, Iter = 10k |
-| **2. Diagonal NSGD** | Analytical on real data: $\mathbf{X}_b^\top(\boldsymbol{\lambda}_b - \mathbf{y}_b)$ | Analytical Diagonal: $\mathcal{H}_{jj} = \sum_{i \in b} x_{ij}^2 \lambda_i$ | No | $\eta = 0.01$, Batch = 50, Iter = 3.5k |
-| **3. Full-Matrix NSGD** | Analytical on real data: $\mathbf{X}_b^\top(\boldsymbol{\lambda}_b - \mathbf{y}_b)$ | Analytical Full FIM: $\mathbf{X}_b^\top \text{diag}(\boldsymbol{\lambda}_b) \mathbf{X}_b$ | No | $\eta = 0.05$, Batch = 50, Iter = 1.5k |
-| **4. Re-sampling NSGD** | Analytical on real data: $\mathbf{X}_b^\top(\boldsymbol{\lambda}_b - \mathbf{y}_b)$ | Monte Carlo Diagonal: $\mathcal{H}_{jj} \approx g_{sim, j}^2$ | Yes ($y_{sim} \sim \text{Poisson}(\boldsymbol{\lambda})$) | $\eta = 0.005$, Batch = 50, Iter = 8k |
+| 1. Standard SGD | Analytical on real data: $\mathbf{X}_b^\top(\boldsymbol{\lambda}_b - \mathbf{y}_b)$ | None (Identity Matrix $\mathbf{I}$) | No | $\eta = 0.0001$, Batch = 50, Iter = 10k |
+| 2. Diagonal NSGD | Analytical on real data: $\mathbf{X}_b^\top(\boldsymbol{\lambda}_b - \mathbf{y}_b)$ | Analytical Diagonal: $\mathcal{H}_{jj} = \sum_{i \in b} x_{ij}^2 \lambda_i$ | No | $\eta = 0.01$, Batch = 50, Iter = 3.5k |
+| 3. Full-Matrix NSGD | Analytical on real data: $\mathbf{X}_b^\top(\boldsymbol{\lambda}_b - \mathbf{y}_b)$ | Analytical Full FIM: $\mathbf{X}_b^\top \text{diag}(\boldsymbol{\lambda}_b) \mathbf{X}_b$ | No | $\eta = 0.05$, Batch = 50, Iter = 1.5k |
+| 4. Re-sampling NSGD | Analytical on real data: $\mathbf{X}_b^\top(\boldsymbol{\lambda}_b - \mathbf{y}_b)$ | Monte Carlo Diagonal: $\mathcal{H}_{jj} \approx g_{sim, j}^2$ | Yes ($y_{sim} \sim \text{Poisson}(\boldsymbol{\lambda})$) | $\eta = 0.005$, Batch = 50, Iter = 8k |
 
 #### Optimization Trajectories by Wall-Clock Time
 
@@ -2224,6 +2241,7 @@ trace_resample <- run_resampling_ngd(data$X, data$y, batch_size = 50, lr = 0.005
 trace_resample$Method <- "4. Re-sampling NSGD"
 
 # --- 7. Plotting Setup ---
+
 # Define the active and inactive parameters to plot
 active_params <- paste0("Beta", 0:3)
 zero_params <- paste0("Beta", 4:13)
@@ -2264,6 +2282,7 @@ ggplot(plot_data, aes(x = Time, y = Value, color = Parameter, group = Parameter)
   labs(title = paste0("Stochastic Optimization Trajectories (n=", n_val, ", p=", p_val, ")"),
        x = "Wall-Clock Time (Seconds)",
        y = "Parameter Value")
+
 ```
 
 #### Interpretation of Convergence Behaviors
