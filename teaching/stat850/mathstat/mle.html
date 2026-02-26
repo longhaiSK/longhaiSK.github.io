@@ -228,6 +228,12 @@ window.Quarto = {
  <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Likelihood-based Hypothesis Testing</span></span></a>
   </div>
 </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Appendices</span></span></a>
+  </div>
+</li>
     </ul>
     </div>
     <nav id="TOC" role="doc-toc" class="toc-active">
@@ -338,35 +344,58 @@ window.Quarto = {
 <h2 data-number="6.1" class="anchored" data-anchor-id="maximum-likelihood-estimation"><span class="header-section-number">6.1</span> Maximum Likelihood Estimation</h2>
 <section id="definitions-and-notations" class="level3" data-number="6.1.1">
 <h3 data-number="6.1.1" class="anchored" data-anchor-id="definitions-and-notations"><span class="header-section-number">6.1.1</span> Definitions and Notations</h3>
-<div id="def-likelihood-mle" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 6.1 (Maximum Likelihood Estimation)</strong></span> &nbsp;</p>
+<div id="def-likelihood" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 6.1 (Likelihood and Log-Likelihood)</strong></span> Let <span class="math inline">\(f(\mathbf{x}|\boldsymbol{\theta})\)</span> be the joint probability density function (or mass function) of the data <span class="math inline">\(\mathbf{X} = (X_1, \dots, X_n)\)</span>.</p>
 <ol type="1">
-<li><p><strong>Likelihood Function:</strong></p>
-<p>Let <span class="math inline">\(f(\mathbf{x}|\boldsymbol{\theta})\)</span> be the joint probability density function of the data <span class="math inline">\(\mathbf{X}\)</span>. When viewed as a function of the parameter <span class="math inline">\(\boldsymbol{\theta}\)</span> given fixed data <span class="math inline">\(\mathbf{x}\)</span>, it is called the likelihood function: <span class="math display">\[
+<li><p><strong>Joint Likelihood Function:</strong> When viewed as a function of the parameter <span class="math inline">\(\boldsymbol{\theta}\)</span> given fixed data <span class="math inline">\(\mathbf{x}\)</span>, it is called the likelihood function: <span class="math display">\[
 L(\boldsymbol{\theta}; \mathbf{x}) = f(\mathbf{x}|\boldsymbol{\theta})
 \]</span></p></li>
-<li><p><strong>Log-likelihood:</strong></p>
-<p>It is usually easier to maximize the natural logarithm of the likelihood: <span class="math display">\[
+<li><p><strong>Joint Log-Likelihood:</strong> It is usually easier to maximize the natural logarithm of the likelihood: <span class="math display">\[
 \ell(\boldsymbol{\theta}; \mathbf{x}) = \log L(\boldsymbol{\theta}; \mathbf{x})
 \]</span></p></li>
-<li><p><strong>Maximum Likelihood Estimator (MLE):</strong></p>
-<p>The MLE <span class="math inline">\(\hat{\boldsymbol{\theta}}_{\text{MLE}}\)</span> is the value that maximizes the likelihood function: <span class="math display">\[
+<li><p><strong>Independent Observations:</strong> If the observations <span class="math inline">\(X_1, \dots, X_n\)</span> are independent, the joint likelihood factors into a product of individual densities. Let <span class="math inline">\(\ell(\boldsymbol{\theta}; x_i) = \log f(x_i|\boldsymbol{\theta})\)</span> denote the log-likelihood for a <strong>single observation</strong>. The total log-likelihood is strictly the sum of the individual log-likelihoods: <span class="math display">\[
+\ell(\boldsymbol{\theta}; \mathbf{x}) = \sum_{i=1}^n \ell(\boldsymbol{\theta}; x_i)
+\]</span></p></li>
+</ol>
+</div>
+<div id="def-mle" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 6.2 (Maximum Likelihood Estimation)</strong></span> <strong>Maximum Likelihood Estimator (MLE):</strong> The MLE <span class="math inline">\(\hat{\boldsymbol{\theta}}_{\text{MLE}}\)</span> is the value in the parameter space <span class="math inline">\(\Theta\)</span> that maximizes the likelihood (and equivalently, the log-likelihood) function: <span class="math display">\[
 \hat{\boldsymbol{\theta}}_{\text{MLE}}(\mathbf{x}) = \operatorname*{argmax}_{\boldsymbol{\theta} \in \Theta} \ell(\boldsymbol{\theta}; \mathbf{x})
-\]</span></p></li>
-<li><p><strong>Score Function (<span class="math inline">\(\mathbf{U}\)</span>):</strong></p>
-<p>The score function is defined as the gradient of the log-likelihood with respect to the parameter vector. <span class="math display">\[
+\]</span></p>
+</div>
+<div id="def-score" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 6.3 (Score Function)</strong></span> The score function is defined as the gradient of the log-likelihood with respect to the parameter vector <span class="math inline">\(\boldsymbol{\theta}\)</span>. Finding the MLE often involves solving the score equation <span class="math inline">\(\mathbf{U}(\boldsymbol{\theta}; \mathbf{x}) = \mathbf{0}\)</span>.</p>
+<ol type="1">
+<li><p><strong>Total Score Function (<span class="math inline">\(\mathbf{U}\)</span>):</strong> <span class="math display">\[
 \mathbf{U}(\boldsymbol{\theta}; \mathbf{x}) = \nabla_{\boldsymbol{\theta}} \ell(\boldsymbol{\theta}; \mathbf{x})
-\]</span> Finding the MLE often involves solving the score equation: <span class="math display">\[
-\mathbf{U}(\boldsymbol{\theta}; \mathbf{x}) \equiv 0
 \]</span></p></li>
-<li><p><strong>Observed Fisher Information:</strong></p>
-<p><span class="math display">\[
-\mathbf{J}(\boldsymbol{\theta}; \mathbf{X}) = - \nabla^2 \ell(\boldsymbol{\theta}; \mathbf{X})
+<li><p><strong>Single Observation Score (<span class="math inline">\(\mathbf{u}_i\)</span>):</strong> For a single independent observation <span class="math inline">\(x_i\)</span>, its score is: <span class="math display">\[
+\mathbf{u}(\boldsymbol{\theta}; x_i) = \nabla_{\boldsymbol{\theta}} \ell(\boldsymbol{\theta}; x_i)
 \]</span></p></li>
-<li><p><strong>(Expected) Fisher Information Matrix (<span class="math inline">\(\mathcal{I}\)</span>):</strong> The covariance matrix of the score vector. It is a deterministic <span class="math inline">\(p \times p\)</span> matrix (for a fixed <span class="math inline">\(\boldsymbol{\theta}\)</span>).</p>
-<p><span class="math display">\[
-\mathcal{I}(\boldsymbol{\theta}) = E_{\boldsymbol{\theta}} \left[ \mathbf{J}(\boldsymbol{\theta}; \mathbf{X}) \right]
+<li><p><strong>Sum for Independent Data:</strong> By the linearity of the derivative operator, the total score function for independent observations is the sum of the individual score functions: <span class="math display">\[
+\mathbf{U}(\boldsymbol{\theta}; \mathbf{x}) = \sum_{i=1}^n \mathbf{u}(\boldsymbol{\theta}; x_i)
 \]</span></p></li>
+</ol>
+</div>
+<div id="def-fisher-info" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 6.4 (Fisher Information)</strong></span> The Fisher Information measures the curvature of the log-likelihood surface and, correspondingly, the amount of information the data carries about the unknown parameter.</p>
+<ol type="1">
+<li><strong>Observed Fisher Information (<span class="math inline">\(\mathbf{J}\)</span>):</strong> This is the negative Hessian matrix of the log-likelihood, evaluated at the observed data.
+<ul>
+<li><strong>Total:</strong> <span class="math inline">\(\mathbf{J}_n(\boldsymbol{\theta}; \mathbf{x}) = - \nabla^2_{\boldsymbol{\theta}} \ell(\boldsymbol{\theta}; \mathbf{x})\)</span></li>
+<li><strong>Single Observation:</strong> <span class="math inline">\(\mathbf{J}_1(\boldsymbol{\theta}; x_i) = - \nabla^2_{\boldsymbol{\theta}} \ell(\boldsymbol{\theta}; x_i)\)</span></li>
+<li><strong>Sum for Independent Data:</strong> <span class="math display">\[
+\mathbf{J}_n(\boldsymbol{\theta}; \mathbf{x}) = \sum_{i=1}^n \mathbf{J}_1(\boldsymbol{\theta}; x_i)
+\]</span></li>
+</ul></li>
+<li><strong>Expected Fisher Information (<span class="math inline">\(\mathcal{I}\)</span>):</strong> This is the covariance matrix of the score vector, which simplifies to the expected value of the observed Fisher information. It is a deterministic <span class="math inline">\(p \times p\)</span> matrix.
+<ul>
+<li><strong>Total:</strong> <span class="math inline">\(\mathcal{I}_n(\boldsymbol{\theta}) = E_{\boldsymbol{\theta}} \left[ \mathbf{J}_n(\boldsymbol{\theta}; \mathbf{X}) \right]\)</span></li>
+<li><strong>Single Observation:</strong> <span class="math inline">\(\mathcal{I}_1(\boldsymbol{\theta}) = E_{\boldsymbol{\theta}} \left[ \mathbf{J}_1(\boldsymbol{\theta}; X_i) \right]\)</span></li>
+<li><strong>Sum for Independent Data:</strong> <span class="math display">\[
+\mathcal{I}_n(\boldsymbol{\theta}) = \sum_{i=1}^n \mathcal{I}_1(\boldsymbol{\theta})
+\]</span> <em>(Note: If the independent observations are also identically distributed (i.i.d.), this simplifies further to <span class="math inline">\(\mathcal{I}_n(\boldsymbol{\theta}) = n \mathcal{I}_1(\boldsymbol{\theta})\)</span>).</em></li>
+</ul></li>
 </ol>
 </div>
 </section>
@@ -375,8 +404,7 @@ L(\boldsymbol{\theta}; \mathbf{x}) = f(\mathbf{x}|\boldsymbol{\theta})
 <div id="exm-normal-mle-asymptotics" class="theorem example">
 <p><span class="theorem-title"><strong>Example 6.1 (Example: Normal Distribution (Exact Asymptotics))</strong></span> Let <span class="math inline">\(X_1, \dots, X_n \overset{iid}{\sim} N(\theta, \sigma^2)\)</span> with <span class="math inline">\(\sigma^2\)</span> known. We explicitly derive the key quantities and map them to the four general asymptotic results under <span class="math inline">\(H_0: \theta = \theta_0\)</span>.</p>
 <ol type="1">
-<li>Derivation of Key Quantities</li>
-</ol>
+<li><p>Derivation of Key Quantities</p>
 <ul>
 <li><p><strong>Log-Likelihood:</strong> Using the identity <span class="math inline">\(\sum (x_i - \theta)^2 = \sum (x_i - \bar{x})^2 + n(\bar{x} - \theta)^2\)</span>, the log-likelihood is a perfect quadratic centered at <span class="math inline">\(\bar{x}\)</span>: <span class="math display">\[
   \ell(\theta) = \underbrace{-\frac{n}{2}\log(2\pi\sigma^2) - \frac{1}{2\sigma^2}\sum_{i=1}^n (x_i - \bar{x})^2}_{C} - \frac{n}{2\sigma^2}(\theta - \bar{x})^2
@@ -388,10 +416,31 @@ L(\boldsymbol{\theta}; \mathbf{x}) = f(\mathbf{x}|\boldsymbol{\theta})
 <li><p><strong>Fisher Information (<span class="math inline">\(\mathcal{I}_n\)</span>):</strong> Taking the negative second derivative: <span class="math display">\[
   \mathcal{I}_n(\theta) = -E[\ell''(\theta)] = \frac{n}{\sigma^2}
   \]</span></p></li>
+</ul></li>
+<li><p>Asymptotic Distributions</p>
+<p>We now illustrate the four main theorems using these derived forms under <span class="math inline">\(H_0: \theta = \theta_0\)</span>:</p>
+<ol type="1">
+<li><p><strong>Consistency:</strong> The MLE <span class="math inline">\(\hat{\theta}_n = \bar{X}_n \xrightarrow{p} \theta_0\)</span> by the Weak Law of Large Numbers.</p></li>
+<li><p><strong>Asymptotic Normality of the Score:</strong> Evaluated at the null, the score follows a Normal distribution exactly: <span class="math display">\[
+U_n(\theta_0) \sim N(0, \mathcal{I}_n(\theta_0))
+\]</span></p></li>
+<li><p><strong>Asymptotic Normality of the Estimator:</strong> The distribution of the standardized MLE centered at the null value is: <span class="math display">\[
+\sqrt{n}(\hat{\theta}_n - \theta_0) \sim N(0, \sigma^2) = N(0, \mathcal{I}_1(\theta_0)^{-1})
+\]</span></p></li>
+<li><p><strong>Wilks’ Theorem (Deviance):</strong> The Deviance is defined as <span class="math inline">\(D = 2[\ell(\hat{\theta}) - \ell(\theta_0)]\)</span>.Using the quadratic form of the log-likelihood derived above, we can directly compute the values at the MLE (<span class="math inline">\(\hat{\theta} = \bar{x}\)</span>) and the null (<span class="math inline">\(\theta_0\)</span>):</p>
+<ul>
+<li><span class="math inline">\(\ell(\hat{\theta}) = C - \frac{n}{2\sigma^2}(\bar{x} - \bar{x})^2 = C\)</span></li>
+<li><span class="math inline">\(\ell(\theta_0) = C - \frac{n}{2\sigma^2}(\theta_0 - \bar{x})^2\)</span></li>
 </ul>
-<ol start="2" type="1">
-<li>Visualizing Log-Sampling Distribution vs.&nbsp;Log-Likelihoods</li>
+<p>Substituting these into the Deviance formula directly yields: <span class="math display">\[
+D = 2 \left[ C - \left( C - \frac{n}{2\sigma^2}(\bar{x} - \theta_0)^2 \right) \right] = \frac{n}{\sigma^2}(\bar{x} - \theta_0)^2
+\]</span></p>
+<p>Rearranging this expression reveals the square of a standard Normal variable (<span class="math inline">\(Z\)</span>): <span class="math display">\[
+D = \left( \frac{\bar{X}_n - \theta_0}{\sigma/\sqrt{n}} \right)^2 = Z^2 \sim \chi^2_1
+\]</span> This confirms that for the Normal distribution, the <span class="math inline">\(\chi^2_1\)</span> distribution of the Deviance is exact for any sample size <span class="math inline">\(n\)</span>.</p></li>
+</ol></li>
 </ol>
+</div>
 <p>The following plot illustrates the log-density of the sampling distribution of <span class="math inline">\(\bar{x}\)</span> (where the true <span class="math inline">\(\theta_0 = 2\)</span>) alongside 10 realized log-likelihood functions. The colored points on the x-axis mark the MLE (<span class="math inline">\(\bar{x}\)</span>) for each realization.</p>
 <div class="cell">
 <details class="code-fold">
@@ -533,29 +582,6 @@ Figure&nbsp;6.1: Log-PDF of the sampling distribution and 10 realized log-likeli
 </div>
 </div>
 </div>
-<ol start="3" type="1">
-<li><p>Asympototic Distributions</p>
-<p>We now illustrate the four main theorems using these derived forms under <span class="math inline">\(H_0: \theta = \theta_0\)</span>:</p>
-<ol type="1">
-<li><p><strong>Consistency:</strong> The MLE <span class="math inline">\(\hat{\theta}_n = \bar{X}_n \xrightarrow{p} \theta_0\)</span> by the Weak Law of Large Numbers.</p></li>
-<li><p><strong>Asymptotic Normality of the Score:</strong> Evaluated at the null, the score follows a Normal distribution exactly: <span class="math display">\[
-U_n(\theta_0) \sim N(0, \mathcal{I}_n(\theta_0))
-\]</span></p></li>
-<li><p><strong>Asymptotic Normality of the Estimator:</strong> The distribution of the standardized MLE centered at the null value is: <span class="math display">\[
-\sqrt{n}(\hat{\theta}_n - \theta_0) \sim N(0, \sigma^2) = N(0, \mathcal{I}_1(\theta_0)^{-1})
-\]</span></p></li>
-<li><p><strong>Wilks’ Theorem (Deviance Approximation):</strong> For <span class="math inline">\(H_0: \theta = \theta_0\)</span>, the Deviance is <span class="math inline">\(D = 2[\ell(\hat{\theta}) - \ell(\theta_0)]\)</span>.</p>
-<ul>
-<li><p><strong>Step A: Taylor Expansion:</strong> Because the log-likelihood is exactly quadratic, the expansion around the MLE <span class="math inline">\(\hat{\theta}\)</span> is exact: <span class="math display">\[
-\ell(\theta_0) = \ell(\hat{\theta}) + 0 + \frac{1}{2}(\theta_0 - \hat{\theta})^2 \left(-\frac{n}{\sigma^2}\right)
-\]</span></p></li>
-<li><p><strong>Step B: Exactness:</strong> <span class="math inline">\(D = \frac{n}{\sigma^2}(\hat{\theta} - \theta_0)^2\)</span>. The Deviance is algebraically identical to the Wald statistic.</p></li>
-<li><p><strong>Step C: Equivalence:</strong> <span class="math display">\[D = (\hat{\theta} - \theta_0)^2 \mathcal{I}_n(\theta_0) = U_n(\theta_0)^T \mathcal{I}_n(\theta_0)^{-1} U_n(\theta_0)\]</span></p></li>
-<li><p><strong>Step D: Conclusion:</strong> Since <span class="math inline">\((\hat{\theta} - \theta_0) \sim N(0, \sigma^2/n)\)</span>, the statistic <span class="math inline">\(D\)</span> is the square of a standard Normal variable: <span class="math display">\[D = Z^2 \sim \chi^2_1\]</span></p></li>
-</ul></li>
-</ol></li>
-</ol>
-</div>
 <section id="uniform-distribution-boundary-case" class="level4" data-number="6.1.2.1">
 <h4 data-number="6.1.2.1" class="anchored" data-anchor-id="uniform-distribution-boundary-case"><span class="header-section-number">6.1.2.1</span> Uniform Distribution (Boundary Case)</h4>
 <div id="exm-uniform-mle-boundary" class="theorem example">
@@ -583,13 +609,12 @@ L(\theta; \mathbf{x}) = \frac{1}{\theta^n} I(x_{(n)} \le \theta)
 <p>The MLE is asymptotically normal, unbiased, and efficient (achieving the Cramér-Rao lower bound). <span class="math display">\[
 \sqrt{n}(\hat{\boldsymbol{\theta}}_{\text{MLE}} - \boldsymbol{\theta}_0) \xrightarrow{d} N_p(\mathbf{0}, \mathcal{I}_1(\boldsymbol{\theta}_0)^{-1})
 \]</span></p></li>
-<li><p><strong>Wilks’ Theorem (Likelihood Ratio for Nested Models):</strong></p>
-<p>Consider two nested models: a <strong>Full Model</strong> with parameter space <span class="math inline">\(\Theta_{\text{Full}}\)</span> (dimension <span class="math inline">\(p\)</span>) and a <strong>Reduced Model</strong> restricted to a subspace <span class="math inline">\(\Theta_{\text{Reduced}}\)</span> (dimension <span class="math inline">\(q &lt; p\)</span>).</p>
-<p>The Likelihood Ratio Statistic (Deviance) is defined as: <span class="math display">\[
-D = 2 \left( \ell(\hat{\boldsymbol{\theta}}_{\text{Full}}) - \ell(\hat{\boldsymbol{\theta}}_{\text{Reduced}}) \right)
-\]</span> Under the null hypothesis that the Reduced Model is true, the statistic converges to a Chi-squared distribution: <span class="math display">\[
-D \xrightarrow{d} \chi^2_{p-q}
-\]</span> <em>(The degrees of freedom equal the difference in the number of parameters).</em></p></li>
+<li><p><strong>Wilks’ Theorem (Likelihood Ratio Test for a Simple Null):</strong></p>
+<p>The Likelihood Ratio Statistic (Deviance) evaluates the drop in the log-likelihood from the Maximum Likelihood Estimator (<span class="math inline">\(\hat{\boldsymbol{\theta}}\)</span>) to the true value (<span class="math inline">\(\boldsymbol{\theta}_0\)</span>): <span class="math display">\[
+D = 2 \left( \ell(\hat{\boldsymbol{\theta}}) - \ell(\boldsymbol{\theta}_0) \right)
+\]</span> The statistic converges to a Chi-squared distribution: <span class="math display">\[
+D \xrightarrow{d} \chi^2_{p}
+\]</span> <em>(The degrees of freedom equal the dimension of the parameter vector <span class="math inline">\(p\)</span>, because all <span class="math inline">\(p\)</span> parameters are fixed under the null. For a single scalar parameter <span class="math inline">\(\theta\)</span>, this reduces to <span class="math inline">\(\chi^2_1\)</span>).</em></p></li>
 </ol>
 </section>
 </section>
@@ -1212,7 +1237,7 @@ E_{\boldsymbol{\theta}_0} \left[ \log \frac{f_i(Y_i|\boldsymbol{\theta})}{f_i(Y_
 <h3 data-number="6.4.3" class="anchored" data-anchor-id="asymptotic-normality-of-the-mle"><span class="header-section-number">6.4.3</span> Asymptotic Normality of the MLE</h3>
 <p>We now transfer the normality from the Score function to the estimator <span class="math inline">\(\hat{\boldsymbol{\theta}}\)</span> using a Taylor expansion (the Delta Method logic).</p>
 <div id="def-regularity-conditions" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 6.2 (Regularity Conditions for Asymptotic Normality)</strong></span> The following conditions are required to ensure the validity of the Taylor expansion and the convergence of the remainder term:</p>
+<p><span class="theorem-title"><strong>Definition 6.5 (Regularity Conditions for Asymptotic Normality)</strong></span> The following conditions are required to ensure the validity of the Taylor expansion and the convergence of the remainder term:</p>
 <ol type="1">
 <li><p><strong>Interiority:</strong> The true parameter <span class="math inline">\(\boldsymbol{\theta}_0\)</span> lies in the interior of the parameter space <span class="math inline">\(\Theta\)</span>.</p></li>
 <li><p><strong>Smoothness:</strong> The log-likelihood function <span class="math inline">\(\log f(y|\boldsymbol{\theta})\)</span> is three times continuously differentiable with respect to <span class="math inline">\(\boldsymbol{\theta}\)</span>.</p></li>
