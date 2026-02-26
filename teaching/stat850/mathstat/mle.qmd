@@ -10,56 +10,95 @@ format:
 
 ### Definitions and Notations
 
-::: {#def-likelihood-mle}
+::: {#def-likelihood}
 
-### Maximum Likelihood Estimation
+### Likelihood and Log-Likelihood
 
-1. **Likelihood Function:**
+Let $f(\mathbf{x}|\boldsymbol{\theta})$ be the joint probability density function (or mass function) of the data $\mathbf{X} = (X_1, \dots, X_n)$. 
 
-    Let $f(\mathbf{x}|\boldsymbol{\theta})$ be the joint probability density function of the data $\mathbf{X}$. When viewed as a function of the parameter $\boldsymbol{\theta}$ given fixed data $\mathbf{x}$, it is called the likelihood function:
-    $$
-    L(\boldsymbol{\theta}; \mathbf{x}) = f(\mathbf{x}|\boldsymbol{\theta})
-    $$
-
-2. **Log-likelihood:**
-
-    It is usually easier to maximize the natural logarithm of the likelihood:
-    $$
-    \ell(\boldsymbol{\theta}; \mathbf{x}) = \log L(\boldsymbol{\theta}; \mathbf{x})
-    $$
-
-3. **Maximum Likelihood Estimator (MLE):**
-
-    The MLE $\hat{\boldsymbol{\theta}}_{\text{MLE}}$ is the value that maximizes the likelihood function:
-    $$
-    \hat{\boldsymbol{\theta}}_{\text{MLE}}(\mathbf{x}) = \operatorname*{argmax}_{\boldsymbol{\theta} \in \Theta} \ell(\boldsymbol{\theta}; \mathbf{x})
-    $$
-
-4. **Score Function ($\mathbf{U}$):**
-
-    The score function is defined as the gradient of the log-likelihood with respect to the parameter vector. 
-    $$
-    \mathbf{U}(\boldsymbol{\theta}; \mathbf{x}) = \nabla_{\boldsymbol{\theta}} \ell(\boldsymbol{\theta}; \mathbf{x})
-    $$
-    Finding the MLE often involves solving the score equation: 
-    $$
-    \mathbf{U}(\boldsymbol{\theta}; \mathbf{x}) \equiv 0
-    $$
-
-5. **Observed Fisher Information:**
-
+1. **Joint Likelihood Function:**
+   When viewed as a function of the parameter $\boldsymbol{\theta}$ given fixed data $\mathbf{x}$, it is called the likelihood function:
    $$
-   \mathbf{J}(\boldsymbol{\theta}; \mathbf{X}) = - \nabla^2 \ell(\boldsymbol{\theta}; \mathbf{X})
+   L(\boldsymbol{\theta}; \mathbf{x}) = f(\mathbf{x}|\boldsymbol{\theta})
    $$
 
-6. **(Expected) Fisher Information Matrix ($\mathcal{I}$):** The covariance matrix of the score vector. It is a deterministic $p \times p$ matrix (for a fixed $\boldsymbol{\theta}$).
+2. **Joint Log-Likelihood:**
+   It is usually easier to maximize the natural logarithm of the likelihood:
+   $$
+   \ell(\boldsymbol{\theta}; \mathbf{x}) = \log L(\boldsymbol{\theta}; \mathbf{x})
+   $$
 
-    $$
-    \mathcal{I}(\boldsymbol{\theta}) = E_{\boldsymbol{\theta}} \left[ \mathbf{J}(\boldsymbol{\theta}; \mathbf{X}) \right]
-    $$
+3. **Independent Observations:**
+   If the observations $X_1, \dots, X_n$ are independent, the joint likelihood factors into a product of individual densities. Let $\ell(\boldsymbol{\theta}; x_i) = \log f(x_i|\boldsymbol{\theta})$ denote the log-likelihood for a **single observation**. The total log-likelihood is strictly the sum of the individual log-likelihoods:
+   $$
+   \ell(\boldsymbol{\theta}; \mathbf{x}) = \sum_{i=1}^n \ell(\boldsymbol{\theta}; x_i)
+   $$
 
 :::
 
+::: {#def-mle}
+
+### Maximum Likelihood Estimation
+
+**Maximum Likelihood Estimator (MLE):**
+The MLE $\hat{\boldsymbol{\theta}}_{\text{MLE}}$ is the value in the parameter space $\Theta$ that maximizes the likelihood (and equivalently, the log-likelihood) function:
+$$
+\hat{\boldsymbol{\theta}}_{\text{MLE}}(\mathbf{x}) = \operatorname*{argmax}_{\boldsymbol{\theta} \in \Theta} \ell(\boldsymbol{\theta}; \mathbf{x})
+$$
+
+:::
+
+::: {#def-score}
+
+### Score Function
+
+The score function is defined as the gradient of the log-likelihood with respect to the parameter vector $\boldsymbol{\theta}$. Finding the MLE often involves solving the score equation $\mathbf{U}(\boldsymbol{\theta}; \mathbf{x}) = \mathbf{0}$.
+
+1. **Total Score Function ($\mathbf{U}$):**
+   $$
+   \mathbf{U}(\boldsymbol{\theta}; \mathbf{x}) = \nabla_{\boldsymbol{\theta}} \ell(\boldsymbol{\theta}; \mathbf{x})
+   $$
+
+2. **Single Observation Score ($\mathbf{u}_i$):**
+   For a single independent observation $x_i$, its score is:
+   $$
+   \mathbf{u}(\boldsymbol{\theta}; x_i) = \nabla_{\boldsymbol{\theta}} \ell(\boldsymbol{\theta}; x_i)
+   $$
+
+3. **Sum for Independent Data:**
+   By the linearity of the derivative operator, the total score function for independent observations is the sum of the individual score functions:
+   $$
+   \mathbf{U}(\boldsymbol{\theta}; \mathbf{x}) = \sum_{i=1}^n \mathbf{u}(\boldsymbol{\theta}; x_i)
+   $$
+
+:::
+
+::: {#def-fisher-info}
+
+### Fisher Information
+
+The Fisher Information measures the curvature of the log-likelihood surface and, correspondingly, the amount of information the data carries about the unknown parameter.
+
+1. **Observed Fisher Information ($\mathbf{J}$):**
+   This is the negative Hessian matrix of the log-likelihood, evaluated at the observed data.
+   * **Total:** $\mathbf{J}_n(\boldsymbol{\theta}; \mathbf{x}) = - \nabla^2_{\boldsymbol{\theta}} \ell(\boldsymbol{\theta}; \mathbf{x})$
+   * **Single Observation:** $\mathbf{J}_1(\boldsymbol{\theta}; x_i) = - \nabla^2_{\boldsymbol{\theta}} \ell(\boldsymbol{\theta}; x_i)$
+   * **Sum for Independent Data:**
+     $$
+     \mathbf{J}_n(\boldsymbol{\theta}; \mathbf{x}) = \sum_{i=1}^n \mathbf{J}_1(\boldsymbol{\theta}; x_i)
+     $$
+
+2. **Expected Fisher Information ($\mathcal{I}$):**
+   This is the covariance matrix of the score vector, which simplifies to the expected value of the observed Fisher information. It is a deterministic $p \times p$ matrix.
+   * **Total:** $\mathcal{I}_n(\boldsymbol{\theta}) = E_{\boldsymbol{\theta}} \left[ \mathbf{J}_n(\boldsymbol{\theta}; \mathbf{X}) \right]$
+   * **Single Observation:** $\mathcal{I}_1(\boldsymbol{\theta}) = E_{\boldsymbol{\theta}} \left[ \mathbf{J}_1(\boldsymbol{\theta}; X_i) \right]$
+   * **Sum for Independent Data:**
+     $$
+     \mathcal{I}_n(\boldsymbol{\theta}) = \sum_{i=1}^n \mathcal{I}_1(\boldsymbol{\theta})
+     $$
+     *(Note: If the independent observations are also identically distributed (i.i.d.), this simplifies further to $\mathcal{I}_n(\boldsymbol{\theta}) = n \mathcal{I}_1(\boldsymbol{\theta})$).*
+
+:::
 
 ### Example: MLE of Normal Sample
 
@@ -71,28 +110,63 @@ Let $X_1, \dots, X_n \overset{iid}{\sim} N(\theta, \sigma^2)$ with $\sigma^2$ kn
 
 1. Derivation of Key Quantities
 
-* **Log-Likelihood:**
-    Using the identity $\sum (x_i - \theta)^2 = \sum (x_i - \bar{x})^2 + n(\bar{x} - \theta)^2$, the log-likelihood is a perfect quadratic centered at $\bar{x}$:
-    $$
-    \ell(\theta) = \underbrace{-\frac{n}{2}\log(2\pi\sigma^2) - \frac{1}{2\sigma^2}\sum_{i=1}^n (x_i - \bar{x})^2}_{C} - \frac{n}{2\sigma^2}(\theta - \bar{x})^2
-    $$
+    * **Log-Likelihood:**
+        Using the identity $\sum (x_i - \theta)^2 = \sum (x_i - \bar{x})^2 + n(\bar{x} - \theta)^2$, the log-likelihood is a perfect quadratic centered at $\bar{x}$:
+        $$
+        \ell(\theta) = \underbrace{-\frac{n}{2}\log(2\pi\sigma^2) - \frac{1}{2\sigma^2}\sum_{i=1}^n (x_i - \bar{x})^2}_{C} - \frac{n}{2\sigma^2}(\theta - \bar{x})^2
+        $$
 
-* **Score Function ($U_n$):**
-    Differentiating with respect to $\theta$:
-    $$
-    U_n(\theta) = \ell'(\theta) = \frac{n}{\sigma^2}(\bar{X}_n - \theta)
-    $$
+    * **Score Function ($U_n$):**
+        Differentiating with respect to $\theta$:
+        $$
+        U_n(\theta) = \ell'(\theta) = \frac{n}{\sigma^2}(\bar{X}_n - \theta)
+        $$
 
-* **Maximum Likelihood Estimator ($\hat{\theta}_n$):**
-    Setting $U_n(\hat{\theta}) = 0 \implies \hat{\theta}_n = \bar{X}_n$.
+    * **Maximum Likelihood Estimator ($\hat{\theta}_n$):**
+        Setting $U_n(\hat{\theta}) = 0 \implies \hat{\theta}_n = \bar{X}_n$.
 
-* **Fisher Information ($\mathcal{I}_n$):**
-    Taking the negative second derivative:
-    $$
-    \mathcal{I}_n(\theta) = -E[\ell''(\theta)] = \frac{n}{\sigma^2}
-    $$
+    * **Fisher Information ($\mathcal{I}_n$):**
+        Taking the negative second derivative:
+        $$
+        \mathcal{I}_n(\theta) = -E[\ell''(\theta)] = \frac{n}{\sigma^2}
+        $$
 
-2. Visualizing Log-Sampling Distribution vs. Log-Likelihoods
+2. Asymptotic Distributions
+   
+    We now illustrate the four main theorems using these derived forms under $H_0: \theta = \theta_0$:
+
+    1. **Consistency:**
+        The MLE $\hat{\theta}_n = \bar{X}_n \xrightarrow{p} \theta_0$ by the Weak Law of Large Numbers.
+
+    2. **Asymptotic Normality of the Score:**
+        Evaluated at the null, the score follows a Normal distribution exactly:
+        $$
+        U_n(\theta_0) \sim N(0, \mathcal{I}_n(\theta_0))
+        $$
+
+    3. **Asymptotic Normality of the Estimator:**
+        The distribution of the standardized MLE centered at the null value is:
+        $$
+        \sqrt{n}(\hat{\theta}_n - \theta_0) \sim N(0, \sigma^2) = N(0, \mathcal{I}_1(\theta_0)^{-1})
+        $$
+
+    4. **Wilks' Theorem (Deviance):**
+        The Deviance is defined as $D = 2[\ell(\hat{\theta}) - \ell(\theta_0)]$.Using the quadratic form of the log-likelihood derived above, we can directly compute the values at the MLE ($\hat{\theta} = \bar{x}$) and the null ($\theta_0$):
+        * $\ell(\hat{\theta}) = C - \frac{n}{2\sigma^2}(\bar{x} - \bar{x})^2 = C$
+        * $\ell(\theta_0) = C - \frac{n}{2\sigma^2}(\theta_0 - \bar{x})^2$
+        
+        Substituting these into the Deviance formula directly yields:
+        $$
+        D = 2 \left[ C - \left( C - \frac{n}{2\sigma^2}(\bar{x} - \theta_0)^2 \right) \right] = \frac{n}{\sigma^2}(\bar{x} - \theta_0)^2
+        $$
+        
+        Rearranging this expression reveals the square of a standard Normal variable ($Z$):
+        $$
+        D = \left( \frac{\bar{X}_n - \theta_0}{\sigma/\sqrt{n}} \right)^2 = Z^2 \sim \chi^2_1
+        $$
+        This confirms that for the Normal distribution, the $\chi^2_1$ distribution of the Deviance is exact for any sample size $n$.
+
+::::
 
 The following plot illustrates the log-density of the sampling distribution of $\bar{x}$ (where the true $\theta_0 = 2$) alongside 10 realized log-likelihood functions. The colored points on the x-axis mark the MLE ($\bar{x}$) for each realization.
 
@@ -225,45 +299,6 @@ legend("topright",
        bg = "white", cex = 0.85)
 ```
 
-3. Asympototic Distributions
-   
-    We now illustrate the four main theorems using these derived forms under $H_0: \theta = \theta_0$:
-
-    1. **Consistency:**
-        The MLE $\hat{\theta}_n = \bar{X}_n \xrightarrow{p} \theta_0$ by the Weak Law of Large Numbers.
-
-    2. **Asymptotic Normality of the Score:**
-        Evaluated at the null, the score follows a Normal distribution exactly:
-        $$
-        U_n(\theta_0) \sim N(0, \mathcal{I}_n(\theta_0))
-        $$
-
-    3. **Asymptotic Normality of the Estimator:**
-        The distribution of the standardized MLE centered at the null value is:
-        $$
-        \sqrt{n}(\hat{\theta}_n - \theta_0) \sim N(0, \sigma^2) = N(0, \mathcal{I}_1(\theta_0)^{-1})
-        $$
-
-    4. **Wilks' Theorem (Deviance Approximation):**
-        For $H_0: \theta = \theta_0$, the Deviance is $D = 2[\ell(\hat{\theta}) - \ell(\theta_0)]$.
-        
-        * **Step A: Taylor Expansion:** Because the log-likelihood is exactly quadratic, the expansion around the MLE $\hat{\theta}$ is exact:
-        $$
-        \ell(\theta_0) = \ell(\hat{\theta}) + 0 + \frac{1}{2}(\theta_0 - \hat{\theta})^2 \left(-\frac{n}{\sigma^2}\right)
-        $$
-        
-        * **Step B: Exactness:**
-        $D = \frac{n}{\sigma^2}(\hat{\theta} - \theta_0)^2$. The Deviance is algebraically identical to the Wald statistic.
-        
-        * **Step C: Equivalence:**
-        $$D = (\hat{\theta} - \theta_0)^2 \mathcal{I}_n(\theta_0) = U_n(\theta_0)^T \mathcal{I}_n(\theta_0)^{-1} U_n(\theta_0)$$
-        
-        * **Step D: Conclusion:**
-        Since $(\hat{\theta} - \theta_0) \sim N(0, \sigma^2/n)$, the statistic $D$ is the square of a standard Normal variable:
-        $$D = Z^2 \sim \chi^2_1$$
-
-::::
-
 #### Uniform Distribution (Boundary Case)
 
 ::: {#exm-uniform-mle-boundary}
@@ -308,20 +343,17 @@ Under standard regularity conditions (e.g., i.i.d. observations, smooth density,
     \sqrt{n}(\hat{\boldsymbol{\theta}}_{\text{MLE}} - \boldsymbol{\theta}_0) \xrightarrow{d} N_p(\mathbf{0}, \mathcal{I}_1(\boldsymbol{\theta}_0)^{-1})
     $$
 
-4. **Wilks' Theorem (Likelihood Ratio for Nested Models):**
-
-    Consider two nested models: a **Full Model** with parameter space $\Theta_{\text{Full}}$ (dimension $p$) and a **Reduced Model** restricted to a subspace $\Theta_{\text{Reduced}}$ (dimension $q < p$). 
+4. **Wilks' Theorem (Likelihood Ratio Test for a Simple Null):**
     
-    The Likelihood Ratio Statistic (Deviance) is defined as:
+    The Likelihood Ratio Statistic (Deviance) evaluates the drop in the log-likelihood from the Maximum Likelihood Estimator ($\hat{\boldsymbol{\theta}}$) to the true value ($\boldsymbol{\theta}_0$):
     $$
-    D = 2 \left( \ell(\hat{\boldsymbol{\theta}}_{\text{Full}}) - \ell(\hat{\boldsymbol{\theta}}_{\text{Reduced}}) \right)
+    D = 2 \left( \ell(\hat{\boldsymbol{\theta}}) - \ell(\boldsymbol{\theta}_0) \right)
     $$
-    Under the null hypothesis that the Reduced Model is true, the statistic converges to a Chi-squared distribution:
+    The statistic converges to a Chi-squared distribution:
     $$
-    D \xrightarrow{d} \chi^2_{p-q}
+    D \xrightarrow{d} \chi^2_{p}
     $$
-    *(The degrees of freedom equal the difference in the number of parameters).*
-
+    *(The degrees of freedom equal the dimension of the parameter vector $p$, because all $p$ parameters are fixed under the null. For a single scalar parameter $\theta$, this reduces to $\chi^2_1$).*
 
 ## Newton-Raphson and Fisher Scoring Algorithms for Finding MLE
 
