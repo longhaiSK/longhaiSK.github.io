@@ -2401,20 +2401,21 @@ The visual results clearly underscore the weaknesses of uncorrected gradients in
 
 In contrast, incorporating the Fisher Information corrects for the warped geometry. **Diagonal NSGD** rapidly pushes the grey noise parameters toward zero, though it chatters slightly around the true active values due to ignoring the off-diagonal correlations. The **Full-Matrix NSGD** provides the most direct, stable path to convergence with minimal variance, but takes noticeably longer per step to invert the full $100 \times 100$ matrix. Finally, the **Re-sampling NSGD** demonstrates that we can successfully approximate the diagonal Fisher geometrically by injecting simulated model noise, achieving shrinkage comparable to the analytical diagonal method despite requiring a slightly more conservative learning rate to manage the Monte Carlo variance.
 
+
 ## Appendix: Derivation of Score and Information in Poisson Regression
 
-:::: {#exm-poisson-score-fisher}
+In a Poisson Generalized Linear Model with a canonical link, the mean is modeled as $\lambda_i(\boldsymbol{\beta}) = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})$. 
 
-In a Poisson Generalized Linear Model with a canonical link, the mean is modeled as $\lambda_i(\boldsymbol{\beta}) = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})$. The derivation of the Score vector and the Fisher Information matrix relies on the chain rule and the properties of the exponential function.
+Throughout these derivations, we will utilize the **Hadamard product** (element-wise multiplication), denoted by the operator $\odot$, to provide concise vectorized representations. For two vectors $\mathbf{a}$ and $\mathbf{b}$ of the same dimension, their Hadamard product $\mathbf{a} \odot \mathbf{b}$ yields a vector with elements $a_i b_i$. When applied between a column vector and a matrix, the operation broadcasts the element-wise multiplication down the columns of the matrix.
+
+The derivation of the Score vector and the Fisher Information matrix relies on the chain rule and the properties of the exponential function.
 
 ### Derivation of the Score Vector $\mathbf{U}(\boldsymbol{\beta})$
 
 The Score vector is defined as the gradient of the log-likelihood with respect to the parameter vector $\boldsymbol{\beta}$.
 
 
-1. **Differentiate the Log-Likelihood** 
-
-   Starting from the log-likelihood function:
+1. **Differentiate the Log-Likelihood** Starting from the log-likelihood function:
    $$
    \ell(\boldsymbol{\beta}) = \sum_{i=1}^n \left( y_i (\mathbf{x}_i^\top \boldsymbol{\beta}) - \exp(\mathbf{x}_i^\top \boldsymbol{\beta}) - \log(y_i!) \right)
    $$
@@ -2423,20 +2424,20 @@ The Score vector is defined as the gradient of the log-likelihood with respect t
    \frac{\partial \ell}{\partial \beta_j} = \sum_{i=1}^n \left( y_i \frac{\partial (\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} - \frac{\partial \exp(\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} \right)
    $$
 
-2. **Apply the Chain Rule** 
-
-   Note that $\frac{\partial (\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} = x_{ij}$. Using the chain rule on the exponential term:
+2. **Apply the Chain Rule** Note that $\frac{\partial (\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} = x_{ij}$. Using the chain rule on the exponential term:
    $$
    \frac{\partial \exp(\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} = \exp(\mathbf{x}_i^\top \boldsymbol{\beta}) \cdot x_{ij} = \lambda_i(\boldsymbol{\beta}) x_{ij}
    $$
 
-3. **Form the Vector** 
-
-   Substituting these back, we get:
+3. **Form the Vector** Substituting these back, we get:
    $$
    \frac{\partial \ell}{\partial \beta_j} = \sum_{i=1}^n (y_i - \lambda_i(\boldsymbol{\beta})) x_{ij}
    $$
-   In matrix notation, this corresponds to:
+   Let $\mathbf{x}^{(j)}$ denote the $n \times 1$ vector of the $j$-th covariate across all observations. Using the Hadamard product $\odot$, the $j$-th component of the score vector can be written equivalently as the sum of the elements in the resulting vector:
+   $$
+   U_j(\boldsymbol{\beta}) = \sum \left( (\mathbf{y} - \boldsymbol{\lambda}(\boldsymbol{\beta})) \odot \mathbf{x}^{(j)} \right)
+   $$
+   In full matrix notation, this corresponds to:
    $$
    \mathbf{U}(\boldsymbol{\beta}) = \mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda}(\boldsymbol{\beta}))
    $$
@@ -2449,23 +2450,17 @@ The Score vector is defined as the gradient of the log-likelihood with respect t
 The Observed Information is the negative Hessian matrix of the log-likelihood.
 
 
-1. **Differentiate the Score** 
-
-   We take the derivative of the $j$-th component of the score, $U_j = \sum_{i=1}^n (y_i - \lambda_i(\boldsymbol{\beta})) x_{ij}$, with respect to $\beta_k$:
+1. **Differentiate the Score** We take the derivative of the $j$-th component of the score, $U_j = \sum_{i=1}^n (y_i - \lambda_i(\boldsymbol{\beta})) x_{ij}$, with respect to $\beta_k$:
    $$
    \frac{\partial^2 \ell}{\partial \beta_j \partial \beta_k} = \frac{\partial}{\partial \beta_k} \sum_{i=1}^n (y_i - \lambda_i(\boldsymbol{\beta})) x_{ij} = \sum_{i=1}^n \left( -\frac{\partial \lambda_i(\boldsymbol{\beta})}{\partial \beta_k} \right) x_{ij}
    $$
 
-2. **Differentiate the Mean Function** 
-
-   Recall $\lambda_i(\boldsymbol{\beta}) = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})$. Its derivative with respect to $\beta_k$ is:
+2. **Differentiate the Mean Function** Recall $\lambda_i(\boldsymbol{\beta}) = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})$. Its derivative with respect to $\beta_k$ is:
    $$
    \frac{\partial \lambda_i(\boldsymbol{\beta})}{\partial \beta_k} = \lambda_i(\boldsymbol{\beta}) x_{ik}
    $$
 
-3. **Construct the Information Matrix** 
-
-   The $(j, k)$ element of the Hessian is:
+3. **Construct the Information Matrix** The $(j, k)$ element of the Hessian is:
    $$
    H_{jk} = -\sum_{i=1}^n \lambda_i(\boldsymbol{\beta}) x_{ij} x_{ik}
    $$
@@ -2473,9 +2468,49 @@ The Observed Information is the negative Hessian matrix of the log-likelihood.
    $$
    J(\boldsymbol{\beta})_{jk} = \sum_{i=1}^n \lambda_i(\boldsymbol{\beta}) x_{ij} x_{ik}
    $$
+   Using the Hadamard product $\odot$, the $(j,k)$-th element is elegantly expressed as the sum of the element-wise product of three vectors (the predicted means and the two covariate columns):
+   $$
+   J(\boldsymbol{\beta})_{jk} = \sum \left( \boldsymbol{\lambda}(\boldsymbol{\beta}) \odot \mathbf{x}^{(j)} \odot \mathbf{x}^{(k)} \right)
+   $$
    In matrix form, let $\mathbf{W}(\boldsymbol{\beta})$ be a diagonal matrix where $W_{ii} = \lambda_i(\boldsymbol{\beta})$. Then:
    $$
    J(\boldsymbol{\beta}) = \mathbf{X}^\top \mathbf{W}(\boldsymbol{\beta}) \mathbf{X}
+   $$
+
+
+
+
+### Derivation of the Expected Fisher Information $\mathcal{I}(\boldsymbol{\beta})$ via $\text{Var}(\mathbf{U})$
+
+By the fundamental properties of likelihoods, the Expected Fisher Information matrix $\mathcal{I}(\boldsymbol{\beta})$ is equivalent to the variance-covariance matrix of the Score vector: $\mathcal{I}(\boldsymbol{\beta}) = \text{Var}(\mathbf{U}(\boldsymbol{\beta}))$. 
+
+
+1. **Set Up the Variance Expression** Starting from the previously derived Score vector components:
+   $$
+   U_j(\boldsymbol{\beta}) = \sum_{i=1}^n (y_i - \lambda_i(\boldsymbol{\beta})) x_{ij}
+   $$
+   We find the $(j,k)$-th element of the Expected Information by taking the covariance between the $j$-th and $k$-th score components. Since the observations $y_i$ are independent:
+   $$
+   \mathcal{I}(\boldsymbol{\beta})_{jk} = \text{Cov}(U_j(\boldsymbol{\beta}), U_k(\boldsymbol{\beta})) = \sum_{i=1}^n \text{Cov}((y_i - \lambda_i(\boldsymbol{\beta})) x_{ij}, (y_i - \lambda_i(\boldsymbol{\beta})) x_{ik})
+   $$
+
+2. **Apply Variance Properties** Because the predicted mean $\lambda_i(\boldsymbol{\beta})$ and the covariates $x_{ij}, x_{ik}$ are treated as fixed constants, the covariance simplifies to the variance of $y_i$ scaled by the covariates:
+   $$
+   \mathcal{I}(\boldsymbol{\beta})_{jk} = \sum_{i=1}^n x_{ij} x_{ik} \text{Var}(y_i)
+   $$
+
+3. **Substitute the Poisson Variance** For a Poisson distribution, the variance is equal to the mean: $\text{Var}(y_i) = \lambda_i(\boldsymbol{\beta})$. Substituting this known variance into our equation gives:
+   $$
+   \mathcal{I}(\boldsymbol{\beta})_{jk} = \sum_{i=1}^n \lambda_i(\boldsymbol{\beta}) x_{ij} x_{ik}
+   $$
+   Just as with the Observed Information, this $(j,k)$-th element takes the exact same form as the sum of the Hadamard product of the three vectors:
+   $$
+   \mathcal{I}(\boldsymbol{\beta})_{jk} = \sum \left( \boldsymbol{\lambda}(\boldsymbol{\beta}) \odot \mathbf{x}^{(j)} \odot \mathbf{x}^{(k)} \right)
+   $$
+
+4. **Construct the Matrix Form** The full matrix can therefore be written using the exact same weight matrix $\mathbf{W}(\boldsymbol{\beta})$:
+   $$
+   \mathcal{I}(\boldsymbol{\beta}) = \mathbf{X}^\top \mathbf{W}(\boldsymbol{\beta}) \mathbf{X}
    $$
 
 
@@ -2491,5 +2526,3 @@ $$
 This is a unique property of canonical links in Generalized Linear Models.
 
 :::
-
-::::
