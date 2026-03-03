@@ -981,7 +981,9 @@ legend("top", legend=c(expression(W[right](theta)), expression(W[left](theta))),
       col=c("red", "blue"), lwd=2, bty="n")
 ```
 
-## Likelihood Ratio Tests
+## LRT, Score, and Wald's Tests
+
+### Likelihood Ratio Tests
 
 The Likelihood Ratio Test (LRT) provides a unified approach for constructing hypothesis tests for parametric models. Let $\mathbf{Y} = (Y_1, \dots, Y_n)$ be a random sample with joint probability density function $L(\boldsymbol{\theta}; \mathbf{Y})$, where $\boldsymbol{\theta} \in \Theta$. We consider the general hypothesis testing problem:
 $$H_0: \boldsymbol{\theta} \in \Theta_0 \quad \text{vs} \quad H_1: \boldsymbol{\theta} \in \Theta \setminus \Theta_0$$
@@ -1121,7 +1123,7 @@ $$H_0: \mu = \mu_0 \quad \text{vs} \quad H_1: \mu \neq \mu_0$$
 :::
 
 
-## Rao's Score Theorem for Testing Restricted Models
+### Rao's Score Theorem for Testing Restricted Models
 
 The asymptotic distribution of the Score Test statistic relies on the behavior of the gradient of the log-likelihood (the Score vector) evaluated at the restricted Maximum Likelihood Estimator. This theorem provides a powerful method for hypothesis testing that only requires fitting the model under the null hypothesis.
 
@@ -1132,9 +1134,9 @@ The asymptotic distribution of the Score Test statistic relies on the behavior o
 Let $\mathbf{Y} = (Y_1, \dots, Y_n)$ be an i.i.d. sample from a regular family of distributions with parameters $\boldsymbol{\theta} \in \Theta \subseteq \mathbb{R}^{p}$. Partition the parameter vector as $\boldsymbol{\theta} = (\boldsymbol{\theta}_0^T, \boldsymbol{\theta}_1^T)^T$, where $\boldsymbol{\theta}_0$ is the $q$-dimensional parameter of interest and $\boldsymbol{\theta}_1$ is the $(p-q)$-dimensional nuisance parameter. Consider the test:
 $$H_0: \boldsymbol{\theta}_0 = \boldsymbol{\theta}_0^* \quad \text{vs} \quad H_1: \boldsymbol{\theta}_0 \neq \boldsymbol{\theta}_0^*$$
 
-Let $\tilde{\boldsymbol{\theta}} = (\boldsymbol{\theta}_0^*, \tilde{\boldsymbol{\theta}}_1)$ be the restricted MLE under $H_0$. Let $\mathbf{U}(\boldsymbol{\theta})$ be the total Score vector partitioned as $\mathbf{U} = [\mathbf{U}_0^T, \mathbf{U}_1^T]^T$, and let $\mathcal{I}(\boldsymbol{\theta})$ be the expected Fisher Information matrix with $\mathcal{I}^{00}$ representing the top-left block of its inverse $\mathcal{I}^{-1}$.
+Let $\hat{\boldsymbol{\theta}}_0 = (\boldsymbol{\theta}_0^*, \hat{\boldsymbol{\theta}}_1)$ be the restricted MLE under $H_0$. Let $\mathbf{U}(\boldsymbol{\theta})$ be the total Score vector partitioned as $\mathbf{U} = [\mathbf{U}_0^T, \mathbf{U}_1^T]^T$, and let $\mathcal{I}(\boldsymbol{\theta})$ be the expected Fisher Information matrix with $\mathcal{I}^{00}$ representing the top-left block of its inverse $\mathcal{I}^{-1}$.
 
-The Score statistic is $S = \mathbf{U}_0(\tilde{\boldsymbol{\theta}})^T \mathcal{I}^{00}(\tilde{\boldsymbol{\theta}}) \mathbf{U}_0(\tilde{\boldsymbol{\theta}})$. Under $H_0$, as $n \to \infty$:
+The Score statistic is $S = \mathbf{U}_0(\hat{\boldsymbol{\theta}}_0)^T \mathcal{I}^{00}(\hat{\boldsymbol{\theta}}_0) \mathbf{U}_0(\hat{\boldsymbol{\theta}}_0)$. Under $H_0$, as $n \to \infty$:
 $$S \xrightarrow{d} \chi^2_q$$
 where $q$ is the dimension of the parameter of interest $\boldsymbol{\theta}_0$.
 
@@ -1151,35 +1153,35 @@ We rely on the first-order Taylor expansion to observe how estimating the nuisan
     $$\mathcal{I} = \begin{pmatrix} \mathcal{I}_{00} & \mathcal{I}_{01} \\ \mathcal{I}_{10} & \mathcal{I}_{11} \end{pmatrix}, \quad \mathcal{I}^{-1} = \begin{pmatrix} \mathcal{I}^{00} & \mathcal{I}^{01} \\ \mathcal{I}^{10} & \mathcal{I}^{11} \end{pmatrix}$$
 
 2.  **Estimation Error of the Nuisance Parameter**
-    Let $\mathbf{U}_0$ and $\mathbf{U}_1$ denote the unobservable true score vectors evaluated at the true parameters $(\boldsymbol{\theta}_0^*, \boldsymbol{\theta}_1)$. By definition, the restricted MLE $\tilde{\boldsymbol{\theta}}_1$ forces the nuisance score to zero: $\mathbf{U}_1(\boldsymbol{\theta}_0^*, \tilde{\boldsymbol{\theta}}_1) = \mathbf{0}$. 
+    Let $\mathbf{U}_0$ and $\mathbf{U}_1$ denote the unobservable true score vectors evaluated at the true parameters $(\boldsymbol{\theta}_0^*, \boldsymbol{\theta}_1)$. By definition, the restricted MLE $\hat{\boldsymbol{\theta}}_1$ forces the nuisance score to zero: $\mathbf{U}_1(\boldsymbol{\theta}_0^*, \hat{\boldsymbol{\theta}}_1) = \mathbf{0}$. 
     
-    Taking a first-order Taylor expansion of $\mathbf{U}_1(\boldsymbol{\theta}_0^*, \tilde{\boldsymbol{\theta}}_1)$ around the true parameter $\boldsymbol{\theta}_1$:
-    $$\mathbf{0} \approx \mathbf{U}_1 - \mathcal{I}_{11} (\tilde{\boldsymbol{\theta}}_1 - \boldsymbol{\theta}_1)$$
+    Taking a first-order Taylor expansion of $\mathbf{U}_1(\boldsymbol{\theta}_0^*, \hat{\boldsymbol{\theta}}_1)$ around the true parameter $\boldsymbol{\theta}_1$:
+    $$\mathbf{0} \approx \mathbf{U}_1 - \mathcal{I}_{11} (\hat{\boldsymbol{\theta}}_1 - \boldsymbol{\theta}_1)$$
     Rearranging gives the asymptotic estimation error:
-    $$(\tilde{\boldsymbol{\theta}}_1 - \boldsymbol{\theta}_1) \approx \mathcal{I}_{11}^{-1} \mathbf{U}_1$$
+    $$(\hat{\boldsymbol{\theta}}_1 - \boldsymbol{\theta}_1) \approx \mathcal{I}_{11}^{-1} \mathbf{U}_1$$
 
 3.  **The Effective Score (Orthogonal Projection)**
-    Next, we expand the evaluated score of interest $\mathbf{U}_0(\boldsymbol{\theta}_0^*, \tilde{\boldsymbol{\theta}}_1)$ around the true parameter $\boldsymbol{\theta}_1$:
-    $$\mathbf{U}_0(\tilde{\boldsymbol{\theta}}) \approx \mathbf{U}_0 - \mathcal{I}_{01} (\tilde{\boldsymbol{\theta}}_1 - \boldsymbol{\theta}_1)$$
+    Next, we expand the evaluated score of interest $\mathbf{U}_0(\boldsymbol{\theta}_0^*, \hat{\boldsymbol{\theta}}_1)$ around the true parameter $\boldsymbol{\theta}_1$:
+    $$\mathbf{U}_0(\hat{\boldsymbol{\theta}}_0) \approx \mathbf{U}_0 - \mathcal{I}_{01} (\hat{\boldsymbol{\theta}}_1 - \boldsymbol{\theta}_1)$$
     
     Substituting the estimation error from Step 2:
-    $$\mathbf{U}_0(\tilde{\boldsymbol{\theta}}) \approx \mathbf{U}_0 - \mathcal{I}_{01} \mathcal{I}_{11}^{-1} \mathbf{U}_1$$
+    $$\mathbf{U}_0(\hat{\boldsymbol{\theta}}_0) \approx \mathbf{U}_0 - \mathcal{I}_{01} \mathcal{I}_{11}^{-1} \mathbf{U}_1$$
     
 
     This quantity is the **Effective Score**. Geometrically, it represents the residual of $\mathbf{U}_0$ after projecting it orthogonally onto the nuisance score $\mathbf{U}_1$.
 
 4.  **Asymptotic Variance of the Effective Score**
     We verify independence by checking the covariance between the effective score and the nuisance score:
-    $$\text{Cov}(\mathbf{U}_0(\tilde{\boldsymbol{\theta}}), \mathbf{U}_1) \approx \text{Cov}(\mathbf{U}_0, \mathbf{U}_1) - \mathcal{I}_{01} \mathcal{I}_{11}^{-1} \text{Var}(\mathbf{U}_1) = \mathcal{I}_{01} - \mathcal{I}_{01} \mathcal{I}_{11}^{-1} \mathcal{I}_{11} = \mathbf{0}$$
+    $$\text{Cov}(\mathbf{U}_0(\hat{\boldsymbol{\theta}}_0), \mathbf{U}_1) \approx \text{Cov}(\mathbf{U}_0, \mathbf{U}_1) - \mathcal{I}_{01} \mathcal{I}_{11}^{-1} \text{Var}(\mathbf{U}_1) = \mathcal{I}_{01} - \mathcal{I}_{01} \mathcal{I}_{11}^{-1} \mathcal{I}_{11} = \mathbf{0}$$
     
     Because they are jointly normal with zero covariance, they are independent. The variance of this orthogonalized score is the Schur complement of $\mathcal{I}_{11}$:
-    $$\text{Var}(\mathbf{U}_0(\tilde{\boldsymbol{\theta}})) = \mathcal{I}_{00} - \mathcal{I}_{01} \mathcal{I}_{11}^{-1} \mathcal{I}_{10}$$
+    $$\text{Var}(\mathbf{U}_0(\hat{\boldsymbol{\theta}}_0)) = \mathcal{I}_{00} - \mathcal{I}_{01} \mathcal{I}_{11}^{-1} \mathcal{I}_{10}$$
     By the block matrix inversion theorem, this Schur complement is exactly the inverse of the top-left block of $\mathcal{I}^{-1}$:
-    $$\text{Var}(\mathbf{U}_0(\tilde{\boldsymbol{\theta}})) = (\mathcal{I}^{00})^{-1}$$
+    $$\text{Var}(\mathbf{U}_0(\hat{\boldsymbol{\theta}}_0)) = (\mathcal{I}^{00})^{-1}$$
 
 5.  **Distributional Conclusion**
-    Because the evaluated score $\mathbf{U}_0(\tilde{\boldsymbol{\theta}})$ is asymptotically normal with mean zero and variance $(\mathcal{I}^{00})^{-1}$, standardizing it by its variance creates a quadratic form that follows a Chi-square distribution:
-    $$S = \mathbf{U}_0(\tilde{\boldsymbol{\theta}})^T \mathcal{I}^{00} \mathbf{U}_0(\tilde{\boldsymbol{\theta}}) \xrightarrow{d} \chi^2_q$$
+    Because the evaluated score $\mathbf{U}_0(\hat{\boldsymbol{\theta}}_0)$ is asymptotically normal with mean zero and variance $(\mathcal{I}^{00})^{-1}$, standardizing it by its variance creates a quadratic form that follows a Chi-square distribution:
+    $$S = \mathbf{U}_0(\hat{\boldsymbol{\theta}}_0)^T \mathcal{I}^{00} \mathbf{U}_0(\hat{\boldsymbol{\theta}}_0) \xrightarrow{d} \chi^2_q$$
 
 :::
 
@@ -1191,24 +1193,205 @@ Let $X_1, \dots, X_n \overset{i.i.d.}{\sim} N(\mu, \sigma^2)$ where both $\mu$ a
 $$H_0: \mu = \mu_0 \quad \text{vs} \quad H_1: \mu \neq \mu_0$$
 
 1.  **Find the Restricted MLEs:** Under $H_0$, we fix $\mu = \mu_0$. Maximizing the restricted log-likelihood with respect to the nuisance parameter $\sigma^2$ yields:
-    $$\tilde{\sigma}^2 = \frac{1}{n}\sum_{i=1}^n (X_i - \mu_0)^2$$
-    The restricted parameter vector is $\tilde{\boldsymbol{\theta}} = (\mu_0, \tilde{\sigma}^2)^T$.
+    $$\hat{\sigma}_0^2 = \frac{1}{n}\sum_{i=1}^n (X_i - \mu_0)^2$$
+    The restricted parameter vector is $\hat{\boldsymbol{\theta}}_0 = (\mu_0, \hat{\sigma}_0^2)^T$.
 
-2.  **Evaluate the Score Vector:** The gradient of the log-likelihood with respect to $\mu$ is $U_\mu(\mu, \sigma^2) = \frac{n(\bar{X} - \mu)}{\sigma^2}$. Evaluated at the restricted MLE:
-    $$U_\mu(\tilde{\boldsymbol{\theta}}) = \frac{n(\bar{X} - \mu_0)}{\tilde{\sigma}^2}$$
-    By definition, the score for the nuisance parameter evaluated at the restricted MLE is zero: $U_{\sigma^2}(\tilde{\boldsymbol{\theta}}) = 0$.
+2.  **Evaluate the Full Score Vector:** The full log-likelihood function for the normal sample is:
+    $$\ell(\mu, \sigma^2) = -\frac{n}{2}\ln(2\pi) - \frac{n}{2}\ln(\sigma^2) - \frac{1}{2\sigma^2}\sum_{i=1}^n (X_i - \mu)^2$$
+    
+    The total Score vector $\mathbf{U}(\boldsymbol{\theta})$ is the gradient with respect to both parameters:
+    $$\mathbf{U}(\mu, \sigma^2) = \begin{pmatrix} U_\mu(\mu, \sigma^2) \\ U_{\sigma^2}(\mu, \sigma^2) \end{pmatrix} = \begin{pmatrix} \frac{n(\bar{X} - \mu)}{\sigma^2} \\ -\frac{n}{2\sigma^2} + \frac{1}{2\sigma^4}\sum_{i=1}^n (X_i - \mu)^2 \end{pmatrix}$$
+    
+    Now we evaluate this full vector at the restricted MLE $\hat{\boldsymbol{\theta}}_0 = (\mu_0, \hat{\sigma}_0^2)^T$:
+    $$\mathbf{U}(\hat{\boldsymbol{\theta}}_0) = \begin{pmatrix} \frac{n(\bar{X} - \mu_0)}{\hat{\sigma}_0^2} \\ -\frac{n}{2\hat{\sigma}_0^2} + \frac{1}{2\hat{\sigma}_0^4}\sum_{i=1}^n (X_i - \mu_0)^2 \end{pmatrix}$$
+    
+    Because $\hat{\sigma}_0^2 = \frac{1}{n}\sum_{i=1}^n (X_i - \mu_0)^2$, the second component perfectly cancels out. By definition, the score for the nuisance parameter evaluated at the restricted MLE is zero:
+    $$\mathbf{U}(\hat{\boldsymbol{\theta}}_0) = \begin{pmatrix} \frac{n(\bar{X} - \mu_0)}{\hat{\sigma}_0^2} \\ 0 \end{pmatrix}$$
 
 3.  **Determine the Fisher Information:** The expected Fisher Information matrix for a Normal distribution is diagonal because the mean and variance are orthogonal parameters:
     $$\mathcal{I}(\mu, \sigma^2) = \begin{pmatrix} \frac{n}{\sigma^2} & 0 \\ 0 & \frac{n}{2\sigma^4} \end{pmatrix}$$
-    Because the matrix is diagonal, the top-left block of the inverse $\mathcal{I}^{-1}$ is simply the reciprocal of the top-left block of $\mathcal{I}$. Evaluated at $\tilde{\boldsymbol{\theta}}$:
-    $$\mathcal{I}^{\mu\mu}(\tilde{\boldsymbol{\theta}}) = \frac{\tilde{\sigma}^2}{n}$$
+    Because the matrix is diagonal, the top-left block of the inverse $\mathcal{I}^{-1}$ is simply the reciprocal of the top-left block of $\mathcal{I}$. Evaluated at $\hat{\boldsymbol{\theta}}_0$:
+    $$\mathcal{I}^{\mu\mu}(\hat{\boldsymbol{\theta}}_0) = \frac{\hat{\sigma}_0^2}{n}$$
 
 4.  **Compute the Score Statistic $S$:** Constructing the quadratic form for the parameter of interest:
-    $$S = U_\mu(\tilde{\boldsymbol{\theta}})^T \mathcal{I}^{\mu\mu}(\tilde{\boldsymbol{\theta}}) U_\mu(\tilde{\boldsymbol{\theta}})$$
-    $$S = \left( \frac{n(\bar{X} - \mu_0)}{\tilde{\sigma}^2} \right) \left( \frac{\tilde{\sigma}^2}{n} \right) \left( \frac{n(\bar{X} - \mu_0)}{\tilde{\sigma}^2} \right) = \frac{n(\bar{X} - \mu_0)^2}{\tilde{\sigma}^2}$$
+    $$S = U_\mu(\hat{\boldsymbol{\theta}}_0)^T \mathcal{I}^{\mu\mu}(\hat{\boldsymbol{\theta}}_0) U_\mu(\hat{\boldsymbol{\theta}}_0)$$
+    $$S = \left( \frac{n(\bar{X} - \mu_0)}{\hat{\sigma}_0^2} \right) \left( \frac{\hat{\sigma}_0^2}{n} \right) \left( \frac{n(\bar{X} - \mu_0)}{\hat{\sigma}_0^2} \right) = \frac{n(\bar{X} - \mu_0)^2}{\hat{\sigma}_0^2}$$
 
 5.  **Asymptotic Distribution:** By the Score Theorem, since we are testing $q=1$ parameter restriction, the statistic follows a $\chi^2_1$ distribution:
-    $$S = \frac{n(\bar{X} - \mu_0)^2}{\tilde{\sigma}^2} \xrightarrow{d} \chi^2_1$$
+    $$S = \frac{n(\bar{X} - \mu_0)^2}{\hat{\sigma}_0^2} \xrightarrow{d} \chi^2_1$$
     This is highly analogous to the squared t-statistic, but specifically uses the variance estimated under the null hypothesis constraint.
 
 :::
+
+### Wald's Theorem for Testing Parameter Restrictions
+
+The Wald Test evaluates the distance between the unrestricted Maximum Likelihood Estimator (MLE) and the null hypothesis value, standardized by the curvature of the log-likelihood at the unrestricted estimate. Unlike the Score test, the Wald test requires estimating the full, unrestricted model.
+
+::: {#thm-wald}
+
+### Asymptotic Distribution of the Wald Statistic
+
+Let $\mathbf{Y} = (Y_1, \dots, Y_n)$ be an i.i.d. sample from a regular family of distributions with parameters $\boldsymbol{\theta} \in \Theta \subseteq \mathbb{R}^{p}$. Partition the parameter vector as $\boldsymbol{\theta} = (\boldsymbol{\theta}_0^T, \boldsymbol{\theta}_1^T)^T$, where $\boldsymbol{\theta}_0$ is the $q$-dimensional parameter of interest and $\boldsymbol{\theta}_1$ is the $(p-q)$-dimensional nuisance parameter. Consider the test:
+$$H_0: \boldsymbol{\theta}_0 = \boldsymbol{\theta}_0^* \quad \text{vs} \quad H_1: \boldsymbol{\theta}_0 \neq \boldsymbol{\theta}_0^*$$
+
+Let $\hat{\boldsymbol{\theta}} = (\hat{\boldsymbol{\theta}}_0^T, \hat{\boldsymbol{\theta}}_1^T)^T$ be the unrestricted MLE under $H_1$. Let $\mathcal{I}(\boldsymbol{\theta})$ be the expected Fisher Information matrix, and let $\mathcal{I}^{00}(\boldsymbol{\theta})$ denote the top-left $q \times q$ block of its inverse $\mathcal{I}^{-1}(\boldsymbol{\theta})$.
+
+The Wald statistic is defined as the quadratic form:
+$$W = (\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*)^T [\mathcal{I}^{00}(\hat{\boldsymbol{\theta}})]^{-1} (\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*)$$
+
+Under standard regularity conditions, if $H_0$ is true, as $n \to \infty$:
+$$W \xrightarrow{d} \chi^2_q$$
+where $q$ is the dimension of the parameter of interest $\boldsymbol{\theta}_0$.
+
+:::
+
+::: {.proof}
+
+**Algebraic Proof via Asymptotic Normality of the MLE**
+
+The derivation of the Wald statistic relies directly on the asymptotic sampling distribution of the Maximum Likelihood Estimator.
+
+1.  **Asymptotic Normality of the Full MLE**
+    By standard large-sample theory, the unrestricted MLE $\hat{\boldsymbol{\theta}}$ is consistent and asymptotically normal. Its asymptotic variance-covariance matrix is the inverse of the Fisher Information matrix evaluated at the true parameter $\boldsymbol{\theta}$:
+    $$\sqrt{n}(\hat{\boldsymbol{\theta}} - \boldsymbol{\theta}) \xrightarrow{d} N(\mathbf{0}, [n^{-1}\mathcal{I}(\boldsymbol{\theta})]^{-1})$$
+    Equivalently, for the unscaled estimator:
+    $$\hat{\boldsymbol{\theta}} \overset{a}{\sim} N(\boldsymbol{\theta}, \mathcal{I}^{-1}(\boldsymbol{\theta}))$$
+
+2.  **Marginal Distribution of the Parameter of Interest**
+    We partition the inverse Fisher Information matrix $\mathcal{I}^{-1}$ conformably with $\boldsymbol{\theta} = (\boldsymbol{\theta}_0^T, \boldsymbol{\theta}_1^T)^T$. The marginal asymptotic distribution of the sub-vector $\hat{\boldsymbol{\theta}}_0$ depends only on the corresponding top-left block of the inverse matrix, $\mathcal{I}^{00}$:
+    $$\hat{\boldsymbol{\theta}}_0 \overset{a}{\sim} N(\boldsymbol{\theta}_0, \mathcal{I}^{00}(\boldsymbol{\theta}))$$
+    
+    Under the null hypothesis $H_0: \boldsymbol{\theta}_0 = \boldsymbol{\theta}_0^*$, this becomes:
+    $$\hat{\boldsymbol{\theta}}_0 \overset{a}{\sim} N(\boldsymbol{\theta}_0^*, \mathcal{I}^{00}(\boldsymbol{\theta}_0^*, \boldsymbol{\theta}_1))$$
+
+3.  **Constructing the Quadratic Form**
+    
+    To create a test statistic, we measure the squared distance from the estimate $\hat{\boldsymbol{\theta}}_0$ to the hypothesized value $\boldsymbol{\theta}_0^*$, standardized by its variance. If a random vector $\mathbf{Z} \sim N(\boldsymbol{\mu}, \mathbf{\Sigma})$, then the quadratic form $(\mathbf{Z} - \boldsymbol{\mu})^T \mathbf{\Sigma}^{-1} (\mathbf{Z} - \boldsymbol{\mu})$ follows a $\chi^2$ distribution with degrees of freedom equal to the dimension of $\mathbf{Z}$.
+    
+    Applying this to our marginal distribution:
+    $$(\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*)^T [\mathcal{I}^{00}(\boldsymbol{\theta}_0^*, \boldsymbol{\theta}_1)]^{-1} (\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*) \xrightarrow{d} \chi^2_q$$
+
+4.  **Substituting the Consistent Estimator**
+    In practice, the true parameters in the variance matrix are unknown. Because the Fisher Information matrix is a continuous function of the parameters, and $\hat{\boldsymbol{\theta}}$ is a consistent estimator of $\boldsymbol{\theta}$, we can invoke Slutsky's Theorem. We substitute the unknown true information with the expected information evaluated at the unrestricted MLE, $\mathcal{I}(\hat{\boldsymbol{\theta}})$, without changing the asymptotic distribution:
+    $$W = (\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*)^T [\mathcal{I}^{00}(\hat{\boldsymbol{\theta}})]^{-1} (\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*) \xrightarrow{d} \chi^2_q$$
+
+:::
+
+::: {#exm-wald-normal}
+
+**Wald Test for Normal Mean with Unknown Variance**
+
+Let $X_1, \dots, X_n \overset{i.i.d.}{\sim} N(\mu, \sigma^2)$ where both $\mu$ and $\sigma^2$ are unknown. The parameter vector is $\boldsymbol{\theta} = (\mu, \sigma^2)^T$. We wish to test:
+$$H_0: \mu = \mu_0 \quad \text{vs} \quad H_1: \mu \neq \mu_0$$
+
+1.  **Find the Unrestricted MLEs:** Maximizing the full log-likelihood with respect to both parameters yields the unrestricted estimators:
+    $$\hat{\mu} = \bar{X}, \quad \hat{\sigma}^2 = \frac{1}{n}\sum_{i=1}^n (X_i - \bar{X})^2$$
+    Our unrestricted parameter estimate is $\hat{\boldsymbol{\theta}} = (\hat{\mu}, \hat{\sigma}^2)^T$.
+
+2.  **Determine the Fisher Information at the MLE:** The expected Fisher Information matrix for a Normal distribution is diagonal:
+    $$\mathcal{I}(\mu, \sigma^2) = \begin{pmatrix} \frac{n}{\sigma^2} & 0 \\ 0 & \frac{n}{2\sigma^4} \end{pmatrix}$$
+    Because the matrix is diagonal, the top-left block of the inverse $\mathcal{I}^{-1}$ (the asymptotic variance of $\hat{\mu}$) is simply the reciprocal of the top-left block of $\mathcal{I}$. Evaluated at the unrestricted MLE $\hat{\boldsymbol{\theta}}$:
+    $$\mathcal{I}^{\mu\mu}(\hat{\boldsymbol{\theta}}) = \frac{\hat{\sigma}^2}{n}$$
+
+3.  **Compute the Wald Statistic $W$:** We construct the quadratic form using the parameter of interest ($\mu$), its null value ($\mu_0$), and its estimated variance:
+    $$W = (\hat{\mu} - \mu_0)^T [\mathcal{I}^{\mu\mu}(\hat{\boldsymbol{\theta}})]^{-1} (\hat{\mu} - \mu_0)$$
+    Substituting our values:
+    $$W = (\bar{X} - \mu_0) \left( \frac{n}{\hat{\sigma}^2} \right) (\bar{X} - \mu_0) = \frac{n(\bar{X} - \mu_0)^2}{\hat{\sigma}^2}$$
+
+4.  **Contrast with the Score Statistic:**
+    By Wald's Theorem, this statistic follows a $\chi^2_1$ distribution asymptotically. Note the critical difference from the Score test derived previously. The Wald statistic uses the unrestricted variance estimator $\hat{\sigma}^2$, whereas the Score statistic used the restricted variance estimator $\hat{\sigma}_0^2 = \frac{1}{n}\sum (X_i - \mu_0)^2$. Because $\hat{\sigma}_0^2 \ge \hat{\sigma}^2$, it guarantees that mathematically $W \ge S$ for this model.
+
+:::
+
+### A Comparison of Finite-Sample Distributions of the Three Asymptotic Tests in OLS
+
+#### Exact Finite-Sample Distributions via the F-Statistic
+
+When testing linear restrictions in Ordinary Least Squares (OLS) under the assumption of normal errors, we do not need to rely on asymptotic approximations. The true, exact finite-sample test statistic follows an $F$-distribution. 
+
+Because the Wald ($W$), Likelihood Ratio ($LR$), and Score ($S$) statistics are strictly monotonic algebraic transformations of the exact finite-sample $F$-statistic, we can use the transformation of variables to derive their exact finite-sample Cumulative Distribution Functions (CDFs).
+
+Let us consider testing a linear hypothesis involving $q$ restrictions in an OLS model with $k$ total parameters and $n$ observations. Let $F$ denote the exact finite-sample $F$-statistic, which follows an $F_{q, n-k}$ distribution. Let $G_{q, n-k}(x)$ denote the CDF of this $F$-distribution.
+
+By isolating $F$ in the algebraic definitions of $W$, $LR$, and $S$, we derive their exact finite-sample CDFs:
+
+1.  **Wald Statistic ($W$):**
+    $$W = \frac{nq}{n-k} F \implies F = \frac{n-k}{nq} W$$
+    $$F_W(w) = P(W \le w) = G_{q, n-k}\left( \frac{n-k}{nq} w \right)$$
+
+2.  **Likelihood Ratio Statistic ($LR$):**
+    $$LR = n \ln \left( 1 + \frac{q}{n-k} F \right) \implies F = \frac{n-k}{q} (e^{LR/n} - 1)$$
+    $$F_{LR}(l) = P(LR \le l) = G_{q, n-k}\left( \frac{n-k}{q} (e^{l/n} - 1) \right)$$
+
+3.  **Score Statistic ($S$):**
+    $$S = \frac{n q F}{n-k + q F} \implies F = \frac{S(n-k)}{q(n - S)}$$
+    Because the Score statistic is bounded ($S < n$), its exact CDF for $s < n$ is:
+    $$F_S(s) = P(S \le s) = G_{q, n-k}\left( \frac{s(n-k)}{q(n - s)} \right)$$
+    For $s \ge n$, $F_S(s) = 1$.
+
+
+
+#### Visualizing Finite-Sample Calibration (Size Distortion)
+
+To visualize how badly the asymptotic $\chi^2_q$ approximation distorts the Type I error rates in finite samples, we can plot the true Cumulative Distribution Function (CDF) of the asymptotic p-values. 
+
+If a test is perfectly calibrated, the probability that its p-value is less than a nominal threshold $\alpha$ should be exactly $\alpha$, forming a perfect $y = x$ diagonal line (the Uniform(0,1) CDF). 
+
+The event that the asymptotic p-value is less than $\alpha$ is mathematically equivalent to the test statistic being greater than the $\chi^2_q$ critical value ($c_\alpha$). Therefore, the true rejection probability $P(p < \alpha)$ is exactly $1 - F(c_\alpha)$, where $F$ is the exact finite-sample CDF derived above.
+
+```{r}
+#| label: fig-exact-pvalue-cdf
+#| fig-cap: "Exact Analytical CDFs of Asymptotic P-values (n=15, k=3, q=1)"
+#| warning: false
+
+library(ggplot2)
+
+# Define model parameters
+n <- 15    # Small sample size
+k <- 3     # Number of parameters in full model
+q <- 1     # Number of restrictions
+
+# Define the sequence of nominal alpha levels (focusing on the critical 0 to 0.10 range)
+alpha_seq <- seq(0.001, 0.10, length.out = 500)
+
+# The critical value from the claimed asymptotic Chi-square distribution
+c_alpha <- qchisq(1 - alpha_seq, df = q)
+
+# 1. Exact Rejection Probability for Wald: P(p < alpha) = 1 - F_W(c_alpha)
+F_val_W <- ((n - k) / (n * q)) * c_alpha
+cdf_W <- 1 - pf(F_val_W, df1 = q, df2 = n - k)
+
+# 2. Exact Rejection Probability for Likelihood Ratio: P(p < alpha) = 1 - F_LR(c_alpha)
+F_val_LR <- ((n - k) / q) * (exp(c_alpha / n) - 1)
+cdf_LR <- 1 - pf(F_val_LR, df1 = q, df2 = n - k)
+
+# 3. Exact Rejection Probability for Score: P(p < alpha) = 1 - F_S(c_alpha)
+# Handling the upper bound where c_alpha >= n
+F_val_S <- ifelse(c_alpha < n, (c_alpha * (n - k)) / (q * (n - c_alpha)), Inf)
+cdf_S <- 1 - pf(F_val_S, df1 = q, df2 = n - k)
+
+# Combine into a plotting data frame
+plot_data <- data.frame(
+  Alpha = rep(alpha_seq, 3),
+  Rejection_Prob = c(cdf_W, cdf_LR, cdf_S),
+  Test = factor(rep(c("1. Wald (Liberal)", "2. LR (Slightly Liberal)", "3. Score (Conservative)"), 
+                    each = length(alpha_seq)))
+)
+
+# Plot the exact analytical CDFs
+ggplot(plot_data, aes(x = Alpha, y = Rejection_Prob, color = Test)) +
+  geom_line(linewidth = 1.2) +
+  # The perfectly calibrated Uniform(0,1) baseline: y = x
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "black", linewidth = 0.8) +
+  scale_color_manual(values = c("1. Wald (Liberal)" = "#E41A1C", 
+                                "2. LR (Slightly Liberal)" = "#4DAF4A", 
+                                "3. Score (Conservative)" = "#377EB8")) +
+  labs(
+    x = "Nominal Significance Level (\u03b1)",
+    y = "True Rejection Rate: P(p-value < \u03b1)",
+    title = "Exact Finite-Sample Calibration of Asymptotic Tests",
+    subtitle = "Dashed line represents perfect Uniform(0,1) calibration"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom", legend.title = element_blank())
+```
