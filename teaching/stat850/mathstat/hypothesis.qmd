@@ -1018,13 +1018,13 @@ $$\|\hat{\boldsymbol{\theta}}^{(1)} - \boldsymbol{\theta}_0\|_{\mathcal{I}}^2 = 
 
 :::
 
-### Wilks' Theorem
+### Wilks' Theorem for Testing Reduced Models vs Full Models
 
 The asymptotic distribution of the Likelihood Ratio Test statistic is given by the celebrated result from Wilks (1938). This theorem allows us to construct hypothesis tests without deriving the exact distribution of the likelihood ratio $\Lambda$ for every specific model.
 
 ::: {#thm-wilks}
 
-### Wilks' Theorem
+### Wilks' Theorem for Testing Reduced Models vs Full Models
 
 Let $\mathbf{Y} = (Y_1, \dots, Y_n)$ be an i.i.d. sample from a regular family of distributions with parameters $\boldsymbol{\theta} \in \Theta \subseteq \mathbb{R}^{p_1}$. Let $\boldsymbol{\theta}_0$ denote the true parameter value. Consider the test:
 $$H_0: \boldsymbol{\theta} \in \Theta_0 \quad \text{vs} \quad H_1: \boldsymbol{\theta} \in \Theta_1$$
@@ -1117,5 +1117,98 @@ $$H_0: \mu = \mu_0 \quad \text{vs} \quad H_1: \mu \neq \mu_0$$
     $$D = n \ln \left( 1 + \frac{T^2}{n-1} \right) \approx n \left( \frac{T^2}{n-1} \right) \approx T^2$$
     
     As $n \to \infty$, $T^2 \xrightarrow{d} \chi^2_1$, confirming the theorem.
+
+:::
+
+
+## Rao's Score Theorem for Testing Restricted Models
+
+The asymptotic distribution of the Score Test statistic relies on the behavior of the gradient of the log-likelihood (the Score vector) evaluated at the restricted Maximum Likelihood Estimator. This theorem provides a powerful method for hypothesis testing that only requires fitting the model under the null hypothesis.
+
+::: {#thm-score}
+
+### Asymptotic Distribution of the Score Statistic
+
+Let $\mathbf{Y} = (Y_1, \dots, Y_n)$ be an i.i.d. sample from a regular family of distributions with parameters $\boldsymbol{\theta} \in \Theta \subseteq \mathbb{R}^{p}$. Partition the parameter vector as $\boldsymbol{\theta} = (\boldsymbol{\theta}_0^T, \boldsymbol{\theta}_1^T)^T$, where $\boldsymbol{\theta}_0$ is the $q$-dimensional parameter of interest and $\boldsymbol{\theta}_1$ is the $(p-q)$-dimensional nuisance parameter. Consider the test:
+$$H_0: \boldsymbol{\theta}_0 = \boldsymbol{\theta}_0^* \quad \text{vs} \quad H_1: \boldsymbol{\theta}_0 \neq \boldsymbol{\theta}_0^*$$
+
+Let $\tilde{\boldsymbol{\theta}} = (\boldsymbol{\theta}_0^*, \tilde{\boldsymbol{\theta}}_1)$ be the restricted MLE under $H_0$. Let $\mathbf{U}(\boldsymbol{\theta})$ be the total Score vector partitioned as $\mathbf{U} = [\mathbf{U}_0^T, \mathbf{U}_1^T]^T$, and let $\mathcal{I}(\boldsymbol{\theta})$ be the expected Fisher Information matrix with $\mathcal{I}^{00}$ representing the top-left block of its inverse $\mathcal{I}^{-1}$.
+
+The Score statistic is $S = \mathbf{U}_0(\tilde{\boldsymbol{\theta}})^T \mathcal{I}^{00}(\tilde{\boldsymbol{\theta}}) \mathbf{U}_0(\tilde{\boldsymbol{\theta}})$. Under $H_0$, as $n \to \infty$:
+$$S \xrightarrow{d} \chi^2_q$$
+where $q$ is the dimension of the parameter of interest $\boldsymbol{\theta}_0$.
+
+:::
+
+::: {.proof}
+
+**Algebraic Proof via Orthogonal Projection of the Score**
+
+We rely on the first-order Taylor expansion to observe how estimating the nuisance parameter $\boldsymbol{\theta}_1$ impacts the sampling distribution of the score vector for the parameter of interest $\boldsymbol{\theta}_0$.
+
+1.  **Partitioning the Information Matrix**
+    The expected Fisher Information matrix and its inverse are partitioned conformably with $\boldsymbol{\theta} = (\boldsymbol{\theta}_0^T, \boldsymbol{\theta}_1^T)^T$:
+    $$\mathcal{I} = \begin{pmatrix} \mathcal{I}_{00} & \mathcal{I}_{01} \\ \mathcal{I}_{10} & \mathcal{I}_{11} \end{pmatrix}, \quad \mathcal{I}^{-1} = \begin{pmatrix} \mathcal{I}^{00} & \mathcal{I}^{01} \\ \mathcal{I}^{10} & \mathcal{I}^{11} \end{pmatrix}$$
+
+2.  **Estimation Error of the Nuisance Parameter**
+    Let $\mathbf{U}_0$ and $\mathbf{U}_1$ denote the unobservable true score vectors evaluated at the true parameters $(\boldsymbol{\theta}_0^*, \boldsymbol{\theta}_1)$. By definition, the restricted MLE $\tilde{\boldsymbol{\theta}}_1$ forces the nuisance score to zero: $\mathbf{U}_1(\boldsymbol{\theta}_0^*, \tilde{\boldsymbol{\theta}}_1) = \mathbf{0}$. 
+    
+    Taking a first-order Taylor expansion of $\mathbf{U}_1(\boldsymbol{\theta}_0^*, \tilde{\boldsymbol{\theta}}_1)$ around the true parameter $\boldsymbol{\theta}_1$:
+    $$\mathbf{0} \approx \mathbf{U}_1 - \mathcal{I}_{11} (\tilde{\boldsymbol{\theta}}_1 - \boldsymbol{\theta}_1)$$
+    Rearranging gives the asymptotic estimation error:
+    $$(\tilde{\boldsymbol{\theta}}_1 - \boldsymbol{\theta}_1) \approx \mathcal{I}_{11}^{-1} \mathbf{U}_1$$
+
+3.  **The Effective Score (Orthogonal Projection)**
+    Next, we expand the evaluated score of interest $\mathbf{U}_0(\boldsymbol{\theta}_0^*, \tilde{\boldsymbol{\theta}}_1)$ around the true parameter $\boldsymbol{\theta}_1$:
+    $$\mathbf{U}_0(\tilde{\boldsymbol{\theta}}) \approx \mathbf{U}_0 - \mathcal{I}_{01} (\tilde{\boldsymbol{\theta}}_1 - \boldsymbol{\theta}_1)$$
+    
+    Substituting the estimation error from Step 2:
+    $$\mathbf{U}_0(\tilde{\boldsymbol{\theta}}) \approx \mathbf{U}_0 - \mathcal{I}_{01} \mathcal{I}_{11}^{-1} \mathbf{U}_1$$
+    
+
+    This quantity is the **Effective Score**. Geometrically, it represents the residual of $\mathbf{U}_0$ after projecting it orthogonally onto the nuisance score $\mathbf{U}_1$.
+
+4.  **Asymptotic Variance of the Effective Score**
+    We verify independence by checking the covariance between the effective score and the nuisance score:
+    $$\text{Cov}(\mathbf{U}_0(\tilde{\boldsymbol{\theta}}), \mathbf{U}_1) \approx \text{Cov}(\mathbf{U}_0, \mathbf{U}_1) - \mathcal{I}_{01} \mathcal{I}_{11}^{-1} \text{Var}(\mathbf{U}_1) = \mathcal{I}_{01} - \mathcal{I}_{01} \mathcal{I}_{11}^{-1} \mathcal{I}_{11} = \mathbf{0}$$
+    
+    Because they are jointly normal with zero covariance, they are independent. The variance of this orthogonalized score is the Schur complement of $\mathcal{I}_{11}$:
+    $$\text{Var}(\mathbf{U}_0(\tilde{\boldsymbol{\theta}})) = \mathcal{I}_{00} - \mathcal{I}_{01} \mathcal{I}_{11}^{-1} \mathcal{I}_{10}$$
+    By the block matrix inversion theorem, this Schur complement is exactly the inverse of the top-left block of $\mathcal{I}^{-1}$:
+    $$\text{Var}(\mathbf{U}_0(\tilde{\boldsymbol{\theta}})) = (\mathcal{I}^{00})^{-1}$$
+
+5.  **Distributional Conclusion**
+    Because the evaluated score $\mathbf{U}_0(\tilde{\boldsymbol{\theta}})$ is asymptotically normal with mean zero and variance $(\mathcal{I}^{00})^{-1}$, standardizing it by its variance creates a quadratic form that follows a Chi-square distribution:
+    $$S = \mathbf{U}_0(\tilde{\boldsymbol{\theta}})^T \mathcal{I}^{00} \mathbf{U}_0(\tilde{\boldsymbol{\theta}}) \xrightarrow{d} \chi^2_q$$
+
+:::
+
+::: {#exm-score-normal}
+
+**Score Test for Normal Mean with Unknown Variance**
+
+Let $X_1, \dots, X_n \overset{i.i.d.}{\sim} N(\mu, \sigma^2)$ where both $\mu$ and $\sigma^2$ are unknown. The parameter vector is $\boldsymbol{\theta} = (\mu, \sigma^2)^T$. We wish to test:
+$$H_0: \mu = \mu_0 \quad \text{vs} \quad H_1: \mu \neq \mu_0$$
+
+1.  **Find the Restricted MLEs:** Under $H_0$, we fix $\mu = \mu_0$. Maximizing the restricted log-likelihood with respect to the nuisance parameter $\sigma^2$ yields:
+    $$\tilde{\sigma}^2 = \frac{1}{n}\sum_{i=1}^n (X_i - \mu_0)^2$$
+    The restricted parameter vector is $\tilde{\boldsymbol{\theta}} = (\mu_0, \tilde{\sigma}^2)^T$.
+
+2.  **Evaluate the Score Vector:** The gradient of the log-likelihood with respect to $\mu$ is $U_\mu(\mu, \sigma^2) = \frac{n(\bar{X} - \mu)}{\sigma^2}$. Evaluated at the restricted MLE:
+    $$U_\mu(\tilde{\boldsymbol{\theta}}) = \frac{n(\bar{X} - \mu_0)}{\tilde{\sigma}^2}$$
+    By definition, the score for the nuisance parameter evaluated at the restricted MLE is zero: $U_{\sigma^2}(\tilde{\boldsymbol{\theta}}) = 0$.
+
+3.  **Determine the Fisher Information:** The expected Fisher Information matrix for a Normal distribution is diagonal because the mean and variance are orthogonal parameters:
+    $$\mathcal{I}(\mu, \sigma^2) = \begin{pmatrix} \frac{n}{\sigma^2} & 0 \\ 0 & \frac{n}{2\sigma^4} \end{pmatrix}$$
+    Because the matrix is diagonal, the top-left block of the inverse $\mathcal{I}^{-1}$ is simply the reciprocal of the top-left block of $\mathcal{I}$. Evaluated at $\tilde{\boldsymbol{\theta}}$:
+    $$\mathcal{I}^{\mu\mu}(\tilde{\boldsymbol{\theta}}) = \frac{\tilde{\sigma}^2}{n}$$
+
+4.  **Compute the Score Statistic $S$:** Constructing the quadratic form for the parameter of interest:
+    $$S = U_\mu(\tilde{\boldsymbol{\theta}})^T \mathcal{I}^{\mu\mu}(\tilde{\boldsymbol{\theta}}) U_\mu(\tilde{\boldsymbol{\theta}})$$
+    $$S = \left( \frac{n(\bar{X} - \mu_0)}{\tilde{\sigma}^2} \right) \left( \frac{\tilde{\sigma}^2}{n} \right) \left( \frac{n(\bar{X} - \mu_0)}{\tilde{\sigma}^2} \right) = \frac{n(\bar{X} - \mu_0)^2}{\tilde{\sigma}^2}$$
+
+5.  **Asymptotic Distribution:** By the Score Theorem, since we are testing $q=1$ parameter restriction, the statistic follows a $\chi^2_1$ distribution:
+    $$S = \frac{n(\bar{X} - \mu_0)^2}{\tilde{\sigma}^2} \xrightarrow{d} \chi^2_1$$
+    This is highly analogous to the squared t-statistic, but specifically uses the variance estimated under the null hypothesis constraint.
 
 :::
