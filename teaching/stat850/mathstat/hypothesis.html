@@ -270,6 +270,7 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#exact-finite-sample-distributions-via-the-f-statistic" id="toc-exact-finite-sample-distributions-via-the-f-statistic" class="nav-link" data-scroll-target="#exact-finite-sample-distributions-via-the-f-statistic"><span class="header-section-number">8.5.6.1</span> Exact Finite-Sample Distributions via the F-Statistic</a></li>
   <li><a href="#visualizing-finite-sample-calibration-size-distortion" id="toc-visualizing-finite-sample-calibration-size-distortion" class="nav-link" data-scroll-target="#visualizing-finite-sample-calibration-size-distortion"><span class="header-section-number">8.5.6.2</span> Visualizing Finite-Sample Calibration (Size Distortion)</a></li>
+  <li><a href="#exact-finite-sample-distribution-calibration-plot" id="toc-exact-finite-sample-distribution-calibration-plot" class="nav-link" data-scroll-target="#exact-finite-sample-distribution-calibration-plot"><span class="header-section-number">8.5.6.3</span> Exact Finite-Sample Distribution Calibration Plot</a></li>
   </ul></li>
   </ul></li>
   </ul>
@@ -1148,73 +1149,95 @@ Figure&nbsp;8.6: Illustration of Non-existence of UMP Tests for Two-sided Tests
 <p>To visualize how badly the asymptotic <span class="math inline">\(\chi^2_q\)</span> approximation distorts the Type I error rates in finite samples, we can plot the true Cumulative Distribution Function (CDF) of the asymptotic p-values.</p>
 <p>If a test is perfectly calibrated, the probability that its p-value is less than a nominal threshold <span class="math inline">\(\alpha\)</span> should be exactly <span class="math inline">\(\alpha\)</span>, forming a perfect <span class="math inline">\(y = x\)</span> diagonal line (the Uniform(0,1) CDF).</p>
 <p>The event that the asymptotic p-value is less than <span class="math inline">\(\alpha\)</span> is mathematically equivalent to the test statistic being greater than the <span class="math inline">\(\chi^2_q\)</span> critical value (<span class="math inline">\(c_\alpha\)</span>). Therefore, the true rejection probability <span class="math inline">\(P(p &lt; \alpha)\)</span> is exactly <span class="math inline">\(1 - F(c_\alpha)\)</span>, where <span class="math inline">\(F\)</span> is the exact finite-sample CDF derived above.</p>
+</section>
+<section id="exact-finite-sample-distribution-calibration-plot" class="level4" data-number="8.5.6.3">
+<h4 data-number="8.5.6.3" class="anchored" data-anchor-id="exact-finite-sample-distribution-calibration-plot"><span class="header-section-number">8.5.6.3</span> Exact Finite-Sample Distribution Calibration Plot</h4>
+<p>The following code allows you to adjust the sample size (<span class="math inline">\(n\)</span>) and the number of parameters (<span class="math inline">\(k\)</span>) to observe how the finite-sample rejection rates of the three asymptotic tests (Wald, Likelihood Ratio, and Score) converge toward the ideal Uniform(0,1) calibration.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model parameters</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">15</span>    <span class="co"># Small sample size</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>k <span class="ot">&lt;-</span> <span class="dv">3</span>     <span class="co"># Number of parameters in full model</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>q <span class="ot">&lt;-</span> <span class="dv">1</span>     <span class="co"># Number of restrictions</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the sequence of nominal alpha levels (focusing on the critical 0 to 0.10 range)</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>alpha_seq <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fl">0.001</span>, <span class="fl">0.10</span>, <span class="at">length.out =</span> <span class="dv">500</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Tuning Parameters ---</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>n1 <span class="ot">&lt;-</span> <span class="dv">15</span>    <span class="co"># Small sample size for Plot 1</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>n2 <span class="ot">&lt;-</span> <span class="dv">50</span>  <span class="co"># Large sample size for Plot 2</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>k_val <span class="ot">&lt;-</span> <span class="dv">5</span>  <span class="co"># Number of parameters (constant for comparison)</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>q_val <span class="ot">&lt;-</span> <span class="dv">1</span>  <span class="co"># Number of restrictions (constant for comparison)</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------</span></span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co"># The critical value from the claimed asymptotic Chi-square distribution</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>c_alpha <span class="ot">&lt;-</span> <span class="fu">qchisq</span>(<span class="dv">1</span> <span class="sc">-</span> alpha_seq, <span class="at">df =</span> q)</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Exact Rejection Probability for Wald: P(p &lt; alpha) = 1 - F_W(c_alpha)</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>F_val_W <span class="ot">&lt;-</span> ((n <span class="sc">-</span> k) <span class="sc">/</span> (n <span class="sc">*</span> q)) <span class="sc">*</span> c_alpha</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>cdf_W <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pf</span>(F_val_W, <span class="at">df1 =</span> q, <span class="at">df2 =</span> n <span class="sc">-</span> k)</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Exact Rejection Probability for Likelihood Ratio: P(p &lt; alpha) = 1 - F_LR(c_alpha)</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>F_val_LR <span class="ot">&lt;-</span> ((n <span class="sc">-</span> k) <span class="sc">/</span> q) <span class="sc">*</span> (<span class="fu">exp</span>(c_alpha <span class="sc">/</span> n) <span class="sc">-</span> <span class="dv">1</span>)</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>cdf_LR <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pf</span>(F_val_LR, <span class="at">df1 =</span> q, <span class="at">df2 =</span> n <span class="sc">-</span> k)</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Exact Rejection Probability for Score: P(p &lt; alpha) = 1 - F_S(c_alpha)</span></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Handling the upper bound where c_alpha &gt;= n</span></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>F_val_S <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(c_alpha <span class="sc">&lt;</span> n, (c_alpha <span class="sc">*</span> (n <span class="sc">-</span> k)) <span class="sc">/</span> (q <span class="sc">*</span> (n <span class="sc">-</span> c_alpha)), <span class="cn">Inf</span>)</span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>cdf_S <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pf</span>(F_val_S, <span class="at">df1 =</span> q, <span class="at">df2 =</span> n <span class="sc">-</span> k)</span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine into a plotting data frame</span></span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>plot_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">Alpha =</span> <span class="fu">rep</span>(alpha_seq, <span class="dv">3</span>),</span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">Rejection_Prob =</span> <span class="fu">c</span>(cdf_W, cdf_LR, cdf_S),</span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">Test =</span> <span class="fu">factor</span>(<span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"1. Wald (Liberal)"</span>, <span class="st">"2. LR (Slightly Liberal)"</span>, <span class="st">"3. Score (Conservative)"</span>), </span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>                    <span class="at">each =</span> <span class="fu">length</span>(alpha_seq)))</span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the exact analytical CDFs</span></span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(plot_data, <span class="fu">aes</span>(<span class="at">x =</span> Alpha, <span class="at">y =</span> Rejection_Prob, <span class="at">color =</span> Test)) <span class="sc">+</span></span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>  <span class="co"># The perfectly calibrated Uniform(0,1) baseline: y = x</span></span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
-<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"1. Wald (Liberal)"</span> <span class="ot">=</span> <span class="st">"#E41A1C"</span>, </span>
-<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>                                <span class="st">"2. LR (Slightly Liberal)"</span> <span class="ot">=</span> <span class="st">"#4DAF4A"</span>, </span>
-<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>                                <span class="st">"3. Score (Conservative)"</span> <span class="ot">=</span> <span class="st">"#377EB8"</span>)) <span class="sc">+</span></span>
-<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Nominal Significance Level (\u03b1)"</span>,</span>
-<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"True Rejection Rate: P(p-value &lt; \u03b1)"</span>,</span>
-<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Exact Finite-Sample Calibration of Asymptotic Tests"</span>,</span>
-<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Dashed line represents perfect Uniform(0,1) calibration"</span></span>
-<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>, <span class="at">legend.title =</span> <span class="fu">element_blank</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>generate_calibration_data <span class="ot">&lt;-</span> <span class="cf">function</span>(n, k, q) {</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  alpha_seq <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fl">0.0001</span>, <span class="fl">0.15</span>, <span class="at">length.out =</span> <span class="dv">1000</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  c_alpha <span class="ot">&lt;-</span> <span class="fu">qchisq</span>(<span class="dv">1</span> <span class="sc">-</span> alpha_seq, <span class="at">df =</span> q)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Wald: 1 - F_W(c_alpha)</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  F_val_W <span class="ot">&lt;-</span> ((n <span class="sc">-</span> k) <span class="sc">/</span> (n <span class="sc">*</span> q)) <span class="sc">*</span> c_alpha</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  cdf_W <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pf</span>(F_val_W, <span class="at">df1 =</span> q, <span class="at">df2 =</span> n <span class="sc">-</span> k)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># LR: 1 - F_LR(c_alpha)</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  F_val_LR <span class="ot">&lt;-</span> ((n <span class="sc">-</span> k) <span class="sc">/</span> q) <span class="sc">*</span> (<span class="fu">exp</span>(c_alpha <span class="sc">/</span> n) <span class="sc">-</span> <span class="dv">1</span>)</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  cdf_LR <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pf</span>(F_val_LR, <span class="at">df1 =</span> q, <span class="at">df2 =</span> n <span class="sc">-</span> k)</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Score: 1 - F_S(c_alpha)</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  F_val_S <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(c_alpha <span class="sc">&lt;</span> n, (c_alpha <span class="sc">*</span> (n <span class="sc">-</span> k)) <span class="sc">/</span> (q <span class="sc">*</span> (n <span class="sc">-</span> c_alpha)), <span class="cn">Inf</span>)</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  cdf_S <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pf</span>(F_val_S, <span class="at">df1 =</span> q, <span class="at">df2 =</span> n <span class="sc">-</span> k)</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">Alpha =</span> <span class="fu">rep</span>(alpha_seq, <span class="dv">3</span>),</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">Rejection_Prob =</span> <span class="fu">c</span>(cdf_W, cdf_LR, cdf_S),</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">Test =</span> <span class="fu">factor</span>(<span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"Wald"</span>, <span class="st">"LR"</span>, <span class="st">"Score"</span>), <span class="at">each =</span> <span class="fu">length</span>(alpha_seq))),</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> n,</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">k =</span> k</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Label =</span> <span class="fu">paste0</span>(<span class="st">"n = "</span>, n, <span class="st">", k = "</span>, k))</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Create combined dataset based on tuning parameters</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>plot_data <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">generate_calibration_data</span>(<span class="at">n =</span> n1, <span class="at">k =</span> k_val, <span class="at">q =</span> q_val),</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">generate_calibration_data</span>(<span class="at">n =</span> n2, <span class="at">k =</span> k_val, <span class="at">q =</span> q_val)</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a><span class="co"># Fix factor levels for side-by-side ordering</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>plot_data<span class="sc">$</span>Label <span class="ot">&lt;-</span> <span class="fu">factor</span>(plot_data<span class="sc">$</span>Label, <span class="at">levels =</span> <span class="fu">unique</span>(plot_data<span class="sc">$</span>Label))</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(plot_data, <span class="fu">aes</span>(<span class="at">x =</span> Alpha, <span class="at">y =</span> Rejection_Prob, <span class="at">color =</span> Test)) <span class="sc">+</span></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> Label) <span class="sc">+</span></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Wald"</span> <span class="ot">=</span> <span class="st">"#E41A1C"</span>, <span class="st">"LR"</span> <span class="ot">=</span> <span class="st">"#4DAF4A"</span>, <span class="st">"Score"</span> <span class="ot">=</span> <span class="st">"#377EB8"</span>)) <span class="sc">+</span></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.12</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.20</span>)) <span class="sc">+</span></span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Nominal Significance Level (\u03b1)"</span>,</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"True Rejection Rate: P(p-value &lt; \u03b1)"</span>,</span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Asymptotic Test Calibration vs. Sample Size"</span>,</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Dashed line represents perfect calibration (Rejection Rate = \u03b1)"</span></span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"bottom"</span>,</span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>    <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">face =</span> <span class="st">"bold"</span>)</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-exact-pvalue-cdf" class="quarto-float quarto-figure quarto-figure-center anchored">
+<div id="fig-calibration-tuning" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-exact-pvalue-cdf-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="hypothesis_files/figure-html/fig-exact-pvalue-cdf-1.png" class="img-fluid figure-img" width="576">
+<div aria-describedby="fig-calibration-tuning-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="hypothesis_files/figure-html/fig-calibration-tuning-1.png" class="img-fluid figure-img" width="1152">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-exact-pvalue-cdf-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;8.7: Exact Analytical CDFs of Asymptotic P-values (n=15, k=3, q=1)
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-calibration-tuning-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.7: Exact Analytical CDFs of Asymptotic P-values
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
+<p><strong>Summary</strong></p>
+<p>In OLS with finite samples, the <span class="math inline">\(\chi^2\)</span> distribution is an optimistic approximation that leads to <strong>over-rejection</strong> (liberal bias) across all three tests. However:</p>
+<ul>
+<li>The <strong>Wald test</strong> is the most liberal because it does nothing to counteract the too-low <span class="math inline">\(\chi^2\)</span> threshold.</li>
+<li>The <strong>Score test</strong> is the most conservative of the three because its mathematical structure provides a natural downward “correction” that happens to land it closest to the ideal uniform distribution at common significance levels like <span class="math inline">\(\alpha = 0.05\)</span>.</li>
+</ul>
 
 
 </section>

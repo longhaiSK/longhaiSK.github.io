@@ -1339,59 +1339,85 @@ If a test is perfectly calibrated, the probability that its p-value is less than
 
 The event that the asymptotic p-value is less than $\alpha$ is mathematically equivalent to the test statistic being greater than the $\chi^2_q$ critical value ($c_\alpha$). Therefore, the true rejection probability $P(p < \alpha)$ is exactly $1 - F(c_\alpha)$, where $F$ is the exact finite-sample CDF derived above.
 
+#### Exact Finite-Sample Distribution Calibration Plot
+
+The following code allows you to adjust the sample size ($n$) and the number of parameters ($k$) to observe how the finite-sample rejection rates of the three asymptotic tests (Wald, Likelihood Ratio, and Score) converge toward the ideal Uniform(0,1) calibration.
+
+
 ```{r}
-#| label: fig-exact-pvalue-cdf
-#| fig-cap: "Exact Analytical CDFs of Asymptotic P-values (n=15, k=3, q=1)"
+#| label: fig-calibration-tuning
+#| fig-cap: "Exact Analytical CDFs of Asymptotic P-values"
 #| warning: false
+#| fig-width: 12
+#| fig-height: 6
 
 library(ggplot2)
+library(dplyr)
 
-# Define model parameters
-n <- 15    # Small sample size
-k <- 3     # Number of parameters in full model
-q <- 1     # Number of restrictions
+# --- Tuning Parameters ---
+n1 <- 15    # Small sample size for Plot 1
+n2 <- 50  # Large sample size for Plot 2
+k_val <- 5  # Number of parameters (constant for comparison)
+q_val <- 1  # Number of restrictions (constant for comparison)
+# -------------------------
 
-# Define the sequence of nominal alpha levels (focusing on the critical 0 to 0.10 range)
-alpha_seq <- seq(0.001, 0.10, length.out = 500)
+generate_calibration_data <- function(n, k, q) {
+  alpha_seq <- seq(0.0001, 0.15, length.out = 1000)
+  c_alpha <- qchisq(1 - alpha_seq, df = q)
+  
+  # Wald: 1 - F_W(c_alpha)
+  F_val_W <- ((n - k) / (n * q)) * c_alpha
+  cdf_W <- 1 - pf(F_val_W, df1 = q, df2 = n - k)
+  
+  # LR: 1 - F_LR(c_alpha)
+  F_val_LR <- ((n - k) / q) * (exp(c_alpha / n) - 1)
+  cdf_LR <- 1 - pf(F_val_LR, df1 = q, df2 = n - k)
+  
+  # Score: 1 - F_S(c_alpha)
+  F_val_S <- ifelse(c_alpha < n, (c_alpha * (n - k)) / (q * (n - c_alpha)), Inf)
+  cdf_S <- 1 - pf(F_val_S, df1 = q, df2 = n - k)
+  
+  data.frame(
+    Alpha = rep(alpha_seq, 3),
+    Rejection_Prob = c(cdf_W, cdf_LR, cdf_S),
+    Test = factor(rep(c("Wald", "LR", "Score"), each = length(alpha_seq))),
+    n = n,
+    k = k
+  ) |>
+    mutate(Label = paste0("n = ", n, ", k = ", k))
+}
 
-# The critical value from the claimed asymptotic Chi-square distribution
-c_alpha <- qchisq(1 - alpha_seq, df = q)
-
-# 1. Exact Rejection Probability for Wald: P(p < alpha) = 1 - F_W(c_alpha)
-F_val_W <- ((n - k) / (n * q)) * c_alpha
-cdf_W <- 1 - pf(F_val_W, df1 = q, df2 = n - k)
-
-# 2. Exact Rejection Probability for Likelihood Ratio: P(p < alpha) = 1 - F_LR(c_alpha)
-F_val_LR <- ((n - k) / q) * (exp(c_alpha / n) - 1)
-cdf_LR <- 1 - pf(F_val_LR, df1 = q, df2 = n - k)
-
-# 3. Exact Rejection Probability for Score: P(p < alpha) = 1 - F_S(c_alpha)
-# Handling the upper bound where c_alpha >= n
-F_val_S <- ifelse(c_alpha < n, (c_alpha * (n - k)) / (q * (n - c_alpha)), Inf)
-cdf_S <- 1 - pf(F_val_S, df1 = q, df2 = n - k)
-
-# Combine into a plotting data frame
-plot_data <- data.frame(
-  Alpha = rep(alpha_seq, 3),
-  Rejection_Prob = c(cdf_W, cdf_LR, cdf_S),
-  Test = factor(rep(c("1. Wald (Liberal)", "2. LR (Slightly Liberal)", "3. Score (Conservative)"), 
-                    each = length(alpha_seq)))
+# Create combined dataset based on tuning parameters
+plot_data <- rbind(
+  generate_calibration_data(n = n1, k = k_val, q = q_val),
+  generate_calibration_data(n = n2, k = k_val, q = q_val)
 )
 
-# Plot the exact analytical CDFs
+# Fix factor levels for side-by-side ordering
+plot_data$Label <- factor(plot_data$Label, levels = unique(plot_data$Label))
+
 ggplot(plot_data, aes(x = Alpha, y = Rejection_Prob, color = Test)) +
   geom_line(linewidth = 1.2) +
-  # The perfectly calibrated Uniform(0,1) baseline: y = x
-  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "black", linewidth = 0.8) +
-  scale_color_manual(values = c("1. Wald (Liberal)" = "#E41A1C", 
-                                "2. LR (Slightly Liberal)" = "#4DAF4A", 
-                                "3. Score (Conservative)" = "#377EB8")) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "black") +
+  facet_wrap(~ Label) +
+  scale_color_manual(values = c("Wald" = "#E41A1C", "LR" = "#4DAF4A", "Score" = "#377EB8")) +
+  coord_cartesian(xlim = c(0, 0.12), ylim = c(0, 0.20)) +
   labs(
     x = "Nominal Significance Level (\u03b1)",
     y = "True Rejection Rate: P(p-value < \u03b1)",
-    title = "Exact Finite-Sample Calibration of Asymptotic Tests",
-    subtitle = "Dashed line represents perfect Uniform(0,1) calibration"
+    title = "Asymptotic Test Calibration vs. Sample Size",
+    subtitle = "Dashed line represents perfect calibration (Rejection Rate = \u03b1)"
   ) +
-  theme_minimal() +
-  theme(legend.position = "bottom", legend.title = element_blank())
+  theme_bw() +
+  theme(
+    legend.position = "bottom",
+    strip.text = element_text(size = 12, face = "bold")
+  )
 ```
+
+**Summary**
+
+In OLS with finite samples, the $\chi^2$ distribution is an optimistic approximation that leads to **over-rejection** (liberal bias) across all three tests. However:
+
+* The **Wald test** is the most liberal because it does nothing to counteract the too-low $\chi^2$ threshold.
+* The **Score test** is the most conservative of the three because its mathematical structure provides a natural downward "correction" that happens to land it closest to the ideal uniform distribution at common significance levels like $\alpha = 0.05$.
