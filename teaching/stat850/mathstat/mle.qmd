@@ -170,9 +170,9 @@ Let $X_1, \dots, X_n \overset{iid}{\sim} N(\theta, \sigma^2)$ with $\sigma^2$ kn
 
 ```{r}
 #| label: fig-base-r-viz-expected-loglik-star
-#| fig-cap: "Expected Log-Likelihood Q*(theta) and 10 realized ell*(theta) curves. The largest sample is highlighted in blue, showing the 1/2 Deviance gap. The MLEs are marked on the Score = 0 line."
+#| fig-cap: "Expected Log-Likelihood $\\ell^*(\\theta)$ and 10 realized $\\ell(\\theta)$ curves. The largest sample is highlighted in blue, showing the 1/2 Deviance gap. The MLEs are marked on the Score = 0 line."
 #| fig-pos: "H"
-#| 
+
 library(tikzDevice)
 library(tools)
 
@@ -180,8 +180,10 @@ library(tools)
 tex_file <- "fig_expected_loglik.tex"
 pdf_file <- "fig_expected_loglik.pdf"
 
-# 2. Open TikZ device in standalone mode
-tikz(tex_file, width = 7, height = 5, standAlone = TRUE)
+options(tikzDocumentDeclaration = "\\documentclass[12pt]{extarticle}")
+
+# 2. Now open the device, matching the pointsize
+tikz(tex_file, width = 7, height = 7, standAlone = TRUE, pointsize = 16)
 
 # --- START OF PLOT CODE ---
 theta_0 <- 2
@@ -203,7 +205,7 @@ highlight_color <- "blue"
 score_color <- "green"
 null_color <- "red"
 
-par(mar = c(5, 4, 4, 4) + 0.3)
+par(mar = c(5, 4, 4, 4) + 0.3,cex.axis = 1.2, cex.lab = 1.4)
 plot(x_vals, expected_log_lik, type = "n", 
      ylim = c(y_min, y_max),
      xlab = "$\\theta$", 
@@ -244,35 +246,29 @@ axis(4, col = score_color, col.axis = score_color, lwd = 2)
 mtext("Score Function $U(\\theta)$", side = 4, line = 2.5, col = score_color, font = 2)
 
 legend("topleft", 
-       legend = c("Expected $Q^*(\\theta)$", "Realized $\\ell^*(\\theta)$", "True Null $\\theta_0$", "Score Function $U(\\theta)$"),
+       legend = c("Expected $\\ell^*(\\theta)$", "Realized $\\ell(\\theta)$", "True Null $\\theta_0$", "Score Function $U_n(\\theta)$"),
        col = c("black", grey_color, null_color, score_color),
        lty = c(1, 2, 1, 1), lwd = c(3, 1, 2, 3), bg = "white", cex = 0.85)
 
 
 # --- END OF PLOT CODE ---
 
-# 3. Close the device silently to prevent "quartz_off_screen" printing
+# 3. Close the device silently
 invisible(dev.off())
 
 # 4. Compile the .tex file to a permanent .pdf
 tools::texi2pdf(tex_file, clean = TRUE)
 
-# 5. Route the correct file type based on the output format
-if (knitr::is_html_output()) {
-  # If compiling to HTML, convert the PDF to a 300 DPI PNG
-  if (!requireNamespace("pdftools", quietly = TRUE)) install.packages("pdftools")
-  png_file <- "fig_expected_loglik.png"
-  
-  # capture.output prevents pdftools from printing conversion text to your document
-  capture.output(
-    pdftools::pdf_convert(pdf_file, format = "png", dpi = 300, filenames = png_file)
-  )
-  knitr::include_graphics(png_file)
-  
-} else {
-  # If compiling to Typst or LaTeX, use the pure vector PDF
-  knitr::include_graphics(pdf_file)
-}
+# 5. Convert the PDF to a high-res PNG unconditionally
+if (!requireNamespace("pdftools", quietly = TRUE)) install.packages("pdftools")
+png_file <- "fig_expected_loglik.png"
+
+invisible(pdftools::pdf_convert(pdf_file, format = "png", dpi = 600, filenames = png_file))
+
+
+# 6. Feed the PNG to Quarto for all formats
+knitr::include_graphics(png_file)
+
 ```
 
 #### Uniform Distribution (Boundary Case)
