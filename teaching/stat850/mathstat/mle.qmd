@@ -168,135 +168,111 @@ Let $X_1, \dots, X_n \overset{iid}{\sim} N(\theta, \sigma^2)$ with $\sigma^2$ kn
 
 ::::
 
-The following plot illustrates the log-density of the sampling distribution of $\bar{x}$ (where the true $\theta_0 = 2$) alongside 10 realized log-likelihood functions. The colored points on the x-axis mark the MLE ($\bar{x}$) for each realization.
-
 ```{r}
-#| label: fig-base-r-viz-score-legend
-#| fig-cap: "Log-PDF of the sampling distribution and 10 realized log-likelihoods. The largest sample is highlighted in blue, showing the 1/2 Deviance gap. The MLEs are marked on the Score = 0 line."
+#| label: fig-base-r-viz-expected-loglik-star
+#| fig-cap: "Expected Log-Likelihood Q*(theta) and 10 realized ell*(theta) curves. The largest sample is highlighted in blue, showing the 1/2 Deviance gap. The MLEs are marked on the Score = 0 line."
 #| fig-pos: "H"
-# Parameters
+#| 
+library(tikzDevice)
+library(tools)
+
+# 1. Define filenames
+tex_file <- "fig_expected_loglik.tex"
+pdf_file <- "fig_expected_loglik.pdf"
+
+# 2. Open TikZ device in standalone mode
+tikz(tex_file, width = 7, height = 5, standAlone = TRUE)
+
+# --- START OF PLOT CODE ---
 theta_0 <- 2
 sigma <- 10
 n <- 100
-se <- sigma / sqrt(n)  # Standard Error = 1
-
-# Define range for x-axis
+se <- sigma / sqrt(n)
 x_vals <- seq(theta_0 - 4*se, theta_0 + 4*se, length.out = 500)
-
-# 1. Calculate Log-PDF of x_bar ~ N(theta_0, se^2)
-log_pdf_xbar <- dnorm(x_vals, mean = theta_0, sd = se, log = TRUE)
-
-# Determine plot limits for the left y-axis
-y_min <- min(log_pdf_xbar)
-# Expanded top limit to make room for the legend
+expected_log_lik <- dnorm(x_vals, mean = theta_0, sd = se, log = TRUE) - 0.5
+y_min <- min(expected_log_lik)
 y_max <- dnorm(0, sd = se, log = TRUE) + 2.5 
 
-# 2. Draw 10 random x_bar samples
 set.seed(123)
 x_bar_samples <- rnorm(10, mean = theta_0, sd = se)
-
-# Find the largest positive x_bar
 idx_max <- which.max(x_bar_samples)
 x_bar_max <- x_bar_samples[idx_max]
 
-# Define colors
 grey_color <- "grey70"
 highlight_color <- "blue"
 score_color <- "green"
 null_color <- "red"
 
-# 3. Create Base R Plot
-# Adjust margins to make room for the right-hand y-axis
 par(mar = c(5, 4, 4, 4) + 0.3)
-
-# Setup the empty plot with axes and labels for Log-Likelihoods
-plot(x_vals, log_pdf_xbar, type = "n", 
+plot(x_vals, expected_log_lik, type = "n", 
      ylim = c(y_min, y_max),
-     xlab = expression(theta), 
+     xlab = "$\\theta$", 
      ylab = "Log-Value",
-     main = "Log-Likelihoods, Deviance (1/2 D), and Score Function",
+     main = "Expected vs. Realized $\\ell^*(\\theta)$, Deviance, and Score",
      frame.plot = TRUE)
 
-# Add the Log-PDF of the sampling distribution
-lines(x_vals, log_pdf_xbar, lwd = 3, col = "black")
-
-# Add the true theta line
+lines(x_vals, expected_log_lik, lwd = 3, col = "black")
 abline(v = theta_0, col = null_color, lty = 1, lwd = 2)
 
-# Loop to add all Likelihood curves
 for (i in 1:10) {
   log_lik_vals <- dnorm(x_bar_samples[i], mean = x_vals, sd = se, log = TRUE)
-  
-  # Determine color and width based on whether it's the maximum
-  if (i == idx_max) {
-    current_col <- highlight_color
-    l_width <- 2
-  } else {
-    current_col <- grey_color
-    l_width <- 1
-  }
-  
-  # Draw likelihood curve
+  l_width <- ifelse(i == idx_max, 2, 1)
+  current_col <- ifelse(i == idx_max, highlight_color, grey_color)
   lines(x_vals, log_lik_vals, col = current_col, lty = 2, lwd = l_width)
 }
 
-# 4. Draw Deviance (1/2 D) segments for the largest x_bar
 peak_y <- dnorm(x_bar_max, mean = x_bar_max, sd = se, log = TRUE)
 null_y <- dnorm(x_bar_max, mean = theta_0, sd = se, log = TRUE)
-
-# Horizontal line at l(theta_0) from theta_0 to x_bar
-segments(x0 = theta_0, y0 = null_y, x1 = x_bar_max, y1 = null_y, 
-         col = highlight_color, lwd = 2, lty = 1)
-
-# Vertical line at x_bar from l(theta_0) up to peak l(x_bar)
-segments(x0 = x_bar_max, y0 = null_y, x1 = x_bar_max, y1 = peak_y, 
-         col = highlight_color, lwd = 3, lty = 1)
-
-# Label 1/2 D next to the vertical segment (pos = 4 places it to the right)
-text(x_bar_max, (null_y + peak_y)/2, labels = expression((1/2)*D), 
-     pos = 4, col = highlight_color, font = 2, cex = 1)
-
-# Mark intersection on the likelihood curve
+segments(x0 = theta_0, y0 = null_y, x1 = x_bar_max, y1 = null_y, col = highlight_color, lwd = 2, lty = 1)
+segments(x0 = x_bar_max, y0 = null_y, x1 = x_bar_max, y1 = peak_y, col = highlight_color, lwd = 3, lty = 1)
+text(x_bar_max, (null_y + peak_y)/2, labels = "$\\frac{1}{2}D$", pos = 4, col = highlight_color, font = 2, cex = 1)
 points(theta_0, null_y, pch = 16, col = highlight_color, cex = 1.5)
 
-# 5. Add Score Function using a 2nd y-axis
 par(new = TRUE)
-
-# Score U(theta) = (n/sigma^2)*(x_bar - theta). Here n/sigma^2 = 1.
 score_vals <- x_bar_max - x_vals
-
-# Setup the secondary plot window (empty)
-# Expanded upper ylim from 5 to 9 to match the top space created in the first plot
-plot(x_vals, score_vals, type = "n", 
-     axes = FALSE, xlab = "", ylab = "", ylim = c(-5, 9))
-
-# Add horizontal line for Score = 0
+plot(x_vals, score_vals, type = "n", axes = FALSE, xlab = "", ylab = "", ylim = c(-5, 9))
 abline(h = 0, col = "gray", lty = 3, lwd = 2)
-
-# Plot the score line
 lines(x_vals, score_vals, col = score_color, lwd = 3, lty = 1)
 
-# Add the MLE points (x_bar) precisely on the Score = 0 line
 for (i in 1:10) {
-  if (i == idx_max) {
-    points(x_bar_samples[i], 0, col = highlight_color, pch = 16, cex = 1.5)
-  } else {
-    points(x_bar_samples[i], 0, col = grey_color, pch = 16, cex = 1.2)
-  }
+  p_size <- ifelse(i == idx_max, 1.5, 1.2)
+  p_col <- ifelse(i == idx_max, highlight_color, grey_color)
+  points(x_bar_samples[i], 0, col = p_col, pch = 16, cex = p_size)
 }
 
-# Add right axis and label for the Score function
 axis(4, col = score_color, col.axis = score_color, lwd = 2)
-mtext(expression(paste("Score Function ", U(theta))), side = 4, line = 2.5, col = score_color, font = 2)
+mtext("Score Function $U(\\theta)$", side = 4, line = 2.5, col = score_color, font = 2)
 
-# 6. Add Legend
-legend("topright", 
-       legend = c("Log-PDF of Sampling Dist.", "Realized Log-Likelihoods", 
-                  expression(paste("True Null ", theta[0])), "Score Function"),
+legend("topleft", 
+       legend = c("Expected $Q^*(\\theta)$", "Realized $\\ell^*(\\theta)$", "True Null $\\theta_0$", "Score Function $U(\\theta)$"),
        col = c("black", grey_color, null_color, score_color),
-       lty = c(1, 2, 1, 1),
-       lwd = c(3, 1, 2, 3),
-       bg = "white", cex = 0.85)
+       lty = c(1, 2, 1, 1), lwd = c(3, 1, 2, 3), bg = "white", cex = 0.85)
+
+
+# --- END OF PLOT CODE ---
+
+# 3. Close the device silently to prevent "quartz_off_screen" printing
+invisible(dev.off())
+
+# 4. Compile the .tex file to a permanent .pdf
+tools::texi2pdf(tex_file, clean = TRUE)
+
+# 5. Route the correct file type based on the output format
+if (knitr::is_html_output()) {
+  # If compiling to HTML, convert the PDF to a 300 DPI PNG
+  if (!requireNamespace("pdftools", quietly = TRUE)) install.packages("pdftools")
+  png_file <- "fig_expected_loglik.png"
+  
+  # capture.output prevents pdftools from printing conversion text to your document
+  capture.output(
+    pdftools::pdf_convert(pdf_file, format = "png", dpi = 300, filenames = png_file)
+  )
+  knitr::include_graphics(png_file)
+  
+} else {
+  # If compiling to Typst or LaTeX, use the pure vector PDF
+  knitr::include_graphics(pdf_file)
+}
 ```
 
 #### Uniform Distribution (Boundary Case)
