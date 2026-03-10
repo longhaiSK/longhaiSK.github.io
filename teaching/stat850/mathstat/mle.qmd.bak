@@ -10,55 +10,181 @@ format:
 
 ### Definitions and Notations
 
-::: {#def-likelihood-mle}
+::: {#def-likelihood}
+
+### Likelihood and Log-Likelihood
+
+Let $f(\mathbf{x}|\boldsymbol{\theta})$ be the joint probability density function (or mass function) of the data $\mathbf{X} = (X_1, \dots, X_n)$. 
+
+1. **Joint Likelihood Function:**
+   When viewed as a function of the parameter $\boldsymbol{\theta}$ given fixed data $\mathbf{x}$, it is called the likelihood function:
+   $$
+   L(\boldsymbol{\theta}; \mathbf{x}) = f(\mathbf{x}|\boldsymbol{\theta})
+   $$
+
+2. **Joint Log-Likelihood:**
+   It is usually easier to maximize the natural logarithm of the likelihood:
+   $$
+   \ell(\boldsymbol{\theta}; \mathbf{x}) = \log L(\boldsymbol{\theta}; \mathbf{x})
+   $$
+
+3. **Independent Observations:**
+   If the observations $X_1, \dots, X_n$ are independent, the joint likelihood factors into a product of individual densities. Let $\ell(\boldsymbol{\theta}; x_i) = \log f(x_i|\boldsymbol{\theta})$ denote the log-likelihood for a **single observation**. The total log-likelihood is strictly the sum of the individual log-likelihoods:
+   $$
+   \ell(\boldsymbol{\theta}; \mathbf{x}) = \sum_{i=1}^n \ell(\boldsymbol{\theta}; x_i)
+   $$
+
+:::
+
+::: {#def-mle}
 
 ### Maximum Likelihood Estimation
 
-1. **Likelihood Function:**
-
-    Let $f(\mathbf{x}|\boldsymbol{\theta})$ be the joint probability density function of the data $\mathbf{X}$. When viewed as a function of the parameter $\boldsymbol{\theta}$ given fixed data $\mathbf{x}$, it is called the likelihood function:
-    $$
-    L(\boldsymbol{\theta}; \mathbf{x}) = f(\mathbf{x}|\boldsymbol{\theta})
-    $$
-
-2. **Log-likelihood:**
-
-    It is usually easier to maximize the natural logarithm of the likelihood:
-    $$
-    \ell(\boldsymbol{\theta}; \mathbf{x}) = \log L(\boldsymbol{\theta}; \mathbf{x})
-    $$
-
-3. **Maximum Likelihood Estimator (MLE):**
-
-    The MLE $\hat{\boldsymbol{\theta}}_{\text{MLE}}$ is the value that maximizes the likelihood function:
-    $$
-    \hat{\boldsymbol{\theta}}_{\text{MLE}}(\mathbf{x}) = \operatorname*{argmax}_{\boldsymbol{\theta} \in \Theta} \ell(\boldsymbol{\theta}; \mathbf{x})
-    $$
-
-4. **Score Function ($\mathbf{U}$):**
-
-    The score function is defined as the gradient of the log-likelihood with respect to the parameter vector. 
-    $$
-    \mathbf{U}(\boldsymbol{\theta}; \mathbf{x}) = \nabla_{\boldsymbol{\theta}} \ell(\boldsymbol{\theta}; \mathbf{x})
-    $$
-    Finding the MLE often involves solving the score equation: 
-    $$
-    \mathbf{U}(\boldsymbol{\theta}; \mathbf{x}) \equiv 0
-    $$
-
-5. **Observed Fisher Information:**
-
-   $$
-   \mathbf{J}(\boldsymbol{\theta}; \mathbf{X}) = - \nabla^2 \ell(\boldsymbol{\theta}; \mathbf{X})
-   $$
-
-6. **(Expected) Fisher Information Matrix ($\mathcal{I}$):** The covariance matrix of the score vector. It is a deterministic $p \times p$ matrix (for a fixed $\boldsymbol{\theta}$).
-
-    $$
-    \mathcal{I}(\boldsymbol{\theta}) = E_{\boldsymbol{\theta}} \left[ \mathbf{J}(\boldsymbol{\theta}; \mathbf{X}) \right]
-    $$
+**Maximum Likelihood Estimator (MLE):**
+The MLE $\hat{\boldsymbol{\theta}}_{\text{MLE}}$ is the value in the parameter space $\Theta$ that maximizes the likelihood (and equivalently, the log-likelihood) function:
+$$
+\hat{\boldsymbol{\theta}}_{\text{MLE}}(\mathbf{x}) = \operatorname*{argmax}_{\boldsymbol{\theta} \in \Theta} \ell(\boldsymbol{\theta}; \mathbf{x})
+$$
 
 :::
+
+::: {#def-score}
+
+### Score Function
+
+The score function is defined as the gradient of the log-likelihood with respect to the parameter vector $\boldsymbol{\theta}$. Finding the MLE often involves solving the score equation $\mathbf{U}(\boldsymbol{\theta}; \mathbf{x}) = \mathbf{0}$.
+
+1. **Total Score Function ($\mathbf{U}$):**
+   $$
+   \mathbf{U}(\boldsymbol{\theta}; \mathbf{x}) = \nabla_{\boldsymbol{\theta}} \ell(\boldsymbol{\theta}; \mathbf{x})
+   $$
+
+2. **Single Observation Score ($\mathbf{u}_i$):**
+   For a single independent observation $x_i$, its score is:
+   $$
+   \mathbf{u}(\boldsymbol{\theta}; x_i) = \nabla_{\boldsymbol{\theta}} \ell(\boldsymbol{\theta}; x_i)
+   $$
+
+3. **Sum for Independent Data:**
+   By the linearity of the derivative operator, the total score function for independent observations is the sum of the individual score functions:
+   $$
+   \mathbf{U}(\boldsymbol{\theta}; \mathbf{x}) = \sum_{i=1}^n \mathbf{u}(\boldsymbol{\theta}; x_i)
+   $$
+
+:::
+
+::: {#def-fisher-info}
+
+### Fisher Information
+
+The Fisher Information measures the curvature of the log-likelihood surface and, correspondingly, the amount of information the data carries about the unknown parameter.
+
+1. **Observed Fisher Information ($\mathbf{J}$):**
+   This is the negative Hessian matrix of the log-likelihood, evaluated at the observed data.
+   * **Total:** $\mathbf{J}_n(\boldsymbol{\theta}; \mathbf{x}) = - \nabla^2_{\boldsymbol{\theta}} \ell(\boldsymbol{\theta}; \mathbf{x})$
+   * **Single Observation:** $\mathbf{J}_1(\boldsymbol{\theta}; x_i) = - \nabla^2_{\boldsymbol{\theta}} \ell(\boldsymbol{\theta}; x_i)$
+   * **Sum for Independent Data:**
+     $$
+     \mathbf{J}_n(\boldsymbol{\theta}; \mathbf{x}) = \sum_{i=1}^n \mathbf{J}_1(\boldsymbol{\theta}; x_i)
+     $$
+
+2. **Expected Fisher Information ($\mathcal{I}$):**
+   This is the covariance matrix of the score vector, which simplifies to the expected value of the observed Fisher information. It is a deterministic $p \times p$ matrix.
+   * **Total:** $\mathcal{I}_n(\boldsymbol{\theta}) = E_{\boldsymbol{\theta}} \left[ \mathbf{J}_n(\boldsymbol{\theta}; \mathbf{X}) \right]$
+   * **Single Observation:** $\mathcal{I}_1(\boldsymbol{\theta}) = E_{\boldsymbol{\theta}} \left[ \mathbf{J}_1(\boldsymbol{\theta}; X_i) \right]$
+   * **Sum for Independent Data:**
+     $$
+     \mathcal{I}_n(\boldsymbol{\theta}) = \sum_{i=1}^n \mathcal{I}_1(\boldsymbol{\theta})
+     $$
+     *(Note: If the independent observations are also identically distributed (i.i.d.), this simplifies further to $\mathcal{I}_n(\boldsymbol{\theta}) = n \mathcal{I}_1(\boldsymbol{\theta})$).*
+
+:::
+
+### Example: MLE of Normal Sample
+
+:::: {#exm-normal-mle-asymptotics}
+
+#### Example: Normal Distribution (Exact Asymptotics)
+
+Let $X_1, \dots, X_n \overset{iid}{\sim} N(\theta, \sigma^2)$ with $\sigma^2$ known. We explicitly derive the key quantities and map them to the four general asymptotic results under $H_0: \theta = \theta_0$.
+
+1. Derivation of Key Quantities
+
+    * **Log-Likelihood:**
+        Using the identity $\sum (x_i - \theta)^2 = \sum (x_i - \bar{x})^2 + n(\bar{x} - \theta)^2$, the log-likelihood is a perfect quadratic centered at $\bar{x}$:
+        $$
+        \ell(\theta) = \underbrace{-\frac{n}{2}\log(2\pi\sigma^2) - \frac{1}{2\sigma^2}\sum_{i=1}^n (x_i - \bar{x})^2}_{C} - \frac{n}{2\sigma^2}(\theta - \bar{x})^2
+        $$
+
+    * **Score Function ($U_n$):**
+        Differentiating with respect to $\theta$:
+        $$
+        U_n(\theta) = \ell'(\theta) = \frac{n}{\sigma^2}(\bar{X}_n - \theta)
+        $$
+
+    * **Maximum Likelihood Estimator ($\hat{\theta}_n$):**
+        Setting $U_n(\hat{\theta}) = 0 \implies \hat{\theta}_n = \bar{X}_n$.
+
+    * **Fisher Information ($\mathcal{I}_n$):**
+        Taking the negative second derivative:
+        $$
+        \mathcal{I}_n(\theta) = -E[\ell''(\theta)] = \frac{n}{\sigma^2}
+        $$
+
+2. Asymptotic Distributions
+   
+    We now illustrate the four main theorems using these derived forms under $H_0: \theta = \theta_0$:
+
+    1. **Consistency:**
+        The MLE $\hat{\theta}_n = \bar{X}_n \xrightarrow{p} \theta_0$ by the Weak Law of Large Numbers.
+
+    2. **Asymptotic Normality of the Score:**
+        Evaluated at the null, the score follows a Normal distribution exactly:
+        $$
+        U_n(\theta_0) \sim N(0, \mathcal{I}_n(\theta_0))
+        $$
+
+    3. **Asymptotic Normality of the Estimator:**
+        The distribution of the standardized MLE centered at the null value is:
+        $$
+        \sqrt{n}(\hat{\theta}_n - \theta_0) \sim N(0, \sigma^2) = N(0, \mathcal{I}_1(\theta_0)^{-1})
+        $$
+
+    4. **Wilks' Theorem (Deviance):**
+        The Deviance is defined as $D = 2[\ell(\hat{\theta}) - \ell(\theta_0)]$.Using the quadratic form of the log-likelihood derived above, we can directly compute the values at the MLE ($\hat{\theta} = \bar{x}$) and the null ($\theta_0$):
+        * $\ell(\hat{\theta}) = C - \frac{n}{2\sigma^2}(\bar{x} - \bar{x})^2 = C$
+        * $\ell(\theta_0) = C - \frac{n}{2\sigma^2}(\theta_0 - \bar{x})^2$
+        
+        Substituting these into the Deviance formula directly yields:
+        $$
+        D = 2 \left[ C - \left( C - \frac{n}{2\sigma^2}(\bar{x} - \theta_0)^2 \right) \right] = \frac{n}{\sigma^2}(\bar{x} - \theta_0)^2
+        $$
+        
+        Rearranging this expression reveals the square of a standard Normal variable ($Z$):
+        $$
+        D = \left( \frac{\bar{X}_n - \theta_0}{\sigma/\sqrt{n}} \right)^2 = Z^2 \sim \chi^2_1
+        $$
+        This confirms that for the Normal distribution, the $\chi^2_1$ distribution of the Deviance is exact for any sample size $n$.
+
+::::
+
+#### Uniform Distribution (Boundary Case)
+
+::: {#exm-uniform-mle-boundary}
+
+
+Let $X_1, \dots, X_n \overset{iid}{\sim} \operatorname{\text{Unif}}(0, \theta)$. The likelihood is:
+$$
+L(\theta; \mathbf{x}) = \frac{1}{\theta^n} I(x_{(n)} \le \theta)
+$$
+This function strictly decreases for $\theta \ge x_{(n)}$ and is zero otherwise. Thus:
+$$
+\hat{\theta}_{\text{MLE}} = x_{(n)}
+$$
+Note that the Score equation approach fails here because the support depends on $\theta$, making the log-likelihood discontinuous at the boundary.
+
+:::
+
 
 ### Summary of Key Asymptotic Results for MLE
 
@@ -86,161 +212,19 @@ Under standard regularity conditions (e.g., i.i.d. observations, smooth density,
     \sqrt{n}(\hat{\boldsymbol{\theta}}_{\text{MLE}} - \boldsymbol{\theta}_0) \xrightarrow{d} N_p(\mathbf{0}, \mathcal{I}_1(\boldsymbol{\theta}_0)^{-1})
     $$
 
-4. **Wilks' Theorem (Likelihood Ratio for Nested Models):**
-
-    Consider two nested models: a **Full Model** with parameter space $\Theta_{\text{Full}}$ (dimension $p$) and a **Reduced Model** restricted to a subspace $\Theta_{\text{Reduced}}$ (dimension $q < p$). 
+4. **Wilks' Theorem (Likelihood Ratio Test for a Simple Null):**
     
-    The Likelihood Ratio Statistic (Deviance) is defined as:
+    The Likelihood Ratio Statistic (Deviance) evaluates the drop in the log-likelihood from the Maximum Likelihood Estimator ($\hat{\boldsymbol{\theta}}$) to the true value ($\boldsymbol{\theta}_0$):
     $$
-    D = 2 \left( \ell(\hat{\boldsymbol{\theta}}_{\text{Full}}) - \ell(\hat{\boldsymbol{\theta}}_{\text{Reduced}}) \right)
+    D = 2 \left( \ell(\hat{\boldsymbol{\theta}}) - \ell(\boldsymbol{\theta}_0) \right)
     $$
-    Under the null hypothesis that the Reduced Model is true, the statistic converges to a Chi-squared distribution:
+    The statistic converges to a Chi-squared distribution:
     $$
-    D \xrightarrow{d} \chi^2_{p-q}
+    D \xrightarrow{d} \chi^2_{p}
     $$
-    *(The degrees of freedom equal the difference in the number of parameters).*
+    *(The degrees of freedom equal the dimension of the parameter vector $p$, because all $p$ parameters are fixed under the null. For a single scalar parameter $\theta$, this reduces to $\chi^2_1$).*
 
-### Examples
-
-#### Example: Normal Distribution (Exact Asymptotics)
-
-::: {#exm-normal-mle-asymptotics}
-
-#### Example: Normal Distribution (Exact Asymptotics)
-
-Let $X_1, \dots, X_n \overset{iid}{\sim} N(\theta, \sigma^2)$ with $\sigma^2$ known. We explicitly derive the key quantities and map them to the four general asymptotic results.
-
-1. Derivation of Key Quantities
-
-* **Log-Likelihood:**
-    $$
-    \ell(\theta) = -\frac{n}{2}\log(2\pi\sigma^2) - \frac{1}{2\sigma^2}\sum_{i=1}^n (x_i - \theta)^2
-    $$
-
-* **Score Function ($U_n$):**
-    Differentiating with respect to $\theta$:
-    $$
-    U_n(\theta) = \ell'(\theta) = \frac{1}{\sigma^2}\sum_{i=1}^n (x_i - \theta) = \frac{n}{\sigma^2}(\bar{X}_n - \theta)
-    $$
-
-* **Maximum Likelihood Estimator ($\hat{\theta}_n$):**
-    Setting $U_n(\hat{\theta}) = 0$:
-    $$
-    \frac{n}{\sigma^2}(\bar{X}_n - \hat{\theta}) = 0 \implies \hat{\theta}_n = \bar{X}_n
-    $$
-
-* **Fisher Information ($\mathcal{I}_n$):**
-    Taking the negative second derivative:
-    $$
-    \mathcal{I}_n(\theta) = -E[\ell''(\theta)] = -E\left[ -\frac{n}{\sigma^2} \right] = \frac{n}{\sigma^2}
-    $$
-    *(Note: For a single observation, $\mathcal{I}_1 = 1/\sigma^2$).*
-
-2. Asymptotic Properties
-
-We now illustrate the four main theorems using these derived forms:
-
-1.  **Consistency**
-
-    
-    The MLE is $\hat{\theta}_n = \bar{X}_n$. By the Weak Law of Large Numbers, we know that:
-    $$
-    \bar{X}_n \xrightarrow{p} \theta
-    $$
-    Thus, the estimator is consistent.
-
-2.  **Asymptotic Normality of the Score**
-
-    
-    The score function is $U_n(\theta) = \frac{n}{\sigma^2}(\bar{X}_n - \theta)$. Since $\bar{X}_n$ is normally distributed, the Score is **exactly** Normal for any $n$:
-    $$
-    U_n(\theta) \sim N\left(0, \frac{n}{\sigma^2}\right) = N(0, \mathcal{I}_n)
-    $$
-    Scaling by $1/\sqrt{n}$, we recover the asymptotic result:
-    $$
-    \frac{1}{\sqrt{n}} U_n(\theta) \sim N(0, \mathcal{I}_1)
-    $$
-
-3.  **Asymptotic Normality of the Estimator**
-
-    
-    The distribution of the standardized MLE is derived from the properties of the sample mean:
-    $$
-    \sqrt{n}(\hat{\theta}_n - \theta) = \sqrt{n}(\bar{X}_n - \theta) \sim N(0, \sigma^2)
-    $$
-    Note that $\sigma^2 = 1/\mathcal{I}_1$. Therefore:
-    $$
-    \sqrt{n}(\hat{\theta}_n - \theta) \sim N(0, \mathcal{I}_1^{-1})
-    $$
-    Again, the asymptotic approximation holds exactly for finite sample sizes here.
-
-4.  **Wilks' Theorem (Deviance Approximation)**
-
-    
-    We test $H_0: \theta = \theta_0$. The Deviance is $D = 2[\ell(\hat{\theta}) - \ell(\theta_0)]$.
-    
-    **Step A: Taylor Expansion**
-    We expand the log-likelihood around the MLE. In general, this is an approximation, but for the Normal distribution (where the log-likelihood is exactly quadratic), the expansion is **exact**:
-    $$
-    \ell(\theta_0) = \ell(\hat{\theta}) + (\theta_0 - \hat{\theta}) \underbrace{\ell'(\hat{\theta})}_{0} + \frac{1}{2}(\theta_0 - \hat{\theta})^2 \ell''(\hat{\theta})
-    $$
-    Substituting the constant curvature $\ell''(\theta) = -n/\sigma^2$:
-    $$
-    2[\ell(\hat{\theta}) - \ell(\theta_0)] = -(\theta_0 - \hat{\theta})^2 \left( -\frac{n}{\sigma^2} \right) = \frac{n}{\sigma^2}(\hat{\theta} - \theta_0)^2
-    $$
-    
-    **Step B: Exactness in the Normal Case**
-    Because the log-likelihood for the Normal mean is a perfect quadratic (a parabola), the third derivatives are zero. Therefore, the Taylor approximation is **exact**:
-    $$
-    D = \frac{n}{\sigma^2}(\hat{\theta} - \theta_0)^2
-    $$
-
-    **Step C: Equivalence of Forms ($D = \text{Wald} = \text{Score}$)**
-    
-    Let $\Delta \hat \theta = \hat{\theta} - \theta_0$ be the estimation error. We can rewrite the exact Deviance derived above in terms of the Information ($\mathcal{I}_n = n/\sigma^2$) and the Score at the null ($U_0 = \mathcal{I}_n \Delta \hat \theta$).
-
-    * **Deviance Form:** From Step B, we see directly:
-        $$
-        D = \left( \frac{n}{\sigma^2} \right) (\hat{\theta} - \theta_0)^2 = \mathcal{I}_n (\Delta \hat \theta)^2
-        $$
-        
-    * **Score Statistic Form:** The Score at the null hypothesis is $U(\theta_0) = \mathcal{I}_n (\hat{\theta} - \theta_0)$.
-        $$
-        U^T \mathcal{I}^{-1} U = [\mathcal{I}_n \Delta \hat \theta] \cdot [\mathcal{I}_n^{-1}] \cdot [\mathcal{I}_n \Delta \hat \theta] = \Delta \hat \theta \cdot \mathcal{I}_n \cdot \Delta \hat \theta = \mathcal{I}_n (\Delta \hat \theta)^2
-        $$
-
-    * **Result:** In the Normal case (perfect quadratic likelihood), the three statistics are identical:
-        $$
-        \boxed{ D = \Delta \hat \theta^T \mathcal{I}_n \Delta \hat \theta = U_n(\theta_0)^T \mathcal{I}_n^{-1} U_n(\theta_0) }
-        $$
-    
-    **Step D: Conclusion**
-    The term inside the Deviance is the standard Z-statistic squared ($Z \sim N(0,1)$):
-    $$
-    D = \left( \frac{\bar{X}_n - \theta_0}{\sigma/\sqrt{n}} \right)^2 = Z^2 \sim \chi^2_1
-    $$
-    This illustrates Wilks' theorem: the deviance statistic converges to a Chi-squared distribution (degrees of freedom = 1).
-
-:::
-
-#### Uniform Distribution (Boundary Case)
-
-::: {#exm-uniform-mle-boundary}
-
-
-Let $X_1, \dots, X_n \overset{iid}{\sim} \operatorname{\text{Unif}}(0, \theta)$. The likelihood is:
-$$
-L(\theta; \mathbf{x}) = \frac{1}{\theta^n} I(x_{(n)} \le \theta)
-$$
-This function strictly decreases for $\theta \ge x_{(n)}$ and is zero otherwise. Thus:
-$$
-\hat{\theta}_{\text{MLE}} = x_{(n)}
-$$
-Note that the Score equation approach fails here because the support depends on $\theta$, making the log-likelihood discontinuous at the boundary.
-
-:::
-
-## Optimization Algorithms for Finding MLE
+## Newton-Raphson and Fisher Scoring Algorithms for Finding MLE
 
 When the score equation $\mathbf{U}(\boldsymbol{\theta}) = \mathbf{0}$ does not have a closed-form solution, we must rely on iterative numerical methods to find the Maximum Likelihood Estimator. The Newton-Raphson algorithm is the most common approach, utilizing the curvature of the log-likelihood surface to guide the search for the maximum.
 
@@ -468,7 +452,7 @@ legend("bottomright", legend = c("NR Path", "True Beta"),
 ```
 
 
-## Review of Convergence Theorems for Probability
+## Convergence Theorems in Probability Theory
 
 
 ### Weak Law of Large Numbers (WLLN)
@@ -825,6 +809,7 @@ plot_cdfs(n = 50)
 
 # Reset plotting parameters to default
 par(mfrow = c(1, 1))
+
 ```
 
 ## Asymptotic Theory of Maximized Likelihood
@@ -1444,7 +1429,6 @@ We express the likelihood difference $\Delta \ell$ in terms of the Score vector 
 :::
 
 
-### Summary of Asymptotic Approximations
 
 ### Summary of Asymptotic Approximations
 
@@ -1457,7 +1441,6 @@ In the limit as $n \to \infty$ (or exactly for the Normal distribution), the log
 | **Deviance vs. Score** | $D \approx \mathbf{U}^T \mathcal{I}^{-1} \mathbf{U}$ | The vertical drop ($D$) is proportional to the squared slope ($\mathbf{U}^2$), *divided* by curvature ($\mathcal{I}$). This is the **Score Statistic**. |
 | **Information Definition** | $\mathcal{I} \approx -\nabla \mathbf{U}$ | The curvature ($\mathcal{I}$) is the rate of change of the slope ($\mathbf{U}$) (negative Hessian). |
 | **Information Approximation** | $\mathcal{I} \approx \sum_{i=1}^n \mathbf{U}_i \mathbf{U}_i^T$ | The curvature ($\mathcal{I}$) is estimated by the "Sum of Squared Gradients" (Outer Products). This relies on Bartlett's 2nd Identity: $E[\mathcal{I}] = \text{Var}(\mathbf{U})$. 
-
 
 ```{tikz}
 %| label: fig-asymptotic-relationships-final
@@ -1517,14 +1500,14 @@ In the limit as $n \to \infty$ (or exactly for the Normal distribution), the log
         Total Score ($\mathbf{U} = \sum \mathbf{U}_i$)
     };
 
+    \node[infoblock] (info) at (16, 4) {
+        \textbf{Information Space} \\
+        Curvature ($\mathcal{I}$)
+    };
+
     \node[block] (dev) at (3.5, 0) {
         \textbf{Likelihood Space} \\
         Deviance ($D$)
-    };
-
-    \node[infoblock] (info) at (3.5, 7.5) {
-        \textbf{Information Space} \\
-        Curvature ($\mathcal{I}$)
     };
 
     % Edges - Main Cycle
@@ -1550,24 +1533,14 @@ In the limit as $n \to \infty$ (or exactly for the Normal distribution), the log
     % Edges - Information Approximations
     
     % Score -> Info
-    % Connecting from the "Gradient Space" to "Information" using the sum of squares logic
-    \draw[dashed_arrow] (score) to[bend right=30] node[midway, right=0.1cm, align=left] {
-        $\mathcal{I} \approx \sum_{i} \mathbf{U}_i \mathbf{U}_i^T$ \\
-        (\textcolor{red}{Sum of Squares})
-    } (info);
-
-    % Parameter -> Info (Bartlett Identity Concept)
-    \draw[dashed_arrow] (error) to[bend left=30] node[midway, left=0.1cm, align=right] {
-        Bartlett Identity \\
-        $E[\mathcal{I}] = \text{Var}(\mathbf{U})$
-    } (info);
+    % Connecting from the "Gradient Space" to "Information Space" horizontally
+    \draw[dashed_arrow] (score) -- 
+        node[midway, above=0.1cm] {Bartlett Identity: $\mathcal{I} = \text{Var}(\mathbf{U})$} 
+        node[midway, below=0.1cm] {Empirical Fisher: $\hat{\mathcal{I}} = \sum_i \mathbf{U}_i \mathbf{U}_i^T$} 
+    (info);
 
 \end{tikzpicture}
-
 ```
-
-
-## Examples
 
 
 ### Asympotic Distributions of MLE of Normal Sample
@@ -1648,6 +1621,7 @@ We simulate 5000 datasets with $n=100$. We calculate the standardized MLEs, stan
 ```{r}
 #| label: fig-normal-unknown-var-sim
 #| fig-cap: "Simulation of Normal (Unknown Variance) Asymptotics (n=100). Left/Center-Left: Standardized MLEs. Center-Right: Standardized Score for Variance. Right: Deviance (2 df)."
+#| fig-pos: "H"
 #| warning: false
 #| message: false
 
@@ -1852,7 +1826,208 @@ curve(dchisq(x, df = 2), add = TRUE, col = "darkgreen", lwd = 2)
 
 :::
 
-## MLE and Penalized Likelihood in Deep Learning
+### Alkeike Information Criterion
+
+
+The fundamental challenge in model selection is estimating how well our fitted model will perform on unseen data. When we optimize a model using our sample data $Y_{\mathrm{train}}$, we climb the realized (training) log-likelihood curve to arrive at the maximum likelihood estimate, $\hat{\theta}$. Because $\hat{\theta}$ inherently accommodates the idiosyncratic noise of that specific sample, its training performance is artificially inflated compared to the true parameter $\theta_0$. However, if we evaluate this exact same estimate $\hat{\theta}$ out-of-sample against new data $Y_{\mathrm{test}}$, it performs worse than $\theta_0$. 
+
+The Akaike Information Criterion (AIC) provides a geometric correction for this dual illusion by quantifying the total expected distance between the optimistic peak we observe and the true out-of-sample performance we actually care about.
+
+#### 1. The Realized Deviance Expansions
+Let the deviance be defined as $D(\theta; Y) = -2\ell(\theta; Y)$, and let the geometric distance between the estimate and the truth be represented by the Wald statistic, $W = (\hat{\theta} - \theta_0)^T \mathcal{I}_n(\theta_0) (\hat{\theta} - \theta_0)$.
+
+For the training data, the MLE $\hat{\theta}$ is the global minimum. By Taylor expanding the deviance of the true parameter $D(\theta_0; Y_{\mathrm{train}})$ around the estimate $\hat{\theta}$, the first derivative vanishes, leaving:
+$$
+D(\theta_0; Y_{\mathrm{train}}) \approx D(\hat{\theta}; Y_{\mathrm{train}}) + W
+$$
+Rearranging this isolates the training deviance we observe:
+$$
+D(\hat{\theta}; Y_{\mathrm{train}}) \approx D(\theta_0; Y_{\mathrm{train}}) - W
+$$
+
+For the test data, $\hat{\theta}$ is a fixed constant imported from the training phase. By Taylor expanding the test deviance $D(\hat{\theta}; Y_{\mathrm{test}})$ around the true parameter $\theta_0$, we get:
+$$
+D(\hat{\theta}; Y_{\mathrm{test}}) \approx D(\theta_0; Y_{\mathrm{test}}) - 2(\hat{\theta} - \theta_0)^T U(Y_{\mathrm{test}}, \theta_0) + W
+$$
+Where $U(Y_{\mathrm{test}}, \theta_0) = \nabla \ell(\theta_0; Y_{\mathrm{test}})$ is the score function evaluated on the test data. 
+
+To intuitively understand the behavior of this expansion, we can briefly average $Y_{\mathrm{test}}$ away. If we take the expectation strictly over the test data (holding our training estimate $\hat{\theta}$ fixed), the expected score evaluates to zero ($\mathbb{E}[U(Y_{\mathrm{test}}, \theta_0)] = 0$). This reveals that the expected out-of-sample performance for our specific model rises above the baseline by exactly the Wald statistic: $\mathbb{E}_{Y_{\mathrm{test}}}[D(\hat{\theta}; Y_{\mathrm{test}}) \mid \hat{\theta}] \approx \mathbb{E}_{Y_{\mathrm{test}}}[D(\theta_0; Y_{\mathrm{test}})] + W$.
+
+#### 2. The Raw Optimism Gap
+Returning to the fully realized values, by subtracting the training deviance from the test deviance, we can express the total observed optimism gap as a function of the deviance evaluated at the true parameter $\theta_0$:
+$$
+D(\hat{\theta}; Y_{\mathrm{test}}) - D(\hat{\theta}; Y_{\mathrm{train}}) \approx \left[ D(\theta_0; Y_{\mathrm{test}}) - D(\theta_0; Y_{\mathrm{train}}) \right] - 2(\hat{\theta} - \theta_0)^T U(Y_{\mathrm{test}}, \theta_0) + 2W
+$$
+
+This single equation contains the entire story of overfitting. For any given pair of test and training samples, the optimism gap depends on the baseline difference in the data, a cross-term of the estimate and the test score, and twice the Wald statistic.
+
+#### 3. The Expected AIC Penalty
+To find the theoretical penalty, we take the expectation of this gap with respect to both $Y_{\mathrm{train}}$ and $Y_{\mathrm{test}}$. 
+
+Because $\theta_0$ is a fixed, deterministic constant representing the true data-generating parameters, it carries no memory of the sampling process. As long as $Y_{\mathrm{train}}$ and $Y_{\mathrm{test}}$ are drawn from the same distribution, their expected deviance at $\theta_0$ is identical and perfectly cancels out:
+$$
+\mathbb{E}[D(\theta_0; Y_{\mathrm{test}})] - \mathbb{E}[D(\theta_0; Y_{\mathrm{train}})] = D^*(\theta_0) - D^*(\theta_0) = 0
+$$
+
+Furthermore, because the test data $Y_{\mathrm{test}}$ is completely independent of the estimate $\hat{\theta}$ (which was derived solely from $Y_{\mathrm{train}}$), the expectation of their cross-term evaluates to zero.
+
+This leaves only the expectation of the Wald statistic. Because $\hat{\theta}$ is asymptotically normal, $W$ follows a $\chi^2_p$ distribution, meaning its expected value is exactly the dimension of the parameter space: $\mathbb{E}[W] = p$. 
+
+Applying the full expectation collapses the raw gap down to the pure penalty constant:
+$$
+\mathbb{E}[D(\hat{\theta}; Y_{\mathrm{test}})] - \mathbb{E}[D(\hat{\theta}; Y_{\mathrm{train}})] = \mathbb{E}[2W] = 2p
+$$
+
+```{r}
+#| label: fig-base-r-viz-expected-loglik-star
+#| fig-cap: "Expected Log-Likelihood $\\ell^*(\\theta)$ and 10 realized $\\ell(\\theta)$ curves. The largest sample is highlighted in black, showing the 1/2 Deviance gap. The expected out-of-sample drop is marked in orange."
+#| fig-pos: "H"
+
+library(tikzDevice)
+library(tools)
+
+# 1. Define filenames
+tex_file <- "fig_expected_loglik.tex"
+pdf_file <- "fig_expected_loglik.pdf"
+
+options(tikzDocumentDeclaration = "\\documentclass[12pt]{extarticle}")
+
+# 2. Now open the device, matching the pointsize
+tikz(tex_file, width = 7, height = 7, standAlone = TRUE, pointsize = 16)
+
+# --- START OF PLOT CODE ---
+theta_0 <- 2
+sigma <- 10
+n <- 100
+se <- sigma / sqrt(n)
+x_vals <- seq(theta_0 - 4*se, theta_0 + 4*se, length.out = 500)
+expected_log_lik <- dnorm(x_vals, mean = theta_0, sd = se, log = TRUE) - 0.5
+y_min <- min(expected_log_lik)
+y_max <- dnorm(0, sd = se, log = TRUE) + 2.5 
+
+set.seed(123)
+x_bar_samples <- rnorm(10, mean = theta_0, sd = se)
+idx_max <- which.max(x_bar_samples)
+x_bar_max <- x_bar_samples[idx_max]
+
+grey_color <- "grey70"
+highlight_color <- "black" # Swapped from blue
+expected_color <- "blue"   # Swapped from black
+score_color <- "green"
+null_color <- "red"
+exp_color <- "darkorange" 
+
+par(mar = c(5, 4, 4, 4) + 0.3, cex.axis = 1.2, cex.lab = 1.4)
+plot(x_vals, expected_log_lik, type = "n", 
+     ylim = c(y_min, y_max),
+     xlab = "$\\theta$", 
+     ylab = "Log-Value",
+     main = "Expected vs. Realized $\\ell^*(\\theta)$, Deviance, and Score",
+     frame.plot = TRUE)
+
+lines(x_vals, expected_log_lik, lwd = 3, col = expected_color)
+abline(v = theta_0, col = null_color, lty = 1, lwd = 2)
+
+for (i in 1:10) {
+  log_lik_vals <- dnorm(x_bar_samples[i], mean = x_vals, sd = se, log = TRUE)
+  l_width <- ifelse(i == idx_max, 2, 1)
+  current_col <- ifelse(i == idx_max, highlight_color, grey_color)
+  lines(x_vals, log_lik_vals, col = current_col, lty = 2, lwd = l_width)
+}
+
+# 3. Draw Empirical Deviance segments for the largest x_bar
+peak_y <- dnorm(x_bar_max, mean = x_bar_max, sd = se, log = TRUE)
+null_y <- dnorm(x_bar_max, mean = theta_0, sd = se, log = TRUE)
+
+segments(x0 = theta_0, y0 = null_y, x1 = x_bar_max, y1 = null_y, col = highlight_color, lwd = 2, lty = 1)
+# Increased vertical lwd to 4
+segments(x0 = x_bar_max, y0 = null_y, x1 = x_bar_max, y1 = peak_y, col = highlight_color, lwd = 4, lty = 1)
+# Label updated and moved to the right (pos = 4)
+text(x_bar_max, (null_y + peak_y)/2, labels = "$\\frac{1}{2}D(\\hat{\\theta})$", pos = 4, col = highlight_color, font = 2, cex = 1)
+points(theta_0, null_y, pch = 16, col = highlight_color, cex = 1.5)
+
+# 4. Draw Expected Drop on the expected curve
+exp_max_y <- dnorm(theta_0, mean = theta_0, sd = se, log = TRUE) - 0.5
+exp_hat_y <- dnorm(x_bar_max, mean = theta_0, sd = se, log = TRUE) - 0.5
+
+# Dynamically shift slightly LEFT to avoid the blue line and text collision
+x_shift <- x_bar_max - 0.06 * se 
+
+# Horizontal line at expected max
+segments(x0 = theta_0, y0 = exp_max_y, x1 = x_shift, y1 = exp_max_y, col = exp_color, lwd = 2, lty = 1)
+# Increased vertical lwd to 4
+segments(x0 = x_shift, y0 = exp_max_y, x1 = x_shift, y1 = exp_hat_y, col = exp_color, lwd = 4, lty = 1)
+# Short dotted connector back to the actual point on the curve
+segments(x0 = x_bar_max, y0 = exp_hat_y, x1 = x_shift, y1 = exp_hat_y, col = exp_color, lwd = 1, lty = 3)
+# Label expected drop, placed on the left (pos = 2)
+text(x_shift, (exp_max_y + exp_hat_y)/2, labels = "$\\frac{1}{2}D^*(\\hat{\\theta})$", pos = 2, col = exp_color, font = 2, cex = 1)
+
+# Mark the points on the expected curve
+points(x_bar_max, exp_hat_y, pch = 16, col = exp_color, cex = 1.5)
+points(theta_0, exp_max_y, pch = 16, col = exp_color, cex = 1.5)
+
+# 5. Add Score Function using a 2nd y-axis
+par(new = TRUE)
+score_vals <- x_bar_max - x_vals
+plot(x_vals, score_vals, type = "n", axes = FALSE, xlab = "", ylab = "", ylim = c(-5, 9))
+abline(h = 0, col = "gray", lty = 3, lwd = 2)
+lines(x_vals, score_vals, col = score_color, lwd = 3, lty = 1)
+
+for (i in 1:10) {
+  p_size <- ifelse(i == idx_max, 1.5, 1.2)
+  p_col <- ifelse(i == idx_max, highlight_color, grey_color)
+  points(x_bar_samples[i], 0, col = p_col, pch = 16, cex = p_size)
+}
+
+axis(4, col = score_color, col.axis = score_color, lwd = 2)
+mtext("Score Function $U(\\theta)$", side = 4, line = 2.5, col = score_color, font = 2)
+
+# 6. Updated Legend
+legend("topleft", 
+       legend = c(
+         "Expected (Test) $\\ell^*(\\theta)$", 
+         "Expected (Test) D-gap $\\frac{1}{2}D^*(\\hat\\theta)$",
+         "Training $\\ell(\\theta; y_{\\mathrm{train}})$", 
+         "Training D-gap $\\frac{1}{2}D(\\hat{\\theta})$",
+         "True Null $\\theta_0$", 
+         "Score $U_n(\\theta)$"
+       ),
+       col = c(
+         expected_color, # Swapped to use expected_color (blue)
+         exp_color, 
+         highlight_color, # Swapped to use highlight_color (black)
+         highlight_color, 
+         null_color, 
+         score_color
+       ),
+       lty = c(1, 1, 2, 1, 1, 1), 
+       lwd = c(3, 4, 2, 4, 2, 3), 
+       bg = "white", 
+       cex = 0.85)
+
+# --- END OF PLOT CODE ---
+
+# 3. Close the device silently
+invisible(dev.off())
+
+# 4. Compile the .tex file to a permanent .pdf
+invisible(tools::texi2pdf(tex_file, clean = TRUE))
+
+# 5. Convert the PDF to a high-res PNG unconditionally
+if (!requireNamespace("pdftools", quietly = TRUE)) install.packages("pdftools")
+png_file <- "fig_expected_loglik.png"
+
+invisible(pdftools::pdf_convert(pdf_file, format = "png", dpi = 600, filenames = png_file))
+
+# 6. Feed the PNG to Quarto for all formats
+knitr::include_graphics(png_file)
+
+```
+
+
+
+
+## Optimization in Deep Learning
 
 In deep learning, the objective function is typically the negative log-likelihood of the dataset, often supplemented by a penalty term (regularization) to prevent overfitting. While the theoretical foundations of Maximum Likelihood Estimation remain the same, the practical application in high-dimensional neural networks faces significant computational challenges that necessitate specialized optimization strategies.
 
@@ -1886,7 +2061,7 @@ where $\Omega(\boldsymbol{\theta})$ is a penalty function. Common examples inclu
 
 Because the exact Hessian is computationally prohibitive in high-dimensional settings, scalable optimization strategies rely on the Score vector (the gradient of the log-likelihood) to either take direct steps or approximate local curvature. By avoiding full $\mathcal{O}(p^3)$ matrix inversions, these methods maintain a feasible memory and computational complexity of roughly $\mathcal{O}(p)$, making them the standard for large-scale problems.
 
-#### 1. Stochastic Gradient and Momentum Methods
+#### Stochastic Gradient and Momentum Methods
 
 * **Stochastic Gradient Descent (SGD):** Instead of computing the full score over the entire dataset, SGD uses a stochastic "mini-batch" estimate $\mathbf{U}_{batch}$. The standard update rule is:
     $$
@@ -1898,7 +2073,7 @@ Because the exact Hessian is computationally prohibitive in high-dimensional set
 
 
 
-#### 2. Natural SGD with Empirical Fisher Information
+#### Natural SGD with Empirical Fisher Information
 
 To correct the flat geometry of SGD, modern optimizers leverage the **Second Moment Identity** (Bartlett's Identity) to capture curvature information without the $\mathcal{O}(p^2)$ cost of computing the actual Hessian. 
 
@@ -1914,6 +2089,7 @@ This provides a computational lifeline: we can estimate second-order curvature u
     $$
     \hat{\mathcal{I}}_{\text{empirical}} = \frac{1}{n_{batch}} \sum_{i=1}^{n_{batch}} \mathbf{U}_i(\mathbf{y}_i) \mathbf{U}_i(\mathbf{y}_i)^\top
     $$
+
 * **Full-Matrix NSGD:** Using the full $p \times p$ Empirical Fisher perfectly captures parameter correlations. The update step is $\boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} + \alpha \hat{\mathcal{I}}^{-1} \mathbf{U}_{batch}$. However, inverting this matrix requires $\mathcal{O}(p^3)$ operations, rendering it impossible for massive models.
 * **Diagonal NSGD:** To handle high dimensionality, practitioners drop the off-diagonal elements, assuming parameters are roughly independent. The diagonal elements are computed via the element-wise (Hadamard) product:
     $$
@@ -1924,20 +2100,11 @@ This provides a computational lifeline: we can estimate second-order curvature u
 ::: {#rem-empirical-fisher-caveat}
 **A Note on the Empirical Approximation**
 While $\text{Cov}(\mathbf{U}) = E[\mathbf{J}]$ holds at the true parameter $\boldsymbol{\theta}_0$, it may not hold perfectly when $\boldsymbol{\theta}$ is far from the truth. In these regions, the empirical Fisher is technically an approximation of the *variability* of the gradients drawn from the training data, rather than the true geometric curvature of the model.
+
 :::
 
-#### 3. Re-sampling Natural SGD
 
-To obtain a mathematically rigorous Natural Gradient, the expectation $E[\mathbf{U}\mathbf{U}^\top]$ must be taken over the **model's predicted distribution**, not the observed training data. 
-
-**Re-sampling Natural SGD** achieves this by bypassing the empirical training targets:
-1. At each step, it simulates "fake" target data $\mathbf{y}_{sim}$ from the current postulated model, $p(\cdot | \mathbf{X}, \boldsymbol{\theta}^{(t)})$. 
-2. It calculates a simulated score vector $\mathbf{U}_{sim}$ based on this generated data.
-3. It estimates the true Fisher Information using the cross-products of the simulated scores: $\hat{\mathcal{I}}_{\text{true}} \approx \mathbf{U}_{sim} \mathbf{U}_{sim}^\top$.
-
-This Monte Carlo approach ensures the optimizer is navigating the actual probability manifold defined by the model, though it often requires a smaller learning rate to manage the variance introduced by the simulation step.
-
-#### 4. Adam, AdamW, and Adaptive Equivalents
+#### Adam, AdamW, and Adaptive Equivalents
 
 Algorithms like RMSProp and Adam build directly upon the concept of the Diagonal Empirical Fisher, introducing moving averages and specific geometric modifications to handle the chaotic, non-convex landscapes of deep neural networks.
 
@@ -1945,6 +2112,7 @@ Algorithms like RMSProp and Adam build directly upon the concept of the Diagonal
     $$
     v_j^{(t)} = \gamma v_j^{(t-1)} + (1-\gamma) (U_j^{(t)})^2
     $$
+
 * **Adam (Adaptive Moment Estimation):** Combines momentum (first moment) with the RMSProp variance estimate (second moment). It maintains bias-corrected running averages:
     * **First Moment ($m_j$):** $m_j^{(t)} = \beta_1 m_j^{(t-1)} + (1 - \beta_1) U_j^{(t)}$
     * **Second Moment ($v_j$):** $v_j^{(t)} = \beta_2 v_j^{(t-1)} + (1 - \beta_2) (U_j^{(t)})^2$
@@ -1955,12 +2123,14 @@ Algorithms like RMSProp and Adam build directly upon the concept of the Diagonal
     $$
     **The Square Root Departure:** Notice that $v_j$ serves as an estimate of the diagonal Fisher ($\mathcal{I}_{jj}$). True Natural SGD divides by the variance to maintain Riemannian invariance. Adam divides by the *square root* of the variance (the standard deviation). This makes Adam roughly bound its step sizes by $\pm \alpha$, acting more like a smoothed "sign descent" algorithm than a mathematically strict Natural Gradient method.
 
+
 ::: {#rem-adamw-weight-decay}
 **AdamW: Decoupling Weight Decay from the Gradient**
 
 The transition from Adam to **AdamW** resolves a subtle but critical mathematical conflation between $L_2$ regularization and weight decay that occurs in adaptive gradient methods.
 
 1. **The Breakdown in Standard Adam**
+
    In standard SGD, adding an $L_2$ penalty to the loss ($\ell_{reg} = \ell + \frac{\lambda}{2} \|\boldsymbol{\theta}\|^2$) is mathematically equivalent to decaying the weights. However, if we pass the $L_2$-regularized gradient ($\mathbf{U}_{reg} = \mathbf{U} + \lambda \boldsymbol{\theta}$) into Adam, the regularization term $\lambda \boldsymbol{\theta}$ gets divided by the adaptive denominator $\sqrt{\hat{v}_j}$:
    $$
    \theta_j^{(t+1)} = \theta_j^{(t)} - \alpha \frac{\hat{m}_j(\mathbf{U}_{reg})}{\sqrt{\hat{v}_j(\mathbf{U}_{reg})} + \epsilon}
@@ -1968,6 +2138,7 @@ The transition from Adam to **AdamW** resolves a subtle but critical mathematica
    This causes a severe structural problem: parameters with high historical gradients (large $\hat{v}_j$) receive *less* regularization penalty. The geometry of the likelihood surface inappropriately scales the geometric prior, often leading to poor generalization.
 
 2. **The AdamW Solution**
+
    AdamW fixes this by explicitly separating the two mechanisms. It computes the first and second moments strictly using the unregularized gradient $\mathbf{U}$ to capture the true geometric curvature of the data. It then applies the weight decay directly to the parameter update, bypassing the adaptive scaling entirely:
    $$
    \theta_j^{(t+1)} = \theta_j^{(t)} (1 - \eta \lambda) - \alpha \frac{\hat{m}_j(\mathbf{U})}{\sqrt{\hat{v}_j(\mathbf{U})} + \epsilon}
@@ -1976,6 +2147,19 @@ The transition from Adam to **AdamW** resolves a subtle but critical mathematica
 
 
 :::
+
+#### Re-sampling Natural SGD
+
+To obtain a mathematically rigorous Natural Gradient, the expectation $E[\mathbf{U}\mathbf{U}^\top]$ must be taken over the **model's predicted distribution**, not the observed training data. 
+
+**Re-sampling Natural SGD** achieves this by bypassing the empirical training targets:
+
+1. At each step, it simulates "fake" target data $\mathbf{y}_{sim}$ from the current postulated model, $p(\cdot | \mathbf{X}, \boldsymbol{\theta}^{(t)})$. 
+2. It calculates a simulated score vector $\mathbf{U}_{sim}$ based on this generated data.
+3. It estimates the true Fisher Information using the cross-products of the simulated scores: $\hat{\mathcal{I}}_{\text{true}} \approx \mathbf{U}_{sim} \mathbf{U}_{sim}^\top$.
+
+This Monte Carlo approach ensures the optimizer is navigating the actual probability manifold defined by the model, though it often requires a smaller learning rate to manage the variance introduced by the simulation step.
+
 
 ### Example: The Poisson Regression Problem and Experimental Setup
 
@@ -1988,6 +2172,7 @@ The goal of optimization is to find the parameter vector $\boldsymbol{\beta}$ th
 #### Data Generation Strategy
 
 To test these algorithms in a realistic, challenging environment, we simulate a high-dimensional dataset with significant collinearity:
+
 * **Dimensions:** $n = 5000$ observations and $p = 100$ features (plus an intercept).
 * **Collinearity:** The covariates $\mathbf{X}$ are drawn from a Multivariate Normal distribution where every pair of variables has a high correlation of $\rho = 0.8$. This ill-conditioned design matrix makes the curvature of the optimization landscape highly skewed, punishing methods that ignore parameter correlations.
 * **True Parameters:** The underlying ground-truth vector $\boldsymbol{\beta}^*$ is sparse. Only the intercept and the first three predictors are active, with alternating signs and magnitudes: $\boldsymbol{\beta}^* = (0.5, -1.0, -0.5, 1.0, 0, \dots, 0)^\top$. The remaining 97 parameters are identically zero. 
@@ -2000,10 +2185,10 @@ To stabilize the variance across iterations, the Natural SGD methods utilize an 
 
 | Method | Gradient ($\mathbf{g}$) Computation | Fisher/Curvature ($\mathcal{H}$) Computation | Re-sampling Used? | Tuning Settings |
 | :--- | :--- | :--- | :--- | :--- |
-| **1. Standard SGD** | Analytical on real data: $\mathbf{X}_b^\top(\boldsymbol{\lambda}_b - \mathbf{y}_b)$ | None (Identity Matrix $\mathbf{I}$) | No | $\eta = 0.0001$, Batch = 50, Iter = 10k |
-| **2. Diagonal NSGD** | Analytical on real data: $\mathbf{X}_b^\top(\boldsymbol{\lambda}_b - \mathbf{y}_b)$ | Analytical Diagonal: $\mathcal{H}_{jj} = \sum_{i \in b} x_{ij}^2 \lambda_i$ | No | $\eta = 0.01$, Batch = 50, Iter = 3.5k |
-| **3. Full-Matrix NSGD** | Analytical on real data: $\mathbf{X}_b^\top(\boldsymbol{\lambda}_b - \mathbf{y}_b)$ | Analytical Full FIM: $\mathbf{X}_b^\top \text{diag}(\boldsymbol{\lambda}_b) \mathbf{X}_b$ | No | $\eta = 0.05$, Batch = 50, Iter = 1.5k |
-| **4. Re-sampling NSGD** | Analytical on real data: $\mathbf{X}_b^\top(\boldsymbol{\lambda}_b - \mathbf{y}_b)$ | Monte Carlo Diagonal: $\mathcal{H}_{jj} \approx g_{sim, j}^2$ | Yes ($y_{sim} \sim \text{Poisson}(\boldsymbol{\lambda})$) | $\eta = 0.005$, Batch = 50, Iter = 8k |
+| 1. Standard SGD | Analytical on real data: $\mathbf{X}_b^\top(\boldsymbol{\lambda}_b - \mathbf{y}_b)$ | None (Identity Matrix $\mathbf{I}$) | No | $\eta = 0.0001$, Batch = 50, Iter = 10k |
+| 2. Diagonal NSGD | Analytical on real data: $\mathbf{X}_b^\top(\boldsymbol{\lambda}_b - \mathbf{y}_b)$ | Analytical Diagonal: $\mathcal{H}_{jj} = \sum_{i \in b} x_{ij}^2 \lambda_i$ | No | $\eta = 0.01$, Batch = 50, Iter = 3.5k |
+| 3. Full-Matrix NSGD | Analytical on real data: $\mathbf{X}_b^\top(\boldsymbol{\lambda}_b - \mathbf{y}_b)$ | Analytical Full FIM: $\mathbf{X}_b^\top \text{diag}(\boldsymbol{\lambda}_b) \mathbf{X}_b$ | No | $\eta = 0.05$, Batch = 50, Iter = 1.5k |
+| 4. Re-sampling NSGD | Analytical on real data: $\mathbf{X}_b^\top(\boldsymbol{\lambda}_b - \mathbf{y}_b)$ | Monte Carlo Diagonal: $\mathcal{H}_{jj} \approx g_{sim, j}^2$ | Yes ($y_{sim} \sim \text{Poisson}(\boldsymbol{\lambda})$) | $\eta = 0.005$, Batch = 50, Iter = 8k |
 
 #### Optimization Trajectories by Wall-Clock Time
 
@@ -2224,6 +2409,7 @@ trace_resample <- run_resampling_ngd(data$X, data$y, batch_size = 50, lr = 0.005
 trace_resample$Method <- "4. Re-sampling NSGD"
 
 # --- 7. Plotting Setup ---
+
 # Define the active and inactive parameters to plot
 active_params <- paste0("Beta", 0:3)
 zero_params <- paste0("Beta", 4:13)
@@ -2264,6 +2450,7 @@ ggplot(plot_data, aes(x = Time, y = Value, color = Parameter, group = Parameter)
   labs(title = paste0("Stochastic Optimization Trajectories (n=", n_val, ", p=", p_val, ")"),
        x = "Wall-Clock Time (Seconds)",
        y = "Parameter Value")
+
 ```
 
 #### Interpretation of Convergence Behaviors
@@ -2272,20 +2459,21 @@ The visual results clearly underscore the weaknesses of uncorrected gradients in
 
 In contrast, incorporating the Fisher Information corrects for the warped geometry. **Diagonal NSGD** rapidly pushes the grey noise parameters toward zero, though it chatters slightly around the true active values due to ignoring the off-diagonal correlations. The **Full-Matrix NSGD** provides the most direct, stable path to convergence with minimal variance, but takes noticeably longer per step to invert the full $100 \times 100$ matrix. Finally, the **Re-sampling NSGD** demonstrates that we can successfully approximate the diagonal Fisher geometrically by injecting simulated model noise, achieving shrinkage comparable to the analytical diagonal method despite requiring a slightly more conservative learning rate to manage the Monte Carlo variance.
 
+
 ## Appendix: Derivation of Score and Information in Poisson Regression
 
-:::: {#exm-poisson-score-fisher}
+In a Poisson Generalized Linear Model with a canonical link, the mean is modeled as $\lambda_i(\boldsymbol{\beta}) = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})$. 
 
-In a Poisson Generalized Linear Model with a canonical link, the mean is modeled as $\lambda_i(\boldsymbol{\beta}) = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})$. The derivation of the Score vector and the Fisher Information matrix relies on the chain rule and the properties of the exponential function.
+Throughout these derivations, we will utilize the **Hadamard product** (element-wise multiplication), denoted by the operator $\odot$, to provide concise vectorized representations. For two vectors $\mathbf{a}$ and $\mathbf{b}$ of the same dimension, their Hadamard product $\mathbf{a} \odot \mathbf{b}$ yields a vector with elements $a_i b_i$. When applied between a column vector and a matrix, the operation broadcasts the element-wise multiplication down the columns of the matrix.
+
+The derivation of the Score vector and the Fisher Information matrix relies on the chain rule and the properties of the exponential function.
 
 ### Derivation of the Score Vector $\mathbf{U}(\boldsymbol{\beta})$
 
 The Score vector is defined as the gradient of the log-likelihood with respect to the parameter vector $\boldsymbol{\beta}$.
 
 
-1. **Differentiate the Log-Likelihood** 
-
-   Starting from the log-likelihood function:
+1. **Differentiate the Log-Likelihood** Starting from the log-likelihood function:
    $$
    \ell(\boldsymbol{\beta}) = \sum_{i=1}^n \left( y_i (\mathbf{x}_i^\top \boldsymbol{\beta}) - \exp(\mathbf{x}_i^\top \boldsymbol{\beta}) - \log(y_i!) \right)
    $$
@@ -2294,20 +2482,20 @@ The Score vector is defined as the gradient of the log-likelihood with respect t
    \frac{\partial \ell}{\partial \beta_j} = \sum_{i=1}^n \left( y_i \frac{\partial (\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} - \frac{\partial \exp(\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} \right)
    $$
 
-2. **Apply the Chain Rule** 
-
-   Note that $\frac{\partial (\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} = x_{ij}$. Using the chain rule on the exponential term:
+2. **Apply the Chain Rule** Note that $\frac{\partial (\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} = x_{ij}$. Using the chain rule on the exponential term:
    $$
    \frac{\partial \exp(\mathbf{x}_i^\top \boldsymbol{\beta})}{\partial \beta_j} = \exp(\mathbf{x}_i^\top \boldsymbol{\beta}) \cdot x_{ij} = \lambda_i(\boldsymbol{\beta}) x_{ij}
    $$
 
-3. **Form the Vector** 
-
-   Substituting these back, we get:
+3. **Form the Vector** Substituting these back, we get:
    $$
    \frac{\partial \ell}{\partial \beta_j} = \sum_{i=1}^n (y_i - \lambda_i(\boldsymbol{\beta})) x_{ij}
    $$
-   In matrix notation, this corresponds to:
+   Let $\mathbf{x}^{(j)}$ denote the $n \times 1$ vector of the $j$-th covariate across all observations. Using the Hadamard product $\odot$, the $j$-th component of the score vector can be written equivalently as the sum of the elements in the resulting vector:
+   $$
+   U_j(\boldsymbol{\beta}) = \sum \left( (\mathbf{y} - \boldsymbol{\lambda}(\boldsymbol{\beta})) \odot \mathbf{x}^{(j)} \right)
+   $$
+   In full matrix notation, this corresponds to:
    $$
    \mathbf{U}(\boldsymbol{\beta}) = \mathbf{X}^\top (\mathbf{y} - \boldsymbol{\lambda}(\boldsymbol{\beta}))
    $$
@@ -2320,23 +2508,17 @@ The Score vector is defined as the gradient of the log-likelihood with respect t
 The Observed Information is the negative Hessian matrix of the log-likelihood.
 
 
-1. **Differentiate the Score** 
-
-   We take the derivative of the $j$-th component of the score, $U_j = \sum_{i=1}^n (y_i - \lambda_i(\boldsymbol{\beta})) x_{ij}$, with respect to $\beta_k$:
+1. **Differentiate the Score** We take the derivative of the $j$-th component of the score, $U_j = \sum_{i=1}^n (y_i - \lambda_i(\boldsymbol{\beta})) x_{ij}$, with respect to $\beta_k$:
    $$
    \frac{\partial^2 \ell}{\partial \beta_j \partial \beta_k} = \frac{\partial}{\partial \beta_k} \sum_{i=1}^n (y_i - \lambda_i(\boldsymbol{\beta})) x_{ij} = \sum_{i=1}^n \left( -\frac{\partial \lambda_i(\boldsymbol{\beta})}{\partial \beta_k} \right) x_{ij}
    $$
 
-2. **Differentiate the Mean Function** 
-
-   Recall $\lambda_i(\boldsymbol{\beta}) = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})$. Its derivative with respect to $\beta_k$ is:
+2. **Differentiate the Mean Function** Recall $\lambda_i(\boldsymbol{\beta}) = \exp(\mathbf{x}_i^\top \boldsymbol{\beta})$. Its derivative with respect to $\beta_k$ is:
    $$
    \frac{\partial \lambda_i(\boldsymbol{\beta})}{\partial \beta_k} = \lambda_i(\boldsymbol{\beta}) x_{ik}
    $$
 
-3. **Construct the Information Matrix** 
-
-   The $(j, k)$ element of the Hessian is:
+3. **Construct the Information Matrix** The $(j, k)$ element of the Hessian is:
    $$
    H_{jk} = -\sum_{i=1}^n \lambda_i(\boldsymbol{\beta}) x_{ij} x_{ik}
    $$
@@ -2344,11 +2526,57 @@ The Observed Information is the negative Hessian matrix of the log-likelihood.
    $$
    J(\boldsymbol{\beta})_{jk} = \sum_{i=1}^n \lambda_i(\boldsymbol{\beta}) x_{ij} x_{ik}
    $$
+   Using the Hadamard product $\odot$, the $(j,k)$-th element is elegantly expressed as the sum of the element-wise product of three vectors (the predicted means and the two covariate columns):
+   $$
+   J(\boldsymbol{\beta})_{jk} = \sum \left( \boldsymbol{\lambda}(\boldsymbol{\beta}) \odot \mathbf{x}^{(j)} \odot \mathbf{x}^{(k)} \right)
+   $$
    In matrix form, let $\mathbf{W}(\boldsymbol{\beta})$ be a diagonal matrix where $W_{ii} = \lambda_i(\boldsymbol{\beta})$. Then:
    $$
    J(\boldsymbol{\beta}) = \mathbf{X}^\top \mathbf{W}(\boldsymbol{\beta}) \mathbf{X}
    $$
 
+
+
+### Derivation of the Expected Fisher Information $\mathcal{I}(\boldsymbol{\beta})$ via $\text{Var}(\mathbf{U})$
+
+By the fundamental properties of likelihoods, the Expected Fisher Information matrix $\mathcal{I}(\boldsymbol{\beta})$ is equivalent to the variance-covariance matrix of the Score vector: $\mathcal{I}(\boldsymbol{\beta}) = \text{Var}(\mathbf{U}(\boldsymbol{\beta}))$. 
+
+
+1. **Set Up the Variance Expression** Let $u_{ij}(\boldsymbol{\beta})$ denote the gradient contribution of the $i$-th observation with respect to the parameter $\beta_j$:
+   $$
+   u_{ij}(\boldsymbol{\beta}) = (y_i - \lambda_i(\boldsymbol{\beta})) x_{ij}
+   $$
+   The $j$-th component of the total Score vector is the sum of these individual observation gradients:
+   $$
+   U_j(\boldsymbol{\beta}) = \sum_{i=1}^n u_{ij}(\boldsymbol{\beta})
+   $$
+   We find the $(j,k)$-th element of the Expected Information by taking the covariance between the $j$-th and $k$-th score components. Since the individual observations $i$ are independent, the cross-covariances between different observations ($i \neq i'$) are zero:
+   $$
+   \mathcal{I}(\boldsymbol{\beta})_{jk} = \text{Cov}(U_j(\boldsymbol{\beta}), U_k(\boldsymbol{\beta})) = \sum_{i=1}^n \text{Cov}(u_{ij}(\boldsymbol{\beta}), u_{ik}(\boldsymbol{\beta}))
+   $$
+
+2. **Apply Variance Properties** Expanding the covariance term for the $i$-th observation using our definition of $u_{ij}$ and $u_{ik}$:
+   $$
+   \text{Cov}(u_{ij}(\boldsymbol{\beta}), u_{ik}(\boldsymbol{\beta})) = \text{Cov}((y_i - \lambda_i(\boldsymbol{\beta})) x_{ij}, (y_i - \lambda_i(\boldsymbol{\beta})) x_{ik})
+   $$
+   Because the predicted mean $\lambda_i(\boldsymbol{\beta})$ and the covariates $x_{ij}, x_{ik}$ are treated as fixed constants, the covariance simplifies to the variance of the random variable $y_i$ scaled by the covariates. Therefore, summing over all observations gives:
+   $$
+   \mathcal{I}(\boldsymbol{\beta})_{jk} = \sum_{i=1}^n x_{ij} x_{ik} \text{Var}(y_i)
+   $$
+
+3. **Substitute the Poisson Variance** For a Poisson distribution, the variance is equal to the mean: $\text{Var}(y_i) = \lambda_i(\boldsymbol{\beta})$. Substituting this known variance into our equation gives:
+   $$
+   \mathcal{I}(\boldsymbol{\beta})_{jk} = \sum_{i=1}^n \lambda_i(\boldsymbol{\beta}) x_{ij} x_{ik}
+   $$
+   Just as with the Observed Information, this $(j,k)$-th element takes the exact same form as the sum of the Hadamard product of the three vectors:
+   $$
+   \mathcal{I}(\boldsymbol{\beta})_{jk} = \sum \left( \boldsymbol{\lambda}(\boldsymbol{\beta}) \odot \mathbf{x}^{(j)} \odot \mathbf{x}^{(k)} \right)
+   $$
+
+4. **Construct the Matrix Form** The full matrix can therefore be written using the exact same weight matrix $\mathbf{W}(\boldsymbol{\beta})$:
+   $$
+   \mathcal{I}(\boldsymbol{\beta}) = \mathbf{X}^\top \mathbf{W}(\boldsymbol{\beta}) \mathbf{X}
+   $$
 
 
 
@@ -2362,5 +2590,3 @@ $$
 This is a unique property of canonical links in Generalized Linear Models.
 
 :::
-
-::::
