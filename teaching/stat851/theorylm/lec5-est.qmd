@@ -428,118 +428,78 @@ $$\hat{\sigma}^2_{\text{MLE},y} = \frac{\text{SST}}{n}$$
 
 ## Linear Models in Centered Form
 
-### Non-Matrix Derivation
+Starting with the original model, let the design matrix be $X^*=[j_n, X]$, where $X$ is the $n \times p$ matrix of predictors excluding the intercept, and let the original coefficients be $\beta^* = [\beta_0^*, (\beta_1^*)^\top]^\top$. The mean vector $\mu_y = E(y)$ is:
+$$\mu_y = X^*\beta^* = [j_n, X] \begin{pmatrix} \beta_0^* \\ \beta_1^* \end{pmatrix} = \beta_0^* j_n + X\beta_1^*$$
 
-Let the original regression model for the $i$-th observation be:
-$$y_i=\beta_0^*+\beta_{11}^*x_{i1}+\beta_{12}^*x_{i2}+\dots+\beta_{1p}^*x_{ip}+\epsilon_i$$
+We define the centered design matrix $X_c$ as the projection of $X$ onto the orthogonal complement of the intercept space:
+$$X_c = (I - P_{j_n})X = X - P_{j_n}X$$
 
-To center the predictors, we can add and subtract the mean of each predictor, $\bar{x}_j$, inside the equation:
-$$y_i=\beta_0^*+\beta_{11}^*(x_{i1}-\bar{x}_1+\bar{x}_1)+\dots+\beta_{1p}^*(x_{ip}-\bar{x}_p+\bar{x}_p)+\epsilon_i$$
+Because $P_{j_n} = j_n(j_n^\top j_n)^{-1}j_n^\top$, the term $P_{j_n}X$ computes the column means, which we can write as $j_n\bar{x}^\top$, where $\bar{x}^\top$ is the row vector of means. Rearranging the definition gives:
+$$X = j_n\bar{x}^\top + X_c$$
 
-Distribute the slope coefficients:
-$$y_i=\beta_0^*+\beta_{11}^*(x_{i1}-\bar{x}_1)+\beta_{11}^*\bar{x}_1+\dots+\beta_{1p}^*(x_{ip}-\bar{x}_p)+\beta_{1p}^*\bar{x}_p+\epsilon_i$$
-
-Now, rearrange the terms to group all the constants together, separate from the centered variables:
-$$y_i=(\beta_0^*+\beta_{11}^*\bar{x}_1+\dots+\beta_{1p}^*\bar{x}_p)+\beta_{11}^*(x_{i1}-\bar{x}_1)+\dots+\beta_{1p}^*(x_{ip}-\bar{x}_p)+\epsilon_i$$
-
-We define our new parameters for the centered model, $\beta=[\alpha, \beta_1]^\top$. The slope coefficients remain unchanged ($\beta_{1j}=\beta_{1j}^*$), and the new intercept $\alpha$ absorbs the constants:
-$$\alpha=\beta_0^*+\sum_{j=1}^p\beta_{1j}^*\bar{x}_j$$
-
-Substituting these back yields the centered form:
-$$y_i=\alpha+\beta_{11}(x_{i1}-\bar{x}_1)+\dots+\beta_{1p}(x_{ip}-\bar{x}_p)+\epsilon_i$$
-
-### Matrix Formulation
-
-Starting with the original model in matrix form, let the design matrix be $X^*=[j_n, X]$ where $X$ is the $n \times p$ matrix of predictors excluding the intercept column $j_n$:
-$$y=X^*\beta^*+\epsilon=[j_n, X]\begin{pmatrix}\beta_0^*\\\beta_1^*\end{pmatrix}+\epsilon$$
-
-Expanding this block matrix multiplication gives:
-$$y=j_n\beta_0^*+X\beta_1^*+\epsilon$$
-
-To introduce the centered matrix $X_c$, we first define $\bar{x}$ as the $p \times 1$ column vector containing the sample means of each predictor:
-$$\bar{x}=\begin{pmatrix}\bar{x}_1\\\bar{x}_2\\\vdots\\\bar{x}_p\end{pmatrix}$$
-
-The transpose of this vector, $\bar{x}^\top=(\bar{x}_1, \bar{x}_2, \dots, \bar{x}_p)$, represents the row vector of means. The projection of the data onto the intercept space, $P_{j_n}X$, computes the mean of each column. Since $\frac{1}{n}j_n^\top X=\bar{x}^\top$, we have:
-$$P_{j_n}X=j_n(j_n^\top j_n)^{-1}j_n^\top X=j_n\left(\frac{1}{n}j_n^\top X\right)=j_n\bar{x}^\top$$
-
-Expanding $j_n\bar{x}^\top$ into explicit matrix form yields a matrix where every row is the vector of column means:
+Substituting this expression for $X$ back into our mean vector $\mu_y$:
 $$
 \begin{aligned}
-P_{j_n}X&=j_n\bar{x}^\top\\
-&=\begin{pmatrix}1\\1\\\vdots\\1\end{pmatrix}\begin{pmatrix}\bar{x}_1&\bar{x}_2&\cdots&\bar{x}_p\end{pmatrix}\\
-&=\begin{pmatrix}\bar{x}_1&\bar{x}_2&\cdots&\bar{x}_p\\\bar{x}_1&\bar{x}_2&\cdots&\bar{x}_p\\\vdots&\vdots&\ddots&\vdots\\\bar{x}_1&\bar{x}_2&\cdots&\bar{x}_p\end{pmatrix}
+\mu_y &= \beta_0^* j_n + (j_n\bar{x}^\top + X_c)\beta_1^* \\
+&= \beta_0^* j_n + j_n\bar{x}^\top\beta_1^* + X_c\beta_1^* \\
+&= j_n(\beta_0^* + \bar{x}^\top\beta_1^*) + X_c\beta_1^*
 \end{aligned}
 $$
 
-Subtracting this projection from the original matrix $X$ gives the centered design matrix $X_c$:
-$$
-\begin{aligned}
-X_c&=X-j_n\bar{x}^\top\\
-&=\begin{pmatrix}x_{11}&x_{12}&\cdots&x_{1p}\\x_{21}&x_{22}&\cdots&x_{2p}\\\vdots&\vdots&\ddots&\vdots\\x_{n1}&x_{n2}&\cdots&x_{np}\end{pmatrix}-\begin{pmatrix}\bar{x}_1&\bar{x}_2&\cdots&\bar{x}_p\\\bar{x}_1&\bar{x}_2&\cdots&\bar{x}_p\\\vdots&\vdots&\ddots&\vdots\\\bar{x}_1&\bar{x}_2&\cdots&\bar{x}_p\end{pmatrix}\\
-&=\begin{pmatrix}x_{11}-\bar{x}_1&x_{12}-\bar{x}_2&\cdots&x_{1p}-\bar{x}_p\\x_{21}-\bar{x}_1&x_{22}-\bar{x}_2&\cdots&x_{2p}-\bar{x}_p\\\vdots&\vdots&\ddots&\vdots\\x_{n1}-\bar{x}_1&x_{n2}-\bar{x}_2&\cdots&x_{np}-\bar{x}_p\end{pmatrix}
-\end{aligned}
-$$
+By defining the parameters of the centered model as $\alpha = \beta_0^* + \bar{x}^\top\beta_1^*$ and $\beta_1 = \beta_1^*$, the equation simplifies cleanly to:
+$$\mu_y = \alpha j_n + X_c\beta_1 = [j_n, X_c]\begin{pmatrix}\alpha\\\beta_1\end{pmatrix}$$
+
+Adding the error term, the full centered model is:
+$$y = \mu_y + \epsilon = j_n\alpha + X_c\beta_1 + \epsilon$$
 
 **Orthogonality of $j_n$ and $X_c$**
 
-A key property of this centering operation is that the intercept vector $j_n$ and the centered matrix $X_c$ are strictly orthogonal. We can prove this by showing their inner product $j_n^\top X_c$ results in a zero vector. Substituting $X_c=X-j_n\bar{x}^\top$:
+By construction, $X_c$ is orthogonal to $j_n$. This is quickly proven using the properties of the idempotent projection matrix $P_{j_n}$:
+$$j_n^\top X_c = j_n^\top(I - P_{j_n})X = (j_n^\top - j_n^\top P_{j_n})X = (j_n^\top - j_n^\top)X = 0$$
+
+**Orthogonal Projections of the Mean Vector**
+
+Because $j_n$ and $X_c$ are strictly orthogonal, projecting $\mu_y$ onto their respective column spaces completely isolates their components:
 $$
-\begin{aligned}
-j_n^\top X_c&=j_n^\top(X-j_n\bar{x}^\top)\\
-&=j_n^\top X-(j_n^\top j_n)\bar{x}^\top
-\end{aligned}
+\boxed{P_{j_n}\mu_y = P_{j_n}(j_n\alpha + X_c\beta_1) = j_n\alpha + 0 = \alpha j_n}
 $$
-
-We know that $j_n^\top X$ sums the columns of $X$, which equals $n\bar{x}^\top$. Furthermore, the inner product $j_n^\top j_n$ is simply the scalar $n$. Substituting these yields:
 $$
-\begin{aligned}
-j_n^\top X_c&=n\bar{x}^\top-n\bar{x}^\top\\
-&=0
-\end{aligned}
+\boxed{P_{X_c}\mu_y = P_{X_c}(j_n\alpha + X_c\beta_1) = 0 + X_c\beta_1 = X_c\beta_1}
 $$
-This confirms that the sum of the centered observations for every predictor variable is zero.
-
-**Final Centered Matrix Equation**
-
-Because $X_c=X-j_n\bar{x}^\top$, we can express the original matrix $X$ as:
-$$X=j_n\bar{x}^\top+X_c$$
-
-Substitute this expression for $X$ back into our expanded model equation $y=j_n\beta_0^*+X\beta_1^*+\epsilon$:
-$$y=j_n\beta_0^*+(j_n\bar{x}^\top+X_c)\beta_1^*+\epsilon$$
-
-Distribute $\beta_1^*$ and factor out $j_n$:
-$$y=j_n\beta_0^*+j_n\bar{x}^\top\beta_1^*+X_c\beta_1^*+\epsilon$$
-$$y=j_n(\beta_0^*+\bar{x}^\top\beta_1^*)+X_c\beta_1^*+\epsilon$$
-
-By defining the parameters of the centered model as $\alpha=\beta_0^*+\bar{x}^\top\beta_1^*$ and $\beta_1=\beta_1^*$, the equation simplifies cleanly to:
-$$y=j_n\alpha+X_c\beta_1+\epsilon$$
-
-Finally, rewriting this back into partitioned matrix form gives us the centered model:
-$$y=[j_n, X_c]\begin{pmatrix}\alpha\\\beta_1\end{pmatrix}+\epsilon$$
 
 ## Least Squares Estimates for Linear Models in Centered Form
 
-Because the column space of the intercept $j_n$ is orthogonal to the columns of $X_c$ (since columns of $X_c$ sum to zero), the cross-product matrix becomes block diagonal:
-$$
-\begin{pmatrix} j_n' \\ X_c' \end{pmatrix} (j_n, X_c) = \begin{pmatrix} j_n'j_n & j_n'X_c \\ X_c'j_n & X_c'X_c \end{pmatrix} = \begin{pmatrix} n & 0 \\ 0 & X_c'X_c \end{pmatrix}
-$$
+Because the column space of the intercept $j_n$ is strictly orthogonal to the column space of $X_c$, the total projection of $y$ onto the combined column space spanned by $[j_n, X_c]$ decomposes into the sum of the independent orthogonal projections onto these two subspaces.
 
-::: {#thm-centered-estimators name="Centered Estimators"}
-The least squares estimators for the centered parameters are:
-$$
-\begin{pmatrix} \hat{\alpha} \\ \hat{\beta}_{1} \end{pmatrix} = \begin{pmatrix} n & 0 \\ 0 & X_c'X_c \end{pmatrix}^{-1} \begin{pmatrix} j_n'y \\ X_c'y \end{pmatrix} = \begin{pmatrix} \bar{y} \\ (X_c'X_c)^{-1}X_c'y \end{pmatrix}
-$$
-Thus:
+Let $\hat{y}_0$ denote the projection of $y$ onto $j_n$, and $\hat{y}_1$ denote the projection of $y$ onto $X_c$:
+$$\hat{y}_0 = P_{j_n}y$$
+$$\hat{y}_1 = P_{X_c}y$$
 
-1.  $\hat{\alpha} = \bar{y}$ (The sample mean of $y$).
-2.  $\hat{\beta}_{1} = S_{xx}^{-1}S_{xy}$, using the sample covariance notations.
+We can express the total fitted values $\hat{y}$ as the sum of these orthogonal projections:
+$$\boxed{\hat{y} = \hat{y}_0 + \hat{y}_1 = P_{j_n}y + P_{X_c}y}$$
 
-:::
+We also know that the fitted values equal the linear combination of the column vectors weighted by their least squares estimators:
+$$\hat{y} = j_n\hat{\alpha} + X_c\hat{\beta}_1$$
+
+Because the subspaces are orthogonal, this vector decomposition is unique, allowing us to equate the respective components:
+$$\boxed{\hat{y}_0 = P_{j_n}y=j_n\hat{\alpha}}$$
+$$\boxed{\hat{y}_1 = P_{X_c}y=X_c\hat{\beta}_1}$$
+
+
+By pre-multiplying the first equation by $(j_n^\top j_n)^{-1}j_n^\top$ and the second by $(X_c^\top X_c)^{-1}X_c^\top$, or by looking at the expressions of $\hat y_0$ and $\hat y_1$, we easily isolate the least squares estimators:
+
+$$\boxed{\hat{\alpha} = (j_n^\top j_n)^{-1}j_n^\top y = \bar{y}}$$
+(The sample mean of $y$)
+
+$$\boxed{\hat{\beta}_{1} = (X_c^\top X_c)^{-1}X_c^\top y = S_{xx}^{-1}S_{xy}}$$
+(Using the sample covariance matrix notations)
+
 
 Recovering the original intercept:
-$$ \hat{\beta}_0 = \hat{\alpha} - \hat{\beta}_1 \bar{x}_1 - \dots - \hat{\beta}_k \bar{x}_k = \bar{y} - \hat{\beta}_{1}'\bar{x} $$
+$$\hat{\beta}_0^* = \hat{\alpha} - \bar{x}^\top\hat{\beta}_1$$
 
-## Decomposition of Sum of Squares 
+
+## Decomposition of Sum of Squares and their Distributions
 
 We partition the total variation based on the orthogonal subspaces.
 
@@ -900,17 +860,16 @@ Consider the decomposition defined by the projection matrices $P_{X_c}$ and $M =
    E[\text{SSR}] = \sigma^2 k + \|P_{X_c}\mu\|^2
    $$
 
-**Non-centrality Parameter ($\lambda$):**
+   **Non-centrality Parameter ($\lambda$):**
 
-$$
-\lambda = \frac{1}{\sigma^2} \|P_{X_c} \mu\|^2
-$$
+   $$
+   \lambda = \frac{1}{\sigma^2} \|P_{X_c} \mu_y\|^2
+   $$
 
-where 
-
-$$
-\|P_{X_c} \mu\|^2 = \|X_c \beta_1\|^2 = (X_c \beta_1)' (X_c \beta_1) = \beta_1' X_c' X_c \beta_1
-$$
+   where 
+   $$
+   \boxed{\|P_{X_c} \mu_y\|^2 = \|X_c \beta_1\|^2 = (X_c \beta_1)' (X_c \beta_1) = \beta_1' X_c' X_c \beta_1}
+   $$
 
 :::
 
@@ -932,7 +891,7 @@ We apply @thm-proj-dist to the specific projection matrices identified in the de
 
   - **Dimension:** The rank of $P_{X_c}$ is $(k+1) - 1 = k$.
   - **Non-centrality:** The projection of $\mu$ onto $L(X_c)$ is $P_{X_c}\mu$.
-    $$ \lambda = \frac{1}{2\sigma^2} \|P_{X_c} \mu\|^2 $$
+    $$ \lambda = \frac{1}{2\sigma^2} \|P_{X_c} \mu_y\|^2 $$
 
   - **Expectation:** Using Part 2 of @thm-proj-dist:
     $$ E[\text{SSR}] = \sigma^2 k + \|P_{X_c}\mu\|^2 $$
@@ -1339,7 +1298,7 @@ $$
 The term in the numerator relies on the squared norm of the centered true means. We can expand the centered signal vector $X_c\beta$ to see this explicitly. Since $\mu \in \text{Col}(X)$, we know $H\mu = \mu$:
 
 $$
-X_c\beta = P_{X_c} \mu = (H - P_{j_n})\mu = \mu - \bar{\mu}j_n = 
+X_c\beta = P_{X_c} \mu_y = (H - P_{j_n})\mu = \mu - \bar{\mu}j_n = 
 \begin{pmatrix} 
 \mu_1 - \bar{\mu} \\ 
 \mu_2 - \bar{\mu} \\ 
