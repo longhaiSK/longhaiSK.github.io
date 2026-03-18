@@ -20,6 +20,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -70,6 +105,8 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 <link rel="stylesheet" href="resources/bookstyles.css">
 <script src="resources/num_eq.js"></script>
 <script src="resources/merge-toc.js"></script>
@@ -215,6 +252,15 @@ window.Quarto = {
   <ul>
   <li><a href="#projection-matrix-with-generalized-inverse-of-xx" id="toc-projection-matrix-with-generalized-inverse-of-xx" class="nav-link" data-scroll-target="#projection-matrix-with-generalized-inverse-of-xx"><span class="header-section-number">8.6.1</span> Projection Matrix with Generalized Inverse of <span class="math inline">\(X'X\)</span></a></li>
   <li><a href="#invariance-and-uniqueness-of-the-projection-matrix" id="toc-invariance-and-uniqueness-of-the-projection-matrix" class="nav-link" data-scroll-target="#invariance-and-uniqueness-of-the-projection-matrix"><span class="header-section-number">8.6.2</span> Invariance and Uniqueness of “the” Projection Matrix</a></li>
+  </ul></li>
+  <li><a href="#example-projection-with-linearly-dependent-columns-and-generalized-inverses" id="toc-example-projection-with-linearly-dependent-columns-and-generalized-inverses" class="nav-link" data-scroll-target="#example-projection-with-linearly-dependent-columns-and-generalized-inverses">Example: Projection with Linearly Dependent Columns and Generalized Inverses</a>
+  <ul>
+  <li><a href="#define-the-vectors" id="toc-define-the-vectors" class="nav-link" data-scroll-target="#define-the-vectors">1. Define the Vectors</a></li>
+  <li><a href="#design-matrix-and-xt-x" id="toc-design-matrix-and-xt-x" class="nav-link" data-scroll-target="#design-matrix-and-xt-x">2. Design Matrix and <span class="math inline">\(X^T X\)</span></a></li>
+  <li><a href="#compute-two-generalized-inverses" id="toc-compute-two-generalized-inverses" class="nav-link" data-scroll-target="#compute-two-generalized-inverses">3. Compute Two Generalized Inverses</a></li>
+  <li><a href="#the-projection-matrix-p-is-invariant" id="toc-the-projection-matrix-p-is-invariant" class="nav-link" data-scroll-target="#the-projection-matrix-p-is-invariant">4. The Projection Matrix <span class="math inline">\(P\)</span> is Invariant</a></li>
+  <li><a href="#comparison-to-projecting-onto-x_1-individually" id="toc-comparison-to-projecting-onto-x_1-individually" class="nav-link" data-scroll-target="#comparison-to-projecting-onto-x_1-individually">5. Comparison to Projecting onto <span class="math inline">\(x_1\)</span> Individually</a></li>
+  <li><a href="#r-implementation-verification" id="toc-r-implementation-verification" class="nav-link" data-scroll-target="#r-implementation-verification">6. R Implementation Verification</a></li>
   </ul></li>
   <li><a href="#the-left-inverse-view-recovering-hatbeta-from-haty" id="toc-the-left-inverse-view-recovering-hatbeta-from-haty" class="nav-link" data-scroll-target="#the-left-inverse-view-recovering-hatbeta-from-haty"><span class="header-section-number">8.7</span> The Left Inverse View: Recovering <span class="math inline">\(\hat{\beta}\)</span> from <span class="math inline">\(\hat{y}\)</span></a>
   <ul>
@@ -489,6 +535,119 @@ X' (P_A - P_B) = 0
 <p>The only matrix that lies <em>in</em> the column space of <span class="math inline">\(X\)</span> but is also <em>orthogonal</em> to the column space of <span class="math inline">\(X\)</span> is the zero matrix. Therefore: <span class="math display">\[
 P_A - P_B = 0 \implies P_A = P_B
 \]</span></p>
+</div>
+</section>
+</section>
+<section id="example-projection-with-linearly-dependent-columns-and-generalized-inverses" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="example-projection-with-linearly-dependent-columns-and-generalized-inverses">Example: Projection with Linearly Dependent Columns and Generalized Inverses</h2>
+<p>In this example, we project a vector <span class="math inline">\(y \in \mathbb{R}^4\)</span> onto the column space of a design matrix <span class="math inline">\(X = [x_1, x_2]\)</span>. We examine the specific case where the predictors are perfectly dependent such that <span class="math inline">\(x_2 = 2x_1\)</span>.</p>
+<p>We will: 1. Construct the design matrix <span class="math inline">\(X\)</span> and compute <span class="math inline">\(X^T X\)</span>. 2. Find two different generalized inverses of <span class="math inline">\(X^T X\)</span>. 3. Show that the projection matrix <span class="math inline">\(P\)</span> is invariant to the choice of generalized inverse. 4. Demonstrate that the projection of <span class="math inline">\(y\)</span> onto <span class="math inline">\(L(x_1, x_2)\)</span> is exactly the same as projecting onto <span class="math inline">\(L(x_1)\)</span> individually.</p>
+<section id="define-the-vectors" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="define-the-vectors">1. Define the Vectors</h3>
+<p>Let’s define our vectors in <span class="math inline">\(\mathbb{R}^4\)</span>. We set <span class="math inline">\(x_2\)</span> to be exactly twice <span class="math inline">\(x_1\)</span> to enforce linear dependence.</p>
+<p><span class="math display">\[x_1 = \begin{bmatrix} 1 \\ 2 \\ 1 \\ 1 \end{bmatrix}, \quad x_2 = \begin{bmatrix} 2 \\ 4 \\ 2 \\ 2 \end{bmatrix}, \quad y = \begin{bmatrix} 4 \\ 2 \\ 1 \\ 3 \end{bmatrix}\]</span></p>
+</section>
+<section id="design-matrix-and-xt-x" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="design-matrix-and-xt-x">2. Design Matrix and <span class="math inline">\(X^T X\)</span></h3>
+<p>The design matrix <span class="math inline">\(X = [x_1, x_2]\)</span> is: <span class="math display">\[X = \begin{bmatrix} 1 &amp; 2 \\ 2 &amp; 4 \\ 1 &amp; 2 \\ 1 &amp; 2 \end{bmatrix}\]</span></p>
+<p>To find the projection, we first compute the matrix <span class="math inline">\(X^T X\)</span>: <span class="math display">\[X^T X = \begin{bmatrix} 1 &amp; 2 &amp; 1 &amp; 1 \\ 2 &amp; 4 &amp; 2 &amp; 2 \end{bmatrix} \begin{bmatrix} 1 &amp; 2 \\ 2 &amp; 4 \\ 1 &amp; 2 \\ 1 &amp; 2 \end{bmatrix} = \begin{bmatrix} 7 &amp; 14 \\ 14 &amp; 28 \end{bmatrix}\]</span></p>
+<p>The determinant of this matrix is <span class="math inline">\((7)(28) - (14)(14) = 196 - 196 = 0\)</span>. Because the determinant is <span class="math inline">\(0\)</span>, the matrix <span class="math inline">\(X^T X\)</span> is singular and cannot be inverted normally. We must use a generalized inverse.</p>
+</section>
+<section id="compute-two-generalized-inverses" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="compute-two-generalized-inverses">3. Compute Two Generalized Inverses</h3>
+<p>A generalized inverse <span class="math inline">\(G\)</span> satisfies the condition <span class="math inline">\(A G A = A\)</span>. Because <span class="math inline">\(X^T X\)</span> has a rank of 1, we can easily find G-inverses by taking the reciprocal of a single non-zero diagonal element and setting all other entries to zero.</p>
+<p><strong>Choice 1 (<span class="math inline">\(G_1\)</span>):</strong> Invert the top-left element (<span class="math inline">\(7 \rightarrow 1/7\)</span>). <span class="math display">\[G_1 = \begin{bmatrix} 1/7 &amp; 0 \\ 0 &amp; 0 \end{bmatrix}\]</span></p>
+<p><strong>Choice 2 (<span class="math inline">\(G_2\)</span>):</strong> Invert the bottom-right element (<span class="math inline">\(28 \rightarrow 1/28\)</span>). <span class="math display">\[G_2 = \begin{bmatrix} 0 &amp; 0 \\ 0 &amp; 1/28 \end{bmatrix}\]</span></p>
+</section>
+<section id="the-projection-matrix-p-is-invariant" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="the-projection-matrix-p-is-invariant">4. The Projection Matrix <span class="math inline">\(P\)</span> is Invariant</h3>
+<p>The projection matrix is calculated as <span class="math inline">\(P = X G X^T\)</span>. Let’s compute it using <span class="math inline">\(G_1\)</span>:</p>
+<p><span class="math display">\[X G_1 = \begin{bmatrix} 1 &amp; 2 \\ 2 &amp; 4 \\ 1 &amp; 2 \\ 1 &amp; 2 \end{bmatrix} \begin{bmatrix} 1/7 &amp; 0 \\ 0 &amp; 0 \end{bmatrix} = \begin{bmatrix} 1/7 &amp; 0 \\ 2/7 &amp; 0 \\ 1/7 &amp; 0 \\ 1/7 &amp; 0 \end{bmatrix}\]</span></p>
+<p><span class="math display">\[P_1 = (X G_1) X^T = \begin{bmatrix} 1/7 &amp; 0 \\ 2/7 &amp; 0 \\ 1/7 &amp; 0 \\ 1/7 &amp; 0 \end{bmatrix} \begin{bmatrix} 1 &amp; 2 &amp; 1 &amp; 1 \\ 2 &amp; 4 &amp; 2 &amp; 2 \end{bmatrix} = \frac{1}{7} \begin{bmatrix} 1 &amp; 2 &amp; 1 &amp; 1 \\ 2 &amp; 4 &amp; 2 &amp; 2 \\ 1 &amp; 2 &amp; 1 &amp; 1 \\ 1 &amp; 2 &amp; 1 &amp; 1 \end{bmatrix}\]</span></p>
+<p>If you perform the same calculation using <span class="math inline">\(G_2\)</span>, you will yield the exact same <span class="math inline">\(4 \times 4\)</span> projection matrix. Thus, <span class="math inline">\(P_1 = P_2 = P\)</span>.</p>
+<p>The projection of <span class="math inline">\(y\)</span> onto <span class="math inline">\(L(x_1, x_2)\)</span> is: <span class="math display">\[\hat{y} = P y = \frac{1}{7} \begin{bmatrix} 1 &amp; 2 &amp; 1 &amp; 1 \\ 2 &amp; 4 &amp; 2 &amp; 2 \\ 1 &amp; 2 &amp; 1 &amp; 1 \\ 1 &amp; 2 &amp; 1 &amp; 1 \end{bmatrix} \begin{bmatrix} 4 \\ 2 \\ 1 \\ 3 \end{bmatrix} = \frac{1}{7} \begin{bmatrix} 12 \\ 24 \\ 12 \\ 12 \end{bmatrix} \approx \begin{bmatrix} 1.714 \\ 3.429 \\ 1.714 \\ 1.714 \end{bmatrix}\]</span></p>
+</section>
+<section id="comparison-to-projecting-onto-x_1-individually" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="comparison-to-projecting-onto-x_1-individually">5. Comparison to Projecting onto <span class="math inline">\(x_1\)</span> Individually</h3>
+<p>For a single vector <span class="math inline">\(x_1\)</span>, the projection matrix is simply <span class="math inline">\(P_{x_1} = x_1(x_1^T x_1)^{-1}x_1^T\)</span>.</p>
+<p>First, we find the scalar denominator: <span class="math display">\[x_1^T x_1 = 1^2 + 2^2 + 1^2 + 1^2 = 7\]</span></p>
+<p>Next, we construct the matrix: <span class="math display">\[P_{x_1} = \frac{1}{7} \begin{bmatrix} 1 \\ 2 \\ 1 \\ 1 \end{bmatrix} \begin{bmatrix} 1 &amp; 2 &amp; 1 &amp; 1 \end{bmatrix} = \frac{1}{7} \begin{bmatrix} 1 &amp; 2 &amp; 1 &amp; 1 \\ 2 &amp; 4 &amp; 2 &amp; 2 \\ 1 &amp; 2 &amp; 1 &amp; 1 \\ 1 &amp; 2 &amp; 1 &amp; 1 \end{bmatrix}\]</span></p>
+<p>Applying this to <span class="math inline">\(y\)</span>: <span class="math display">\[P_{x_1} y = \frac{1}{7} \begin{bmatrix} 1 &amp; 2 &amp; 1 &amp; 1 \\ 2 &amp; 4 &amp; 2 &amp; 2 \\ 1 &amp; 2 &amp; 1 &amp; 1 \\ 1 &amp; 2 &amp; 1 &amp; 1 \end{bmatrix} \begin{bmatrix} 4 \\ 2 \\ 1 \\ 3 \end{bmatrix} = \frac{1}{7} \begin{bmatrix} 12 \\ 24 \\ 12 \\ 12 \end{bmatrix}\]</span></p>
+<p>We have shown that <span class="math inline">\(P y = P_{x_1} y = \hat{y}\)</span>. Because <span class="math inline">\(x_2\)</span> is merely a scaled version of <span class="math inline">\(x_1\)</span>, it exists entirely within the 1-dimensional space already spanned by <span class="math inline">\(x_1\)</span>. Incorporating <span class="math inline">\(x_2\)</span> into the model adds no new geometric dimensions, and the resulting projection is identical.</p>
+</section>
+<section id="r-implementation-verification" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="r-implementation-verification">6. R Implementation Verification</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define vectors</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">2</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>y  <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">3</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Design matrix X</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">cbind</span>(x1, x2)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>XTX <span class="ot">&lt;-</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> X</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Define two different generalized inverses</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>G1 <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>), <span class="at">nrow =</span> <span class="dv">2</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>G2 <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">28</span>), <span class="at">nrow =</span> <span class="dv">2</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify they are generalized inverses (A * G * A = A)</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>is_G1_valid <span class="ot">&lt;-</span> <span class="fu">all.equal</span>(XTX <span class="sc">%*%</span> G1 <span class="sc">%*%</span> XTX, XTX)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>is_G2_valid <span class="ot">&lt;-</span> <span class="fu">all.equal</span>(XTX <span class="sc">%*%</span> G2 <span class="sc">%*%</span> XTX, XTX)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute Projection Matrices</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>P1 <span class="ot">&lt;-</span> X <span class="sc">%*%</span> G1 <span class="sc">%*%</span> <span class="fu">t</span>(X)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>P2 <span class="ot">&lt;-</span> X <span class="sc">%*%</span> G2 <span class="sc">%*%</span> <span class="fu">t</span>(X)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute Projections onto L(x1, x2)</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>y_hat_G1 <span class="ot">&lt;-</span> P1 <span class="sc">%*%</span> y</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>y_hat_G2 <span class="ot">&lt;-</span> P2 <span class="sc">%*%</span> y</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute Projection onto L(x1) only</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>P_x1 <span class="ot">&lt;-</span> (x1 <span class="sc">%*%</span> <span class="fu">t</span>(x1)) <span class="sc">/</span> <span class="fu">as.numeric</span>(<span class="fu">t</span>(x1) <span class="sc">%*%</span> x1)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>y_hat_x1 <span class="ot">&lt;-</span> P_x1 <span class="sc">%*%</span> y</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Compile Results</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">Target_y =</span> y,</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">Proj_G1  =</span> <span class="fu">round</span>(<span class="fu">as.vector</span>(y_hat_G1), <span class="dv">4</span>),</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">Proj_G2  =</span> <span class="fu">round</span>(<span class="fu">as.vector</span>(y_hat_G2), <span class="dv">4</span>),</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">Proj_x1  =</span> <span class="fu">round</span>(<span class="fu">as.vector</span>(y_hat_x1), <span class="dv">4</span>)</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="st">"Are the generalized inverses valid?"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Are the generalized inverses valid?"</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">c</span>(<span class="at">G1_Valid =</span> is_G1_valid, <span class="at">G2_Valid =</span> is_G2_valid))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>G1_Valid G2_Valid 
+    TRUE     TRUE </code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="st">"Projection Results:"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Projection Results:"</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(results)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Target_y Proj_G1 Proj_G2 Proj_x1
+1        4  1.7143  1.7143  1.7143
+2        2  3.4286  3.4286  3.4286
+3        1  1.7143  1.7143  1.7143
+4        3  1.7143  1.7143  1.7143</code></pre>
+</div>
 </div>
 </section>
 </section>
