@@ -826,6 +826,7 @@ render_3d(fig_B, "geometry-3d-noise.png")
 
 The decomposition of the total variation is visualized below. The total deviation (Orange) is the vector sum of the regression deviation (Green) and the residual error (Red).
 
+
 ```{tikz}
 %| label: fig-ss-decomposition-legend-v2
 %| fig-cap: "Geometric Decomposition: SST = SSR + SSE"
@@ -1390,7 +1391,7 @@ $$
 The term in the numerator relies on the squared norm of the centered true means. We can expand the centered signal vector $X_c\beta$ to see this explicitly. Since $\mu \in \text{Col}(X)$, we know $H\mu = \mu$:
 
 $$
-X_c\beta = P_{X_c} \mu_y = (H - P_{j_n})\mu = \mu - \bar{\mu}j_n = 
+X_c\beta_1 = P_{X_c} \mu_y = (H - P_{j_n})\mu = \mu - \bar{\mu}j_n = 
 \begin{pmatrix} 
 \mu_1 - \bar{\mu} \\ 
 \mu_2 - \bar{\mu} \\ 
@@ -1405,7 +1406,7 @@ This vector represents the deviation of each observation's true mean from the gr
 
 ### Population Signal Variance
 $$
-\sigma^2_\mu = \frac{\|X_c\beta\|^2}{n-1} = \frac{\sum_{i=1}^n (\mu_i - \bar{\mu})^2}{n-1}
+\sigma^2_\mu = \frac{\|X_c\beta\|^2}{n} = \frac{\sum_{i=1}^n (\mu_i - \bar{\mu})^2}{n}
 $$
 
 :::
@@ -1447,13 +1448,13 @@ $$f^2 = \frac{\rho^2}{1 - \rho^2}$$
 Finally, we can express the non-centrality parameter $\lambda$ directly in terms of these parameters. Since $\lambda = \frac{\|X_c\beta\|^2}{\sigma^2}$ and $\|X_c\beta\|^2 = (n-1)\sigma^2_\mu$:
 
 $$
-\lambda = (n-1) \frac{\sigma^2_\mu}{\sigma^2} = (n-1) f^2
+\lambda = n \frac{\sigma^2_\mu}{\sigma^2} = n f^2
 $$
 
 Substituting $f^2$ with $\rho^2$, we obtain the mapping used to invert the $F$-test for confidence intervals:
 
 $$
-\boxed{\lambda = (n-1) f^2 = (n-1) \frac{\rho^2}{1 - \rho^2}}
+\boxed{\lambda = n f^2 = n \frac{\rho^2}{1 - \rho^2}}
 $$
 
 ### Remarks on Variance Estimation and Effect Size
@@ -1477,15 +1478,15 @@ While $R^2_a$ provides a point estimate, we can construct an exact confidence in
 
    Recall that the $F$-statistic follows a non-central distribution $F(k, n-k-1, \lambda)$. The non-centrality parameter $\lambda$ is directly related to the population parameters. Using our definition of signal variance $\sigma^2_\mu$ (with the $n-1$ divisor):
 
-   $$ \lambda = \frac{\|X_c \beta\|^2}{\sigma^2} = (n-1) \frac{\sigma^2_\mu}{\sigma^2} $$
+   $$ \lambda = \frac{\|X_c \beta\|^2}{\sigma^2} = n \frac{\sigma^2_\mu}{\sigma^2} $$
 
    Substituting Cohen's effect size $f^2 = \frac{\sigma^2_\mu}{\sigma^2}$ and the relationship $f^2 = \frac{\rho^2}{1-\rho^2}$, we obtain the following mapping:
 
-   $$ \boxed{\lambda = (n-1) f^2 = (n-1) \left( \frac{\rho^2}{1-\rho^2} \right)} $$
+   $$ \boxed{\lambda = n f^2 = n \left( \frac{\rho^2}{1-\rho^2} \right)} $$
 
    To recover $\rho^2$ from $\lambda$, we invert the mapping:
 
-   $$ \boxed{\rho^2(\lambda) = \frac{\lambda}{\lambda + (n-1)}} $$
+   $$ \boxed{\rho^2(\lambda) = \frac{\lambda}{\lambda + n}} $$
 
 
    ::: {#rem-lambda-divisor}
@@ -1632,6 +1633,7 @@ We simulate a dataset with $n=30$ observations and consider a sequence of nested
 ```{r}
 #| label: generate-all-animations-v2
 #| cache: TRUE
+#| eval: TRUE
 #| results: FALSE
 
 # --- Setup ---
@@ -1663,7 +1665,12 @@ generate_animation <- function(scenario = "H0", filename) {
   frame_dir <- file.path("frames_temp", scenario)
   dir.create(frame_dir, recursive = TRUE, showWarnings = FALSE)
   
-  # --- 1. Theoretical Limits Setup ---
+  # --- 1. Define True Parameters ---
+  # Define beta_vec upfront so it dictates BOTH theoretical and empirical data
+  beta_vec <- rep(0, max_k)
+  if (scenario == "H1") beta_vec[1] <- beta1 
+  
+  # --- 2. Theoretical Limits Setup ---
   
   # A. Y-axis Lower Limit for R^2_adj
   max_p <- max_k + 1
@@ -1673,39 +1680,39 @@ generate_animation <- function(scenario = "H0", filename) {
     y_min_limit <- -0.2
   }
 
-  # B. Theoretical Expectations using sigma^2_mu = ||Xc_beta||^2 / n
-  var_x <- 1 
+  # B. Theoretical Expectations
+  # Since X are independent standard normals, Var(X_i) = 1.
+  # Total Variance of Y = sigma^2 + sum(beta^2)
+  total_var <- sigma^2 + sum(beta_vec^2)
   
-  # Calculate Total Variance (Var(Y) = sigma^2 + sigma^2_mu)
-  # Under H1, sigma^2_mu = beta^2 * var(x) (asymptotically)
-  # So Total Var = sigma^2 + beta1^2 * var_x
-  total_var <- if(scenario == "H1") (sigma^2 + beta1^2 * var_x) else sigma^2
-  
+  # Unified function: Expected Residual Variance = sigma^2 + variance of omitted variables
   get_expected_residual_var <- function(k) {
-    if (k == 0) return(total_var)
-    return(sigma^2)
+    if (k >= max_k) {
+      omitted_var <- 0
+    } else {
+      # Sum of squared betas for variables NOT included in the model (k+1 to max_k)
+      omitted_var <- sum(beta_vec[(k + 1):max_k]^2)
+    }
+    return(sigma^2 + omitted_var)
   }
   
   theory_df <- data.frame(k = model_steps)
   theory_df$expected_mse <- sapply(theory_df$k, get_expected_residual_var)
   
-  # Theoretical R^2 = rho^2 = sigma^2_mu / (sigma^2 + sigma^2_mu)
-  # equivalently: 1 - (sigma^2 / sigma^2_Y)
+  # Theoretical R^2 = 1 - (Expected Residual Variance / Total Variance)
   theory_df$expected_r2 <- 1 - (theory_df$expected_mse / total_var)
 
   # --- Frame Loop ---
   for (j in 1:n_frames) {
     
-    # 2. Generate Data
+    # 3. Generate Data
     X <- as.data.frame(replicate(max_k, rnorm(n)))
     names(X) <- paste0("x", 1:max_k)
     
-    beta_vec <- rep(0, max_k)
-    if (scenario == "H1") beta_vec[1] <- beta1 
-    
+    # Generate y using the unified beta_vec
     y <- as.numeric(as.matrix(X) %*% beta_vec + rnorm(n, sd = sigma))
     
-    # 3. Fit Sequence of Models
+    # 4. Fit Sequence of Models
     stats_list <- lapply(model_steps, function(k) {
       if (k == 0) {
         fit <- lm(y ~ 1)
@@ -1732,54 +1739,58 @@ generate_animation <- function(scenario = "H0", filename) {
     
     df <- do.call(rbind, stats_list)
     
-    # 4. Plotting
+    # 5. Plotting
     
     # Plot A: Variance Estimators
     g1 <- ggplot(df, aes(x = k)) +
-      geom_step(data = theory_df, aes(y = expected_mse, linetype = "Theoretical"), 
-                color = "gray40", size = 0.8, direction = "vh") +
+      # Theoretical curve drawn with geom_line to match empirical
+      geom_line(data = theory_df, aes(y = expected_mse, linetype = "Theoretical"), 
+                color = "gray40", linewidth = 0.8) +
       
-      geom_line(aes(y = MLE, color = "Naive (MLE)"), size = 1, linetype = "solid") +
+      geom_line(aes(y = MLE, color = "Naive (MLE)"), linewidth = 1, linetype = "solid") +
       geom_point(aes(y = MLE, color = "Naive (MLE)"), size = 2) +
       
-      geom_line(aes(y = MSE, color = "Corrected (MSE)"), size = 1, linetype = "dashed") +
+      geom_line(aes(y = MSE, color = "Corrected (MSE)"), linewidth = 1, linetype = "dashed") +
       geom_point(aes(y = MSE, color = "Corrected (MSE)"), size = 2, shape = 17) +
       
       scale_color_manual(values = c("Naive (MLE)" = "firebrick", "Corrected (MSE)" = "blue")) +
       scale_linetype_manual(values = c("Theoretical" = "dotted"), name=NULL) +
       
       scale_x_continuous(breaks = model_steps) +
-      coord_cartesian(ylim = c(0, max(theory_df$expected_mse) + 1)) +
+      # Dynamically scale upper limit so empirical spikes are never clipped
+      coord_cartesian(ylim = c(0, max(max(df$MSE, na.rm=TRUE), max(theory_df$expected_mse)) * 1.1)) +
       labs(title = paste0("Scenario ", scenario, ": Estimators of Error Variance"),
            y = "Variance Estimate", x = NULL, color = NULL) +
       theme_minimal() + theme(legend.position = "top")
 
     # Plot B: Model Fit
     g2 <- ggplot(df, aes(x = k)) +
-      geom_hline(yintercept = 0, color = "black", size = 0.2) +
+      geom_hline(yintercept = 0, color = "black", linewidth = 0.2) +
       
-      # Theoretical R2 Line
-      geom_step(data = theory_df, aes(y = expected_r2, linetype = "Theoretical"), 
-                color = "gray40", size = 0.8, direction = "vh") +
+      # Theoretical curve drawn with geom_line to match empirical
+      geom_line(data = theory_df, aes(y = expected_r2, linetype = "Theoretical"), 
+                color = "gray40", linewidth = 0.8) +
       
-      geom_line(aes(y = R2, color = "Naive (R^2)"), size = 1, linetype = "solid") +
+      geom_line(aes(y = R2, color = "Naive (R^2)"), linewidth = 1, linetype = "solid") +
       geom_point(aes(y = R2, color = "Naive (R^2)"), size = 2) +
       
-      geom_line(aes(y = R2_adj, color = "Corrected (Adj R^2)"), size = 1, linetype = "dashed") +
+      geom_line(aes(y = R2_adj, color = "Corrected (Adj R^2)"), linewidth = 1, linetype = "dashed") +
       geom_point(aes(y = R2_adj, color = "Corrected (Adj R^2)"), size = 2, shape = 17) +
       
       scale_color_manual(values = c("Naive (R^2)" = "firebrick", "Corrected (Adj R^2)" = "blue")) +
       scale_linetype_manual(values = c("Theoretical" = "dotted"), name=NULL) +
       
       scale_x_continuous(breaks = model_steps) +
-      scale_y_continuous(limits = c(y_min_limit, 1), labels = scales::percent) +
+      # Use coord_cartesian to prevent dropping data points and triggering warnings
+      coord_cartesian(ylim = c(y_min_limit, 1)) +
+      scale_y_continuous(labels = scales::percent) +
       labs(title = "Estimate of R-squared",
            y = "Value", x = "Number of Predictors (k)", color = NULL) +
       theme_minimal() + 
       theme(
         legend.position = "top",
         plot.margin = margin(t = 5, r = 5, b = 40, l = 5, unit = "pt")
-      )
+      )    
 
     final_plot <- g1 / g2
     
@@ -1811,6 +1822,7 @@ Under $H_0$, the true coefficient for $x_1$ is $\beta_1 = 0$. All predictors are
 
 ```{r}
 #| echo: false
+#| cache: false
 #| fig.align: center
 #| fig.cap: "Simulation under H0: As predictors are added (pure noise), standard R-squared increases while Adjusted R-squared and MSE remain stable."
 
