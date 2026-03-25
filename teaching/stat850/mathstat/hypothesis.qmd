@@ -980,7 +980,6 @@ legend("top", legend=c(expression(W[right](theta)), expression(W[left](theta))),
 
 ::: {#thm-wilks-general}
 #### Wilks' Theorem for General Nested Models
-:::
 
 Let $\mathbf{Y} = (Y_1, \dots, Y_n)$ be an i.i.d. sample from a distribution $f(\mathbf{y}; \boldsymbol{\theta})$ with $\boldsymbol{\theta} \in \Theta \subseteq \mathbb{R}^p$. Let $\Theta_0$ be a lower-dimensional subspace of $\Theta$ defined by $q$ independent constraints, such that $\dim(\Theta_0) = p - q$. 
 
@@ -996,52 +995,54 @@ $$D \xrightarrow{d} \chi^2_q$$
 where $q = \dim(\Theta) - \dim(\Theta_0)$ is the number of constraints imposed by the null hypothesis.
 :::
 
-::: proof
+::: {.proof}
 **1. Quadratic Approximation of the Log-Likelihood**
-Under the null hypothesis $H_0: \boldsymbol{\theta}_0 = \boldsymbol{\theta}_0^*$, let $\hat{\boldsymbol{\theta}}$ be the unrestricted MLE and $\tilde{\boldsymbol{\theta}}$ be the restricted MLE. For large $n$, we expand the log-likelihood $\ell(\boldsymbol{\theta})$ around the unrestricted peak $\hat{\boldsymbol{\theta}}$. Using the expected Fisher Information $\mathcal{I} = \mathcal{I}(\boldsymbol{\theta}^*)$, we have:
-$$\ell(\boldsymbol{\theta}) \approx \ell(\hat{\boldsymbol{\theta}}) - \frac{n}{2} (\hat{\boldsymbol{\theta}} - \boldsymbol{\theta})^T \mathcal{I} (\hat{\boldsymbol{\theta}} - \boldsymbol{\theta})$$
-The likelihood ratio statistic $D = 2[\ell(\hat{\boldsymbol{\theta}}) - \ell(\tilde{\boldsymbol{\theta}})]$ can thus be expressed as the squared Mahalanobis distance between the unrestricted and restricted estimators:
-$$D \approx n \|\hat{\boldsymbol{\theta}} - \tilde{\boldsymbol{\theta}}\|_{\mathcal{I}}^2 = n (\hat{\boldsymbol{\theta}} - \tilde{\boldsymbol{\theta}})^T \mathcal{I} (\hat{\boldsymbol{\theta}} - \tilde{\boldsymbol{\theta}})$$
+Under the null hypothesis $H_0$, we expand the log-likelihood $\ell(\boldsymbol{\theta}^*)$ around the unrestricted MLE $\hat{\boldsymbol{\theta}}$. Let $\Sigma = \mathcal{I}^{-1}$ be the asymptotic covariance matrix. The total discrepancy between the peak and the true parameter is:
+$$2[\ell(\hat{\boldsymbol{\theta}}) - \ell(\boldsymbol{\theta}^*)] \approx n (\boldsymbol{\theta}^* - \hat{\boldsymbol{\theta}})^T \Sigma^{-1} (\boldsymbol{\theta}^* - \hat{\boldsymbol{\theta}})$$
 
-**2. Constrained Optimization and the Linear Identity**
-Finding the restricted MLE $\tilde{\boldsymbol{\theta}}$ is a constrained optimization problem: $\min_{\boldsymbol{\theta}} \frac{1}{2} (\boldsymbol{\theta} - \hat{\boldsymbol{\theta}})^T \mathcal{I} (\boldsymbol{\theta} - \hat{\boldsymbol{\theta}})$ subject to $\boldsymbol{\theta}_0 = \boldsymbol{\theta}_0^*$. Solving the first-order conditions for the nuisance parameter $\boldsymbol{\theta}_1$ yields the following identity for the displacement vector:
+**2. The Mahalanobis Decomposition Identity**
+For any partitioned vector and its corresponding precision matrix $\Sigma^{-1} = \mathcal{I}$, the total Mahalanobis distance from the center $\hat{\boldsymbol{\theta}}$ decomposes into a marginal component for the parameters of interest and a conditional component for the nuisance parameters:
+$$n \|\boldsymbol{\theta}^* - \hat{\boldsymbol{\theta}}\|_{\Sigma^{-1}}^2 = n (\boldsymbol{\theta}_0^* - \hat{\boldsymbol{\theta}}_0)^T \Sigma_{00}^{-1} (\boldsymbol{\theta}_0^* - \hat{\boldsymbol{\theta}}_0) + n (\boldsymbol{\theta}_1^* - \hat{\boldsymbol{\theta}}_{1, \Sigma})^T \mathcal{I}_{11} (\boldsymbol{\theta}_1^* - \hat{\boldsymbol{\theta}}_{1, \Sigma})$$
+where the **geometric center** for the nuisance parameters, $\hat{\boldsymbol{\theta}}_{1, \Sigma}$, is the optimal point on the constraint line relative to the unrestricted MLE peak:
+$$\hat{\boldsymbol{\theta}}_{1, \Sigma} = \hat{\boldsymbol{\theta}}_1 - \mathcal{I}_{11}^{-1} \mathcal{I}_{10} (\boldsymbol{\theta}_0^* - \hat{\boldsymbol{\theta}}_0)$$
 
-$$\tilde{\boldsymbol{\theta}} - \hat{\boldsymbol{\theta}} = \begin{pmatrix} \boldsymbol{\theta}_0^* - \hat{\boldsymbol{\theta}}_0 \\ \tilde{\boldsymbol{\theta}}_1 - \hat{\boldsymbol{\theta}}_1 \end{pmatrix} = \begin{pmatrix} \mathbf{I} \\ -\mathcal{I}_{11}^{-1} \mathcal{I}_{10} \end{pmatrix} (\boldsymbol{\theta}_0^* - \hat{\boldsymbol{\theta}}_0)$$
+**3. Convergence of the Restricted MLE**
+When the log-likelihood is quadratic, the restricted MLE $\tilde{\boldsymbol{\theta}}_1$ is identical to this geometric center $\hat{\boldsymbol{\theta}}_{1, \Sigma}$. In regular families, the log-likelihood is locally quadratic near the peak, implying:
+$$\tilde{\boldsymbol{\theta}}_1 \approx \hat{\boldsymbol{\theta}}_{1, \Sigma}$$
+Substituting this into the decomposition, the first term represents the distance from the unrestricted peak to the restricted MLE, which is exactly the Wilks' statistic $D = 2[\ell(\hat{\boldsymbol{\theta}}) - \ell(\tilde{\boldsymbol{\theta}})]$.
 
-This shows that $\tilde{\boldsymbol{\theta}}$ is the **orthogonal projection** of $\hat{\boldsymbol{\theta}}$ onto the constraint subspace under the $\mathcal{I}$-metric. The term $-\mathcal{I}_{11}^{-1} \mathcal{I}_{10}$ adjusts the nuisance parameters to account for their correlation with the parameters of interest.
-
-**3. The Pythagorean Decomposition**
-Because $\tilde{\boldsymbol{\theta}}$ is a projection, the generalized Pythagorean theorem applies to the total error:
-$$\underbrace{n\|\hat{\boldsymbol{\theta}} - \boldsymbol{\theta}^*\|_{\mathcal{I}}^2}_{\text{Total distance } (p \text{ d.f.})} \approx \underbrace{n\|\hat{\boldsymbol{\theta}} - \tilde{\boldsymbol{\theta}}\|_{\mathcal{I}}^2}_{\text{Wilks' Statistic } D} + \underbrace{n\|\tilde{\boldsymbol{\theta}} - \boldsymbol{\theta}^*\|_{\mathcal{I}}^2}_{\text{Restricted error } (p-q \text{ d.f.})}$$
-
-**4. Matrix Form and Distribution**
-Substituting the linear identity into the quadratic form for $D$:
-$$D \approx n (\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*)^T \underbrace{\left[ \mathcal{I}_{00} - \mathcal{I}_{01} \mathcal{I}_{11}^{-1} \mathcal{I}_{10} \right]}_{(\mathcal{I}^{00})^{-1}} (\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*)$$
-Since $\sqrt{n}(\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*) \xrightarrow{d} N(\mathbf{0}, \mathcal{I}^{00})$, the quadratic form $D$ is a standardized normal vector squared, leading to the distributional conclusion:
+**4. Distributional Conclusion**
+The second term on the right represents the error in the nuisance parameters under the restricted model, which is $\chi^2_{p-q}$. By the properties of the decomposition:
+$$D \approx n (\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*)^T \Sigma_{00}^{-1} (\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*)$$
+where $\Sigma_{00}$ is the $q \times q$ **marginal asymptotic covariance** of $\hat{\boldsymbol{\theta}}_0$. Under $H_0$, $\sqrt{n}(\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*) \xrightarrow{d} N(\mathbf{0}, \Sigma_{00})$, thus:
 $$D \xrightarrow{d} \chi^2_q$$
-
 :::
 
-**R Illustration: Geometry of the Projection**
+#### R Illustration: Geometry of the Projection
 
-The following R code visualizes how the restricted MLE $\tilde{\boldsymbol{\theta}}$ is found by projecting the unrestricted MLE onto the null hypothesis line according to the curvature of the likelihood contours.
+The following R code visualizes the likelihood ratio test as a projection. We illustrate the unrestricted MLE $\hat{\boldsymbol{\theta}}$ (the center of the contours), the hypothesized true value $\boldsymbol{\theta}^*$, the geometric center $\hat{\boldsymbol{\theta}}_{1, \Sigma}$, and a jittered point representing the actual restricted MLE $\tilde{\boldsymbol{\theta}}_1$.
 
 ```{r}
 #| label: fig-lrt-geometry
-#| fig-cap: "The geometry of restricted optimization. Blue dot is the unrestricted MLE. Red dot is the restricted MLE."
+#| fig-cap: "The geometry of restricted optimization. Blue dot is the unrestricted MLE (center). The red dot represents the projected nuisance parameter center on the null line. The purple cross is the restricted MLE."
 library(ggplot2)
 
 # 1. Setup parameters and Fisher Information
-theta_hat <- c(2, 2)      
-theta_star_0 <- 1         
-I <- matrix(c(1, 0.6, 0.6, 1), nrow = 2) 
+theta_hat <- c(2.2, 2.2)      # The Peak (Unrestricted MLE center)
+theta_star <- c(1.0, 1.0)     # Hypothesized true value 
+I <- matrix(c(1, 0.6, 0.6, 1), nrow = 2) # Curvature
 
-# 2. Calculate theta_tilde using the identity
-delta_theta_0 <- theta_star_0 - theta_hat[1]
-theta_tilde_1 <- theta_hat[2] - (1/I[2,2]) * I[2,1] * delta_theta_0
-theta_tilde <- c(theta_star_0, theta_tilde_1)
+# 2. Calculate the geometric center hat(theta)_{1, Sigma}
+# Starting from the center hat(theta)_1, we adjust by the displacement in theta_0
+delta_theta_0 <- theta_star[1] - theta_hat[1]
+theta_hat_1_Sigma <- theta_hat[2] - (1/I[2,2]) * I[2,1] * delta_theta_0
+p_projected <- c(theta_star[1], theta_hat_1_Sigma)
 
-# 3. Generate grid for quadratic log-likelihood contours
+# 3. Create tilde(theta)_1 by adding small non-quadratic jitter to the projected center
+set.seed(42)
+theta_tilde <- c(theta_star[1], theta_hat_1_Sigma + 0.15) 
+
+# 4. Generate grid for quadratic log-likelihood contours centered at theta_hat
 grid_vals <- seq(0, 4, length.out = 100)
 grid <- expand.grid(theta0 = grid_vals, theta1 = grid_vals)
 grid$z <- apply(grid, 1, function(p) {
@@ -1049,21 +1050,33 @@ grid$z <- apply(grid, 1, function(p) {
   -0.5 * t(diff) %*% I %*% diff
 })
 
-# 4. Plot
+# 5. Plot
 ggplot(grid, aes(x = theta0, y = theta1)) +
   geom_contour(aes(z = z), bins = 15, color = "gray70") +
-  geom_vline(xintercept = theta_star_0, linetype = "dashed", color = "red") +
+  geom_vline(xintercept = theta_star[1], linetype = "dashed", color = "red") +
+  # Unrestricted MLE (The Center)
   annotate("point", x = theta_hat[1], y = theta_hat[2], color = "blue", size = 3) +
   annotate("text", x = theta_hat[1], y = theta_hat[2] + 0.2, 
            label = "hat(theta)", parse = TRUE, color = "blue") +
-  annotate("point", x = theta_tilde[1], y = theta_tilde[2], color = "red", size = 3) +
-  annotate("text", x = theta_tilde[1] - 0.2, y = theta_tilde[2], 
-           label = "tilde(theta)", parse = TRUE, color = "red") +
+  # Projected Nuisance Center (hat(theta)_{1, Sigma}) - Now mathematically exact
+  annotate("point", x = p_projected[1], y = p_projected[2], color = "red", size = 3) +
+  annotate("text", x = p_projected[1] - 0.45, y = p_projected[2], 
+           label = "hat(theta)[1, Sigma]", parse = TRUE, color = "red") +
+  # Restricted MLE (tilde(theta))
+  annotate("point", x = theta_tilde[1], y = theta_tilde[2], color = "purple", shape = 3, size = 3) +
+  annotate("text", x = theta_tilde[1] + 0.3, y = theta_tilde[2] + 0.1, 
+           label = "tilde(theta)", parse = TRUE, color = "purple") +
+  # Hypothesized Point (theta^*)
+  annotate("point", x = theta_star[1], y = theta_star[2], color = "black", shape = 4, size = 3) +
+  annotate("text", x = theta_star[1] - 0.2, y = theta_star[2] - 0.2, 
+           label = "theta^'*'", parse = TRUE) +
   labs(title = "Geometry of the Likelihood Ratio Test",
+       subtitle = expression(paste("Projection from center ", hat(theta), " onto the null constraint ", theta[0] == theta[0]^"*")),
        x = expression(theta[0]), y = expression(theta[1])) +
   theme_minimal() + 
   coord_fixed()
 ```
+
 ::: {#exm-lrt-normal}
 
 **LRT for Normal Mean with Unknown Variance**
