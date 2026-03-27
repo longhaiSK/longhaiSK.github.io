@@ -1,0 +1,117 @@
+\name{d2:fitpred}
+
+\alias{bcbcsf_fitpred}
+
+\alias{bcbcsf_pred}
+
+\alias{cross_vld}
+
+\title{Functions for fitting models with MCMC, predicting class labels of test cases, and finding predictive probabilities with cross-validation}
+
+\description{
+\code{bcbcsf_fitpred} trains models with Gibbs sampling for each number of retained features. The results are saved in files. This function also makes predictions for test cases if they are provided.
+
+\code{bcbcsf_pred} uses the posterior samples saved by \code{bcbcsf_fitpred} to predict the class labels of test cases. Prediction results are an array of predictive probabilities \code{array_probs_pred}, whose rows for test cases, columns for classes, and the 3rd dimension for different numbers of retained features.
+
+\code{cross_vld} uses cross-validation to obtain predictive probabilities for all cases of a data set. This generic function can be used with \code{bcbcsf_fitpred} and other classifiers. 
+}
+
+\usage{
+
+bcbcsf_fitpred (
+  ## arguments specifying info of data sets
+  X_tr, y_tr, nos_fsel = ncol (X_tr), 
+  X_ts = NULL,  standardize = FALSE, rankf = FALSE,
+  ## arguments for prediction
+  burn = NULL, thin = 1, offset_sdxj = 0.5,
+  ## arguments for Markov chain sampling
+  no_rmc = 1000, no_imc = 5, no_mhwmux = 10,
+  fit_bcbcsf_filepre = NULL, 
+  ## arguments specifying priors for parameters and hyerparameters
+  w0_mu = 0.05, alpha0_mu = 0.5, alpha1_mu = 3,
+  w0_x  = 1.00, alpha0_x  = 0.5, alpha1_x  = 10,
+  w0_nu = 0.05, alpha0_nu = 0.5, prior_psi = NULL,
+  ## arguments for metropolis sampling for wmu, wx
+  stepadj_mhwmux = 1, diag_mhwmux = FALSE,
+  ## arguments for computing adjustment factor
+  bcor = 1, cut_qf = exp (-10), cut_dpoi = exp (-10), nos_sim = 1000,
+  ## whether look at progress
+  monitor = TRUE)
+  
+bcbcsf_pred (X_ts, out_fit, burn = NULL, thin = 1, offset_sdxj = 0.5)
+
+cross_vld (X, y, nfold = 10, folds = NULL, 
+           fitpred_func = bcbcsf_fitpred,  ...)
+}
+
+\arguments{
+
+\item{X_tr, X_ts, X}{matrices containing gene expression data; rows should be for the cases, and columns for different genes; \code{X_tr} are training data, \code{X_ts} are test data or future data for which prediction are needed, \code{X} are a data set used for cross-validation.}
+
+\item{y_tr,y}{class labels in training or test data set, or just a data set.}
+
+\item{nos_fsel}{a vector of numbers of features to be retained.}
+
+\item{burn,thin}{\code{burn} of Markov chain (super)iterations will be discarded for prediction, and only every \code{thin}th are used; by default, 20\% of (super)iterations are burned, and \code{thin}=1.}
+
+\item{offset_sdxj}{a value between 0 and 1; 100*\code{offset_sdxj}\% quantile of the samples of all standard deviations \eqn{\sqrt{w^x_j}} is added to the all standard deviations; this is to remedy the non-normality in real gene expression data sets, and especially offset some very small standard deviations; by default, median is used.}
+
+\item{no_rmc, no_imc}{\code{no_rmc} of super Markov chain transitions are run, with \code{no_imc} Markov chain iterations for each; only the last state of each super transition is saved.}
+
+\item{fit_bcbcsf_filepre}{a string added to the names of files saving Markov chain fitting results; the actual file names contain also the data dimension and number of retained features. By default, this is set to \code{NULL}, meaning no fitting files will be created, and \code{bcbcsf_fitpred} returns only the fitting result corresponding to the last number of retained features in \code{nos_fsel}. If you wish to save the files, provide a string prefix (e.g., "my_fit_").}
+
+\item{w0_mu,alpha0_mu,alpha1_mu,w0_x,alpha0_x,alpha1_x,w0_nu,alpha0_nu}{settings of priors for means and variances of genes; they are denoted by \eqn{w_0^{\mu}}, \eqn{\alpha_1^{\mu}}, \eqn{\alpha_1^\mu},\eqn{w_0^x},\eqn{\alpha_0^x},\eqn{\alpha_1^x},\eqn{w_0^\nu},\eqn{\alpha_0^\nu} in the reference. 
+}
+
+\item{prior_psi}{a vector of length the number of classes, specifying the Dirichlet prior distribution for probabilities of classes; it is denoted by \eqn{c_{1:G}} in the reference; by default, they are all equal to 1.}
+
+\item{no_mhwmux,stepadj_mhwmux, diag_mhwmux}{arguments specifying Metropolis sampling for \eqn{\log(w^\mu)} and \eqn{\log(w^x)}; respectively the number of iterations, stepsize adjustment, and an indicator representing whether one wants to pause and look into this sampling. }
+
+\item{bcor}{taking value 0 or 1, indicating whether bias-correction is to be applied.}
+
+\item{cut_qf, cut_dpoi,nos_sim}{arguments specifying approximation of adjustment factor; \code{cut_qf} is \eqn{f_\ell} in the reference, \code{cut_dpoi} is the threshold below which Poisson probabilities are omitted, \code{nos_sim} is the number of random \eqn{\Lambda}.}
+
+\item{nfold, folds}{\code{folds} should be a list of test cases for different folds; if \code{folds} is NULL (by default), \code{folds} will be generated by the software, with \code{nfold} is set to the smaller value of the given value and the smallest number of cases in all classes.}
+
+\item{out_fit}{a list returned by \code{bcbcsf_fitpred}, which are used to make prediction for test cases.}
+
+\item{standardize}{if it is set to TRUE, the original gene expression values are centralized and divided by the pooled standard deviation; by default, it is FALSE.}
+
+\item{rankf}{if it is set to TRUE, the original features will be re-ordered by F-statistic; by default, it is FALSE.}
+
+\item{monitor}{if it is set to TRUE, progress of fitting is shown on screen}
+
+\item{fitpred_func}{an R function that can fit with training data, and predict for test data; the arguments of \code{fitpred_func} must include \code{X_tr}, \code{y_tr}, \code{X_ts},  and the outputs of \code{fitpred_func} must include \code{array_probs_pred} }
+
+\item{...}{arguments passed to classifier \code{fitpred_func}}
+
+}
+
+\value{
+
+\item{nos_fsel}{a vector of numbers of features retained.}
+
+\item{fitfiles}{a string vector of length \code{nos_fsel}, each saving file name of Markov chain fitting result for a number of retained features in \code{nos_fsel};  the \code{fitfiles} returned by \code{cross_vld} is for the training in the last fold.}
+
+\item{cv_fitfiles}{a list of strings returned by \code{cross_vld}, containing the names of all files saved across all folds. This is only populated if \code{fit_bcbcsf_filepre} is not \code{NULL}.}
+
+\item{array_probs_pred}{an array of predictive probabilities, whose rows for test cases, columns for classes, and the 3rd dimension for different numbers of retained features.}
+
+\item{fit_bcbcsf}{a list of Markov chain sampling results from the fitting with number of retained features equal to the last number in \code{nos_fsel}. Note that, the fitting results for other numbers (including the last one) of retained feature are saved in harddrive files if \code{fit_bcbcsf_filepre} isn't empty, and can be retrieved using function \code{\link{reload_fit_bcbcsf}}. Particularly, the list component of \code{fit_bcbcsf} has \code{fsel} saving the indice of features selected by F-statistic.}
+}
+
+\keyword{classif}
+
+\examples{
+## Generate a small simulated dataset
+set.seed(1)
+X <- matrix(rnorm(50 * 20), nrow = 50, ncol = 20)
+y <- c(rep(1, 25), rep(2, 25))
+
+## Fit and predict with bcbcsf_fitpred (no files saved to disk by default)
+out_fit <- bcbcsf_fitpred(X_tr = X[1:40, ], y_tr = y[1:40],
+                          X_ts = X[41:50, ], nos_fsel = c(5, 10))
+
+## Cross-validation (no files saved to disk by default)
+cv_res <- cross_vld(X = X, y = y, nfold = 3, nos_fsel = c(5, 10))
+}
