@@ -109,9 +109,11 @@ X <- matrix(rnorm(50 * 20), nrow = 50, ncol = 20)
 y <- c(rep(1, 25), rep(2, 25))
 
 ## Fit and predict with bcbcsf_fitpred (no files saved to disk by default)
-out_fit <- bcbcsf_fitpred(X_tr = X[1:40, ], y_tr = y[1:40],
+\donttest{
+out_fit <- bcbcsf_fitpred(X_tr = X[1:40, ], y_tr = y[1:40], no_rmc=20,
                           X_ts = X[41:50, ], nos_fsel = c(5, 10))
 
 ## Cross-validation (no files saved to disk by default)
-cv_res <- cross_vld(X = X, y = y, nfold = 3, nos_fsel = c(5, 10))
+cv_res <- cross_vld(X = X, y = y, nfold = 3, no_rmc = 20, nos_fsel = c(5, 10))
+}
 }
