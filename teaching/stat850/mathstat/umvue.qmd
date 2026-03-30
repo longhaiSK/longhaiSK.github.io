@@ -247,19 +247,86 @@ If $T$ is a complete and sufficient statistic, and there is an unbiased estimato
 
 ## A Procedure to Find UMVUE
 
-To find the UMVUE for a parameter $\theta$:
+```{tikz}
+%| label: fig-umvue-logic
+%| fig-cap: "The two paths to finding the UMVUE: (A) Rao-Blackwellization via conditioning an initial unbiased estimator $W$ on $T$; (B) The Direct Method by solving for an unbiased function $g(T)$ directly."
+%| echo: false
+%| fig-align: "center"
+%| out-extra: 'style="display: block; margin: auto;width: 90% !important;"'
+%| engine.opts:
+%|   extra.preamble: |
+%|     \usetikzlibrary{shapes.geometric, arrows.meta, positioning}
 
+\begin{tikzpicture}[
+    node distance=1.2cm and 2cm,
+    block/.style={rectangle, draw, fill=blue!5, text width=3.5cm, text centered, rounded corners, minimum height=1.2cm, font=\sffamily\small},
+    cloud/.style={ellipse, draw, fill=orange!10, text width=2.5cm, text centered, minimum height=0.8cm, font=\sffamily\bfseries\small},
+    arrow/.style={-Stealth, thick},
+    labelnode/.style={circle, fill=white, draw, inner sep=1pt, font=\scriptsize\bfseries}
+]
 
-### Example: Poisson UMVUE for $\lambda^2$
+    % Main Starting Point
+    \node [block] (start) {Find Complete Sufficient Statistic $T(X)$};
+    
+    % Midpoints for Path A and B
+    \node [block, below left=1.8cm and -0.5cm of start] (unbiased) {Identify Unbiased $W = d(X)$};
+    \node [block, below right=1.8cm and -0.5cm of start] (direct) {Enforce $E[g(T)] = \theta$};
+    
+    % The Result
+    \node [cloud, below=4cm of start] (umvue) {UMVUE};
+
+    % Path A with Label (A)
+    \draw [arrow] (start) -| (unbiased) node[pos=0.25, labelnode, xshift=-0.5cm] {A};
+    \draw [arrow] (unbiased) -- node[anchor=east, font=\tiny, align=right] {Conditioning\\$E[W|T]$} (umvue);
+
+    % Path B with Label (B)
+    \draw [arrow] (start) -| (direct) node[pos=0.25, labelnode, xshift=0.5cm] {B};
+    \draw [arrow] (direct) -- node[anchor=west, font=\tiny, align=left] {Solve for\\$g(T)$} (umvue);
+
+    % Lehmann-Scheffé Note
+    \node [draw, dashed, fill=gray!5, right=1.2cm of umvue, text width=3.2cm, font=\tiny] {
+        \textbf{Lehmann-Scheffé:}\\
+        Since $T$ is complete and sufficient, any unbiased function of $T$ is the unique UMVUE.
+    };
+
+\end{tikzpicture}
+```
+
 
 ::: {#exm-poisson-umvue}
 
-### Poisson UMVUE for $\lambda^2$
-Let $X_1, \dots, X_n \sim \text{Poisson}(\lambda)$. $T = \sum X_i$ is complete sufficient.
-$E[X_1^2 - X_1] = E[X_1^2] - E[X_1] = (\lambda^2 + \lambda) - \lambda = \lambda^2$.
-So $d(X) = X_1^2 - X_1$ is unbiased.
-The UMVUE is $g(T) = E[X_1(X_1-1) | T]$. Using the moments of $X_1|T \sim \text{Bin}(T, 1/n)$:
-$$g(T) = \frac{T(T-1)}{n^2}$$
+**Sol A: Rao-Blackwellization (Conditioning)**
+
+1.  **Find a simple unbiased estimator**: Consider $W = X_1(X_1 - 1)$. 
+    $$E[W] = E[X_1^2] - E[X_1] = (\lambda^2 + \lambda) - \lambda = \lambda^2$$
+    Thus, $W$ is unbiased for $\lambda^2$.
+
+2.  **Condition on the complete sufficient statistic**:
+    The UMVUE is $\phi(T) = E[X_1(X_1 - 1) | T]$. 
+    Recall that the conditional distribution of $X_1$ given $T=t$ is $\text{Binomial}(t, 1/n)$.
+
+3.  **Compute the conditional expectation**:
+    Using the second factorial moment of a $\text{Binomial}(t, p)$ distribution, $E[Y(Y-1)] = t(t-1)p^2$:
+    $$\phi(T) = E[X_1(X_1 - 1) | T] = T(T - 1) \left(\frac{1}{n}\right)^2 = \frac{T(T - 1)}{n^2}$$
+
+---
+
+**Sol B: The Direct Method (Enforcing Unbiasedness)**
+
+1.  **Identify the distribution of $T$**:
+    Since $X_i \sim \text{Poisson}(\lambda)$, the sum $T = \sum X_i$ follows:
+    $$T \sim \text{Poisson}(n\lambda)$$
+
+2.  **Propose a functional form for $g(T)$**:
+    For any $Y \sim \text{Poisson}(\mu)$, $E[Y(Y-1)] = \mu^2$. Here, $\mu = n\lambda$, so:
+    $$E[T(T-1)] = (n\lambda)^2 = n^2 \lambda^2$$
+
+3.  **Adjust for unbiasedness**:
+    To get an expected value of exactly $\lambda^2$, we scale by $1/n^2$:
+    $$E\left[ \frac{T(T-1)}{n^2} \right] = \frac{1}{n^2} (n^2 \lambda^2) = \lambda^2$$
+
+4.  **Conclusion**:
+    By the Lehmann-Scheffé Theorem, $g(T) = \frac{T(T-1)}{n^2}$ is the unique UMVUE.
 
 :::
 
@@ -291,7 +358,7 @@ $$f(\mathbf{x}|\mu, \sigma^2) = \underbrace{(2\pi\sigma^2)^{-n/2} \exp\left(-\fr
 
 :::
 
-### UMVUE for $\log(\sigma^2)$ in the Normal Family
+### Example: UMVUE for $\log(\sigma^2)$ in the Normal Family
 :::: {#exm-normal-log-variance}
 
 ### UMVUE for $\log(\sigma^2)$ in the Normal Family
