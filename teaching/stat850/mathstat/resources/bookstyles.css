@@ -8,8 +8,8 @@
   --menubackground: lightgrey;
   --navbar-height: 40px;
   
-  /* PARAMETER: Full Sidebar Width */
-  --quarto-sidebar-width: 350px; 
+  /* PARAMETER: Full Sidebar Width (Reduced to 2/3 of 350px) */
+  --quarto-sidebar-width: 235px; 
   
   /* PARAMETER: Mini (Collapsed) Sidebar Width */
   --quarto-sidebar-mini-width: 60px;
@@ -28,7 +28,7 @@ body {
   font-weight: normal;
   color: var(--textcolor);
   line-height: 1.5em;
-  text-align: left;
+  text-align: justify;
 }
 
 main.content, 
@@ -168,6 +168,7 @@ figcaption, caption { text-align: center; }
 #quarto-sidebar .sidebar-link,
 #quarto-sidebar .sidebar-title {
   color: #485663 !important; 
+  text-align: left !important;
 }
 
 #quarto-sidebar .sidebar-link:hover,
@@ -176,21 +177,19 @@ ul.injected-page-toc a:hover {
 }
 
 /* --- PARENT CHAPTER HIGHLIGHT --- */
-/* This highlights the Chapter Title when you are anywhere inside it */
 #quarto-sidebar .sidebar-link.active {
   color: #007bff !important;
   background-color: transparent !important;
-  font-weight: 800 !important; /* Bold */
+  font-weight: 800 !important;
 }
 
-/* --- SUBSECTION HIGHLIGHT (NEW) --- */
-/* This highlights the specific H2/H3 you are looking at */
+/* --- SUBSECTION HIGHLIGHT --- */
 ul.injected-page-toc a.toc-active {
-  color: #0056b3 !important;       /* Darker Blue */
-  font-weight: 600 !important;     /* Semi-Bold */
-  border-left: 3px solid #007bff;  /* Blue Indicator Bar */
-  padding-left: 8px;               /* Indent for the bar */
-  background-color: rgba(0, 123, 255, 0.05); /* Very faint blue background */
+  color: #0056b3 !important;       
+  font-weight: 600 !important;     
+  border-left: 3px solid #007bff;  
+  padding-left: 8px;               
+  background-color: rgba(0, 123, 255, 0.05); 
 }
 
 /* =========================================
@@ -257,23 +256,25 @@ ul.injected-page-toc a {
   width: 100%;
   position: relative;
   transition: all 0.2s ease;
+  text-align: left; /* Ensure overall link is left-aligned */
 }
 
-#quarto-sidebar .sidebar-link .menu-text { display: flex; width: 100%; }
+#quarto-sidebar .sidebar-link .menu-text { display: flex; width: 100%; text-align: left; }
 
-/* Column 1: Number */
 .toc-num {
   flex: 0 0 auto;
   min-width: 1.8em;
   padding-right: 0.5em;
   font-weight: 500;
-  text-align: right; 
+  text-align: left; /* Changed to left alignment */
   margin-right: 5px;
 }
-/* Column 2: Text */
-.toc-text { flex: 1 1 auto; display: block; }
+.toc-text { 
+  flex: 1 1 auto; 
+  display: block; 
+  text-align: left; /* Explicitly forced to left */
+}
 
-/* --- G. ARROW --- */
 a.has-children::after {
   content: "›"; 
   display: inline-block;
@@ -288,117 +289,100 @@ a.has-children::after {
 a.has-children.collapsed::after { transform: rotate(0deg); }
 
 /* =========================================
-   9. CUSTOM LAYOUT: MINI-SIDEBAR RAIL
+   9. CUSTOM LAYOUT: RESPONSIVE SIDEBAR
    ========================================= */
 
-/* --- SHARED SETTINGS (Desktop 992px+) --- */
-@media (min-width: 992px) {
-  
-  /* 1. Main Content Base Styles */
+/* --- A. SHARED BASE SETTINGS --- */
+#quarto-sidebar {
+  position: fixed !important;
+  padding: 60px 10px 20px 10px !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  height: 100vh !important;
+  z-index: 1100 !important;
+  overflow-x: hidden !important; 
+  overflow-y: auto !important;
+  transition: all 0.3s ease;
+}
+
+#quarto-content {
+  transition: margin-left 0.3s ease;
+  padding: 0 !important;
+}
+
+/* --- B. SMALL SCREENS (< 992px) --- */
+@media (max-width: 991.98px) {
+  /* Main Content Layout */
   main.content, .page-columns, .quarto-container {
     display: block !important;
     width: 100% !important;
-    max-width: 1000px !important;
-    min-width: 600px !important;
+    padding-top: 1rem !important;
+  }
+  
+  #quarto-content { margin-left: 0 !important; }
+  
+  /* Sidebar Default State: Hidden Off-Screen */
+  #quarto-sidebar {
+    left: calc(-1 * var(--quarto-sidebar-width)) !important; 
+    width: var(--quarto-sidebar-width) !important;
+    box-shadow: none !important;
+  }
+
+  /* Sidebar Toggled State: Slides In & Overlays */
+  /* Note: Accepts .sidebar-open or .sidebar-closed depending on your JS logic */
+  body.sidebar-closed #quarto-sidebar,
+  body.sidebar-open #quarto-sidebar {
+    left: 0 !important;
+    box-shadow: 5px 0 25px rgba(0,0,0,0.3) !important;
+  }
+  
+  #quarto-sidebar .sidebar-menu-container,
+  #quarto-sidebar .sidebar-title,
+  #quarto-sidebar .sidebar-header {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+}
+
+/* --- C. DESKTOP SCREENS (992px+) --- */
+@media (min-width: 992px) {
+  /* Main Content Layout */
+  main.content, .page-columns, .quarto-container {
+    display: block !important;
+    width: 100% !important;
+    max-width: 800px !important; /* Locks maximum page width */
+    margin: 0 auto !important;   /* Centers the main content */
     padding-top: 2rem !important;
     padding-bottom: 4rem !important;
   }
 
-  /* 2. Sidebar Base Styles */
-  #quarto-sidebar {
-    position: fixed !important;
-    padding: 60px 10px 20px 10px !important;
-    top: 0 !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    height: 100vh !important;
-    z-index: 1100 !important;
-    overflow-x: hidden !important; 
-    overflow-y: auto !important;
-    transition: width 0.3s ease, box-shadow 0.3s ease;
-    
-    background-color: #f0f4f8 !important;
-    border-right: 1px solid #dbe2e8 !important;
-  }
-  
-  /* 3. Content Transition */
-  #quarto-content {
-    transition: margin-left 0.3s ease;
-    padding: 0 !important;
-    width: auto !important;
-  }
+  #quarto-sidebar { left: 0 !important; }
 
-  /* 4. BASE TRANSITION RULES */
-  #quarto-sidebar .sidebar-menu-container,
-  #quarto-sidebar .sidebar-title,
-  #quarto-sidebar .sidebar-header,
-  #quarto-sidebar .sidebar-search,
-  #quarto-sidebar .sidebar-tools-main {
-     transition: opacity 0.2s ease, visibility 0.2s;
-  }
-}
-
-/* --- A. MEDIUM SCREEN (992px - 1200px) --- */
-@media (min-width: 992px) and (max-width: 1200px) {
+  /* --- DEFAULT STATE: ALWAYS OPEN --- */
   body:not(.sidebar-closed) #quarto-sidebar {
-    width: var(--quarto-sidebar-mini-width) !important;
+    width: var(--quarto-sidebar-width) !important;
     box-shadow: none !important;
   }
-  
+
   body:not(.sidebar-closed) #quarto-sidebar .sidebar-menu-container,
   body:not(.sidebar-closed) #quarto-sidebar .sidebar-title,
-  body:not(.sidebar-closed) #quarto-sidebar .sidebar-header,
-  body:not(.sidebar-closed) #quarto-sidebar .sidebar-search,
-  body:not(.sidebar-closed) #quarto-sidebar .sidebar-tools-main {
-    opacity: 0 !important; 
-    visibility: hidden !important;
-  }
-
-  body.sidebar-closed #quarto-sidebar {
-    width: var(--quarto-sidebar-width) !important;
-    box-shadow: 5px 0 15px rgba(0,0,0,0.2) !important;
-  }
-  
-  body.sidebar-closed #quarto-sidebar .sidebar-menu-container,
-  body.sidebar-closed #quarto-sidebar .sidebar-title,
-  body.sidebar-closed #quarto-sidebar .sidebar-header,
-  body.sidebar-closed #quarto-sidebar .sidebar-search,
-  body.sidebar-closed #quarto-sidebar .sidebar-tools-main {
+  body:not(.sidebar-closed) #quarto-sidebar .sidebar-header {
     opacity: 1 !important; 
     visibility: visible !important;
-    transition-delay: 0.1s;
-  }
-
-  #quarto-content { margin-left: var(--quarto-sidebar-mini-width) !important; }
-  main.content { margin: 0 auto !important; }
-}
-
-/* --- B. WIDE SCREEN (1200px+) --- */
-@media (min-width: 1200px) {
-  body:not(.sidebar-closed) #quarto-sidebar {
-    width: var(--quarto-sidebar-width) !important;
-    box-shadow: none !important;
   }
 
   body:not(.sidebar-closed) #quarto-content {
     margin-left: var(--quarto-sidebar-width) !important;
   }
-  
-  body:not(.sidebar-closed) main.content {
-    margin: 0 !important;
-    margin-left: 40px !important;
-    max-width: calc(100vw - var(--quarto-sidebar-width) - 60px) !important;
-  }
 
+  /* --- TOGGLED STATE: CLOSED / MINI --- */
   body.sidebar-closed #quarto-sidebar {
     width: var(--quarto-sidebar-mini-width) !important;
   }
 
   body.sidebar-closed #quarto-sidebar .sidebar-menu-container,
   body.sidebar-closed #quarto-sidebar .sidebar-title,
-  body.sidebar-closed #quarto-sidebar .sidebar-header,
-  body.sidebar-closed #quarto-sidebar .sidebar-search,
-  body.sidebar-closed #quarto-sidebar .sidebar-tools-main {
+  body.sidebar-closed #quarto-sidebar .sidebar-header {
      opacity: 0 !important;
      visibility: hidden !important;
   }
@@ -406,42 +390,33 @@ a.has-children.collapsed::after { transform: rotate(0deg); }
   body.sidebar-closed #quarto-content {
     margin-left: var(--quarto-sidebar-mini-width) !important;
   }
-  
-  body.sidebar-closed main.content { 
-    margin: 0 auto !important; 
-  }
 }
 
 /* =========================================
-   E. THE HAMBURGER BUTTON (Rail Position)
+   10. THE HAMBURGER TOGGLE BUTTON
    ========================================= */
 #custom-sidebar-toggle {
   position: fixed;
   top: 5px;
   left: 7px;
-  z-index: 1200; 
-  display: flex;
+  z-index: 1200; /* Stays above the sidebar overlay */
+  display: flex; /* Visible on ALL screen sizes now */
   align-items: center;
   justify-content: center;
   width: 45px;
   height: 45px;
   border-radius: 50%;
-  background-color: transparent; 
+  background-color: rgba(255,255,255, 0.7); 
   border: 1px solid transparent;
   color: #6c757d;
   font-size: 30px;
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
-  display: none; 
+  transition: all 0.2s ease;
 }
 
 #custom-sidebar-toggle:hover {
   color: #007bff;
-  background-color: rgba(255,255,255, 0.8);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background-color: rgba(255,255,255, 0.95);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   border: 1px solid #cccfd2;
-}
-
-@media (min-width: 992px) {
-  #custom-sidebar-toggle { display: flex; }
 }
