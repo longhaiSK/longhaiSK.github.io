@@ -105,7 +105,6 @@ To prove $T$ is minimal sufficient, we must show that for any other sufficient s
 :::
 
 ```{r fig-proof-diagram-r}
-#| label: fig-proof-diagram-r
 #| fig-cap: "Logical flow of the proof: Showing T is a function of any sufficient statistic S."
 #| echo: false
 #| fig-align: "center"
@@ -144,7 +143,6 @@ It is important to note that the converse is not generally true. A **minimal suf
 The relationship between statistics types is visualized by @fig-stats-hierarchy:
 
 ```{r fig-stats-hierarchy}
-#| label: fig-stats-hierarchy
 #| fig-cap: "Hierarchy of Statistics: Completeness implies Minimal Sufficiency under regularity."
 #| echo: false
 #| fig-align: "center"
@@ -187,7 +185,7 @@ text(0, -0.8, "Complete", font = 2)
 A statistic $T(x)$ is a UMVUE for $\theta$ if:
 
 1.  $E(T(x)|\theta) = \theta$ for all $\theta$ (Unbiased).
-2.  $Var(T(x)|\theta) \le Var(d(x)|\theta)$ for all $\theta$ and for all other unbiased estimators $d(x)$.
+2.  $\text{Var}(T(x)|\theta) \le \text{Var}(d(x)|\theta)$ for all $\theta$ and for all other unbiased estimators $d(x)$.
 
 :::
 
@@ -204,7 +202,7 @@ Given that $T$ is a sufficient statistic and $d_1(x)$ is an unbiased estimator (
 
 1.  $g(T)$ is a statistic (independent of $\theta$).
 2.  $E[g(T)] = \theta$ (Unbiased).
-3.  $Var(g(T)) \le Var(d_1(x))$.
+3.  $\text{Var}(g(T)) \le \text{Var}(d_1(x))$.
 
 :::
 
@@ -217,8 +215,8 @@ Given that $T$ is a sufficient statistic and $d_1(x)$ is an unbiased estimator (
 
 3.  **Variance Reduction:** Using the Law of Total Variance:
 
-    $$Var(d_1(X)) = Var(E[d_1(X)|T]) + E[Var(d_1(X)|T)] = Var(g(T)) + E[Var(d_1(X)|T)]$$
-    Since $Var(d_1(X)|T) \ge 0$, it follows that $E[Var(d_1(X)|T)] \ge 0$. Therefore, $Var(g(T)) \le Var(d_1(X))$. Equality holds only if $d_1(X) = g(T)$ almost surely.
+    $$\text{Var}(d_1(X)) = \text{Var}(E[d_1(X)|T]) + E[\text{Var}(d_1(X)|T)] = \text{Var}(g(T)) + E[\text{Var}(d_1(X)|T)]$$
+    Since $\text{Var}(d_1(X)|T) \ge 0$, it follows that $E[\text{Var}(d_1(X)|T)] \ge 0$. Therefore, $\text{Var}(g(T)) \le \text{Var}(d_1(X))$. Equality holds only if $d_1(X) = g(T)$ almost surely.
 
 :::
 
@@ -245,32 +243,90 @@ If $T$ is a complete and sufficient statistic, and there is an unbiased estimato
 
 :::
 
-## Connection to Likelihood Theory
-
-In the previous chapters, we defined the **Score function** $U(\theta) = \frac{\partial}{\partial \theta} \ell(\theta)$. By the **Fisher-Neyman Factorization Theorem**, if $T$ is sufficient, then $U(\theta)$ is a function of $T$:
-$$\ell(\theta) = \log h(x) + \log g(T(x), \theta) \implies U(\theta) = \frac{\partial}{\partial \theta} \log g(T(x), \theta)$$
-This confirms that the curvature and gradients of the log-likelihood are entirely contained within the sufficient statistic $T$, explaining why the UMVUE must be a function of $T$.
 
 
+## A Procedure to Find UMVUE
 
-## Methods for Finding UMVUE
+```{tikz}
+%| label: fig-umvue-logic
+%| fig-cap: "The two paths to finding the UMVUE: (A) Rao-Blackwellization via conditioning an initial unbiased estimator $W$ on $T$; (B) The Direct Method by solving for an unbiased function $g(T)$ directly."
+%| echo: false
+%| fig-align: "center"
+%| out-extra: 'style="display: block; margin: auto;width: 90% !important;"'
+%| engine.opts:
+%|   extra.preamble: |
+%|     \usetikzlibrary{shapes.geometric, arrows.meta, positioning}
 
-To find the UMVUE for a parameter $\theta$:
+\begin{tikzpicture}[
+    node distance=1.2cm and 2cm,
+    block/.style={rectangle, draw, fill=blue!5, text width=3.5cm, text centered, rounded corners, minimum height=1.2cm, font=\sffamily\small},
+    cloud/.style={ellipse, draw, fill=orange!10, text width=2.5cm, text centered, minimum height=0.8cm, font=\sffamily\bfseries\small},
+    arrow/.style={-Stealth, thick},
+    labelnode/.style={circle, fill=white, draw, inner sep=1pt, font=\scriptsize\bfseries}
+]
 
-1.  **Find a Complete Sufficient Statistic:** Identify $T$ (usually via Exponential Family natural statistics).
-2.  **Find an Unbiased Estimator:** Find any simple $d(X)$ such that $E[d(X)] = \theta$.
-3.  **Rao-Blackwellize:** Compute $g(T) = E[d(X)|T]$. 
+    % Main Starting Point
+    \node [block] (start) {Find Complete Sufficient Statistic $T(X)$};
+    
+    % Midpoints for Path A and B
+    \node [block, below left=1.8cm and -0.5cm of start] (unbiased) {Identify Unbiased $W = d(X)$};
+    \node [block, below right=1.8cm and -0.5cm of start] (direct) {Enforce $E[g(T)] = \theta$};
+    
+    % The Result
+    \node [cloud, below=4cm of start] (umvue) {UMVUE};
 
-### Example: Poisson UMVUE for $\lambda^2$
+    % Path A with Label (A)
+    \draw [arrow] (start) -| (unbiased) node[pos=0.25, labelnode, xshift=-0.5cm] {A};
+    \draw [arrow] (unbiased) -- node[anchor=east, font=\tiny, align=right] {Conditioning\\$E[W|T]$} (umvue);
+
+    % Path B with Label (B)
+    \draw [arrow] (start) -| (direct) node[pos=0.25, labelnode, xshift=0.5cm] {B};
+    \draw [arrow] (direct) -- node[anchor=west, font=\tiny, align=left] {Solve for\\$g(T)$} (umvue);
+
+    % Lehmann-Scheffé Note
+    \node [draw, dashed, fill=gray!5, right=1.2cm of umvue, text width=3.2cm, font=\tiny] {
+        \textbf{Lehmann-Scheffé:}\\
+        Since $T$ is complete and sufficient, any unbiased function of $T$ is the unique UMVUE.
+    };
+
+\end{tikzpicture}
+```
+
 
 ::: {#exm-poisson-umvue}
 
-### Poisson UMVUE for $\lambda^2$
-Let $X_1, \dots, X_n \sim \text{Poisson}(\lambda)$. $T = \sum X_i$ is complete sufficient.
-$E[X_1^2 - X_1] = E[X_1^2] - E[X_1] = (\lambda^2 + \lambda) - \lambda = \lambda^2$.
-So $d(X) = X_1^2 - X_1$ is unbiased.
-The UMVUE is $g(T) = E[X_1(X_1-1) | T]$. Using the moments of $X_1|T \sim \text{Bin}(T, 1/n)$:
-$$g(T) = \frac{T(T-1)}{n^2}$$
+**Sol A: Rao-Blackwellization (Conditioning)**
+
+1.  **Find a simple unbiased estimator**: Consider $W = X_1(X_1 - 1)$. 
+    $$E[W] = E[X_1^2] - E[X_1] = (\lambda^2 + \lambda) - \lambda = \lambda^2$$
+    Thus, $W$ is unbiased for $\lambda^2$.
+
+2.  **Condition on the complete sufficient statistic**:
+    The UMVUE is $\phi(T) = E[X_1(X_1 - 1) | T]$. 
+    Recall that the conditional distribution of $X_1$ given $T=t$ is $\text{Binomial}(t, 1/n)$.
+
+3.  **Compute the conditional expectation**:
+    Using the second factorial moment of a $\text{Binomial}(t, p)$ distribution, $E[Y(Y-1)] = t(t-1)p^2$:
+    $$\phi(T) = E[X_1(X_1 - 1) | T] = T(T - 1) \left(\frac{1}{n}\right)^2 = \frac{T(T - 1)}{n^2}$$
+
+---
+
+**Sol B: The Direct Method (Enforcing Unbiasedness)**
+
+1.  **Identify the distribution of $T$**:
+    Since $X_i \sim \text{Poisson}(\lambda)$, the sum $T = \sum X_i$ follows:
+    $$T \sim \text{Poisson}(n\lambda)$$
+
+2.  **Propose a functional form for $g(T)$**:
+    For any $Y \sim \text{Poisson}(\mu)$, $E[Y(Y-1)] = \mu^2$. Here, $\mu = n\lambda$, so:
+    $$E[T(T-1)] = (n\lambda)^2 = n^2 \lambda^2$$
+
+3.  **Adjust for unbiasedness**:
+    To get an expected value of exactly $\lambda^2$, we scale by $1/n^2$:
+    $$E\left[ \frac{T(T-1)}{n^2} \right] = \frac{1}{n^2} (n^2 \lambda^2) = \lambda^2$$
+
+4.  **Conclusion**:
+    By the Lehmann-Scheffé Theorem, $g(T) = \frac{T(T-1)}{n^2}$ is the unique UMVUE.
 
 :::
 
@@ -302,7 +358,8 @@ $$f(\mathbf{x}|\mu, \sigma^2) = \underbrace{(2\pi\sigma^2)^{-n/2} \exp\left(-\fr
 
 :::
 
-::: {#exm-normal-log-variance}
+### Example: UMVUE for $\log(\sigma^2)$ in the Normal Family
+:::: {#exm-normal-log-variance}
 
 ### UMVUE for $\log(\sigma^2)$ in the Normal Family
 While we saw that no UMVUE exists for $\log(\lambda)$ in the Poisson case, an unbiased estimator for the log-variance *does* exist in the Normal distribution $N(\mu, \sigma^2)$.
@@ -322,10 +379,10 @@ While we saw that no UMVUE exists for $\log(\lambda)$ in the Poisson case, an un
 5. **Conclusion:**
 
    Since $S^2$ is a complete sufficient statistic, the **Lehmann-Scheffé Theorem** implies:
-   $$\widehat{\log(\sigma^2)}_{UMVUE} = \log(S^2) + C(n)$$
+   $$\widehat{\log(\sigma^2)}_{\text{UMVUE}} = \log(S^2) + C(n)$$
    where $C(n) = \log\left(\frac{n-1}{2}\right) - \psi\left(\frac{n-1}{2}\right)$ is the **positive** correction term.
 
-:::
+
 
 
 
