@@ -1089,6 +1089,73 @@ legend("topleft",
 
 ## Likelihood-based Tests (LRT, Score, and Wald)
 
+::: {#thm-mahalanobis-conditional}
+### Equivalence of Mahalanobis Distances
+Let the random vector $(\theta_0, \theta_1)^T$ follow a bivariate Normal distribution (or partitioned multivariate normal where $\theta_0$ and $\theta_1$ are scalars):
+
+$$
+\begin{pmatrix} \theta_0 \\ \theta_1 \end{pmatrix} \sim \mathcal{N} \left( \begin{pmatrix} \theta_0^* \\ \theta_1^* \end{pmatrix}, \begin{pmatrix} \Sigma_{00} & \Sigma_{01} \\ \Sigma_{10} & \Sigma_{11} \end{pmatrix} \right)
+$$
+
+The squared Mahalanobis distance of the conditional expectation $E(\theta_0 | \theta_1)$ to its unconditional mean $\theta_0^*$, measured with respect to the variance of the conditional expectation $\text{Var}(E(\theta_0 | \theta_1))$, is exactly equal to the squared Mahalanobis distance of $\theta_1$ to $\theta_1^*$ measured with respect to its marginal variance $\Sigma_{11}$.
+:::
+
+::: {.proof}
+First, we determine the conditional expectation and its variance. From the properties of the multivariate Normal distribution, the conditional expectation of $\theta_0$ given $\theta_1$ is:
+
+$$
+E(\theta_0 | \theta_1) = \theta_0^* + \Sigma_{01} \Sigma_{11}^{-1} (\theta_1 - \theta_1^*)
+$$
+
+Because $\theta_0^*$ is a constant vector, the unconditional expected value of this conditional mean is simply $\theta_0^*$. 
+
+Next, we find the variance of this conditional expectation. By applying the variance operator:
+
+$$
+\text{Var}(E(\theta_0 | \theta_1)) = \text{Var}\left( \theta_0^* + \Sigma_{01} \Sigma_{11}^{-1} (\theta_1 - \theta_1^*) \right)
+$$
+
+$$
+\text{Var}(E(\theta_0 | \theta_1)) = \left( \Sigma_{01} \Sigma_{11}^{-1} \right) \text{Var}(\theta_1) \left( \Sigma_{01} \Sigma_{11}^{-1} \right)^T
+$$
+
+Since $\text{Var}(\theta_1) = \Sigma_{11}$ and $\Sigma_{11}$ is symmetric (meaning $\Sigma_{11}^{-1}$ is also symmetric, and $\Sigma_{01}^T = \Sigma_{10}$), we can simplify this to:
+
+$$
+\text{Var}(E(\theta_0 | \theta_1)) = \Sigma_{01} \Sigma_{11}^{-1} \Sigma_{11} \Sigma_{11}^{-1} \Sigma_{10} = \Sigma_{01} \Sigma_{11}^{-1} \Sigma_{10}
+$$
+
+Now, we construct the squared Mahalanobis distance of $E(\theta_0 | \theta_1)$ to its mean $\theta_0^*$. In the scalar/bivariate case, the squared Mahalanobis distance is simply the squared deviation divided by the variance:
+
+$$
+D^2_{0|1} = \frac{(E(\theta_0 | \theta_1) - \theta_0^*)^2}{\text{Var}(E(\theta_0 | \theta_1))}
+$$
+
+Substituting our derived expressions into this formula:
+
+$$
+D^2_{0|1} = \frac{\left( \Sigma_{01} \Sigma_{11}^{-1} (\theta_1 - \theta_1^*) \right)^2}{\Sigma_{01} \Sigma_{11}^{-1} \Sigma_{10}}
+$$
+
+Because all terms inside the matrices ($\Sigma_{ij}$) are scalars in the bivariate case, we can safely distribute the square and commute the terms in the numerator:
+
+$$
+D^2_{0|1} = \frac{(\Sigma_{01})^2 (\Sigma_{11}^{-1})^2 (\theta_1 - \theta_1^*)^2}{\Sigma_{01} \Sigma_{11}^{-1} \Sigma_{10}}
+$$
+
+Using the identity that $\Sigma_{01} = \Sigma_{10}$, the denominator becomes $(\Sigma_{01})^2 \Sigma_{11}^{-1}$. Canceling the common factors $(\Sigma_{01})^2$ and one $\Sigma_{11}^{-1}$ from both the numerator and the denominator yields:
+
+$$
+D^2_{0|1} = \Sigma_{11}^{-1} (\theta_1 - \theta_1^*)^2 = \frac{(\theta_1 - \theta_1^*)^2}{\Sigma_{11}}
+$$
+
+This final expression is exactly the squared Mahalanobis distance of $\theta_1$ to its mean $\theta_1^*$ with respect to the marginal variance $\Sigma_{11}$.
+:::
+
+::: {.remark}
+If $\boldsymbol{\theta}_0 \in \mathbb{R}^p$ and $\boldsymbol{\theta}_1 \in \mathbb{R}^q$ are multivariate vectors, the equality holds exactly if $p=q$ and the cross-covariance matrix $\Sigma_{10}$ is full rank (invertible). In cases where the dimensions do not match or $\Sigma_{10}$ is rank-deficient, the Mahalanobis distance of the conditional mean mathematically represents the projection of the $\boldsymbol{\theta}_1$ distance onto the column space of $\Sigma_{10}$, meaning $D^2_{0|1} \le (\boldsymbol{\theta}_1 - \boldsymbol{\theta}_1^*)^T \Sigma_{11}^{-1} (\boldsymbol{\theta}_1 - \boldsymbol{\theta}_1^*)$.
+:::
+
 ### Wilks' Theorem for General Nested Models (Likelihood Ratio Test)
 
 ::: {#thm-wilks-general}
