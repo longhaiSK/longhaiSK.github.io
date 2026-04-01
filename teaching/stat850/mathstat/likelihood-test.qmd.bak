@@ -7,11 +7,9 @@ format:
 ---
 
 
+## The Geometry of Mahalanobis Distance
 
-## The Generalized Pythagorean Decomposition of Mahalanobis Distance
-
-::: {#thm-orthogonal-decomposition}
-### The Generalized Pythagorean Decomposition of Mahalanobis Distance
+### Pythagorean Theorem for Mahalanobis Distance 
 
 **Definitions and Setup**
 
@@ -27,6 +25,8 @@ $$
 D^2(v, c, S) = (v - c)^T S^{-1} (v - c)
 $$
 
+For a symmetric, positive-definite matrix $S$, the Mahalanobis inner product between two vectors $u$ and $v$ is defined as $\langle u, v \rangle_{S^{-1}} = u^T S^{-1} v$. Two vectors are orthogonal in this space if their inner product is zero.
+
 Define the conditional expectation (the linear regression surface) of $x_1$ given $x_0$ as $\mu_{1|0}(x_0)$:
 
 $$
@@ -39,73 +39,120 @@ $$
 \Sigma_{1|0} = \Sigma_{11} - \Sigma_{10}\Sigma_{00}^{-1}\Sigma_{01}
 $$
 
-*Statistical Note:* If $x$ follows a multivariate normal distribution $x \sim \mathcal{N}(\mu, \Sigma)$, then the conditional distribution of $x_1$ given $x_0$ is also strictly normal, defined exactly by these parameters: $x_1 | x_0 \sim \mathcal{N}(\mu_{1|0}(x_0), \Sigma_{1|0})$. The matrix $\Sigma_{1|0}$ represents the residual uncertainty (variance) of $x_1$ after the information contained in $x_0$ has been fully partialled out.
+Finally, define the **Projection Point ($\tilde{x}$)** as the point where $x$ projects exactly onto the regression surface: $\tilde{x} = (x_0, \tilde{x}_1)^T$, where $\tilde{x}_1 = \mu_{1|0}(x_0)$.
 
-Now, define **three key points** in the joint space:
-1.  **The Target ($x$):** The observed point $(x_0, x_1)^T$.
-2.  **The Origin ($\mu$):** The global center $(\mu_0, \mu_1)^T$.
-3.  **The Projection ($\tilde{x}$):** The point where $x$ projects exactly onto the regression surface, defined as $\tilde{x} = (x_0, \tilde{x}_1)^T$ where $\tilde{x}_1 = \mu_{1|0}(x_0)$.
+---
 
-**Unified Theorem Statement**
+::: {#lem-fundamental-decomposition}
 
-For any point $x$, the total joint squared Mahalanobis distance from $x$ to $\mu$ decomposes precisely into the sum of the squared distances between $x$ and its projection $\tilde{x}$, and between $\tilde{x}$ and the center $\mu$, all evaluated with respect to the joint covariance $\Sigma$:
+### Fundamental Orthogonal Decomposition Lemma
+
+Any deviation from the center, $(x - \mu)$, can be expressed as the sum of a conditional residual vector $(x - \tilde{x})$ and a marginal projection vector $(\tilde{x} - \mu)$. 
+
+These two vectors are strictly orthogonal with respect to the precision matrix $\Sigma^{-1}$:
+$$
+(x - \tilde{x})^T \Sigma^{-1} (\tilde{x} - \mu) = 0
+$$
+
+Furthermore, the joint Mahalanobis distances of these individual vectors perfectly isolate the conditional and marginal spaces:
+
+1. $(x - \tilde{x})^T \Sigma^{-1} (x - \tilde{x}) = D^2(x_1, \tilde{x}_1, \Sigma_{1|0})$
+2. $(\tilde{x} - \mu)^T \Sigma^{-1} (\tilde{x} - \mu) = D^2(x_0, \mu_0, \Sigma_{00})$
+
+:::
+
+::: {.proof}
+**Proof via Block Factorization**
+
+We can express the partitioned covariance matrix $\Sigma$ using a block $LDL^T$ factorization. The precision matrix is then $\Sigma^{-1} = (L^{-1})^T D^{-1} L^{-1}$, where:
+
+$$
+L^{-1} = \begin{pmatrix} I & 0 \\ -\Sigma_{10}\Sigma_{00}^{-1} & I \end{pmatrix}, \quad D^{-1} = \begin{pmatrix} \Sigma_{00}^{-1} & 0 \\ 0 & \Sigma_{1|0}^{-1} \end{pmatrix}
+$$
+
+Evaluating Mahalanobis inner products with $\Sigma^{-1}$ is equivalent to applying the shearing transformation $L^{-1}$ to the vectors, and then taking their inner product with respect to the block-diagonal metric $D^{-1}$. Let us evaluate the transformed vectors for the residual $u = (x - \tilde{x})$ and the projection $v = (\tilde{x} - \mu)$.
+
+1. Transforming the Residual Vector ($L^{-1}u$):
+
+$$
+L^{-1} (x - \tilde{x}) = \begin{pmatrix} I & 0 \\ -\Sigma_{10}\Sigma_{00}^{-1} & I \end{pmatrix} \begin{pmatrix} 0 \\ x_1 - \tilde{x}_1 \end{pmatrix} = \begin{pmatrix} 0 \\ x_1 - \tilde{x}_1 \end{pmatrix}
+$$
+The transformation leaves the residual vector unchanged; it lies entirely in the conditional subspace.
+
+2. Transforming the Projection Vector ($L^{-1}v$):
+
+$$
+L^{-1} (\tilde{x} - \mu) = \begin{pmatrix} I & 0 \\ -\Sigma_{10}\Sigma_{00}^{-1} & I \end{pmatrix} \begin{pmatrix} x_0 - \mu_0 \\ \Sigma_{10}\Sigma_{00}^{-1}(x_0 - \mu_0) \end{pmatrix} = \begin{pmatrix} x_0 - \mu_0 \\ 0 \end{pmatrix}
+$$
+The transformation cleanly removes the induced correlation, flattening the projection vector so it lies entirely in the marginal subspace.
+
+**Evaluating the Inner Products:**
+Because $D^{-1}$ is block-diagonal, the inner product of these transformed vectors is simply the sum of the inner products of their corresponding blocks:
+
+$$
+(x - \tilde{x})^T \Sigma^{-1} (\tilde{x} - \mu) = \begin{pmatrix} 0 \\ x_1 - \tilde{x}_1 \end{pmatrix}^T \begin{pmatrix} \Sigma_{00}^{-1} & 0 \\ 0 & \Sigma_{1|0}^{-1} \end{pmatrix} \begin{pmatrix} x_0 - \mu_0 \\ 0 \end{pmatrix} = 0 + 0 = 0
+$$
+This proves strict orthogonality. 
+
+Applying the same logic to the self-inner products evaluates the quadratic forms:
+$$
+(x - \tilde{x})^T \Sigma^{-1} (x - \tilde{x}) = \begin{pmatrix} 0 \\ x_1 - \tilde{x}_1 \end{pmatrix}^T \begin{pmatrix} \Sigma_{00}^{-1} & 0 \\ 0 & \Sigma_{1|0}^{-1} \end{pmatrix} \begin{pmatrix} 0 \\ x_1 - \tilde{x}_1 \end{pmatrix} = (x_1 - \tilde{x}_1)^T \Sigma_{1|0}^{-1} (x_1 - \tilde{x}_1)
+$$
+$$
+(\tilde{x} - \mu)^T \Sigma^{-1} (\tilde{x} - \mu) = \begin{pmatrix} x_0 - \mu_0 \\ 0 \end{pmatrix}^T \begin{pmatrix} \Sigma_{00}^{-1} & 0 \\ 0 & \Sigma_{1|0}^{-1} \end{pmatrix} \begin{pmatrix} x_0 - \mu_0 \\ 0 \end{pmatrix} = (x_0 - \mu_0)^T \Sigma_{00}^{-1} (x_0 - \mu_0)
+$$
+which yields exactly $D^2(x_1, \tilde{x}_1, \Sigma_{1|0})$ and $D^2(x_0, \mu_0, \Sigma_{00})$, respectively.
+
+:::
+
+---
+
+::: {#thm-orthogonal-decomposition}
+
+### The Generalized Pythagorean Decomposition for Mahalanobis Distance
+
+For any point $x$, the total joint squared Mahalanobis distance from $x$ to the center $\mu$ decomposes precisely into the sum of the squared distances between $x$ and its projection $\tilde{x}$ (the Conditional Residual), and between $\tilde{x}$ and the center $\mu$ (the Marginal Projection):
 
 $$
 D^2(x, \mu, \Sigma) = D^2(x, \tilde{x}, \Sigma) + D^2(\tilde{x}, \mu, \Sigma)
 $$
 
-Furthermore, these two spatial components map perfectly to the conditional and marginal Mahalanobis distances in their respective subspaces:
+which, mapping to the marginal and conditional subspaces, is equivalent to:
 
-1.  **The Conditional Distance (Orthogonal Residual):**
-    $$D^2(x, \tilde{x}, \Sigma) = D^2(x_1, \tilde{x}_1, \Sigma_{1|0})$$
-2.  **The Marginal Distance (Regression Trajectory):**
-    $$D^2(\tilde{x}, \mu, \Sigma) = D^2(x_0, \mu_0, \Sigma_{00})$$
+$$
+D^2(x, \mu, \Sigma) = D^2(x_1, \tilde{x}_1, \Sigma_{1|0}) + D^2(x_0, \mu_0, \Sigma_{00})
+$$
+
 :::
 
 ::: {.proof}
-**Algebraic and Geometric Justification**
+**Proof**
 
-**1. The Cross-Term Vanishes (Orthogonality)**
-The foundation of this decomposition is that $(x - \tilde{x})$ and $(\tilde{x} - \mu)$ are orthogonal with respect to the inner product defined by $\Sigma^{-1}$.
-
+We construct the vector from the origin to the target as the sum of the residual and the projection:
 $$
-(x - \tilde{x})^T \Sigma^{-1} (\tilde{x} - \mu) = 0
+x - \mu = (x - \tilde{x}) + (\tilde{x} - \mu)
 $$
 
-Because they are $\Sigma^{-1}$-orthogonal, the cross-term in the quadratic expansion disappears, yielding the pure additive property $D^2(x, \mu, \Sigma) = D^2(x, \tilde{x}, \Sigma) + D^2(\tilde{x}, \mu, \Sigma)$.
-
-**2. Reducing $D^2(x, \tilde{x}, \Sigma)$ to Conditional Distance**
-The vector connecting the point to its projection is strictly "vertical" in the partitioned space:
-
+We evaluate the total joint distance by expanding the quadratic form:
 $$
-x - \tilde{x} = \begin{pmatrix} x_0 \\ x_1 \end{pmatrix} - \begin{pmatrix} x_0 \\ \tilde{x}_1 \end{pmatrix} = \begin{pmatrix} 0 \\ x_1 - \tilde{x}_1 \end{pmatrix}
+D^2(x, \mu, \Sigma) = \Big( (x - \tilde{x}) + (\tilde{x} - \mu) \Big)^T \Sigma^{-1} \Big( (x - \tilde{x}) + (\tilde{x} - \mu) \Big)
 $$
 
-When you multiply a vector with a zero in the first partition by a block matrix $\Sigma^{-1}$, the result depends solely on the bottom-right block of $\Sigma^{-1}$. By the properties of block matrix inversion, this bottom-right block is exactly the inverse of the Schur complement, $\Sigma_{1|0}^{-1}$.
-
 $$
-\begin{pmatrix} 0 \\ x_1 - \tilde{x}_1 \end{pmatrix}^T \Sigma^{-1} \begin{pmatrix} 0 \\ x_1 - \tilde{x}_1 \end{pmatrix} = (x_1 - \tilde{x}_1)^T \Sigma_{1|0}^{-1} (x_1 - \tilde{x}_1) = D^2(x_1, \tilde{x}_1, \Sigma_{1|0})
+= (x - \tilde{x})^T \Sigma^{-1} (x - \tilde{x}) + (\tilde{x} - \mu)^T \Sigma^{-1} (\tilde{x} - \mu) + 2 (x - \tilde{x})^T \Sigma^{-1} (\tilde{x} - \mu)
 $$
 
-*Geometric meaning:* This is the penalty for diverging from the expected relationship.
-
-**3. Reducing $D^2(\tilde{x}, \mu, \Sigma)$ to Marginal Distance**
-The projected point $\tilde{x}$ lies entirely on the conditional expectation surface. Its difference from the mean is:
+By the **Fundamental Orthogonal Decomposition Lemma**, the cross-term evaluates to zero due to orthogonality, leaving only the isolated quadratic forms:
 
 $$
-\tilde{x} - \mu = \begin{pmatrix} x_0 - \mu_0 \\ \Sigma_{10}\Sigma_{00}^{-1}(x_0 - \mu_0) \end{pmatrix}
+D^2(x, \mu, \Sigma) = (x - \tilde{x})^T \Sigma^{-1} (x - \tilde{x}) + (\tilde{x} - \mu)^T \Sigma^{-1} (\tilde{x} - \mu)
 $$
 
-Because the $x_1$ component of this difference is perfectly predicted by the $x_0$ component (it has a zero residual), passing this vector through the joint precision matrix $\Sigma^{-1}$ algebraically cancels out the cross-covariances. The entire quadratic form collapses to evaluating only the marginal coordinates against the marginal covariance:
+This is exactly $D^2(x, \tilde{x}, \Sigma) + D^2(\tilde{x}, \mu, \Sigma)$. Furthermore, as established by the Lemma, substituting the subspace identities for these two terms yields $D^2(x_1, \tilde{x}_1, \Sigma_{1|0}) + D^2(x_0, \mu_0, \Sigma_{00})$.
 
-$$
-(\tilde{x} - \mu)^T \Sigma^{-1} (\tilde{x} - \mu) = (x_0 - \mu_0)^T \Sigma_{00}^{-1} (x_0 - \mu_0) = D^2(x_0, \mu_0, \Sigma_{00})
-$$
-
-*Geometric meaning:* This represents the position of the data along the dominant axis of expectation. Since it lies exactly on the regression line, 100% of its distance from the origin is driven by the marginal spread of $x_0$.
 :::
 
-
+### Interactive Illustration
 
 ```{shinylive-r}
 #| standalone: true
@@ -272,6 +319,13 @@ shinyApp(ui, server)
 
 ```
 
+
+
+---
+title: "Wilks' Theorem for General Nested Models"
+format: html
+---
+
 ## Wilks' Theorem for General Nested Models (Likelihood Ratio Test)
 
 ::: {#thm-wilks-general}
@@ -283,10 +337,12 @@ Let $\mathbf{Y} = (Y_1, \dots, Y_n)$ be an i.i.d. sample from a distribution $f(
 Consider testing the nested hypotheses:
 
 $$
-H_0: \boldsymbol{\theta} \in \Theta_0 \quad \text{vs} \quad H_1: \boldsymbol{\theta} \in \Theta \setminus \Theta_0
+H_0: \boldsymbol{\theta}_0 = \boldsymbol{\theta}_0^* \quad \text{vs} \quad H_1: \boldsymbol{\theta}_0 \neq \boldsymbol{\theta}_0^*
 $$
 
-Let $\hat{\boldsymbol{\theta}}$ be the unrestricted Maximum Likelihood Estimator (MLE) over $\Theta$, and let $\tilde{\boldsymbol{\theta}}$ be the restricted MLE over $\Theta_0$. The likelihood ratio test statistic is defined as:
+Let $\boldsymbol{\theta}^* = (\boldsymbol{\theta}_0^*, \boldsymbol{\theta}_1^*)^T$ be the true parameter vector generating the data under $H_0$. Let $\hat{\boldsymbol{\theta}}$ be the unrestricted Maximum Likelihood Estimator (MLE) over $\Theta$, and let $\tilde{\boldsymbol{\theta}} = (\boldsymbol{\theta}_0^*, \tilde{\boldsymbol{\theta}}_1)^T$ be the restricted MLE over $\Theta_0$. 
+
+The likelihood ratio test statistic $D$ is defined as the difference between the unrestricted and restricted maximum log-likelihoods:
 
 $$
 D = 2 \left[ \ell(\hat{\boldsymbol{\theta}}) - \ell(\tilde{\boldsymbol{\theta}}) \right]
@@ -302,65 +358,50 @@ $$
 
 ::: {.proof}
 
-1. **Quadratic Taylor Expansion at the Peak** \n
+**1. Mapping Likelihood to Mahalanobis Geometry**
 
-   Under the null hypothesis $H_0$, we perform a second-order Taylor expansion of the log-likelihood function $\ell(\boldsymbol{\theta})$ around the unrestricted MLE $\hat{\boldsymbol{\theta}}$. For sufficiently large $n$, the expansion is given by:
-   
-   $$
-   \ell(\boldsymbol{\theta}) \approx \ell(\hat{\boldsymbol{\theta}}) - \frac{1}{2} (\boldsymbol{\theta} - \hat{\boldsymbol{\theta}})^T \mathcal{I} (\boldsymbol{\theta} - \hat{\boldsymbol{\theta}})
-   $$
-   
-   where $\mathcal{I} = \Sigma^{-1}$ represents the Fisher Information matrix (the asymptotic precision). Using our distance notation $D^2(v, c, S)$, this quadratic approximation is:
-   
-   $$
-   2[\ell(\hat{\boldsymbol{\theta}}) - \ell(\boldsymbol{\theta})] \approx D^2(\boldsymbol{\theta}, \hat{\boldsymbol{\theta}}, \Sigma)
-   $$
+By a second-order Taylor expansion around the unrestricted peak $\hat{\boldsymbol{\theta}}$, log-likelihood deviances are asymptotically equivalent to squared Mahalanobis distances. The center of this space is the unrestricted MLE, and the metric is the inverse Fisher Information matrix $\Sigma = \mathcal{I}^{-1}$. 
 
-2. **Evaluation at the Restricted MLE** \n
+We map the likelihood parameters directly to our geometric definitions ($x, \mu, \tilde{x}$):
+* **The Origin ($\mu \to \hat{\boldsymbol{\theta}}$):** The global MLE sits at the center of the quadratic contours.
+* **The Target ($x \to \boldsymbol{\theta}^*$):** The true parameter value being evaluated.
+* **The Projection ($\tilde{x} \to \tilde{\boldsymbol{\theta}}$):** The restricted MLE maximizes the likelihood given $\boldsymbol{\theta}_0^*$. Geometrically, it minimizes the distance to the center $\hat{\boldsymbol{\theta}}$ subject to the null constraint, which strictly defines it as the projection of $x$ onto the regression surface: $\tilde{\boldsymbol{\theta}}_1 = \mu_{1|0}(\boldsymbol{\theta}_0^*)$.
 
-   The Wilks' statistic $D$ measures the likelihood ratio between the unrestricted peak $\hat{\boldsymbol{\theta}}$ and the restricted peak $\tilde{\boldsymbol{\theta}}$. By plugging $\tilde{\boldsymbol{\theta}}$ into the quadratic approximation above, we obtain:
-   
-   $$
-   D = 2[\ell(\hat{\boldsymbol{\theta}}) - \ell(\tilde{\boldsymbol{\theta}})] \approx D^2(\tilde{\boldsymbol{\theta}}, \hat{\boldsymbol{\theta}}, \Sigma)
-   $$
+**2. Evaluating the Deviances**
 
-3. **Applying the Mahalanobis Decomposition** \n
+Using this mapping, we can express the total deviance ($D_1$), the restricted deviance ($D_0$), and the Wilks statistic ($D$) strictly as geometric distances:
+* **Total Deviance:** $D_1 = 2[\ell(\hat{\boldsymbol{\theta}}) - \ell(\boldsymbol{\theta}^*)] \approx D^2(\boldsymbol{\theta}^*, \hat{\boldsymbol{\theta}}, \Sigma) \iff D^2(x, \mu, \Sigma)$
+* **Restricted Deviance:** $D_0 = 2[\ell(\tilde{\boldsymbol{\theta}}) - \ell(\boldsymbol{\theta}^*)] \approx D^2(\boldsymbol{\theta}^*, \tilde{\boldsymbol{\theta}}, \Sigma) \iff D^2(x, \tilde{x}, \Sigma)$
+* **Wilks Statistic:** $D = 2[\ell(\hat{\boldsymbol{\theta}}) - \ell(\tilde{\boldsymbol{\theta}})] \approx D^2(\tilde{\boldsymbol{\theta}}, \hat{\boldsymbol{\theta}}, \Sigma) \iff D^2(\tilde{x}, \mu, \Sigma)$
 
-   We apply the orthogonal decomposition theorem to partition this joint distance into a marginal component for the parameters of interest ($\boldsymbol{\theta}_0$) and a conditional component for the nuisance parameters ($\boldsymbol{\theta}_1$):
-   
-   $$
-   D^2(\tilde{\boldsymbol{\theta}}, \hat{\boldsymbol{\theta}}, \Sigma) = D^2(\tilde{\boldsymbol{\theta}}_0, \hat{\boldsymbol{\theta}}_0, \Sigma_{00}) + D^2(\tilde{\boldsymbol{\theta}}_1, \mu_{1|0}(\tilde{\boldsymbol{\theta}}_0), \Sigma_{1|0})
-   $$
+**3. The Pythagorean Identity and Marginal Decomposition**
 
-4. **Vanishing of the Nuisance Term** \n
+By the **Generalized Pythagorean Decomposition**, we know the distances strictly relate via:
+$$
+D^2(x, \mu, \Sigma) = D^2(x, \tilde{x}, \Sigma) + D^2(\tilde{x}, \mu, \Sigma)
+$$
+Which confirms the algebraic identity of the likelihoods: $D_1 \approx D_0 + D$. 
 
-   By the definition of the restricted MLE $\tilde{\boldsymbol{\theta}}$ under the null hypothesis $H_0: \boldsymbol{\theta}_0 = \boldsymbol{\theta}_0^*$:
-   
-   - The parameters of interest are fixed: $\tilde{\boldsymbol{\theta}}_0 = \boldsymbol{\theta}_0^*$.
-   - The restricted nuisance parameters $\tilde{\boldsymbol{\theta}}_1$ are chosen to maximize the restricted likelihood, which is equivalent to minimizing the joint distance $D^2(\tilde{\boldsymbol{\theta}}, \hat{\boldsymbol{\theta}}, \Sigma)$.
-   
-   As established by the properties of the regression surface, this minimum occurs exactly when $\tilde{\boldsymbol{\theta}}_1 = \mu_{1|0}(\boldsymbol{\theta}_0^*)$. At this point, the conditional term $D^2(\mu_{1|0}(\boldsymbol{\theta}_0^*), \mu_{1|0}(\boldsymbol{\theta}_0^*), \Sigma_{1|0})$ is exactly zero.
+Furthermore, Wilks' statistic $D$ is precisely the **Marginal Projection** component: $D^2(\tilde{x}, \mu, \Sigma)$. According to the **Fundamental Orthogonal Decomposition Lemma**, this projection perfectly isolates the marginal distance of the constrained block:
 
-5. **Final Marginal Identity and Distribution** \n
+$$
+D \approx D^2(\tilde{\boldsymbol{\theta}}, \hat{\boldsymbol{\theta}}, \Sigma) = D^2(\boldsymbol{\theta}_0^*, \hat{\boldsymbol{\theta}}_0, \Sigma_{00}) = (\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*)^T \Sigma_{00}^{-1} (\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*)
+$$
 
-   The Wilks' statistic $D$ reduces entirely to the marginal Mahalanobis distance between the estimated and hypothesized parameters of interest:
-   
-   $$
-   D \approx D^2(\boldsymbol{\theta}_0^*, \hat{\boldsymbol{\theta}}_0, \Sigma_{00}) = (\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*)^T \Sigma_{00}^{-1} (\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*)
-   $$
-   
-   Under $H_0$, the asymptotic normality of the MLE implies $\sqrt{n}(\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*) \xrightarrow{d} N(\mathbf{0}, \Sigma_{00})$. Therefore, the quadratic form $D$ follows a chi-square distribution with $q$ degrees of freedom:
-   
-   $$
-   D \xrightarrow{d} \chi^2_q
-   $$
+**4. Asymptotic Distribution**
+
+Under $H_0$, the asymptotic normality of the unrestricted MLE implies $\sqrt{n}(\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*) \xrightarrow{d} N(\mathbf{0}, \Sigma_{00})$. Therefore, the isolated quadratic form $D$ follows a chi-square distribution with $q$ degrees of freedom:
+
+$$
+D \xrightarrow{d} \chi^2_q
+$$
 
 :::
 
 ::: {.remark}
 
 ### Geometric Intuition
-This proof illustrates that the restricted MLE $\tilde{\boldsymbol{\theta}}$ "slides" along the conditional regression surface $\mu_{1|0}(\boldsymbol{\theta}_0)$ until the conditional component of the discrepancy vanishes. This optimization process effectively "filters out" the noise from the $p-q$ nuisance parameters, leaving only the $q$-dimensional marginal evidence for the hypothesis test.
+By centering the Mahalanobis space at the unrestricted MLE $\hat{\boldsymbol{\theta}}$, the proof of Wilks' Theorem collapses into a trivial geometric observation. The restricted MLE $\tilde{\boldsymbol{\theta}}$ is simply the projection of the true parameter $\boldsymbol{\theta}^*$ onto the regression surface. The Wilks statistic $D$ measures the squared length of the projection leg of the resulting right triangle. Because it is a projection onto the marginal subspace, it depends *only* on the parameters of interest, entirely stripping away the nuisance parameters.
 
 :::
 
@@ -405,7 +446,7 @@ ggplot(grid, aes(x = theta0, y = theta1)) +
   annotate("point", x = theta_hat[1], y = theta_hat[2], color = "blue", size = 3) +
   annotate("text", x = theta_hat[1], y = theta_hat[2] + 0.2, 
            label = "hat(theta)", parse = TRUE, color = "blue") +
-  # Projected Nuisance Center (hat(theta)_{1, Sigma})
+  # Projected Nuisance Center (hat(theta)[1, Sigma])
   annotate("point", x = p_projected[1], y = p_projected[2], color = "red", size = 3) +
   annotate("text", x = p_projected[1] - 0.45, y = p_projected[2], 
            label = "hat(theta)[1, Sigma]", parse = TRUE, color = "red") +
@@ -424,8 +465,6 @@ ggplot(grid, aes(x = theta0, y = theta1)) +
   coord_fixed()
 
 ```
-
-
 
 ::: {#exm-lrt-normal}
 
@@ -484,7 +523,6 @@ $$
 As $n \to \infty$, $T^2 \xrightarrow{d} \chi^2_1$, confirming the theorem.
 
 :::
-
 
 ## Wald's Theorem for Testing Parameter Restrictions
 
