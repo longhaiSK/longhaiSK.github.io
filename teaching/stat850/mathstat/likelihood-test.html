@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.16">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>8&nbsp; Likelihood-based Tests – Statistical Inference</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-792aea850e7e5573310f85939a37799b.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-756b3216100cf6faba8ed10949d356b0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<meta name="shinylive:serviceworker_dir" content=".">
+<script src="site_libs/quarto-contrib/shinylive-0.10.8/shinylive/load-shinylive-sw.js" type="module"></script>
+<script src="site_libs/quarto-contrib/shinylive-0.10.8/shinylive/run-python-blocks.js" type="module"></script>
+<link href="site_libs/quarto-contrib/shinylive-0.10.8/shinylive/shinylive.css" rel="stylesheet">
+<link href="site_libs/quarto-contrib/shinylive-quarto-css/shinylive-quarto.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+<link rel="stylesheet" href="resources/bookstyles.css">
+<script src="resources/num_eq.js"></script>
+<script src="resources/merge-toc.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./likelihood-test.html"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Likelihood-based Tests</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Statistical Inference</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./introstatinf.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction to Statistical Inference</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./decision.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Decision Theory</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./bayesian.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Bayesian Inference</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./sufficiency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Sufficient Statistic</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./loglike.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Theory of Log-Likelihood</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./mle.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Maximum Likelihood Estimation</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./hypothesis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Likelihood-based Hypothesis Testing</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./likelihood-test.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Likelihood-based Tests</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./umvue.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Minimum Variance Estimators</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Appendices</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#the-orthogonal-decomposition-of-mahalanobis-distance" id="toc-the-orthogonal-decomposition-of-mahalanobis-distance" class="nav-link active" data-scroll-target="#the-orthogonal-decomposition-of-mahalanobis-distance"><span class="header-section-number">8.1</span> The Orthogonal Decomposition of Mahalanobis Distance</a></li>
+  <li><a href="#wilks-theorem-for-general-nested-models-likelihood-ratio-test" id="toc-wilks-theorem-for-general-nested-models-likelihood-ratio-test" class="nav-link" data-scroll-target="#wilks-theorem-for-general-nested-models-likelihood-ratio-test"><span class="header-section-number">8.2</span> Wilks’ Theorem for General Nested Models (Likelihood Ratio Test)</a></li>
+  <li><a href="#walds-theorem-for-testing-parameter-restrictions" id="toc-walds-theorem-for-testing-parameter-restrictions" class="nav-link" data-scroll-target="#walds-theorem-for-testing-parameter-restrictions"><span class="header-section-number">8.3</span> Wald’s Theorem for Testing Parameter Restrictions</a></li>
+  <li><a href="#raos-score-lagrange-multiplier-theorem-for-restricted-models" id="toc-raos-score-lagrange-multiplier-theorem-for-restricted-models" class="nav-link" data-scroll-target="#raos-score-lagrange-multiplier-theorem-for-restricted-models"><span class="header-section-number">8.4</span> Rao’s Score (Lagrange Multiplier) Theorem for Restricted Models</a></li>
+  <li><a href="#a-comparison-of-finite-sample-distributions-of-the-three-asymptotic-tests-in-ols" id="toc-a-comparison-of-finite-sample-distributions-of-the-three-asymptotic-tests-in-ols" class="nav-link" data-scroll-target="#a-comparison-of-finite-sample-distributions-of-the-three-asymptotic-tests-in-ols"><span class="header-section-number">8.5</span> A Comparison of Finite-Sample Distributions of the Three Asymptotic Tests in OLS</a>
+  <ul>
+  <li><a href="#exact-finite-sample-distributions-via-the-f-statistic" id="toc-exact-finite-sample-distributions-via-the-f-statistic" class="nav-link" data-scroll-target="#exact-finite-sample-distributions-via-the-f-statistic"><span class="header-section-number">8.5.0.1</span> Exact Finite-Sample Distributions via the F-Statistic</a></li>
+  <li><a href="#asymptotic-equivalence-in-ols" id="toc-asymptotic-equivalence-in-ols" class="nav-link" data-scroll-target="#asymptotic-equivalence-in-ols"><span class="header-section-number">8.5.0.2</span> Asymptotic Equivalence in OLS</a></li>
+  <li><a href="#visualizing-finite-sample-calibration-size-distortion" id="toc-visualizing-finite-sample-calibration-size-distortion" class="nav-link" data-scroll-target="#visualizing-finite-sample-calibration-size-distortion"><span class="header-section-number">8.5.0.3</span> Visualizing Finite-Sample Calibration (Size Distortion)</a></li>
+  <li><a href="#exact-finite-sample-distribution-calibration-plot" id="toc-exact-finite-sample-distribution-calibration-plot" class="nav-link" data-scroll-target="#exact-finite-sample-distribution-calibration-plot"><span class="header-section-number">8.5.0.4</span> Exact Finite-Sample Distribution Calibration Plot</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content column-page-right" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Likelihood-based Tests</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta column-page-right">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="the-orthogonal-decomposition-of-mahalanobis-distance" class="level2" data-number="8.1">
+<h2 data-number="8.1" class="anchored" data-anchor-id="the-orthogonal-decomposition-of-mahalanobis-distance"><span class="header-section-number">8.1</span> The Orthogonal Decomposition of Mahalanobis Distance</h2>
+<div id="thm-orthogonal-decomposition" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 8.1 (The Orthogonal Decomposition of Mahalanobis Distance)</strong></span> <strong>Definitions and Setup</strong></p>
+<p>Let <span class="math inline">\(x\)</span> be a random vector partitioned into two sub-vectors, <span class="math inline">\(x_0\)</span> and <span class="math inline">\(x_1\)</span>, such that <span class="math inline">\(x = (x_0, x_1)^T\)</span>. Let <span class="math inline">\(\mu\)</span> be the corresponding center (mean) vector, partitioned as <span class="math inline">\(\mu = (\mu_0, \mu_1)^T\)</span>. Let <span class="math inline">\(\Sigma\)</span> be a symmetric, positive-definite covariance matrix, partitioned into corresponding blocks:</p>
+<p><span class="math display">\[
+\Sigma = \begin{pmatrix} \Sigma_{00} &amp; \Sigma_{01} \\ \Sigma_{10} &amp; \Sigma_{11} \end{pmatrix}
+\]</span></p>
+<p>Define the squared Mahalanobis distance of any vector <span class="math inline">\(v\)</span> to center <span class="math inline">\(c\)</span> with respect to a positive-definite matrix <span class="math inline">\(S\)</span> as:</p>
+<p><span class="math display">\[
+D^2(v, c, S) = (v - c)^T S^{-1} (v - c)
+\]</span></p>
+<p>Define the conditional expectation (the linear regression surface) of <span class="math inline">\(x_1\)</span> given <span class="math inline">\(x_0\)</span> as <span class="math inline">\(\mu_{1|0}(x_0)\)</span>:</p>
+<p><span class="math display">\[
+\mu_{1|0}(x_0) = \mu_1 + \Sigma_{10}\Sigma_{00}^{-1}(x_0 - \mu_0)
+\]</span></p>
+<p>Define the conditional covariance matrix (the Schur complement of <span class="math inline">\(\Sigma_{00}\)</span> in <span class="math inline">\(\Sigma\)</span>) as <span class="math inline">\(\Sigma_{1|0}\)</span>:</p>
+<p><span class="math display">\[
+\Sigma_{1|0} = \Sigma_{11} - \Sigma_{10}\Sigma_{00}^{-1}\Sigma_{01}
+\]</span></p>
+<p><strong>Theorem Statement</strong></p>
+<p>For any point <span class="math inline">\(x = (x_0, x_1)\)</span>, the total joint squared Mahalanobis distance from <span class="math inline">\(x\)</span> to <span class="math inline">\(\mu\)</span> can be orthogonally decomposed into the marginal distance of <span class="math inline">\(x_0\)</span> plus the conditional distance of <span class="math inline">\(x_1\)</span> given <span class="math inline">\(x_0\)</span>:</p>
+<p><span class="math display">\[
+D^2(x, \mu, \Sigma) = D^2(x_0, \mu_0, \Sigma_{00}) + D^2(x_1, \mu_{1|0}(x_0), \Sigma_{1|0})
+\]</span></p>
+</div>
+<div id="cor-regression-surface" class="theorem corollary">
+<p><span class="theorem-title"><strong>Corollary 8.1 (The Regression Surface Identity)</strong></span> If we evaluate the joint Mahalanobis distance at the specific point where <span class="math inline">\(x_1\)</span> lies exactly on the conditional expectation surface—meaning the evaluated point is <span class="math inline">\((x_0, \mu_{1|0}(x_0))\)</span>—the total distance simplifies to exactly the marginal distance of <span class="math inline">\(x_0\)</span>:</p>
+<p><span class="math display">\[
+D^2((x_0, \mu_{1|0}(x_0)), \mu, \Sigma) = D^2(x_0, \mu_0, \Sigma_{00})
+\]</span></p>
+</div>
+<div class="proof">
+<p><span class="proof-title"><em>Proof</em>. </span><strong>Algebraic Proof</strong></p>
+<p>By substituting the point <span class="math inline">\(x = (x_0, \mu_{1|0}(x_0))\)</span> directly into the main theorem decomposition, we get:</p>
+<p><span class="math display">\[
+D^2((x_0, \mu_{1|0}(x_0)), \mu, \Sigma) = D^2(x_0, \mu_0, \Sigma_{00}) + D^2(\mu_{1|0}(x_0), \mu_{1|0}(x_0), \Sigma_{1|0})
+\]</span></p>
+<p>Because the distance from any point to itself is strictly zero, the second term vanishes:</p>
+<p><span class="math display">\[
+D^2(\mu_{1|0}(x_0), \mu_{1|0}(x_0), \Sigma_{1|0}) = (\mu_{1|0}(x_0) - \mu_{1|0}(x_0))^T \Sigma_{1|0}^{-1} (\mu_{1|0}(x_0) - \mu_{1|0}(x_0)) = 0
+\]</span></p>
+<p>Leaving only the marginal distance:</p>
+<p><span class="math display">\[
+D^2((x_0, \mu_{1|0}(x_0)), \mu, \Sigma) = D^2(x_0, \mu_0, \Sigma_{00})
+\]</span></p>
+</div>
+<p><strong>Geometric Explanation</strong></p>
+<p>In the Mahalanobis geometry, the total squared distance of a point is the sum of its squared “horizontal” position (its marginal distance) and its squared “vertical” drop to the regression line (its conditional residual).</p>
+<p>When you define a point as <span class="math inline">\((x_0, \mu_{1|0}(x_0))\)</span>, you are placing it strictly on the regression line.</p>
+<ol type="1">
+<li>It has no residual. This means the point lies exactly on the expected vector trajectory, leaving no orthogonal deviation.</li>
+<li>It does not deviate from the expected value of <span class="math inline">\(x_1\)</span> for that given <span class="math inline">\(x_0\)</span>. Consequently, no additional distance penalty is incurred in the conditional space.</li>
+<li>Because the residual is exactly <span class="math inline">\(0\)</span>, the orthogonal conditional vector is the zero vector. This cleanly zeroes out the conditional quadratic form entirely.</li>
+</ol>
+<p>Therefore, 100% of the joint spatial distance between <span class="math inline">\((x_0, \mu_{1|0}(x_0))\)</span> and the global mean <span class="math inline">\((\mu_0, \mu_1)\)</span> is driven solely by how far <span class="math inline">\(x_0\)</span> is from <span class="math inline">\(\mu_0\)</span> in the marginal space.</p>
+<pre class="shinylive-r" data-engine="r"><code>#| '!! shinylive warning !!': |
+#|   shinylive does not work in self-contained HTML documents.
+#|   Please set `embed-resources: false` in your metadata.
+#| standalone: true
+#| viewerHeight: 750
+#| echo: false
+#| column: screen
+#| label: fig-MD-decomp
+
+library(shiny)
+library(ggplot2)
+
+ui &lt;- fluidPage(
+  titlePanel("Geometry of Mahalanobis Distance Decomposition"),
+  
+  # A relative container holding the plot and absolute panels
+  div(style = "position: relative;",
+      
+      plotOutput("distPlot", height = "700px", width = "100%"),
+      
+      # Floating Control Panel (Top Left)
+      absolutePanel(
+        top = 10, left = 10, width = 320, draggable = TRUE,
+        style = "background-color: rgba(255, 255, 255, 0.85); padding: 10px 15px; border-radius: 8px; border: 1px solid #ccc; box-shadow: 2px 2px 10px rgba(0,0,0,0.1);",
+        
+        h4("Parameters", style = "margin-top: 0; margin-bottom: 10px; font-size: 16px;"),
+        
+        fluidRow(
+          column(6, sliderInput("mu_0", "\\(\\mu_0\\)", min = 0, max = 5, value = 2.2, step = 0.1, ticks = FALSE)),
+          column(6, sliderInput("mu_1", "\\(\\mu_1\\)", min = 0, max = 5, value = 2.2, step = 0.1, ticks = FALSE))
+        ),
+        fluidRow(
+          column(6, sliderInput("x_0", "\\(x_0\\)", min = 0, max = 5, value = 0.9, step = 0.1, ticks = FALSE)),
+          column(6, sliderInput("x_1", "\\(x_1\\)", min = 0, max = 5, value = 1.9, step = 0.1, ticks = FALSE))
+        ),
+        hr(style = "margin: 5px 0; border-top: 1px solid #ddd;"),
+        fluidRow(
+          column(6, sliderInput("sigma_0", "\\(\\sigma_0\\)", min = 0.5, max = 3, value = 1.25, step = 0.05, ticks = FALSE)),
+          column(6, sliderInput("sigma_1", "\\(\\sigma_1\\)", min = 0.5, max = 3, value = 1.25, step = 0.05, ticks = FALSE))
+        ),
+        sliderInput("rho", "Correlation \\(\\rho\\)", min = -0.95, max = 0.95, value = -0.6, step = 0.05, ticks = FALSE)
+      ),
+      
+      # Floating Legend Panel (Bottom Right)
+      absolutePanel(
+        bottom = 20, right = 20, width = 320, draggable = TRUE,
+        style = "background-color: rgba(255, 255, 255, 0.9); padding: 10px; border-radius: 8px; border: 1px solid #ccc; box-shadow: 2px 2px 10px rgba(0,0,0,0.1);",
+        uiOutput("legendUI")
+      )
+  )
+)
+
+server &lt;- function(input, output, session) {
+  
+  # Reactive calculations
+  calc_data &lt;- reactive({
+    mu &lt;- c(input$mu_0, input$mu_1)
+    x &lt;- c(input$x_0, input$x_1)
+    
+    # Construct Covariance Matrix
+    Sigma &lt;- matrix(c(
+      input$sigma_0^2, 
+      input$rho * input$sigma_0 * input$sigma_1, 
+      input$rho * input$sigma_0 * input$sigma_1, 
+      input$sigma_1^2
+    ), nrow = 2)
+    
+    Sigma_inv &lt;- solve(Sigma)
+    
+    # Marginal and Conditional variances
+    Sigma_00 &lt;- Sigma[1, 1]
+    Sigma_1given0 &lt;- Sigma[2, 2] - (Sigma[1, 2]^2) / Sigma[1, 1]
+    
+    # Conditional Mean
+    mu_1given0 &lt;- mu[2] + (Sigma[1, 2] / Sigma[1, 1]) * (x[1] - mu[1])
+    
+    # Projected Point p = (x_0, mu_{1|0}(x_0))
+    p &lt;- c(x[1], mu_1given0)
+    
+    # Calculate Distances
+    diff_total &lt;- x - mu
+    d2_total &lt;- as.numeric(t(diff_total) %*% Sigma_inv %*% diff_total)
+    d2_marg &lt;- (x[1] - mu[1])^2 / Sigma_00
+    d2_cond &lt;- (x[2] - mu_1given0)^2 / Sigma_1given0
+    
+    list(mu = mu, x = x, p = p, Sigma = Sigma, Sigma_inv = Sigma_inv, 
+         d2_total = d2_total, d2_marg = d2_marg, d2_cond = d2_cond)
+  })
+  
+  output$legendUI &lt;- renderUI({
+    res &lt;- calc_data()
+    withMathJax(
+      HTML(paste0(
+        "&lt;div style='font-size: 14px;'&gt;",
+        "&lt;b&gt;Distance Legend&lt;/b&gt;&lt;br&gt;&lt;br&gt;",
+        "&lt;span style='color: black;'&gt;&lt;b&gt;Total:&lt;/b&gt; \\( D^2(x, \\mu, \\Sigma) = \\) ", round(res$d2_total, 2), "&lt;/span&gt;&lt;br&gt;",
+        "&lt;span style='color: blue;'&gt;&lt;b&gt;Marginal:&lt;/b&gt; \\( D^2(x_0, \\mu_0, \\Sigma_{00}) = \\) ", round(res$d2_marg, 2), "&lt;/span&gt;&lt;br&gt;",
+        "&lt;span style='color: red;'&gt;&lt;b&gt;Conditional:&lt;/b&gt; \\( D^2(x_1, \\mu_{1|0}(x_0), \\Sigma_{1|0}) = \\) ", round(res$d2_cond, 2), "&lt;/span&gt;",
+        "&lt;/div&gt;"
+      ))
+    )
+  })
+  
+  output$distPlot &lt;- renderPlot({
+    res &lt;- calc_data()
+    mu &lt;- res$mu; x &lt;- res$x; p &lt;- res$p; Sigma &lt;- res$Sigma; Sigma_inv &lt;- res$Sigma_inv
+    
+    # Generate grid for quadratic contours
+    grid_vals &lt;- seq(-1, 6, length.out = 80)
+    grid &lt;- expand.grid(x0 = grid_vals, x1 = grid_vals)
+    grid$z &lt;- apply(grid, 1, function(row) {
+      diff &lt;- row - mu
+      as.numeric(t(diff) %*% Sigma_inv %*% diff)
+    })
+    
+    # Regression surface line parameters
+    slope &lt;- Sigma[1, 2] / Sigma[1, 1]
+    intercept &lt;- mu[2] - slope * mu[1]
+    
+    # Midpoints for labels
+    mid_marg &lt;- (mu + p) / 2
+    mid_cond &lt;- (p + x) / 2
+    mid_total &lt;- (mu + x) / 2
+    
+    ggplot(grid, aes(x = x0, y = x1)) +
+      # Contours
+      geom_contour(aes(z = z), bins = 20, color = "gray85") +
+      
+      # The Regression Surface (Light Blue Line extending across plot)
+      geom_abline(intercept = intercept, slope = slope, color = "lightblue", linewidth = 2, alpha = 0.5) +
+      
+      # The Distance Segments
+      geom_segment(aes(x = mu[1], y = mu[2], xend = p[1], yend = p[2]), color = "blue", linewidth = 1.2) +
+      geom_segment(aes(x = p[1], y = p[2], xend = x[1], yend = x[2]), color = "red", linewidth = 1.2) +
+      geom_segment(aes(x = mu[1], y = mu[2], xend = x[1], yend = x[2]), color = "black", linetype = "dashed", linewidth = 1) +
+      
+      # Labels on Segments (No numbers, just notation)
+      annotate("text", x = mid_marg[1] + 0.2, y = mid_marg[2] - 0.2, label = "D^2*(list(x[0], mu[0], Sigma[00]))", parse = TRUE, color = "blue", size = 5) +
+      annotate("text", x = mid_cond[1] + 0.25, y = mid_cond[2], label = "D^2*(list(x[1], mu['1|0'](x[0]), Sigma['1|0']))", parse = TRUE, color = "red", size = 5) +
+      annotate("text", x = mid_total[1] - 0.2, y = mid_total[2] + 0.2, label = "D^2*(list(x, mu, Sigma))", parse = TRUE, color = "black", size = 5) +
+      
+      # Points
+      annotate("point", x = mu[1], y = mu[2], color = "blue", size = 4) +
+      annotate("text", x = mu[1] - 0.2, y = mu[2] + 0.2, label = "mu", parse = TRUE, color = "blue", size = 6) +
+      
+      annotate("point", x = p[1], y = p[2], color = "purple", shape = 3, size = 4, stroke = 2) +
+      annotate("text", x = p[1] + 0.5, y = p[2] - 0.2, label = "list(x[0], mu['1|0'](x[0]))", parse = TRUE, color = "purple", size = 5) +
+      
+      annotate("point", x = x[1], y = x[2], color = "black", shape = 4, size = 4, stroke = 2) +
+      annotate("text", x = x[1] - 0.15, y = x[2] + 0.2, label = "x", parse = TRUE, size = 6) +
+      
+      coord_fixed(xlim = c(-0.5, 5.5), ylim = c(-0.5, 5.5)) +
+      labs(x = expression(x[0]), y = expression(x[1])) +
+      theme_minimal(base_size = 16) +
+      theme(panel.grid.minor = element_blank())
+  })
+}
+
+shinyApp(ui, server)</code></pre>
+</section>
+<section id="wilks-theorem-for-general-nested-models-likelihood-ratio-test" class="level2" data-number="8.2">
+<h2 data-number="8.2" class="anchored" data-anchor-id="wilks-theorem-for-general-nested-models-likelihood-ratio-test"><span class="header-section-number">8.2</span> Wilks’ Theorem for General Nested Models (Likelihood Ratio Test)</h2>
+<div id="thm-wilks-general" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 8.2 (Wilks’ Theorem for General Nested Models)</strong></span> Let <span class="math inline">\(\mathbf{Y} = (Y_1, \dots, Y_n)\)</span> be an i.i.d. sample from a distribution <span class="math inline">\(f(\mathbf{y}; \boldsymbol{\theta})\)</span> with <span class="math inline">\(\boldsymbol{\theta} \in \Theta \subseteq \mathbb{R}^p\)</span>. Let <span class="math inline">\(\Theta_0\)</span> be a lower-dimensional subspace of <span class="math inline">\(\Theta\)</span> defined by <span class="math inline">\(q\)</span> independent constraints, such that <span class="math inline">\(\dim(\Theta_0) = p - q\)</span>.</p>
+<p>Consider testing the nested hypotheses:</p>
+<p><span class="math display">\[
+H_0: \boldsymbol{\theta} \in \Theta_0 \quad \text{vs} \quad H_1: \boldsymbol{\theta} \in \Theta \setminus \Theta_0
+\]</span></p>
+<p>Let <span class="math inline">\(\hat{\boldsymbol{\theta}}\)</span> be the unrestricted Maximum Likelihood Estimator (MLE) over <span class="math inline">\(\Theta\)</span>, and let <span class="math inline">\(\tilde{\boldsymbol{\theta}}\)</span> be the restricted MLE over <span class="math inline">\(\Theta_0\)</span>. The likelihood ratio test statistic is defined as:</p>
+<p><span class="math display">\[
+D = 2 \left[ \ell(\hat{\boldsymbol{\theta}}) - \ell(\tilde{\boldsymbol{\theta}}) \right]
+\]</span></p>
+<p>Under <span class="math inline">\(H_0\)</span>, as <span class="math inline">\(n \to \infty\)</span>, the statistic <span class="math inline">\(D\)</span> converges in distribution to a chi-square distribution with degrees of freedom equal to the number of constraints:</p>
+<p><span class="math display">\[
+D \xrightarrow{d} \chi^2_q
+\]</span></p>
+</div>
+<div class="proof">
+<p><span class="proof-title"><em>Proof</em>. </span></p>
+<ol type="1">
+<li><p><strong>Quadratic Taylor Expansion at the Peak</strong> Under the null hypothesis <span class="math inline">\(H_0\)</span>, we perform a second-order Taylor expansion of the log-likelihood function <span class="math inline">\(\ell(\boldsymbol{\theta})\)</span> around the unrestricted MLE <span class="math inline">\(\hat{\boldsymbol{\theta}}\)</span>. For sufficiently large <span class="math inline">\(n\)</span>, the expansion is given by:</p>
+<p><span class="math display">\[
+\ell(\boldsymbol{\theta}) \approx \ell(\hat{\boldsymbol{\theta}}) - \frac{1}{2} (\boldsymbol{\theta} - \hat{\boldsymbol{\theta}})^T \mathcal{I} (\boldsymbol{\theta} - \hat{\boldsymbol{\theta}})
+\]</span></p>
+<p>where <span class="math inline">\(\mathcal{I} = \Sigma^{-1}\)</span> represents the Fisher Information matrix (the asymptotic precision). Using our distance notation <span class="math inline">\(D^2(v, c, S)\)</span>, this quadratic approximation is:</p>
+<p><span class="math display">\[
+2[\ell(\hat{\boldsymbol{\theta}}) - \ell(\boldsymbol{\theta})] \approx D^2(\boldsymbol{\theta}, \hat{\boldsymbol{\theta}}, \Sigma)
+\]</span></p></li>
+<li><p><strong>Evaluation at the Restricted MLE</strong> The Wilks’ statistic <span class="math inline">\(D\)</span> measures the likelihood ratio between the unrestricted peak <span class="math inline">\(\hat{\boldsymbol{\theta}}\)</span> and the restricted peak <span class="math inline">\(\tilde{\boldsymbol{\theta}}\)</span>. By plugging <span class="math inline">\(\tilde{\boldsymbol{\theta}}\)</span> into the quadratic approximation above, we obtain:</p>
+<p><span class="math display">\[
+D = 2[\ell(\hat{\boldsymbol{\theta}}) - \ell(\tilde{\boldsymbol{\theta}})] \approx D^2(\tilde{\boldsymbol{\theta}}, \hat{\boldsymbol{\theta}}, \Sigma)
+\]</span></p></li>
+<li><p><strong>Applying the Mahalanobis Decomposition</strong> We apply the orthogonal decomposition theorem to partition this joint distance into a marginal component for the parameters of interest (<span class="math inline">\(\boldsymbol{\theta}_0\)</span>) and a conditional component for the nuisance parameters (<span class="math inline">\(\boldsymbol{\theta}_1\)</span>):</p>
+<p><span class="math display">\[
+D^2(\tilde{\boldsymbol{\theta}}, \hat{\boldsymbol{\theta}}, \Sigma) = D^2(\tilde{\boldsymbol{\theta}}_0, \hat{\boldsymbol{\theta}}_0, \Sigma_{00}) + D^2(\tilde{\boldsymbol{\theta}}_1, \mu_{1|0}(\tilde{\boldsymbol{\theta}}_0), \Sigma_{1|0})
+\]</span></p></li>
+<li><p><strong>Vanishing of the Nuisance Term</strong> By the definition of the restricted MLE <span class="math inline">\(\tilde{\boldsymbol{\theta}}\)</span> under the null hypothesis <span class="math inline">\(H_0: \boldsymbol{\theta}_0 = \boldsymbol{\theta}_0^*\)</span>:</p>
+<ul>
+<li>The parameters of interest are fixed: <span class="math inline">\(\tilde{\boldsymbol{\theta}}_0 = \boldsymbol{\theta}_0^*\)</span>.</li>
+<li>The restricted nuisance parameters <span class="math inline">\(\tilde{\boldsymbol{\theta}}_1\)</span> are chosen to maximize the restricted likelihood, which is equivalent to minimizing the joint distance <span class="math inline">\(D^2(\tilde{\boldsymbol{\theta}}, \hat{\boldsymbol{\theta}}, \Sigma)\)</span>.</li>
+</ul>
+<p>As established by the properties of the regression surface, this minimum occurs exactly when <span class="math inline">\(\tilde{\boldsymbol{\theta}}_1 = \mu_{1|0}(\boldsymbol{\theta}_0^*)\)</span>. At this point, the conditional term <span class="math inline">\(D^2(\mu_{1|0}(\boldsymbol{\theta}_0^*), \mu_{1|0}(\boldsymbol{\theta}_0^*), \Sigma_{1|0})\)</span> is exactly zero.</p></li>
+<li><p><strong>Final Marginal Identity and Distribution</strong> The Wilks’ statistic <span class="math inline">\(D\)</span> reduces entirely to the marginal Mahalanobis distance between the estimated and hypothesized parameters of interest:</p>
+<p><span class="math display">\[
+D \approx D^2(\boldsymbol{\theta}_0^*, \hat{\boldsymbol{\theta}}_0, \Sigma_{00}) = (\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*)^T \Sigma_{00}^{-1} (\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*)
+\]</span></p>
+<p>Under <span class="math inline">\(H_0\)</span>, the asymptotic normality of the MLE implies <span class="math inline">\(\sqrt{n}(\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*) \xrightarrow{d} N(\mathbf{0}, \Sigma_{00})\)</span>. Therefore, the quadratic form <span class="math inline">\(D\)</span> follows a chi-square distribution with <span class="math inline">\(q\)</span> degrees of freedom:</p>
+<p><span class="math display">\[
+D \xrightarrow{d} \chi^2_q
+\]</span></p></li>
+</ol>
+</div>
+<div class="proof remark">
+<p><span class="proof-title"><em>Remark</em> (Geometric Intuition). </span>This proof illustrates that the restricted MLE <span class="math inline">\(\tilde{\boldsymbol{\theta}}\)</span> “slides” along the conditional regression surface <span class="math inline">\(\mu_{1|0}(\boldsymbol{\theta}_0)\)</span> until the conditional component of the discrepancy vanishes. This optimization process effectively “filters out” the noise from the <span class="math inline">\(p-q\)</span> nuisance parameters, leaving only the <span class="math inline">\(q\)</span>-dimensional marginal evidence for the hypothesis test.</p>
+</div>
+<p><strong>Diagram to Illustrate Wilks’ Theorem</strong></p>
+<p>The following R code visualizes the likelihood ratio test as a projection. We illustrate the unrestricted MLE <span class="math inline">\(\hat{\boldsymbol{\theta}}\)</span> (the center of the contours), the hypothesized true value <span class="math inline">\(\boldsymbol{\theta}^*\)</span>, the geometric center <span class="math inline">\(\hat{\boldsymbol{\theta}}_{1, \Sigma}\)</span>, and a jittered point representing the actual restricted MLE <span class="math inline">\(\tilde{\boldsymbol{\theta}}_1\)</span>.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Setup parameters and Fisher Information</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>theta_hat <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">2.2</span>, <span class="fl">2.2</span>)      <span class="co"># The Peak (Unrestricted MLE center)</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>theta_star <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.9</span>, <span class="fl">1.9</span>)     <span class="co"># Hypothesized true value </span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>I <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="fl">0.6</span>, <span class="fl">0.6</span>, <span class="dv">1</span>), <span class="at">nrow =</span> <span class="dv">2</span>) <span class="co"># Curvature</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Calculate the geometric center hat(theta)_{1, Sigma}</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Starting from the center hat(theta)_1, we adjust by the displacement in theta_0</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>delta_theta_0 <span class="ot">&lt;-</span> theta_star[<span class="dv">1</span>] <span class="sc">-</span> theta_hat[<span class="dv">1</span>]</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>theta_hat_1_Sigma <span class="ot">&lt;-</span> theta_hat[<span class="dv">2</span>] <span class="sc">-</span> (<span class="dv">1</span><span class="sc">/</span>I[<span class="dv">2</span>,<span class="dv">2</span>]) <span class="sc">*</span> I[<span class="dv">2</span>,<span class="dv">1</span>] <span class="sc">*</span> delta_theta_0</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>p_projected <span class="ot">&lt;-</span> <span class="fu">c</span>(theta_star[<span class="dv">1</span>], theta_hat_1_Sigma)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Create tilde(theta)_1 by adding small non-quadratic jitter to the projected center</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>theta_tilde <span class="ot">&lt;-</span> <span class="fu">c</span>(theta_star[<span class="dv">1</span>], theta_hat_1_Sigma <span class="sc">+</span> <span class="fl">0.15</span>) </span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Generate grid for quadratic log-likelihood contours centered at theta_hat</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>grid_vals <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">4</span>, <span class="at">length.out =</span> <span class="dv">100</span>)</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>grid <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">theta0 =</span> grid_vals, <span class="at">theta1 =</span> grid_vals)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>grid<span class="sc">$</span>z <span class="ot">&lt;-</span> <span class="fu">apply</span>(grid, <span class="dv">1</span>, <span class="cf">function</span>(p) {</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  diff <span class="ot">&lt;-</span> p <span class="sc">-</span> theta_hat</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span><span class="fl">0.5</span> <span class="sc">*</span> <span class="fu">t</span>(diff) <span class="sc">%*%</span> I <span class="sc">%*%</span> diff</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Plot</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(grid, <span class="fu">aes</span>(<span class="at">x =</span> theta0, <span class="at">y =</span> theta1)) <span class="sc">+</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_contour</span>(<span class="fu">aes</span>(<span class="at">z =</span> z), <span class="at">bins =</span> <span class="dv">15</span>, <span class="at">color =</span> <span class="st">"gray70"</span>) <span class="sc">+</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> theta_star[<span class="dv">1</span>], <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Unrestricted MLE (The Center)</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"point"</span>, <span class="at">x =</span> theta_hat[<span class="dv">1</span>], <span class="at">y =</span> theta_hat[<span class="dv">2</span>], <span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> theta_hat[<span class="dv">1</span>], <span class="at">y =</span> theta_hat[<span class="dv">2</span>] <span class="sc">+</span> <span class="fl">0.2</span>, </span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"hat(theta)"</span>, <span class="at">parse =</span> <span class="cn">TRUE</span>, <span class="at">color =</span> <span class="st">"blue"</span>) <span class="sc">+</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Projected Nuisance Center (hat(theta)_{1, Sigma})</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"point"</span>, <span class="at">x =</span> p_projected[<span class="dv">1</span>], <span class="at">y =</span> p_projected[<span class="dv">2</span>], <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> p_projected[<span class="dv">1</span>] <span class="sc">-</span> <span class="fl">0.45</span>, <span class="at">y =</span> p_projected[<span class="dv">2</span>], </span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"hat(theta)[1, Sigma]"</span>, <span class="at">parse =</span> <span class="cn">TRUE</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Restricted MLE (tilde(theta))</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"point"</span>, <span class="at">x =</span> theta_tilde[<span class="dv">1</span>], <span class="at">y =</span> theta_tilde[<span class="dv">2</span>], <span class="at">color =</span> <span class="st">"purple"</span>, <span class="at">shape =</span> <span class="dv">3</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> theta_tilde[<span class="dv">1</span>] <span class="sc">+</span> <span class="fl">0.3</span>, <span class="at">y =</span> theta_tilde[<span class="dv">2</span>] <span class="sc">+</span> <span class="fl">0.1</span>, </span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"tilde(theta)"</span>, <span class="at">parse =</span> <span class="cn">TRUE</span>, <span class="at">color =</span> <span class="st">"purple"</span>) <span class="sc">+</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Hypothesized Point (theta^*)</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"point"</span>, <span class="at">x =</span> theta_star[<span class="dv">1</span>], <span class="at">y =</span> theta_star[<span class="dv">2</span>], <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">shape =</span> <span class="dv">4</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> theta_star[<span class="dv">1</span>] <span class="sc">-</span> <span class="fl">0.2</span>, <span class="at">y =</span> theta_star[<span class="dv">2</span>] <span class="sc">-</span> <span class="fl">0.2</span>, </span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"theta^'*'"</span>, <span class="at">parse =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Geometry of the Likelihood Ratio Test"</span>,</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">"Projection from center "</span>, <span class="fu">hat</span>(theta), <span class="st">" onto the null constraint "</span>, theta[<span class="dv">0</span>] <span class="sc">==</span> theta[<span class="dv">0</span>]<span class="sc">^</span><span class="st">"*"</span>)),</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="fu">expression</span>(theta[<span class="dv">0</span>]), <span class="at">y =</span> <span class="fu">expression</span>(theta[<span class="dv">1</span>])) <span class="sc">+</span></span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_fixed</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-lrt-geometry" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-lrt-geometry-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="likelihood-test_files/figure-html/fig-lrt-geometry-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-lrt-geometry-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.1: The geometry of restricted optimization. Blue dot is the unrestricted MLE (center). The red dot represents the projected nuisance parameter center on the null line. The purple cross is the restricted MLE.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="exm-lrt-normal" class="theorem example">
+<p><span class="theorem-title"><strong>Example 8.1</strong></span> <strong>LRT for Normal Mean with Unknown Variance</strong></p>
+<p>Let <span class="math inline">\(X_1, \dots, X_n \overset{i.i.d.}{\sim} N(\mu, \sigma^2)\)</span> where both <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma^2\)</span> are unknown. The parameter vector is <span class="math inline">\(\theta = (\mu, \sigma^2)\)</span>. We wish to test: <span class="math display">\[
+H_0: \mu = \mu_0 \quad \text{vs} \quad H_1: \mu \neq \mu_0
+\]</span></p>
+<ol type="1">
+<li><p><strong>Find the Maximum Likelihood Estimators:</strong> The log-likelihood function is <span class="math inline">\(\ell(\mu, \sigma^2) = -\frac{n}{2}\ln(2\pi) - \frac{n}{2}\ln(\sigma^2) - \frac{1}{2\sigma^2}\sum_{i=1}^n (x_i - \mu)^2\)</span>.</p>
+<ul>
+<li><p><strong>Unrestricted MLEs (<span class="math inline">\(\hat{\theta}\)</span>):</strong> <span class="math inline">\(\hat{\mu} = \overline{X}, \quad \hat{\sigma}^2 = \frac{1}{n}\sum_{i=1}^n (X_i - \overline{X})^2\)</span>. The maximized log-likelihood is: <span class="math display">\[
+\ell(\hat{\mu}, \hat{\sigma}^2) = -\frac{n}{2}\ln(2\pi) - \frac{n}{2}\ln(\hat{\sigma}^2) - \frac{n}{2}
+\]</span></p></li>
+<li><p><strong>Restricted MLEs (<span class="math inline">\(\hat{\theta}_0\)</span>):</strong> Under <span class="math inline">\(H_0\)</span>, <span class="math inline">\(\hat{\mu}_0 = \mu_0, \quad \hat{\sigma}_0^2 = \frac{1}{n}\sum_{i=1}^n (X_i - \mu_0)^2\)</span>. The restricted maximized log-likelihood is: <span class="math display">\[
+\ell(\hat{\mu}_0, \hat{\sigma}_0^2) = -\frac{n}{2}\ln(2\pi) - \frac{n}{2}\ln(\hat{\sigma}_0^2) - \frac{n}{2}
+\]</span></p></li>
+</ul></li>
+<li><p><strong>Define the Test Statistic <span class="math inline">\(D\)</span>:</strong> The test statistic <span class="math inline">\(D\)</span> is defined as twice the difference between the unrestricted and restricted log-likelihoods:</p></li>
+</ol>
+<p><span class="math display">\[
+D = 2 \left[ \ell(\hat{\mu}, \hat{\sigma}^2) - \ell(\hat{\mu}_0, \hat{\sigma}_0^2) \right]
+\]</span> Substituting the expressions above, the constant terms cancel out: <span class="math display">\[
+D = 2 \left[ -\frac{n}{2}\ln(\hat{\sigma}^2) - \left( -\frac{n}{2}\ln(\hat{\sigma}_0^2) \right) \right] = n \ln \left( \frac{\hat{\sigma}_0^2}{\hat{\sigma}^2} \right)
+\]</span></p>
+<ol start="3" type="1">
+<li><strong>Relate to the t-statistic:</strong> Using the sum of squares decomposition <span class="math inline">\(\hat{\sigma}_0^2 = \hat{\sigma}^2 + (\overline{X} - \mu_0)^2\)</span>, we have:</li>
+</ol>
+<p><span class="math display">\[
+\frac{\hat{\sigma}_0^2}{\hat{\sigma}^2} = 1 + \frac{(\overline{X} - \mu_0)^2}{\hat{\sigma}^2}
+\]</span> Substituting the t-statistic <span class="math inline">\(T = \frac{\overline{X} - \mu_0}{S/\sqrt{n}}\)</span>, where <span class="math inline">\(S^2 = \frac{n}{n-1}\hat{\sigma}^2\)</span>, we find: <span class="math display">\[
+\frac{(\overline{X} - \mu_0)^2}{\hat{\sigma}^2} = \frac{T^2}{n-1}
+\]</span> Thus, <span class="math inline">\(D\)</span> is a monotone increasing function of <span class="math inline">\(T^2\)</span>: <span class="math display">\[
+D = n \ln \left( 1 + \frac{T^2}{n-1} \right)
+\]</span> Rejecting <span class="math inline">\(H_0\)</span> for large <span class="math inline">\(D\)</span> is equivalent to rejecting for large <span class="math inline">\(|T|\)</span>.</p>
+<ol start="4" type="1">
+<li><strong>Asymptotic Distribution (Wilks’ Theorem):</strong> By Wilks’ Theorem, <span class="math inline">\(D \xrightarrow{d} \chi^2_1\)</span>. For large <span class="math inline">\(n\)</span>, using the approximation <span class="math inline">\(\ln(1+x) \approx x\)</span>:</li>
+</ol>
+<p><span class="math display">\[
+D = n \ln \left( 1 + \frac{T^2}{n-1} \right) \approx n \left( \frac{T^2}{n-1} \right) \approx T^2
+\]</span></p>
+<p>As <span class="math inline">\(n \to \infty\)</span>, <span class="math inline">\(T^2 \xrightarrow{d} \chi^2_1\)</span>, confirming the theorem.</p>
+</div>
+</section>
+<section id="walds-theorem-for-testing-parameter-restrictions" class="level2" data-number="8.3">
+<h2 data-number="8.3" class="anchored" data-anchor-id="walds-theorem-for-testing-parameter-restrictions"><span class="header-section-number">8.3</span> Wald’s Theorem for Testing Parameter Restrictions</h2>
+<p>The Wald Test evaluates the distance between the unrestricted Maximum Likelihood Estimator (MLE) and the null hypothesis value, standardized by the curvature of the log-likelihood at the unrestricted estimate. Unlike the Score test, the Wald test requires estimating the full, unrestricted model.</p>
+<div id="thm-wald" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 8.3 (Asymptotic Distribution of the Wald Statistic)</strong></span> Let <span class="math inline">\(\mathbf{Y} = (Y_1, \dots, Y_n)\)</span> be an i.i.d. sample from a regular family of distributions with parameters <span class="math inline">\(\boldsymbol{\theta} \in \Theta \subseteq \mathbb{R}^{p}\)</span>. Partition the parameter vector as <span class="math inline">\(\boldsymbol{\theta} = (\boldsymbol{\theta}_0^T, \boldsymbol{\theta}_1^T)^T\)</span>, where <span class="math inline">\(\boldsymbol{\theta}_0\)</span> is the <span class="math inline">\(q\)</span>-dimensional parameter of interest and <span class="math inline">\(\boldsymbol{\theta}_1\)</span> is the <span class="math inline">\((p-q)\)</span>-dimensional nuisance parameter. Consider the test: <span class="math display">\[
+H_0: \boldsymbol{\theta}_0 = \boldsymbol{\theta}_0^* \quad \text{vs} \quad H_1: \boldsymbol{\theta}_0 \neq \boldsymbol{\theta}_0^*
+\]</span></p>
+<p>Let <span class="math inline">\(\hat{\boldsymbol{\theta}} = (\hat{\boldsymbol{\theta}}_0^T, \hat{\boldsymbol{\theta}}_1^T)^T\)</span> be the unrestricted MLE under <span class="math inline">\(H_1\)</span>. Let <span class="math inline">\(\Sigma(\boldsymbol{\theta}) = \mathcal{I}^{-1}(\boldsymbol{\theta})\)</span> be the asymptotic covariance matrix of the unrestricted MLE, where <span class="math inline">\(\mathcal{I}(\boldsymbol{\theta})\)</span> is the expected Fisher Information matrix, and let <span class="math inline">\(\Sigma_{00}\)</span> denote its top-left <span class="math inline">\(q \times q\)</span> marginal block.</p>
+<p>The Wald statistic is defined as the quadratic form: <span class="math display">\[
+W = (\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*)^T \Sigma_{00}^{-1}(\hat{\boldsymbol{\theta}}) (\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*)
+\]</span></p>
+<p>Under standard regularity conditions, if <span class="math inline">\(H_0\)</span> is true, as <span class="math inline">\(n \to \infty\)</span>: <span class="math display">\[
+W \xrightarrow{d} \chi^2_q
+\]</span> where <span class="math inline">\(q\)</span> is the dimension of the parameter of interest <span class="math inline">\(\boldsymbol{\theta}_0\)</span>.</p>
+</div>
+<div class="proof">
+<p><span class="proof-title"><em>Proof</em>. </span><strong>Algebraic Proof via Mahalanobis Decomposition</strong></p>
+<p>We can derive the Wald statistic directly by borrowing the geometric decomposition used in Wilks’ Theorem, isolating the marginal behavior of the unrestricted MLE.</p>
+<p><strong>1. The Total Mahalanobis Distance</strong> By standard large-sample theory, the unrestricted MLE <span class="math inline">\(\hat{\boldsymbol{\theta}}\)</span> is asymptotically normal. Its asymptotic covariance matrix is <span class="math inline">\(\Sigma = \mathcal{I}^{-1}(\boldsymbol{\theta})\)</span>. The total squared Mahalanobis distance between the unrestricted MLE <span class="math inline">\(\hat{\boldsymbol{\theta}}\)</span> and the full hypothesized parameter vector <span class="math inline">\(\boldsymbol{\theta}^* = ({\boldsymbol{\theta}_0^*}^T, {\boldsymbol{\theta}_1^*}^T)^T\)</span> under the precision metric <span class="math inline">\(\Sigma^{-1}\)</span> is: <span class="math display">\[
+D_{total} = (\hat{\boldsymbol{\theta}} - \boldsymbol{\theta}^*)^T \Sigma^{-1} (\hat{\boldsymbol{\theta}} - \boldsymbol{\theta}^*)
+\]</span></p>
+<p><strong>2. The Pythagorean Decomposition (From Wilks’ Theorem)</strong> As established in the geometric proof of Wilks’ Theorem, any Mahalanobis distance in a partitioned parameter space orthogonally decomposes into a marginal distance for the parameter of interest and a conditional distance for the nuisance parameter: <span class="math display">\[
+D_{total} = (\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*)^T \Sigma_{00}^{-1} (\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*) + (\hat{\boldsymbol{\theta}}_{1, \Sigma} - \boldsymbol{\theta}_1^*)^T \mathcal{I}_{11} (\hat{\boldsymbol{\theta}}_{1, \Sigma} - \boldsymbol{\theta}_1^*)
+\]</span> where <span class="math inline">\(\Sigma_{00}\)</span> is the top-left block of <span class="math inline">\(\Sigma\)</span>, and <span class="math inline">\(\hat{\boldsymbol{\theta}}_{1, \Sigma}\)</span> is the geometric center of the nuisance parameter constraint.</p>
+<p><strong>3. Isolating the Marginal Distance (The Wald Statistic)</strong> The Wald test zeroes in exclusively on the first term of this decomposition. Rather than evaluating the full likelihood surface (as Wilks does) or the gradient at the boundary (as the Score test does), the Wald test directly measures the isolated <strong>marginal Mahalanobis distance</strong> of the parameter of interest from its null value: <span class="math display">\[
+W_{true} = (\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*)^T \Sigma_{00}^{-1} (\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*)
+\]</span> Because the marginal asymptotic distribution of the estimator under the null hypothesis is <span class="math inline">\(\hat{\boldsymbol{\theta}}_0 \overset{a}{\sim} N(\boldsymbol{\theta}_0^*, \Sigma_{00})\)</span>, standardizing this deviation by its precision matrix <span class="math inline">\(\Sigma_{00}^{-1}\)</span> produces a quadratic form that follows a chi-square distribution: <span class="math display">\[
+W_{true} \xrightarrow{d} \chi^2_q
+\]</span></p>
+<p><strong>4. Slutsky’s Substitution for the Unknown Covariance</strong> In practice, the true marginal covariance <span class="math inline">\(\Sigma_{00}\)</span> is unknown because it depends on the true parameter <span class="math inline">\(\boldsymbol{\theta}\)</span>. However, because the Fisher Information matrix is a continuous function of the parameters, and <span class="math inline">\(\hat{\boldsymbol{\theta}}\)</span> is a consistent estimator of <span class="math inline">\(\boldsymbol{\theta}\)</span> under <span class="math inline">\(H_1\)</span>, we can invoke Slutsky’s Theorem. Substituting the estimated covariance matrix <span class="math inline">\(\Sigma_{00}(\hat{\boldsymbol{\theta}})\)</span> yields the computable Wald statistic without altering its asymptotic distribution: <span class="math display">\[
+W = (\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*)^T \Sigma_{00}^{-1}(\hat{\boldsymbol{\theta}}) (\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*) \xrightarrow{d} \chi^2_q
+\]</span></p>
+</div>
+<div id="exm-wald-normal" class="theorem example">
+<p><span class="theorem-title"><strong>Example 8.2</strong></span> <strong>Wald Test for Normal Mean with Unknown Variance</strong></p>
+<p>Let <span class="math inline">\(X_1, \dots, X_n \overset{i.i.d.}{\sim} N(\mu, \sigma^2)\)</span> where both <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma^2\)</span> are unknown. The parameter vector is <span class="math inline">\(\boldsymbol{\theta} = (\mu, \sigma^2)^T\)</span>. We wish to test: <span class="math display">\[
+H_0: \mu = \mu_0 \quad \text{vs} \quad H_1: \mu \neq \mu_0
+\]</span></p>
+<ol type="1">
+<li><strong>Find the Unrestricted MLEs:</strong> Maximizing the full log-likelihood with respect to both parameters yields the unrestricted estimators:</li>
+</ol>
+<p><span class="math display">\[
+\hat{\mu} = \overline{X}, \quad \hat{\sigma}^2 = \frac{1}{n}\sum_{i=1}^n (X_i - \overline{X})^2
+\]</span> Our unrestricted parameter estimate is <span class="math inline">\(\hat{\boldsymbol{\theta}} = (\hat{\mu}, \hat{\sigma}^2)^T\)</span>.</p>
+<ol start="2" type="1">
+<li><strong>Determine the Marginal Covariance at the MLE:</strong> The expected Fisher Information matrix for a Normal distribution is diagonal:</li>
+</ol>
+<p><span class="math display">\[
+\mathcal{I}(\mu, \sigma^2) = \begin{pmatrix} \frac{n}{\sigma^2} &amp; 0 \\ 0 &amp; \frac{n}{2\sigma^4} \end{pmatrix}
+\]</span> Because the matrix is diagonal, the asymptotic covariance matrix <span class="math inline">\(\Sigma(\boldsymbol{\theta}) = \mathcal{I}^{-1}(\boldsymbol{\theta})\)</span> is simply the matrix of reciprocals. The marginal variance for <span class="math inline">\(\mu\)</span> (the top-left block <span class="math inline">\(\Sigma_{00}\)</span>) evaluated at the unrestricted MLE <span class="math inline">\(\hat{\boldsymbol{\theta}}\)</span> is: <span class="math display">\[
+\Sigma_{00}(\hat{\boldsymbol{\theta}}) = \frac{\hat{\sigma}^2}{n}
+\]</span></p>
+<ol start="3" type="1">
+<li><strong>Compute the Wald Statistic <span class="math inline">\(W\)</span>:</strong> We construct the quadratic form using the parameter of interest (<span class="math inline">\(\mu\)</span>), its null value (<span class="math inline">\(\mu_0\)</span>), and the inverse of its estimated marginal variance (<span class="math inline">\(\Sigma_{00}^{-1}\)</span>):</li>
+</ol>
+<p><span class="math display">\[
+W = (\hat{\mu} - \mu_0)^T \Sigma_{00}^{-1}(\hat{\boldsymbol{\theta}}) (\hat{\mu} - \mu_0)
+\]</span> Substituting our values: <span class="math display">\[
+W = (\overline{X} - \mu_0) \left( \frac{n}{\hat{\sigma}^2} \right) (\overline{X} - \mu_0) = \frac{n(\overline{X} - \mu_0)^2}{\hat{\sigma}^2}
+\]</span></p>
+<ol start="4" type="1">
+<li><p><strong>Contrast with the Score Statistic:</strong></p>
+<p>By Wald’s Theorem, this statistic follows a <span class="math inline">\(\chi^2_1\)</span> distribution asymptotically. Note the critical difference from the Score test derived previously. The Wald statistic uses the unrestricted variance estimator <span class="math inline">\(\hat{\sigma}^2\)</span>, whereas the Score statistic uses the restricted variance estimator <span class="math inline">\(\hat{\sigma}_0^2 = \frac{1}{n}\sum (X_i - \mu_0)^2\)</span>. Because <span class="math inline">\(\hat{\sigma}_0^2 \ge \hat{\sigma}^2\)</span>, it guarantees that mathematically <span class="math inline">\(W \ge S\)</span> for this model.</p></li>
+</ol>
+</div>
+</section>
+<section id="raos-score-lagrange-multiplier-theorem-for-restricted-models" class="level2" data-number="8.4">
+<h2 data-number="8.4" class="anchored" data-anchor-id="raos-score-lagrange-multiplier-theorem-for-restricted-models"><span class="header-section-number">8.4</span> Rao’s Score (Lagrange Multiplier) Theorem for Restricted Models</h2>
+<p>The asymptotic distribution of the Score Test statistic relies on the behavior of the gradient of the log-likelihood (the Score vector) evaluated at the restricted Maximum Likelihood Estimator. Because it explicitly evaluates the “force” pushing against the null hypothesis constraint, it is equivalently known as the <strong>Lagrange Multiplier (LM) Test</strong>. This theorem provides a powerful method for hypothesis testing that only requires fitting the model under the null hypothesis.</p>
+<div id="thm-score" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 8.4 (Asymptotic Distribution of the Score Statistic)</strong></span> Let <span class="math inline">\(\mathbf{Y} = (Y_1, \dots, Y_n)\)</span> be an i.i.d. sample from a regular family of distributions with parameters <span class="math inline">\(\boldsymbol{\theta} \in \Theta \subseteq \mathbb{R}^{p}\)</span>. Partition the parameter vector as <span class="math inline">\(\boldsymbol{\theta} = (\boldsymbol{\theta}_0^T, \boldsymbol{\theta}_1^T)^T\)</span>, where <span class="math inline">\(\boldsymbol{\theta}_0\)</span> is the <span class="math inline">\(q\)</span>-dimensional parameter of interest and <span class="math inline">\(\boldsymbol{\theta}_1\)</span> is the <span class="math inline">\((p-q)\)</span>-dimensional nuisance parameter. Consider the test: <span class="math display">\[
+H_0: \boldsymbol{\theta}_0 = \boldsymbol{\theta}_0^* \quad \text{vs} \quad H_1: \boldsymbol{\theta}_0 \neq \boldsymbol{\theta}_0^*
+\]</span></p>
+<p>Let <span class="math inline">\(\hat{\boldsymbol{\theta}}_0 = ({\boldsymbol{\theta}_0^*}^T, \hat{\boldsymbol{\theta}}_1^T)^T\)</span> be the restricted MLE under <span class="math inline">\(H_0\)</span>. Let <span class="math inline">\(\mathbf{U}(\boldsymbol{\theta})\)</span> be the total Score vector partitioned as <span class="math inline">\(\mathbf{U} = [\mathbf{U}_0^T, \mathbf{U}_1^T]^T\)</span>, and let <span class="math inline">\(\Sigma = \mathcal{I}^{-1}(\boldsymbol{\theta})\)</span> be the asymptotic covariance matrix of the unrestricted MLE, with <span class="math inline">\(\Sigma_{00}\)</span> representing its <span class="math inline">\(q \times q\)</span> top-left marginal block.</p>
+<p>The Score statistic is <span class="math inline">\(S = \mathbf{U}_0(\hat{\boldsymbol{\theta}}_0)^T \Sigma_{00}(\hat{\boldsymbol{\theta}}_0) \mathbf{U}_0(\hat{\boldsymbol{\theta}}_0)\)</span>. Under <span class="math inline">\(H_0\)</span>, as <span class="math inline">\(n \to \infty\)</span>: <span class="math display">\[
+S \xrightarrow{d} \chi^2_q
+\]</span> where <span class="math inline">\(q\)</span> is the dimension of the parameter of interest <span class="math inline">\(\boldsymbol{\theta}_0\)</span>.</p>
+</div>
+<div class="proof">
+<p><span class="proof-title"><em>Proof</em>. </span><strong>Algebraic Proof via Joint Distribution and Conditioning</strong></p>
+<p>This proof establishes the behavior of the Score vector using constrained optimization, and then derives its sampling distribution by conditioning the joint asymptotic distribution of the true scores.</p>
+<ol type="1">
+<li><p>Constrained Optimization (The Lagrange Multipliers)</p>
+<p>To find the restricted MLE <span class="math inline">\(\hat{\boldsymbol{\theta}}_0\)</span>, we maximize the log-likelihood subject to the constraint <span class="math inline">\(\boldsymbol{\theta}_0 = \boldsymbol{\theta}_0^*\)</span>. We form the Lagrangian with a <span class="math inline">\(q\)</span>-dimensional multiplier vector <span class="math inline">\(\boldsymbol{\lambda}\)</span>: <span class="math display">\[
+\mathcal{L}(\boldsymbol{\theta}, \boldsymbol{\lambda}) = \ell(\boldsymbol{\theta}_0, \boldsymbol{\theta}_1) - \boldsymbol{\lambda}^T (\boldsymbol{\theta}_0 - \boldsymbol{\theta}_0^*)
+\]</span> Taking the partial derivatives with respect to the parameters and evaluating them at the restricted optimum <span class="math inline">\(\hat{\boldsymbol{\theta}}_0\)</span> yields the first-order conditions:</p>
+<ul>
+<li><span class="math inline">\(\nabla_{\boldsymbol{\theta}_1} \mathcal{L} = \mathbf{U}_1(\hat{\boldsymbol{\theta}}_0) = \mathbf{0}\)</span></li>
+<li><span class="math inline">\(\nabla_{\boldsymbol{\theta}_0} \mathcal{L} = \mathbf{U}_0(\hat{\boldsymbol{\theta}}_0) - \hat{\boldsymbol{\lambda}} = \mathbf{0} \implies \mathbf{U}_0(\hat{\boldsymbol{\theta}}_0) = \hat{\boldsymbol{\lambda}}\)</span></li>
+</ul>
+<p>This proves that at the restricted peak, the observed nuisance score <span class="math inline">\(\mathbf{U}_1\)</span> is exactly zero. Furthermore, the evaluated score of interest <span class="math inline">\(\mathbf{U}_0\)</span> is exactly the Lagrange multiplier <span class="math inline">\(\hat{\boldsymbol{\lambda}}\)</span>, representing the gradient force pulling toward the unrestricted peak.</p></li>
+<li><p>Joint Asymptotic Distribution of the True Scores</p>
+<p>Let <span class="math inline">\(\mathbf{U}_0\)</span> and <span class="math inline">\(\mathbf{U}_1\)</span> denote the unobservable true score vectors evaluated at the true parameters under the null hypothesis, <span class="math inline">\(\boldsymbol{\theta}^* = ({\boldsymbol{\theta}_0^*}^T, \boldsymbol{\theta}_1^T)^T\)</span>. By the Central Limit Theorem, the joint score vector is asymptotically normal, centered at zero, with a covariance matrix given by the expected Fisher Information: <span class="math display">\[
+\begin{pmatrix} \mathbf{U}_0 \\ \mathbf{U}_1 \end{pmatrix} \xrightarrow{d} N \left( \begin{pmatrix} \mathbf{0} \\ \mathbf{0} \end{pmatrix}, \begin{pmatrix} \mathcal{I}_{00} &amp; \mathcal{I}_{01} \\ \mathcal{I}_{10} &amp; \mathcal{I}_{11} \end{pmatrix} \right)
+\]</span></p></li>
+<li><p>The Conditional Distribution</p>
+<p>Using the standard properties of the multivariate normal distribution, the conditional distribution of the true score of interest <span class="math inline">\(\mathbf{U}_0\)</span> given the true nuisance score <span class="math inline">\(\mathbf{U}_1\)</span> is: <span class="math display">\[
+\mathbf{U}_0 \mid \mathbf{U}_1 \sim N\left(\mathcal{I}_{01}\mathcal{I}_{11}^{-1}\mathbf{U}_1, \mathcal{I}_{00} - \mathcal{I}_{01}\mathcal{I}_{11}^{-1}\mathcal{I}_{10}\right)
+\]</span></p></li>
+<li><p>Evaluating at the Restricted MLE (Conditioning on Zero)</p>
+<p>As established in Step 1, evaluating the model at the restricted MLE <span class="math inline">\(\hat{\boldsymbol{\theta}}_0\)</span> structurally forces the nuisance score to zero (<span class="math inline">\(\mathbf{U}_1 = \mathbf{0}\)</span>). Therefore, the asymptotic distribution of the evaluated score <span class="math inline">\(\mathbf{U}_0(\hat{\boldsymbol{\theta}}_0)\)</span> is equivalent to the conditional distribution of <span class="math inline">\(\mathbf{U}_0\)</span> given <span class="math inline">\(\mathbf{U}_1 = \mathbf{0}\)</span>.</p>
+<p>Substituting <span class="math inline">\(\mathbf{U}_1 = \mathbf{0}\)</span> into the conditional distribution, the mean vanishes entirely: <span class="math display">\[
+\mathbf{U}_0(\hat{\boldsymbol{\theta}}_0) \xrightarrow{d} N\left(\mathbf{0}, \mathcal{I}_{00} - \mathcal{I}_{01}\mathcal{I}_{11}^{-1}\mathcal{I}_{10}\right)
+\]</span></p></li>
+<li><p>Connection to Marginal Covariance and the Final Statistic</p>
+<p>The conditional variance matrix <span class="math inline">\(\mathcal{I}_{00} - \mathcal{I}_{01}\mathcal{I}_{11}^{-1}\mathcal{I}_{10}\)</span> is the Schur complement of the Information matrix. By the formula for the inverse of a partitioned matrix, this is exactly the inverse of the top-left block of the asymptotic covariance matrix <span class="math inline">\(\Sigma = \mathcal{I}^{-1}\)</span>: <span class="math display">\[
+\text{Var}(\mathbf{U}_0(\hat{\boldsymbol{\theta}}_0)) = \Sigma_{00}^{-1}
+\]</span></p>
+<p>Because the evaluated score <span class="math inline">\(\mathbf{U}_0(\hat{\boldsymbol{\theta}}_0)\)</span> is asymptotically normal with mean zero and variance <span class="math inline">\(\Sigma_{00}^{-1}\)</span>, standardizing it by its inverse-variance creates a quadratic form. Since the inverse of the precision is the covariance itself (<span class="math inline">\((\Sigma_{00}^{-1})^{-1} = \Sigma_{00}\)</span>), we obtain the test statistic: <span class="math display">\[
+S = \mathbf{U}_0(\hat{\boldsymbol{\theta}}_0)^T \Sigma_{00} \mathbf{U}_0(\hat{\boldsymbol{\theta}}_0) \xrightarrow{d} \chi^2_q
+\]</span></p></li>
+</ol>
+</div>
+<div id="exm-score-normal" class="theorem example">
+<p><span class="theorem-title"><strong>Example 8.3</strong></span> <strong>Score Test for Normal Mean with Unknown Variance</strong></p>
+<p>Let <span class="math inline">\(X_1, \dots, X_n \overset{i.i.d.}{\sim} N(\mu, \sigma^2)\)</span> where both <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma^2\)</span> are unknown. The parameter vector is <span class="math inline">\(\boldsymbol{\theta} = (\mu, \sigma^2)^T\)</span>. We wish to test: <span class="math display">\[
+H_0: \mu = \mu_0 \quad \text{vs} \quad H_1: \mu \neq \mu_0
+\]</span></p>
+<ol type="1">
+<li><strong>Find the Restricted MLEs:</strong> Under <span class="math inline">\(H_0\)</span>, we fix <span class="math inline">\(\mu = \mu_0\)</span>. Maximizing the restricted log-likelihood with respect to the nuisance parameter <span class="math inline">\(\sigma^2\)</span> yields:</li>
+</ol>
+<p><span class="math display">\[
+\hat{\sigma}_0^2 = \frac{1}{n}\sum_{i=1}^n (X_i - \mu_0)^2
+\]</span> The restricted parameter vector is <span class="math inline">\(\hat{\boldsymbol{\theta}}_0 = (\mu_0, \hat{\sigma}_0^2)^T\)</span>.</p>
+<ol start="2" type="1">
+<li><strong>Evaluate the Full Score Vector:</strong> The full log-likelihood function for the normal sample is:</li>
+</ol>
+<p><span class="math display">\[
+\ell(\mu, \sigma^2) = -\frac{n}{2}\ln(2\pi) - \frac{n}{2}\ln(\sigma^2) - \frac{1}{2\sigma^2}\sum_{i=1}^n (X_i - \mu)^2
+\]</span></p>
+<pre><code>The total Score vector $\mathbf{U}(\boldsymbol{\theta})$ is the gradient with respect to both parameters:</code></pre>
+<p><span class="math display">\[
+\mathbf{U}(\mu, \sigma^2) = \begin{pmatrix} U_\mu(\mu, \sigma^2) \\ U_{\sigma^2}(\mu, \sigma^2) \end{pmatrix} = \begin{pmatrix} \frac{n(\overline{X} - \mu)}{\sigma^2} \\ -\frac{n}{2\sigma^2} + \frac{1}{2\sigma^4}\sum_{i=1}^n (X_i - \mu)^2 \end{pmatrix}
+\]</span></p>
+<pre><code>Now we evaluate this full vector at the restricted MLE $\hat{\boldsymbol{\theta}}_0 = (\mu_0, \hat{\sigma}_0^2)^T$:</code></pre>
+<p><span class="math display">\[
+\mathbf{U}(\hat{\boldsymbol{\theta}}_0) = \begin{pmatrix} \frac{n(\overline{X} - \mu_0)}{\hat{\sigma}_0^2} \\ -\frac{n}{2\hat{\sigma}_0^2} + \frac{1}{2\hat{\sigma}_0^4}\sum_{i=1}^n (X_i - \mu_0)^2 \end{pmatrix}
+\]</span></p>
+<pre><code>Because $\hat{\sigma}_0^2 = \frac{1}{n}\sum_{i=1}^n (X_i - \mu_0)^2$, the second component perfectly cancels out. By definition, the score for the nuisance parameter evaluated at the restricted MLE is zero:</code></pre>
+<p><span class="math display">\[
+\mathbf{U}(\hat{\boldsymbol{\theta}}_0) = \begin{pmatrix} \frac{n(\overline{X} - \mu_0)}{\hat{\sigma}_0^2} \\ 0 \end{pmatrix}
+\]</span></p>
+<ol start="3" type="1">
+<li><strong>Determine the Marginal Covariance:</strong> The expected Fisher Information matrix for a Normal distribution is diagonal because the mean and variance are orthogonal parameters:</li>
+</ol>
+<p><span class="math display">\[
+\mathcal{I}(\mu, \sigma^2) = \begin{pmatrix} \frac{n}{\sigma^2} &amp; 0 \\ 0 &amp; \frac{n}{2\sigma^4} \end{pmatrix}
+\]</span> Because the matrix is diagonal, the asymptotic covariance matrix <span class="math inline">\(\Sigma(\boldsymbol{\theta}) = \mathcal{I}^{-1}(\boldsymbol{\theta})\)</span> is simply the matrix of reciprocals. The marginal variance for <span class="math inline">\(\mu\)</span> evaluated at the restricted MLE <span class="math inline">\(\hat{\boldsymbol{\theta}}_0\)</span> is: <span class="math display">\[
+\Sigma_{00}(\hat{\boldsymbol{\theta}}_0) = \frac{\hat{\sigma}_0^2}{n}
+\]</span></p>
+<ol start="4" type="1">
+<li><strong>Compute the Score Statistic <span class="math inline">\(S\)</span>:</strong> Constructing the quadratic form for the parameter of interest using its marginal variance <span class="math inline">\(\Sigma_{00}\)</span>:</li>
+</ol>
+<p><span class="math display">\[
+S = U_\mu(\hat{\boldsymbol{\theta}}_0)^T \Sigma_{00}(\hat{\boldsymbol{\theta}}_0) U_\mu(\hat{\boldsymbol{\theta}}_0)
+\]</span> <span class="math display">\[
+S = \left( \frac{n(\overline{X} - \mu_0)}{\hat{\sigma}_0^2} \right) \left( \frac{\hat{\sigma}_0^2}{n} \right) \left( \frac{n(\overline{X} - \mu_0)}{\hat{\sigma}_0^2} \right) = \frac{n(\overline{X} - \mu_0)^2}{\hat{\sigma}_0^2}
+\]</span></p>
+<ol start="5" type="1">
+<li><strong>Asymptotic Distribution:</strong> By the Score Theorem, since we are testing <span class="math inline">\(q=1\)</span> parameter restriction, the statistic follows a <span class="math inline">\(\chi^2_1\)</span> distribution:</li>
+</ol>
+<p><span class="math display">\[
+S = \frac{n(\overline{X} - \mu_0)^2}{\hat{\sigma}_0^2} \xrightarrow{d} \chi^2_1
+\]</span> This is highly analogous to the squared t-statistic, but specifically uses the variance estimated under the null hypothesis constraint.</p>
+</div>
+</section>
+<section id="a-comparison-of-finite-sample-distributions-of-the-three-asymptotic-tests-in-ols" class="level2" data-number="8.5">
+<h2 data-number="8.5" class="anchored" data-anchor-id="a-comparison-of-finite-sample-distributions-of-the-three-asymptotic-tests-in-ols"><span class="header-section-number">8.5</span> A Comparison of Finite-Sample Distributions of the Three Asymptotic Tests in OLS</h2>
+<section id="exact-finite-sample-distributions-via-the-f-statistic" class="level4" data-number="8.5.0.1">
+<h4 data-number="8.5.0.1" class="anchored" data-anchor-id="exact-finite-sample-distributions-via-the-f-statistic"><span class="header-section-number">8.5.0.1</span> Exact Finite-Sample Distributions via the F-Statistic</h4>
+<p>When testing linear restrictions in Ordinary Least Squares (OLS) under the assumption of normal errors, we do not need to rely on asymptotic approximations. The true, exact finite-sample test statistic follows an <span class="math inline">\(F\)</span>-distribution.</p>
+<p>Because the Wald (<span class="math inline">\(W\)</span>), Likelihood Ratio (<span class="math inline">\(LR\)</span>), and Score (<span class="math inline">\(S\)</span>) statistics are strictly monotonic algebraic transformations of the exact finite-sample <span class="math inline">\(F\)</span>-statistic, we can use the transformation of variables to derive their exact finite-sample Cumulative Distribution Functions (CDFs).</p>
+<p>Let us consider testing a linear hypothesis involving <span class="math inline">\(q\)</span> restrictions in an OLS model with <span class="math inline">\(k\)</span> total parameters and <span class="math inline">\(n\)</span> observations. Let <span class="math inline">\(F\)</span> denote the exact finite-sample <span class="math inline">\(F\)</span>-statistic, which follows an <span class="math inline">\(F_{q, n-k}\)</span> distribution. Let <span class="math inline">\(G_{q, n-k}(x)\)</span> denote the CDF of this <span class="math inline">\(F\)</span>-distribution.</p>
+<p>By isolating <span class="math inline">\(F\)</span> in the algebraic definitions of <span class="math inline">\(W\)</span>, <span class="math inline">\(LR\)</span>, and <span class="math inline">\(S\)</span>, we derive their exact finite-sample CDFs:</p>
+<p><strong>Expressing the Test Statistics via Residual Sums of Squares</strong></p>
+<p>Let <span class="math inline">\(RSS_1\)</span> denote the residual sum of squares from the <strong>full</strong> (unrestricted) model (estimating all <span class="math inline">\(k\)</span> parameters under <span class="math inline">\(H_1\)</span>), and let <span class="math inline">\(RSS_0\)</span> denote the residual sum of squares from the <strong>restricted</strong> model (imposing the <span class="math inline">\(q\)</span> constraints of <span class="math inline">\(H_0\)</span>).</p>
+<p>Because imposing constraints can only degrade the fit of the model to the training data, we know that <span class="math inline">\(RSS_0 \ge RSS_1\)</span>. The difference <span class="math inline">\((RSS_0 - RSS_1)\)</span> isolates the exact loss of fit caused by enforcing the null hypothesis.</p>
+<p>The exact finite-sample <span class="math inline">\(F\)</span>-statistic is the ratio of this loss of fit to the unrestricted noise, scaled by their respective degrees of freedom: <span class="math display">\[
+F = \frac{(RSS_0 - RSS_1) / q}{RSS_1 / (n-k)}
+\]</span></p>
+<p>By substituting this definition of <span class="math inline">\(F\)</span> into the algebraic transformations derived previously, the “Holy Trinity” of asymptotic tests can be expressed beautifully as functions of the residual sums of squares:</p>
+<p><strong>1. Wald Statistic (<span class="math inline">\(W\)</span>)</strong> The Wald test standardizes the loss of fit using the <strong>unrestricted</strong> variance estimate (<span class="math inline">\(\hat{\sigma}^2 = RSS_1/n\)</span>). Substituting the <span class="math inline">\(F\)</span> formula into <span class="math inline">\(W = \frac{nq}{n-k} F\)</span>: <span class="math display">\[
+W = n \left( \frac{RSS_0 - RSS_1}{RSS_1} \right)
+\]</span></p>
+<p><strong>2. Likelihood Ratio Statistic (<span class="math inline">\(LR\)</span>)</strong> The Likelihood Ratio test evaluates the natural logarithm of the ratio of the two likelihoods, which simplifies directly to the log-ratio of the residual sums of squares. Substituting <span class="math inline">\(F\)</span> into <span class="math inline">\(LR = n \ln \left( 1 + \frac{q}{n-k} F \right)\)</span>: <span class="math display">\[
+LR = n \ln \left( \frac{RSS_0}{RSS_1} \right)
+\]</span></p>
+<p><strong>3. Score Statistic (<span class="math inline">\(S\)</span>)</strong> The Score test standardizes the loss of fit using the <strong>restricted</strong> variance estimate (<span class="math inline">\(\hat{\sigma}_0^2 = RSS_0/n\)</span>). Substituting <span class="math inline">\(F\)</span> into <span class="math inline">\(S = \frac{n q F}{n-k + q F}\)</span>: <span class="math display">\[
+S = n \left( \frac{RSS_0 - RSS_1}{RSS_0} \right)
+\]</span></p>
+</section>
+<section id="asymptotic-equivalence-in-ols" class="level4" data-number="8.5.0.2">
+<h4 data-number="8.5.0.2" class="anchored" data-anchor-id="asymptotic-equivalence-in-ols"><span class="header-section-number">8.5.0.2</span> Asymptotic Equivalence in OLS</h4>
+<p>Having established the exact algebraic relationship between the three test statistics and the finite-sample <span class="math inline">\(F\)</span>-statistic, we can use standard OLS large-sample theory to rigorously prove that all three converge to the exact same <span class="math inline">\(\chi^2_q\)</span> asymptotic distribution.</p>
+<div class="proof">
+<p><span class="proof-title"><em>Proof</em>. </span><strong>1. The Asymptotic Limit of the Scaled F-Statistic</strong> Under the null hypothesis <span class="math inline">\(H_0\)</span> (and assuming standard regularity conditions for OLS), the numerator of the <span class="math inline">\(F\)</span>-statistic represents the loss of fit, which asymptotically follows a Chi-square distribution scaled by the true error variance <span class="math inline">\(\sigma^2\)</span>: <span class="math display">\[
+(RSS_0 - RSS_1) \xrightarrow{d} \sigma^2 \chi^2_q
+\]</span> The denominator of the <span class="math inline">\(F\)</span>-statistic is the unbiased estimator of the error variance, which converges in probability to the true variance by the Law of Large Numbers: <span class="math display">\[
+\frac{RSS_1}{n-k} \xrightarrow{p} \sigma^2
+\]</span> By Slutsky’s Theorem, dividing the convergent numerator by the convergent denominator cancels out the unknown <span class="math inline">\(\sigma^2\)</span>, yielding the foundational limit: <span class="math display">\[
+qF = \frac{RSS_0 - RSS_1}{RSS_1 / (n-k)} \xrightarrow{d} \chi^2_q
+\]</span></p>
+<p><strong>2. Convergence of the Wald Statistic (<span class="math inline">\(W\)</span>)</strong> We previously defined the Wald statistic algebraically as: <span class="math display">\[
+W = \frac{n}{n-k} (qF)
+\]</span> As <span class="math inline">\(n \to \infty\)</span>, the ratio of the sample size to the degrees of freedom <span class="math inline">\(\left(\frac{n}{n-k}\right)\)</span> converges to <span class="math inline">\(1\)</span>. Applying Slutsky’s Theorem again, the Wald statistic converges directly to the scaled <span class="math inline">\(F\)</span>-statistic: <span class="math display">\[
+W \xrightarrow{d} 1 \cdot \chi^2_q = \chi^2_q
+\]</span></p>
+<p><strong>3. Convergence of the Likelihood Ratio Statistic (<span class="math inline">\(LR\)</span>)</strong> The <span class="math inline">\(LR\)</span> statistic is defined via the natural logarithm: <span class="math display">\[
+LR = n \ln \left( 1 + \frac{qF}{n-k} \right)
+\]</span> Because <span class="math inline">\(qF\)</span> converges to a <span class="math inline">\(\chi^2_q\)</span> distribution, it is bounded in probability, meaning <span class="math inline">\(\frac{qF}{n-k} = O_p(n^{-1})\)</span>. As <span class="math inline">\(n \to \infty\)</span>, this term approaches zero. We can apply the first-order Taylor expansion <span class="math inline">\(\ln(1 + x) \approx x\)</span> for small <span class="math inline">\(x\)</span>: <span class="math display">\[
+LR \approx n \left( \frac{qF}{n-k} \right) = \frac{n}{n-k}(qF)
+\]</span> This first-order approximation is exactly the Wald statistic. Therefore, the difference between <span class="math inline">\(LR\)</span> and <span class="math inline">\(W\)</span> vanishes asymptotically, giving: <span class="math display">\[
+LR \xrightarrow{d} \chi^2_q
+\]</span></p>
+<p><strong>4. Convergence of the Score Statistic (<span class="math inline">\(S\)</span>)</strong> The Score statistic is algebraically defined as: <span class="math display">\[
+S = \frac{n q F}{n-k + q F}
+\]</span> Dividing the numerator and denominator by <span class="math inline">\(n-k\)</span> yields: <span class="math display">\[
+S = \frac{\frac{n}{n-k}(qF)}{1 + \frac{qF}{n-k}} = \frac{W}{1 + \frac{qF}{n-k}}
+\]</span> As established, <span class="math inline">\(\frac{qF}{n-k} \xrightarrow{p} 0\)</span>. The denominator converges in probability to <span class="math inline">\(1\)</span>, meaning the Score statistic perfectly tracks the Wald statistic in the limit: <span class="math display">\[
+S \xrightarrow{d} \frac{W}{1} \xrightarrow{d} \chi^2_q
+\]</span></p>
+<p><strong>Conclusion:</strong> While the algebraic inequality <span class="math inline">\(W \ge LR \ge S\)</span> holds strictly in any finite sample, the differences between the statistics are of order <span class="math inline">\(O_p(n^{-1})\)</span>. As <span class="math inline">\(n \to \infty\)</span>, the “gaps” between them shrink to zero, and all three provide asymptotically equivalent tests against the <span class="math inline">\(\chi^2_q\)</span> distribution.</p>
+</div>
+</section>
+<section id="visualizing-finite-sample-calibration-size-distortion" class="level4" data-number="8.5.0.3">
+<h4 data-number="8.5.0.3" class="anchored" data-anchor-id="visualizing-finite-sample-calibration-size-distortion"><span class="header-section-number">8.5.0.3</span> Visualizing Finite-Sample Calibration (Size Distortion)</h4>
+<p>To visualize how badly the asymptotic <span class="math inline">\(\chi^2_q\)</span> approximation distorts the Type I error rates in finite samples, we can plot the true Cumulative Distribution Function (CDF) of the asymptotic p-values.</p>
+<p>If a test is perfectly calibrated, the probability that its p-value is less than a nominal threshold <span class="math inline">\(\alpha\)</span> should be exactly <span class="math inline">\(\alpha\)</span>, forming a perfect <span class="math inline">\(y = x\)</span> diagonal line (the Uniform(0,1) CDF).</p>
+<p>The event that the asymptotic p-value is less than <span class="math inline">\(\alpha\)</span> is mathematically equivalent to the test statistic being greater than the <span class="math inline">\(\chi^2_q\)</span> critical value (<span class="math inline">\(c_\alpha\)</span>). Therefore, the true rejection probability <span class="math inline">\(P(p &lt; \alpha)\)</span> is exactly <span class="math inline">\(1 - F(c_\alpha)\)</span>, where <span class="math inline">\(F\)</span> is the exact finite-sample CDF derived above.</p>
+</section>
+<section id="exact-finite-sample-distribution-calibration-plot" class="level4" data-number="8.5.0.4">
+<h4 data-number="8.5.0.4" class="anchored" data-anchor-id="exact-finite-sample-distribution-calibration-plot"><span class="header-section-number">8.5.0.4</span> Exact Finite-Sample Distribution Calibration Plot</h4>
+<p>The following code allows you to adjust the sample size (<span class="math inline">\(n\)</span>) and the number of parameters (<span class="math inline">\(k\)</span>) to observe how the finite-sample rejection rates of the three asymptotic tests (Wald, Likelihood Ratio, and Score) converge toward the ideal Uniform(0,1) calibration.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Tuning Parameters ---</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>n1 <span class="ot">&lt;-</span> <span class="dv">15</span>    <span class="co"># Small sample size for Plot 1</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>n2 <span class="ot">&lt;-</span> <span class="dv">50</span>  <span class="co"># Large sample size for Plot 2</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>k_val <span class="ot">&lt;-</span> <span class="dv">5</span>  <span class="co"># Number of parameters (constant for comparison)</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>q_val <span class="ot">&lt;-</span> <span class="dv">1</span>  <span class="co"># Number of restrictions (constant for comparison)</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>generate_calibration_data <span class="ot">&lt;-</span> <span class="cf">function</span>(n, k, q) {</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  alpha_seq <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fl">0.0001</span>, <span class="fl">0.15</span>, <span class="at">length.out =</span> <span class="dv">1000</span>)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  c_alpha <span class="ot">&lt;-</span> <span class="fu">qchisq</span>(<span class="dv">1</span> <span class="sc">-</span> alpha_seq, <span class="at">df =</span> q)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Wald: 1 - F_W(c_alpha)</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  F_val_W <span class="ot">&lt;-</span> ((n <span class="sc">-</span> k) <span class="sc">/</span> (n <span class="sc">*</span> q)) <span class="sc">*</span> c_alpha</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  cdf_W <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pf</span>(F_val_W, <span class="at">df1 =</span> q, <span class="at">df2 =</span> n <span class="sc">-</span> k)</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># LR: 1 - F_LR(c_alpha)</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  F_val_LR <span class="ot">&lt;-</span> ((n <span class="sc">-</span> k) <span class="sc">/</span> q) <span class="sc">*</span> (<span class="fu">exp</span>(c_alpha <span class="sc">/</span> n) <span class="sc">-</span> <span class="dv">1</span>)</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  cdf_LR <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pf</span>(F_val_LR, <span class="at">df1 =</span> q, <span class="at">df2 =</span> n <span class="sc">-</span> k)</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Score: 1 - F_S(c_alpha)</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  F_val_S <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(c_alpha <span class="sc">&lt;</span> n, (c_alpha <span class="sc">*</span> (n <span class="sc">-</span> k)) <span class="sc">/</span> (q <span class="sc">*</span> (n <span class="sc">-</span> c_alpha)), <span class="cn">Inf</span>)</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>  cdf_S <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pf</span>(F_val_S, <span class="at">df1 =</span> q, <span class="at">df2 =</span> n <span class="sc">-</span> k)</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">Alpha =</span> <span class="fu">rep</span>(alpha_seq, <span class="dv">3</span>),</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">Rejection_Prob =</span> <span class="fu">c</span>(cdf_W, cdf_LR, cdf_S),</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">Test =</span> <span class="fu">factor</span>(<span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"Wald"</span>, <span class="st">"LR"</span>, <span class="st">"Score"</span>), <span class="at">each =</span> <span class="fu">length</span>(alpha_seq))),</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> n,</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">k =</span> k</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Label =</span> <span class="fu">paste0</span>(<span class="st">"n = "</span>, n, <span class="st">", k = "</span>, k))</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Create combined dataset based on tuning parameters</span></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>plot_data <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">generate_calibration_data</span>(<span class="at">n =</span> n1, <span class="at">k =</span> k_val, <span class="at">q =</span> q_val),</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">generate_calibration_data</span>(<span class="at">n =</span> n2, <span class="at">k =</span> k_val, <span class="at">q =</span> q_val)</span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a><span class="co"># Fix factor levels for side-by-side ordering</span></span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>plot_data<span class="sc">$</span>Label <span class="ot">&lt;-</span> <span class="fu">factor</span>(plot_data<span class="sc">$</span>Label, <span class="at">levels =</span> <span class="fu">unique</span>(plot_data<span class="sc">$</span>Label))</span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(plot_data, <span class="fu">aes</span>(<span class="at">x =</span> Alpha, <span class="at">y =</span> Rejection_Prob, <span class="at">color =</span> Test)) <span class="sc">+</span></span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> Label) <span class="sc">+</span></span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Wald"</span> <span class="ot">=</span> <span class="st">"#E41A1C"</span>, <span class="st">"LR"</span> <span class="ot">=</span> <span class="st">"#4DAF4A"</span>, <span class="st">"Score"</span> <span class="ot">=</span> <span class="st">"#377EB8"</span>)) <span class="sc">+</span></span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.12</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.20</span>)) <span class="sc">+</span></span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Nominal Significance Level (\u03b1)"</span>,</span>
+<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"True Rejection Rate: P(p-value &lt; \u03b1)"</span>,</span>
+<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Asymptotic Test Calibration vs. Sample Size"</span>,</span>
+<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Dashed line represents perfect calibration (Rejection Rate = \u03b1)"</span></span>
+<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"bottom"</span>,</span>
+<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a>    <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">face =</span> <span class="st">"bold"</span>)</span>
+<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-calibration-tuning" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-calibration-tuning-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="likelihood-test_files/figure-html/fig-calibration-tuning-1.png" class="img-fluid figure-img" width="1152">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-calibration-tuning-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.2: Exact Analytical CDFs of Asymptotic P-values
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Summary</strong></p>
+<p>In OLS with finite samples, the <span class="math inline">\(\chi^2\)</span> distribution is an optimistic approximation that leads to <strong>over-rejection</strong> (liberal bias) across all three tests. However:</p>
+<ul>
+<li>The <strong>Wald test</strong> is the most liberal because it does nothing to counteract the too-low <span class="math inline">\(\chi^2\)</span> threshold.</li>
+<li>The <strong>Score test</strong> is the most conservative of the three because its mathematical structure provides a natural downward “correction” that happens to land it closest to the ideal uniform distribution at common significance levels like <span class="math inline">\(\alpha = 0.05\)</span>.</li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
