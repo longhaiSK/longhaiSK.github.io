@@ -78,6 +78,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="site_libs/bootstrap/bootstrap-756b3216100cf6faba8ed10949d356b0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<meta name="shinylive:serviceworker_dir" content=".">
+<script src="site_libs/quarto-contrib/shinylive-0.10.8/shinylive/load-shinylive-sw.js" type="module"></script>
+<script src="site_libs/quarto-contrib/shinylive-0.10.8/shinylive/run-python-blocks.js" type="module"></script>
+<link href="site_libs/quarto-contrib/shinylive-0.10.8/shinylive/shinylive.css" rel="stylesheet">
+<link href="site_libs/quarto-contrib/shinylive-quarto-css/shinylive-quarto.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -1099,6 +1104,165 @@ D^2((x_0, \mu_{1|0}(x_0)), \mu, \Sigma) = D^2(x_0, \mu_0, \Sigma_{00})
 <li>Because the residual is exactly <span class="math inline">\(0\)</span>, the orthogonal conditional vector is the zero vector. This cleanly zeroes out the conditional quadratic form entirely.</li>
 </ol>
 <p>Therefore, 100% of the joint spatial distance between <span class="math inline">\((x_0, \mu_{1|0}(x_0))\)</span> and the global mean <span class="math inline">\((\mu_0, \mu_1)\)</span> is driven solely by how far <span class="math inline">\(x_0\)</span> is from <span class="math inline">\(\mu_0\)</span> in the marginal space.</p>
+<pre class="shinylive-r" data-engine="r"><code>#| '!! shinylive warning !!': |
+#|   shinylive does not work in self-contained HTML documents.
+#|   Please set `embed-resources: false` in your metadata.
+#| standalone: true
+#| viewerHeight: 750
+#| echo: false
+#| column: screen
+#| label: fig-MD-decomp
+
+library(shiny)
+library(ggplot2)
+
+ui &lt;- fluidPage(
+  titlePanel("Geometry of Mahalanobis Distance Decomposition"),
+  
+  # A relative container holding the plot and absolute panels
+  div(style = "position: relative;",
+      
+      plotOutput("distPlot", height = "700px", width = "100%"),
+      
+      # Floating Control Panel (Top Left)
+      absolutePanel(
+        top = 10, left = 10, width = 320, draggable = TRUE,
+        style = "background-color: rgba(255, 255, 255, 0.85); padding: 10px 15px; border-radius: 8px; border: 1px solid #ccc; box-shadow: 2px 2px 10px rgba(0,0,0,0.1);",
+        
+        h4("Parameters", style = "margin-top: 0; margin-bottom: 10px; font-size: 16px;"),
+        
+        fluidRow(
+          column(6, sliderInput("mu_0", "\\(\\mu_0\\)", min = 0, max = 5, value = 2.2, step = 0.1, ticks = FALSE)),
+          column(6, sliderInput("mu_1", "\\(\\mu_1\\)", min = 0, max = 5, value = 2.2, step = 0.1, ticks = FALSE))
+        ),
+        fluidRow(
+          column(6, sliderInput("x_0", "\\(x_0\\)", min = 0, max = 5, value = 0.9, step = 0.1, ticks = FALSE)),
+          column(6, sliderInput("x_1", "\\(x_1\\)", min = 0, max = 5, value = 1.9, step = 0.1, ticks = FALSE))
+        ),
+        hr(style = "margin: 5px 0; border-top: 1px solid #ddd;"),
+        fluidRow(
+          column(6, sliderInput("sigma_0", "\\(\\sigma_0\\)", min = 0.5, max = 3, value = 1.25, step = 0.05, ticks = FALSE)),
+          column(6, sliderInput("sigma_1", "\\(\\sigma_1\\)", min = 0.5, max = 3, value = 1.25, step = 0.05, ticks = FALSE))
+        ),
+        sliderInput("rho", "Correlation \\(\\rho\\)", min = -0.95, max = 0.95, value = -0.6, step = 0.05, ticks = FALSE)
+      ),
+      
+      # Floating Legend Panel (Bottom Right)
+      absolutePanel(
+        bottom = 20, right = 20, width = 320, draggable = TRUE,
+        style = "background-color: rgba(255, 255, 255, 0.9); padding: 10px; border-radius: 8px; border: 1px solid #ccc; box-shadow: 2px 2px 10px rgba(0,0,0,0.1);",
+        uiOutput("legendUI")
+      )
+  )
+)
+
+server &lt;- function(input, output, session) {
+  
+  # Reactive calculations
+  calc_data &lt;- reactive({
+    mu &lt;- c(input$mu_0, input$mu_1)
+    x &lt;- c(input$x_0, input$x_1)
+    
+    # Construct Covariance Matrix
+    Sigma &lt;- matrix(c(
+      input$sigma_0^2, 
+      input$rho * input$sigma_0 * input$sigma_1, 
+      input$rho * input$sigma_0 * input$sigma_1, 
+      input$sigma_1^2
+    ), nrow = 2)
+    
+    Sigma_inv &lt;- solve(Sigma)
+    
+    # Marginal and Conditional variances
+    Sigma_00 &lt;- Sigma[1, 1]
+    Sigma_1given0 &lt;- Sigma[2, 2] - (Sigma[1, 2]^2) / Sigma[1, 1]
+    
+    # Conditional Mean
+    mu_1given0 &lt;- mu[2] + (Sigma[1, 2] / Sigma[1, 1]) * (x[1] - mu[1])
+    
+    # Projected Point p = (x_0, mu_{1|0}(x_0))
+    p &lt;- c(x[1], mu_1given0)
+    
+    # Calculate Distances
+    diff_total &lt;- x - mu
+    d2_total &lt;- as.numeric(t(diff_total) %*% Sigma_inv %*% diff_total)
+    d2_marg &lt;- (x[1] - mu[1])^2 / Sigma_00
+    d2_cond &lt;- (x[2] - mu_1given0)^2 / Sigma_1given0
+    
+    list(mu = mu, x = x, p = p, Sigma = Sigma, Sigma_inv = Sigma_inv, 
+         d2_total = d2_total, d2_marg = d2_marg, d2_cond = d2_cond)
+  })
+  
+  output$legendUI &lt;- renderUI({
+    res &lt;- calc_data()
+    withMathJax(
+      HTML(paste0(
+        "&lt;div style='font-size: 14px;'&gt;",
+        "&lt;b&gt;Distance Legend&lt;/b&gt;&lt;br&gt;&lt;br&gt;",
+        "&lt;span style='color: black;'&gt;&lt;b&gt;Total:&lt;/b&gt; \\( D^2(x, \\mu, \\Sigma) = \\) ", round(res$d2_total, 2), "&lt;/span&gt;&lt;br&gt;",
+        "&lt;span style='color: blue;'&gt;&lt;b&gt;Marginal:&lt;/b&gt; \\( D^2(x_0, \\mu_0, \\Sigma_{00}) = \\) ", round(res$d2_marg, 2), "&lt;/span&gt;&lt;br&gt;",
+        "&lt;span style='color: red;'&gt;&lt;b&gt;Conditional:&lt;/b&gt; \\( D^2(x_1, \\mu_{1|0}(x_0), \\Sigma_{1|0}) = \\) ", round(res$d2_cond, 2), "&lt;/span&gt;",
+        "&lt;/div&gt;"
+      ))
+    )
+  })
+  
+  output$distPlot &lt;- renderPlot({
+    res &lt;- calc_data()
+    mu &lt;- res$mu; x &lt;- res$x; p &lt;- res$p; Sigma &lt;- res$Sigma; Sigma_inv &lt;- res$Sigma_inv
+    
+    # Generate grid for quadratic contours
+    grid_vals &lt;- seq(-1, 6, length.out = 80)
+    grid &lt;- expand.grid(x0 = grid_vals, x1 = grid_vals)
+    grid$z &lt;- apply(grid, 1, function(row) {
+      diff &lt;- row - mu
+      as.numeric(t(diff) %*% Sigma_inv %*% diff)
+    })
+    
+    # Regression surface line parameters
+    slope &lt;- Sigma[1, 2] / Sigma[1, 1]
+    intercept &lt;- mu[2] - slope * mu[1]
+    
+    # Midpoints for labels
+    mid_marg &lt;- (mu + p) / 2
+    mid_cond &lt;- (p + x) / 2
+    mid_total &lt;- (mu + x) / 2
+    
+    ggplot(grid, aes(x = x0, y = x1)) +
+      # Contours
+      geom_contour(aes(z = z), bins = 20, color = "gray85") +
+      
+      # The Regression Surface (Light Blue Line extending across plot)
+      geom_abline(intercept = intercept, slope = slope, color = "lightblue", linewidth = 2, alpha = 0.5) +
+      
+      # The Distance Segments
+      geom_segment(aes(x = mu[1], y = mu[2], xend = p[1], yend = p[2]), color = "blue", linewidth = 1.2) +
+      geom_segment(aes(x = p[1], y = p[2], xend = x[1], yend = x[2]), color = "red", linewidth = 1.2) +
+      geom_segment(aes(x = mu[1], y = mu[2], xend = x[1], yend = x[2]), color = "black", linetype = "dashed", linewidth = 1) +
+      
+      # Labels on Segments (No numbers, just notation)
+      annotate("text", x = mid_marg[1] + 0.2, y = mid_marg[2] - 0.2, label = "D^2*(list(x[0], mu[0], Sigma[00]))", parse = TRUE, color = "blue", size = 5) +
+      annotate("text", x = mid_cond[1] + 0.25, y = mid_cond[2], label = "D^2*(list(x[1], mu['1|0'](x[0]), Sigma['1|0']))", parse = TRUE, color = "red", size = 5) +
+      annotate("text", x = mid_total[1] - 0.2, y = mid_total[2] + 0.2, label = "D^2*(list(x, mu, Sigma))", parse = TRUE, color = "black", size = 5) +
+      
+      # Points
+      annotate("point", x = mu[1], y = mu[2], color = "blue", size = 4) +
+      annotate("text", x = mu[1] - 0.2, y = mu[2] + 0.2, label = "mu", parse = TRUE, color = "blue", size = 6) +
+      
+      annotate("point", x = p[1], y = p[2], color = "purple", shape = 3, size = 4, stroke = 2) +
+      annotate("text", x = p[1] + 0.5, y = p[2] - 0.2, label = "list(x[0], mu['1|0'](x[0]))", parse = TRUE, color = "purple", size = 5) +
+      
+      annotate("point", x = x[1], y = x[2], color = "black", shape = 4, size = 4, stroke = 2) +
+      annotate("text", x = x[1] - 0.15, y = x[2] + 0.2, label = "x", parse = TRUE, size = 6) +
+      
+      coord_fixed(xlim = c(-0.5, 5.5), ylim = c(-0.5, 5.5)) +
+      labs(x = expression(x[0]), y = expression(x[1])) +
+      theme_minimal(base_size = 16) +
+      theme(panel.grid.minor = element_blank())
+  })
+}
+
+shinyApp(ui, server)</code></pre>
 </section>
 <section id="wilks-theorem-for-general-nested-models-likelihood-ratio-test" class="level3" data-number="7.5.2">
 <h3 data-number="7.5.2" class="anchored" data-anchor-id="wilks-theorem-for-general-nested-models-likelihood-ratio-test"><span class="header-section-number">7.5.2</span> Wilks’ Theorem for General Nested Models (Likelihood Ratio Test)</h3>
@@ -1151,57 +1315,57 @@ D \xrightarrow{d} \chi^2_q
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Setup parameters and Fisher Information</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>theta_hat <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">2.2</span>, <span class="fl">2.2</span>)      <span class="co"># The Peak (Unrestricted MLE center)</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>theta_star <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.9</span>, <span class="fl">1.9</span>)     <span class="co"># Hypothesized true value </span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>I <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="fl">0.6</span>, <span class="fl">0.6</span>, <span class="dv">1</span>), <span class="at">nrow =</span> <span class="dv">2</span>) <span class="co"># Curvature</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Calculate the geometric center hat(theta)_{1, Sigma}</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Starting from the center hat(theta)_1, we adjust by the displacement in theta_0</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>delta_theta_0 <span class="ot">&lt;-</span> theta_star[<span class="dv">1</span>] <span class="sc">-</span> theta_hat[<span class="dv">1</span>]</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>theta_hat_1_Sigma <span class="ot">&lt;-</span> theta_hat[<span class="dv">2</span>] <span class="sc">-</span> (<span class="dv">1</span><span class="sc">/</span>I[<span class="dv">2</span>,<span class="dv">2</span>]) <span class="sc">*</span> I[<span class="dv">2</span>,<span class="dv">1</span>] <span class="sc">*</span> delta_theta_0</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>p_projected <span class="ot">&lt;-</span> <span class="fu">c</span>(theta_star[<span class="dv">1</span>], theta_hat_1_Sigma)</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Create tilde(theta)_1 by adding small non-quadratic jitter to the projected center</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>theta_tilde <span class="ot">&lt;-</span> <span class="fu">c</span>(theta_star[<span class="dv">1</span>], theta_hat_1_Sigma <span class="sc">+</span> <span class="fl">0.15</span>) </span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Generate grid for quadratic log-likelihood contours centered at theta_hat</span></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>grid_vals <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">4</span>, <span class="at">length.out =</span> <span class="dv">100</span>)</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>grid <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">theta0 =</span> grid_vals, <span class="at">theta1 =</span> grid_vals)</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>grid<span class="sc">$</span>z <span class="ot">&lt;-</span> <span class="fu">apply</span>(grid, <span class="dv">1</span>, <span class="cf">function</span>(p) {</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  diff <span class="ot">&lt;-</span> p <span class="sc">-</span> theta_hat</span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span><span class="fl">0.5</span> <span class="sc">*</span> <span class="fu">t</span>(diff) <span class="sc">%*%</span> I <span class="sc">%*%</span> diff</span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Plot</span></span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(grid, <span class="fu">aes</span>(<span class="at">x =</span> theta0, <span class="at">y =</span> theta1)) <span class="sc">+</span></span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_contour</span>(<span class="fu">aes</span>(<span class="at">z =</span> z), <span class="at">bins =</span> <span class="dv">15</span>, <span class="at">color =</span> <span class="st">"gray70"</span>) <span class="sc">+</span></span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> theta_star[<span class="dv">1</span>], <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Unrestricted MLE (The Center)</span></span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"point"</span>, <span class="at">x =</span> theta_hat[<span class="dv">1</span>], <span class="at">y =</span> theta_hat[<span class="dv">2</span>], <span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> theta_hat[<span class="dv">1</span>], <span class="at">y =</span> theta_hat[<span class="dv">2</span>] <span class="sc">+</span> <span class="fl">0.2</span>, </span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"hat(theta)"</span>, <span class="at">parse =</span> <span class="cn">TRUE</span>, <span class="at">color =</span> <span class="st">"blue"</span>) <span class="sc">+</span></span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Projected Nuisance Center (hat(theta)_{1, Sigma})</span></span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"point"</span>, <span class="at">x =</span> p_projected[<span class="dv">1</span>], <span class="at">y =</span> p_projected[<span class="dv">2</span>], <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> p_projected[<span class="dv">1</span>] <span class="sc">-</span> <span class="fl">0.45</span>, <span class="at">y =</span> p_projected[<span class="dv">2</span>], </span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"hat(theta)[1, Sigma]"</span>, <span class="at">parse =</span> <span class="cn">TRUE</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Restricted MLE (tilde(theta))</span></span>
-<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"point"</span>, <span class="at">x =</span> theta_tilde[<span class="dv">1</span>], <span class="at">y =</span> theta_tilde[<span class="dv">2</span>], <span class="at">color =</span> <span class="st">"purple"</span>, <span class="at">shape =</span> <span class="dv">3</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
-<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> theta_tilde[<span class="dv">1</span>] <span class="sc">+</span> <span class="fl">0.3</span>, <span class="at">y =</span> theta_tilde[<span class="dv">2</span>] <span class="sc">+</span> <span class="fl">0.1</span>, </span>
-<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"tilde(theta)"</span>, <span class="at">parse =</span> <span class="cn">TRUE</span>, <span class="at">color =</span> <span class="st">"purple"</span>) <span class="sc">+</span></span>
-<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Hypothesized Point (theta^*)</span></span>
-<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"point"</span>, <span class="at">x =</span> theta_star[<span class="dv">1</span>], <span class="at">y =</span> theta_star[<span class="dv">2</span>], <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">shape =</span> <span class="dv">4</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
-<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> theta_star[<span class="dv">1</span>] <span class="sc">-</span> <span class="fl">0.2</span>, <span class="at">y =</span> theta_star[<span class="dv">2</span>] <span class="sc">-</span> <span class="fl">0.2</span>, </span>
-<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"theta^'*'"</span>, <span class="at">parse =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
-<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Geometry of the Likelihood Ratio Test"</span>,</span>
-<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">"Projection from center "</span>, <span class="fu">hat</span>(theta), <span class="st">" onto the null constraint "</span>, theta[<span class="dv">0</span>] <span class="sc">==</span> theta[<span class="dv">0</span>]<span class="sc">^</span><span class="st">"*"</span>)),</span>
-<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="fu">expression</span>(theta[<span class="dv">0</span>]), <span class="at">y =</span> <span class="fu">expression</span>(theta[<span class="dv">1</span>])) <span class="sc">+</span></span>
-<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
-<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_fixed</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Setup parameters and Fisher Information</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>theta_hat <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">2.2</span>, <span class="fl">2.2</span>)      <span class="co"># The Peak (Unrestricted MLE center)</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>theta_star <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.9</span>, <span class="fl">1.9</span>)     <span class="co"># Hypothesized true value </span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>I <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="fl">0.6</span>, <span class="fl">0.6</span>, <span class="dv">1</span>), <span class="at">nrow =</span> <span class="dv">2</span>) <span class="co"># Curvature</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Calculate the geometric center hat(theta)_{1, Sigma}</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Starting from the center hat(theta)_1, we adjust by the displacement in theta_0</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>delta_theta_0 <span class="ot">&lt;-</span> theta_star[<span class="dv">1</span>] <span class="sc">-</span> theta_hat[<span class="dv">1</span>]</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>theta_hat_1_Sigma <span class="ot">&lt;-</span> theta_hat[<span class="dv">2</span>] <span class="sc">-</span> (<span class="dv">1</span><span class="sc">/</span>I[<span class="dv">2</span>,<span class="dv">2</span>]) <span class="sc">*</span> I[<span class="dv">2</span>,<span class="dv">1</span>] <span class="sc">*</span> delta_theta_0</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>p_projected <span class="ot">&lt;-</span> <span class="fu">c</span>(theta_star[<span class="dv">1</span>], theta_hat_1_Sigma)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Create tilde(theta)_1 by adding small non-quadratic jitter to the projected center</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>theta_tilde <span class="ot">&lt;-</span> <span class="fu">c</span>(theta_star[<span class="dv">1</span>], theta_hat_1_Sigma <span class="sc">+</span> <span class="fl">0.15</span>) </span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Generate grid for quadratic log-likelihood contours centered at theta_hat</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>grid_vals <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">4</span>, <span class="at">length.out =</span> <span class="dv">100</span>)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>grid <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">theta0 =</span> grid_vals, <span class="at">theta1 =</span> grid_vals)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>grid<span class="sc">$</span>z <span class="ot">&lt;-</span> <span class="fu">apply</span>(grid, <span class="dv">1</span>, <span class="cf">function</span>(p) {</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  diff <span class="ot">&lt;-</span> p <span class="sc">-</span> theta_hat</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span><span class="fl">0.5</span> <span class="sc">*</span> <span class="fu">t</span>(diff) <span class="sc">%*%</span> I <span class="sc">%*%</span> diff</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Plot</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(grid, <span class="fu">aes</span>(<span class="at">x =</span> theta0, <span class="at">y =</span> theta1)) <span class="sc">+</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_contour</span>(<span class="fu">aes</span>(<span class="at">z =</span> z), <span class="at">bins =</span> <span class="dv">15</span>, <span class="at">color =</span> <span class="st">"gray70"</span>) <span class="sc">+</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> theta_star[<span class="dv">1</span>], <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Unrestricted MLE (The Center)</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"point"</span>, <span class="at">x =</span> theta_hat[<span class="dv">1</span>], <span class="at">y =</span> theta_hat[<span class="dv">2</span>], <span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> theta_hat[<span class="dv">1</span>], <span class="at">y =</span> theta_hat[<span class="dv">2</span>] <span class="sc">+</span> <span class="fl">0.2</span>, </span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"hat(theta)"</span>, <span class="at">parse =</span> <span class="cn">TRUE</span>, <span class="at">color =</span> <span class="st">"blue"</span>) <span class="sc">+</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Projected Nuisance Center (hat(theta)_{1, Sigma})</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"point"</span>, <span class="at">x =</span> p_projected[<span class="dv">1</span>], <span class="at">y =</span> p_projected[<span class="dv">2</span>], <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> p_projected[<span class="dv">1</span>] <span class="sc">-</span> <span class="fl">0.45</span>, <span class="at">y =</span> p_projected[<span class="dv">2</span>], </span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"hat(theta)[1, Sigma]"</span>, <span class="at">parse =</span> <span class="cn">TRUE</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Restricted MLE (tilde(theta))</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"point"</span>, <span class="at">x =</span> theta_tilde[<span class="dv">1</span>], <span class="at">y =</span> theta_tilde[<span class="dv">2</span>], <span class="at">color =</span> <span class="st">"purple"</span>, <span class="at">shape =</span> <span class="dv">3</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> theta_tilde[<span class="dv">1</span>] <span class="sc">+</span> <span class="fl">0.3</span>, <span class="at">y =</span> theta_tilde[<span class="dv">2</span>] <span class="sc">+</span> <span class="fl">0.1</span>, </span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"tilde(theta)"</span>, <span class="at">parse =</span> <span class="cn">TRUE</span>, <span class="at">color =</span> <span class="st">"purple"</span>) <span class="sc">+</span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Hypothesized Point (theta^*)</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"point"</span>, <span class="at">x =</span> theta_star[<span class="dv">1</span>], <span class="at">y =</span> theta_star[<span class="dv">2</span>], <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">shape =</span> <span class="dv">4</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> theta_star[<span class="dv">1</span>] <span class="sc">-</span> <span class="fl">0.2</span>, <span class="at">y =</span> theta_star[<span class="dv">2</span>] <span class="sc">-</span> <span class="fl">0.2</span>, </span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"theta^'*'"</span>, <span class="at">parse =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Geometry of the Likelihood Ratio Test"</span>,</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">"Projection from center "</span>, <span class="fu">hat</span>(theta), <span class="st">" onto the null constraint "</span>, theta[<span class="dv">0</span>] <span class="sc">==</span> theta[<span class="dv">0</span>]<span class="sc">^</span><span class="st">"*"</span>)),</span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="fu">expression</span>(theta[<span class="dv">0</span>]), <span class="at">y =</span> <span class="fu">expression</span>(theta[<span class="dv">1</span>])) <span class="sc">+</span></span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_fixed</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div id="fig-lrt-geometry" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -1493,69 +1657,69 @@ S \xrightarrow{d} \frac{W}{1} \xrightarrow{d} \chi^2_q
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Tuning Parameters ---</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>n1 <span class="ot">&lt;-</span> <span class="dv">15</span>    <span class="co"># Small sample size for Plot 1</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>n2 <span class="ot">&lt;-</span> <span class="dv">50</span>  <span class="co"># Large sample size for Plot 2</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>k_val <span class="ot">&lt;-</span> <span class="dv">5</span>  <span class="co"># Number of parameters (constant for comparison)</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>q_val <span class="ot">&lt;-</span> <span class="dv">1</span>  <span class="co"># Number of restrictions (constant for comparison)</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>generate_calibration_data <span class="ot">&lt;-</span> <span class="cf">function</span>(n, k, q) {</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  alpha_seq <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fl">0.0001</span>, <span class="fl">0.15</span>, <span class="at">length.out =</span> <span class="dv">1000</span>)</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  c_alpha <span class="ot">&lt;-</span> <span class="fu">qchisq</span>(<span class="dv">1</span> <span class="sc">-</span> alpha_seq, <span class="at">df =</span> q)</span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Wald: 1 - F_W(c_alpha)</span></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  F_val_W <span class="ot">&lt;-</span> ((n <span class="sc">-</span> k) <span class="sc">/</span> (n <span class="sc">*</span> q)) <span class="sc">*</span> c_alpha</span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  cdf_W <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pf</span>(F_val_W, <span class="at">df1 =</span> q, <span class="at">df2 =</span> n <span class="sc">-</span> k)</span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># LR: 1 - F_LR(c_alpha)</span></span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  F_val_LR <span class="ot">&lt;-</span> ((n <span class="sc">-</span> k) <span class="sc">/</span> q) <span class="sc">*</span> (<span class="fu">exp</span>(c_alpha <span class="sc">/</span> n) <span class="sc">-</span> <span class="dv">1</span>)</span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  cdf_LR <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pf</span>(F_val_LR, <span class="at">df1 =</span> q, <span class="at">df2 =</span> n <span class="sc">-</span> k)</span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Score: 1 - F_S(c_alpha)</span></span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  F_val_S <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(c_alpha <span class="sc">&lt;</span> n, (c_alpha <span class="sc">*</span> (n <span class="sc">-</span> k)) <span class="sc">/</span> (q <span class="sc">*</span> (n <span class="sc">-</span> c_alpha)), <span class="cn">Inf</span>)</span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>  cdf_S <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pf</span>(F_val_S, <span class="at">df1 =</span> q, <span class="at">df2 =</span> n <span class="sc">-</span> k)</span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">Alpha =</span> <span class="fu">rep</span>(alpha_seq, <span class="dv">3</span>),</span>
-<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">Rejection_Prob =</span> <span class="fu">c</span>(cdf_W, cdf_LR, cdf_S),</span>
-<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">Test =</span> <span class="fu">factor</span>(<span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"Wald"</span>, <span class="st">"LR"</span>, <span class="st">"Score"</span>), <span class="at">each =</span> <span class="fu">length</span>(alpha_seq))),</span>
-<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> n,</span>
-<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">k =</span> k</span>
-<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Label =</span> <span class="fu">paste0</span>(<span class="st">"n = "</span>, n, <span class="st">", k = "</span>, k))</span>
-<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Create combined dataset based on tuning parameters</span></span>
-<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>plot_data <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
-<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">generate_calibration_data</span>(<span class="at">n =</span> n1, <span class="at">k =</span> k_val, <span class="at">q =</span> q_val),</span>
-<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">generate_calibration_data</span>(<span class="at">n =</span> n2, <span class="at">k =</span> k_val, <span class="at">q =</span> q_val)</span>
-<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a><span class="co"># Fix factor levels for side-by-side ordering</span></span>
-<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>plot_data<span class="sc">$</span>Label <span class="ot">&lt;-</span> <span class="fu">factor</span>(plot_data<span class="sc">$</span>Label, <span class="at">levels =</span> <span class="fu">unique</span>(plot_data<span class="sc">$</span>Label))</span>
-<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(plot_data, <span class="fu">aes</span>(<span class="at">x =</span> Alpha, <span class="at">y =</span> Rejection_Prob, <span class="at">color =</span> Test)) <span class="sc">+</span></span>
-<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
-<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
-<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> Label) <span class="sc">+</span></span>
-<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Wald"</span> <span class="ot">=</span> <span class="st">"#E41A1C"</span>, <span class="st">"LR"</span> <span class="ot">=</span> <span class="st">"#4DAF4A"</span>, <span class="st">"Score"</span> <span class="ot">=</span> <span class="st">"#377EB8"</span>)) <span class="sc">+</span></span>
-<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.12</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.20</span>)) <span class="sc">+</span></span>
-<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Nominal Significance Level (\u03b1)"</span>,</span>
-<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"True Rejection Rate: P(p-value &lt; \u03b1)"</span>,</span>
-<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Asymptotic Test Calibration vs. Sample Size"</span>,</span>
-<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Dashed line represents perfect calibration (Rejection Rate = \u03b1)"</span></span>
-<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
-<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"bottom"</span>,</span>
-<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>    <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">face =</span> <span class="st">"bold"</span>)</span>
-<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Tuning Parameters ---</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>n1 <span class="ot">&lt;-</span> <span class="dv">15</span>    <span class="co"># Small sample size for Plot 1</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>n2 <span class="ot">&lt;-</span> <span class="dv">50</span>  <span class="co"># Large sample size for Plot 2</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>k_val <span class="ot">&lt;-</span> <span class="dv">5</span>  <span class="co"># Number of parameters (constant for comparison)</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>q_val <span class="ot">&lt;-</span> <span class="dv">1</span>  <span class="co"># Number of restrictions (constant for comparison)</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>generate_calibration_data <span class="ot">&lt;-</span> <span class="cf">function</span>(n, k, q) {</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  alpha_seq <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fl">0.0001</span>, <span class="fl">0.15</span>, <span class="at">length.out =</span> <span class="dv">1000</span>)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  c_alpha <span class="ot">&lt;-</span> <span class="fu">qchisq</span>(<span class="dv">1</span> <span class="sc">-</span> alpha_seq, <span class="at">df =</span> q)</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Wald: 1 - F_W(c_alpha)</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  F_val_W <span class="ot">&lt;-</span> ((n <span class="sc">-</span> k) <span class="sc">/</span> (n <span class="sc">*</span> q)) <span class="sc">*</span> c_alpha</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  cdf_W <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pf</span>(F_val_W, <span class="at">df1 =</span> q, <span class="at">df2 =</span> n <span class="sc">-</span> k)</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># LR: 1 - F_LR(c_alpha)</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  F_val_LR <span class="ot">&lt;-</span> ((n <span class="sc">-</span> k) <span class="sc">/</span> q) <span class="sc">*</span> (<span class="fu">exp</span>(c_alpha <span class="sc">/</span> n) <span class="sc">-</span> <span class="dv">1</span>)</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  cdf_LR <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pf</span>(F_val_LR, <span class="at">df1 =</span> q, <span class="at">df2 =</span> n <span class="sc">-</span> k)</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Score: 1 - F_S(c_alpha)</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>  F_val_S <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(c_alpha <span class="sc">&lt;</span> n, (c_alpha <span class="sc">*</span> (n <span class="sc">-</span> k)) <span class="sc">/</span> (q <span class="sc">*</span> (n <span class="sc">-</span> c_alpha)), <span class="cn">Inf</span>)</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>  cdf_S <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pf</span>(F_val_S, <span class="at">df1 =</span> q, <span class="at">df2 =</span> n <span class="sc">-</span> k)</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">Alpha =</span> <span class="fu">rep</span>(alpha_seq, <span class="dv">3</span>),</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">Rejection_Prob =</span> <span class="fu">c</span>(cdf_W, cdf_LR, cdf_S),</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">Test =</span> <span class="fu">factor</span>(<span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"Wald"</span>, <span class="st">"LR"</span>, <span class="st">"Score"</span>), <span class="at">each =</span> <span class="fu">length</span>(alpha_seq))),</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> n,</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">k =</span> k</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Label =</span> <span class="fu">paste0</span>(<span class="st">"n = "</span>, n, <span class="st">", k = "</span>, k))</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Create combined dataset based on tuning parameters</span></span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>plot_data <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">generate_calibration_data</span>(<span class="at">n =</span> n1, <span class="at">k =</span> k_val, <span class="at">q =</span> q_val),</span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">generate_calibration_data</span>(<span class="at">n =</span> n2, <span class="at">k =</span> k_val, <span class="at">q =</span> q_val)</span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a><span class="co"># Fix factor levels for side-by-side ordering</span></span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>plot_data<span class="sc">$</span>Label <span class="ot">&lt;-</span> <span class="fu">factor</span>(plot_data<span class="sc">$</span>Label, <span class="at">levels =</span> <span class="fu">unique</span>(plot_data<span class="sc">$</span>Label))</span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(plot_data, <span class="fu">aes</span>(<span class="at">x =</span> Alpha, <span class="at">y =</span> Rejection_Prob, <span class="at">color =</span> Test)) <span class="sc">+</span></span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> Label) <span class="sc">+</span></span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Wald"</span> <span class="ot">=</span> <span class="st">"#E41A1C"</span>, <span class="st">"LR"</span> <span class="ot">=</span> <span class="st">"#4DAF4A"</span>, <span class="st">"Score"</span> <span class="ot">=</span> <span class="st">"#377EB8"</span>)) <span class="sc">+</span></span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.12</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.20</span>)) <span class="sc">+</span></span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Nominal Significance Level (\u03b1)"</span>,</span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"True Rejection Rate: P(p-value &lt; \u03b1)"</span>,</span>
+<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Asymptotic Test Calibration vs. Sample Size"</span>,</span>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Dashed line represents perfect calibration (Rejection Rate = \u03b1)"</span></span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"bottom"</span>,</span>
+<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a>    <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">face =</span> <span class="st">"bold"</span>)</span>
+<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div id="fig-calibration-tuning" class="quarto-float quarto-figure quarto-figure-center anchored">

@@ -1178,6 +1178,165 @@ When you define a point as $(x_0, \mu_{1|0}(x_0))$, you are placing it strictly 
 
 Therefore, 100% of the joint spatial distance between $(x_0, \mu_{1|0}(x_0))$ and the global mean $(\mu_0, \mu_1)$ is driven solely by how far $x_0$ is from $\mu_0$ in the marginal space.
 
+```{shinylive-r}
+#| standalone: true
+#| viewerHeight: 750
+#| echo: false
+#| column: screen
+#| label: fig-MD-decomp
+
+library(shiny)
+library(ggplot2)
+
+ui <- fluidPage(
+  titlePanel("Geometry of Mahalanobis Distance Decomposition"),
+  
+  # A relative container holding the plot and absolute panels
+  div(style = "position: relative;",
+      
+      plotOutput("distPlot", height = "700px", width = "100%"),
+      
+      # Floating Control Panel (Top Left)
+      absolutePanel(
+        top = 10, left = 10, width = 320, draggable = TRUE,
+        style = "background-color: rgba(255, 255, 255, 0.85); padding: 10px 15px; border-radius: 8px; border: 1px solid #ccc; box-shadow: 2px 2px 10px rgba(0,0,0,0.1);",
+        
+        h4("Parameters", style = "margin-top: 0; margin-bottom: 10px; font-size: 16px;"),
+        
+        fluidRow(
+          column(6, sliderInput("mu_0", "\\(\\mu_0\\)", min = 0, max = 5, value = 2.2, step = 0.1, ticks = FALSE)),
+          column(6, sliderInput("mu_1", "\\(\\mu_1\\)", min = 0, max = 5, value = 2.2, step = 0.1, ticks = FALSE))
+        ),
+        fluidRow(
+          column(6, sliderInput("x_0", "\\(x_0\\)", min = 0, max = 5, value = 0.9, step = 0.1, ticks = FALSE)),
+          column(6, sliderInput("x_1", "\\(x_1\\)", min = 0, max = 5, value = 1.9, step = 0.1, ticks = FALSE))
+        ),
+        hr(style = "margin: 5px 0; border-top: 1px solid #ddd;"),
+        fluidRow(
+          column(6, sliderInput("sigma_0", "\\(\\sigma_0\\)", min = 0.5, max = 3, value = 1.25, step = 0.05, ticks = FALSE)),
+          column(6, sliderInput("sigma_1", "\\(\\sigma_1\\)", min = 0.5, max = 3, value = 1.25, step = 0.05, ticks = FALSE))
+        ),
+        sliderInput("rho", "Correlation \\(\\rho\\)", min = -0.95, max = 0.95, value = -0.6, step = 0.05, ticks = FALSE)
+      ),
+      
+      # Floating Legend Panel (Bottom Right)
+      absolutePanel(
+        bottom = 20, right = 20, width = 320, draggable = TRUE,
+        style = "background-color: rgba(255, 255, 255, 0.9); padding: 10px; border-radius: 8px; border: 1px solid #ccc; box-shadow: 2px 2px 10px rgba(0,0,0,0.1);",
+        uiOutput("legendUI")
+      )
+  )
+)
+
+server <- function(input, output, session) {
+  
+  # Reactive calculations
+  calc_data <- reactive({
+    mu <- c(input$mu_0, input$mu_1)
+    x <- c(input$x_0, input$x_1)
+    
+    # Construct Covariance Matrix
+    Sigma <- matrix(c(
+      input$sigma_0^2, 
+      input$rho * input$sigma_0 * input$sigma_1, 
+      input$rho * input$sigma_0 * input$sigma_1, 
+      input$sigma_1^2
+    ), nrow = 2)
+    
+    Sigma_inv <- solve(Sigma)
+    
+    # Marginal and Conditional variances
+    Sigma_00 <- Sigma[1, 1]
+    Sigma_1given0 <- Sigma[2, 2] - (Sigma[1, 2]^2) / Sigma[1, 1]
+    
+    # Conditional Mean
+    mu_1given0 <- mu[2] + (Sigma[1, 2] / Sigma[1, 1]) * (x[1] - mu[1])
+    
+    # Projected Point p = (x_0, mu_{1|0}(x_0))
+    p <- c(x[1], mu_1given0)
+    
+    # Calculate Distances
+    diff_total <- x - mu
+    d2_total <- as.numeric(t(diff_total) %*% Sigma_inv %*% diff_total)
+    d2_marg <- (x[1] - mu[1])^2 / Sigma_00
+    d2_cond <- (x[2] - mu_1given0)^2 / Sigma_1given0
+    
+    list(mu = mu, x = x, p = p, Sigma = Sigma, Sigma_inv = Sigma_inv, 
+         d2_total = d2_total, d2_marg = d2_marg, d2_cond = d2_cond)
+  })
+  
+  output$legendUI <- renderUI({
+    res <- calc_data()
+    withMathJax(
+      HTML(paste0(
+        "<div style='font-size: 14px;'>",
+        "<b>Distance Legend</b><br><br>",
+        "<span style='color: black;'><b>Total:</b> \\( D^2(x, \\mu, \\Sigma) = \\) ", round(res$d2_total, 2), "</span><br>",
+        "<span style='color: blue;'><b>Marginal:</b> \\( D^2(x_0, \\mu_0, \\Sigma_{00}) = \\) ", round(res$d2_marg, 2), "</span><br>",
+        "<span style='color: red;'><b>Conditional:</b> \\( D^2(x_1, \\mu_{1|0}(x_0), \\Sigma_{1|0}) = \\) ", round(res$d2_cond, 2), "</span>",
+        "</div>"
+      ))
+    )
+  })
+  
+  output$distPlot <- renderPlot({
+    res <- calc_data()
+    mu <- res$mu; x <- res$x; p <- res$p; Sigma <- res$Sigma; Sigma_inv <- res$Sigma_inv
+    
+    # Generate grid for quadratic contours
+    grid_vals <- seq(-1, 6, length.out = 80)
+    grid <- expand.grid(x0 = grid_vals, x1 = grid_vals)
+    grid$z <- apply(grid, 1, function(row) {
+      diff <- row - mu
+      as.numeric(t(diff) %*% Sigma_inv %*% diff)
+    })
+    
+    # Regression surface line parameters
+    slope <- Sigma[1, 2] / Sigma[1, 1]
+    intercept <- mu[2] - slope * mu[1]
+    
+    # Midpoints for labels
+    mid_marg <- (mu + p) / 2
+    mid_cond <- (p + x) / 2
+    mid_total <- (mu + x) / 2
+    
+    ggplot(grid, aes(x = x0, y = x1)) +
+      # Contours
+      geom_contour(aes(z = z), bins = 20, color = "gray85") +
+      
+      # The Regression Surface (Light Blue Line extending across plot)
+      geom_abline(intercept = intercept, slope = slope, color = "lightblue", linewidth = 2, alpha = 0.5) +
+      
+      # The Distance Segments
+      geom_segment(aes(x = mu[1], y = mu[2], xend = p[1], yend = p[2]), color = "blue", linewidth = 1.2) +
+      geom_segment(aes(x = p[1], y = p[2], xend = x[1], yend = x[2]), color = "red", linewidth = 1.2) +
+      geom_segment(aes(x = mu[1], y = mu[2], xend = x[1], yend = x[2]), color = "black", linetype = "dashed", linewidth = 1) +
+      
+      # Labels on Segments (No numbers, just notation)
+      annotate("text", x = mid_marg[1] + 0.2, y = mid_marg[2] - 0.2, label = "D^2*(list(x[0], mu[0], Sigma[00]))", parse = TRUE, color = "blue", size = 5) +
+      annotate("text", x = mid_cond[1] + 0.25, y = mid_cond[2], label = "D^2*(list(x[1], mu['1|0'](x[0]), Sigma['1|0']))", parse = TRUE, color = "red", size = 5) +
+      annotate("text", x = mid_total[1] - 0.2, y = mid_total[2] + 0.2, label = "D^2*(list(x, mu, Sigma))", parse = TRUE, color = "black", size = 5) +
+      
+      # Points
+      annotate("point", x = mu[1], y = mu[2], color = "blue", size = 4) +
+      annotate("text", x = mu[1] - 0.2, y = mu[2] + 0.2, label = "mu", parse = TRUE, color = "blue", size = 6) +
+      
+      annotate("point", x = p[1], y = p[2], color = "purple", shape = 3, size = 4, stroke = 2) +
+      annotate("text", x = p[1] + 0.5, y = p[2] - 0.2, label = "list(x[0], mu['1|0'](x[0]))", parse = TRUE, color = "purple", size = 5) +
+      
+      annotate("point", x = x[1], y = x[2], color = "black", shape = 4, size = 4, stroke = 2) +
+      annotate("text", x = x[1] - 0.15, y = x[2] + 0.2, label = "x", parse = TRUE, size = 6) +
+      
+      coord_fixed(xlim = c(-0.5, 5.5), ylim = c(-0.5, 5.5)) +
+      labs(x = expression(x[0]), y = expression(x[1])) +
+      theme_minimal(base_size = 16) +
+      theme(panel.grid.minor = element_blank())
+  })
+}
+
+shinyApp(ui, server)
+```
+
 ### Wilks' Theorem for General Nested Models (Likelihood Ratio Test)
 
 ::: {#thm-wilks-general}
@@ -1305,6 +1464,8 @@ ggplot(grid, aes(x = theta0, y = theta1)) +
   coord_fixed()
 
 ```
+
+
 
 ::: {#exm-lrt-normal}
 
