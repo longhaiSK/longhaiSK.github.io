@@ -8,7 +8,7 @@
   --menubackground: lightgrey;
   --navbar-height: 40px;
   
-  /* PARAMETER: Full Sidebar Width (Reduced to 2/3 of 350px) */
+  /* PARAMETER: Full Sidebar Width */
   --quarto-sidebar-width: 235px; 
   
   /* PARAMETER: Mini (Collapsed) Sidebar Width */
@@ -31,11 +31,20 @@ body {
   text-align: justify;
 }
 
+/* Kill Quarto's stubborn background grid system globally */
+.page-columns, 
+.page-layout-article,
+.quarto-container {
+  display: block !important;
+  grid-template-columns: none !important;
+}
+
 main.content, 
 #quarto-content {
   padding-right: 2rem;
+  padding-left: 2rem; 
   padding-bottom: 60px;
-  padding-left: 1rem; 
+  box-sizing: border-box !important;
 }
 
 p { margin: 0.2em 0; }
@@ -157,12 +166,11 @@ figcaption, caption { text-align: center; }
 }
 
 /* =========================================
-   7. SIDEBAR STYLING
+   7. SIDEBAR STYLING (GLOBAL COLORS)
    ========================================= */
 #quarto-sidebar {
   background-color: #f0f4f8 !important; 
   border-right: 1px solid #dbe2e8 !important;
-  min-height: 100vh; 
 }
 
 #quarto-sidebar .sidebar-link,
@@ -176,14 +184,12 @@ ul.injected-page-toc a:hover {
   color: #2c3e50 !important;
 }
 
-/* --- PARENT CHAPTER HIGHLIGHT --- */
 #quarto-sidebar .sidebar-link.active {
   color: #007bff !important;
   background-color: transparent !important;
   font-weight: 800 !important;
 }
 
-/* --- SUBSECTION HIGHLIGHT --- */
 ul.injected-page-toc a.toc-active {
   color: #0056b3 !important;       
   font-weight: 600 !important;     
@@ -193,175 +199,170 @@ ul.injected-page-toc a.toc-active {
 }
 
 /* =========================================
-   8. TOC MERGING & LAYOUT LOGIC
+   8. TOC MERGING & LAYOUT LOGIC (DESKTOP)
    ========================================= */
+@media (min-width: 992px) {
+  nav[role="doc-toc"],
+  #quarto-margin-sidebar,
+  .quarto-secondary-nav .toc {
+      position: fixed; 
+      left: -9999px;
+      top: -9999px;
+      width: 0; height: 0;
+      overflow: hidden; visibility: hidden;
+  }
 
-/* --- A. Hide Duplicates (Ghost Mode) --- */
-nav[role="doc-toc"],
-#quarto-margin-sidebar,
-.quarto-secondary-nav .toc {
-    position: fixed; 
-    left: -9999px;
-    top: -9999px;
-    width: 0; height: 0;
-    overflow: hidden; visibility: hidden;
+  .sidebar-item-toggle { display: none !important; }
+
+  #quarto-sidebar .sidebar-menu-container {
+    opacity: 0;
+    transition: opacity 0.2s ease-in;
+  }
+  
+  #quarto-sidebar .sidebar-menu-container.loaded { opacity: 1; }
+
+  #quarto-sidebar .sidebar-menu-container > ul {
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+    list-style: none !important;
+  }
+
+  #quarto-sidebar .sidebar-item-container { 
+    padding-left: 0 !important; 
+  }
+
+  ul.injected-page-toc, ul.injected-page-toc ul {
+    list-style: none !important;
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+  }
+
+  ul.injected-page-toc {
+    padding-left: 12px !important; 
+    border-left: 1px solid #dee2e6;
+    margin-left: 1.0em !important; 
+    margin-top: 5px !important;
+    margin-bottom: 10px !important;
+  }
+  ul.injected-page-toc ul { padding-left: 15px !important; }
+
+  #quarto-sidebar .sidebar-link,
+  ul.injected-page-toc a {
+    display: flex !important;
+    align-items: baseline;
+    text-decoration: none !important;
+    color: #6c757d;
+    padding: 6px 0;
+    border: none !important;
+    width: 100%;
+    position: relative;
+    transition: all 0.2s ease;
+    text-align: left; 
+  }
+
+  #quarto-sidebar .sidebar-link .menu-text { display: flex; width: 100%; text-align: left; }
+
+  .toc-num {
+    flex: 0 0 auto;
+    min-width: 1.8em;
+    padding-right: 0.5em;
+    font-weight: 500;
+    text-align: left; 
+    margin-right: 5px;
+  }
+  
+  .toc-text { 
+    flex: 1 1 auto; 
+    display: block; 
+    text-align: left; 
+  }
+
+  a.has-children::after {
+    content: "›"; 
+    display: inline-block;
+    margin-left: auto;
+    margin-right: 5px;
+    font-weight: bold;
+    font-family: monospace; 
+    transform: rotate(90deg);
+    transition: transform 0.2s ease;
+    color: #adb5bd;
+  }
+  a.has-children.collapsed::after { transform: rotate(0deg); }
 }
-
-/* --- B. Hide Default Toggles --- */
-.sidebar-item-toggle { display: none !important; }
-
-/* --- C. Anti-Flash --- */
-#quarto-sidebar .sidebar-menu-container {
-  opacity: 0;
-  transition: opacity 0.2s ease-in;
-}
-#quarto-sidebar .sidebar-menu-container.loaded { opacity: 1; }
-
-/* --- D. RESET LIST PADDING --- */
-#quarto-sidebar .sidebar-menu-container > ul {
-  padding-left: 0 !important;
-  margin-left: 0 !important;
-  list-style: none !important;
-}
-
-#quarto-sidebar .sidebar-item-container { 
-  padding-left: 0 !important; 
-}
-
-/* --- E. INJECTED TOC (Sub-chapters) --- */
-ul.injected-page-toc, ul.injected-page-toc ul {
-  list-style: none !important;
-  padding-left: 0 !important;
-  margin-left: 0 !important;
-}
-
-ul.injected-page-toc {
-  padding-left: 12px !important; 
-  border-left: 1px solid #dee2e6;
-  margin-left: 1.0em !important; 
-  margin-top: 5px !important;
-  margin-bottom: 10px !important;
-}
-ul.injected-page-toc ul { padding-left: 15px !important; }
-
-/* --- F. FLEXBOX ALIGNMENT --- */
-#quarto-sidebar .sidebar-link,
-ul.injected-page-toc a {
-  display: flex !important;
-  align-items: baseline;
-  text-decoration: none !important;
-  color: #6c757d;
-  padding: 6px 0;
-  border: none !important;
-  width: 100%;
-  position: relative;
-  transition: all 0.2s ease;
-  text-align: left; /* Ensure overall link is left-aligned */
-}
-
-#quarto-sidebar .sidebar-link .menu-text { display: flex; width: 100%; text-align: left; }
-
-.toc-num {
-  flex: 0 0 auto;
-  min-width: 1.8em;
-  padding-right: 0.5em;
-  font-weight: 500;
-  text-align: left; /* Changed to left alignment */
-  margin-right: 5px;
-}
-.toc-text { 
-  flex: 1 1 auto; 
-  display: block; 
-  text-align: left; /* Explicitly forced to left */
-}
-
-a.has-children::after {
-  content: "›"; 
-  display: inline-block;
-  margin-left: auto;
-  margin-right: 5px;
-  font-weight: bold;
-  font-family: monospace; 
-  transform: rotate(90deg);
-  transition: transform 0.2s ease;
-  color: #adb5bd;
-}
-a.has-children.collapsed::after { transform: rotate(0deg); }
 
 /* =========================================
-   9. CUSTOM LAYOUT: RESPONSIVE SIDEBAR
+   9. CUSTOM LAYOUT: RESPONSIVE BEHAVIOR
    ========================================= */
 
-/* --- A. SHARED BASE SETTINGS --- */
-#quarto-sidebar {
-  position: fixed !important;
-  padding: 60px 10px 20px 10px !important;
-  top: 0 !important;
-  bottom: 0 !important;
-  height: 100vh !important;
-  z-index: 1100 !important;
-  overflow-x: hidden !important; 
-  overflow-y: auto !important;
-  transition: all 0.3s ease;
-}
-
-#quarto-content {
-  transition: margin-left 0.3s ease;
-  padding: 0 !important;
-}
-
-/* --- B. SMALL SCREENS (< 992px) --- */
+/* --- A. SMALL SCREENS (< 992px) --- */
 @media (max-width: 991.98px) {
-  /* Main Content Layout */
-  main.content, .page-columns, .quarto-container {
+  /* Maintain true horizontal centering for text */
+  #quarto-content {
+    display: flex !important;
+    justify-content: center !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
+  
+  main.content {
     display: block !important;
     width: 100% !important;
     padding-top: 1rem !important;
+    margin: 0 !important;
   }
   
-  #quarto-content { margin-left: 0 !important; }
-  
-  /* Sidebar Default State: Hidden Off-Screen */
-  #quarto-sidebar {
-    left: calc(-1 * var(--quarto-sidebar-width)) !important; 
-    width: var(--quarto-sidebar-width) !important;
-    box-shadow: none !important;
-  }
-
-  /* Sidebar Toggled State: Slides In & Overlays */
-  /* Note: Accepts .sidebar-open or .sidebar-closed depending on your JS logic */
-  body.sidebar-closed #quarto-sidebar,
-  body.sidebar-open #quarto-sidebar {
-    left: 0 !important;
-    box-shadow: 5px 0 25px rgba(0,0,0,0.3) !important;
+  /* EXPLICITLY HIDE CUSTOM TOGGLE ON MOBILE */
+  #custom-sidebar-toggle {
+    display: none !important;
   }
   
-  #quarto-sidebar .sidebar-menu-container,
-  #quarto-sidebar .sidebar-title,
-  #quarto-sidebar .sidebar-header {
-    opacity: 1 !important;
-    visibility: visible !important;
-  }
+  /* Quarto's native mobile navigation handles the rest! */
 }
 
-/* --- C. DESKTOP SCREENS (992px+) --- */
+/* --- B. DESKTOP SCREENS (992px+) --- */
 @media (min-width: 992px) {
-  /* Main Content Layout */
-  main.content, .page-columns, .quarto-container {
-    display: block !important;
+  
+  /* Force Flexbox centering on the parent container */
+  #quarto-content {
+    display: flex !important;
+    justify-content: center !important; 
+    align-items: flex-start !important; 
+    transition: margin-left 0.3s ease, width 0.3s ease;
+  }
+
+  /* Constrain main text width */
+  main.content {
     width: 100% !important;
-    max-width: 800px !important; /* Locks maximum page width */
-    margin: 0 auto !important;   /* Centers the main content */
+    max-width: 900px !important; 
+    margin: 0 !important; 
     padding-top: 2rem !important;
     padding-bottom: 4rem !important;
   }
 
-  #quarto-sidebar { left: 0 !important; }
+  /* Desktop sidebar fixed positioning */
+  #quarto-sidebar {
+    position: fixed !important;
+    padding: 60px 10px 20px 10px !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    height: 100vh !important;
+    z-index: 1100 !important;
+    overflow-x: hidden !important; 
+    overflow-y: auto !important;
+    transition: all 0.3s ease;
+    left: 0 !important; 
+  }
 
   /* --- DEFAULT STATE: ALWAYS OPEN --- */
   body:not(.sidebar-closed) #quarto-sidebar {
     width: var(--quarto-sidebar-width) !important;
     box-shadow: none !important;
+  }
+
+  body:not(.sidebar-closed) #quarto-content {
+    margin-left: var(--quarto-sidebar-width) !important;
+    width: calc(100% - var(--quarto-sidebar-width)) !important; 
   }
 
   body:not(.sidebar-closed) #quarto-sidebar .sidebar-menu-container,
@@ -371,13 +372,14 @@ a.has-children.collapsed::after { transform: rotate(0deg); }
     visibility: visible !important;
   }
 
-  body:not(.sidebar-closed) #quarto-content {
-    margin-left: var(--quarto-sidebar-width) !important;
-  }
-
   /* --- TOGGLED STATE: CLOSED / MINI --- */
   body.sidebar-closed #quarto-sidebar {
     width: var(--quarto-sidebar-mini-width) !important;
+  }
+
+  body.sidebar-closed #quarto-content {
+    margin-left: var(--quarto-sidebar-mini-width) !important;
+    width: calc(100% - var(--quarto-sidebar-mini-width)) !important;
   }
 
   body.sidebar-closed #quarto-sidebar .sidebar-menu-container,
@@ -385,10 +387,6 @@ a.has-children.collapsed::after { transform: rotate(0deg); }
   body.sidebar-closed #quarto-sidebar .sidebar-header {
      opacity: 0 !important;
      visibility: hidden !important;
-  }
-
-  body.sidebar-closed #quarto-content {
-    margin-left: var(--quarto-sidebar-mini-width) !important;
   }
 }
 
@@ -399,8 +397,8 @@ a.has-children.collapsed::after { transform: rotate(0deg); }
   position: fixed;
   top: 5px;
   left: 7px;
-  z-index: 1200; /* Stays above the sidebar overlay */
-  display: flex; /* Visible on ALL screen sizes now */
+  z-index: 1200; 
+  display: flex; /* Will be overridden to 'none' on mobile via media query above */
   align-items: center;
   justify-content: center;
   width: 45px;
@@ -419,4 +417,21 @@ a.has-children.collapsed::after { transform: rotate(0deg); }
   background-color: rgba(255,255,255, 0.95);
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   border: 1px solid #cccfd2;
+}
+
+/* =========================================
+   11. HIDE QUARTO PAGE NAVIGATION (PREV/NEXT)
+   ========================================= */
+.page-navigation, 
+.nav-page, 
+.quarto-page-navigation,
+.margin-nav {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  visibility: hidden !important;
+}
+
+#quarto-margin-sidebar {
+  display: none !important;
 }
