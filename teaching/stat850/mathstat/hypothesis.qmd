@@ -1340,68 +1340,83 @@ shinyApp(ui, server)
 ### Wilks' Theorem for General Nested Models (Likelihood Ratio Test)
 
 ::: {#thm-wilks-general}
-
-#### Wilks' Theorem for General Nested Models
+### Wilks' Theorem for General Nested Models
 
 Let $\mathbf{Y} = (Y_1, \dots, Y_n)$ be an i.i.d. sample from a distribution $f(\mathbf{y}; \boldsymbol{\theta})$ with $\boldsymbol{\theta} \in \Theta \subseteq \mathbb{R}^p$. Let $\Theta_0$ be a lower-dimensional subspace of $\Theta$ defined by $q$ independent constraints, such that $\dim(\Theta_0) = p - q$. 
 
 Consider testing the nested hypotheses:
+
 $$
 H_0: \boldsymbol{\theta} \in \Theta_0 \quad \text{vs} \quad H_1: \boldsymbol{\theta} \in \Theta \setminus \Theta_0
 $$
 
 Let $\hat{\boldsymbol{\theta}}$ be the unrestricted Maximum Likelihood Estimator (MLE) over $\Theta$, and let $\tilde{\boldsymbol{\theta}}$ be the restricted MLE over $\Theta_0$. The likelihood ratio test statistic is defined as:
+
 $$
 D = 2 \left[ \ell(\hat{\boldsymbol{\theta}}) - \ell(\tilde{\boldsymbol{\theta}}) \right]
 $$
 
-Under $H_0$, as $n \to \infty$, the statistic $D$ converges in distribution to a chi-square distribution with degrees of freedom equal to the difference in the dimensionality of the two parameter spaces:
+Under $H_0$, as $n \to \infty$, the statistic $D$ converges in distribution to a chi-square distribution with degrees of freedom equal to the number of constraints:
+
 $$
 D \xrightarrow{d} \chi^2_q
 $$
-
-where $q = \dim(\Theta) - \dim(\Theta_0)$ is the number of constraints imposed by the null hypothesis.
-
 :::
 
 ::: {.proof}
-1. Quadratic Approximation of the Log-Likelihood
 
-Under the null hypothesis $H_0$, we expand the log-likelihood $\ell(\boldsymbol{\theta}^*)$ around the unrestricted MLE $\hat{\boldsymbol{\theta}}$. Let $\Sigma = \mathcal{I}^{-1}$ be the asymptotic covariance matrix. The total discrepancy between the peak and the true parameter is:
-$$
-2[\ell(\hat{\boldsymbol{\theta}}) - \ell(\boldsymbol{\theta}^*)] \approx n (\boldsymbol{\theta}^* - \hat{\boldsymbol{\theta}})^T \Sigma^{-1} (\boldsymbol{\theta}^* - \hat{\boldsymbol{\theta}})
-$$
+1. **Quadratic Taylor Expansion at the Peak** \n
+   Under the null hypothesis $H_0$, we perform a second-order Taylor expansion of the log-likelihood function $\ell(\boldsymbol{\theta})$ around the unrestricted MLE $\hat{\boldsymbol{\theta}}$. For sufficiently large $n$, the expansion is given by:
+   
+   $$
+   \ell(\boldsymbol{\theta}) \approx \ell(\hat{\boldsymbol{\theta}}) - \frac{1}{2} (\boldsymbol{\theta} - \hat{\boldsymbol{\theta}})^T \mathcal{I} (\boldsymbol{\theta} - \hat{\boldsymbol{\theta}})
+   $$
+   
+   where $\mathcal{I} = \Sigma^{-1}$ represents the Fisher Information matrix (the asymptotic precision). Using our distance notation $D^2(v, c, S)$, this quadratic approximation is:
+   
+   $$
+   2[\ell(\hat{\boldsymbol{\theta}}) - \ell(\boldsymbol{\theta})] \approx D^2(\boldsymbol{\theta}, \hat{\boldsymbol{\theta}}, \Sigma)
+   $$
 
-2. The Mahalanobis Decomposition Identity
+2. **Evaluation at the Restricted MLE** \n
+   The Wilks' statistic $D$ measures the likelihood ratio between the unrestricted peak $\hat{\boldsymbol{\theta}}$ and the restricted peak $\tilde{\boldsymbol{\theta}}$. By plugging $\tilde{\boldsymbol{\theta}}$ into the quadratic approximation above, we obtain:
+   
+   $$
+   D = 2[\ell(\hat{\boldsymbol{\theta}}) - \ell(\tilde{\boldsymbol{\theta}})] \approx D^2(\tilde{\boldsymbol{\theta}}, \hat{\boldsymbol{\theta}}, \Sigma)
+   $$
 
-For any partitioned vector and its corresponding precision matrix $\Sigma^{-1} = \mathcal{I}$, the total Mahalanobis distance from the center $\hat{\boldsymbol{\theta}}$ decomposes into a marginal component for the parameters of interest and a conditional component for the nuisance parameters:
-$$
-n \|\boldsymbol{\theta}^* - \hat{\boldsymbol{\theta}}\|_{\Sigma^{-1}}^2 = n (\boldsymbol{\theta}_0^* - \hat{\boldsymbol{\theta}}_0)^T \Sigma_{00}^{-1} (\boldsymbol{\theta}_0^* - \hat{\boldsymbol{\theta}}_0) + n (\boldsymbol{\theta}_1^* - \hat{\boldsymbol{\theta}}_{1, \Sigma})^T \mathcal{I}_{11} (\boldsymbol{\theta}_1^* - \hat{\boldsymbol{\theta}}_{1, \Sigma})
-$$
-where the **geometric center** for the nuisance parameters, $\hat{\boldsymbol{\theta}}_{1, \Sigma}$, is the optimal point on the constraint line relative to the unrestricted MLE peak:
-$$
-\hat{\boldsymbol{\theta}}_{1, \Sigma} = \hat{\boldsymbol{\theta}}_1 - \mathcal{I}_{11}^{-1} \mathcal{I}_{10} (\boldsymbol{\theta}_0^* - \hat{\boldsymbol{\theta}}_0)
-$$
+3. **Applying the Mahalanobis Decomposition** \n
+   We apply the orthogonal decomposition theorem to partition this joint distance into a marginal component for the parameters of interest ($\boldsymbol{\theta}_0$) and a conditional component for the nuisance parameters ($\boldsymbol{\theta}_1$):
+   
+   $$
+   D^2(\tilde{\boldsymbol{\theta}}, \hat{\boldsymbol{\theta}}, \Sigma) = D^2(\tilde{\boldsymbol{\theta}}_0, \hat{\boldsymbol{\theta}}_0, \Sigma_{00}) + D^2(\tilde{\boldsymbol{\theta}}_1, \mu_{1|0}(\tilde{\boldsymbol{\theta}}_0), \Sigma_{1|0})
+   $$
 
-3. Convergence of the Restricted MLE
+4. **Vanishing of the Nuisance Term** \n
+   By the definition of the restricted MLE $\tilde{\boldsymbol{\theta}}$ under the null hypothesis $H_0: \boldsymbol{\theta}_0 = \boldsymbol{\theta}_0^*$:
+   
+   - The parameters of interest are fixed: $\tilde{\boldsymbol{\theta}}_0 = \boldsymbol{\theta}_0^*$.
+   - The restricted nuisance parameters $\tilde{\boldsymbol{\theta}}_1$ are chosen to maximize the restricted likelihood, which is equivalent to minimizing the joint distance $D^2(\tilde{\boldsymbol{\theta}}, \hat{\boldsymbol{\theta}}, \Sigma)$.
+   
+   As established by the properties of the regression surface, this minimum occurs exactly when $\tilde{\boldsymbol{\theta}}_1 = \mu_{1|0}(\boldsymbol{\theta}_0^*)$. At this point, the conditional term $D^2(\mu_{1|0}(\boldsymbol{\theta}_0^*), \mu_{1|0}(\boldsymbol{\theta}_0^*), \Sigma_{1|0})$ is exactly zero.
 
-When the log-likelihood is quadratic, the restricted MLE $\tilde{\boldsymbol{\theta}}_1$ is identical to this geometric center $\hat{\boldsymbol{\theta}}_{1, \Sigma}$. In regular families, the log-likelihood is locally quadratic near the peak, implying:
-$$
-\tilde{\boldsymbol{\theta}}_1 \approx \hat{\boldsymbol{\theta}}_{1, \Sigma}
-$$
-Substituting this into the decomposition, the first term represents the distance from the unrestricted peak to the restricted MLE, which is exactly the Wilks' statistic $D = 2[\ell(\hat{\boldsymbol{\theta}}) - \ell(\tilde{\boldsymbol{\theta}})]$.
+5. **Final Marginal Identity and Distribution** \n
+   The Wilks' statistic $D$ reduces entirely to the marginal Mahalanobis distance between the estimated and hypothesized parameters of interest:
+   
+   $$
+   D \approx D^2(\boldsymbol{\theta}_0^*, \hat{\boldsymbol{\theta}}_0, \Sigma_{00}) = (\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*)^T \Sigma_{00}^{-1} (\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*)
+   $$
+   
+   Under $H_0$, the asymptotic normality of the MLE implies $\sqrt{n}(\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*) \xrightarrow{d} N(\mathbf{0}, \Sigma_{00})$. Therefore, the quadratic form $D$ follows a chi-square distribution with $q$ degrees of freedom:
+   
+   $$
+   D \xrightarrow{d} \chi^2_q
+   $$
+:::
 
-4. Distributional Conclusion
-
-The second term on the right represents the error in the nuisance parameters under the restricted model, which is $\chi^2_{p-q}$. By the properties of the decomposition:
-$$
-D \approx n (\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*)^T \Sigma_{00}^{-1} (\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*)
-$$
-where $\Sigma_{00}$ is the $q \times q$ **marginal asymptotic covariance** of $\hat{\boldsymbol{\theta}}_0$. Under $H_0$, $\sqrt{n}(\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0^*) \xrightarrow{d} N(\mathbf{0}, \Sigma_{00})$, thus:
-$$
-D \xrightarrow{d} \chi^2_q
-$$
-
+::: {.remark}
+### Geometric Intuition
+This proof illustrates that the restricted MLE $\tilde{\boldsymbol{\theta}}$ "slides" along the conditional regression surface $\mu_{1|0}(\boldsymbol{\theta}_0)$ until the conditional component of the discrepancy vanishes. This optimization process effectively "filters out" the noise from the $p-q$ nuisance parameters, leaving only the $q$-dimensional marginal evidence for the hypothesis test.
 :::
 
 **Diagram to Illustrate Wilks' Theorem**
