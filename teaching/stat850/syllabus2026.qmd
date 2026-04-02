@@ -175,6 +175,7 @@ The schedule may change depending on the course pace. The exact assignment and t
 After completing this course, students are expected to grasp the following knowledges and skills:
 
 ```{r}
+#| echo: false
 library(gt)
 library(dplyr)
 
@@ -186,7 +187,7 @@ final_guide <- data.frame(
     "Likelihood Theory",
     "Maximum Likelihood Estimation",
     "Hypothesis Testing",
-    "Uniformly Minimum Variance Unbiased Estimation"
+    "UMVUE"
   ),
   Knowledge = c(
     "Understand risk functions, admissibility, and the theoretical foundation of decision rules.",
@@ -197,22 +198,19 @@ final_guide <- data.frame(
     "Understand completeness, the Lehmann-Scheffé theorem, and the theoretical properties of UMVUEs."
   ),
   Skills = c(
-    "Calculate frequentist risk for given estimators and evaluate admissibility under simple loss functions.",
+    "Calculate frequentist risk function for given estimators and evaluate admissibility under simple loss functions.",
     "Derive posterior distributions, find Bayes estimators, calculate Bayes risk, and find minimax rules.",
-    "Identify minimal sufficient statistic, compute Fisher Information matrices, verify CRLB attainment, and identify natural parameters in Exponential Families.",
-    "Derive MLEs analytically, calculate asymptotic variances, and compare models.",
-    "Construct UMP tests using the NP Lemma or MLR, and formulate Likelihood Ratio tests for composite hypotheses.",
-    "Construct UMVUEs by conditioning an unbiased estimator on a complete sufficient statistic (Rao-Blackwellization)."
+    "Identify minimal sufficient statistic, compute Fisher Information matrices, Bartlett Identities, verify CRLB attainment,  identify natural parameters and calculate moments of suff. statistics in Exponential Families",
+    "Derive MLEs analytically, calculate asymptotic variances using Fisher information, compute AIC",
+    "Construct UMP tests using MLR, and derive Likelihood Ratio tests, Score tests, and Wald tests.",
+    "Derive UMVUE in exponential families."
   )
 )
+
 
 # Generate the gt table
 final_guide %>%
   gt() %>%
-  tab_header(
-    title = "Final Examination Expectations",
-    subtitle = "Categorized by Knowledge and Applied Skills"
-  ) %>%
   cols_label(
     Topic = md("**Topic**"),
     Knowledge = md("**Knowledge**"),
@@ -222,19 +220,28 @@ final_guide %>%
     style = cell_text(weight = "bold"),
     locations = cells_body(columns = Topic)
   ) %>%
+  # Apply zebra striping first
+  opt_row_striping() %>%
   tab_options(
     table.width = pct(100),
     column_labels.background.color = "#E0E0E0",
     column_labels.font.weight = "bold",
-    row_group.background.color = "#F5F5F5"
+    
+    # 1. Explicitly set the alternating row shade
+    row.striping.background_color = "#F5F5F5",
+    
+    # 2. Force the horizontal row lines between every row
+    table_body.hlines.color = "#B0B0B0", 
+    table_body.hlines.width = px(1),
+    table_body.hlines.style = "solid"
   ) %>%
   opt_align_table_header(align = "left") %>%
   cols_width(
     Topic ~ px(200),
     Knowledge ~ px(400),
     Skills ~ px(400)
-  ) %>%
-  opt_stylize(style = 1, color = "gray")
+  )
+
 ```
 
 ## Evaluation
