@@ -178,6 +178,7 @@ After completing this course, students are expected to grasp the following knowl
 
 ```{r}
 #| echo: false
+#| message: false
 library(gt)
 library(dplyr)
 
@@ -211,8 +212,7 @@ final_guide <- data.frame(
 )
 
 
-# Generate the gt table
-final_guide %>%
+outcome_tbl <- final_guide %>%
   gt() %>%
   cols_label(
     Topic = md("**Topic**"),
@@ -224,28 +224,31 @@ final_guide %>%
     style = cell_text(weight = "bold"),
     locations = cells_body(columns = Topic)
   ) %>%
-  # Apply zebra striping first
   opt_row_striping() %>%
   tab_options(
     table.width = pct(100),
     column_labels.background.color = "#E0E0E0",
     column_labels.font.weight = "bold",
-    
-    # 1. Explicitly set the alternating row shade
+    table.font.size = px(18),           # Slightly larger base font
+    data_row.padding = px(15),          # Forces more row height
     row.striping.background_color = "#F5F5F5",
-    
-    # 2. Force the horizontal row lines between every row
     table_body.hlines.color = "#B0B0B0", 
-    table_body.hlines.width = px(1),
-    table_body.hlines.style = "solid"
+    table_body.hlines.width = px(1)
   ) %>%
-  opt_align_table_header(align = "left") %>%
   cols_width(
-    Topic ~ px(100),
-    Knowledge ~ px(400),
-    Skills ~ px(400),
-    Percentages ~ px(20)
+    Topic ~ pct(15),
+    Knowledge ~ pct(35),
+    Skills ~ pct(40),
+    Percentages ~ pct(10)
   )
+
+# Save with a zoom factor
+if (!knitr::is_html_output()) {
+  gtsave(outcome_tbl, "outcome_snapshot.png", vwidth = 800) 
+  knitr::include_graphics("outcome_snapshot.png")
+} else {
+  outcome_tbl
+}
 
 ```
 
