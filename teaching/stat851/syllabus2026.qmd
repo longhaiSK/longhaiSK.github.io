@@ -1,5 +1,8 @@
 ---
 title: "STAT 443/851 Theory of Linear Models (University of Saskatchewan, 2026-01)"
+execute: 
+  message: false
+  warning: false
 format: 
   html: 
     theme: cosmo
@@ -35,141 +38,118 @@ Lecture Classroom: MCLN 242.1, MWF 9:30-10:20; Office hour: TBA; Lab: no lab.
 * See [the course page](.), which is the primary source for learning.
 * Recommended reading: LINEAR MODELS IN STATISTICS, Second Edition, by Alvin C. Rencher and G. Bruce Schaalje, ISBN 978-0-471-75498-5 (cloth). *The book is not required but it is good to have it.*
 
-## Learning Outcomes
+## Learning Outcomes 
 
-By the completion of this course, students will be expected to:
+After completing this course, students are expected to grasp the following knowledges and skills:
 
-1.  **Utilize Vector Space Theory:** Apply concepts of vector spaces, subspaces, and orthogonal projections to provide a geometric interpretation of least squares estimation and the general linear model.
-2.  **Apply Matrix Algebra:** Employ advanced matrix methods, including spectral theory, generalized inverses, to manipulate linear equations and solve for estimator properties.
-3.  **Derive Distributional Properties:** Derive the properties of multivariate normal vectors and quadratic forms, utilizing Cochran’s Theorem to prove the independence and Chi-square distribution of regression sums of squares required for valid hypothesis testing.
-4.  **Construct Statistical Inference:** Apply the theory of multiple regression to construct confidence regions and execute hypothesis tests (F-tests) for the general linear hypothesis.
-6.  **Analyze Non-Full-Rank Models:** Distinguish between estimable and non-estimable functions in non-full-rank models (e.g., ANOVA frameworks) and formulate appropriate tests for these scenarios.
+```{r}
+#| label: tbl-outcome
+#| echo: false
+#| message: false
+#| warning: false
+library(knitr)
+library(kableExtra)
+library(dplyr)
 
+# Constructing the merged dataframe
+linear_outcomes <- data.frame(
+  Topic = c(
+    "Vector Spaces",
+    "Matrix Algebra",
+    "Multivariate Normal",
+    "Quadratic Forms",
+    "Multiple Regression",
+    "Non-full-rank Models"
+  ),
+  Competencies = c(
+    "<b>Understanding</b> the geometric interpretation of subspaces, orthogonal projectipons with the Hat matrix (H) and the Partial Residual matrix. <b>Numerically and symbolically calculating</b> orthogonal projections onto these spaces using various approaches",
+    "<b>Understanding</b> advanced matrix theory, including spectral decomposition and idempotent properties. <b>Deriving</b> properties of projection matrices, <b>symbolically</b> manipulating matrices, including  <b>calculating</b> generalized inverses.",
+    "<b>Understanding</b> the properties of multivariate normal vectors and multiple correlation coefficients. <b>Deriving</b> the mean and covariance of transformed normal vectors and <b>calculating</b> conditional and marginal distribution of MVN.",
+    "<b>Understanding</b> the distributions of quadratic forms. <b>Verifying</b> the independence of quadratic forms and <b>applying</b> Cochran's Theorem to derive the distributions and degrees of freedom for sums of squares.",
+    "<b>Understanding</b> the general linear hypothesis and the relationship between RSS, SSH, and SSE. <b>Calculating</b> LS estimators, error variance, and adjusted $R^2$ with CI. <b>Implementing</b> F-tests and t-tests; <b>constructing</b> confidence/prediction regions; and <b>symbolically deriving</b> SSH, SSE, and the F-distribution.",
+    "<b>Understanding</b> identifiability and estimable functions in over-parameterized models. <b>Identifying</b> estimable linear combinations and <b>conducting</b> hypothesis tests and estimation for non-full rank linear models"
+  ),
+  Percentages = c("15%", "15%", "15%", "15%", "25%", "15%")
+)
+
+# Render the table using kable and kableExtra
+linear_outcomes %>%
+  kable(
+    format = "html", 
+    escape = FALSE,
+    col.names = c("Topic", "Learning Outcomes (Knowledge & Skills)", "Perc"),
+    align = "l"
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"),
+    full_width = TRUE,
+    font_size = 16
+  ) %>%
+  column_spec(1, bold = TRUE, width = "20%") %>%
+  column_spec(2, width = "70%") %>%
+  column_spec(3, width = "10%") %>%
+  row_spec(0, bold = TRUE, background = "#E0E0E0")
+```
 
 
 ## Tentative Schedule
 
-
-```{r find-mondays}
-#| echo: false
-#| eval: false
-
-# 1. Set the first Monday
-start_date <- as.Date("2026-09-05")
-
-# 2. Generate the next 14 weeks
-dates <- seq(from = start_date, by = "week", length.out = 14)
-
-# 3. Print the vector in a copy-paste friendly format
-dput(format(dates, "%b %d"))
-```
-
 ```{r}
+#| label: tbl-timetable
+#| tbl-cap: " "
 #| echo: false
 #| message: false
 #| warning: false
-#| out-width: "100%"
-#| out-extra: "style='width: 100% !important;'" 
-
-library(gt)
-library(dplyr)
 library(knitr)
+library(kableExtra)
+library(dplyr)
 
-# Edit the text between the quotes below
-# Edit the text between the quotes below
+# 1. Input Data
 csv_text <- "
 Date,   Acad_Week, Topic,                                             Remarks
 Jan 05, 1,         \"1. Vector Space and Projection\",                  Jan 07: First day of class
 Jan 12, 2,         \"1. Vector Space and Projection \",
-Jan 19, 3,         \"2. Matrix Algebra\",                               **Jan 25: Assignment 1 due**
+Jan 19, 3,         \"2. Matrix Algebra\",                               <b>Jan 25: Assignment 1 due</b>
 Jan 26, 4,         \"2. Matrix Algebra \",
 Feb 02, 5,         \"3. Distribution of Multivariate Normal\",
 Feb 09, 6,         \"4. Distribution of Quadratic Forms\",
-Feb 16, N/A,       \"—\",                                               **Reading Week – No classes**
-Feb 23, 7,         \"4. Distribution of Quadratic Forms \",     **Mar 01: Assignment 2 due**
-Mar 02, 8,         \"5. Theory for Multiple Regression\",               **Mar 06: Midterm (during class)**
+Feb 16, N/A,       \"—\",                                               <b>Reading Week – No classes</b>
+Feb 23, 7,         \"4. Distribution of Quadratic Forms \",     <b>Mar 01: Assignment 2 due</b>
+Mar 02, 8,         \"5. Theory for Multiple Regression\",               <b>Mar 06: Midterm (during class)</b>
 Mar 09, 9,         \"5. Theory for Multiple Regression \",
 Mar 16, 10,        \"5. Theory for Multiple Regression \",
 Mar 23, 11,        \"6. Non-full-rank Models\",
-Mar 30, 12,        \"6. Non-full-rank Models \",                **Apr 05: Assignment 3 due**
+Mar 30, 12,        \"6. Non-full-rank Models \",                <b>Apr 05: Assignment 3 due</b>
 Apr 06, 13,        \"Review\",                                          Apr 06: Last lecture
 "
 
-
-# Convert the text block into a dataframe
-# strip.white = TRUE ensures the alignment spaces are ignored during import
+# 2. Process Data
 schedule_data <- read.csv(text = csv_text, strip.white = TRUE, stringsAsFactors = FALSE)
+schedule_data[is.na(schedule_data)] <- ""
 
-# Fill empty remarks with empty strings
-schedule_data$Remarks[is.na(schedule_data$Remarks)] <- ""
-
-# View Result
-
-# 4. CREATE THE TABLE
-gt_tbl <- schedule_data %>%
-  gt() %>%
-  cols_label(
-    Acad_Week = "Week",
-    Date = "Date (Mon)",
-    Topic = "Lecture Topic",
-    Remarks = "Tests & Notes"
+# 3. Render Table
+schedule_data %>%
+  kable(
+    format = "html",
+    escape = FALSE,
+    col.names = c("Date (Mon)", "Week", "Lecture Topic", "Tests & Notes"),
+    align = c("l", "c", "l", "l")
   ) %>%
-  fmt_markdown(columns = c(Remarks)) %>%
-  cols_align(align = "center", columns = c(Acad_Week)) %>%
-  cols_align(align = "left", columns = c(Date, Topic, Remarks)) %>%
-  cols_width(
-    Topic ~ px(300),
-    Remarks ~ px(200),
-    everything() ~ px(80)
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "bordered"),
+    full_width = TRUE,
+    font_size = 16
   ) %>%
-  opt_row_striping() %>%
-  
-  # --- CRITICAL STYLING ---
-  tab_options(
-    # Body Grid
-    table_body.hlines.style = "solid",
-    table_body.vlines.style = "solid",
-    
-    # Header Grid
-    column_labels.vlines.style = "solid",
-    column_labels.border.top.style = "solid",
-    column_labels.border.bottom.style = "solid",
-    
-    # Outer Border
-    table.border.top.style = "solid",
-    table.border.bottom.style = "solid",
-    
-    # Adjust font for image readability
-    table.font.size = px(16)
-  ) %>%
-  
-  # Bold Headers
-  tab_style(
-    style = cell_text(weight = "bold"),
-    locations = cells_column_labels()
-  ) %>%
-  
-  # Highlight Reading Week
-  tab_style(
-    style = list(
-      cell_fill(color = "#d1e7dd"),
-      cell_text(weight = "bold")
-    ),
-    locations = cells_body(rows = 7)
-  )
-
-
-# 5. SAVE & INSERT IMAGE
-if (!knitr::is_html_output()) {
-  gtsave(gt_tbl, "schedule_snapshot.png", vwidth = 1800) 
-  knitr::include_graphics("schedule_snapshot.png")
-} else{
-  gt_tbl
-}
+  column_spec(1, width = "12%") %>%
+  column_spec(2, width = "8%") %>%
+  column_spec(3, width = "45%") %>%
+  column_spec(4, width = "35%") %>%
+  row_spec(0, bold = TRUE, background = "#E0E0E0") %>%
+  row_spec(7, bold = TRUE, background = "#d1e7dd") # Highlight Reading Week
 ```
 
-:::{.callout-important}
-The schedule may change depending on the course pace. The exact assignment and test dates  are given on Canvas. 
+::: {.callout-important}
+The schedule may change depending on the course pace. The exact assignment and test dates are given on Canvas. 
 :::
 
 ## Evaluation
