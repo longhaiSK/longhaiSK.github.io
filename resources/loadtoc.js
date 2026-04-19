@@ -14,7 +14,6 @@
     headerOffset: 80,       
     zBase: 950,             
     buildFromHeadingsIfMissingSidebar: true,
-    // Updated selector to support <div class="main">
     headingSelector: ':is(main, .main) :is(h2,h3)', 
     maxDepth: 3,
     startCollapsed: false 
@@ -38,14 +37,12 @@
   function injectStyles() {
     const style = document.createElement('style');
     style.setAttribute('data-toc-style', 'permanent-sidebar');
-    // CHANGED: Updated --toc-bg to a gradient below
     style.textContent = `
       :root { 
         --toc-width: ${CFG.width}px; 
         --toc-nav-height: ${CFG.navbarHeight}px;
-        /* CHANGED Background to Grey/Blue Gradient */
         --toc-bg: linear-gradient(to bottom, #f8f9fa, #e6f0ff);
-        --toc-border: #dae0e5; /* Slightly darker border to match new bg */
+        --toc-border: #dae0e5; 
       }
 
       :is(main, .main) :is(h1,h2,h3,h4,h5,h6){ scroll-margin-top: ${CFG.headerOffset}px; }
@@ -67,21 +64,26 @@
         box-shadow: -10px 0 30px rgba(0,0,0,0.15);
       }
 
-      /* Mobile Toggle */
+      /* ====== MODIFIED: Mobile Toggle (No Box, Right-Aligned) ====== */
       #toc-toggle-btn {
         position: fixed; 
         top: calc(var(--toc-nav-height) + 15px); 
-        right: 15px;
+        right: 5px; /* Pushed as close to the right margin as possible */
         z-index: ${CFG.zBase + 10};
         display: flex; align-items: center; justify-content: center;
-        width: 44px; height: 44px;
-        border: 1px solid #ccc; border-radius: 8px;
-        /* Slight gradient on mobile button too */
-        background: linear-gradient(to bottom, #fff, #f0f2f5); 
+        width: 40px; height: 40px;
+        
+        /* Remove the "Box" appearance */
+        background: transparent !important; 
+        border: none !important;            
+        outline: none !important;
+        box-shadow: none !important;
+        -webkit-tap-highlight-color: transparent; /* Removes blue flash on mobile */
+        
         cursor: pointer; 
-        font-size: 24px; line-height: 1;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        color: #333;
+        font-size: 28px; /* Slightly larger to act as a clear icon */
+        line-height: 1;
+        color: royalblue; /* Matches your site's link color theme */
       }
 
       body.toc-mobile-open #toc-panel { transform: translateX(0); }
@@ -96,7 +98,6 @@
         #toc-panel {
           transform: translateX(0) !important;
           box-shadow: none; 
-          /* Use the variable border */
           border-left: 1px solid var(--toc-border);
         }
         #toc-toggle-btn { display: none !important; }
@@ -109,7 +110,6 @@
         padding: 1rem 1.2rem; 
         border-bottom: 1px solid var(--toc-border);
         display: flex; justify-content: space-between; align-items: center;
-        /* Make header slightly darker/bluer transparent to show gradient beneath or set solid */
         background: rgba(230, 240, 255, 0.5);
       }
       #toc-head h3 { margin:0; font-size:16px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color: #2c3e50; }
@@ -127,24 +127,22 @@
       #toc-content ul { list-style:none; margin: 0; padding-left: 1rem; }
       #toc-content li { margin: 6px 0; line-height: 1.4; }
       #toc-content a { text-decoration:none; color: #444; display: block; transition: color 0.2s;}
-      #toc-content a:hover { color: #0056b3; } /* Slightly darker blue hover */
+      #toc-content a:hover { color: #0056b3; } 
 
       #toc-content .lvl-1 > a { font-weight: 700; color: #000; margin-top: 15px; margin-bottom: 5px; }
-      #toc-content .lvl-2 > a { font-weight: 600; color: #2c3e50; } /* Dark blue-grey for H2 */
-      #toc-content .lvl-3 > a { font-weight: 400; color: #546e7a; font-size: 13px; } /* Lighter blue-grey for H3 */
+      #toc-content .lvl-2 > a { font-weight: 600; color: #2c3e50; } 
+      #toc-content .lvl-3 > a { font-weight: 400; color: #546e7a; font-size: 13px; } 
 
       /* Caret Logic */
       .toc-caret { 
         display:inline-block; width:12px; margin-right:4px; 
-        cursor:pointer; color:#78909c; /* Blue-grey caret */
+        cursor:pointer; color:#78909c; 
         transition: transform 0.2s;
       }
       .toc-row { display: flex; align-items: baseline; }
       
-      /* Only hide UL if class 'toc-collapsed' is present */
       .toc-collapsed > ul { display: none; }
       
-      /* Rotate caret: Default (expanded) is Down. Collapsed is Right (-90deg) */
       .toc-collapsed .toc-caret { transform: rotate(-90deg); }
       .toc-caret::before { content: '▼'; font-size: 10px; }
     `;
@@ -217,7 +215,6 @@
         const ul2 = document.createElement('ul');
         li.append(ul2);
         
-        // CONFIG CHECK: Start collapsed?
         if (CFG.startCollapsed) {
           li.classList.add('toc-collapsed');
         }
