@@ -23,9 +23,7 @@ function setupNavigation() {
             "/grant.html": "Research Activities of Prof. Longhai Li",
             "/team.html": "Members of Longhai Li's Research Lab",
             "/publications.html": "Publications of Prof. Longhai Li",
-            "/software.html": "Software Released by Prof. Longhai Li",
-            "/longhaishortcv.html": "Biography of Prof. Longhai Li",
-            "/longhaicontacts.html": "Contact Information of Prof. Longhai Li"
+            "/software.html": "Software Released by Prof. Longhai Li"
         };
         const defaultSiteTitle = "Homepage of Professor Longhai Li";
 
