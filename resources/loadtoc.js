@@ -2,10 +2,17 @@
    - Sidebar TOC respecting Top Nav
    - Defaults to EXPANDED (shows H2 and H3 immediately)
    - Supports <main> tag or .main class
-   - Grey/Blue gradient background
+   - Disables itself on index pages
 */
 
 (() => {
+  // ===== DISABLE ON HOMEPAGE =====
+  const path = window.location.pathname;
+  
+  // Exact matches only! This prevents it from disabling on subfolder index pages.
+  if (path === '/' || path === '/index.html' || path === '/index.qmd') {
+    return; // Stop running the script entirely on the root homepage
+  }
   // ===== Config =====
   const CFG = {
     width: 300,             
@@ -68,7 +75,7 @@
       #toc-toggle-btn {
         position: fixed; 
         top: calc(var(--toc-nav-height) + 15px); 
-        right: 5px; /* Pushed as close to the right margin as possible */
+        right: 5px; /* Pushed close to the right margin */
         z-index: ${CFG.zBase + 10};
         display: flex; align-items: center; justify-content: center;
         width: 40px; height: 40px;
@@ -78,12 +85,12 @@
         border: none !important;            
         outline: none !important;
         box-shadow: none !important;
-        -webkit-tap-highlight-color: transparent; /* Removes blue flash on mobile */
+        -webkit-tap-highlight-color: transparent; /* Removes blue flash on mobile tap */
         
         cursor: pointer; 
-        font-size: 28px; /* Slightly larger to act as a clear icon */
+        font-size: 28px; 
         line-height: 1;
-        color: royalblue; /* Matches your site's link color theme */
+        color: royalblue; 
       }
 
       body.toc-mobile-open #toc-panel { transform: translateX(0); }
