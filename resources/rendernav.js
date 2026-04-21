@@ -1,21 +1,16 @@
 // renderNavigation.js: A single script to create and manage the entire navigation bar.
 
-// This function contains all the logic for setting up the navigation bar's features.
 function setupNavigation() {
     
-    // --- Helper function to normalize paths for consistent comparison ---
     function normalizePath(path) {
         let normalized = path;
-        if (!normalized.startsWith('/')) {
-            normalized = '/' + normalized;
-        }
+        if (!normalized.startsWith('/')) normalized = '/' + normalized;
         if (normalized.endsWith('/') || normalized === '/') {
             normalized = (normalized === '/' ? '/' : normalized) + 'index.html';
         }
         return normalized;
     }
 
-    // --- Logic to highlight the active button ---
     function setActiveButton() {
         const normalizedCurrentPath = normalizePath(window.location.pathname);
         const navLinks = document.querySelectorAll('#navigation-placeholder .nav-links a');
@@ -33,44 +28,61 @@ function setupNavigation() {
         });
     }
 
-    // --- Logic for the responsive hamburger menu -- MODIFIED ---
+    // --- NEW: Function to prevent menu from covering the footer ---
+    function adjustMenuForFooter() {
+        const navLinksList = document.querySelector('#navigation-placeholder .nav-links');
+        const footer = document.querySelector('footer') || document.querySelector('.footer') || document.querySelector('.site-footer');
+        
+        if (!navLinksList || !navLinksList.classList.contains('active') || !footer) return;
+
+        const footerRect = footer.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+
+        // If the top of the footer enters the viewport
+        if (footerRect.top < windowHeight) {
+            const overlapHeight = windowHeight - footerRect.top;
+            navLinksList.style.bottom = `${overlapHeight}px`;
+        } else {
+            navLinksList.style.bottom = `0px`;
+        }
+    }
+
     function setupResponsiveMenu() {
         const hamburgerButton = document.querySelector('#navigation-placeholder .hamburger-menu');
         const navLinksList = document.querySelector('#navigation-placeholder .nav-links');
         
         if (hamburgerButton && navLinksList) {
-            // Toggle menu on hamburger click
             hamburgerButton.addEventListener('click', (event) => {
-                // Stop this click from being immediately caught by the document listener
                 event.stopPropagation(); 
                 navLinksList.classList.toggle('active');
                 hamburgerButton.classList.toggle('active');
+                
                 const isExpanded = navLinksList.classList.contains('active');
                 hamburgerButton.setAttribute('aria-expanded', isExpanded.toString());
+
+                // Run adjustment immediately when opened
+                if (isExpanded) adjustMenuForFooter();
             });
 
-            // NEW: Add Click-Away-to-Close functionality for the menu
-            document.addEventListener('click', function(event) {
-                const isMenuActive = navLinksList.classList.contains('active');
-                if (!isMenuActive) {
-                    return; // Do nothing if the menu is already closed
-                }
+            // Re-calculate on scroll or resize if the menu is open
+            window.addEventListener('scroll', adjustMenuForFooter);
+            window.addEventListener('resize', adjustMenuForFooter);
 
-                // Check if the click was inside the menu panel or on the hamburger button
+            document.addEventListener('click', function(event) {
+                if (!navLinksList.classList.contains('active')) return;
                 const isClickInsideMenu = navLinksList.contains(event.target);
                 const isClickOnHamburger = hamburgerButton.contains(event.target);
 
-                // If the click was outside both, close the menu
                 if (!isClickInsideMenu && !isClickOnHamburger) {
                     navLinksList.classList.remove('active');
                     hamburgerButton.classList.remove('active');
                     hamburgerButton.setAttribute('aria-expanded', 'false');
+                    navLinksList.style.bottom = `0px`; // Reset when closed
                 }
             });
         }
     }
 
-    // --- Logic for the toggleable search form ---
     function activateSearchForm() {
         const searchForm = document.getElementById('site-search-form');
         const searchInput = document.getElementById('search-query');
@@ -96,17 +108,13 @@ function setupNavigation() {
         }
     }
 
-    // Run all setup functions
-    setPageTitleIfNotExists();
     setActiveButton();
     setupResponsiveMenu();
     activateSearchForm();
 }
 
-
-// --- Main execution block ---
+// --- Main execution block remains the same ---
 document.addEventListener('DOMContentLoaded', function() {
-    
     const navigationHTML = `
         <nav class="responsive-nav">
             <div class="nav-brand">
@@ -146,4 +154,3 @@ document.addEventListener('DOMContentLoaded', function() {
     document.body.prepend(navPlaceholder);
     setupNavigation();
 });
-

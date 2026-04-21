@@ -14,12 +14,13 @@ html {
   font-size: 15px !important; /* Locks the base rem calculation */
   -webkit-text-size-adjust: 100%; /* Prevents mobile browsers from auto-scaling */
   scroll-behavior: smooth;
+  /* Removed margin-bottom: 500px to prevent ghost scrolling */
 }
 
 body {
   margin: 0;
   padding-top: var(--nav-height);
-  padding-bottom: var(--nav-height);
+  padding-bottom: 100px; /* Buffer space at the bottom of the body */
   padding-left: 1rem;  /* Default side padding for desktop */
   padding-right: 1rem; /* Default side padding for desktop */
   background: var(--background);
@@ -41,12 +42,15 @@ main, .main {
   max-width: 900px;
   margin: 0 auto; /* Centers the element */
   padding: 10px 50px;
+  /* Critical: Creates white space so the footer doesn't cover the last line */
+  padding-bottom: 80px !important; 
+  margin-bottom: 50px;
   text-align: justify;
 }
 
 .content {
   padding: 20px;
-  height: 100vh;
+  min-height: 100vh;
 }
 
 /* Make content span the full browser width */
@@ -73,7 +77,8 @@ h1 {
     font-size: 1.8em; 
     padding-bottom: 10px;
     border-bottom: 4px solid royalblue;
-    margin-bottom: 20px !important; /* Forces this rule to win */}
+    margin-bottom: 20px !important; 
+}
 
 h2 {
   font-size: 1.4em;
@@ -83,7 +88,7 @@ h2 {
   margin-top: 40px;
 }
 
-h3 { font-size: 1.1em; } /* Deduplicated */
+h3 { font-size: 1.1em; } 
 
 p { margin: 0.2em 0; padding: 0; }
 p.small { font-size: 0.9em; }
@@ -364,8 +369,9 @@ footer {
   bottom: 0;
   width: 100%;
   text-align: left;
-  padding: 2px 20px 2px 0;
+  padding: 0px 10px 0px 20px;
   box-sizing: border-box;
+  z-index: 1050; /* Ensure footer stays above general content */
 }
 /* ==========================================================================
    9. MEDIA QUERIES (MOBILE OPTIMIZATIONS)
@@ -387,7 +393,7 @@ footer {
   main, .main {
     max-width: 100%;
     margin: 0 !important;
-    padding: 10px 15px 0 0px !important;
+    padding: 10px 15px 500px 0px !important; /* Bottom padding included here too */
     text-align: left;
   }
 
@@ -416,6 +422,7 @@ footer {
     transform: translateY(-10px) scale(0.98);
     transform-origin: top right;
     transition: opacity 0.2s ease-out, transform 0.2s ease-out, visibility 0.2s;
+    overflow-y: auto; /* Required for the JS max-height clipping to work smoothly */
   }
 
   .nav-links.active {
