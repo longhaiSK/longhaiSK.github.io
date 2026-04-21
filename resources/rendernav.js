@@ -28,22 +28,38 @@ function setupNavigation() {
         });
     }
 
-    // --- NEW: Function to prevent menu from covering the footer ---
-    function adjustMenuForFooter() {
+    // --- NEW: Unified function to clip BOTH the mobile menu and the ToC ---
+    function adjustHeightsForFooter() {
         const navLinksList = document.querySelector('#navigation-placeholder .nav-links');
-        const footer = document.querySelector('footer') || document.querySelector('.footer') || document.querySelector('.site-footer');
-        
-        if (!navLinksList || !navLinksList.classList.contains('active') || !footer) return;
-
-        const footerRect = footer.getBoundingClientRect();
+        const tocContainer = document.getElementById('toc-container');
+        const footer = document.querySelector('footer');
         const windowHeight = window.innerHeight;
+        
+        let footerTop = windowHeight; // Default to bottom of screen if no footer
+        if (footer) {
+            footerTop = footer.getBoundingClientRect().top;
+        }
 
-        // If the top of the footer enters the viewport
-        if (footerRect.top < windowHeight) {
-            const overlapHeight = windowHeight - footerRect.top;
-            navLinksList.style.bottom = `${overlapHeight}px`;
-        } else {
-            navLinksList.style.bottom = `0px`;
+        // 1. Adjust Mobile Navigation Menu
+        if (navLinksList && navLinksList.classList.contains('active')) {
+            const navTop = navLinksList.getBoundingClientRect().top;
+            if (footerTop < windowHeight) {
+                navLinksList.style.maxHeight = `${footerTop - navTop}px`;
+            } else {
+                navLinksList.style.maxHeight = `${windowHeight - navTop}px`;
+            }
+        }
+
+        // 2. Adjust Table of Contents (ToC)
+        if (tocContainer) {
+            const tocTop = tocContainer.getBoundingClientRect().top;
+            if (footerTop < windowHeight) {
+                // Footer is visible, stop ToC exactly where footer begins
+                tocContainer.style.maxHeight = `${footerTop - tocTop}px`;
+            } else {
+                // Footer is off-screen, let ToC span the remaining window height
+                tocContainer.style.maxHeight = `${windowHeight - tocTop}px`;
+            }
         }
     }
 
@@ -57,16 +73,17 @@ function setupNavigation() {
                 navLinksList.classList.toggle('active');
                 hamburgerButton.classList.toggle('active');
                 
+                if (navLinksList.classList.contains('active')) {
+                    adjustHeightsForFooter();
+                }
+                
                 const isExpanded = navLinksList.classList.contains('active');
                 hamburgerButton.setAttribute('aria-expanded', isExpanded.toString());
-
-                // Run adjustment immediately when opened
-                if (isExpanded) adjustMenuForFooter();
             });
 
-            // Re-calculate on scroll or resize if the menu is open
-            window.addEventListener('scroll', adjustMenuForFooter);
-            window.addEventListener('resize', adjustMenuForFooter);
+            // Adjust heights on scroll and resize for both Nav and ToC
+            window.addEventListener('scroll', adjustHeightsForFooter, { passive: true });
+            window.addEventListener('resize', adjustHeightsForFooter);
 
             document.addEventListener('click', function(event) {
                 if (!navLinksList.classList.contains('active')) return;
@@ -77,10 +94,13 @@ function setupNavigation() {
                     navLinksList.classList.remove('active');
                     hamburgerButton.classList.remove('active');
                     hamburgerButton.setAttribute('aria-expanded', 'false');
-                    navLinksList.style.bottom = `0px`; // Reset when closed
+                    navLinksList.style.maxHeight = ''; // Reset
                 }
             });
         }
+        
+        // Trigger initial ToC sizing on load
+        setTimeout(adjustHeightsForFooter, 100);
     }
 
     function activateSearchForm() {
@@ -113,7 +133,7 @@ function setupNavigation() {
     activateSearchForm();
 }
 
-// --- Main execution block remains the same ---
+// --- Main execution block ---
 document.addEventListener('DOMContentLoaded', function() {
     const navigationHTML = `
         <nav class="responsive-nav">
