@@ -15,25 +15,6 @@ function setupNavigation() {
         return normalized;
     }
 
-    // --- Logic to set the page title ---
-    function setPageTitleIfNotExists() {
-        const siteTitles = {
-            "/index.html": "Homepage of Professor Longhai Li",
-            "/teaching/index.html": "Teaching Activities of Prof. Longhai Li",
-            "/grant.html": "Research Activities of Prof. Longhai Li",
-            "/team.html": "Members of Longhai Li's Research Lab",
-            "/publications.html": "Publications of Prof. Longhai Li",
-            "/software.html": "Software Released by Prof. Longhai Li"
-        };
-        const defaultSiteTitle = "Homepage of Professor Longhai Li";
-
-        if (document.title && document.title.trim() !== "") {
-            return; 
-        }
-        const normalizedCurrentPagePath = normalizePath(window.location.pathname);
-        document.title = siteTitles[normalizedCurrentPagePath] || defaultSiteTitle;
-    }
-
     // --- Logic to highlight the active button ---
     function setActiveButton() {
         const normalizedCurrentPath = normalizePath(window.location.pathname);
@@ -142,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <li><a href="/research.html"><button class="btn">Research Projects</button></a></li>
                 <li><a href="/team.html"><button class="btn">Lab Members</button></a></li>
                 <li><a href="/publications.html"><button class="btn">Publications</button></a></li>
-                <li><a href="/teaching/index.html"><button class="btn">Courses</button></a></li>
+                <li><a href="/teaching.html"><button class="btn">Courses</button></a></li>
                 <li>
                     <form id="site-search-form" class="search-form" role="search">
                         <input id="search-query" type="search" class="search-input" placeholder="Search this site...">
