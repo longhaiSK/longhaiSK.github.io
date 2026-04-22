@@ -139,7 +139,9 @@ document.addEventListener('DOMContentLoaded', function() {
         <nav class="responsive-nav">
             <div class="nav-brand">
                 <img src="/resources/usask-logo-lg.png" class="nav-logo" alt="UofS Logo"> 
-                <span class="nav-prof-name">Prof. Longhai Li</span>
+              
+                 <a href="/Li_Longhai_CV.pdf"><button class="btn">Prof. Longhai Li</button></a>
+
             </div>
             <button class="hamburger-menu" aria-label="Toggle menu" aria-expanded="false">
              <span class="hamburger-bar"></span>
@@ -147,12 +149,12 @@ document.addEventListener('DOMContentLoaded', function() {
              <span class="hamburger-bar"></span>
             </button>
             <ul class="nav-links">
-                <li><a href="/index.html"><button class="btn">About Me</button></a></li>
-                <li><a href="/research.html"><button class="btn">Research Projects</button></a></li>
-                <li><a href="/team.html"><button class="btn">Lab Members</button></a></li>
-                <li><a href="/publications.html"><button class="btn">Publications</button></a></li>
-                <li><a href="/teaching.html"><button class="btn">Courses</button></a></li>
-                <li>
+                <li class="nav-li"><a href="/index.html"><button class="btn">About Me</button></a></li>
+                <li class="nav-li"><a href="/research.html"><button class="btn">Research Projects</button></a></li>
+                <li class="nav-li"><a href="/team.html"><button class="btn">Lab Members</button></a></li>
+                <li class="nav-li"><a href="/publications.html"><button class="btn">Publications</button></a></li>
+                <li class="nav-li"><a href="/teaching.html"><button class="btn">Courses</button></a></li>
+                <li class="nav-li">
                     <form id="site-search-form" class="search-form" role="search">
                         <input id="search-query" type="search" class="search-input" placeholder="Search this site...">
                         <button type="submit" class="search-btn" aria-label="Search">
@@ -164,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </form>
                 </li>
             </ul>
-        </nav>
+      </nav>
     `;
 
     const navPlaceholder = document.createElement('div');
