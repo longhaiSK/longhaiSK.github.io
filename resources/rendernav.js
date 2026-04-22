@@ -138,9 +138,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const navigationHTML = `
         <nav class="responsive-nav">
             <div class="nav-brand">
-                <div class="nav-logo-container">
-                     <img src="/resources/logo.png" class="nav-logo" alt="LOGO">
-                </div>
+                
+                <img src="/resources/logo.png" class="nav-logo" alt="LOGO">
                 <button class="btn"><span class="nav-prof-name">Prof. Longhai Li</span></button>
 
             </div>
