@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.16">
+<meta name="generator" content="quarto-1.7.32">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -67,15 +67,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <meta name="quarto:offset" content="./">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-792aea850e7e5573310f85939a37799b.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-1b3e43c72e8be34557c75123b0b69e0d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-756b3216100cf6faba8ed10949d356b0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-17f59c791bce0a2fed01d4cac093e796.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -123,7 +122,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+      if (mathElements[i].tagName == "SPAN") {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -258,8 +257,14 @@ window.Quarto = {
   </ul></li>
   <li><a href="#newton-raphson-and-fisher-scoring-algorithms-for-finding-mle" id="toc-newton-raphson-and-fisher-scoring-algorithms-for-finding-mle" class="nav-link" data-scroll-target="#newton-raphson-and-fisher-scoring-algorithms-for-finding-mle"><span class="header-section-number">4.2</span> Newton-Raphson and Fisher Scoring Algorithms for Finding MLE</a>
   <ul>
-  <li><a href="#newton-raphson-iteration" id="toc-newton-raphson-iteration" class="nav-link" data-scroll-target="#newton-raphson-iteration"><span class="header-section-number">4.2.1</span> Newton-Raphson Iteration</a></li>
-  <li><a href="#fisher-scoring" id="toc-fisher-scoring" class="nav-link" data-scroll-target="#fisher-scoring"><span class="header-section-number">4.2.2</span> Fisher Scoring</a></li>
+  <li><a href="#newton-raphson-iteration" id="toc-newton-raphson-iteration" class="nav-link" data-scroll-target="#newton-raphson-iteration"><span class="header-section-number">4.2.1</span> Newton-Raphson Iteration</a>
+  <ul class="collapse">
+  <li><a href="#newton-raphson-iteration-1" id="toc-newton-raphson-iteration-1" class="nav-link" data-scroll-target="#newton-raphson-iteration-1"><span class="header-section-number">4.2.1.1</span> Newton-Raphson Iteration</a></li>
+  </ul></li>
+  <li><a href="#fisher-scoring" id="toc-fisher-scoring" class="nav-link" data-scroll-target="#fisher-scoring"><span class="header-section-number">4.2.2</span> Fisher Scoring</a>
+  <ul class="collapse">
+  <li><a href="#fisher-scoring-1" id="toc-fisher-scoring-1" class="nav-link" data-scroll-target="#fisher-scoring-1"><span class="header-section-number">4.2.2.1</span> Fisher Scoring</a></li>
+  </ul></li>
   <li><a href="#example-poisson-regression-mle" id="toc-example-poisson-regression-mle" class="nav-link" data-scroll-target="#example-poisson-regression-mle"><span class="header-section-number">4.2.3</span> Example: Poisson Regression (MLE)</a></li>
   </ul></li>
   <li><a href="#convergence-theorems-in-probability-theory" id="toc-convergence-theorems-in-probability-theory" class="nav-link" data-scroll-target="#convergence-theorems-in-probability-theory"><span class="header-section-number">4.3</span> Convergence Theorems in Probability Theory</a>
@@ -506,8 +511,10 @@ D \xrightarrow{d} \chi^2_{p}
 <p>When the score equation <span class="math inline">\(\mathbf{U}(\boldsymbol{\theta}) = \mathbf{0}\)</span> does not have a closed-form solution, we must rely on iterative numerical methods to find the Maximum Likelihood Estimator. The Newton-Raphson algorithm is the most common approach, utilizing the curvature of the log-likelihood surface to guide the search for the maximum.</p>
 <section id="newton-raphson-iteration" class="level3" data-number="4.2.1">
 <h3 data-number="4.2.1" class="anchored" data-anchor-id="newton-raphson-iteration"><span class="header-section-number">4.2.1</span> Newton-Raphson Iteration</h3>
-<div id="alg-newton-raphson" class="theorem algorithm">
-<p><span class="theorem-title"><strong>Algorithm 4.1 (Newton-Raphson Iteration)</strong></span> Starting from an initial guess <span class="math inline">\(\boldsymbol{\theta}^{(0)}\)</span>, the algorithm updates the estimate of the parameter vector at each step <span class="math inline">\(t\)</span> using the following recurrence relation:</p>
+<div id="alg-newton-raphson">
+<section id="newton-raphson-iteration-1" class="level4" data-number="4.2.1.1">
+<h4 data-number="4.2.1.1" class="anchored" data-anchor-id="newton-raphson-iteration-1"><span class="header-section-number">4.2.1.1</span> Newton-Raphson Iteration</h4>
+<p>Starting from an initial guess <span class="math inline">\(\boldsymbol{\theta}^{(0)}\)</span>, the algorithm updates the estimate of the parameter vector at each step <span class="math inline">\(t\)</span> using the following recurrence relation:</p>
 <p><span class="math display">\[
 \boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} + \left[ \mathbf{J}(\boldsymbol{\theta}^{(t)}) \right]^{-1} \mathbf{U}(\boldsymbol{\theta}^{(t)})
 \]</span></p>
@@ -519,6 +526,7 @@ D \xrightarrow{d} \chi^2_{p}
 \mathbf{J}(\boldsymbol{\theta}) = - \nabla^2 \ell(\boldsymbol{\theta}) = - \frac{\partial^2 \ell(\boldsymbol{\theta})}{\partial \boldsymbol{\theta} \partial \boldsymbol{\theta}^T}
 \]</span></p></li>
 </ol>
+</section>
 </div>
 <div class="proof">
 <p><span class="proof-title"><em>Proof</em> (Derivation via Taylor Expansion). </span>The algorithm is derived by approximating the score function <span class="math inline">\(\mathbf{U}(\boldsymbol{\theta})\)</span> with a first-order Taylor expansion around the current estimate <span class="math inline">\(\boldsymbol{\theta}^{(t)}\)</span>:</p>
@@ -547,14 +555,17 @@ D \xrightarrow{d} \chi^2_{p}
 </section>
 <section id="fisher-scoring" class="level3" data-number="4.2.2">
 <h3 data-number="4.2.2" class="anchored" data-anchor-id="fisher-scoring"><span class="header-section-number">4.2.2</span> Fisher Scoring</h3>
-<div id="alg-fisher-scoring" class="theorem algorithm">
-<p><span class="theorem-title"><strong>Algorithm 4.2 (Fisher Scoring)</strong></span> The Newton-Raphson algorithm specifically uses the <strong>Observed Information</strong> <span class="math inline">\(\mathbf{J}(\boldsymbol{\theta})\)</span>. If the expected Fisher Information <span class="math inline">\(\mathcal{I}(\boldsymbol{\theta}) = E[\mathbf{J}(\boldsymbol{\theta})]\)</span> is used instead, the method is known as <strong>Fisher Scoring</strong>.</p>
+<div id="alg-fisher-scoring">
+<section id="fisher-scoring-1" class="level4" data-number="4.2.2.1">
+<h4 data-number="4.2.2.1" class="anchored" data-anchor-id="fisher-scoring-1"><span class="header-section-number">4.2.2.1</span> Fisher Scoring</h4>
+<p>The Newton-Raphson algorithm specifically uses the <strong>Observed Information</strong> <span class="math inline">\(\mathbf{J}(\boldsymbol{\theta})\)</span>. If the expected Fisher Information <span class="math inline">\(\mathcal{I}(\boldsymbol{\theta}) = E[\mathbf{J}(\boldsymbol{\theta})]\)</span> is used instead, the method is known as <strong>Fisher Scoring</strong>.</p>
 <ol type="1">
 <li><p><strong>Convergence Speed</strong></p>
 <p>Newton-Raphson typically achieves quadratic convergence near the maximum, making it very fast when the initial guess is good.</p></li>
 <li><p><strong>Stability</strong></p>
 <p>Because <span class="math inline">\(\mathbf{J}(\boldsymbol{\theta})\)</span> depends on the specific data observed, it can occasionally be non-positive definite in regions far from the MLE, which may cause the algorithm to diverge. Fisher Scoring is often more stable in these cases because <span class="math inline">\(\mathcal{I}(\boldsymbol{\theta})\)</span> is always positive semi-definite for regular families.</p></li>
 </ol>
+</section>
 </div>
 </section>
 <section id="example-poisson-regression-mle" class="level3" data-number="4.2.3">
@@ -603,7 +614,7 @@ D \xrightarrow{d} \chi^2_{p}
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(latex2exp)</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(latex2exp)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Data Generation</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
@@ -668,7 +679,7 @@ D \xrightarrow{d} \chi^2_{p}
 <span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(path[,<span class="dv">1</span>], path[,<span class="dv">2</span>], <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">lwd =</span> <span class="fl">1.5</span>)</span>
 <span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(beta_true[<span class="dv">1</span>], beta_true[<span class="dv">2</span>], <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">pch =</span> <span class="dv">4</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">cex =</span> <span class="fl">1.2</span>)</span>
 <span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"bottomright"</span>, <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">"NR Path"</span>, <span class="st">"True Beta"</span>), </span>
-<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>       <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"red"</span>, <span class="st">"blue"</span>), <span class="at">pch =</span> <span class="fu">c</span>(<span class="dv">19</span>, <span class="dv">4</span>), <span class="at">bty =</span> <span class="st">"n"</span>, <span class="at">cex =</span> <span class="fl">0.8</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>       <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"red"</span>, <span class="st">"blue"</span>), <span class="at">pch =</span> <span class="fu">c</span>(<span class="dv">19</span>, <span class="dv">4</span>), <span class="at">bty =</span> <span class="st">"n"</span>, <span class="at">cex =</span> <span class="fl">0.8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div id="fig-poisson-nr-and-fit" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -874,7 +885,7 @@ P(\hat{\sigma}^2 \le x) = P(\log(\hat{\sigma}^2) \le \log(x)) \approx \Phi\left(
 <div class="cell" data-layout-align="center">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set up plotting area for two plots side by side (1 row, 2 columns)</span></span>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set up plotting area for two plots side by side (1 row, 2 columns)</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a function to avoid repeating the plotting code</span></span>
@@ -925,7 +936,7 @@ P(\hat{\sigma}^2 \le x) = P(\log(\hat{\sigma}^2) \le \log(x)) \approx \Phi\left(
 <span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_cdfs</span>(<span class="at">n =</span> <span class="dv">50</span>)</span>
 <span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a><span class="co"># Reset plotting parameters to default</span></span>
-<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div id="fig-cdf-comparison-multiple" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
@@ -1175,7 +1186,7 @@ E_{\boldsymbol{\theta}_0} \left[ \log \frac{f_i(Y_i|\boldsymbol{\theta})}{f_i(Y_
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 1. Settings and Data Generation (Cauchy) ---</span></span>
@@ -1275,7 +1286,7 @@ E_{\boldsymbol{\theta}_0} \left[ \log \frac{f_i(Y_i|\boldsymbol{\theta})}{f_i(Y_
 <span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">"Score Function Approximation (Cauchy)"</span>)),</span>
 <span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">"Linear Link: "</span>, Delta, <span class="st">"U "</span>, approx, <span class="st">" -J "</span>, Delta, <span class="st">"theta"</span>)),</span>
 <span id="cb3-100"><a href="#cb3-100" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="fu">expression</span>(theta), <span class="at">y =</span> <span class="fu">expression</span>(<span class="fu">U</span>(theta))) <span class="sc">+</span></span>
-<span id="cb3-101"><a href="#cb3-101" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-101"><a href="#cb3-101" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div id="fig-score-approx" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -1464,7 +1475,7 @@ D = 2[\ell(\hat{\boldsymbol{\theta}}) - \ell(\boldsymbol{\theta}_0)] \xrightarro
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2024</span>)</span>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2024</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>n_sim <span class="ot">&lt;-</span> <span class="dv">5000</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">100</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>mu_true <span class="ot">&lt;-</span> <span class="dv">5</span></span>
@@ -1527,7 +1538,7 @@ D = 2[\ell(\hat{\boldsymbol{\theta}}) - \ell(\boldsymbol{\theta}_0)] \xrightarro
 <span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot 4: Deviance (Asymptotic Chi-sq with 2 df)</span></span>
 <span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(deviance_vals, <span class="at">breaks =</span> <span class="dv">30</span>, <span class="at">freq =</span> <span class="cn">FALSE</span>, <span class="at">col =</span> <span class="st">"wheat"</span>,</span>
 <span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Deviance"</span>, <span class="at">xlab =</span> <span class="st">"D"</span>, <span class="at">border =</span> <span class="st">"white"</span>)</span>
-<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a><span class="fu">curve</span>(<span class="fu">dchisq</span>(x, <span class="at">df =</span> <span class="dv">2</span>), <span class="at">add =</span> <span class="cn">TRUE</span>, <span class="at">col =</span> <span class="st">"darkgreen"</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a><span class="fu">curve</span>(<span class="fu">dchisq</span>(x, <span class="at">df =</span> <span class="dv">2</span>), <span class="at">add =</span> <span class="cn">TRUE</span>, <span class="at">col =</span> <span class="st">"darkgreen"</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div id="fig-normal-unknown-var-sim" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H">
@@ -1583,7 +1594,7 @@ D = 2 \left( \ell(\hat{\boldsymbol{\beta}}) - \ell(\boldsymbol{\beta}_{\text{tru
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(latex2exp)</span>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(latex2exp)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Setup</span></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
@@ -1654,7 +1665,7 @@ D = 2 \left( \ell(\hat{\boldsymbol{\beta}}) - \ell(\boldsymbol{\beta}_{\text{tru
 <span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot 4: Deviance</span></span>
 <span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(deviance_vals, <span class="at">breaks =</span> <span class="dv">30</span>, <span class="at">freq =</span> <span class="cn">FALSE</span>, <span class="at">col =</span> <span class="st">"lightpink"</span>, </span>
 <span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Deviance Statistic"</span>, <span class="at">xlab =</span> <span class="st">"D"</span>, <span class="at">border =</span> <span class="st">"white"</span>)</span>
-<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a><span class="fu">curve</span>(<span class="fu">dchisq</span>(x, <span class="at">df =</span> <span class="dv">2</span>), <span class="at">add =</span> <span class="cn">TRUE</span>, <span class="at">col =</span> <span class="st">"darkgreen"</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a><span class="fu">curve</span>(<span class="fu">dchisq</span>(x, <span class="at">df =</span> <span class="dv">2</span>), <span class="at">add =</span> <span class="cn">TRUE</span>, <span class="at">col =</span> <span class="st">"darkgreen"</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div id="fig-poisson-sim-asymptotics" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -1676,7 +1687,7 @@ Figure&nbsp;4.7: Asymptotic distributions for Poisson Regression (n=200). Top Ro
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tikzDevice)</span>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tikzDevice)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tools)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Define filenames</span></span>
@@ -1815,15 +1826,15 @@ Figure&nbsp;4.7: Asymptotic distributions for Poisson Regression (n=200). Top Ro
 <span id="cb6-137"><a href="#cb6-137" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">"pdftools"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) <span class="fu">install.packages</span>(<span class="st">"pdftools"</span>)</span>
 <span id="cb6-138"><a href="#cb6-138" aria-hidden="true" tabindex="-1"></a>png_file <span class="ot">&lt;-</span> <span class="st">"fig_expected_loglik.png"</span></span>
 <span id="cb6-139"><a href="#cb6-139" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-140"><a href="#cb6-140" aria-hidden="true" tabindex="-1"></a><span class="fu">invisible</span>(pdftools<span class="sc">::</span><span class="fu">pdf_convert</span>(pdf_file, <span class="at">format =</span> <span class="st">"png"</span>, <span class="at">dpi =</span> <span class="dv">600</span>, <span class="at">filenames =</span> png_file))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-140"><a href="#cb6-140" aria-hidden="true" tabindex="-1"></a><span class="fu">invisible</span>(pdftools<span class="sc">::</span><span class="fu">pdf_convert</span>(pdf_file, <span class="at">format =</span> <span class="st">"png"</span>, <span class="at">dpi =</span> <span class="dv">600</span>, <span class="at">filenames =</span> png_file))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Converting page 1 to fig_expected_loglik.png... done!</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 6. Feed the PNG to Quarto for all formats</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">include_graphics</span>(png_file)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 6. Feed the PNG to Quarto for all formats</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">include_graphics</span>(png_file)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div id="fig-base-r-viz-expected-loglik-star" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H">
@@ -2062,7 +2073,7 @@ D(\hat{\theta}; Y_{\mathrm{test}}) - D(\hat{\theta}; Y_{\mathrm{train}}) \approx
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MASS)</span>
@@ -2311,7 +2322,7 @@ D(\hat{\theta}; Y_{\mathrm{test}}) - D(\hat{\theta}; Y_{\mathrm{train}}) \approx
 <span id="cb9-247"><a href="#cb9-247" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
 <span id="cb9-248"><a href="#cb9-248" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="fu">paste0</span>(<span class="st">"Stochastic Optimization Trajectories (n="</span>, n_val, <span class="st">", p="</span>, p_val, <span class="st">")"</span>),</span>
 <span id="cb9-249"><a href="#cb9-249" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Wall-Clock Time (Seconds)"</span>,</span>
-<span id="cb9-250"><a href="#cb9-250" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Parameter Value"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb9-250"><a href="#cb9-250" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Parameter Value"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div id="fig-poisson-optimization-time" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -2478,14 +2489,13 @@ J(\boldsymbol{\beta}) = \mathcal{I}(\boldsymbol{\beta})
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-      const outerScaffold = trigger.parentElement.cloneNode(true);
-      const codeEl = outerScaffold.querySelector('code');
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
         }
-      }
-      return codeEl.innerText;
+        return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
