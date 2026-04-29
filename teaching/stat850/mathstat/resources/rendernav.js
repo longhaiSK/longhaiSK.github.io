@@ -1,42 +1,16 @@
 // renderNavigation.js: A single script to create and manage the entire navigation bar.
 
-// This function contains all the logic for setting up the navigation bar's features.
 function setupNavigation() {
     
-    // --- Helper function to normalize paths for consistent comparison ---
     function normalizePath(path) {
         let normalized = path;
-        if (!normalized.startsWith('/')) {
-            normalized = '/' + normalized;
-        }
+        if (!normalized.startsWith('/')) normalized = '/' + normalized;
         if (normalized.endsWith('/') || normalized === '/') {
             normalized = (normalized === '/' ? '/' : normalized) + 'index.html';
         }
         return normalized;
     }
 
-    // --- Logic to set the page title ---
-    function setPageTitleIfNotExists() {
-        const siteTitles = {
-            "/index.html": "Homepage of Professor Longhai Li",
-            "/teaching/index.html": "Teaching Activities of Prof. Longhai Li",
-            "/grant.html": "Research Activities of Prof. Longhai Li",
-            "/team.html": "Members of Longhai Li's Research Lab",
-            "/publications.html": "Publications of Prof. Longhai Li",
-            "/software.html": "Software Released by Prof. Longhai Li",
-            "/longhaishortcv.html": "Biography of Prof. Longhai Li",
-            "/longhaicontacts.html": "Contact Information of Prof. Longhai Li"
-        };
-        const defaultSiteTitle = "Homepage of Professor Longhai Li";
-
-        if (document.title && document.title.trim() !== "") {
-            return; 
-        }
-        const normalizedCurrentPagePath = normalizePath(window.location.pathname);
-        document.title = siteTitles[normalizedCurrentPagePath] || defaultSiteTitle;
-    }
-
-    // --- Logic to highlight the active button ---
     function setActiveButton() {
         const normalizedCurrentPath = normalizePath(window.location.pathname);
         const navLinks = document.querySelectorAll('#navigation-placeholder .nav-links a');
@@ -54,44 +28,81 @@ function setupNavigation() {
         });
     }
 
-    // --- Logic for the responsive hamburger menu -- MODIFIED ---
+    // --- NEW: Unified function to clip BOTH the mobile menu and the ToC ---
+    function adjustHeightsForFooter() {
+        const navLinksList = document.querySelector('#navigation-placeholder .nav-links');
+        const tocContainer = document.getElementById('toc-container');
+        const footer = document.querySelector('footer');
+        const windowHeight = window.innerHeight;
+        
+        let footerTop = windowHeight; // Default to bottom of screen if no footer
+        if (footer) {
+            footerTop = footer.getBoundingClientRect().top;
+        }
+
+        // 1. Adjust Mobile Navigation Menu
+        if (navLinksList && navLinksList.classList.contains('active')) {
+            const navTop = navLinksList.getBoundingClientRect().top;
+            if (footerTop < windowHeight) {
+                navLinksList.style.maxHeight = `${footerTop - navTop}px`;
+            } else {
+                navLinksList.style.maxHeight = `${windowHeight - navTop}px`;
+            }
+        }
+
+        // 2. Adjust Table of Contents (ToC)
+        if (tocContainer) {
+            const tocTop = tocContainer.getBoundingClientRect().top;
+            if (footerTop < windowHeight) {
+                // Footer is visible, stop ToC exactly where footer begins
+                tocContainer.style.maxHeight = `${footerTop - tocTop}px`;
+            } else {
+                // Footer is off-screen, let ToC span the remaining window height
+                tocContainer.style.maxHeight = `${windowHeight - tocTop}px`;
+            }
+        }
+    }
+
     function setupResponsiveMenu() {
         const hamburgerButton = document.querySelector('#navigation-placeholder .hamburger-menu');
         const navLinksList = document.querySelector('#navigation-placeholder .nav-links');
         
         if (hamburgerButton && navLinksList) {
-            // Toggle menu on hamburger click
             hamburgerButton.addEventListener('click', (event) => {
-                // Stop this click from being immediately caught by the document listener
                 event.stopPropagation(); 
                 navLinksList.classList.toggle('active');
                 hamburgerButton.classList.toggle('active');
+                
+                if (navLinksList.classList.contains('active')) {
+                    adjustHeightsForFooter();
+                }
+                
                 const isExpanded = navLinksList.classList.contains('active');
                 hamburgerButton.setAttribute('aria-expanded', isExpanded.toString());
             });
 
-            // NEW: Add Click-Away-to-Close functionality for the menu
-            document.addEventListener('click', function(event) {
-                const isMenuActive = navLinksList.classList.contains('active');
-                if (!isMenuActive) {
-                    return; // Do nothing if the menu is already closed
-                }
+            // Adjust heights on scroll and resize for both Nav and ToC
+            window.addEventListener('scroll', adjustHeightsForFooter, { passive: true });
+            window.addEventListener('resize', adjustHeightsForFooter);
 
-                // Check if the click was inside the menu panel or on the hamburger button
+            document.addEventListener('click', function(event) {
+                if (!navLinksList.classList.contains('active')) return;
                 const isClickInsideMenu = navLinksList.contains(event.target);
                 const isClickOnHamburger = hamburgerButton.contains(event.target);
 
-                // If the click was outside both, close the menu
                 if (!isClickInsideMenu && !isClickOnHamburger) {
                     navLinksList.classList.remove('active');
                     hamburgerButton.classList.remove('active');
                     hamburgerButton.setAttribute('aria-expanded', 'false');
+                    navLinksList.style.maxHeight = ''; // Reset
                 }
             });
         }
+        
+        // Trigger initial ToC sizing on load
+        setTimeout(adjustHeightsForFooter, 100);
     }
 
-    // --- Logic for the toggleable search form ---
     function activateSearchForm() {
         const searchForm = document.getElementById('site-search-form');
         const searchInput = document.getElementById('search-query');
@@ -117,22 +128,20 @@ function setupNavigation() {
         }
     }
 
-    // Run all setup functions
-    setPageTitleIfNotExists();
     setActiveButton();
     setupResponsiveMenu();
     activateSearchForm();
 }
 
-
 // --- Main execution block ---
 document.addEventListener('DOMContentLoaded', function() {
-    
     const navigationHTML = `
         <nav class="responsive-nav">
             <div class="nav-brand">
-                <img src="/resources/usask-logo-lg.png" class="nav-logo" alt="UofS Logo"> 
-                <span class="nav-prof-name">Prof. Longhai Li</span>
+                
+                <img src="/resources/logo.png" class="nav-logo" alt="LOGO">
+                <button class="btn"><span class="nav-prof-name">Prof. Longhai Li</span></button>
+
             </div>
             <button class="hamburger-menu" aria-label="Toggle menu" aria-expanded="false">
              <span class="hamburger-bar"></span>
@@ -140,12 +149,12 @@ document.addEventListener('DOMContentLoaded', function() {
              <span class="hamburger-bar"></span>
             </button>
             <ul class="nav-links">
-                <li><a href="/index.html"><button class="btn">About Me</button></a></li>
-                <li><a href="/research.html"><button class="btn">Research Projects</button></a></li>
-                <li><a href="/team.html"><button class="btn">Lab Members</button></a></li>
-                <li><a href="/publications.html"><button class="btn">Publications</button></a></li>
-                <li><a href="/teaching/index.html"><button class="btn">Courses</button></a></li>
-                <li>
+                <li class="nav-li"><a href="/index.html"><button class="btn">About Me</button></a></li>
+                <li class="nav-li"><a href="/research.html"><button class="btn">Research Projects</button></a></li>
+                <li class="nav-li"><a href="/team.html"><button class="btn">Lab Members</button></a></li>
+                <li class="nav-li"><a href="/publications.html"><button class="btn">Publications</button></a></li>
+                <li class="nav-li"><a href="/teaching.html"><button class="btn">Courses</button></a></li>
+                <li class="nav-li">
                     <form id="site-search-form" class="search-form" role="search">
                         <input id="search-query" type="search" class="search-input" placeholder="Search this site...">
                         <button type="submit" class="search-btn" aria-label="Search">
@@ -157,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </form>
                 </li>
             </ul>
-        </nav>
+      </nav>
     `;
 
     const navPlaceholder = document.createElement('div');
@@ -167,4 +176,3 @@ document.addEventListener('DOMContentLoaded', function() {
     document.body.prepend(navPlaceholder);
     setupNavigation();
 });
-
