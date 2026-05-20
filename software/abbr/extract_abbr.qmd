@@ -1,352 +1,336 @@
 ---
 title: "Extracting Abbreviations from LaTeX Text"
-engine: jupyter
-format: html
+format: 
+   html:
+      page-layout: full
+engine: knitr
+metadata-files:
+  - ../../_website.yaml
 filters:
   - shinylive
 ---
 
-This interactive tool extracts abbreviation definitions from your local document entirely inside your browser. No data is sent to a server.
+This application runs completely inside your web browser via R WebAssembly. No files leave your machine.
 
-```{shinylive-python}
+```{shinylive-r}
 #| standalone: true
-#| viewerHeight: 700
-#| eval: false
-import re
-import io
-import pandas as pd
-from shiny import App, ui, render, reactive
+#| viewerHeight: 1500
+
+library(shiny)
+library(bslib)
+library(stringr)
 
 # =============================================================================
-# 1. CORE ALGORITHM & PROCESSING ENGINE (Your exact Python Code)
+# 1. CORE ALGORITHM & EXTRACTOR ENGINE (R Translation)
 # =============================================================================
 
-upper_greek_cmds = [
-    'Gamma', 'Delta', 'Theta', 'Lambda', 'Xi', 'Pi',
-    'Sigma', 'Upsilon', 'Phi', 'Psi', 'Omega'
-]
+KNOWN_COMMAND_NAMES <- c(
+  "alpha", "beta", "gamma", "delta", "epsilon", "zeta", "eta", "theta",
+  "iota", "kappa", "lambda", "mu", "nu", "xi", "omicron", "pi", "rho",
+  "sigma", "tau", "upsilon", "phi", "chi", "psi", "omega",
+  "Gamma", "Delta", "Theta", "Lambda", "Xi", "Pi", "Sigma", "Upsilon",
+  "Phi", "Psi", "Omega", "sin", "cos", "tan", "csc", "sec", "cot",
+  "log", "ln", "exp", "sqrt", "frac", "sum", "int", "infty", "mathrm"
+)
 
-KNOWN_COMMAND_NAMES = {
-    'alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta', 'eta', 'theta',
-    'iota', 'kappa', 'lambda', 'mu', 'nu', 'xi', 'omicron', 'pi', 'rho',
-    'sigma', 'tau', 'upsilon', 'phi', 'chi', 'psi', 'omega',
-    'Gamma', 'Delta', 'Theta', 'Lambda', 'Xi', 'Pi', 'Sigma', 'Upsilon',
-    'Phi', 'Psi', 'Omega', 'sin', 'cos', 'tan', 'csc', 'sec', 'cot',
-    'arcsin', 'arccos', 'arctan', 'sinh', 'cosh', 'tanh', 'log', 'ln', 'exp',
-    'sqrt', 'frac', 'lim', 'max', 'min', 'sup', 'inf', 'det', 'dim', 'deg',
-    'gcd', 'hom', 'ker', 'Pr', 'sum', 'prod', 'int', 'oint', 'bigcup', 'bigcap',
-    ' some', 'partial', 'nabla', 'mathrm', 'infty', 'prime', 'forall', 'exists',
-    'in', 'notin', 'subset', 'supset', 'leq', 'geq', 'equiv', 'approx',
-    'propto', 'sim', 'simeq', 'pm', 'mp', 'times', 'div', 'cdot', 'ast', 'star'
+normalize_latex_math <- function(text) {
+  if (is.null(text) || text == "") return("")
+  
+  # Strip % comments respecting \%
+  text <- str_replace_all(text, "(?<!\\\\)%.*$", "")
+  
+  # Strip preamble/end document if present
+  if (str_detect(text, fixed("\\begin{document}"))) {
+    text <- str_split(text, fixed("\\begin{document}"), n = 2)[[1]][2]
+  }
+  if (str_detect(text, fixed("\\end{document}"))) {
+    text <- str_split(text, fixed("\\end{document}"))[[1]][1]
+  }
+  
+  # Standardize brace spacing
+  text <- str_replace_all(text, "\\s*\\{\\s*", " { ")
+  text <- str_replace_all(text, "\\s*\\}\\s*", " } ")
+  text <- str_replace_all(text, "\\s*\\(", " (")
+  text <- str_replace_all(text, "\\s+", " ")
+  return(text)
 }
 
-def normalize_dollar_spacing(text):
-    processed_chars = []
-    in_math_mode = False
-    i, n = 0, len(text)
-    while i < n:
-        char = text[i]
-        if char == '\\' and i + 1 < n:
-            processed_chars.append(char)
-            processed_chars.append(text[i+1])
-            i += 2
-            continue
-        if char == '$':
-            if not in_math_mode:
-                processed_chars.append(char)
-                in_math_mode = True
-                j = i + 1
-                while j < n and text[j].isspace(): j += 1
-                i = j
-                continue
-            else:
-                in_math_mode = False
-                while processed_chars and processed_chars[-1].isspace(): processed_chars.pop()
-                processed_chars.append(char)
-                i += 1
-                continue
-        else:
-            processed_chars.append(char)
-            i += 1
-    return "".join(processed_chars)
+get_letters_abbrs <- function(abbr_str) {
+  pattern <- "(\\\\[a-zA-Z]+)|([A-Z][0-9]+)|([A-Z])([a-z]+)?|([a-z])|[0-9]+"
+  matches <- str_extract_all(abbr_str, pattern)[[1]]
+  
+  repr_items <- c()
+  for (m in matches) {
+    if (str_starts(m, "\\\\")) {
+      cmd_name <- str_sub(m, 2)
+      if (cmd_name %in% KNOWN_COMMAND_NAMES) {
+        repr_items <- c(repr_items, tolower(cmd_name))
+      } else {
+        repr_items <- c(repr_items, tolower(str_sub(cmd_name, 1, 1)))
+      }
+    } else {
+      repr_items <- c(repr_items, tolower(str_sub(m, 1, 1)))
+    }
+  }
+  return(repr_items)
+}
 
-def normalize_latex_math(text):
-    if not isinstance(text, str): return text
-    try:
-        processed_text = normalize_dollar_spacing(text)
-        processed_text = re.sub(r'\\\(\s*(.*?)\s*\\\)', lambda m: f"${m.group(1).strip()}$", processed_text)
-        processed_text = re.sub(r'(?<!\\)%.*$', '', processed_text, flags=re.MULTILINE)
-        
-        begin_doc = r'\begin{document}'
-        b_idx = processed_text.find(begin_doc)
-        if b_idx != -1: processed_text = processed_text[b_idx + len(begin_doc):]
-        
-        end_doc = r'\end{document}'
-        e_idx = processed_text.rfind(end_doc)
-        if e_idx != -1 and len(processed_text) - e_idx < 30: processed_text = processed_text[:e_idx]
+get_letters_words <- function(word) {
+  word <- str_trim(word)
+  if (word == "") return("")
+  
+  word_clean <- str_replace_all(word, "^\\\\[a-zA-Z]+\\{?", "")
+  word_clean <- str_replace_all(word_clean, "[\\$\\{\\}]", "")
+  
+  first_letter <- str_extract(word_clean, "[a-zA-Z0-9]")
+  if (!is.na(first_letter)) return(tolower(first_letter))
+  return("")
+}
 
-        processed_text = re.sub(r'\s*\{\s*', r' { ', processed_text)
-        processed_text = re.sub(r'\s*\}\s*', r' } ', processed_text)
-        processed_text = re.sub(r'\s*\(', r' (', processed_text)
-        
-        pattern_part = '|'.join(upper_greek_cmds)
-        processed_text = re.sub(rf'(\\({pattern_part}))(?!\s)', r'\1 ', processed_text)
-        processed_text = re.sub(r'(\\[a-z]+)(?=[A-Z][^a-z])', r'\1 ', processed_text)
-        processed_text = re.sub(r'(\n\s*){2,}', '\n', processed_text)
-        processed_text = re.sub(r'\s+', ' ', processed_text)
-        return processed_text
-    except Exception:
-        return text
-
-def get_letters_abbrs(abbr_string):
-    representative_items, original_parts = [], []
-    regex_pattern = r'(\\[a-zA-Z]+)|([A-Z][0-9]+)|([A-Z])([a-z]+)?|([a-z])(?:[a-z]*)|(\d+)'
-    for match_obj in re.finditer(regex_pattern, abbr_string):
-         command = match_obj.group(1)
-         cap_num = match_obj.group(2)
-         upper = match_obj.group(3)
-         standalone_lower = match_obj.group(5)
-         number_seq = match_obj.group(6)
-
-         if command:
-             command_name = command[1:]
-             current_repr_item = command_name.lower() if command_name in KNOWN_COMMAND_NAMES else command_name[0].lower()
-             current_orig_part = command
-         elif cap_num:
-             current_repr_item, current_orig_part = cap_num.lower(), cap_num
-         elif upper:
-             current_repr_item, current_orig_part = upper.lower(), match_obj.group(0)
-         elif standalone_lower:
-             current_repr_item, current_orig_part = standalone_lower, match_obj.group(0)
-         elif number_seq:
-             current_repr_item, current_orig_part = number_seq, number_seq
-         else:
-             continue
-
-         representative_items.append(current_repr_item)
-         original_parts.append(current_orig_part)
-    return representative_items, original_parts
-
-def get_letters_words(word: str) -> str:
-    original_word = word.strip()
-    if not original_word: return ''
-    try:
-        command_match = re.match(r'\$?(\\[a-zA-Z]+)', original_word)
-        if command_match:
-            command_name = command_match.group(1)[1:]
-            if command_name in KNOWN_COMMAND_NAMES: return command_name.lower()
-        word_to_check = re.sub(r'^\s*\\([a-zA-Z]+)\s*\{?', '', original_word)
-        word_to_check = word_to_check.lstrip(' ${}')
-        if word_to_check.endswith('}'): word_to_check = word_to_check[:-1].rstrip()
-        first_letter_match = re.search(r'[a-zA-Z]', word_to_check)
-        if first_letter_match: return first_letter_match.group(0).lower()
-        if command_match: return command_match.group(1)[1:].lower()[0]
-        fallback = re.search(r'[a-zA-Z]', original_word)
-        return fallback.group(0).lower() if fallback else ''
-    except Exception:
-        fallback = re.search(r'[a-zA-Z]', original_word)
-        return fallback.group(0).lower() if fallback else ''
-
-def find_abbreviation_matches(words_ahead, abbr_string):
-    abbr_items, _ = get_letters_abbrs(abbr_string)
-    num_abbr_items = len(abbr_items)
-    if not abbr_items: return [], 0.0, 0.0
-
-    num_words = len(words_ahead)
-    match_indices = [-1] * num_abbr_items
-    last_matched_index = num_words
-    words_ahead_comparables = [get_letters_words(word) for word in words_ahead]
-
-    for abbr_idx in range(num_abbr_items - 1, -1, -1):
-        target_comparable = abbr_items[abbr_idx]
-        if not target_comparable: continue
-        for word_idx in range(last_matched_index - 1, -1, -1):
-            word_comparable = words_ahead_comparables[word_idx]
-            if not word_comparable: continue
-            if word_comparable.startswith(target_comparable):
-                match_indices[abbr_idx] = word_idx
-                last_matched_index = word_idx
-                break
-
-    successful_match_indices = [idx for idx in match_indices if idx != -1]
-    count_matched = len(successful_match_indices)
-    match_ratio = count_matched / num_abbr_items if num_abbr_items > 0 else 0.0
-    perc_words_matched = 0.0; matchable_words_in_range = 0
+collect_abbreviations <- function(text) {
+  pattern <- "((?:[\\w\\\\\\$\\{\\}]+[ -]+){1,10}(?:[\\w\\\\\\$\\{\\}]+)[ -]?)\\((?=[^\\(\\)\\,]*[A-Z])([^\\(\\)\\,]*[a-zA-Z0-9]{2,}[^\\(\\)\\,]*)\\)"
+  
+  matches <- str_match_all(text, pattern)[[1]]
+  if (length(matches) == 0) {
+    return(data.frame(Abbreviation=character(), Full_Phrase=character(), Usage=numeric(), Abbr_Match=numeric(), Word_Match=numeric()))
+  }
+  
+  results <- list()
+  for (i in 1:nrow(matches)) {
+    phrase_part <- str_trim(matches[i, 2])
+    abbr_part <- str_trim(matches[i, 3])
     
-    if successful_match_indices:
-        start_range_idx = min(successful_match_indices)
-        if 0 <= start_range_idx < num_words:
-            for i in range(start_range_idx, num_words):
-                if words_ahead_comparables[i]: matchable_words_in_range += 1
-            if matchable_words_in_range > 0: 
-                perc_words_matched = min(count_matched / matchable_words_in_range, 1.0)
-
-    return match_indices, match_ratio, perc_words_matched
-
-def collect_abbreviations(text):
-    pattern = r'((?:[\w\\\$\{\}]+[ -]+){1,10}(?:[\w\\\$\{\}]+)[ -]?)\((?=[^\(\)\,]*[A-Z])([^\(\)\,]*[a-zA-Z0-9]{2,}[^\(\)\,]*)\)'
-    matches = re.findall(pattern, text)
-    required_columns = ['abbreviation', 'full_name', 'usage_count', 'perc_abbr_matches', 'perc_words_matched']
-    empty_df = pd.DataFrame(columns=required_columns)
-    if not matches: return empty_df
-
-    abbr_usage_count = {}
-    all_potential_abbrs = [match[1].strip() for match in matches]
-    for abbr in set(all_potential_abbrs):
-        abbr_search_string = re.sub(r'[\(\)]','',abbr)
-        aup = rf'(?<![a-zA-Z\(\)]){re.escape(abbr_search_string)}(?![a-zA-Z\)\)])'
-        try:
-            abbr_usage_count[abbr] = len(re.findall(aup, text))
-        except re.error:
-            abbr_usage_count[abbr] = 0
-
-    all_candidate_data = []
-    for match in matches:
-        words_before_abbr_text = match[0].strip()
-        abbr_string = match[1].strip()
-        current_usage_count = abbr_usage_count.get(abbr_string, 0)
-
-        split_list = re.split(r'([ -]+)', words_before_abbr_text)
-        words_ahead = [item for item in split_list if item]
-        full_name, match_ratio, perc_words = "", 0.0, 0.0
-
-        if words_ahead:
-            match_indices, match_ratio, perc_words = find_abbreviation_matches(words_ahead, abbr_string)
-            if match_indices:
-                successful_match_indices = [idx for idx in match_indices if idx != -1]
-                if successful_match_indices:
-                    min_idx_py = min(successful_match_indices)
-                    if 0 <= min_idx_py < len(words_ahead):
-                        full_name = ''.join(words_ahead[min_idx_py:]).strip()
-
-        all_candidate_data.append({
-            'abbreviation': abbr_string,
-            'full_name': full_name,
-            'usage_count': current_usage_count,
-            'perc_abbr_matches': match_ratio,
-            'perc_words_matched': perc_words
-        })
-    return pd.DataFrame(all_candidate_data)
-
-def format_abbreviations(abbr_df, format_type):
-     df_to_format = abbr_df.drop(columns=[c for c in ['perc_abbr_matches', 'perc_words_matched'] if c in abbr_df.columns])
-     if df_to_format.empty: return "No abbreviations found matching criteria."
-     if format_type == "tabular":
-         header = "\\begin{tabular}{ll}\n\\hline\n\\textbf{Abbreviation} & \\textbf{Full Name} \\\\\n\\hline\n"
-         footer = "\\hline\n\\end{tabular}\n"
-         rows = [f"{row.get('abbreviation','')} & {row.get('full_name','')} \\\\" for _, row in df_to_format.iterrows()]
-         return header + "\n".join(rows) + "\n" + footer
-     elif format_type == "nomenclature":
-         header = "\\usepackage{nomencl}\n\\makenomenclature\n"
-         rows = [f"\\nomenclature{{{row.get('abbreviation','')}}}{{{row.get('full_name','')}}}" for _, row in df_to_format.iterrows()]
-         return header + "\n".join(rows)
-     else:
-          rows = [f"{row.get('abbreviation','')}: {row.get('full_name','')}" for _, row in df_to_format.iterrows()]
-          return "; \n".join(rows)
-
-# =============================================================================
-# 2. THE UI & SIDEBAR DESIGN (Replicating your Streamlit Layout)
-# =============================================================================
-app_ui = ui.page_fluid(
-    ui.h2("Extract Abbreviations from LaTeX Text"),
-    ui.layout_sidebar(
-        ui.sidebar(
-            # Replaced text area with File Input control
-            ui.input_file("file_input", "Upload Article File (.qmd, .tex, .txt)", accept=[".tex", ".qmd", ".txt"], multiple=False),
-            ui.hr(),
-            ui.h4("Filtering Controls"),
-            ui.input_numeric("usage_filter", "Usage \u2265", value=1, min=0),
-            ui.input_slider("perc_abbr_filter", "% Abbr Match \u2265", min=0.0, max=1.0, value=0.7, step=0.1),
-            ui.input_slider("perc_words_filter", "% Words Match \u2265", min=0.0, max=1.0, value=0.4, step=0.1),
-            ui.input_select("clear_duplicates", "Show First Only:", choices=["Yes", "No"], selected="Yes"),
-            ui.input_select("sort_selector", "Sort by:", choices=["Abbreviation", "Usage", "% Abbr Matched", "% Words Matched"], selected="Abbreviation"),
-            ui.input_select("format_selector", "Export Format:", choices=["plain", "tabular", "nomenclature"], selected="plain")
-        ),
-        ui.navset_card_tab(
-            ui.nav_panel("Selected Abbreviations", ui.output_table("table_display")),
-            ui.nav_panel("Formatted Export", ui.output_text_verbatim("export_display"))
-        )
+    clean_abbr <- str_replace_all(abbr_part, "[\\(\\)]", "")
+    usage_pattern <- paste0("(?<![a-zA-Z\\(\\)])", regex_escape(clean_abbr), "(?![a-zA-Z\\)\\)])")
+    usage_count <- tryCatch(length(str_extract_all(text, usage_pattern)[[1]]), error = function(e) 0)
+    
+    words_ahead <- str_split(phrase_part, "([ -]+)")[[1]]
+    words_ahead <- words_ahead[words_ahead != ""]
+    
+    abbr_items <- get_letters_abbrs(abbr_part)
+    word_comparables <- sapply(words_ahead, get_letters_words)
+    
+    match_indices <- rep(-1, length(abbr_items))
+    last_word_idx <- length(words_ahead)
+    
+    if (length(abbr_items) > 0 && length(words_ahead) > 0) {
+      for (a_idx in rev(seq_along(abbr_items))) {
+        target <- abbr_items[a_idx]
+        if (target == "") next
+        
+        for (w_idx in rev(seq_len(last_word_idx))) {
+          if (word_comparables[w_idx] == "") next
+          if (str_starts(word_comparables[w_idx], fixed(target))) {
+            match_indices[a_idx] <- w_idx
+            last_word_idx <- w_idx - 1
+            break
+          }
+        }
+      }
+    }
+    
+    successful_matches <- match_indices[match_indices != -1]
+    abbr_match_pct <- length(successful_matches) / length(abbr_items)
+    
+    word_match_pct <- 0.0
+    full_phrase <- ""
+    
+    if (length(successful_matches) > 0) {
+      min_idx <- min(successful_matches)
+      phrase_slice <- words_ahead[min_idx:length(words_ahead)]
+      full_phrase <- paste(phrase_slice, collapse = " ")
+      
+      full_phrase <- str_replace_all(full_phrase, "\\s+([\\-\\s])\\s+", "\\1")
+      
+      matchable_words <- sum(word_comparables[min_idx:length(word_comparables)] != "")
+      if (matchable_words > 0) {
+        word_match_pct <- length(successful_matches) / matchable_words
+      }
+    }
+    
+    results[[i]] <- data.frame(
+      Abbreviation = abbr_part,
+      Full_Phrase = full_phrase,
+      Usage = usage_count,
+      Abbr_Match = abbr_match_pct,
+      Word_Match = word_match_pct,
+      stringsAsFactors = FALSE
     )
+  }
+  
+  return(do.call(rbind, results))
+}
+
+regex_escape <- function(string) {
+  str_replace_all(string, "([\\.\\+\\*\\?\\^\\$\\(\\)\\[\\]\\{\\}\\|\\\\\\-])", "\\\\\\1")
+}
+
+format_exports <- function(df, type) {
+  if (nrow(df) == 0) return("No items matching parameters to display.")
+  
+  if (type == "tabular") {
+    rows <- paste0(df$Abbreviation, " & ", df$Full_Phrase, " \\\\")
+    return(paste(c("\\begin{tabular}{ll}", "\\hline", "\\textbf{Abbreviation} & \\textbf{Full Name} \\\\", "\\hline", rows, "\\hline", "\\end{tabular}"), collapse="\n"))
+  } else if (type == "nomenclature") {
+    rows <- paste0("\\nomenclature{", df$Abbreviation, "}{", df$Full_Phrase, "}")
+    return(paste(c("\\usepackage{nomencl}", "\\makenomenclature", rows), collapse="\n"))
+  } else if (type == "footnote") {
+    # Generate unified conditional Quarto output blocks
+    latex_items <- paste0("\\\\textbf{", df$Abbreviation, "}: ", df$Full_Phrase)
+    latex_str <- paste(latex_items, collapse = "; ")
+    
+    typst_items <- paste0("*_", df$Abbreviation, "_* ", df$Full_Phrase)
+    typst_str <- paste(typst_items, collapse = "; #h(8pt) ")
+    
+    block <- paste0(
+      '::: {.content-visible when-format="pdf"}\n',
+      '```{=latex}\n',
+      '\\begingroup\n',
+      '\\renewcommand\\thefootnote{}\n',
+      '\\footnotetext{\\textbf{Abbreviations:} ', latex_str, '.}\n',
+      '\\endgroup\n',
+      '```\n',
+      ':::\n\n',
+      '::: {.content-visible when-format="typst"}\n',
+      '
+```{=typst}\n',
+      '#place(\n',
+      '  bottom + left,\n',
+      '  clearance: 0pt,\n',
+      '  block(\n',
+      '    width: 100%,\n',
+      '    stroke: (top: 0.5pt + luma(150)),\n',
+      '    inset: (top: 6pt),\n',
+      '    [\n',
+      '      #set text(size: 8.5pt)\n',
+      '      *Abbreviations:* ', typst_str, '.\n',
+      '    ]\n',
+      '  )\n',
+      ')\n',
+      '```\n',
+      ':::\n'
+    )
+    return(block)
+  } else {
+    return(paste0(df$Abbreviation, ": ", df$Full_Phrase, collapse = "; \n"))
+  }
+}
+
+# =============================================================================
+# 2. APPLICATION UI LAYOUT SETUP (Multi-Widget Workspace)
+# =============================================================================
+ui <- page_fluid(
+  theme = bs_theme(version = 5, preset = "bootstrap"),
+  h3("Abbreviation Extractor Workspace", style = "margin-top: 15px; margin-bottom: 15px;"),
+  
+  # Widget 1: File Input Interface (Locked to Top)
+  card(
+    card_header("Document Selection Interface"),
+    fileInput("file_upload", label = NULL, width = "100%",
+              accept = c(".tex", ".qmd", ".txt"), 
+              buttonLabel = "Browse Files...", placeholder = "Select a manuscript file (.qmd, .tex, .txt)")
+  ),
+  
+  # Widget 2: Control Hub & Data Summary Grid (Middle Zone)
+  # Widget 2: Control Hub & Data Summary Grid (Middle Zone: 1/3 and 2/3 split)
+  layout_columns(
+    col_widths = c(4, 8), # Splits the 12-unit grid into 4/12 (1/3) and 8/12 (2/3)
+    heights_equal = "row",
+    
+    # Left Card: Takes up 4 units (1/3 width)
+    card(
+      card_header("Filtering Parameters"),
+      layout_column_wrap(
+        width = 1/2,
+        numericInput("min_usage", "Usage \u2265", value = 1, min = 0),
+        selectInput("dedup", "Show First Only:", choices = c("Yes", "No"), selected = "Yes")
+      ),
+      sliderInput("min_abbr", "% Abbr Match \u2265", min = 0, max = 1, value = 0.7, step = 0.1),
+      sliderInput("min_word", "% Words Match \u2265", min = 0, max = 1, value = 0.4, step = 0.1),
+      layout_column_wrap(
+        width = 1/2,
+        selectInput("sort_col", "Sort display by:", choices = c("Abbreviation", "Usage", "% Abbr Matched", "% Words Matched")),
+        selectInput("export_fmt", "Export Format Style:", choices = c("plain", "footnote", "tabular", "nomenclature"), selected = "footnote")
+      )
+    ),
+    
+    # Right Card: Takes up 8 units (2/3 width)
+    card(
+      card_header("Detected Items Preview"),
+      style = "overflow-y: auto; max-height: 380px;",
+      tableOutput("table_render")
+    )
+   ),
+  
+  # Widget 3: Code Output Console (Expanded Bottom Engine)
+  card(
+    card_header("Formatted Output"),
+    verbatimTextOutput("export_render"),
+    style = "background-color: #f8f9fa;"
+  )
 )
 
 # =============================================================================
-# 3. SERVER REACTIVE OPERATIONS
+# 3. SERVER REACTIVE CONTROL HOOKS
 # =============================================================================
-def server(input, output, session):
+server <- function(input, output, session) {
+  
+  raw_extracted_df <- reactive({
+    req(input$file_upload)
     
-    @reactive.calc
-    def parsed_raw_data():
-        # Triggers dynamically when a new file is uploaded
-        file_info = input.file_input()
-        if file_info is None:
-            return pd.DataFrame()
-            
-        # Read the file data out of the Pyodide virtual sandbox path
-        filepath = file_info[0]["datapath"]
-        with open(filepath, "r", encoding="utf-8") as f:
-            raw_content = f.read()
-            
-        normalized = normalize_latex_math(raw_content)
-        return collect_abbreviations(normalized)
+    file_lines <- readLines(input$file_upload$datapath, warn = FALSE, encoding = "UTF-8")
+    raw_text <- paste(file_lines, collapse = "\n")
+    
+    normalized <- normalize_latex_math(raw_text)
+    collect_abbreviations(normalized)
+  })
+  
+  processed_df <- reactive({
+    df <- raw_extracted_df()
+    if (nrow(df) == 0) return(df)
+    
+    if (input$dedup == "Yes" && "Abbreviation" %in% names(df)) {
+      df <- df[!duplicated(df$Abbreviation), ]
+    }
+    
+    df <- subset(df, Usage >= input$min_usage & 
+                     Abbr_Match >= input$min_abbr & 
+                     Word_Match >= input$min_word)
+                     
+    if (nrow(df) == 0) return(df)
+    
+    sort_mapping <- list(
+      "Abbreviation" = list(col = "Abbreviation", dec = FALSE),
+      "Usage" = list(col = "Usage", dec = TRUE),
+      "% Abbr Matched" = list(col = "Abbr_Match", dec = TRUE),
+      "% Words Matched" = list(col = "Word_Match", dec = TRUE)
+    )
+    
+    cfg <- sort_mapping[[input$sort_col]]
+    if (!is.null(cfg)) {
+      df <- df[order(df[[cfg$col]], decreasing = cfg$dec), ]
+    }
+    
+    return(df)
+  })
+  
+  output$table_render <- renderTable({
+    df <- processed_df()
+    if (nrow(df) == 0) {
+      return(data.frame(Status = "Upload a document file or adjust filters to reveal valid abbreviations."))
+    }
+    
+    df$Abbr_Match <- sprintf("%.1f%%", df$Abbr_Match * 100)
+    df$Word_Match <- sprintf("%.1f%%", df$Word_Match * 100)
+    
+    names(df) <- c("Abbreviation", "Full Phrase", "Usage", "% Abbr Matched", "% Words Matched")
+    return(df)
+  }, sanitize.text.function = function(x) x)
+  
+  output$export_render <- renderText({
+    format_exports(processed_df(), input$export_fmt)
+  })
+}
 
-    @reactive.calc
-    def filtered_and_sorted_data():
-        df = parsed_raw_data()
-        if df.empty:
-            return df
-            
-        # Handle duplicates toggle
-        if input.clear_duplicates() == "Yes" and "abbreviation" in df.columns:
-            df = df.drop_duplicates(subset=["abbreviation"], keep="first").reset_index(drop=True)
-            
-        # Apply standard numerical criteria boundaries
-        df = df[
-            (df['usage_count'] >= input.usage_filter()) &
-            (df['perc_abbr_matches'] >= input.perc_abbr_filter()) &
-            (df['perc_words_matched'] >= input.perc_words_filter())
-        ]
-        
-        # Sort values cleanly mapping display labels to data keys
-        sort_map = {
-            "Abbreviation": ("abbreviation", True),
-            "Usage": ("usage_count", False),
-            "% Abbr Matched": ("perc_abbr_matches", False),
-            "% Words Matched": ("perc_words_matched", False)
-        }
-        col, asc = sort_map.get(input.sort_selector(), ("abbreviation", True))
-        if col in df.columns:
-            df = df.sort_values(by=col, ascending=asc).reset_index(drop=True)
-            
-        return df
-
-    @render.table
-    def table_display():
-        df = filtered_and_sorted_data()
-        if df.empty:
-            return pd.DataFrame({"Status": ["Upload a document or adjust filters to reveal abbreviations."]})
-            
-        # Format percentages safely for rendering view
-        render_df = df.copy()
-        if 'perc_abbr_matches' in render_df.columns:
-            render_df['perc_abbr_matches'] = render_df['perc_abbr_matches'].apply(lambda x: f"{x:.1%}")
-        if 'perc_words_matched' in render_df.columns:
-            render_df['perc_words_matched'] = render_df['perc_words_matched'].apply(lambda x: f"{x:.1%}")
-            
-        # Rename columns to match old app layout view
-        return render_df.rename(columns={
-            'abbreviation': 'Abbreviation',
-            'full_name': 'Full Phrase',
-            'usage_count': 'Usage',
-            'perc_abbr_matches': '% Abbr Matched',
-            'perc_words_matched': '% Words Matched'
-        })
-
-    @render.text
-    def export_display():
-        df = filtered_and_sorted_data()
-        if df.empty:
-            return "No data to export yet."
-        return format_abbreviations(df, format_type=input.format_selector())
-
-app = App(app_ui, server)
+shinyApp(ui, server)
 ```
