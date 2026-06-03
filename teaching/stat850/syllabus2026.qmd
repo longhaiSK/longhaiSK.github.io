@@ -97,20 +97,24 @@ schedule_data$Remarks[is.na(schedule_data$Remarks)] <- ""
 # 4. CREATE THE TABLE
 gt_tbl <- schedule_data %>%
   gt() %>%
-  cols_label(
-    Acad_Week = "Week",
-    Date = "Date (Mon)",
-    Topic = "Lecture Topic",
-    Remarks = "Tests & Notes"
+  cols_width(
+    Acad_Week ~ pct(10),
+    Date      ~ pct(15),
+    Topic     ~ pct(50),
+    Remarks   ~ pct(25)
   ) %>%
   fmt_markdown(columns = c(Remarks)) %>%
   cols_align(align = "center", columns = c(Acad_Week)) %>%
   cols_align(align = "left", columns = c(Date, Topic, Remarks)) %>%
+  
+  # --- Updated column widths to use percentages ---
   cols_width(
-    Topic ~ px(300),
-    Remarks ~ px(200),
-    everything() ~ px(80)
+    Acad_Week ~ pct(10),
+    Date      ~ pct(15),
+    Topic     ~ pct(50),
+    Remarks   ~ pct(25)
   ) %>%
+  
   opt_row_striping() %>%
   
   # --- CRITICAL STYLING ---
@@ -129,7 +133,7 @@ gt_tbl <- schedule_data %>%
     table.border.bottom.style = "solid",
     
     # Adjust font for image readability
-    table.font.size = px(16)
+    table.font.size = px(12)
   ) %>%
   
   # Bold Headers
@@ -147,14 +151,15 @@ gt_tbl <- schedule_data %>%
     locations = cells_body(rows = 7)
   )
 
+gt_tbl
 
-# 5. SAVE & INSERT IMAGE
-if (!knitr::is_html_output()) {
-  gtsave(gt_tbl, "schedule_snapshot.png", vwidth = 1800) 
-  knitr::include_graphics("schedule_snapshot.png")
-} else{
-  gt_tbl
-}
+# # 5. SAVE & INSERT IMAGE
+# if (!knitr::is_html_output()) {
+#   gtsave(gt_tbl, "schedule_snapshot.png", vwidth = 1800) 
+#   knitr::include_graphics("schedule_snapshot.png")
+# } else{
+#   gt_tbl
+# }
 
 ```
 
@@ -220,8 +225,8 @@ outcome_tbl <- final_guide %>%
     table.width = pct(100),
     column_labels.background.color = "#E0E0E0",
     column_labels.font.weight = "bold",
-    table.font.size = px(18),           # Slightly larger base font
-    data_row.padding = px(15),          # Forces more row height
+    table.font.size = px(12),           # Slightly larger base font
+    data_row.padding = px(5),          # Forces more row height
     row.striping.background_color = "#F5F5F5",
     table_body.hlines.color = "#B0B0B0", 
     table_body.hlines.width = px(1)
@@ -233,13 +238,14 @@ outcome_tbl <- final_guide %>%
     Percentages ~ pct(10)
   )
 
-# Save with a zoom factor
-if (!knitr::is_html_output()) {
-  gtsave(outcome_tbl, "outcome_snapshot.png", vwidth = 800) 
-  knitr::include_graphics("outcome_snapshot.png")
-} else {
-  outcome_tbl
-}
+outcome_tbl
+# # Save with a zoom factor
+# if (!knitr::is_html_output()) {
+#   gtsave(outcome_tbl, "outcome_snapshot.png", vwidth = 800) 
+#   knitr::include_graphics("outcome_snapshot.png")
+# } else {
+#   outcome_tbl
+# }
 
 ```
 

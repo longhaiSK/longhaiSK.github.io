@@ -3,14 +3,13 @@ title: "STAT 443/851 Theory of Linear Models (University of Saskatchewan, 2026-0
 engine: knitr
 metadata-files: 
   - ../../_website.yaml
-
 ---
-```{r setup, include=FALSE}
+<!-- ```{r setup, include=FALSE}
 library(knitr)
 # This tells knitr to use webshot2 to take a screenshot of HTML widgets
 options(knitr.table.format = "typst") 
-opts_chunk$set(screenshot.force = TRUE)
-```
+opts_chunk$set(screenshot.force = FALSE)
+``` -->
 
 ## Description
 This course is a rigorous examination of the general linear models using vector space theory, in particular the approach of regarding least square as projection. The topics includes: vector space; projection; matrix algebra; generalized inverses;  quadratic forms; theory for point estimation; theory for hypothesis test; theory for non-full-rank models. 
@@ -35,16 +34,11 @@ Lecture Classroom: MCLN 242.1, MWF 9:30-10:20; Office hour: TBA; Lab: no lab.
 
 After completing this course, students are expected to grasp the following knowledges and skills:
 
-```{r}
-#| label: tbl-outcome
-#| echo: false
-#| message: false
-#| warning: false
-library(knitr)
-library(kableExtra)
+```{r echo = FALSE, message= FALSE}
+library(gt)
 library(dplyr)
 
-# Constructing the merged dataframe
+# Constructing the dataframe
 linear_outcomes <- data.frame(
   Topic = c(
     "Vector Spaces",
@@ -55,7 +49,7 @@ linear_outcomes <- data.frame(
     "Non-full-rank Models"
   ),
   Competencies = c(
-    "<b>Understanding</b> the geometric interpretation of subspaces, orthogonal projectipons with the Hat matrix (H) and the Partial Residual matrix. <b>Numerically and symbolically calculating</b> orthogonal projections onto these spaces using various approaches",
+    "<b>Understanding</b> the geometric interpretation of subspaces, orthogonal projections with the Hat matrix (H) and the Partial Residual matrix. <b>Numerically and symbolically calculating</b> orthogonal projections onto these spaces using various approaches",
     "<b>Understanding</b> advanced matrix theory, including spectral decomposition and idempotent properties. <b>Deriving</b> properties of projection matrices, <b>symbolically</b> manipulating matrices, including  <b>calculating</b> generalized inverses.",
     "<b>Understanding</b> the properties of multivariate normal vectors and multiple correlation coefficients. <b>Deriving</b> the mean and covariance of transformed normal vectors and <b>calculating</b> conditional and marginal distribution of MVN.",
     "<b>Understanding</b> the distributions of quadratic forms. <b>Verifying</b> the independence of quadratic forms and <b>applying</b> Cochran's Theorem to derive the distributions and degrees of freedom for sums of squares.",
@@ -65,38 +59,50 @@ linear_outcomes <- data.frame(
   Percentages = c("15%", "10%", "10%", "10%", "40%", "15%")
 )
 
-# Render the table using kable and kableExtra
+# Render as a gt table
 linear_outcomes %>%
-  kable(
-    format = "html",
-    escape = FALSE,
-    col.names = c("Topic", "Learning Outcomes (Knowledge & Skills)", "Perc"),
-    align = "l"
+  gt() %>%
+  # Handle Markdown inside the cells
+  fmt_markdown(columns = c(Competencies)) %>%
+  # Set column widths to sum to 100%
+  cols_width(
+    Topic       ~ pct(30),
+    Competencies ~ pct(60),
+    Percentages ~ pct(10)
   ) %>%
-  kable_styling(
-    bootstrap_options = c("striped", "hover", "condensed"),
-    full_width = TRUE,
-    font_size = 16
+  # Labeling
+  cols_label(
+    Topic = "Topic",
+    Competencies = "Learning Outcomes (Knowledge & Skills)",
+    Percentages = "Perc"
   ) %>%
-  column_spec(1, bold = TRUE, width = "20%") %>%
-  column_spec(2, width = "70%") %>%
-  column_spec(3, width = "10%") %>%
-  row_spec(0, bold = TRUE, background = "#E0E0E0")
+  # Alignment
+  cols_align(align = "left", columns = everything()) %>%
+  # Styling
+  tab_options(
+    table.font.size = px(14),
+    table_body.hlines.style = "solid",
+    column_labels.background.color = "#E0E0E0",
+    table.width = pct(100)
+  ) %>%
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_column_labels()
+  ) %>%
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_body(columns = Topic)
+  )
 ```
 
-
 ## Tentative Schedule
+```{r echo = FALSE, message=FALSE}
 
-```{r}
-#| label: tbl-timetable
-#| echo: false
-#| message: false
-#| warning: false
-library(knitr)
-library(kableExtra)
+
+library(gt)
 library(dplyr)
 
-# 1. Input Data
+# 1. Process Data
 csv_text <- "
 Date,   Acad_Week, Topic,                                             Remarks
 Jan 05, 1,         \"1. Vector Space and Projection\",                  Jan 07: First day of class
@@ -115,31 +121,56 @@ Mar 30, 12,        \"6. Non-full-rank Models \",                <b>Apr 05: Assig
 Apr 06, 13,        \"Review\",                                          Apr 06: Last lecture
 "
 
-# 2. Process Data
 schedule_data <- read.csv(text = csv_text, strip.white = TRUE, stringsAsFactors = FALSE)
 schedule_data[is.na(schedule_data)] <- ""
 
-# 3. Render Table
+# 2. Render gt table
 schedule_data %>%
-  kable(
-    format = "html",
-    escape = FALSE,
-    col.names = c("Date (Mon)", "Week", "Lecture Topic", "Tests & Notes"),
-    align = c("l", "c", "l", "l")
+  gt() %>%
+  # Handle HTML formatting in Remarks
+  fmt_markdown(columns = c(Remarks)) %>%
+  # Set column widths to 100% total
+  cols_width(
+    Date      ~ pct(12),
+    Acad_Week ~ pct(8),
+    Topic     ~ pct(45),
+    Remarks   ~ pct(35)
   ) %>%
-  kable_styling(
-    bootstrap_options = c("striped", "hover", "bordered"),
-    full_width = TRUE,
-    font_size = 16
+  # Alignment
+  cols_align(align = "center", columns = c(Acad_Week)) %>%
+  cols_align(align = "left", columns = c(Date, Topic, Remarks)) %>%
+  # Rename columns
+  cols_label(
+    Date = "Date (Mon)",
+    Acad_Week = "Week",
+    Topic = "Lecture Topic",
+    Remarks = "Tests & Notes"
   ) %>%
-  column_spec(1, width = "12%") %>%
-  column_spec(2, width = "8%") %>%
-  column_spec(3, width = "45%") %>%
-  column_spec(4, width = "35%") %>%
-  row_spec(0, bold = TRUE, background = "#E0E0E0") %>%
-  row_spec(7, bold = TRUE, background = "#d1e7dd") # Highlight Reading Week
+  # Table Styling
+  tab_options(
+    table.width = pct(100),
+    table.font.size = px(14),
+    table_body.hlines.style = "solid",
+    table_body.vlines.style = "solid",
+    column_labels.vlines.style = "solid",
+    column_labels.border.top.style = "solid",
+    column_labels.border.bottom.style = "solid",
+    column_labels.background.color = "#E0E0E0"
+  ) %>%
+  # Apply bold header
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_column_labels()
+  ) %>%
+  # Highlight Reading Week (Row 7)
+  tab_style(
+    style = list(
+      cell_fill(color = "#d1e7dd"),
+      cell_text(weight = "bold")
+    ),
+    locations = cells_body(rows = 7)
+  )
 ```
-
 ::: {.callout-important}
 The schedule may change depending on the course pace. The exact assignment and test dates are given on Canvas. 
 :::
