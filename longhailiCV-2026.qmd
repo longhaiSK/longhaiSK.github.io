@@ -4,33 +4,35 @@ date: last-modified
 engine: knitr
 format: html
 metadata-files:
-  - _website.yaml
-  
+  - _website.yaml 
 ---
+
+
 
 ```{r}
 #| label: setup-ritem
 #| include: false
-#| echo: false
 
-# Initialize a hidden global variable to store the state
 .current_item_count <- 0
 
-# Define the ritem function for automated reverse numbering
 ritem <- function(n = NULL) {
-  # If a number is provided, reset the counter
   if (!is.null(n)) {
     .current_item_count <<- n
   }
   
-  # Capture the current number to print
-  output_num <- .current_item_count
-  
-  # Decrement the hidden counter for the next call
+  num <- .current_item_count
   .current_item_count <<- .current_item_count - 1
   
-  # Return the formatted string
-  return(paste0(output_num, "."))
+  # The \n\n forces Pandoc to start a brand new paragraph for EVERY item
+  if (knitr::is_latex_output()) {
+    out <- sprintf("\n\n\\hangindent=2.5em \\hangafter=1 \\makebox[2.5em][l]{%d.}", num)
+    return(knitr::asis_output(out))
+  } else if (knitr::is_html_output()) {
+    out <- sprintf("\n\n<span class='ritem-num'>%d.</span>", num)
+    return(knitr::asis_output(out))
+  } else {
+    return(paste0("\n\n", num, "\\."))
+  }
 }
 ```
 
