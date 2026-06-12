@@ -424,17 +424,21 @@
 
 = 1. PERSONAL
 <personal>
-- Born in Nov.~1979.
-- Citizenship: Canadian
 - Official webpage: #link("https://artsandscience.usask.ca/profile/LLi")
 - Professional web site: #link("https://longhaisk.github.io")
 - Phone: +1 (306) 966-6095
 - Email: #link("mailto:longhai.li@usask.ca")[longhai.li\@usask.ca]
-- Address: Department of Mathematics & Statistics University of Saskatchewan 106 Wiggins RD Saskatoon, SK, S7W0G8 CANADA
+- Address: \
+  Department of Mathematics & Statistics \
+  University of Saskatchewan \
+  106 Wiggins RD \
+  Saskatoon, SK, S7W0G8 CANADA
 
 = 2. DEGREES
 <degrees>
-- Ph.D., University of Toronto, 2007, Statistics Supervisor: #link("https://glizen.com/radfordneal/")[Radford M. Neal] Thesis: Bayesian Classification and Regression with High Dimensional Features
+- Ph.D., University of Toronto, 2007, Statistics \
+  Supervisor: #link("https://glizen.com/radfordneal/")[Radford M. Neal] \
+  Thesis: Bayesian Classification and Regression with High Dimensional Features
 - M.Sc., University of Toronto, 2003, Statistics
 - B.Sc., University of Science and Technology of China, 2002, Statistics.
 
@@ -958,7 +962,7 @@
 == 10.6 Thesis Committee Memberships
 <thesis-committee-memberships>
 #figure([
-#{set text(font: ("system-ui", "Segoe UI", "Roboto", "Helvetica", "Arial", "sans-serif", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji") , size: 8.25pt); table(
+#{set text(font: ("system-ui", "Segoe UI", "Roboto", "Helvetica", "Arial", "sans-serif", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji") , size: 9pt); table(
   columns: (5%, 25%, 10%, 20%, 30%, 10%),
   align: (center,left,center,left,left,center,),
   table.header(table.cell(align: bottom + center, fill: rgb("#d9d9d9"))[#set text(size: 1.0em , weight: "bold" , fill: rgb("#333333")); \#], table.cell(align: bottom + left, fill: rgb("#d9d9d9"))[#set text(size: 1.0em , weight: "bold" , fill: rgb("#333333")); NAME], table.cell(align: bottom + center, fill: rgb("#d9d9d9"))[#set text(size: 1.0em , weight: "bold" , fill: rgb("#333333")); DEG], table.cell(align: bottom + left, fill: rgb("#d9d9d9"))[#set text(size: 1.0em , weight: "bold" , fill: rgb("#333333")); PROGRAM], table.cell(align: bottom + left, fill: rgb("#d9d9d9"))[#set text(size: 1.0em , weight: "bold" , fill: rgb("#333333")); TIME FRAME], table.cell(align: bottom + center, fill: rgb("#d9d9d9"))[#set text(size: 1.0em , weight: "bold" , fill: rgb("#333333")); ROLE],),
