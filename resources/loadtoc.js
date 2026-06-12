@@ -3,27 +3,28 @@
    - Defaults to EXPANDED (shows H2 and H3 immediately)
    - Supports <main> tag or .main class
    - Disables itself on index pages
+   - Adds "Other format: [PDF]" link if a PDF with the same basename exists
 */
 
 (() => {
   // ===== DISABLE ON HOMEPAGE =====
   const path = window.location.pathname;
-  
+
   // Exact matches only! This prevents it from disabling on subfolder index pages.
   if (path === '/' || path === '/index.html' || path === '/index.qmd') {
     return; // Stop running the script entirely on the root homepage
   }
   // ===== Config =====
   const CFG = {
-    width: 300,             
-    navbarHeight: 60,       
-    breakpoint: 1100,       
-    headerOffset: 80,       
-    zBase: 950,             
+    width: 300,
+    navbarHeight: 60,
+    breakpoint: 1100,
+    headerOffset: 80,
+    zBase: 950,
     buildFromHeadingsIfMissingSidebar: true,
-    headingSelector: ':is(main, .main) :is(h2,h3)', 
+    headingSelector: ':is(main, .main) :is(h2,h3)',
     maxDepth: 3,
-    startCollapsed: false 
+    startCollapsed: false
   };
 
   // ===== Utilities =====
@@ -71,7 +72,7 @@
         box-shadow: -10px 0 30px rgba(0,0,0,0.15);
       }
 
-      /* ====== MODIFIED: Mobile Toggle (No Box, Right-Aligned) ====== */
+      /* ====== Mobile Toggle (No Box, Right-Aligned) ====== */
       #toc-toggle-btn {
         position: fixed; 
         top: calc(var(--toc-nav-height) + 15px); 
@@ -152,6 +153,20 @@
       
       .toc-collapsed .toc-caret { transform: rotate(-90deg); }
       .toc-caret::before { content: '▼'; font-size: 10px; }
+
+      /* Other format: [PDF] link */
+      #toc-other-format {
+        margin-top: 1.2rem;
+        padding-top: 0.8rem;
+        border-top: 1px solid var(--toc-border);
+        font-size: 13px;
+        color: #546e7a;
+      }
+      #toc-other-format a {
+        display: inline !important;
+        font-weight: 600;
+        color: #0056b3 !important;
+      }
     `;
     document.head.appendChild(style);
   }
@@ -241,6 +256,37 @@
     return container;
   }
 
+  // ===== PDF link for "Other format" =====
+  function getPdfHref() {
+    let p = window.location.pathname;
+    // Treat directory URLs (ending in /) as index.html
+    if (p.endsWith('/')) p += 'index.html';
+    // Swap the .html/.qmd extension for .pdf; bail out if no such extension
+    if (!/\.(html?|qmd)$/i.test(p)) return null;
+    return p.replace(/\.(html?|qmd)$/i, '.pdf');
+  }
+
+  async function addPdfLink(content) {
+    const href = getPdfHref();
+    if (!href) return;
+
+    try {
+      const res = await fetch(href, { method: 'HEAD' });
+      // Verify it exists AND is actually a PDF (some servers return
+      // 200 with an HTML "not found" page for missing files)
+      const type = res.headers.get('Content-Type') || '';
+      if (!res.ok || (type && !type.includes('pdf'))) return;
+    } catch {
+      return; // network error -> silently skip, no link added
+    }
+
+    const box = document.createElement('div');
+    box.id = 'toc-other-format';
+    box.innerHTML =
+      `Other format: <a href="${href}" target="_blank" rel="noopener">[PDF]</a>`;
+    content.appendChild(box);
+  }
+
   function init() {
     injectStyles();
     const { toggle, panel } = createShell();
@@ -259,6 +305,8 @@
       content.innerHTML = '';
       content.appendChild(buildFromHeadings());
     }
+
+    addPdfLink(content);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
