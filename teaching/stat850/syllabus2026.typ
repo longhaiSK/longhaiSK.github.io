@@ -352,6 +352,9 @@
   inset: 6pt,
   stroke: none
 )
+#show figure: set block(breakable: true)
+#set enum(indent: 1em, body-indent: 0.75em, numbering: "[1]")
+#set list(indent: 1em, body-indent: 0.75em)
 #import "@preview/fontawesome:0.5.0": *
 #let brand-color = (:)
 #let brand-color-background = (:)
@@ -359,14 +362,14 @@
 
 #set page(
   paper: "us-letter",
-  margin: (x: 1.25in, y: 1.25in),
+  margin: (bottom: 25mm,top: 25mm,x: 20mm,),
   numbering: "1",
   columns: 1,
 )
 
 #show: doc => article(
   title: [STAT 850/442 Statistical Inference (Univ. of Saskatchewan, 2026-01)],
-  fontsize: 12pt,
+  fontsize: 11pt,
   toc_title: [Table of contents],
   toc_depth: 3,
   doc,
@@ -518,6 +521,6 @@ Recording of the lectures will only be allowed in certain circumstances. Please 
 
 + Electronic Devices During Tests. All term tests and the final exam are #strong[Open Book], meaning you may bring printed notes, textbooks, and lecture slides.
 
-- #strong[No Electronic Devices:] You are #strong[NOT allowed] to use laptops, tablets, smartwatches, or any other electronic devices during the exam.
+  - #strong[No Electronic Devices:] You are #strong[NOT allowed] to use laptops, tablets, smartwatches, or any other electronic devices during the exam.
 
-- #strong[Phone Exception:] You are permitted to bring a smartphone, but it must remain stowed away during the writing period. It may #strong[only] be used at the very end of the exam for the specific purpose of taking photos of your answer sheets for submission (if required). Using the phone for any other reason during the exam will be treated as academic misconduct.
+  - #strong[Phone Exception:] You are permitted to bring a smartphone, but it must remain stowed away during the writing period. It may #strong[only] be used at the very end of the exam for the specific purpose of taking photos of your answer sheets for submission (if required). Using the phone for any other reason during the exam will be treated as academic misconduct.
