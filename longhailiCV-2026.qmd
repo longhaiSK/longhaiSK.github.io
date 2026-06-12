@@ -1,11 +1,11 @@
 ---
 title: "CURRICULUM VITAE of LONGHAI LI (`r format(Sys.Date(), '%b %d, %Y')`)"
 engine: knitr
-format: html
 metadata-files:
   - _website.yaml 
+format: 
+  html: default
 ---
-
 ```{r}
 #| label: setup-ritem
 #| include: false
@@ -21,12 +21,22 @@ ritem <- function(n = NULL) {
   num <- .current_item_count
   .current_item_count <<- .current_item_count - 1
   
+  # Fetch the pandoc target format safely
+  out_format <- knitr::opts_knit$get("rmarkdown.pandoc.to")
+  
   # The \n\n forces Pandoc to start a brand new paragraph for EVERY item
   if (knitr::is_latex_output()) {
     out <- sprintf("\n\n\\hangindent=2.5em \\hangafter=1 \\makebox[2.5em][l]{%d.}", num)
     return(knitr::asis_output(out))
   } else if (knitr::is_html_output()) {
     out <- sprintf("\n\n<span class='ritem-num'>[%d]</span>", num)
+    return(knitr::asis_output(out))
+  } else if (!is.null(out_format) && out_format == "typst") {
+    # Typst output block: 
+    # Use a raw inline block so Pandoc doesn't intercept it as a Markdown list. 
+    # Typst natively recognizes lines starting with "N. " as explicitly 
+    # numbered ordered list items with built-in hanging indents.
+    out <- sprintf("\n\n`[%d]`{=typst} ", num)
     return(knitr::asis_output(out))
   } else {
     return(paste0("\n\n[", num, "]"))
@@ -472,47 +482,101 @@ ritem <- function(n = NULL) {
 * Saima Khosa, faculty mentoring, Sept. 2022- Dec. 2022.
 
 ### 10.6 Thesis Committee Memberships
+```{r}
+#| label: tbl-thesis-committee
+#| tbl-cap: "Thesis Committee Memberships"
+#| echo: false
+#| message: false
+#| warning: false
 
-| # | NAME | DEG | PROGRAM | TIME FRAME | ROLE |
-|-|-----|--|--|-----|---|
-| 31 | Tiansui Wu | M.Sc. | Biostatistics | 2025--Present | Chair |
-| 30 | Prabhawi Kahatapitiye | Ph.D. | Statistics | 2025--Present | Member |
-| 29 | Rasel Kabir | Ph.D. | Biostatistics | 2025--Present | Chair |
-| 28 | Mohammad Toranjsimin | M.Sc. | Biostatistics | 2023--2025 (Def. 09/2025) | Member |
-| 27 | Lina Li | Ph.D. | Biostatistics | 2023--Present | Member |
-| 26 | Kyle Gardiner | M.Sc. | Statistics | 2023--2024 (Def. 09/2024) | Member |
-| 25 | Mangladeep Bhullar | Ph.D. | Physics | 2023--2025 (Def. 11/2025) | Cognate |
-| 24 | Hammed Jimoh | M.Sc. | Statistics | 2022--2023 | Member |
-| 23 | Qi Zhang | M.Sc. | Sociology | 2021--2022 | External |
-| 22 | Han Wang | Ph.D. | Sociology | 2020--Present | Cognate |
-| 21 | Yanzhao Cheng | Ph.D. | Biostatistics | 2020--2022 (Def. 10/2021) | Chair |
-| 20 | Naeima Ashleik | Ph.D. | Statistics | 2017--2018 (Def. 03/2018) | Member |
-| 19 | Mehdi Rostami | M.Sc. | Biostatistics | 2014--2016 (Def. 06/2016) | Member |
-| 18 | Sanjeev Rijal | M.Sc. | Statistics | 2014--2018 (Def. 07/2017) | Member |
-| 17 | Farhad Maleki | Ph.D. | Bioinformatics | 2014--2019 | Cognate |
-| 16 | Saima Khan Khosa | Ph.D. | Statistics | 2014--2017 | Member |
-| 15 | Yue Dong | M.Sc. | Statistics | 2014--2016 (Def. 06/2016) | Member |
-| 14 | Temitope Adesina | M.Sc. | Biostatistics | 2014--2015 | Chair |
-| 13 | Sudhakar Achath | M.Sc. | Statistics | 2014--2017 (Def. 05/2017) | Member |
-| 12 | Xiaolei Yu | Ph.D. | Geography | 2012--2022 (Def. 06/2022) | Cognate |
-| 11 | Matthew Schmirler | Ph.D. | Statistics | 2012--2022 (Def. 07/2022) | Member |
-| 10 | Masha Naseri | Ph.D. | Computer Sci. | 2012--2014 (Def. 02/2014) | Cognate |
-| 9 | Chel Hee Lee | Ph.D. | Statistics | 2012--2013 | Member |
-| 8 | Weiwei Fan | M.Sc. | Bioinformatics | 2012--2014 (Def. 01/2014) | Member |
-| 7 | Zhaoqin Li | Ph.D. | Geography | 2011--2017 (Def. 04/2017) | Cognate |
-| 6 | Courtney Kendall | M.Sc. | Statistics | 2011--2014 (Def. 08/2014) | Member |
-| 5 | Michael Janzen | Ph.D. | Computer Sci. | 2011--2012 (Def. 03/2012) | Cognate |
-| 4 | Matthew Schmirler | M.Sc. | Statistics | 2010--2013 (Def. 09/2012) | Member |
-| 3 | Mohammed Obeidat | Ph.D. | Statistics | 2010--2014 (Def. 07/2014) | Member |
-| 2 | Lingling Jin | Ph.D. | Bioinformatics | 2010--2018 (Def. 08/2017) | Cognate |
-| 1 | Tolulope Sajobi | Ph.D. | Biostatistics | 2008--2012 (Def. 03/2012) | Member |
+library(dplyr)
+library(gt)
+
+# Create the dataframe using tribble for easy row-by-row data entry
+committee_data <- tribble(
+  ~`#`, ~NAME, ~DEG, ~PROGRAM, ~`TIME FRAME`, ~ROLE,
+  31, "Tiansui Wu", "M.Sc.", "Biostatistics", "2025--Present", "Chair",
+  30, "Prabhawi Kahatapitiye", "Ph.D.", "Statistics", "2025--Present", "Member",
+  29, "Rasel Kabir", "Ph.D.", "Biostatistics", "2025--Present", "Chair",
+  28, "Mohammad Toranjsimin", "M.Sc.", "Biostatistics", "2023--2025 (Def. 09/2025)", "Member",
+  27, "Lina Li", "Ph.D.", "Biostatistics", "2023--Present", "Member",
+  26, "Kyle Gardiner", "M.Sc.", "Statistics", "2023--2024 (Def. 09/2024)", "Member",
+  25, "Mangladeep Bhullar", "Ph.D.", "Physics", "2023--2025 (Def. 11/2025)", "Cognate",
+  24, "Hammed Jimoh", "M.Sc.", "Statistics", "2022--2023", "Member",
+  23, "Qi Zhang", "M.Sc.", "Sociology", "2021--2022", "External",
+  22, "Han Wang", "Ph.D.", "Sociology", "2020--Present", "Cognate",
+  21, "Yanzhao Cheng", "Ph.D.", "Biostatistics", "2020--2022 (Def. 10/2021)", "Chair",
+  20, "Naeima Ashleik", "Ph.D.", "Statistics", "2017--2018 (Def. 03/2018)", "Member",
+  19, "Mehdi Rostami", "M.Sc.", "Biostatistics", "2014--2016 (Def. 06/2016)", "Member",
+  18, "Sanjeev Rijal", "M.Sc.", "Statistics", "2014--2018 (Def. 07/2017)", "Member",
+  17, "Farhad Maleki", "Ph.D.", "Bioinformatics", "2014--2019", "Cognate",
+  16, "Saima Khan Khosa", "Ph.D.", "Statistics", "2014--2017", "Member",
+  15, "Yue Dong", "M.Sc.", "Statistics", "2014--2016 (Def. 06/2016)", "Member",
+  14, "Temitope Adesina", "M.Sc.", "Biostatistics", "2014--2015", "Chair",
+  13, "Sudhakar Achath", "M.Sc.", "Statistics", "2014--2017 (Def. 05/2017)", "Member",
+  12, "Xiaolei Yu", "Ph.D.", "Geography", "2012--2022 (Def. 06/2022)", "Cognate",
+  11, "Matthew Schmirler", "Ph.D.", "Statistics", "2012--2022 (Def. 07/2022)", "Member",
+  10, "Masha Naseri", "Ph.D.", "Computer Sci.", "2012--2014 (Def. 02/2014)", "Cognate",
+  9, "Chel Hee Lee", "Ph.D.", "Statistics", "2012--2013", "Member",
+  8, "Weiwei Fan", "M.Sc.", "Bioinformatics", "2012--2014 (Def. 01/2014)", "Member",
+  7, "Zhaoqin Li", "Ph.D.", "Geography", "2011--2017 (Def. 04/2017)", "Cognate",
+  6, "Courtney Kendall", "M.Sc.", "Statistics", "2011--2014 (Def. 08/2014)", "Member",
+  5, "Michael Janzen", "Ph.D.", "Computer Sci.", "2011--2012 (Def. 03/2012)", "Cognate",
+  4, "Matthew Schmirler", "M.Sc.", "Statistics", "2010--2013 (Def. 09/2012)", "Member",
+  3, "Mohammed Obeidat", "Ph.D.", "Statistics", "2010--2014 (Def. 07/2014)", "Member",
+  2, "Lingling Jin", "Ph.D.", "Bioinformatics", "2010--2018 (Def. 08/2017)", "Cognate",
+  1, "Tolulope Sajobi", "Ph.D.", "Biostatistics", "2008--2012 (Def. 03/2012)", "Member"
+)
+
+# Render the gt table
+committee_data |> 
+  gt() |> 
+  tab_options(
+    table.width = pct(100),
+    
+    table.layout = "fixed",
+    table.font.size = px(11), 
+    container.overflow.x = TRUE,
+    # --- remove all lines ---
+    table.border.top.style = "hidden",
+    table.border.bottom.style = "hidden",
+    column_labels.border.top.style = "hidden",
+    column_labels.border.bottom.style = "hidden",
+    table_body.hlines.style = "none",
+    table_body.vlines.style = "none",
+    table_body.border.top.style = "hidden",
+    table_body.border.bottom.style = "hidden",
+    stub.border.style = "hidden"
+  ) |> 
+  cols_width(
+    `#` ~ pct(5),
+    NAME ~ pct(25),
+    DEG ~ pct(10),
+    PROGRAM ~ pct(20),
+    `TIME FRAME` ~ pct(30),
+    ROLE ~ pct(10)
+  ) |> 
+  opt_row_striping() |> 
+  # --- gray header background + bold ---
+  tab_style(
+    style = list(
+      cell_fill(color = "#d9d9d9"),
+      cell_text(weight = "bold")
+    ),
+    locations = cells_column_labels()
+  ) |> 
+  cols_align(
+    align = "center",
+    columns = c(`#`, DEG, ROLE)
+  )
+```
 
 ## 11. BOOKS AND CHAPTERS IN BOOKS
 
 ### 11.1 Authored Books
 
-* Soltanifar, M., Li, L., and Rosenthal, J., 2010. A Collection of Exercises in Advanced Probability Theory - the solutions manual of all even-numbered exercises from “A First Look at Rigorous Probability Theory”, World Scientific Publishing, (Second Edition, 2006), Singapore.
-* Li, L., 2007. Bayesian Classification and Regression with High Dimensional Features. (Ph.D. Thesis), Toronto: University of Toronto.
+`r ritem(2)` Soltanifar, M., Li, L., and Rosenthal, J., 2010. A Collection of Exercises in Advanced Probability Theory - the solutions manual of all even-numbered exercises from “A First Look at Rigorous Probability Theory”, World Scientific Publishing, (Second Edition, 2006), Singapore.
+`r ritem()` Li, L., 2007. Bayesian Classification and Regression with High Dimensional Features. (Ph.D. Thesis), Toronto: University of Toronto.
 
 ### 11.3 Chapters in Books
 
