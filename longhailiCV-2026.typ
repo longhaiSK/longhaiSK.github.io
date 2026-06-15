@@ -415,7 +415,7 @@
 )
 
 #show: doc => article(
-  title: [CURRICULUM VITAE of LONGHAI LI (Jun 12, 2026)],
+  title: [CURRICULUM VITAE of LONGHAI LI (Jun 15, 2026)],
   fontsize: 11pt,
   toc_title: [Table of contents],
   toc_depth: 3,
@@ -894,66 +894,69 @@
 <graduate-theses-supervised>
 #strong[2025-2026]
 
-20. Dananji Egodage, 2025, Component-wise Z-residuals for Checking Bayesian Hurdle Models, M.Sc., defended on Aug.~30, 2025.
+17. Dananji Egodage, 2025, Component-wise Z-residuals for Checking Bayesian Hurdle Models, M.Sc., defended on Aug.~30, 2025.
 
 #strong[2024-2025]
 
-19. Effie Wuqian Gao, 2024, Z-residuals for Checking Bayesian Hurdle Models, M.Sc., defended on Aug.~30, 2024.
+16. Effie Wuqian Gao, 2024, Z-residuals for Checking Bayesian Hurdle Models, M.Sc., defended on Aug.~30, 2024.
 
 #strong[2023-2024]
 
-18. Tingxuan Wu, 2023, Residual Diagnostics and Statistical Inference for Shared Frailty Models, Ph.D., defended on May 24, 2023.
+15. Tingxuan Wu, 2023, Residual Diagnostics and Statistical Inference for Shared Frailty Models, Ph.D., defended on May 24, 2023.
 
 #strong[2022-2023]
 
-17. Hao Hu, 2022, Identifying Risk Factors for Cognitive Decline using Statistical Learning Techniques and Functional Data Analysis, M.Sc., defended on Sept.~15, 2022.
+14. Hao Hu, 2022, Identifying Risk Factors for Cognitive Decline using Statistical Learning Techniques and Functional Data Analysis, M.Sc., defended on Sept.~15, 2022.
 
 #strong[2021-2022]
 
-16. Wutao Yin, 2021, Artificial Intelligence Based Methods for Autism Spectrum Disorder Diagnosis from fMRI Data, Ph.D., defended on Dec.~17, 2021.
+13. Wutao Yin, 2021, Artificial Intelligence Based Methods for Autism Spectrum Disorder Diagnosis from fMRI Data, Ph.D., defended on Dec.~17, 2021.
 
-15. Man Chen, 2021, Association Between Gut Microbiome and Parkinson's Disease Revealed by Sparse Learning, M.Sc., defended on April 30, 2021.
+12. Man Chen, 2021, Association Between Gut Microbiome and Parkinson's Disease Revealed by Sparse Learning, M.Sc., defended on April 30, 2021.
 
 #strong[2019-2020]
 
-14. Dong Mei, 2019, Feature Selection Bias in Assessing the Predictivity of SNPs for Alzheimer's Disease, M.Sc., defended on May 23, 2019.
+11. Dong Mei, 2019, Feature Selection Bias in Assessing the Predictivity of SNPs for Alzheimer's Disease, M.Sc., defended on May 23, 2019.
 
-13. Xiaoying Wang, 2019, Comparison of Statistical Testing and Predictive Analysis Methods for Feature Selection in Zero-inflated Microbiome Data, M.Sc., defended on March 12, 2019.
+10. Xiaoying Wang, 2019, Comparison of Statistical Testing and Predictive Analysis Methods for Feature Selection in Zero-inflated Microbiome Data, M.Sc., defended on March 12, 2019.
 
 #strong[2018-2019]
 
-12. Tingxuan Wu, 2018, Randomized Survival Probability Residuals for Assessing Parametric Survival Models, M.Sc., defended on Dec.~4, 2018.
+9. Tingxuan Wu, 2018, Randomized Survival Probability Residuals for Assessing Parametric Survival Models, M.Sc., defended on Dec.~4, 2018.
 
-11. Wei Bai, 2018, Randomized Quantile Residual for Assessing Generalized Linear Mixed Models with Application to Zero-Inflated Microbiome Data, M.Sc., defended on July 12, 2018.
+8. Wei Bai, 2018, Randomized Quantile Residual for Assessing Generalized Linear Mixed Models with Application to Zero-Inflated Microbiome Data, M.Sc., defended on July 12, 2018.
 
 #strong[2016-2017]
 
-10. Yunyang Wang, 2016, Comparison of Stochastic Volatility Models Using Integrated Information Criteria, M.Sc., defended on Nov.~18, 2016.
+7. Yunyang Wang, 2016, Comparison of Stochastic Volatility Models Using Integrated Information Criteria, M.Sc., defended on Nov.~18, 2016.
 
-9. Alireza Sadeghpour, 2016, Empirical Investigation of Randomized Quantile Residuals for Diagnosis of Non-Normal Regression Models, M.Sc., defended on Sept.~19, 2016.
+6. Alireza Sadeghpour, 2016, Empirical Investigation of Randomized Quantile Residuals for Diagnosis of Non-Normal Regression Models, M.Sc., defended on Sept.~19, 2016.
 
-8. Naorin Islam, 2016, Substance Abuse and Health: A Structural Equation Modeling Approach to Assess Latent Health Effects, M.Sc., defended on Nov.~28, 2016.
+5. Naorin Islam, 2016, Substance Abuse and Health: A Structural Equation Modeling Approach to Assess Latent Health Effects, M.Sc., defended on Nov.~28, 2016.
 
 #strong[2015-2016]
 
-7. Lai Jiang, 2015, Fully Bayesian T-probit Regression with Heavy-tailed Priors for Selection in High-Dimensional Features with Grouping Structure, Ph.D., defended on Sept.~14, 2015.
+4. Lai Jiang, 2015, Fully Bayesian T-probit Regression with Heavy-tailed Priors for Selection in High-Dimensional Features with Grouping Structure, Ph.D., defended on Sept.~14, 2015.
 
 #strong[2014-2015]
 
-6. Shi Qiu, 2015, Cross-validatory Model Comparison and Divergent Regions Detection using iIS and iWAIC for Disease Mapping, M.Sc., defended on March 26, 2015.
+3. Shi Qiu, 2015, Cross-validatory Model Comparison and Divergent Regions Detection using iIS and iWAIC for Disease Mapping, M.Sc., defended on March 26, 2015.
 
 #strong[2012-2013]
 
-5. Masud Rana, 2012, Spatial-Longitudinal Bent-Cable Model with An Application to Atmospheric CFC Data, M.Sc., defended in Sept.~2012.
+2. Masud Rana, 2012, Spatial-Longitudinal Bent-Cable Model with An Application to Atmospheric CFC Data, M.Sc., defended in Sept.~2012.
 
-4. Zhengrong Li, 2012, A Non-MCMC Procedure for Fitting Dirichlet Process Mixture Models, M.Sc., defended in May 2012.
+1. Zhengrong Li, 2012, A Non-MCMC Procedure for Fitting Dirichlet Process Mixture Models, M.Sc., defended in May 2012.
 
 == 10.4 Supervision of Post-Doctoral Fellows and Research Associates
 <supervision-of-post-doctoral-fellows-and-research-associates>
-- Tingxuan Wu, University of Saskatchewan, Postdoc Research Associate, Jan.~2025 -- Dec.~2026.
-- Tingxuan Wu, University of Saskatchewan, Postdoc Fellow, June 2023 -- April 2024.
-- Ming Ming Zhang, MITACS Postdoc, 2022-2025.
-- Jinhong Shi, team-supervised for CFREF projects, Sept.~2016 - Aug.~2019.
+4. Tingxuan Wu, University of Saskatchewan, Postdoc Research Associate, Jan.~2025 -- Dec.~2026.
+
+3. Tingxuan Wu, University of Saskatchewan, Postdoc Fellow, June 2023 -- April 2024.
+
+2. Ming Ming Zhang, MITACS Postdoc, 2022-2025.
+
+1. Jinhong Shi, team-supervised for CFREF projects, Sept.~2016 - Aug.~2019.
 
 == 10.5 Staff Supervision
 <staff-supervision>
