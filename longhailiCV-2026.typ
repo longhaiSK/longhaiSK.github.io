@@ -838,43 +838,41 @@
 
 == 10.2 Graduate Student Supervision
 <graduate-student-supervision>
-26. Jing Wang, Ph.D., Biostatistics, School of Public Health, Co-supervised with Prof.~Li Xing, 2023--2026 (Transferred to other supervisor)
+25. Jing Wang, Ph.D., Biostatistics, School of Public Health, Co-supervised with Prof.~Li Xing, 2023--2026 (Transferred to other supervisor)
 
-25. Dananji Egodage, M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Cindy Feng, 2023--2025 (Defended: Aug.~30, 2025)
+24. Dananji Egodage, M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Cindy Feng, 2023--2025 (Defended: Aug.~30, 2025)
 
-24. Wuqian Effie Gao, M.Sc., Biostatistics, School of Public Health, Co-supervised with Prof.~Cindy Feng, 2022--2024 (Defended: Aug.~30, 2024)
+23. Wuqian Effie Gao, M.Sc., Biostatistics, School of Public Health, Co-supervised with Prof.~Cindy Feng, 2022--2024 (Defended: Aug.~30, 2024)
 
-23. Lina Li, M.Sc., Statistics, Math & Stat, MITACS Project supervisor, Supervised, 2022--2022 (Completed: August 2022)
+22. Lina Li, M.Sc., Statistics, Math & Stat, MITACS Project supervisor, Supervised, 2022--2022 (Completed: August 2022)
 
-22. Hao Hu, Ph.D., Statistics, Math & Stat, Co-supervised with Prof.~Li Xing, 2021--2022 (Transferred to M.Sc. July 2022)
+21. Hao Hu, Ph.D., Statistics, Math & Stat, Co-supervised with Prof.~Li Xing, 2021--2022 (Transferred to M.Sc. July 2022)
 
-21. Hao Hu, M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Li Xing, 2021--2022 (Defended: Sept.~15, 2022)
+20. Hao Hu, M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Li Xing, 2021--2022 (Defended: Sept.~15, 2022)
 
-20. Man Chen, M.Sc., Statistics, Math & Stat, Supervised, 2019--2021 (Defended: April 30, 2021)
+19. Man Chen, M.Sc., Statistics, Math & Stat, Supervised, 2019--2021 (Defended: April 30, 2021)
 
-19. Wutao Yin, Ph.D., Biomedical Engineering, Co-supervised with Prof.~FangXiang Wu, 2019--2021 (Defended: Dec.~17, 2021)
+18. Wutao Yin, Ph.D., Biomedical Engineering, Co-supervised with Prof.~FangXiang Wu, 2019--2021 (Defended: Dec.~17, 2021)
 
-18. Wutao Yin, Ph.D., Statistics, Math & Stats, Supervised, 2018--2019 (Transferred to Engineering May 2019)
+17. Wutao Yin, Ph.D., Statistics, Math & Stats, Supervised, 2018--2019 (Transferred to Engineering May 2019)
 
-17. Tingxuan Wu, Ph.D., Biostatistics, School of Public Health, Co-supervised with Prof.~Cindy Feng, 2018--2023 (Defended: May 24, 2023)
+16. Tingxuan Wu, Ph.D., Biostatistics, School of Public Health, Co-supervised with Prof.~Cindy Feng, 2018--2023 (Defended: May 24, 2023)
 
-16. Tingxuan Wu, M.Sc., Biostatistics, School of Public Health, Co-supervised with Prof.~Cindy Feng, 2017--2018 (Defended: Dec.~4, 2018)
+15. Tingxuan Wu, M.Sc., Biostatistics, School of Public Health, Co-supervised with Prof.~Cindy Feng, 2017--2018 (Defended: Dec.~4, 2018)
 
-15. Mei Dong, M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Lloyd Balbuena, 2017--2019 (Defended: May 23, 2019)
+14. Mei Dong, M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Lloyd Balbuena, 2017--2019 (Defended: May 23, 2019)
 
-14. Alireza Sadeghpour, M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Cindy Feng, 2016--2017 (Defended: Sept.~19, 2017)
+13. Alireza Sadeghpour, M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Cindy Feng, 2016--2017 (Defended: Sept.~19, 2017)
 
-13. Xiaoying Wang, M.Sc., Statistics, Math & Stat, Supervised, 2016--2019 (Defended: March 12, 2019)
+12. Xiaoying Wang, M.Sc., Statistics, Math & Stat, Supervised, 2016--2019 (Defended: March 12, 2019)
 
-12. Wei Bai, M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Cindy Feng, 2016--2018 (Defended: July 12, 2018)
+11. Wei Bai, M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Cindy Feng, 2016--2018 (Defended: July 12, 2018)
 
-11. Yunyang Wang, M.Sc., Statistics, Math & Stat, Supervised, 2014--2017 (Defended: Nov.~18, 2017)
+10. Yunyang Wang, M.Sc., Statistics, Math & Stat, Supervised, 2014--2017 (Defended: Nov.~18, 2017)
 
-10. Naorin Islam, M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Shahedul Khan, 2014--2017 (Defended: Nov.~28, 2017)
+9. Naorin Islam, M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Shahedul Khan, 2014--2017 (Defended: Nov.~28, 2017)
 
-9. Arash Shamloo, M.MATH., Statistics, Math & Stat, Supervised, 2016--2017 (Project Completed: August 31, 2017)
-
-8. Arash Shamloo, M.Sc., Biostatistics, School of Public Health, Supervised, 2014--2016 (Defended: 2016)
+8. Arash Shamloo, M.MATH., Statistics, Math & Stat, Supervised, 2016--2017 (Project Completed: August 31, 2017)
 
 7. Setu Chandra Kar, M.Sc., Statistics, Math & Stat, Supervised, 2014--2016 (Defended: 2016)
 
@@ -966,7 +964,7 @@
 <thesis-committee-memberships>
 #figure([
 #{set text(font: ("system-ui", "Segoe UI", "Roboto", "Helvetica", "Arial", "sans-serif", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji") , size: 9pt); table(
-  columns: (5%, 25%, 10%, 20%, 30%, 10%),
+  columns: (5%, 25%, 5%, 20%, 40%, 10%),
   align: (center,left,center,left,left,center,),
   table.header(table.cell(align: bottom + center, fill: rgb("#d9d9d9"))[#set text(size: 1.0em , weight: "bold" , fill: rgb("#333333")); \#], table.cell(align: bottom + left, fill: rgb("#d9d9d9"))[#set text(size: 1.0em , weight: "bold" , fill: rgb("#333333")); NAME], table.cell(align: bottom + center, fill: rgb("#d9d9d9"))[#set text(size: 1.0em , weight: "bold" , fill: rgb("#333333")); DEG], table.cell(align: bottom + left, fill: rgb("#d9d9d9"))[#set text(size: 1.0em , weight: "bold" , fill: rgb("#333333")); PROGRAM], table.cell(align: bottom + left, fill: rgb("#d9d9d9"))[#set text(size: 1.0em , weight: "bold" , fill: rgb("#333333")); TIME FRAME], table.cell(align: bottom + center, fill: rgb("#d9d9d9"))[#set text(size: 1.0em , weight: "bold" , fill: rgb("#333333")); ROLE],),
   table.hline(),
