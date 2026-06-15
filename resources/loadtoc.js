@@ -24,7 +24,7 @@
     buildFromHeadingsIfMissingSidebar: true,
     headingSelector: ':is(main, .main) :is(h2,h3)',
     maxDepth: 3,
-    startCollapsed: false
+    startCollapsed: true
   };
 
   // ===== Utilities =====
