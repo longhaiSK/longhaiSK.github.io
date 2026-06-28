@@ -1,5 +1,5 @@
 -- colwidths.lua: column widths + tighter row spacing for .course-tables divs
-local widths = {19.23, 7.69, 42.31, 7.69, 7.69, 7.69, 7.69}
+local widths = {15, 8, 40, 7, 7, 7, 7}
 
 function Div(div)
   if not div.classes:includes("course-tables") then
