@@ -405,6 +405,9 @@
 #set list(indent: 1em, body-indent: 0.75em)
 #let color-link = rgb("#4f2fcd")
 #let color-ref = rgb("#1a1ad6")
+#show link: set text(fill: color-link)
+#show ref: set text(fill: color-ref)
+#show cite: set text(fill: color-ref)
 #let brand-color = (:)
 #let brand-color-background = (:)
 #let brand-logo = (:)
@@ -470,11 +473,11 @@
 <teaching-materials>
 #strong[2025-2026]
 
-3. STAT 442/850: a textbook entitled "Theory of Statistical Inference" in PDF ($gt.eq$ 200 pages) and HTML.
+3. STAT 442/850: a textbook entitled "#link("teaching/stat850/mathstat/index.html")[Theory of Statistical Inference]" in PDF ($gt.eq$ 200 pages) and HTML.
 
-2. STAT 845: a textbook entitled "Statistical Inference and Learning Methods for Research" in PDF ($gt.eq$ 200 pages) and HTML
+2. STAT 845: a textbook entitled "#link("teaching/stat845_rdemo/book/index.html")[Statistical Inference and Learning Methods for Research]" in PDF ($gt.eq$ 200 pages) and HTML
 
-1. STAT 443/851: a textbook entitled "Theory of Linear Model" in PDF ($gt.eq$ 200 pages) and HTML.
+1. STAT 443/851: a textbook entitled "#link("teaching/stat851/theorylm/index.html")[Theory of Linear Model]" in PDF ($approx$ 200 pages) and HTML.
 
 == 9.5 Other Teaching-Related Activities
 <other-teaching-related-activities>
