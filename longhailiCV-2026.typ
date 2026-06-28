@@ -403,6 +403,8 @@
 #show figure: set block(breakable: true)
 #set enum(indent: 1em, body-indent: 0.75em, numbering: "[1]")
 #set list(indent: 1em, body-indent: 0.75em)
+#let color-link = rgb("#4f2fcd")
+#let color-ref = rgb("#1a1ad6")
 #let brand-color = (:)
 #let brand-color-background = (:)
 #let brand-logo = (:)
@@ -415,7 +417,7 @@
 )
 
 #show: doc => article(
-  title: [CURRICULUM VITAE of LONGHAI LI (Jun 27, 2026)],
+  title: [CURRICULUM VITAE of LONGHAI LI (Jun 28, 2026)],
   fontsize: 11pt,
   toc_title: [Table of contents],
   toc_depth: 3,
@@ -438,7 +440,7 @@
 <degrees>
 - Ph.D., University of Toronto, 2007, Statistics \
   Supervisor: #link("https://glizen.com/radfordneal/")[Radford M. Neal] \
-  Thesis: Bayesian Classification and Regression with High Dimensional Features
+  #strong[Thesis]: Bayesian Classification and Regression with High Dimensional Features
 - M.Sc., University of Toronto, 2003, Statistics
 - B.Sc., University of Science and Technology of China, 2002, Statistics.
 

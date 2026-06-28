@@ -403,6 +403,8 @@
 #show figure: set block(breakable: true)
 #set enum(indent: 1em, body-indent: 0.75em, numbering: "[1]")
 #set list(indent: 1em, body-indent: 0.75em)
+#let color-link = rgb("#4f2fcd")
+#let color-ref = rgb("#1a1ad6")
 #let brand-color = (:)
 #let brand-color-background = (:)
 #let brand-logo = (:)
@@ -450,7 +452,7 @@
 #strong[2025-2026]
 
 #table(
-  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
+  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
