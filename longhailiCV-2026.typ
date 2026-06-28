@@ -967,7 +967,6 @@
 
 == 10.6 Thesis Committee Memberships
 <thesis-committee-memberships>
-#figure([
 #{set text(font: ("system-ui", "Segoe UI", "Roboto", "Helvetica", "Arial", "sans-serif", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji") , size: 9pt); table(
   columns: (5%, 25%, 5%, 20%, 30%, 10%),
   align: (center,left,center,left,left,center,),
@@ -1005,17 +1004,6 @@
   table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[2], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Lingling Jin], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Ph.D.], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Bioinformatics], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[2010--2018 (Def. 08/2017)], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Cognate],
   table.cell(align: horizon + center)[1], table.cell(align: horizon + left)[Tolulope Sajobi], table.cell(align: horizon + center)[Ph.D.], table.cell(align: horizon + left)[Biostatistics], table.cell(align: horizon + left)[2008--2012 (Def. 03/2012)], table.cell(align: horizon + center)[Member],
 )}
-], caption: figure.caption(
-position: top, 
-[
-Thesis Committee Memberships
-]), 
-kind: "quarto-float-tbl", 
-supplement: "Table", 
-)
-<tbl-thesis-committee>
-
-
 = 11. BOOKS AND CHAPTERS IN BOOKS
 <books-and-chapters-in-books>
 == 11.1 Authored Books
