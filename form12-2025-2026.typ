@@ -415,29 +415,13 @@
 )
 
 #show: doc => article(
+  title: [Form 1],
   fontsize: 11pt,
   toc_title: [Table of contents],
   toc_depth: 3,
   doc,
 )
 
-#align(right)[#text(size: 14pt, weight: "bold")[Form 1]]
-#v(1em)
-#grid(
-  columns: (1fr, 1fr),
-  [*Name:* #underline[Longhai Li]], [*Date:* #underline[June 30, 2026]],
-  [*College:* #underline[Arts & Science]], [*Department:* #underline[Mathematics & Statistics]]
-)
-#v(0.5em)
-#line(length: 100%)
-#v(1em)
-#align(center)[
-  #strong[
-    INFORMATION FOR UPDATE OF CURRICULUM VITAE -- NEW ITEMS \
-    (ITEMS NOT PREVIOUSLY REPORTED) \
-    The cut off date for items to be reported is JUNE 30.
-  ]
-]
 = 1. PERSONAL
 <personal>
 - Official webpage: #link("https://artsandscience.usask.ca/profile/LLi")
@@ -489,17 +473,35 @@
   [MATH 996], [T1T2], [Research Supervision (Ph.D.)], [RES], [1], [], [],
   [MATH 994], [T1T2], [Research Supervision (M.Sc.)], [RES], [1], [], [],
 )
+#strong[2024-2025]
+
+#table(
+  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
+  align: (auto,auto,auto,auto,auto,auto,auto,),
+  table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
+  table.hline(),
+  [STAT 348], [T1], [Sampling Techniques], [LEC], [15], [39], [585],
+  [STAT 812], [T1], [Computational Statistics], [LEC], [5], [39], [195],
+  [STAT 420], [T1], [Topics in Computational Statistics], [LEC], [1], [39], [39],
+  [BIOS 996], [T1T2], [Research Supervision (Ph.D.)], [RES], [1], [], [],
+  [BIOS 996], [T1T2], [Research Supervision (M.Sc.)], [RES], [1], [], [],
+  [MATH 994], [T1T2], [Research Supervision (M.Sc.)], [RES], [1], [], [],
+)
 ]
 ]
 == 9.4 Teaching Materials
 <teaching-materials>
 #strong[2025-2026]
 
-3. STAT 442/850: a textbook entitled "Theory of Statistical Inference" in PDF ($gt.eq$ 200 pages) and HTML.
+4. STAT 442/850: a textbook entitled "Theory of Statistical Inference" in PDF ($gt.eq$ 200 pages) and HTML.
 
-2. STAT 845: a textbook entitled "Statistical Inference and Learning Methods for Research" in PDF ($gt.eq$ 200 pages) and HTML
+3. STAT 845: a textbook entitled "Statistical Inference and Learning Methods for Research" in PDF ($gt.eq$ 200 pages) and HTML
 
-1. STAT 443/851: a textbook entitled "Theory of Linear Model" in PDF ($gt.eq$ 200 pages) and HTML.
+2. STAT 443/851: a textbook entitled "Theory of Linear Model" in PDF ($gt.eq$ 200 pages) and HTML.
+
+#strong[2024-2025]
+
+1. STAT 443/851: 273 pages of handwritten lecture notes were developed and posted to students.
 
 == 9.5 Other Teaching-Related Activities
 <other-teaching-related-activities>
@@ -527,7 +529,11 @@
 <graduate-theses-supervised>
 #strong[2025-2026]
 
-1. Dananji Egodage, 2025, Component-wise Z-residuals for Checking Bayesian Hurdle Models, M.Sc., defended on Aug.~30, 2025.
+2. Dananji Egodage, 2025, Component-wise Z-residuals for Checking Bayesian Hurdle Models, M.Sc., defended on Aug.~30, 2025.
+
+#strong[2024-2025]
+
+1. Effie Wuqian Gao, 2024, Z-residuals for Checking Bayesian Hurdle Models, M.Sc., defended on Aug.~30, 2024.
 
 == 10.4 Supervision of Post-Doctoral Fellows and Research Associates
 <supervision-of-post-doctoral-fellows-and-research-associates>
@@ -539,7 +545,7 @@
 <thesis-committee-memberships>
 #figure([
 #{set text(font: ("system-ui", "Segoe UI", "Roboto", "Helvetica", "Arial", "sans-serif", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji") , size: 9pt); table(
-  columns: (5%, 25%, 5%, 20%, 40%, 10%),
+  columns: (5%, 25%, 5%, 20%, 30%, 10%),
   align: (center,left,center,left,left,center,),
   table.header(table.cell(align: bottom + center, fill: rgb("#d9d9d9"))[#set text(size: 1.0em , weight: "bold" , fill: rgb("#333333")); \#], table.cell(align: bottom + left, fill: rgb("#d9d9d9"))[#set text(size: 1.0em , weight: "bold" , fill: rgb("#333333")); NAME], table.cell(align: bottom + center, fill: rgb("#d9d9d9"))[#set text(size: 1.0em , weight: "bold" , fill: rgb("#333333")); DEG], table.cell(align: bottom + left, fill: rgb("#d9d9d9"))[#set text(size: 1.0em , weight: "bold" , fill: rgb("#333333")); PROGRAM], table.cell(align: bottom + left, fill: rgb("#d9d9d9"))[#set text(size: 1.0em , weight: "bold" , fill: rgb("#333333")); TIME FRAME], table.cell(align: bottom + center, fill: rgb("#d9d9d9"))[#set text(size: 1.0em , weight: "bold" , fill: rgb("#333333")); ROLE],),
   table.hline(),
@@ -548,8 +554,32 @@
   table.cell(align: horizon + center)[29], table.cell(align: horizon + left)[Rasel Kabir], table.cell(align: horizon + center)[Ph.D.], table.cell(align: horizon + left)[Biostatistics], table.cell(align: horizon + left)[2025--Present], table.cell(align: horizon + center)[Chair],
   table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[28], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Mohammad Toranjsimin], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[M.Sc.], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Biostatistics], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[2023--2025 (Def. 09/2025)], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Member],
   table.cell(align: horizon + center)[27], table.cell(align: horizon + left)[Lina Li], table.cell(align: horizon + center)[Ph.D.], table.cell(align: horizon + left)[Biostatistics], table.cell(align: horizon + left)[2023--Present], table.cell(align: horizon + center)[Member],
-  table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[25], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Mangladeep Bhullar], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Ph.D.], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Physics], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[2023--2025 (Def. 11/2025)], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Cognate],
-  table.cell(align: horizon + center)[22], table.cell(align: horizon + left)[Han Wang], table.cell(align: horizon + center)[Ph.D.], table.cell(align: horizon + left)[Sociology], table.cell(align: horizon + left)[2020--Present], table.cell(align: horizon + center)[Cognate],
+  table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[26], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Kyle Gardiner], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[M.Sc.], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Statistics], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[2023--2024 (Def. 09/2024)], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Member],
+  table.cell(align: horizon + center)[25], table.cell(align: horizon + left)[Mangladeep Bhullar], table.cell(align: horizon + center)[Ph.D.], table.cell(align: horizon + left)[Physics], table.cell(align: horizon + left)[2023--2025 (Def. 11/2025)], table.cell(align: horizon + center)[Cognate],
+  table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[24], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Hammed Jimoh], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[M.Sc.], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Statistics], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[2022--2023], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Member],
+  table.cell(align: horizon + center)[23], table.cell(align: horizon + left)[Qi Zhang], table.cell(align: horizon + center)[M.Sc.], table.cell(align: horizon + left)[Sociology], table.cell(align: horizon + left)[2021--2022], table.cell(align: horizon + center)[External],
+  table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[22], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Han Wang], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Ph.D.], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Sociology], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[2020--Present], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Cognate],
+  table.cell(align: horizon + center)[21], table.cell(align: horizon + left)[Yanzhao Cheng], table.cell(align: horizon + center)[Ph.D.], table.cell(align: horizon + left)[Biostatistics], table.cell(align: horizon + left)[2020--2022 (Def. 10/2021)], table.cell(align: horizon + center)[Chair],
+  table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[20], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Naeima Ashleik], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Ph.D.], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Statistics], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[2017--2018 (Def. 03/2018)], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Member],
+  table.cell(align: horizon + center)[19], table.cell(align: horizon + left)[Mehdi Rostami], table.cell(align: horizon + center)[M.Sc.], table.cell(align: horizon + left)[Biostatistics], table.cell(align: horizon + left)[2014--2016 (Def. 06/2016)], table.cell(align: horizon + center)[Member],
+  table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[18], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Sanjeev Rijal], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[M.Sc.], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Statistics], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[2014--2018 (Def. 07/2017)], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Member],
+  table.cell(align: horizon + center)[17], table.cell(align: horizon + left)[Farhad Maleki], table.cell(align: horizon + center)[Ph.D.], table.cell(align: horizon + left)[Bioinformatics], table.cell(align: horizon + left)[2014--2019], table.cell(align: horizon + center)[Cognate],
+  table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[16], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Saima Khan Khosa], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Ph.D.], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Statistics], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[2014--2017], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Member],
+  table.cell(align: horizon + center)[15], table.cell(align: horizon + left)[Yue Dong], table.cell(align: horizon + center)[M.Sc.], table.cell(align: horizon + left)[Statistics], table.cell(align: horizon + left)[2014--2016 (Def. 06/2016)], table.cell(align: horizon + center)[Member],
+  table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[14], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Temitope Adesina], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[M.Sc.], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Biostatistics], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[2014--2015], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Chair],
+  table.cell(align: horizon + center)[13], table.cell(align: horizon + left)[Sudhakar Achath], table.cell(align: horizon + center)[M.Sc.], table.cell(align: horizon + left)[Statistics], table.cell(align: horizon + left)[2014--2017 (Def. 05/2017)], table.cell(align: horizon + center)[Member],
+  table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[12], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Xiaolei Yu], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Ph.D.], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Geography], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[2012--2022 (Def. 06/2022)], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Cognate],
+  table.cell(align: horizon + center)[11], table.cell(align: horizon + left)[Matthew Schmirler], table.cell(align: horizon + center)[Ph.D.], table.cell(align: horizon + left)[Statistics], table.cell(align: horizon + left)[2012--2022 (Def. 07/2022)], table.cell(align: horizon + center)[Member],
+  table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[10], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Masha Naseri], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Ph.D.], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Computer Sci.], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[2012--2014 (Def. 02/2014)], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Cognate],
+  table.cell(align: horizon + center)[9], table.cell(align: horizon + left)[Chel Hee Lee], table.cell(align: horizon + center)[Ph.D.], table.cell(align: horizon + left)[Statistics], table.cell(align: horizon + left)[2012--2013], table.cell(align: horizon + center)[Member],
+  table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[8], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Weiwei Fan], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[M.Sc.], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Bioinformatics], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[2012--2014 (Def. 01/2014)], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Member],
+  table.cell(align: horizon + center)[7], table.cell(align: horizon + left)[Zhaoqin Li], table.cell(align: horizon + center)[Ph.D.], table.cell(align: horizon + left)[Geography], table.cell(align: horizon + left)[2011--2017 (Def. 04/2017)], table.cell(align: horizon + center)[Cognate],
+  table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[6], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Courtney Kendall], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[M.Sc.], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Statistics], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[2011--2014 (Def. 08/2014)], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Member],
+  table.cell(align: horizon + center)[5], table.cell(align: horizon + left)[Michael Janzen], table.cell(align: horizon + center)[Ph.D.], table.cell(align: horizon + left)[Computer Sci.], table.cell(align: horizon + left)[2011--2012 (Def. 03/2012)], table.cell(align: horizon + center)[Cognate],
+  table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[4], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Matthew Schmirler], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[M.Sc.], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Statistics], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[2010--2013 (Def. 09/2012)], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Member],
+  table.cell(align: horizon + center)[3], table.cell(align: horizon + left)[Mohammed Obeidat], table.cell(align: horizon + center)[Ph.D.], table.cell(align: horizon + left)[Statistics], table.cell(align: horizon + left)[2010--2014 (Def. 07/2014)], table.cell(align: horizon + center)[Member],
+  table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[2], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Lingling Jin], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Ph.D.], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Bioinformatics], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[2010--2018 (Def. 08/2017)], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Cognate],
+  table.cell(align: horizon + center)[1], table.cell(align: horizon + left)[Tolulope Sajobi], table.cell(align: horizon + center)[Ph.D.], table.cell(align: horizon + left)[Biostatistics], table.cell(align: horizon + left)[2008--2012 (Def. 03/2012)], table.cell(align: horizon + center)[Member],
 )}
 ], caption: figure.caption(
 position: top, 
@@ -566,17 +596,19 @@ supplement: "Table",
 <papers-in-referred-journals>
 #strong[2025-2026]
 
-5. Wu, T., Gao, WE, Feng, C., and Li, L., Z-residuals for Diagnosing Bayesian Models, #emph[Journal of American Statistical Association], under revision.
+6. Wu, T., Gao, WE, Feng, C., and Li, L., Z-residuals for Diagnosing Bayesian Models, #emph[Journal of American Statistical Association], under revision.
 
-4. Wu, T., Li, L., and Feng, C., $Z$-residuals Diagnostics for Cox Proportional Hazards Models: Distinguishing Functional Form Misspecification from Nonproportional Hazards, with an Application to Biliary Cirrhosis Survival Times, #emph[Canadian Journal of Statistics], Accepted on June 5, 2026.
+5. Wu, T., Li, L., and Feng, C., $Z$-residuals Diagnostics for Cox Proportional Hazards Models: Distinguishing Functional Form Misspecification from Nonproportional Hazards, with an Application to Biliary Cirrhosis Survival Times, #emph[Canadian Journal of Statistics], Accepted on June 5, 2026.
 
-3. Nolan, J., Su, C., Li, L., 2025. Evaluating Railroad Duopoly Behavior: A Market Level Analysis. #emph[Review of Network Economics] 24, 87--111. #link("https://doi.org/10.1515/rne-2025-0034")
+4. Nolan, J., Su, C., Li, L., 2025. Evaluating Railroad Duopoly Behavior: A Market Level Analysis. #emph[Review of Network Economics] 24, 87--111. #link("https://doi.org/10.1515/rne-2025-0034")
 
 #strong[2024-2025]
 
-2. Wu, T., Feng, C., Li, L., 2025. Cross-validatory Z-Residual for Diagnosing Shared Frailty Models. #emph[The American Statistician], 79(2), 198--211. #link("https://doi.org/10.1080/00031305.2024.2421370")
+3. Wu, T., Feng, C., Li, L., 2025. Cross-validatory Z-Residual for Diagnosing Shared Frailty Models. #emph[The American Statistician], 79(2), 198--211. #link("https://doi.org/10.1080/00031305.2024.2421370")
 
-1. Wu, T., Li, L., Feng, C., 2025. Z-residual diagnostic tool for assessing covariate functional form in shared frailty models. #emph[Journal of Applied Statistics], 52(1), 28--58. #link("https://doi.org/10.1080/02664763.2024.2355551")
+2. Wu, T., Li, L., Feng, C., 2025. Z-residual diagnostic tool for assessing covariate functional form in shared frailty models. #emph[Journal of Applied Statistics], 52(1), 28--58. #link("https://doi.org/10.1080/02664763.2024.2355551")
+
+1. Wu, T., Feng, C., Li, L., 2024+. A Comparison of Estimation Methods for Shared Gamma Frailty Models. #emph[Statistics in Biosciences], accepted 24 June 2024. #link("https://doi.org/10.1007/s12561-024-09444-7")
 
 = 14. PRESENTATIONS
 <presentations>
@@ -584,9 +616,15 @@ supplement: "Table",
 <invited-presentations>
 #strong[2025-2026]
 
-2. Z-residuals for Checking Bayesian Models. Presented at: University of Calgary, Calgary, AB, Canada; July 28, 2025
+4. Z-residuals for Checking Bayesian Models. Presented at: University of Calgary, Calgary, AB, Canada; July 28, 2025
 
-1. Sparse Learning for Assessing the Association Between Gut Microbiome and Parkinson's Disease. Presented at: The 3rd JCSDS, Hangzhou, China, July 13, 2025.
+3. Sparse Learning for Assessing the Association Between Gut Microbiome and Parkinson's Disease. Presented at: The 3rd JCSDS, Hangzhou, China, July 13, 2025.
+
+#strong[2024-2025]
+
+2. Z-residuals for Checking Bayesian Models. Presented at: International Conference on Statistics and Data Science, Vancouver, BC, Canada; June 24, 2025
+
+1. Z-residuals for Checking Bayesian Hurdle Models. Presented at: EcoStat 2024; July 17, 2024; Beijing, China.
 
 = 15. REPORTS AND OTHER OUTPUTS
 <reports-and-other-outputs>
@@ -604,49 +642,43 @@ supplement: "Table",
 <research-funding-history>
 #strong[2025-2026]
 
-4. #strong[NSERC Individual Discovery Grant (No.~2026-07053)] -- #emph[Prediction-based Methods for Statistical Learning and Inference in Biosciences and Epidemiology], \$185,000 (37K per year), 2026-2031, PI.
+2. #strong[NSERC Individual Discovery Grant (No.~2026-07053)] -- #emph[Prediction-based Methods for Statistical Learning and Inference in Biosciences and Epidemiology], \$185,000 (37K per year), 2026-2031, PI.
 
-3. #strong[CANSSI Collaborative Research Team Projects] -- #emph[Statistical Methodologies and Computational Tools to Identify Microbial Correlates of Canadian Bee Gut Health], Project 29, 2025-2028, Co-PI.
-
-#strong[2021-2022]
-
-2. #strong[MITACS Accelerate Grant] -- #emph[Geospatial Artificial Intelligence Algorithms for Automating Manual Observation Associated with Wheat Production], \$280,000, 2021-2025, PI.
-
-#strong[2019-2020]
-
-1. #strong[NSERC Individual Discovery Grant] -- #emph[Predictive Methods for Analyzing High-throughput and Spatial-temporal Data], \$140,000 (20K per year), 2019-2026, PI.
+1. #strong[CANSSI Collaborative Research Team Projects] -- #emph[Statistical Methodologies and Computational Tools to Identify Microbial Correlates of Canadian Bee Gut Health], Project 29, 2025-2028, Co-PI.
 
 = 18. PRACTICE OF PROFESSIONAL SKILLS
 <practice-of-professional-skills>
 #strong[2025-2026]
 
-13. Refereeing for #emph[Journal of Statistical Computation and Simulation], June, 2026
+14. Refereeing for #emph[Journal of Statistical Computation and Simulation], June, 2026
 
-12. Refereeing for #emph[Journal of Statistical Computation and Simulation], April, 2026
+13. Refereeing for #emph[Journal of Statistical Computation and Simulation], April, 2026
 
-11. Refereeing for #emph[Journal of the Royal Statistical Society: Series C], April 2026
+12. Refereeing for #emph[Journal of the Royal Statistical Society: Series C], April 2026
 
-10. Refereeing for #emph[Bioinformatics], March 2026
+11. Refereeing for #emph[Bioinformatics], March 2026
 
-9. Refereeing for #emph[Journal of Computational and Graphical Statistics], March 2026
+10. Refereeing for #emph[Journal of Computational and Graphical Statistics], March 2026
 
-8. External Referee for a tenure and promotion of SFU, Dec.~2025
+9. External Referee for a tenure and promotion of SFU, Dec.~2025
 
-7. External Examiner for the doctoral thesis by Xiaoqing Zhang at University of Regina, Dec.~8, 2025
+8. External Examiner for the doctoral thesis by Xiaoqing Zhang at University of Regina, Dec.~8, 2025
 
-6. Refereeing for #emph[Journal of Statistical Computation and Simulation], Dec.~2025
+7. Refereeing for #emph[Journal of Statistical Computation and Simulation], Dec.~2025
 
-5. Refereeing for #emph[Journal of Computational and Graphical Statistics], Sept.~2025
+6. Refereeing for #emph[Journal of Computational and Graphical Statistics], Sept.~2025
 
-4. External Examiner for the doctoral thesis by Na Zhang at University of Alberta, August 28, 2025
+5. External Examiner for the doctoral thesis by Na Zhang at University of Alberta, August 28, 2025
 
-3. Refereeing for #emph[Journal of the Royal Statistical Society: Series C], August 2025
+4. Refereeing for #emph[Journal of the Royal Statistical Society: Series C], August 2025
 
-2. Refereeing for #emph[Journal of Applied Statistics], August 2025
+3. Refereeing for #emph[Journal of Applied Statistics], August 2025
 
 #strong[2024-2025]
 
-1. Organizing an invited Session for the 7th Symposium of ICSA Canada Chapter, McGill University, August 2026
+2. Organizing an invited Session for the 7th Symposium of ICSA Canada Chapter, McGill University, August 2026
+
+1. Organizing an invited Session for 2025 SSC Annual Meeting, Saskatoon, SK, Canada, June 2025
 
 = 19. ADMINISTRATIVE SERVICE
 <administrative-service>
@@ -662,39 +694,22 @@ supplement: "Table",
 <college-and-departmental-committees>
 #strong[2025-2026]
 
-3. Member, Budgeting and Planning Committee, Dept of Math & Stat
+5. Member, Budgeting and Planning Committee, Dept of Math & Stat
 
-2. Co-Chair, Undergraduate Committee (Statistics), Dept of Math & Stat
+4. Co-Chair, Undergraduate Committee (Statistics), Dept of Math & Stat
 
-1. Member, Graduate Program Committee in Statistics, Dept of Math & Stat
+3. Member, Graduate Program Committee in Statistics, Dept of Math & Stat
+
+#strong[2024-2025]
+
+2. Member, Graduate Program Committee in Statistics, Dept of Math & Stat
+
+1. Search subcommittee for a faculty position in statistics
 
 = 20. PROFESSIONAL OR ASSOCIATION OFFICES AND COMMITTEE ACTIVITY
 <professional-or-association-offices-and-committee-activity>
 #strong[2024-2025]
 
+2. Member of NSERC Discovery Grant EG 1508 Committee
+
 1. Local Organizing Committee, 2025 Annual Meeting of the Statistical Society of Canada held at the U of S
-
-#pagebreak()
-#align(right)[#text(size: 14pt, weight: "bold")[Form 2]]
-#v(1em)
-#grid(
-  columns: (1fr, 1fr),
-  [*Name:* #underline[Longhai Li]], [*Date:* #underline[June 30, 2026]],
-  [*College:* #underline[Arts & Science]], [*Department:* #underline[Mathematics & Statistics]]
-)
-#v(0.5em)
-#line(length: 100%)
-#v(1em)
-#align(center)[
-  #strong[
-    INFORMATION FOR UPDATE OF CURRICULUM VITAE \
-    (REVISION OF ITEMS PREVIOUSLY REPORTED AND CONSIDERED) \
-    #v(0.5em)
-    The cut off date for items to be reported is JUNE 30.
-  ]
-]
-#v(2em)
-#align(center)[*Nothing to report for timeframe: 2025-2026*]
-
-
-

@@ -426,7 +426,7 @@
 #grid(
   columns: (1fr, 1fr),
   row-gutter: 1em,
-  [*Name:* #underline[Longhai Li]], [*Date:* #underline[June 30, 2026]],
+  [*Name:* #underline[Longhai Li]], [*Date:* #underline[June 30, 2025]],
   [*College:* #underline[Arts & Science]], [*Department:* #underline[Mathematics & Statistics]]
 )
 #v(0.5em)
@@ -439,6 +439,10 @@
     The cut off date for items to be reported is JUNE 30.
   ]
 ]
+= 7. LEAVES
+<leaves>
+- Sabbatical Leave, Jan.~1st, 2025 to June 30th, 2025.
+
 = 9. TEACHING ACTIVITIES
 <teaching-activities>
 == 9.1 Scheduled Instructional Activity
@@ -447,60 +451,43 @@
 #[
 #set table(inset: (x: 5pt, y: 2.5pt))
 #set par(leading: 0.45em)
-#strong[2025-2026]
+#strong[2024-2025]
 
 #table(
   columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
-  [STAT 851], [T2], [Linear Statistical Models], [LEC], [4], [39], [156],
-  [STAT 443], [T2], [Linear Models], [LEC], [3], [39], [117],
-  [STAT 442], [T2], [Statistical Inference], [LEC], [3], [39], [117],
-  [STAT 850], [T2], [Mathematical Statistics and Inference], [LEC], [1], [39], [39],
-  [STAT 845], [T1], [Statistical Methods for Research], [LEC], [10], [39], [390],
-  [MATH 996], [T1T2], [Research Supervision (Ph.D.)], [RES], [1], [], [],
+  [STAT 348], [T1], [Sampling Techniques], [LEC], [15], [39], [585],
+  [STAT 812], [T1], [Computational Statistics], [LEC], [5], [39], [195],
+  [STAT 420], [T1], [Topics in Computational Statistics], [LEC], [1], [39], [39],
+  [BIOS 996], [T1T2], [Research Supervision (Ph.D.)], [RES], [1], [], [],
+  [BIOS 996], [T1T2], [Research Supervision (M.Sc.)], [RES], [1], [], [],
   [MATH 994], [T1T2], [Research Supervision (M.Sc.)], [RES], [1], [], [],
 )
 ]
 ]
 == 9.4 Teaching Materials
 <teaching-materials>
-#strong[2025-2026]
+#strong[2024-2025]
 
-3. STAT 442/850: a textbook entitled "Theory of Statistical Inference" in PDF ($gt.eq$ 200 pages) and HTML.
-
-2. STAT 845: a textbook entitled "Statistical Inference and Learning Methods for Research" in PDF ($gt.eq$ 200 pages) and HTML
-
-1. STAT 443/851: a textbook entitled "Theory of Linear Model" in PDF ($gt.eq$ 200 pages) and HTML.
-
-== 9.5 Other Teaching-Related Activities
-<other-teaching-related-activities>
-#strong[2025-2026]
-
-1. Peer evaluation for Matthew Schmirler, Mar.~2026.
+1. STAT 443/851: 273 pages of handwritten lecture notes were developed and posted to students.
 
 = 10. SUPERVISION AND ADVISORY ACTIVITIES
 <supervision-and-advisory-activities>
-== 10.1 Undergraduate Student Supervision
-<undergraduate-student-supervision>
-#strong[2025-2026]
-
-2. George Chen, B.Sc., Computer Science, Simon Fraser University, June 1, 2025 -- Aug.~31, 2025, Supervised.
-
-1. Shruti Kaur, B.Sc., Computer Science and Statistics, May -- Aug., 2025, Supervised.
-
 == 10.2 Graduate Student Supervision
 <graduate-student-supervision>
-2. Jing Wang, Ph.D., Biostatistics, School of Public Health, Co-supervised with Prof.~Li Xing, 2023--2026 (Transferred to other supervisor)
+3. Jing Wang, Ph.D., Biostatistics, School of Public Health, Co-supervised with Prof.~Li Xing, 2023--2026 (Transferred to other supervisor)
 
-1. Dananji Egodage, M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Cindy Feng, 2023--2025 (Defended: Aug.~30, 2025)
+2. Dananji Egodage, M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Cindy Feng, 2023--2025 (Defended: Aug.~30, 2025)
+
+1. Wuqian Effie Gao, M.Sc., Biostatistics, School of Public Health, Co-supervised with Prof.~Cindy Feng, 2022--2024 (Defended: Aug.~30, 2024)
 
 == 10.3 Graduate Theses Supervised
 <graduate-theses-supervised>
-#strong[2025-2026]
+#strong[2024-2025]
 
-1. Dananji Egodage, 2025, Component-wise Z-residuals for Checking Bayesian Hurdle Models, M.Sc., defended on Aug.~30, 2025.
+1. Effie Wuqian Gao, 2024, Z-residuals for Checking Bayesian Hurdle Models, M.Sc., defended on Aug.~30, 2024.
 
 == 10.4 Supervision of Post-Doctoral Fellows and Research Associates
 <supervision-of-post-doctoral-fellows-and-research-associates>
@@ -521,8 +508,9 @@
   table.cell(align: horizon + center)[29], table.cell(align: horizon + left)[Rasel Kabir], table.cell(align: horizon + center)[Ph.D.], table.cell(align: horizon + left)[Biostatistics], table.cell(align: horizon + left)[2025--Present], table.cell(align: horizon + center)[Chair],
   table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[28], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Mohammad Toranjsimin], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[M.Sc.], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Biostatistics], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[2023--2025 (Def. 09/2025)], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Member],
   table.cell(align: horizon + center)[27], table.cell(align: horizon + left)[Lina Li], table.cell(align: horizon + center)[Ph.D.], table.cell(align: horizon + left)[Biostatistics], table.cell(align: horizon + left)[2023--Present], table.cell(align: horizon + center)[Member],
-  table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[25], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Mangladeep Bhullar], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Ph.D.], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Physics], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[2023--2025 (Def. 11/2025)], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Cognate],
-  table.cell(align: horizon + center)[22], table.cell(align: horizon + left)[Han Wang], table.cell(align: horizon + center)[Ph.D.], table.cell(align: horizon + left)[Sociology], table.cell(align: horizon + left)[2020--Present], table.cell(align: horizon + center)[Cognate],
+  table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[26], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Kyle Gardiner], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[M.Sc.], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Statistics], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[2023--2024 (Def. 09/2024)], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Member],
+  table.cell(align: horizon + center)[25], table.cell(align: horizon + left)[Mangladeep Bhullar], table.cell(align: horizon + center)[Ph.D.], table.cell(align: horizon + left)[Physics], table.cell(align: horizon + left)[2023--2025 (Def. 11/2025)], table.cell(align: horizon + center)[Cognate],
+  table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[22], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Han Wang], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Ph.D.], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Sociology], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[2020--Present], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Cognate],
 )}
 ], caption: figure.caption(
 position: top, 
@@ -537,89 +525,57 @@ supplement: "Table",
 
 = 12. PAPERS IN REFERRED JOURNALS
 <papers-in-referred-journals>
-#strong[2025-2026]
+#strong[2024-2025]
 
-2. Wu, T., Li, L., and Feng, C., $Z$-residuals Diagnostics for Cox Proportional Hazards Models: Distinguishing Functional Form Misspecification from Nonproportional Hazards, with an Application to Biliary Cirrhosis Survival Times, #emph[Canadian Journal of Statistics], Accepted on June 5, 2026.
+3. Wu, T., Feng, C., Li, L., 2025. Cross-validatory Z-Residual for Diagnosing Shared Frailty Models. #emph[The American Statistician], 79(2), 198--211. #link("https://doi.org/10.1080/00031305.2024.2421370")
 
-1. Nolan, J., Su, C., Li, L., 2025. Evaluating Railroad Duopoly Behavior: A Market Level Analysis. #emph[Review of Network Economics] 24, 87--111. #link("https://doi.org/10.1515/rne-2025-0034")
+2. Wu, T., Li, L., Feng, C., 2025. Z-residual diagnostic tool for assessing covariate functional form in shared frailty models. #emph[Journal of Applied Statistics], 52(1), 28--58. #link("https://doi.org/10.1080/02664763.2024.2355551")
+
+1. Wu, T., Feng, C., Li, L., 2024+. A Comparison of Estimation Methods for Shared Gamma Frailty Models. #emph[Statistics in Biosciences], accepted 24 June 2024. #link("https://doi.org/10.1007/s12561-024-09444-7")
 
 = 14. PRESENTATIONS
 <presentations>
 == 14.1 Invited Presentations
 <invited-presentations>
-#strong[2025-2026]
+#strong[2024-2025]
 
-2. Z-residuals for Checking Bayesian Models. Presented at: University of Calgary, Calgary, AB, Canada; July 28, 2025
+2. Z-residuals for Checking Bayesian Models. Presented at: International Conference on Statistics and Data Science, Vancouver, BC, Canada; June 24, 2025
 
-1. Sparse Learning for Assessing the Association Between Gut Microbiome and Parkinson's Disease. Presented at: The 3rd JCSDS, Hangzhou, China, July 13, 2025.
+1. Z-residuals for Checking Bayesian Hurdle Models. Presented at: EcoStat 2024; July 17, 2024; Beijing, China.
 
 = 15. REPORTS AND OTHER OUTPUTS
 <reports-and-other-outputs>
 == 15.1 Software Released Publicly
 <software-released-publicly>
-4. Wu, T. and Li, L., 2026. #NormalTok("Zresidual");: Computing and Diagnosing Gaussian-like Residuals. #link("https://tiw150.github.io/Zresidual/index.html")[\[Github\]] #link("https://tiw150.github.io/Zresidual_demo.html")[\[Demo\]]. Version 0.1-0 on Github (2026).
-
-3. Li, L., 2026. R Functions for Computing Z-residuals for #NormalTok("survreg"); and #NormalTok("coxph"); Objects. #link("https://longhaisk.github.io/software/NRSP/index.html")[\[URL\]].
-
 2. Li, L. and Liu, S., 2019--2026. #NormalTok("HTLR");: Bayesian Logistic Regression with Hyper-LASSO priors. DOI: 10.32614/CRAN.package.HTLR. #link("https://cran.r-project.org/web/packages/HTLR/index.html")[\[CRAN\]] #link("https://longhaisk.github.io/HTLR")[\[Github\]] #link("https://longhaisk.github.io/software/BLRHL/index.html")[\[URL\]]. Version 0.4 (2019), version 0.4-1 (2019), version 0.4-2 (2020), version 0.4-3 (2020), version 0.4-4 (2022), version 1.0 (2026).
 
 1. Li, L., 2011--2026. #NormalTok("BCBCSF");: Bias-corrected Bayesian Classification with Selected Features. DOI: 10.32614/CRAN.package.BCBCSF. #link("https://cran.r-project.org/web/packages/BCBCSF/index.html")[\[CRAN\]] #link("https://longhaisk.github.io/software/BCBCSF/index.html")[\[URL\]]. Version 0.0-0 (2011), version 0.0-1 (2011), version 0.0-2 (2012), version 1.0-0 (2013), version 1.0-1 (2015), updated to version 1.0-2 (2026).
 
-= 17. RESEARCH FUNDING HISTORY
-<research-funding-history>
-#strong[2025-2026]
-
-2. #strong[NSERC Individual Discovery Grant (No.~2026-07053)] -- #emph[Prediction-based Methods for Statistical Learning and Inference in Biosciences and Epidemiology], \$185,000 (37K per year), 2026-2031, PI.
-
-1. #strong[CANSSI Collaborative Research Team Projects] -- #emph[Statistical Methodologies and Computational Tools to Identify Microbial Correlates of Canadian Bee Gut Health], Project 29, 2025-2028, Co-PI.
-
 = 18. PRACTICE OF PROFESSIONAL SKILLS
 <practice-of-professional-skills>
-#strong[2025-2026]
+#strong[2024-2025]
 
-12. Refereeing for #emph[Journal of Statistical Computation and Simulation], June, 2026
+2. Organizing an invited Session for the 7th Symposium of ICSA Canada Chapter, McGill University, August 2026
 
-11. Refereeing for #emph[Journal of Statistical Computation and Simulation], April, 2026
-
-10. Refereeing for #emph[Journal of the Royal Statistical Society: Series C], April 2026
-
-9. Refereeing for #emph[Bioinformatics], March 2026
-
-8. Refereeing for #emph[Journal of Computational and Graphical Statistics], March 2026
-
-7. External Referee for a tenure and promotion of SFU, Dec.~2025
-
-6. External Examiner for the doctoral thesis by Xiaoqing Zhang at University of Regina, Dec.~8, 2025
-
-5. Refereeing for #emph[Journal of Statistical Computation and Simulation], Dec.~2025
-
-4. Refereeing for #emph[Journal of Computational and Graphical Statistics], Sept.~2025
-
-3. External Examiner for the doctoral thesis by Na Zhang at University of Alberta, August 28, 2025
-
-2. Refereeing for #emph[Journal of the Royal Statistical Society: Series C], August 2025
-
-1. Refereeing for #emph[Journal of Applied Statistics], August 2025
+1. Organizing an invited Session for 2025 SSC Annual Meeting, Saskatoon, SK, Canada, June 2025
 
 = 19. ADMINISTRATIVE SERVICE
 <administrative-service>
-== 19.1 University Committees
-<university-committees>
-#strong[2025-2026]
-
-2. Chair, Collaborative Biostatistics Program, University of Saskatchewan.
-
-1. USASK NSERC Discovery Grant (DG), Internal Reviewer.
-
 == 19.2 College and Departmental Committees
 <college-and-departmental-committees>
-#strong[2025-2026]
+#strong[2024-2025]
 
-3. Member, Budgeting and Planning Committee, Dept of Math & Stat
+2. Member, Graduate Program Committee in Statistics, Dept of Math & Stat
 
-2. Co-Chair, Undergraduate Committee (Statistics), Dept of Math & Stat
+1. Search subcommittee for a faculty position in statistics
 
-1. Member, Graduate Program Committee in Statistics, Dept of Math & Stat
+= 20. PROFESSIONAL OR ASSOCIATION OFFICES AND COMMITTEE ACTIVITY
+<professional-or-association-offices-and-committee-activity>
+#strong[2024-2025]
+
+2. Member of NSERC Discovery Grant EG 1508 Committee
+
+1. Local Organizing Committee, 2025 Annual Meeting of the Statistical Society of Canada held at the U of S
 
 #colbreak()
 
@@ -628,7 +584,7 @@ supplement: "Table",
 #grid(
   columns: (1fr, 1fr),
   row-gutter: 1em,
-  [*Name:* #underline[Longhai Li]], [*Date:* #underline[June 30, 2026]],
+  [*Name:* #underline[Longhai Li]], [*Date:* #underline[June 30, 2025]],
   [*College:* #underline[Arts & Science]], [*Department:* #underline[Mathematics & Statistics]]
 )
 #v(0.5em)
@@ -643,7 +599,7 @@ supplement: "Table",
   ]
 ]
 #v(2em)
-#align(center)[*Nothing to report for timeframe: 2025-2026*]
+#align(center)[*Nothing to report for timeframe: 2024-2025*]
 
 
 
