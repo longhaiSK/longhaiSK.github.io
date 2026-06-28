@@ -468,7 +468,7 @@
 #strong[2025-2026]
 
 #table(
-  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
+  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -483,7 +483,7 @@
 #strong[2024-2025]
 
 #table(
-  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
+  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -497,7 +497,7 @@
 #strong[2023-2024]
 
 #table(
-  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
+  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -513,7 +513,7 @@
 #strong[2022-2023]
 
 #table(
-  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
+  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -529,7 +529,7 @@
 #strong[2021-2022]
 
 #table(
-  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
+  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -545,7 +545,7 @@
 #strong[2020-2021]
 
 #table(
-  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
+  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -556,7 +556,7 @@
 #strong[2019-2020]
 
 #table(
-  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
+  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -571,7 +571,7 @@
 #strong[2018-2019]
 
 #table(
-  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
+  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -584,7 +584,7 @@
 #strong[2017-2018]
 
 #table(
-  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
+  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -597,7 +597,7 @@
 #strong[2016-2017]
 
 #table(
-  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
+  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -610,21 +610,21 @@
 #strong[2015-2016]
 
 #table(
-  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
+  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
   [STAT 245], [T1], [Intro. to Stat. Methods], [LEC], [157], [39], [6123],
   [STAT 342], [T1], [Mathematical Statistics], [LEC], [7], [39], [273],
   [STAT 242], [T2], [Stat. Theory & Methodology], [LEC], [11], [39], [429],
-  [STAT 245], [T2 (2014SS)], [Intro to Statistical Methods], [LEC], [30], [39], [1170],
+  [STAT 245], [Summer], [Intro to Statistical Methods], [LEC], [30], [39], [1170],
   [MATH 994], [T1T2], [M.Sc. Research Supervision], [RES], [5], [], [],
   [MATH 996], [T1T2], [Ph.D.~Research Supervision], [RES], [1], [], [],
 )
 #strong[2014-2015]
 
 #table(
-  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
+  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -640,7 +640,7 @@
 #strong[2012-2013]
 
 #table(
-  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
+  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -653,7 +653,7 @@
 #strong[2011-2012]
 
 #table(
-  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
+  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -666,7 +666,7 @@
 #strong[2010-2011]
 
 #table(
-  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
+  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -679,7 +679,7 @@
 #strong[2009-2010]
 
 #table(
-  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
+  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -694,7 +694,7 @@
 #strong[2008-2009]
 
 #table(
-  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
+  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -704,7 +704,7 @@
 #strong[2007-2008]
 
 #table(
-  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
+  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -948,7 +948,7 @@
 
 == 10.4 Supervision of Post-Doctoral Fellows and Research Associates
 <supervision-of-post-doctoral-fellows-and-research-associates>
-4. Tingxuan Wu, University of Saskatchewan, Postdoc Research Associate, Jan.~2025 -- Dec.~2026.
+4. Tingxuan Wu, University of Saskatchewan, Postdoc Research Associate, Jan.~2025 -- July 2026.
 
 3. Tingxuan Wu, University of Saskatchewan, Postdoc Fellow, June 2023 -- April 2024.
 
@@ -1025,9 +1025,11 @@ supplement: "Table",
 
 = 12. PAPERS IN REFERRED JOURNALS
 <papers-in-referred-journals>
-#strong[2025-2026]
+#strong[2026-2027]
 
 33. Wu, T., Gao, WE, Feng, C., and Li, L., Z-residuals for Diagnosing Bayesian Models, #emph[Journal of American Statistical Association], under revision.
+
+#strong[2025-2026]
 
 32. Wu, T., Li, L., and Feng, C., $Z$-residuals Diagnostics for Cox Proportional Hazards Models: Distinguishing Functional Form Misspecification from Nonproportional Hazards, with an Application to Biliary Cirrhosis Survival Times, #emph[Canadian Journal of Statistics], Accepted on June 5, 2026.
 
