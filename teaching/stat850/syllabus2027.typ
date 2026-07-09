@@ -396,8 +396,8 @@ This course requires a strong command of multivariate calculus, alongside a rigo
 
 = Times and Places
 <times-and-places>
-- #strong[Lectures:] TTH 11:30-12:20, MCLN 242.1
-- #strong[Office Hours:] TBA
+- #strong[Lectures:] TTH 11:30-12:50, MCLN 42.1
+- #strong[Office Hours:] TBA with Students
 - #strong[No lab]
 
 = Textbook and Course Materials
