@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="nav-brand">
                 
                 <img src="/resources/logo.png" class="nav-logo" alt="LOGO">
-                <button class="btn"><span class="nav-prof-name">Prof. Longhai Li</span></button>
+                <button class="btn"><span class="nav-prof-name">Professor Longhai Li</span></button>
 
             </div>
             <button class="hamburger-menu" aria-label="Toggle menu" aria-expanded="false">
