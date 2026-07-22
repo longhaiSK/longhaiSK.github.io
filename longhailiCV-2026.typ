@@ -1020,51 +1020,53 @@
 <papers-in-referred-journals>
 #strong[2026-2027]
 
-33. Wu, T., Gao, WE, Feng, C., and Li, L., Z-residuals for Diagnosing Bayesian Models, #emph[Journal of American Statistical Association], under revision.
+34. Wu, T., Gao, WE, Feng, C., and Li, L., Z-residuals for Diagnosing Bayesian Models, #emph[Journal of American Statistical Association], under revision.
 
 #strong[2025-2026]
 
-32. Wu, T., Li, L., and Feng, C., $Z$-residuals Diagnostics for Cox Proportional Hazards Models: Distinguishing Functional Form Misspecification from Nonproportional Hazards, with an Application to Biliary Cirrhosis Survival Times, #emph[Canadian Journal of Statistics], Accepted on June 5, 2026.
+33. Wu, T., Li, L., and Feng, C., $Z$-residuals Diagnostics for Cox Proportional Hazards Models: Distinguishing Functional Form Misspecification from Nonproportional Hazards, with an Application to Biliary Cirrhosis Survival Times, #emph[Canadian Journal of Statistics], Accepted on June 5, 2026.
 
-31. Nolan, J., Su, C., Li, L., 2025. Evaluating Railroad Duopoly Behavior: A Market Level Analysis. #emph[Review of Network Economics] 24, 87--111. #link("https://doi.org/10.1515/rne-2025-0034")
+32. Nolan, J., Su, C., Li, L., 2025. Evaluating Railroad Duopoly Behavior: A Market Level Analysis. #emph[Review of Network Economics] 24, 87--111. #link("https://doi.org/10.1515/rne-2025-0034")
 
 #strong[2024-2025]
 
-30. Wu, T., Feng, C., Li, L., 2025. Cross-validatory Z-Residual for Diagnosing Shared Frailty Models. #emph[The American Statistician], 79(2), 198--211. #link("https://doi.org/10.1080/00031305.2024.2421370")
+31. Wu, T., Feng, C., Li, L., 2025. Cross-validatory Z-Residual for Diagnosing Shared Frailty Models. #emph[The American Statistician], 79(2), 198--211. #link("https://doi.org/10.1080/00031305.2024.2421370") \[#link("./doc/cv_zresidual_final.pdf")[#strong[PDF]]\]; \[#link("https://www.tandfonline.com/eprint/9CQD3QCVP56MCVKFZWEY/full?target=10.1080/00031305.2024.2421370")[#strong[Free Reprints]]\]; \[#link("https://api.zotero.org/users/1693946/publications/items/7FZTDQ3Z/file/view")[#strong[slides]]\]; \[#link("https://tiw150.github.io/Zresidual/index.html")[#strong[Z-residual on Github]]\]; \[#link("https://tiw150.github.io/CV_Zresidual_demo.html")[#strong[Demo]]\]
 
-29. Wu, T., Li, L., Feng, C., 2025. Z-residual diagnostic tool for assessing covariate functional form in shared frailty models. #emph[Journal of Applied Statistics], 52(1), 28--58. #link("https://doi.org/10.1080/02664763.2024.2355551")
+30. Wu, T., Li, L., Feng, C., 2025. Z-residual diagnostic tool for assessing covariate functional form in shared frailty models. #emph[Journal of Applied Statistics], 52(1), 28--58. #link("https://doi.org/10.1080/02664763.2024.2355551") \[#link("./doc/jas_z_residual_nolinear.pdf")[#strong[PDF]]\]; \[#link("https://tiw150.github.io/Zresidual/index.html")[#strong[Z-residual on Github]]\]; \[#link("https://tiw150.github.io/Zresidual_demo.html")[#strong[Demo]]\] \[#link("https://api.zotero.org/users/1693946/publications/items/WRQUGMIR/file/view")[#strong[slides]]\]
 
-28. Wu, T., Feng, C., Li, L., 2024+. A Comparison of Estimation Methods for Shared Gamma Frailty Models. #emph[Statistics in Biosciences], accepted 24 June 2024. #link("https://doi.org/10.1007/s12561-024-09444-7")
+29. Wu, T., Feng, C., Li, L., 2025. A Comparison of Estimation Methods for Shared Gamma Frailty Models. #emph[Statistics in Biosciences], Volume 17, pages 791--812. #link("https://doi.org/10.1007/s12561-024-09444-7") \[#link("./doc/sib_compfrailty.pdf")[#strong[PDF]]\]
 
 #strong[2023-2024]
 
-27. Feng, C., Li, L., Xu, C., 2023. Advancements in predicting and modeling rare event outcomes for enhanced decision-making. #emph[BMC Medical Research Methodology] 23, Article 243 (pp.~1-3). #link("https://doi.org/10.1186/s12874-023-02060-x")
+28. Feng, C., Li, L., Xu, C., 2023. Advancements in predicting and modeling rare event outcomes for enhanced decision-making. #emph[BMC Medical Research Methodology] 23, Article 243 (pp.~1-3). #link("https://doi.org/10.1186/s12874-023-02060-x")
 
 #strong[2021-2022]
 
-26. Yin, W., Li, L., Wu, F.-X., 2022. A semi-supervised autoencoder for autism disease diagnosis. #emph[Neurocomputing], 483, 140--147. #link("https://doi.org/10.1016/j.neucom.2022.02.017")
+27. Yin, W., Li, L., Wu, F.-X., 2022. A semi-supervised autoencoder for autism disease diagnosis. #emph[Neurocomputing], 483, 140--147. #link("https://doi.org/10.1016/j.neucom.2022.02.017")
 
-25. Cheng, H., Wang, W., Li, L., 2022. Determinants of Citizen Acceptance of White-Collar Crime in China. #emph[Journal of Asian and African Studies], 59(3), 826-843. #link("https://doi.org/10.1177/00219096221123742") (Published OnlineFirst; final pagination may vary.)
+26. Cheng, H., Wang, W., Li, L., 2022. Determinants of Citizen Acceptance of White-Collar Crime in China. #emph[Journal of Asian and African Studies], 59(3), 826-843. #link("https://doi.org/10.1177/00219096221123742") (Published OnlineFirst; final pagination may vary.)
 
-24. Yin, W., Li, L., Wu, F.-X., 2022. Corrigendum to “Deep learning for brain disorder diagnosis based on fMRI images, Neurocomputing 469 (2022) 332--345”. #emph[Neurocomputing] 509, 271. #link("https://doi.org/10.1016/j.neucom.2022.08.074")
+25. Yin, W., Li, L., Wu, F.-X., 2022. Corrigendum to “Deep learning for brain disorder diagnosis based on fMRI images, Neurocomputing 469 (2022) 332--345”. #emph[Neurocomputing] 509, 271. #link("https://doi.org/10.1016/j.neucom.2022.08.074")
 
-23. Yin, W., Li, L., Wu, F.-X., 2022. Deep learning for brain disorder diagnosis based on fMRI images. #emph[Neurocomputing] 469, 332--345. #link("https://doi.org/10.1016/j.neucom.2020.05.113")
+24. Yin, W., Li, L., Wu, F.-X., 2022. Deep learning for brain disorder diagnosis based on fMRI images. #emph[Neurocomputing] 469, 332--345. #link("https://doi.org/10.1016/j.neucom.2020.05.113")
 
 #strong[2020-2021]
 
-22. Bai, W., Dong, M., Li, L., Feng, C., Xu, W., 2021. Randomized quantile residuals for diagnosing zero-inflated generalized linear mixed models with applications to microbiome count data. #emph[BMC Bioinformatics] 22, Article 564 (pp.~1-17). #link("https://doi.org/10.1186/s12859-021-04371-6")
+23. Bai, W., Dong, M., Li, L., Feng, C., Xu, W., 2021. Randomized quantile residuals for diagnosing zero-inflated generalized linear mixed models with applications to microbiome count data. #emph[BMC Bioinformatics] 22, Article 564 (pp.~1-17). #link("https://doi.org/10.1186/s12859-021-04371-6") \[#link("./doc/talks/rqr_glmm_ssc2022.pdf")[#strong[slides]]\].
 
-21. Li, L., Wu, T., Feng, C., 2021. Model Diagnostics for Censored Regression via Randomized Survival Probabilities. #emph[Statistics in Medicine] 40(6), 1482--1497. #link("https://doi.org/10.1002/sim.8852")
+22. Li, L., Wu, T., Feng, C., 2021. Model Diagnostics for Censored Regression via Randomized Survival Probabilities. #emph[Statistics in Medicine] 40(6), 1482--1497. #link("https://doi.org/10.1002/sim.8852") \[#link("./doc/1911.00198v4.pdf")[#strong[PDF]]\]; \[#link("./software/NRSP")[#strong[R Functions and Demonstration]]\]; \[#link("https://api.zotero.org/users/1693946/publications/items/Z7WFLYHB/file/view")[#strong[slides]]\];
 
-20. Dagasso, G., Yan, Y., Wang, L., Li, L., Kutcher, R., Zhang, W., Jin, L., 2021. Leveraging Machine Learning to Advance Genome-Wide Association Studies. #emph[International Journal of Data Mining and Bioinformatics], 25(1/2), 17--36. #link("https://doi.org/10.1504/ijdmb.2021.116881")
+21. Dagasso, G., Yan, Y., Wang, L., Li, L., Kutcher, R., Zhang, W., Jin, L., 2021. Leveraging Machine Learning to Advance Genome-Wide Association Studies. #emph[International Journal of Data Mining and Bioinformatics], 25(1/2), 17--36. #link("https://doi.org/10.1504/ijdmb.2021.116881")
 
 #strong[2019-2020]
 
-19. Dong, M., Li, L., Chen, M., Kusalik, A., Xu, W., 2020. Predictive analysis methods for human microbiome data with application to Parkinson's disease. #emph[PLOS ONE] 15(8), e0237779 (pp.~1-20). #link("https://doi.org/10.1371/journal.pone.0237779")
+20. Dong, M., Li, L., Chen, M., Kusalik, A., Xu, W., 2020. Predictive analysis methods for human microbiome data with application to Parkinson's disease. #emph[PLOS ONE] 15(8), e0237779 (pp.~1-20). #link("https://doi.org/10.1371/journal.pone.0237779")
 
-18. Feng, C., Li, L., Sadeghpour, A., 2020. A comparison of residual diagnosis tools for diagnosing regression models for count data. #emph[BMC Medical Research Methodology] 20, Article 175 (pp.~1-11). #link("https://doi.org/10.1186/s12874-020-01055-2")
+19. Feng, C., Li, L., Sadeghpour, A., 2020. A comparison of residual diagnosis tools for diagnosing regression models for count data. #emph[BMC Medical Research Methodology] 20, Article 175 (pp.~1-11). #link("https://doi.org/10.1186/s12874-020-01055-2") \[#link("https://github.com/longhaiSK/longhaiSK.github.io/tree/main/software/RQR")[#strong[R code used in this paper]]\]
 
-17. Jiang, L., Greenwood, C.M.T., Yao, W., Li, L., 2020. Bayesian Hyper-LASSO Classification for Feature Selection with Application to Endometrial Cancer RNA-seq Data. #emph[Scientific Reports] 10, Article 9747 (pp.~1-12). #link("https://doi.org/10.1038/s41598-020-66466-z")
+18. Jiang, L., Greenwood, C.M.T., Yao, W., Li, L., 2020. Bayesian Hyper-LASSO Classification for Feature Selection with Application to Endometrial Cancer RNA-seq Data. #emph[Scientific Reports] 10, Article 9747 (pp.~1-12). #link("https://doi.org/10.1038/s41598-020-66466-z")
+
+17. Soltanifar, M., Li, L., and Rosenthal, J. S., 2010. A Collection of Exercises in Advanced Probability Theory, World Scientific Publishing, Singapore. \[#link("http://www.worldscientific.com/doi/suppl/10.1142/6300/suppl_file/6300-solutionsmanual_free.pdf")[#strong[PDF]]\].
 
 #strong[2018-2019]
 
@@ -1074,23 +1076,23 @@
 
 15. Essien, S. K., Feng, C., Sun, W., Farag, M., Li, L., Gao, Y., 2018. Sleep duration and sleep disturbances in association with falls among the middle-aged and older adults in China: a population-based nationwide study. #emph[BMC Geriatrics] 18, Article 196 (pp.~1-9). #link("https://doi.org/10.1186/s12877-018-0889-x")
 
-14. Li, L., Yao, W., 2018. Fully Bayesian Logistic Regression with Hyper-Lasso Priors for High-dimensional Feature Selection. #emph[Journal of Statistical Computation and Simulation], 88(14), 2827--2851. #link("https://doi.org/10.1080/00949655.2018.1490418")
+14. Li, L., Yao, W., 2018. Fully Bayesian Logistic Regression with Hyper-Lasso Priors for High-dimensional Feature Selection. #emph[Journal of Statistical Computation and Simulation], 88(14), 2827--2851. #link("https://doi.org/10.1080/00949655.2018.1490418") \[#link("http://arxiv.org/abs/1405.3319")[#strong[PDF]]\]; \[#link("./software/BLRHL/index.html")[#strong[software]]\]; \[#link("./doc/bplr/bplrslides-mgill.pdf")[#strong[slides]]\].
 
 #strong[2016-2017]
 
 13. Jin, L., McQuillan, I., Li, L., 2017. Computational Identification of Harmful Mutation Regions to the Activity of Transposable Elements. #emph[BMC Genomics] 18, Article 862 (pp.~1-10). #link("https://doi.org/10.1186/s12864-017-4227-z")
 
-12. Li, L., Feng, C.X., Qiu, S., 2017. Estimating Cross-validatory Predictive P-values with Integrated Importance Sampling for Disease Mapping Models. #emph[Statistics in Medicine], 36(14), 2220--2236. #link("https://doi.org/10.1002/sim.7278")
+12. Li, L., Feng, C.X., Qiu, S., 2017. Estimating Cross-validatory Predictive P-values with Integrated Importance Sampling for Disease Mapping Models. #emph[Statistics in Medicine], 36(14), 2220--2236. #link("https://doi.org/10.1002/sim.7278") \[#link("http://arxiv.org/abs/1603.07668")[#strong[PDF]]\]; \[#link("./doc/talks/dmpvalues_ssc.pdf")[#strong[slides]]\]; \[#link("./software/dmpvalues/dmpvalues-larynx.R")[#strong[R Functions]]\].
 
 11. Feng, C. X., Rostami, M., Li, L., 2017. Impact of Misspecified Residual Correlation Structure on the Parameter Estimates in a Shared Spatial Frailty Model. #emph[Journal of Statistical Computation and Simulation], 87(12), 2384--2410. #link("https://doi.org/10.1080/00949655.2017.1332196")
 
 #strong[2015-2016]
 
-10. Li, L., Qiu, S., Zhang, B., Feng, C.X., 2016. Approximating Cross-validatory Predictive Evaluation in Bayesian Latent Variables Models with Integrated IS and WAIC. #emph[Statistics and Computing], 26(4), 881--897. #link("https://doi.org/10.1007/s11222-015-9577-2")
+10. Li, L., Qiu, S., Zhang, B., Feng, C.X., 2016. Approximating Cross-validatory Predictive Evaluation in Bayesian Latent Variables Models with Integrated IS and WAIC. #emph[Statistics and Computing], 26(4), 881--897. #link("https://doi.org/10.1007/s11222-015-9577-2") \[#link("http://arxiv.org/abs/1404.2918")[#strong[PDF]]\]; \[#link("./doc/iis/iisslides-manitoba.pdf")[#strong[slides]]\].
 
 #strong[2013-2014]
 
-9. Yao, W., Li, L., 2014. A New Regression Model: Modal Linear Regression. #emph[Scandinavian Journal of Statistics], 41(3), 656--671. #link("https://doi.org/10.1111/sjos.12054")
+9. Yao, W., Li, L., 2014. A New Regression Model: Modal Linear Regression. #emph[Scandinavian Journal of Statistics], 41(3), 656--671. #link("https://doi.org/10.1111/sjos.12054") \[#link("./doc/others/modlin.pdf")[#strong[PDF]]\].
 
 8. Yao, W., Li, L., 2014. Bayesian Mixture Labeling by Minimizing Deviance of Classification Probabilities to Reference Labels. #emph[Journal of Statistical Computation and Simulation], 84(2), 310--323.
 
@@ -1098,7 +1100,7 @@
 
 7. Khan, S. A., Rana, M., Li, L., Dubin, J. A., 2012. A Comparative Case Study to Monitor and Understand Atmospheric CFC Decline with the Spatial-Longitudinal Bent-Cable Model. #emph[International Journal of Statistics and Probability], 1(2), 56--68.
 
-6. Li, L., 2012. Bias-corrected Hierarchical Bayesian Classification with a Selected Subset of High-dimensional Features. #emph[Journal of American Statistical Association], 107(497), 120--134. #link("https://doi.org/10.1198/JASA.2011.AP10446")
+6. Li, L., 2012. Bias-corrected Hierarchical Bayesian Classification with a Selected Subset of High-dimensional Features. #emph[Journal of American Statistical Association], 107(497), 120--134. #link("https://doi.org/10.1198/JASA.2011.AP10446") \[#link("./doc/bcbcsf/jasapaper.pdf")[#strong[PDF]]\]; \[#link("./software/BCBCSF")[#strong[software]]\]; \[#link("./doc/bcbcsf/shanghaistat2015_calgary_longhai_li.pdf")[#strong[slides]]\].
 
 5. Sajobi, T.T., Lix, L. M., Dansu, B. M., Laverty, W., Li, L., 2012. Robust Descriptive Discriminant Analysis for Repeated Measures Data. #emph[Computational Statistics & Data Analysis], 56(9), 2782--2794. #link("https://doi.org/10.1016/j.csda.2012.02.029")
 
@@ -1108,13 +1110,13 @@
 
 #strong[2009-2010]
 
-3. Li, L., 2010. Are Bayesian Inferences Weak for Wasserman's Example? #emph[Communications in Statistics -- Simulation and Computation], 39(4), 655--667. #link("https://doi.org/10.1080/03610910903576540")
+3. Li, L., 2010. Are Bayesian Inferences Weak for Wasserman's Example? #emph[Communications in Statistics -- Simulation and Computation], 39(4), 655--667. #link("https://doi.org/10.1080/03610910903576540") \[#link("./doc/wman/wman-r1-online.pdf")[#strong[PDF]]\]; \[#link("./doc/wman/ssc10talk.pdf")[#strong[slides]]\].
 
 #strong[2007-2008]
 
-2. Li, L., Zhang, J., Neal, R.M., 2008. A method for avoiding bias from features selection with application to naive Bayes classification models. #emph[Bayesian Analysis], 3(1), 171--196. #link("https://doi.org/10.1214/08-BA307")
+2. Li, L., Zhang, J., Neal, R.M., 2008. A method for avoiding bias from features selection with application to naive Bayes classification models. #emph[Bayesian Analysis], 3(1), 171--196. #link("https://doi.org/10.1214/08-BA307") \[#link("./doc/naivebayes/naivebayes.pdf")[#strong[PDF]]\]; \[#link("./doc/naivebayes/uktalk.pdf")[#strong[slides]]\]; \[#link("./software/predbayescor/release.html")[#strong[software]]\].
 
-1. Li, L., Neal, R.M., 2008. Compressing Parameters in Bayesian High-order Models with Application to Logistic Sequence Models. #emph[Bayesian Analysis], 3(4), 793--822. #link("https://doi.org/10.1214/08-BA330")
+1. Li, L., Neal, R.M., 2008. Compressing Parameters in Bayesian High-order Models with Application to Logistic Sequence Models. #emph[Bayesian Analysis], 3(4), 793--822. #link("https://doi.org/10.1214/08-BA330") \[#link("./doc/seqpred/seqpred.pdf")[#strong[PDF]]\]; \[#link("./doc/seqpred/seqpred-ssc.pdf")[#strong[slides]]\]; \[#link("./software/BPHO/release.html")[#strong[software]]\].
 
 = 13. REFERRED CONFERENCE PUBLICATIONS
 <referred-conference-publications>
@@ -1374,174 +1376,178 @@
 <practice-of-professional-skills>
 #strong[2026-2027]
 
-70. Refereeing for #emph[Journal of Computational and Graphical Statistics], July 2026
+71. Refereeing for #emph[Journal of Computational and Graphical Statistics], July 2026
 
-69. Refereeing for #emph[Bioinformatics], July, 2026
+70. Refereeing for #emph[Bioinformatics], July, 2026
 
 #strong[2025-2026]
 
-68. Refereeing for #emph[Journal of Statistical Computation and Simulation], June, 2026
+69. Refereeing for #emph[Journal of Statistical Computation and Simulation], June, 2026
 
-67. Refereeing for #emph[Journal of Statistical Computation and Simulation], April, 2026
+68. Refereeing for #emph[Journal of Statistical Computation and Simulation], April, 2026
 
-66. Refereeing for #emph[Journal of the Royal Statistical Society: Series C], April 2026
+67. Refereeing for #emph[Journal of the Royal Statistical Society: Series C], April 2026
 
-65. Refereeing for #emph[Bioinformatics], March 2026
+66. Refereeing for #emph[Bioinformatics], March 2026
 
-64. Refereeing for #emph[Journal of Computational and Graphical Statistics], March 2026
+65. Refereeing for #emph[Journal of Computational and Graphical Statistics], March 2026
 
-63. External Referee for a tenure and promotion of SFU, Dec.~2025
+64. External Referee for a tenure and promotion of SFU, Dec.~2025
 
-62. External Examiner for the doctoral thesis by Xiaoqing Zhang at University of Regina, Dec.~8, 2025
+63. External Examiner for the doctoral thesis by Xiaoqing Zhang at University of Regina, Dec.~8, 2025
 
-61. Refereeing for #emph[Journal of Statistical Computation and Simulation], Dec.~2025
+62. Refereeing for #emph[Journal of Statistical Computation and Simulation], Dec.~2025
 
-60. Refereeing for #emph[Journal of Computational and Graphical Statistics], Sept.~2025
+61. Refereeing for #emph[Journal of Computational and Graphical Statistics], Sept.~2025
 
-59. External Examiner for the doctoral thesis by Na Zhang at University of Alberta, August 28, 2025
+60. External Examiner for the doctoral thesis by Na Zhang at University of Alberta, August 28, 2025
 
-58. Refereeing for #emph[Journal of the Royal Statistical Society: Series C], August 2025
+59. Refereeing for #emph[Journal of the Royal Statistical Society: Series C], August 2025
 
-57. Refereeing for #emph[Journal of Applied Statistics], August 2025
+58. Refereeing for #emph[Journal of Applied Statistics], August 2025
 
 #strong[2024-2025]
 
-56. Organizing an invited Session for the 7th Symposium of ICSA Canada Chapter, McGill University, August 2026
+57. Organizing an invited Session for the 7th Symposium of ICSA Canada Chapter, McGill University, August 2026
 
-55. Organizing an invited Session for 2025 SSC Annual Meeting, Saskatoon, SK, Canada, June 2025
+56. Organizing an invited Session for 2025 SSC Annual Meeting, Saskatoon, SK, Canada, June 2025
 
 #strong[2023-2024]
 
-54. External Examiner for the doctoral thesis by Yuping Yang at SFU, June 25, 2024
+55. External Examiner for the doctoral thesis by Yuping Yang at SFU, June 25, 2024
 
-53. Refereeing for #emph[Journal of Computational and Graphical Statistics], Sept.~2024
+54. Refereeing for #emph[Journal of Computational and Graphical Statistics], Sept.~2024
 
-52. Refereeing for #emph[Journal of Applied Statistics], Jan.~2024
+53. Refereeing for #emph[Journal of Applied Statistics], Jan.~2024
 
-51. Review an MITACS Accelerate Grant, Dec.~2023
+52. Review an MITACS Accelerate Grant, Dec.~2023
 
 #strong[2022-2023]
 
-50. Refereeing for #emph[Statistical Methods in Medical Research], April 2023
+51. Refereeing for #emph[Statistical Methods in Medical Research], April 2023
 
-49. Refereeing for #emph[Statistical Methods in Medical Research], Jan.~2023
+50. Refereeing for #emph[Statistical Methods in Medical Research], Jan.~2023
 
-48. Refereeing for #emph[Journal of Computational and Graphical Statistics], Jan.~2023
+49. Refereeing for #emph[Journal of Computational and Graphical Statistics], Jan.~2023
 
-47. Refereeing for #emph[Statistical Methods in Medical Research], Aug.~2022
+48. Refereeing for #emph[Statistical Methods in Medical Research], Aug.~2022
 
-46. External Examiner for the M.Sc. thesis by Xiangling Ji, University of Victoria, 27 July 2022
+47. External Examiner for the M.Sc. thesis by Xiangling Ji, University of Victoria, 27 July 2022
 
-45. Refereeing for #emph[Canadian Journal of Statistics], July 2022
+46. Refereeing for #emph[Canadian Journal of Statistics], July 2022
 
 #strong[2021-2022]
 
-44. Organizer of an invited session for ICSA Canada Symposium 2022, Banff, AB, Canada, July 2022
+45. Organizer of an invited session for ICSA Canada Symposium 2022, Banff, AB, Canada, July 2022
 
-43. External Examiner for one NSERC IDG application
+44. External Examiner for one NSERC IDG application
 
-42. External Examiner for another NSERC IDG application
+43. External Examiner for another NSERC IDG application
 
-41. External Examiner for one MITACS Accelerate grant application
+42. External Examiner for one MITACS Accelerate grant application
 
-40. Reviewer for a Canada Research Chair Position
+41. Reviewer for a Canada Research Chair Position
 
-39. External M.Sc. Thesis Examiner for Zhongyuan Zhang, University of Toronto
+40. External M.Sc. Thesis Examiner for Zhongyuan Zhang, University of Toronto
 
-38. Refereeing for #emph[Statistical Methods in Medical Research]
+39. Refereeing for #emph[Statistical Methods in Medical Research]
 
-37. Refereeing for #emph[Journal of Statistical Computation and Simulation]
+38. Refereeing for #emph[Journal of Statistical Computation and Simulation]
 
-36. Refereeing for #emph[BMC Cancer]
+37. Refereeing for #emph[BMC Cancer]
 
-35. Refereeing for #emph[Journal of Computational and Graphical Statistics]
+36. Refereeing for #emph[Journal of Computational and Graphical Statistics]
 
-34. Refereeing for #emph[Canadian Journal of Statistics]
+35. Refereeing for #emph[Canadian Journal of Statistics]
 
-33. Refereeing for #emph[IEEE Transactions on Neural Networks and Learning Systems]
+34. Refereeing for #emph[IEEE Transactions on Neural Networks and Learning Systems]
 
 #strong[2020-2021]
 
-32. Grant refereeing for an application to MITACS Accelerate, May 2021
+33. Grant refereeing for an application to MITACS Accelerate, May 2021
 
-31. External Examination for a PhD thesis of University of Montreal, May 2021
+32. External Examination for a PhD thesis of University of Montreal, May 2021
 
-30. Grant refereeing for an application to NSERC IDG, Jan.~2021
+31. Grant refereeing for an application to NSERC IDG, Jan.~2021
 
-29. Refereeing for #emph[Statistics in Medicine]
+30. Refereeing for #emph[Statistics in Medicine]
 
-28. Refereeing for #emph[Computational Statistics and Data Analysis]
+29. Refereeing for #emph[Computational Statistics and Data Analysis]
 
-27. Refereeing for #emph[Frontiers in Genetics]
+28. Refereeing for #emph[Frontiers in Genetics]
 
-26. Refereeing for #emph[Statistical Methods for Medical Research]
+27. Refereeing for #emph[Statistical Methods for Medical Research]
 
-25. Refereeing for #emph[Journal of Statistical Computation and Simulation]
+26. Refereeing for #emph[Journal of Statistical Computation and Simulation]
 
-24. Refereeing for #emph[BMC Cancer]
+25. Refereeing for #emph[BMC Cancer]
 
 #strong[2019-2020]
 
-23. External doctoral thesis examiner for Shijia Wang, Simon Fraser University
+24. External doctoral thesis examiner for Shijia Wang, Simon Fraser University
 
-22. External doctoral thesis examiner for Kexin Luo, Western University
+23. External doctoral thesis examiner for Kexin Luo, Western University
 
-21. Grant Refereeing for an application to MITACS
+22. Grant Refereeing for an application to MITACS
 
-20. Grant Refereeing for an application to NSERC IDG
+21. Grant Refereeing for an application to NSERC IDG
 
-19. Refereeing for #emph[Computational Statistics and Data Analysis]
+20. Refereeing for #emph[Computational Statistics and Data Analysis]
 
-18. Refereeing for #emph[Frontiers in Genetics]
+19. Refereeing for #emph[Frontiers in Genetics]
 
-17. Refereeing for #emph[Communications in Statistics - Simulation and Computation]
+18. Refereeing for #emph[Communications in Statistics - Simulation and Computation]
 
 #strong[2017-2018]
 
-16. Referee a NSERC discovery grant application
+17. Referee a NSERC discovery grant application
 
-15. Refereeing for #emph[Canadian Journal of Statistics]
+16. Refereeing for #emph[Canadian Journal of Statistics]
 
-14. Refereeing for #emph[Journal of Royal Statistical Society (C)]
+15. Refereeing for #emph[Journal of Royal Statistical Society (C)]
 
 #strong[2016-2017]
 
-13. Referee two applications for MITACS Accelerate Grant
+14. Referee two applications for MITACS Accelerate Grant
 
-12. Refereeing for #emph[Statistics in Medicine]
+13. Refereeing for #emph[Statistics in Medicine]
 
-11. Refereeing for #emph[Statistics and Computing]
+12. Refereeing for #emph[Statistics and Computing]
 
-10. Refereeing for #emph[PLOS ONE]
+11. Refereeing for #emph[PLOS ONE]
 
 #strong[2015-2016]
 
-9. Organizer, Invited session “Recent Advances in Statistical Inference Methods in Regression Models for Complex and Big Data”, China Statistics Conference, June 2016, Qingdao, China
+10. Organizer, Invited session “Recent Advances in Statistical Inference Methods in Regression Models for Complex and Big Data”, China Statistics Conference, June 2016, Qingdao, China
 
-8. Refereeing application for NSERC individual discovery grant (2015)
+9. Refereeing application for NSERC individual discovery grant (2015)
 
 #strong[2013-2014]
 
-7. Reviewing and revision services for an SHRF Establishment Grant application (Prof.~Kelly Penz), funded 2013
+8. Reviewing and revision services for an SHRF Establishment Grant application (Prof.~Kelly Penz), funded 2013
 
-6. Refereeing for #emph[Biometrika]
+7. Refereeing for #emph[Biometrika]
 
-5. Refereeing for #emph[Statistics In Medicine]
+6. Refereeing for #emph[Statistics In Medicine]
 
-4. Refereeing for #emph[Statistical Papers]
+5. Refereeing for #emph[Statistical Papers]
 
-3. Refereeing for #emph[Computational Statistics]
+4. Refereeing for #emph[Computational Statistics]
 
-2. Refereeing for #emph[Statistica Sinica]
+3. Refereeing for #emph[Statistica Sinica]
 
 #strong[2011-2012]
 
-1. Refereeing application for NSERC individual discovery grant (2011)
+2. Refereeing application for NSERC individual discovery grant (2011)
 
 = 19. ADMINISTRATIVE SERVICE
 <administrative-service>
 == 19.1 University Committees
 <university-committees>
+#strong[2026-2027]
+
+1. Chair, Collaborative Biostatistics Program, University of Saskatchewan.
+
 #strong[2025-2026]
 
 10. Chair, Collaborative Biostatistics Program, University of Saskatchewan.
