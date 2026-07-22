@@ -11,23 +11,81 @@ format:
 ```{r}
 #| label: setup-ritem
 #| include: false
-#| cache: true
+#| cache: false
 
-renv::load("~/Github/longhaiSK.github.io/")
-.current_item_count <- 0
+#renv::load("~/Github/longhaiSK.github.io/")
 
 ritem <- function(n = NULL) {
-  if (!is.null(n)) {
-    .current_item_count <<- n
+  # 1. Initialize environment on the very first call per knit session
+  if (!exists(".ritem_env", envir = globalenv())) {
+    env <- new.env()
+    env$list_idx <- 0
+    env$item_idx <- 0
+    
+    # Use the current file name for the aux file to prevent cross-file conflicts
+    input_name <- knitr::current_input()
+    if (is.null(input_name)) input_name <- "default"
+    env$aux_file <- paste0(".", tools::file_path_sans_ext(input_name), "_ritem.rds")
+    
+    # Load previous totals from the last knit if they exist
+    if (file.exists(env$aux_file)) {
+      env$prev_totals <- readRDS(env$aux_file)
+    } else {
+      env$prev_totals <- numeric(0)
+    }
+    env$curr_totals <- numeric(0)
+    
+    assign(".ritem_env", env, envir = globalenv())
   }
   
-  num <- .current_item_count
-  .current_item_count <<- .current_item_count - 1
+  env <- get(".ritem_env", envir = globalenv())
   
-  # Fetch the pandoc target format safely
+  # 2. Handle 'new' initialization signal
+  if (identical(n, "new")) {
+    env$list_idx <- env$list_idx + 1
+    env$item_idx <- 0
+    # Expand current totals vector for the new list
+    if (length(env$curr_totals) < env$list_idx) {
+      env$curr_totals[env$list_idx] <- 0
+    }
+    # Return an empty string so the `r ritem("new")` call leaves no trace
+    return(knitr::asis_output(""))
+  }
+  
+  # 3. Handle backwards compatibility if a manual number is passed (e.g., ritem(3))
+  if (is.numeric(n)) {
+    env$list_idx <- env$list_idx + 1
+    env$item_idx <- 0
+    env$prev_totals[env$list_idx] <- n 
+  }
+  
+  # 4. Failsafe if user forgets 'new' for the very first list
+  if (env$list_idx == 0) {
+    env$list_idx <- 1
+    env$item_idx <- 0
+  }
+  
+  # 5. Increment item counter and save progress to the aux file
+  env$item_idx <- env$item_idx + 1
+  env$curr_totals[env$list_idx] <- env$item_idx
+  
+  # Overwriting on every call guarantees the final count is saved 
+  # by the end of the document without needing complex chunk hooks.
+  saveRDS(env$curr_totals, env$aux_file)
+  
+  # 6. Determine the reversed number to display
+  total <- if (length(env$prev_totals) >= env$list_idx && !is.na(env$prev_totals[env$list_idx])) {
+    env$prev_totals[env$list_idx]
+  } else {
+    # Fallback for the very first knit: prints '1' for everything so formatting doesn't break
+    env$item_idx
+  }
+  
+  num <- total - env$item_idx + 1
+  
+  # 7. Output Formatting
   out_format <- knitr::opts_knit$get("rmarkdown.pandoc.to")
   
-  # The \n\n forces Pandoc to start a brand new paragraph for EVERY item
   if (knitr::is_latex_output()) {
     out <- sprintf("\n\n\\hangindent=2.5em \\hangafter=1 \\makebox[2.5em][l]{%d.}", num)
     return(knitr::asis_output(out))
@@ -35,10 +93,6 @@ ritem <- function(n = NULL) {
     out <- sprintf("\n\n<span class='ritem-num'>[%d]</span>", num)
     return(knitr::asis_output(out))
   } else if (!is.null(out_format) && out_format == "typst") {
-    # Emit a raw inline "N. " at the start of a new paragraph.
-    # In the .typ output this line begins with e.g. "31. ", which Typst
-    # parses as an explicitly-numbered enum item. The following text
-    # becomes the item body -> native hanging indent on wrapped lines.
     out <- sprintf("\n\n`%d. `{=typst}", num)
     return(knitr::asis_output(out))
   } else {
@@ -91,17 +145,21 @@ ritem <- function(n = NULL) {
 
 ### 9.4 Teaching Materials
 
+`r ritem("new")`
+
 **2025-2026**
 
-`r ritem(3)` STAT 442/850: a textbook entitled "[Theory of Statistical Inference](teaching/stat850/mathstat/index.html)" in PDF ($\ge$ 200 pages) and HTML.
+`r ritem()` STAT 442/850: a textbook entitled "[Theory of Statistical Inference](teaching/stat850/mathstat/index.html)" in PDF ($\ge$ 200 pages) and HTML.
 `r ritem()`  STAT 845: a textbook entitled "[Statistical Inference and Learning Methods for Research](teaching/stat845_rdemo/book/index.html)" in PDF ($\ge$ 200 pages) and HTML
 `r ritem()`  STAT 443/851: a textbook entitled "[Theory of Linear Model](teaching/stat851/theorylm/index.html)" in PDF ($\approx$ 200 pages) and HTML.
 
 ### 9.5 Other Teaching-Related Activities
 
+`r ritem("new")`
+
 **2025-2026**
 
-`r ritem(1)` Peer evaluation for Matthew Schmirler, Mar. 2026.
+`r ritem()` Peer evaluation for Matthew Schmirler, Mar. 2026.
 
 ## 10. SUPERVISION AND ADVISORY ACTIVITIES
 
@@ -109,25 +167,33 @@ ritem <- function(n = NULL) {
 
 **2025-2026**
 
-`r ritem(2)` George Chen, B.Sc., Computer Science, Simon Fraser University, June 1, 2025 -- Aug. 31, 2025, Supervised.
+`r ritem("new")`
+
+`r ritem()` George Chen, B.Sc., Computer Science, Simon Fraser University, June 1, 2025 -- Aug. 31, 2025, Supervised.
 `r ritem()` Shruti Kaur, B.Sc., Computer Science and Statistics, May -- Aug., 2025, Supervised.
 
 ### 10.2 Graduate Student Supervision
 
-`r ritem(2)` Jing Wang, Ph.D., Biostatistics, School of Public Health, Co-supervised with Prof. Li Xing, 2023--2026 (Transferred to other supervisor)
+`r ritem("new")`
+
+`r ritem()` Jing Wang, Ph.D., Biostatistics, School of Public Health, Co-supervised with Prof. Li Xing, 2023--2026 (Transferred to other supervisor)
 `r ritem()` Dananji Egodage, M.Sc., Statistics, Math & Stat, Co-supervised with Prof. Cindy Feng, 2023--2025 (Defended: Aug. 30, 2025)
 
 ### 10.3 Graduate Theses Supervised
 
+`r ritem("new")`
+
 **2025-2026**
 
-`r ritem(1)` Dananji Egodage, 2025, Component-wise Z-residuals for Checking Bayesian Hurdle Models, M.Sc., defended on Aug. 30, 2025.
+`r ritem()` Dananji Egodage, 2025, Component-wise Z-residuals for Checking Bayesian Hurdle Models, M.Sc., defended on Aug. 30, 2025.
 
    
 
 ### 10.4 Supervision of Post-Doctoral Fellows and Research Associates
 
-`r ritem(2)` Tingxuan Wu, University of Saskatchewan, Postdoc Research Associate,  Jan. 2025 – July 2026.
+`r ritem("new")`
+
+`r ritem()` Tingxuan Wu, University of Saskatchewan, Postdoc Research Associate,  Jan. 2025 – July 2026.
 `r ritem()` Ming Ming Zhang, MITACS Postdoc, 2022-2025.
 
 ### 10.6 Thesis Committee Memberships
@@ -199,9 +265,11 @@ committee_data |>
 
 ## 12. PAPERS IN REFERRED JOURNALS
 
+`r ritem("new")`
+
 **2025-2026**
  
-`r ritem(2)` Wu, T., Li, L., and Feng, C., $Z$-residuals Diagnostics for Cox Proportional Hazards Models: Distinguishing Functional Form Misspecification from Nonproportional Hazards, with an Application to Biliary Cirrhosis Survival Times, *Canadian Journal of Statistics*, Accepted on June 5, 2026.
+`r ritem()` Wu, T., Li, L., and Feng, C., $Z$-residuals Diagnostics for Cox Proportional Hazards Models: Distinguishing Functional Form Misspecification from Nonproportional Hazards, with an Application to Biliary Cirrhosis Survival Times, *Canadian Journal of Statistics*, Accepted on June 5, 2026.
 `r ritem()` Nolan, J., Su, C., Li, L., 2025. Evaluating Railroad Duopoly Behavior: A Market Level Analysis. *Review of Network Economics* 24, 87–111. [https://doi.org/10.1515/rne-2025-0034](https://doi.org/10.1515/rne-2025-0034)
                    
 
@@ -211,32 +279,40 @@ committee_data |>
 
 ### 14.1 Invited Presentations
 
+`r ritem("new")`
+
 **2025-2026**
 
-`r ritem(2)` Z-residuals for Checking Bayesian Models. Presented at: University of Calgary, Calgary, AB, Canada; July 28, 2025
+`r ritem()` Z-residuals for Checking Bayesian Models. Presented at: University of Calgary, Calgary, AB, Canada; July 28, 2025
 `r ritem()` Sparse Learning for Assessing the Association Between Gut Microbiome and Parkinson’s Disease. Presented at: The 3rd JCSDS, Hangzhou, China, July 13, 2025.
 
 ## 15. REPORTS AND OTHER OUTPUTS
 
 ### 15.1 Software Released Publicly
 
-`r ritem(4)` Wu, T. and Li, L., 2026. `Zresidual`: Computing and Diagnosing Gaussian-like Residuals. [[Github]](https://tiw150.github.io/Zresidual/index.html) [[Demo]](https://tiw150.github.io/Zresidual_demo.html). Version 0.1-0 on Github (2026).
+`r ritem("new")`
+
+`r ritem()` Wu, T. and Li, L., 2026. `Zresidual`: Computing and Diagnosing Gaussian-like Residuals. [[Github]](https://tiw150.github.io/Zresidual/index.html) [[Demo]](https://tiw150.github.io/Zresidual_demo.html). Version 0.1-0 on Github (2026).
 `r ritem()` Li, L., 2026. R Functions for Computing Z-residuals for `survreg` and `coxph` Objects. [[URL]](https://longhaisk.github.io/software/NRSP/index.html).
 `r ritem()` Li, L. and Liu, S., 2019--2026. `HTLR`: Bayesian Logistic Regression with Hyper-LASSO priors. DOI: 10.32614/CRAN.package.HTLR. [[CRAN]](https://cran.r-project.org/web/packages/HTLR/index.html) [[Github]](https://longhaisk.github.io/HTLR) [[URL]](https://longhaisk.github.io/software/BLRHL/index.html). Version 0.4 (2019), version 0.4-1 (2019), version 0.4-2 (2020), version 0.4-3 (2020), version 0.4-4 (2022), version 1.0 (2026).
 `r ritem()` Li, L., 2011--2026. `BCBCSF`: Bias-corrected Bayesian Classification with Selected Features. DOI: 10.32614/CRAN.package.BCBCSF.  [[CRAN]](https://cran.r-project.org/web/packages/BCBCSF/index.html) [[URL]](https://longhaisk.github.io/software/BCBCSF/index.html). Version 0.0-0 (2011), version 0.0-1 (2011), version 0.0-2 (2012), version 1.0-0 (2013), version 1.0-1 (2015), updated to version 1.0-2 (2026).
 
 ## 17. RESEARCH FUNDING HISTORY
 
+`r ritem("new")`
+
 **2025-2026**
 
-`r ritem(2)` **NSERC Individual Discovery Grant (No. 2026-07053)** – *Prediction-based Methods for Statistical Learning and Inference in Biosciences and Epidemiology*, $185,000 (37K per year), 2026-2031, PI.
+`r ritem()` **NSERC Individual Discovery Grant (No. 2026-07053)** – *Prediction-based Methods for Statistical Learning and Inference in Biosciences and Epidemiology*, $185,000 (37K per year), 2026-2031, PI.
 `r ritem()` **CANSSI Collaborative Research Team Projects** – *Statistical Methodologies and Computational Tools to Identify Microbial Correlates of Canadian Bee Gut Health*, Project 29, 2025-2028, Co-PI.
 
 ## 18. PRACTICE OF PROFESSIONAL SKILLS
 
+
+`r ritem("new")`
 **2025-2026**
 
-`r ritem(12)` Refereeing for *Journal of Statistical Computation and Simulation*, June, 2026
+`r ritem()` Refereeing for *Journal of Statistical Computation and Simulation*, June, 2026
 `r ritem()` Refereeing for *Journal of Statistical Computation and Simulation*, April, 2026
 `r ritem()` Refereeing for *Journal of the Royal Statistical Society: Series C*, April 2026
 `r ritem()` Refereeing for *Bioinformatics*, March 2026
@@ -253,16 +329,20 @@ committee_data |>
 
 ### 19.1 University Committees
 
+`r ritem("new")`
+
 **2025-2026**
 
-`r ritem(2)` Chair, Collaborative Biostatistics Program, University of Saskatchewan.
+`r ritem()` Chair, Collaborative Biostatistics Program, University of Saskatchewan.
 `r ritem()` USASK NSERC Discovery Grant (DG), Internal Reviewer.
 
 ### 19.2 College and Departmental Committees
 
+`r ritem("new")`
+
 **2025-2026**
 
-`r ritem(3)` Member, Budgeting and Planning Committee, Dept of Math & Stat
+`r ritem()` Member, Budgeting and Planning Committee, Dept of Math & Stat
 `r ritem()` Co-Chair, Undergraduate Committee (Statistics), Dept of Math & Stat
 `r ritem()` Member, Graduate Program Committee in Statistics, Dept of Math & Stat
 
