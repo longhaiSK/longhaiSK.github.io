@@ -1,0 +1,93 @@
+```{r}
+#| label: setup-ritem
+#| include: false
+#| cache: false
+
+renv::load("~/Github/longhaiSK.github.io/")
+
+ritem <- function(n = NULL) {
+  # 1. Initialize environment on the very first call per knit session
+  if (!exists(".ritem_env", envir = globalenv())) {
+    env <- new.env()
+    env$list_idx <- 0
+    env$item_idx <- 0
+    
+    # Use the current file name for the aux file to prevent cross-file conflicts
+    input_name <- knitr::current_input()
+    if (is.null(input_name)) input_name <- "default"
+    env$aux_file <- paste0(".", tools::file_path_sans_ext(input_name), "_ritem.rds")
+    
+    # Load previous totals from the last knit if they exist
+    if (file.exists(env$aux_file)) {
+      env$prev_totals <- readRDS(env$aux_file)
+    } else {
+      env$prev_totals <- numeric(0)
+    }
+    env$curr_totals <- numeric(0)
+    
+    assign(".ritem_env", env, envir = globalenv())
+  }
+  
+  env <- get(".ritem_env", envir = globalenv())
+  
+  # 2. Handle 'new' initialization signal
+  if (identical(n, "new")) {
+    env$list_idx <- env$list_idx + 1
+    env$item_idx <- 0
+    # Expand current totals vector for the new list
+    if (length(env$curr_totals) < env$list_idx) {
+      env$curr_totals[env$list_idx] <- 0
+    }
+    # Return an empty string so the `r ritem("new")` call leaves no trace
+    return(knitr::asis_output(""))
+  }
+  
+  # 3. Handle backwards compatibility if a manual number is passed (e.g., ritem(3))
+  if (is.numeric(n)) {
+    env$list_idx <- env$list_idx + 1
+    env$item_idx <- 0
+    env$prev_totals[env$list_idx] <- n 
+  }
+  
+  # 4. Failsafe if user forgets 'new' for the very first list
+  if (env$list_idx == 0) {
+    env$list_idx <- 1
+    env$item_idx <- 0
+  }
+  
+  # 5. Increment item counter and save progress to the aux file
+  env$item_idx <- env$item_idx + 1
+  env$curr_totals[env$list_idx] <- env$item_idx
+  
+  # Overwriting on every call guarantees the final count is saved 
+  # by the end of the document without needing complex chunk hooks.
+  saveRDS(env$curr_totals, env$aux_file)
+  
+  # 6. Determine the reversed number to display
+  total <- if (length(env$prev_totals) >= env$list_idx && !is.na(env$prev_totals[env$list_idx])) {
+    env$prev_totals[env$list_idx]
+  } else {
+    # Fallback for the very first knit: prints '1' for everything so formatting doesn't break
+    env$item_idx
+  }
+  
+  num <- total - env$item_idx + 1
+  
+  # 7. Output Formatting
+  out_format <- knitr::opts_knit$get("rmarkdown.pandoc.to")
+  
+  if (knitr::is_latex_output()) {
+    out <- sprintf("\n\n\\hangindent=2.5em \\hangafter=1 \\makebox[2.5em][l]{%d.}", num)
+    return(knitr::asis_output(out))
+  } else if (knitr::is_html_output()) {
+    out <- sprintf("\n\n<span class='ritem-num'>[%d]</span>", num)
+    return(knitr::asis_output(out))
+  } else if (!is.null(out_format) && out_format == "typst") {
+    out <- sprintf("\n\n`%d. `{=typst}", num)
+    return(knitr::asis_output(out))
+  } else {
+    return(paste0("\n\n[", num, "]"))
+  }
+}
+
+```
