@@ -420,7 +420,7 @@
 )
 
 #show: doc => article(
-  title: [CURRICULUM VITAE of LONGHAI LI (Jun 28, 2026)],
+  title: [CURRICULUM VITAE of LONGHAI LI (Jul 22, 2026)],
   fontsize: 11pt,
   toc_title: [Table of contents],
   toc_depth: 3,
@@ -1372,6 +1372,12 @@
 
 = 18. PRACTICE OF PROFESSIONAL SKILLS
 <practice-of-professional-skills>
+#strong[2026-2027]
+
+70. Refereeing for #emph[Journal of Computational and Graphical Statistics], July 2026
+
+69. Refereeing for #emph[Bioinformatics], July, 2026
+
 #strong[2025-2026]
 
 68. Refereeing for #emph[Journal of Statistical Computation and Simulation], June, 2026
