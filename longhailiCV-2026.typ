@@ -401,8 +401,15 @@
   stroke: none
 )
 #show figure: set block(breakable: true)
+
 #set enum(indent: 1em, body-indent: 0.75em, numbering: "[1]")
-#set list(indent: 1em, body-indent: 0.75em)
+#set list(indent: 3.5em, body-indent: 0.75em)
+
+// genuinely nested lists stack on the parent's body offset,
+// so give them a small increment rather than a full 3.5em
+#show list: it => { set list(indent: 1em); it }
+#show enum: it => { set list(indent: 1em); set enum(indent: 1em); it }
+
 #let color-link = rgb("#4f2fcd")
 #let color-ref = rgb("#1a1ad6")
 #show link: set text(fill: color-link)
@@ -1819,8 +1826,3 @@
 #strong[2016-2017]
 
 1. Judge for case study competition, Annual Meeting of Statistical Society of Canada (June 2017)
-
-Last updated on July 26, 2026.
-
-
-
