@@ -149,10 +149,8 @@ document.addEventListener('DOMContentLoaded', function() {
              <span class="hamburger-bar"></span>
             </button>
             <ul class="nav-links">
-                <li class="nav-li"><a href="/index.html"><button class="btn">About Me</button></a></li>
-                <li class="nav-li"><a href="/research.html"><button class="btn">Research Projects</button></a></li>
-                <li class="nav-li"><a href="/team.html"><button class="btn">Lab Members</button></a></li>
-                <li class="nav-li"><a href="/publications.html"><button class="btn">Publications</button></a></li>
+                <li class="nav-li"><a href="/index.html"><button class="btn">Home</button></a></li>
+                <li class="nav-li"><a href="/research.html"><button class="btn">Research</button></a></li>
                 <li class="nav-li"><a href="/teaching.html"><button class="btn">Courses</button></a></li>
                 <li class="nav-li">
                     <form id="site-search-form" class="search-form" role="search">
