@@ -420,7 +420,7 @@
 )
 
 #show: doc => article(
-  title: [CURRICULUM VITAE of LONGHAI LI (Jul 22, 2026)],
+  title: [CURRICULUM VITAE of LONGHAI LI (Jul 26, 2026)],
   fontsize: 11pt,
   toc_title: [Table of contents],
   toc_depth: 3,
@@ -819,6 +819,10 @@
 
 7. Steven Liu, B.Sc., Computer Science, July 2019 -- Oct.~2020, Summer Research Assistant, Supervised.
 
+- Project title: Development of an R package for Bayesian Hyper-LASSO Logistic Regression
+
+- Software: HTLR: #link("./software/BLRHL/index.html")[Bayesian Logistic Regression with Heavy-Tailed Priors], #link("https://cran.r-project.org/web/packages/HTLR/index.html")[#strong[\[CRAN page\]]], #link("https://longhaisk.github.io/HTLR")[#strong[\[Github page\]]]. HTLR was listed in #link("https://rviews.rstudio.com/2019/11/18/october-2019-top-40-new-r-packages/?mkt_tok=eyJpIjoiT1RabU5tVTFaR0ptTlRCbCIsInQiOiJXWFlONVZhcm44V1wvR25pNmJUb3BrU3h2NmxMN0pPZW9tdVZSelc2ZDRnUWxrbGcrUmcyRnhJdnAraXJCaUVhdkVvbFNRU1hLUEJCTXk1ZHJFSDBFNTBDXC9qZkxSYTdGcWNlclZjYndQdElINnRNRVNWeDZrMU55clQ2Q2dEOU9IIn0%3D")[the top 40 new packages in October 2019] by R views of Rstudio.
+
 6. Steven Liu, B.Sc., Computer Science, June 17, 2019 -- Aug.~31, 2019, Supervised.
 
 #strong[2018-2019]
@@ -843,55 +847,121 @@
 
 == 10.2 Graduate Student Supervision
 <graduate-student-supervision>
-25. Jing Wang, Ph.D., Biostatistics, School of Public Health, Co-supervised with Prof.~Li Xing, 2023--2026 (Transferred to other supervisor)
+#strong[Ph.D.~Students]
 
-24. Dananji Egodage, M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Cindy Feng, 2023--2025 (Defended: Aug.~30, 2025)
+4. #strong[Jing Wang], Ph.D., Biostatistics, School of Public Health, Co-supervised with Prof.~Li Xing, 2023--2026 (Transferred to other supervisor)
 
-23. Wuqian Effie Gao, M.Sc., Biostatistics, School of Public Health, Co-supervised with Prof.~Cindy Feng, 2022--2024 (Defended: Aug.~30, 2024)
+3. #strong[Wutao Yin], Ph.D., Biomedical Engineering, Co-supervised with Prof.~FangXiang Wu, 2019--2021 (Defended: Dec.~17, 2021)
 
-22. Lina Li, M.Sc., Statistics, Math & Stat, MITACS Project supervisor, Supervised, 2022--2022 (Completed: August 2022)
+- #strong[Thesis:] #link("https://harvest.usask.ca/handle/10388/13732")[Artificial Intelligence Based Methods for Autism Spectrum Disorder Diagnosis from fMRI Data]
 
-21. Hao Hu, Ph.D., Statistics, Math & Stat, Co-supervised with Prof.~Li Xing, 2021--2022 (Transferred to M.Sc. July 2022)
+- #strong[Employment:] Associate Professor, Ocean Institute, Northwestern Polytechnical University, Taicang Jiangsu, China
 
-20. Hao Hu, M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Li Xing, 2021--2022 (Defended: Sept.~15, 2022)
+2. #strong[Tingxuan Wu], Ph.D., Biostatistics, School of Public Health, Co-supervised with Prof.~Cindy Feng, 2018--2023 (Defended: May 24, 2023)
 
-19. Man Chen, M.Sc., Statistics, Math & Stat, Supervised, 2019--2021 (Defended: April 30, 2021)
+- #strong[Thesis:] #link("https://harvest.usask.ca/handle/10388/14727")[Residual Diagnostics and Statistical Inference for Shared Frailty Models]
+- #strong[Employment:] Forestry Statistical Analyst, Ministry of Environment, Government of Saskatchewan
 
-18. Wutao Yin, Ph.D., Biomedical Engineering, Co-supervised with Prof.~FangXiang Wu, 2019--2021 (Defended: Dec.~17, 2021)
+1. #strong[Lai Jiang], Ph.D., Statistics, Math & Stat, Supervised, 2009--2015 (Defended: Sept.~14, 2015)
 
-17. Wutao Yin, Ph.D., Statistics, Math & Stats, Supervised, 2018--2019 (Transferred to Engineering May 2019)
+- #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/Jiang,Lai_PhD_thesis_Sep_2015.pdf")[Fully Bayesian T-probit Regression with Heavy-tailed Priors for Selection in High-Dimensional Features with Grouping Structure]
+- #strong[Employment:] Postdoctoral fellow at Lady Davis Institute, Jewish General Hospital, McGill University in Montreal
 
-16. Tingxuan Wu, Ph.D., Biostatistics, School of Public Health, Co-supervised with Prof.~Cindy Feng, 2018--2023 (Defended: May 24, 2023)
+#strong[Master's Students]
 
-15. Tingxuan Wu, M.Sc., Biostatistics, School of Public Health, Co-supervised with Prof.~Cindy Feng, 2017--2018 (Defended: Dec.~4, 2018)
+18. #strong[Dananji Egodage (Shashiprabha)], M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Cindy Feng, 2023--2025 (Defended: Aug.~30, 2025)
 
-14. Mei Dong, M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Lloyd Balbuena, 2017--2019 (Defended: May 23, 2019)
+- #strong[Thesis:] #link("https://harvest.usask.ca/items/02bfcf7a-e2c5-4edb-baf1-1812bd60fb5f")[Component-wise Z-residual Diagnosis for Bayesian Hurdle Models]
 
-13. Alireza Sadeghpour, M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Cindy Feng, 2016--2017 (Defended: Sept.~19, 2017)
+- #strong[Employment:] Applied Researcher at Southeast College Saskatchewan
 
-12. Xiaoying Wang, M.Sc., Statistics, Math & Stat, Supervised, 2016--2019 (Defended: March 12, 2019)
+17. #strong[Wuqian Effie Gao], M.Sc., Biostatistics, School of Public Health, Co-supervised with Prof.~Cindy Feng, 2022--2024 (Defended: Aug.~30, 2024)
 
-11. Wei Bai, M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Cindy Feng, 2016--2018 (Defended: July 12, 2018)
+- #strong[Thesis:] #link("https://harvest.usask.ca/items/ea0c9479-9914-4139-8027-9145190056c6")[Z-residuals for Checking Bayesian Hurdle Models]
 
-10. Yunyang Wang, M.Sc., Statistics, Math & Stat, Supervised, 2014--2017 (Defended: Nov.~18, 2017)
+- #strong[Employment:] Senior Data and Forecasting Analyst, Health Ministry, Government of Saskatchewan
 
-9. Naorin Islam, M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Shahedul Khan, 2014--2017 (Defended: Nov.~28, 2017)
+16. #strong[Lina Li], M.Sc., Statistics, Math & Stat, MITACS Project supervisor, Supervised, 2022--2022 (Completed: August 2022)
 
-8. Arash Shamloo, M.MATH., Statistics, Math & Stat, Supervised, 2016--2017 (Project Completed: August 31, 2017)
+15. #strong[Hao Hu], M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Li Xing, 2021--2022 (Defended: Sept.~15, 2022)
 
-7. Setu Chandra Kar, M.Sc., Statistics, Math & Stat, Supervised, 2014--2016 (Defended: 2016)
+- #strong[Thesis:] #link("https://harvest.usask.ca/bitstream/handle/10388/14244/HU-THESIS-2022.pdf?sequence=1&isAllowed=y")[Identifying Risk Factors for Cognitive Decline Using Statistical Learning Techniques and Functional Data Analysis]
 
-6. Shi Qiu, M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Cindy Feng, 2012--2015 (Defended: March 26, 2015)
+- #strong[Employment:] Senior Statistician in Health Ministry in a Chinese government
 
-5. Masud Rana, M.Sc., Statistics, Math & Stats, Co-supervised with Prof.~Shahedul Khan, 2010--2012 (Defended: Sept.~2012)
+14. #strong[Man Chen], M.Sc., Statistics, Math & Stat, Supervised, 2019--2021 (Defended: April 30, 2021)
 
-4. Saima Khan Khosa, Ph.D., Statistics, Math & Stats, Supervised, 2010--2012 (Transferred to other supervisor)
+- #strong[Thesis:] #link("https://harvest.usask.ca/bitstream/handle/10388/13403/CHEN-THESIS-2021.pdf?sequence=1&isAllowed=y")[Association between Gut Microbiome and Parkinson's Disease Revealed by Sparse Learning]
 
-3. Lai Jiang, Ph.D., Statistics, Math & Stat, Supervised, 2009--2015 (Defended: Sept.~14, 2015)
+- #strong[Employment:] AI Engineer at #link("https://sga.ai")[Super GeoAI Technology Inc.]
 
-2. Lai Jiang, M.Sc., Statistics, Math & Stats, Supervised, 2008--2009 (Transferred to Ph.D.; M.Sc. supervision ended)
+13. #strong[Mei Dong], M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Lloyd Balbuena, 2017--2019 (Defended: May 23, 2019)
 
-1. Zhengrong Li, M.Sc., Statistics, Math & Stats, Supervised, 2007--2012 (Defended: May 2012)
+- #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/DONG-THESIS-2019.pdf")[Feature Selection Bias in Assessing the Predictivity of SNPs for Alzheimer's Disease]
+
+- #strong[Employment:] Senior Research Analyst at the University of Toronto
+
+12. #strong[Tingxuan Wu], M.Sc., Biostatistics, School of Public Health, Co-supervised with Prof.~Cindy Feng, 2017--2018 (Defended: Dec.~4, 2018)
+
+- #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/WU-THESIS-2018.pdf")[Randomized Survival Probability Residuals for Assessing Parametric Survival Models]
+
+- #strong[Employment:] PhD student at the University of Saskatchewan
+
+11. #strong[Xiaoying Wang], M.Sc., Statistics, Math & Stat, Supervised, 2016--2019 (Defended: March 12, 2019)
+
+- #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/WANG-THESIS-2019.pdf")[Comparison of Statistical Testing and Predictive Analysis Methods for Feature Selection in Zero-inflated Microbiome Data]
+
+10. #strong[Wei Bai], M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Cindy Feng, 2016--2018 (Defended: July 12, 2018)
+
+- #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/BAI-THESIS-2018.pdf")[Randomized Quantile Residual for Assessing Generalized Linear Mixed Models with Application to Zero-Inflated Microbiome Data]
+
+- #strong[Employment:] Lead Statistical Analyst, Bayer Pharmaceuticals, Ontario, Canada (First Employment: Statistical Programmer, Everest Clinical Research, Markham, Ontario)
+
+9. #strong[Arash Shamloo], M.MATH., Statistics, Math & Stat, Supervised, 2016--2017 (Project Completed: August 31, 2017)
+
+- #strong[Project:] Randomized quantile residuals for accelerated failure time models
+
+- #strong[Employment:] Research assistant, College of Pharmacy and Nutrition, University of Saskatchewan
+
+8. #strong[Alireza Sadeghpour], M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Cindy Feng, 2016--2017 (Defended: Sept.~19, 2017)
+
+- #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/alithesis.pdf")[Empirical Investigation of Randomized Quantile Residuals for Diagnosis of Non-Normal Regression Models]
+
+- #strong[Employment:] Statistician at Health Canada, Ottawa
+
+7. #strong[Yunyang Wang], M.Sc., Statistics, Math & Stat, Supervised, 2014--2017 (Defended: Nov.~18, 2017)
+
+- #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/WANG-THESIS-2016.pdf")[Comparison of Stochastic Volatility Models Using Integrated Information Criteria]
+
+- #strong[Employment:] Statistician at Montreal office of #link("http://www.evidera.com/")[Evidera] (a PPD company), Montreal, QC (First Employment: Intern at the PathWise Solutions, AON Securities, Toronto)
+
+6. #strong[Naorin Islam], M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Shahedul Khan, 2014--2017 (Defended: Nov.~28, 2017)
+
+- #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/ISLAM-THESIS-2016.pdf")[Substance Abuse and Health: A Structural Equation Modeling Approach to Assess Latent Health Effects]
+
+- #strong[Employment:] Research assistant, College of Pharmacy and Nutrition, University of Saskatchewan
+
+5. #strong[Setu Chandra Kar], M.Sc., Statistics, Math & Stat, Supervised, 2014--2016 (Defended: 2016)
+
+4. #strong[Shi Qiu], M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Cindy Feng, 2012--2015 (Defended: March 26, 2015)
+
+- #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/QIU-THESIS.pdf")[Cross-validatory Model Comparison and Divergent Regions Detection using iIS and iWAIC for Disease Mapping]
+
+- #strong[Employment:] Statistician, Mabwell Therapeutics, Inc., Shanghai, China (First Employment: Data Service Specialist at #link("http://www.irdinc.com/")[IRD Inc.])
+
+3. #strong[Masud Rana], M.Sc., Statistics, Math & Stats, Co-supervised with Prof.~Shahedul Khan, 2010--2012 (Defended: Sept.~2012)
+
+- #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/Thesis_mdr091.pdf")[Spatial-Longitudinal Bent-Cable Model with an Application to Atmospheric CFC Data]
+
+- #strong[Employment:] Biostatistician at Clinical Research Support Unit, College of Medicine, University of Saskatchewan
+
+2. #strong[Lai Jiang], M.Sc., Statistics, Math & Stats, Supervised, 2008--2009 (Transferred to Ph.D.; M.Sc. supervision ended)
+
+1. #strong[Zhengrong Li], M.Sc., Statistics, Math & Stats, Supervised, 2007--2012 (Defended: May 2012)
+
+- #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/zhli_thesis.pdf")[A Non-MCMC Procedure for Fitting Dirichlet Process Mixture Models]
+
+- #strong[Employment:] Data Service Specialist at #link("http://www.irdinc.com/")[IRD Inc.]
 
 == 10.3 Graduate Theses Supervised
 <graduate-theses-supervised>
@@ -1265,7 +1335,7 @@
 = 15. REPORTS AND OTHER OUTPUTS
 <reports-and-other-outputs>
 == 15.1 Software Released Publicly
-<software-released-publicly>
+<research-software>
 11. Wu, T. and Li, L., 2026. #NormalTok("Zresidual");: Computing and Diagnosing Gaussian-like Residuals. #link("https://tiw150.github.io/Zresidual/index.html")[\[Github\]] #link("https://tiw150.github.io/Zresidual_demo.html")[\[Demo\]]. Version 0.1-0 on Github (2026).
 
 10. Li, L., 2026. R Functions for Computing Z-residuals for #NormalTok("survreg"); and #NormalTok("coxph"); Objects. #link("https://longhaisk.github.io/software/NRSP/index.html")[\[URL\]].
@@ -1289,7 +1359,7 @@
 1. Li, L., 2007. #NormalTok("predbayescor");: Classification Rule Based on Bayesian Naive Bayes Models with Features Selection Bias Corrected. #link("https://cran.r-project.org/web/packages/predbayescor/index.html")[\[CRAN\]] #link("https://longhaisk.github.io/software/predbayescor/release.html")[\[URL\]].
 
 == 15.2 Technical Reports
-<technical-reports>
+<techical-reports>
 12. Wu, T., Feng, C. and Li, L., 2023. Cross-validatory Z-Residual for Diagnosing Shared Frailty Models. #link("https://doi.org/10.48550/arXiv.2303.09616"). 32 pages, 14 figures.
 
 11. Wu, T., Li, L. and Feng, C., 2023. Z-residual diagnostics for detecting misspecification of the functional form of covariates for shared frailty models. #link("https://doi.org/10.48550/arXiv.2302.09106"). 21 pages, 7 figures.
@@ -1314,13 +1384,25 @@
 
 1. Li, L., Zhang, J. and Neal, R.M., 2007. A method for avoiding bias from features selection with application to naive Bayes classification models. Technical Report No 0705, Department of Statistics, University of Toronto.
 
+== 15.3 Online Apps
+<online-apps>
+5. #strong[Students' Grade Calculator:] A Shinylive app that can #link("./software/calcmark_shiny/")[calculate students' grades] with fine-grained controls and output.
+
+4. #strong[Animation of Finding $sqrt(S)$:] #link("./software/sqrt/")[A Shinylive App for Finding Square Root using Newton Method]
+
+3. #strong[Abbreviation Extractor for Documents with Latex Equations:] A shinylive app that can #link("software/abbr/extract_abbr.html")[extract abbreviations] in the source text with latex equations.
+
+2. #link("./CanadaCovidRt/")[Real-time estimates of the reproduction rate ($R_t$) of Canada and its provinces], a website maintained until Feb 2022.
+
+1. #link("covid-canada.html")[Projections of Canada's COVID-19 Cases (up to 2020-06-30)]
+
 = 17. RESEARCH FUNDING HISTORY
 <research-funding-history>
 #strong[2025-2026]
 
 17. #strong[NSERC Individual Discovery Grant (No.~2026-07053)] -- #emph[Prediction-based Methods for Statistical Learning and Inference in Biosciences and Epidemiology], \$185,000 (37K per year), 2026-2031, PI.
 
-16. #strong[CANSSI Collaborative Research Team Projects] -- #emph[Statistical Methodologies and Computational Tools to Identify Microbial Correlates of Canadian Bee Gut Health], Project 29, 2025-2028, Co-PI.
+16. #strong[CANSSI] -- #emph[Statistical Methodologies and Computational Tools to Identify Microbial Correlates of Canadian Bee Gut Health], #link("https://canssi.ca/story/crt-29/")[Collaborative Research Team Projects -- Project 29], 2025-2028, Co-PI.
 
 #strong[2021-2022]
 
@@ -1328,11 +1410,11 @@
 
 #strong[2020-2021]
 
-14. #strong[MITACS Accelerate Grant] -- #emph[Develop a web based geospatial artificial intelligence framework to track, visualize, analyze, model, and predict infectious disease spread in real-time], \$105,000, 2020-2021, PI.
+14. #strong[MITACS Accelerate Grant] -- #emph[Develop a web-based geospatial artificial intelligence framework to track, visualize, analyze, model, and predict infectious disease spread in real-time], \$105,000, 2020-2021, PI.
 
 #strong[2019-2020]
 
-13. #strong[NSERC Individual Discovery Grant] -- #emph[Predictive Methods for Analyzing High-throughput and Spatial-temporal Data], \$140,000 (20K per year), 2019-2026, PI.
+13. #strong[NSERC Individual Discovery Grant] -- #emph[#link("https://cognit.ca/en/project/207670")[Predictive Methods for Analyzing High-throughput and Spatial-temporal Data]], \$140,000 (20K per year), 2019-2026, PI.
 
 #strong[2017-2018]
 
@@ -1340,13 +1422,13 @@
 
 #strong[2016-2017]
 
-11. #strong[Canada First Research Excellence Fund (CFREF)] - #emph[Designing Crops for Global Food Security, Genotype & Environment to Phenotype], \$756,918, 2016-2019, Co-PI.
+11. #strong[Canada First Research Excellence Fund (CFREF)] - #emph[Designing Crops for Global Food Security, Genotype & Environment to Phenotype], \$756,918, 2016-2019, Co-Investigator (PI: Prof.~Kusalik).
 
 10. #strong[MITACS Accelerate Internship] -- #emph[Applications of Neural Network Curve Fitting Methods for Least-squares Monte Carlo Simulations in Financial Risk Management], \$15,000, 2016, PI.
 
 #strong[2014-2015]
 
-9. #strong[NSERC Individual Discovery Grant] -- #emph[Bayesian Methods for High-Dimensional and Correlated Data], \$70,000, 2014-2019, PI.
+9. #strong[NSERC Individual Discovery Grant] -- #emph[#link("https://cognit.ca/en/project/13450")[Bayesian Methods for High-dimensional and Correlated Data]], \$70,000, 2014-2019, PI.
 
 #strong[2011-2012]
 
@@ -1354,13 +1436,13 @@
 
 #strong[2009-2010]
 
-7. #strong[NSERC Individual Discovery Grant] -- #emph[Efficient Bayesian Analysis for Complex Models], \$80,000, 2009-2014, PI.
+7. #strong[NSERC Individual Discovery Grant] -- #emph[#link("https://www.nserc-crsng.gc.ca/ase-oro/Details-Detailles_eng.asp?id=527993")[Efficient Bayesian Analysis for Complex Models]], \$80,000, 2009-2014, PI.
 
 6. #strong[CFI Leaders Opportunity Funds] -- #emph[A Computer Cluster for Research on Efficient Bayesian Statistical Methods], \$160,000, 2009, PI.
 
 #strong[2008-2009]
 
-5. #strong[MITACS Accelerate Internship] -- #emph[Clustering Analysis for Detecting the Types of Vehicles], \$15,000, 2008, Co-PI.
+5. #strong[MITACS Accelerate Internship] -- #emph[Clustering Analysis for Detecting the Types of Vehicles], \$15,000, 2008, Co-PI with Prof.~Laverty.
 
 4. #strong[University of Saskatchewan President's Award], \$5,000, 2008, PI.
 
@@ -1376,169 +1458,169 @@
 <practice-of-professional-skills>
 #strong[2026-2027]
 
-71. Refereeing for #emph[Journal of Computational and Graphical Statistics], July 2026
+70. Refereeing for #emph[Journal of Computational and Graphical Statistics], July 2026
 
-70. Refereeing for #emph[Bioinformatics], July, 2026
+69. Refereeing for #emph[Bioinformatics], July, 2026
 
 #strong[2025-2026]
 
-69. Refereeing for #emph[Journal of Statistical Computation and Simulation], June, 2026
+68. Refereeing for #emph[Journal of Statistical Computation and Simulation], June, 2026
 
-68. Refereeing for #emph[Journal of Statistical Computation and Simulation], April, 2026
+67. Refereeing for #emph[Journal of Statistical Computation and Simulation], April, 2026
 
-67. Refereeing for #emph[Journal of the Royal Statistical Society: Series C], April 2026
+66. Refereeing for #emph[Journal of the Royal Statistical Society: Series C], April 2026
 
-66. Refereeing for #emph[Bioinformatics], March 2026
+65. Refereeing for #emph[Bioinformatics], March 2026
 
-65. Refereeing for #emph[Journal of Computational and Graphical Statistics], March 2026
+64. Refereeing for #emph[Journal of Computational and Graphical Statistics], March 2026
 
-64. External Referee for a tenure and promotion of SFU, Dec.~2025
+63. External Referee for a tenure and promotion of SFU, Dec.~2025
 
-63. External Examiner for the doctoral thesis by Xiaoqing Zhang at University of Regina, Dec.~8, 2025
+62. External Examiner for the doctoral thesis by Xiaoqing Zhang at University of Regina, Dec.~8, 2025
 
-62. Refereeing for #emph[Journal of Statistical Computation and Simulation], Dec.~2025
+61. Refereeing for #emph[Journal of Statistical Computation and Simulation], Dec.~2025
 
-61. Refereeing for #emph[Journal of Computational and Graphical Statistics], Sept.~2025
+60. Refereeing for #emph[Journal of Computational and Graphical Statistics], Sept.~2025
 
-60. External Examiner for the doctoral thesis by Na Zhang at University of Alberta, August 28, 2025
+59. External Examiner for the doctoral thesis by Na Zhang at University of Alberta, August 28, 2025
 
-59. Refereeing for #emph[Journal of the Royal Statistical Society: Series C], August 2025
+58. Refereeing for #emph[Journal of the Royal Statistical Society: Series C], August 2025
 
-58. Refereeing for #emph[Journal of Applied Statistics], August 2025
+57. Refereeing for #emph[Journal of Applied Statistics], August 2025
 
 #strong[2024-2025]
 
-57. Organizing an invited Session for the 7th Symposium of ICSA Canada Chapter, McGill University, August 2026
+56. Organizing an invited Session for the 7th Symposium of ICSA Canada Chapter, McGill University, August 2026
 
-56. Organizing an invited Session for 2025 SSC Annual Meeting, Saskatoon, SK, Canada, June 2025
+55. Organizing an invited Session for 2025 SSC Annual Meeting, Saskatoon, SK, Canada, June 2025
 
 #strong[2023-2024]
 
-55. External Examiner for the doctoral thesis by Yuping Yang at SFU, June 25, 2024
+54. External Examiner for the doctoral thesis by Yuping Yang at SFU, June 25, 2024
 
-54. Refereeing for #emph[Journal of Computational and Graphical Statistics], Sept.~2024
+53. Refereeing for #emph[Journal of Computational and Graphical Statistics], Sept.~2024
 
-53. Refereeing for #emph[Journal of Applied Statistics], Jan.~2024
+52. Refereeing for #emph[Journal of Applied Statistics], Jan.~2024
 
-52. Review an MITACS Accelerate Grant, Dec.~2023
+51. Review an MITACS Accelerate Grant, Dec.~2023
 
 #strong[2022-2023]
 
-51. Refereeing for #emph[Statistical Methods in Medical Research], April 2023
+50. Refereeing for #emph[Statistical Methods in Medical Research], April 2023
 
-50. Refereeing for #emph[Statistical Methods in Medical Research], Jan.~2023
+49. Refereeing for #emph[Statistical Methods in Medical Research], Jan.~2023
 
-49. Refereeing for #emph[Journal of Computational and Graphical Statistics], Jan.~2023
+48. Refereeing for #emph[Journal of Computational and Graphical Statistics], Jan.~2023
 
-48. Refereeing for #emph[Statistical Methods in Medical Research], Aug.~2022
+47. Refereeing for #emph[Statistical Methods in Medical Research], Aug.~2022
 
-47. External Examiner for the M.Sc. thesis by Xiangling Ji, University of Victoria, 27 July 2022
+46. External Examiner for the M.Sc. thesis by Xiangling Ji, University of Victoria, 27 July 2022
 
-46. Refereeing for #emph[Canadian Journal of Statistics], July 2022
+45. Refereeing for #emph[Canadian Journal of Statistics], July 2022
 
 #strong[2021-2022]
 
-45. Organizer of an invited session for ICSA Canada Symposium 2022, Banff, AB, Canada, July 2022
+44. Organizer of an invited session for ICSA Canada Symposium 2022, Banff, AB, Canada, July 2022
 
-44. External Examiner for one NSERC IDG application
+43. External Examiner for one NSERC IDG application
 
-43. External Examiner for another NSERC IDG application
+42. External Examiner for another NSERC IDG application
 
-42. External Examiner for one MITACS Accelerate grant application
+41. External Examiner for one MITACS Accelerate grant application
 
-41. Reviewer for a Canada Research Chair Position
+40. Reviewer for a Canada Research Chair Position
 
-40. External M.Sc. Thesis Examiner for Zhongyuan Zhang, University of Toronto
+39. External M.Sc. Thesis Examiner for Zhongyuan Zhang, University of Toronto
 
-39. Refereeing for #emph[Statistical Methods in Medical Research]
+38. Refereeing for #emph[Statistical Methods in Medical Research]
 
-38. Refereeing for #emph[Journal of Statistical Computation and Simulation]
+37. Refereeing for #emph[Journal of Statistical Computation and Simulation]
 
-37. Refereeing for #emph[BMC Cancer]
+36. Refereeing for #emph[BMC Cancer]
 
-36. Refereeing for #emph[Journal of Computational and Graphical Statistics]
+35. Refereeing for #emph[Journal of Computational and Graphical Statistics]
 
-35. Refereeing for #emph[Canadian Journal of Statistics]
+34. Refereeing for #emph[Canadian Journal of Statistics]
 
-34. Refereeing for #emph[IEEE Transactions on Neural Networks and Learning Systems]
+33. Refereeing for #emph[IEEE Transactions on Neural Networks and Learning Systems]
 
 #strong[2020-2021]
 
-33. Grant refereeing for an application to MITACS Accelerate, May 2021
+32. Grant refereeing for an application to MITACS Accelerate, May 2021
 
-32. External Examination for a PhD thesis of University of Montreal, May 2021
+31. External Examination for a PhD thesis of University of Montreal, May 2021
 
-31. Grant refereeing for an application to NSERC IDG, Jan.~2021
+30. Grant refereeing for an application to NSERC IDG, Jan.~2021
 
-30. Refereeing for #emph[Statistics in Medicine]
+29. Refereeing for #emph[Statistics in Medicine]
 
-29. Refereeing for #emph[Computational Statistics and Data Analysis]
+28. Refereeing for #emph[Computational Statistics and Data Analysis]
 
-28. Refereeing for #emph[Frontiers in Genetics]
+27. Refereeing for #emph[Frontiers in Genetics]
 
-27. Refereeing for #emph[Statistical Methods for Medical Research]
+26. Refereeing for #emph[Statistical Methods for Medical Research]
 
-26. Refereeing for #emph[Journal of Statistical Computation and Simulation]
+25. Refereeing for #emph[Journal of Statistical Computation and Simulation]
 
-25. Refereeing for #emph[BMC Cancer]
+24. Refereeing for #emph[BMC Cancer]
 
 #strong[2019-2020]
 
-24. External doctoral thesis examiner for Shijia Wang, Simon Fraser University
+23. External doctoral thesis examiner for Shijia Wang, Simon Fraser University
 
-23. External doctoral thesis examiner for Kexin Luo, Western University
+22. External doctoral thesis examiner for Kexin Luo, Western University
 
-22. Grant Refereeing for an application to MITACS
+21. Grant Refereeing for an application to MITACS
 
-21. Grant Refereeing for an application to NSERC IDG
+20. Grant Refereeing for an application to NSERC IDG
 
-20. Refereeing for #emph[Computational Statistics and Data Analysis]
+19. Refereeing for #emph[Computational Statistics and Data Analysis]
 
-19. Refereeing for #emph[Frontiers in Genetics]
+18. Refereeing for #emph[Frontiers in Genetics]
 
-18. Refereeing for #emph[Communications in Statistics - Simulation and Computation]
+17. Refereeing for #emph[Communications in Statistics - Simulation and Computation]
 
 #strong[2017-2018]
 
-17. Referee a NSERC discovery grant application
+16. Referee a NSERC discovery grant application
 
-16. Refereeing for #emph[Canadian Journal of Statistics]
+15. Refereeing for #emph[Canadian Journal of Statistics]
 
-15. Refereeing for #emph[Journal of Royal Statistical Society (C)]
+14. Refereeing for #emph[Journal of Royal Statistical Society (C)]
 
 #strong[2016-2017]
 
-14. Referee two applications for MITACS Accelerate Grant
+13. Referee two applications for MITACS Accelerate Grant
 
-13. Refereeing for #emph[Statistics in Medicine]
+12. Refereeing for #emph[Statistics in Medicine]
 
-12. Refereeing for #emph[Statistics and Computing]
+11. Refereeing for #emph[Statistics and Computing]
 
-11. Refereeing for #emph[PLOS ONE]
+10. Refereeing for #emph[PLOS ONE]
 
 #strong[2015-2016]
 
-10. Organizer, Invited session “Recent Advances in Statistical Inference Methods in Regression Models for Complex and Big Data”, China Statistics Conference, June 2016, Qingdao, China
+9. Organizer, Invited session “Recent Advances in Statistical Inference Methods in Regression Models for Complex and Big Data”, China Statistics Conference, June 2016, Qingdao, China
 
-9. Refereeing application for NSERC individual discovery grant (2015)
+8. Refereeing application for NSERC individual discovery grant (2015)
 
 #strong[2013-2014]
 
-8. Reviewing and revision services for an SHRF Establishment Grant application (Prof.~Kelly Penz), funded 2013
+7. Reviewing and revision services for an SHRF Establishment Grant application (Prof.~Kelly Penz), funded 2013
 
-7. Refereeing for #emph[Biometrika]
+6. Refereeing for #emph[Biometrika]
 
-6. Refereeing for #emph[Statistics In Medicine]
+5. Refereeing for #emph[Statistics In Medicine]
 
-5. Refereeing for #emph[Statistical Papers]
+4. Refereeing for #emph[Statistical Papers]
 
-4. Refereeing for #emph[Computational Statistics]
+3. Refereeing for #emph[Computational Statistics]
 
-3. Refereeing for #emph[Statistica Sinica]
+2. Refereeing for #emph[Statistica Sinica]
 
 #strong[2011-2012]
 
-2. Refereeing application for NSERC individual discovery grant (2011)
+1. Refereeing application for NSERC individual discovery grant (2011)
 
 = 19. ADMINISTRATIVE SERVICE
 <administrative-service>
@@ -1546,7 +1628,7 @@
 <university-committees>
 #strong[2026-2027]
 
-1. Chair, Collaborative Biostatistics Program, University of Saskatchewan.
+11. Chair, Collaborative Biostatistics Program, University of Saskatchewan.
 
 #strong[2025-2026]
 
@@ -1737,3 +1819,8 @@
 #strong[2016-2017]
 
 1. Judge for case study competition, Annual Meeting of Statistical Society of Canada (June 2017)
+
+Last updated on July 26, 2026.
+
+
+
