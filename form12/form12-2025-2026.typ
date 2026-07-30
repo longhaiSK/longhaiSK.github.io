@@ -401,8 +401,15 @@
   stroke: none
 )
 #show figure: set block(breakable: true)
+
 #set enum(indent: 1em, body-indent: 0.75em, numbering: "[1]")
-#set list(indent: 1em, body-indent: 0.75em)
+#set list(indent: 3.5em, body-indent: 0.75em)
+
+// genuinely nested lists stack on the parent's body offset,
+// so give them a small increment rather than a full 3.5em
+#show list: it => { set list(indent: 1em); it }
+#show enum: it => { set list(indent: 1em); set enum(indent: 1em); it }
+
 #let color-link = rgb("#4f2fcd")
 #let color-ref = rgb("#1a1ad6")
 #show link: set text(fill: color-link)
@@ -497,9 +504,9 @@
 
 == 10.2 Graduate Student Supervision
 <graduate-student-supervision>
-2. Jing Wang, Ph.D., Biostatistics, School of Public Health, Co-supervised with Prof.~Li Xing, 2023--2026 (Transferred to other supervisor)
+2. #strong[Jing Wang], Ph.D., Biostatistics, School of Public Health, Co-supervised with Prof.~Li Xing, 2023--2026 (Transferred to other supervisor)
 
-1. Dananji Egodage, M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Cindy Feng, 2023--2025 (Defended: Aug.~30, 2025)
+1. #strong[Dananji Egodage (Shashiprabha)], M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Cindy Feng, 2023--2025 (Defended: Aug.~30, 2025)
 
 == 10.3 Graduate Theses Supervised
 <graduate-theses-supervised>
@@ -515,7 +522,6 @@
 
 == 10.6 Thesis Committee Memberships
 <thesis-committee-memberships>
-#figure([
 #{set text(font: ("system-ui", "Segoe UI", "Roboto", "Helvetica", "Arial", "sans-serif", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji") , size: 9pt); table(
   columns: (5%, 25%, 5%, 20%, 30%, 10%),
   align: (center,left,center,left,left,center,),
@@ -529,17 +535,6 @@
   table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[25], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Mangladeep Bhullar], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Ph.D.], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Physics], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[2023--2025 (Def. 11/2025)], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Cognate],
   table.cell(align: horizon + center)[22], table.cell(align: horizon + left)[Han Wang], table.cell(align: horizon + center)[Ph.D.], table.cell(align: horizon + left)[Sociology], table.cell(align: horizon + left)[2020--Present], table.cell(align: horizon + center)[Cognate],
 )}
-], caption: figure.caption(
-position: top, 
-[
-Thesis Committee Memberships
-]), 
-kind: "quarto-float-tbl", 
-supplement: "Table", 
-)
-<tbl-thesis-committee>
-
-
 = 12. PAPERS IN REFERRED JOURNALS
 <papers-in-referred-journals>
 #strong[2025-2026]
@@ -561,7 +556,7 @@ supplement: "Table",
 = 15. REPORTS AND OTHER OUTPUTS
 <reports-and-other-outputs>
 == 15.1 Software Released Publicly
-<software-released-publicly>
+<research-software>
 4. Wu, T. and Li, L., 2026. #NormalTok("Zresidual");: Computing and Diagnosing Gaussian-like Residuals. #link("https://tiw150.github.io/Zresidual/index.html")[\[Github\]] #link("https://tiw150.github.io/Zresidual_demo.html")[\[Demo\]]. Version 0.1-0 on Github (2026).
 
 3. Li, L., 2026. R Functions for Computing Z-residuals for #NormalTok("survreg"); and #NormalTok("coxph"); Objects. #link("https://longhaisk.github.io/software/NRSP/index.html")[\[URL\]].
@@ -576,7 +571,7 @@ supplement: "Table",
 
 2. #strong[NSERC Individual Discovery Grant (No.~2026-07053)] -- #emph[Prediction-based Methods for Statistical Learning and Inference in Biosciences and Epidemiology], \$185,000 (37K per year), 2026-2031, PI.
 
-1. #strong[CANSSI Collaborative Research Team Projects] -- #emph[Statistical Methodologies and Computational Tools to Identify Microbial Correlates of Canadian Bee Gut Health], Project 29, 2025-2028, Co-PI.
+1. #strong[CANSSI] -- #emph[Statistical Methodologies and Computational Tools to Identify Microbial Correlates of Canadian Bee Gut Health], #link("https://canssi.ca/story/crt-29/")[Collaborative Research Team Projects -- Project 29], 2025-2028, Co-PI.
 
 = 18. PRACTICE OF PROFESSIONAL SKILLS
 <practice-of-professional-skills>
