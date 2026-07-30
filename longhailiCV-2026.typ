@@ -427,7 +427,7 @@
 )
 
 #show: doc => article(
-  title: [CURRICULUM VITAE of LONGHAI LI (Jul 26, 2026)],
+  title: [CURRICULUM VITAE of LONGHAI LI (Jul 30, 2026)],
   fontsize: 11pt,
   toc_title: [Table of contents],
   toc_depth: 3,
@@ -946,7 +946,7 @@
 
 - #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/ISLAM-THESIS-2016.pdf")[Substance Abuse and Health: A Structural Equation Modeling Approach to Assess Latent Health Effects]
 
-- #strong[Employment:] Research assistant, College of Pharmacy and Nutrition, University of Saskatchewan
+- #strong[Employment:] Senior Researcher and Statistical Analyst at Ministry of Health, Government of Saskatchewan. #strong[First Employment]: Research assistant, College of Pharmacy and Nutrition, University of Saskatchewan
 
 5. #strong[Setu Chandra Kar], M.Sc., Statistics, Math & Stat, Supervised, 2014--2016 (Defended: 2016)
 
@@ -1091,7 +1091,7 @@
 
 == 11.3 Chapters in Books
 <chapters-in-books>
-- Feng, C. X. and Li, L ., 2016. Modeling Zero Inflation and Overdispersion in the Length of Hospital Stay for Patients with Ischaemic Heart Disease, in the book Advanced Statistical Methods in Big-Data Sciences, edited by D. Chen, J. Chen, X. Lu, G. Yi and H. Yu, Springer, Chapter 3, pp.~35-53.
+1. Feng, C. X. and Li, L ., 2016. Modeling Zero Inflation and Overdispersion in the Length of Hospital Stay for Patients with Ischaemic Heart Disease, in the book Advanced Statistical Methods in Big-Data Sciences, edited by D. Chen, J. Chen, X. Lu, G. Yi and H. Yu, Springer, Chapter 3, pp.~35-53.
 
 = 12. PAPERS IN REFERRED JOURNALS
 <papers-in-referred-journals>
