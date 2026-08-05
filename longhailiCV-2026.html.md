@@ -951,7 +951,13 @@ HTML / CSS RULES FOR REVERSE LISTS
 
 ### 10.5 Staff Supervision
 
-  * Saima Khosa, faculty mentoring, Sept. 2022- Dec. 2022.
+
+
+
+
+<!-- -->
+
+1. Saima Khosa, faculty mentoring, Sept. 2022- Dec. 2022.
 
 ### 10.6 Thesis Committee Memberships
 
