@@ -400,6 +400,35 @@
   inset: 6pt,
   stroke: none
 )
+// Make URLs blue and underlined
+#show link: set text(fill: blue)
+#show link: underline
+
+// Make cross-references and citations blue and underlined
+#show ref: set text(fill: blue)
+#show ref: underline
+#let brand-color = (:)
+#let brand-color-background = (:)
+#let brand-logo = (:)
+
+#set page(
+  paper: "us-letter",
+  margin: (bottom: 25mm,top: 25mm,x: 20mm,),
+  numbering: "1",
+  columns: 1,
+)
+
+#show: doc => article(
+  title: [CURRICULUM VITAE of LONGHAI LI (Aug 04, 2026)],
+  fontsize: 11pt,
+  toc_title: [Table of contents],
+  toc_depth: 3,
+  doc,
+)
+
+// ====================================================================
+// TYPST RULES FOR REVERSE LISTS 
+// ====================================================================
 #show figure: set block(breakable: true)
 
 // 1. Global spacing and indents
@@ -428,25 +457,6 @@
     )
   }
 }
-#let brand-color = (:)
-#let brand-color-background = (:)
-#let brand-logo = (:)
-
-#set page(
-  paper: "us-letter",
-  margin: (bottom: 25mm,top: 25mm,x: 20mm,),
-  numbering: "1",
-  columns: 1,
-)
-
-#show: doc => article(
-  title: [CURRICULUM VITAE of LONGHAI LI (Aug 04, 2026)],
-  fontsize: 11pt,
-  toc_title: [Table of contents],
-  toc_depth: 3,
-  doc,
-)
-
 = 1. PERSONAL
 <personal>
 - Official webpage: #link("https://artsandscience.usask.ca/profile/LLi")
@@ -973,35 +983,35 @@
 #block[
 #set enum(numbering: "1.", start: 2)
 + #strong[Tingxuan Wu], Ph.D., Biostatistics, School of Public Health, Co-supervised with Prof.~Cindy Feng, 2018--2023 (Defended: May 24, 2023)
-]
 
-- #strong[Thesis:] #link("https://harvest.usask.ca/handle/10388/14727")[Residual Diagnostics and Statistical Inference for Shared Frailty Models]
-- #strong[Employment:] Forestry Statistical Analyst, Ministry of Environment, Government of Saskatchewan
+  - #strong[Thesis:] #link("https://harvest.usask.ca/handle/10388/14727")[Residual Diagnostics and Statistical Inference for Shared Frailty Models]
+  - #strong[Employment:] Forestry Statistical Analyst, Ministry of Environment, Government of Saskatchewan
+]
 
 + #strong[Lai Jiang], Ph.D., Statistics, Math & Stat, Supervised, 2009--2015 (Defended: Sept.~14, 2015)
 
-- #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/Jiang,Lai_PhD_thesis_Sep_2015.pdf")[Fully Bayesian T-probit Regression with Heavy-tailed Priors for Selection in High-Dimensional Features with Grouping Structure]
-- #strong[Employment:] Postdoctoral fellow at Lady Davis Institute, Jewish General Hospital, McGill University in Montreal
+  - #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/Jiang,Lai_PhD_thesis_Sep_2015.pdf")[Fully Bayesian T-probit Regression with Heavy-tailed Priors for Selection in High-Dimensional Features with Grouping Structure]
+  - #strong[Employment:] Postdoctoral fellow at Lady Davis Institute, Jewish General Hospital, McGill University in Montreal
 
 #strong[Master's Students]
 
 #block[
 #set enum(numbering: "1.", start: 18)
 + #strong[Dananji Egodage (Shashiprabha)], M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Cindy Feng, 2023--2025 (Defended: Aug.~30, 2025)
+
+  - #strong[Thesis:] #link("https://harvest.usask.ca/items/02bfcf7a-e2c5-4edb-baf1-1812bd60fb5f")[Component-wise Z-residual Diagnosis for Bayesian Hurdle Models]
+
+  - #strong[Employment:] Applied Researcher at Southeast College Saskatchewan
 ]
-
-- #strong[Thesis:] #link("https://harvest.usask.ca/items/02bfcf7a-e2c5-4edb-baf1-1812bd60fb5f")[Component-wise Z-residual Diagnosis for Bayesian Hurdle Models]
-
-- #strong[Employment:] Applied Researcher at Southeast College Saskatchewan
 
 #block[
 #set enum(numbering: "1.", start: 17)
 + #strong[Wuqian Effie Gao], M.Sc., Biostatistics, School of Public Health, Co-supervised with Prof.~Cindy Feng, 2022--2024 (Defended: Aug.~30, 2024)
+
+  - #strong[Thesis:] #link("https://harvest.usask.ca/items/ea0c9479-9914-4139-8027-9145190056c6")[Z-residuals for Checking Bayesian Hurdle Models]
+
+  - #strong[Employment:] Senior Data and Forecasting Analyst, Health Ministry, Government of Saskatchewan
 ]
-
-- #strong[Thesis:] #link("https://harvest.usask.ca/items/ea0c9479-9914-4139-8027-9145190056c6")[Z-residuals for Checking Bayesian Hurdle Models]
-
-- #strong[Employment:] Senior Data and Forecasting Analyst, Health Ministry, Government of Saskatchewan
 
 #block[
 #set enum(numbering: "1.", start: 16)
@@ -1011,90 +1021,90 @@
 #block[
 #set enum(numbering: "1.", start: 15)
 + #strong[Hao Hu], M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Li Xing, 2021--2022 (Defended: Sept.~15, 2022)
+
+  - #strong[Thesis:] #link("https://harvest.usask.ca/bitstream/handle/10388/14244/HU-THESIS-2022.pdf?sequence=1&isAllowed=y")[Identifying Risk Factors for Cognitive Decline Using Statistical Learning Techniques and Functional Data Analysis]
+
+  - #strong[Employment:] Senior Statistician in Health Ministry in a Chinese government
 ]
-
-- #strong[Thesis:] #link("https://harvest.usask.ca/bitstream/handle/10388/14244/HU-THESIS-2022.pdf?sequence=1&isAllowed=y")[Identifying Risk Factors for Cognitive Decline Using Statistical Learning Techniques and Functional Data Analysis]
-
-- #strong[Employment:] Senior Statistician in Health Ministry in a Chinese government
 
 #block[
 #set enum(numbering: "1.", start: 14)
 + #strong[Man Chen], M.Sc., Statistics, Math & Stat, Supervised, 2019--2021 (Defended: April 30, 2021)
+
+  - #strong[Thesis:] #link("https://harvest.usask.ca/bitstream/handle/10388/13403/CHEN-THESIS-2021.pdf?sequence=1&isAllowed=y")[Association between Gut Microbiome and Parkinson's Disease Revealed by Sparse Learning]
+
+  - #strong[Employment:] AI Engineer at #link("https://sga.ai")[Super GeoAI Technology Inc.]
 ]
-
-- #strong[Thesis:] #link("https://harvest.usask.ca/bitstream/handle/10388/13403/CHEN-THESIS-2021.pdf?sequence=1&isAllowed=y")[Association between Gut Microbiome and Parkinson's Disease Revealed by Sparse Learning]
-
-- #strong[Employment:] AI Engineer at #link("https://sga.ai")[Super GeoAI Technology Inc.]
 
 #block[
 #set enum(numbering: "1.", start: 13)
 + #strong[Mei Dong], M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Lloyd Balbuena, 2017--2019 (Defended: May 23, 2019)
+
+  - #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/DONG-THESIS-2019.pdf")[Feature Selection Bias in Assessing the Predictivity of SNPs for Alzheimer's Disease]
+
+  - #strong[Employment:] Senior Research Analyst at the University of Toronto
 ]
-
-- #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/DONG-THESIS-2019.pdf")[Feature Selection Bias in Assessing the Predictivity of SNPs for Alzheimer's Disease]
-
-- #strong[Employment:] Senior Research Analyst at the University of Toronto
 
 #block[
 #set enum(numbering: "1.", start: 12)
 + #strong[Tingxuan Wu], M.Sc., Biostatistics, School of Public Health, Co-supervised with Prof.~Cindy Feng, 2017--2018 (Defended: Dec.~4, 2018)
+
+  - #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/WU-THESIS-2018.pdf")[Randomized Survival Probability Residuals for Assessing Parametric Survival Models]
+
+  - #strong[Employment:] PhD student at the University of Saskatchewan
 ]
-
-- #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/WU-THESIS-2018.pdf")[Randomized Survival Probability Residuals for Assessing Parametric Survival Models]
-
-- #strong[Employment:] PhD student at the University of Saskatchewan
 
 #block[
 #set enum(numbering: "1.", start: 11)
 + #strong[Xiaoying Wang], M.Sc., Statistics, Math & Stat, Supervised, 2016--2019 (Defended: March 12, 2019)
-]
 
-- #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/WANG-THESIS-2019.pdf")[Comparison of Statistical Testing and Predictive Analysis Methods for Feature Selection in Zero-inflated Microbiome Data]
+  - #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/WANG-THESIS-2019.pdf")[Comparison of Statistical Testing and Predictive Analysis Methods for Feature Selection in Zero-inflated Microbiome Data]
+]
 
 #block[
 #set enum(numbering: "1.", start: 10)
 + #strong[Wei Bai], M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Cindy Feng, 2016--2018 (Defended: July 12, 2018)
+
+  - #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/BAI-THESIS-2018.pdf")[Randomized Quantile Residual for Assessing Generalized Linear Mixed Models with Application to Zero-Inflated Microbiome Data]
+
+  - #strong[Employment:] Lead Statistical Analyst, Bayer Pharmaceuticals, Ontario, Canada (First Employment: Statistical Programmer, Everest Clinical Research, Markham, Ontario)
 ]
-
-- #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/BAI-THESIS-2018.pdf")[Randomized Quantile Residual for Assessing Generalized Linear Mixed Models with Application to Zero-Inflated Microbiome Data]
-
-- #strong[Employment:] Lead Statistical Analyst, Bayer Pharmaceuticals, Ontario, Canada (First Employment: Statistical Programmer, Everest Clinical Research, Markham, Ontario)
 
 #block[
 #set enum(numbering: "1.", start: 9)
 + #strong[Arash Shamloo], M.MATH., Statistics, Math & Stat, Supervised, 2016--2017 (Project Completed: August 31, 2017)
+
+  - #strong[Project:] Randomized quantile residuals for accelerated failure time models
+
+  - #strong[Employment:] Research assistant, College of Pharmacy and Nutrition, University of Saskatchewan
 ]
-
-- #strong[Project:] Randomized quantile residuals for accelerated failure time models
-
-- #strong[Employment:] Research assistant, College of Pharmacy and Nutrition, University of Saskatchewan
 
 #block[
 #set enum(numbering: "1.", start: 8)
 + #strong[Alireza Sadeghpour], M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Cindy Feng, 2016--2017 (Defended: Sept.~19, 2017)
+
+  - #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/alithesis.pdf")[Empirical Investigation of Randomized Quantile Residuals for Diagnosis of Non-Normal Regression Models]
+
+  - #strong[Employment:] Statistician at Health Canada, Ottawa
 ]
-
-- #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/alithesis.pdf")[Empirical Investigation of Randomized Quantile Residuals for Diagnosis of Non-Normal Regression Models]
-
-- #strong[Employment:] Statistician at Health Canada, Ottawa
 
 #block[
 #set enum(numbering: "1.", start: 7)
 + #strong[Yunyang Wang], M.Sc., Statistics, Math & Stat, Supervised, 2014--2017 (Defended: Nov.~18, 2017)
+
+  - #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/WANG-THESIS-2016.pdf")[Comparison of Stochastic Volatility Models Using Integrated Information Criteria]
+
+  - #strong[Employment:] Statistician at Montreal office of #link("http://www.evidera.com/")[Evidera] (a PPD company), Montreal, QC (First Employment: Intern at the PathWise Solutions, AON Securities, Toronto)
 ]
-
-- #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/WANG-THESIS-2016.pdf")[Comparison of Stochastic Volatility Models Using Integrated Information Criteria]
-
-- #strong[Employment:] Statistician at Montreal office of #link("http://www.evidera.com/")[Evidera] (a PPD company), Montreal, QC (First Employment: Intern at the PathWise Solutions, AON Securities, Toronto)
 
 #block[
 #set enum(numbering: "1.", start: 6)
 + #strong[Naorin Islam], M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Shahedul Khan, 2014--2017 (Defended: Nov.~28, 2017)
+
+  - #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/ISLAM-THESIS-2016.pdf")[Substance Abuse and Health: A Structural Equation Modeling Approach to Assess Latent Health Effects]
+
+  - #strong[Employment:] Senior Researcher and Statistical Analyst at Ministry of Health, Government of Saskatchewan. #strong[First Employment]: Research assistant, College of Pharmacy and Nutrition, University of Saskatchewan
 ]
-
-- #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/ISLAM-THESIS-2016.pdf")[Substance Abuse and Health: A Structural Equation Modeling Approach to Assess Latent Health Effects]
-
-- #strong[Employment:] Senior Researcher and Statistical Analyst at Ministry of Health, Government of Saskatchewan. #strong[First Employment]: Research assistant, College of Pharmacy and Nutrition, University of Saskatchewan
 
 #block[
 #set enum(numbering: "1.", start: 5)
@@ -1104,20 +1114,20 @@
 #block[
 #set enum(numbering: "1.", start: 4)
 + #strong[Shi Qiu], M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Cindy Feng, 2012--2015 (Defended: March 26, 2015)
+
+  - #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/QIU-THESIS.pdf")[Cross-validatory Model Comparison and Divergent Regions Detection using iIS and iWAIC for Disease Mapping]
+
+  - #strong[Employment:] Statistician, Mabwell Therapeutics, Inc., Shanghai, China (First Employment: Data Service Specialist at #link("http://www.irdinc.com/")[IRD Inc.])
 ]
-
-- #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/QIU-THESIS.pdf")[Cross-validatory Model Comparison and Divergent Regions Detection using iIS and iWAIC for Disease Mapping]
-
-- #strong[Employment:] Statistician, Mabwell Therapeutics, Inc., Shanghai, China (First Employment: Data Service Specialist at #link("http://www.irdinc.com/")[IRD Inc.])
 
 #block[
 #set enum(numbering: "1.", start: 3)
 + #strong[Masud Rana], M.Sc., Statistics, Math & Stats, Co-supervised with Prof.~Shahedul Khan, 2010--2012 (Defended: Sept.~2012)
+
+  - #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/Thesis_mdr091.pdf")[Spatial-Longitudinal Bent-Cable Model with an Application to Atmospheric CFC Data]
+
+  - #strong[Employment:] Biostatistician at Clinical Research Support Unit, College of Medicine, University of Saskatchewan
 ]
-
-- #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/Thesis_mdr091.pdf")[Spatial-Longitudinal Bent-Cable Model with an Application to Atmospheric CFC Data]
-
-- #strong[Employment:] Biostatistician at Clinical Research Support Unit, College of Medicine, University of Saskatchewan
 
 #block[
 #set enum(numbering: "1.", start: 2)
@@ -1126,9 +1136,9 @@
 
 + #strong[Zhengrong Li], M.Sc., Statistics, Math & Stats, Supervised, 2007--2012 (Defended: May 2012)
 
-- #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/zhli_thesis.pdf")[A Non-MCMC Procedure for Fitting Dirichlet Process Mixture Models]
+  - #strong[Thesis:] #link("https://www.google.com/search?q=/researchteam/theses/zhli_thesis.pdf")[A Non-MCMC Procedure for Fitting Dirichlet Process Mixture Models]
 
-- #strong[Employment:] Data Service Specialist at #link("http://www.irdinc.com/")[IRD Inc.]
+  - #strong[Employment:] Data Service Specialist at #link("http://www.irdinc.com/")[IRD Inc.]
 
 == 10.3 Graduate Theses Supervised
 <graduate-theses-supervised>
