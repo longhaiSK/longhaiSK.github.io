@@ -12,12 +12,10 @@ ritem <- function(n = NULL) {
     env$list_idx <- 0
     env$item_idx <- 0
     
-    # Use the current file name for the aux file to prevent cross-file conflicts
     input_name <- knitr::current_input()
     if (is.null(input_name)) input_name <- "default"
     env$aux_file <- paste0(".", tools::file_path_sans_ext(input_name), "_ritem.rds")
     
-    # Load previous totals from the last knit if they exist
     if (file.exists(env$aux_file)) {
       env$prev_totals <- readRDS(env$aux_file)
     } else {
@@ -34,15 +32,13 @@ ritem <- function(n = NULL) {
   if (identical(n, "new")) {
     env$list_idx <- env$list_idx + 1
     env$item_idx <- 0
-    # Expand current totals vector for the new list
     if (length(env$curr_totals) < env$list_idx) {
       env$curr_totals[env$list_idx] <- 0
     }
-    # Return an empty string so the `r ritem("new")` call leaves no trace
     return(knitr::asis_output(""))
   }
   
-  # 3. Handle backwards compatibility if a manual number is passed (e.g., ritem(3))
+  # 3. Handle backwards compatibility if a manual number is passed
   if (is.numeric(n)) {
     env$list_idx <- env$list_idx + 1
     env$item_idx <- 0
@@ -55,19 +51,16 @@ ritem <- function(n = NULL) {
     env$item_idx <- 0
   }
   
-  # 5. Increment item counter and save progress to the aux file
+  # 5. Increment item counter and save progress
   env$item_idx <- env$item_idx + 1
   env$curr_totals[env$list_idx] <- env$item_idx
   
-  # Overwriting on every call guarantees the final count is saved 
-  # by the end of the document without needing complex chunk hooks.
   saveRDS(env$curr_totals, env$aux_file)
   
   # 6. Determine the reversed number to display
   total <- if (length(env$prev_totals) >= env$list_idx && !is.na(env$prev_totals[env$list_idx])) {
     env$prev_totals[env$list_idx]
   } else {
-    # Fallback for the very first knit: prints '1' for everything so formatting doesn't break
     env$item_idx
   }
   
@@ -79,15 +72,110 @@ ritem <- function(n = NULL) {
   if (knitr::is_latex_output()) {
     out <- sprintf("\n\n\\hangindent=2.5em \\hangafter=1 \\makebox[2.5em][l]{%d.}", num)
     return(knitr::asis_output(out))
-  } else if (knitr::is_html_output()) {
-    out <- sprintf("\n\n<span class='ritem-num'>[%d]</span>", num)
+    
+  } else if (knitr::is_html_output() || (!is.null(out_format) && out_format == "typst")) {
+    # The empty HTML comment forces Pandoc to treat this as a list in BOTH HTML and Typst,
+    # ensuring that 4-space sublists are parsed correctly everywhere.
+    out <- sprintf("\n\n<!-- -->\n\n%d.", num)
     return(knitr::asis_output(out))
-  } else if (!is.null(out_format) && out_format == "typst") {
-    out <- sprintf("\n\n`%d. `{=typst}", num)
-    return(knitr::asis_output(out))
+    
   } else {
     return(paste0("\n\n[", num, "]"))
   }
 }
+```
 
+```{=typst}
+// ====================================================================
+// TYPST RULES FOR REVERSE LISTS 
+// ====================================================================
+#show figure: set block(breakable: true)
+
+// 1. Global spacing and indents
+#set enum(indent: 1em, body-indent: 0.75em)
+#set list(indent: 2em, body-indent: 0.75em)
+
+// 2. Nested bullet list rule
+#show list: it => { 
+  set list(indent: 1em)
+  it 
+}
+
+// 3. The Numbering Enforcer (with recursion safety)
+#show enum: it => { 
+  set list(indent: 1em)
+  
+  // If it already has the right numbering, return it as-is to break the loop
+  if it.numbering == "[1]" {
+    it
+  } else {
+    // Otherwise, rebuild the list to strip Pandoc's formatting
+    enum(
+      numbering: "[1]",
+      start: it.start,    // Keeps your reverse number
+      ..it.children       // Keeps all the actual items and sublists
+    )
+  }
+}
+```
+
+```{=html}
+<!-- 
+====================================================================
+HTML / CSS RULES FOR REVERSE LISTS
+==================================================================== 
+-->
+<style>
+  /* 1. OVERALL POSITION & SPACING for the paragraph holding the number */
+  p:has(.ritem-num) {
+    margin-top: 0.5em;
+    margin-bottom: 0.6em;
+    text-align: left;
+    margin-left: 1.2em;
+    padding-left: 2em;
+    text-indent: -2em;
+  }
+
+  /* 2. ALIGNING SUBLISTS perfectly under the text */
+  p:has(.ritem-num) + ul,
+  p:has(.ritem-num) + ol {
+    margin-left: 3.2em; 
+  }
+
+  /* 3. PREVENT DEEPLY NESTED LISTS from inheriting the massive left margin */
+  p:has(.ritem-num) + ul ul,
+  p:has(.ritem-num) + ol ol,
+  p:has(.ritem-num) + ul ol,
+  p:has(.ritem-num) + ol ul {
+    margin-left: 0.5em;
+  }
+
+  /* 4. THE NUMBER BOX DIMENSIONS */
+  .ritem-num {
+    display: inline-block;
+    width: 1.7em;
+    text-align: right;
+    font-weight: 600;
+    padding-right: 0.5em;   
+    box-sizing: border-box;
+  }
+
+  /* 5. OVERRIDE BOOTSTRAP NUMBERING to format exactly as [1] */
+  ol > li {
+    list-style-type: none !important; 
+  }
+
+  ol > li::marker {
+    content: "[" counter(list-item) "] " !important;
+  }
+
+  /* 6. PROTECT NESTED BULLETS so they retain their standard dots */
+  ol ul > li {
+    list-style-type: disc !important;
+  }
+  
+  ol ul > li::marker {
+    content: normal !important;
+  }
+</style>
 ```

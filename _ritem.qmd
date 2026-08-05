@@ -5,6 +5,68 @@
 
 renv::load("~/Github/longhaiSK.github.io/")
 
+# ==============================================================================
+# ALGORITHM & LOGIC OF THE ritem() FUNCTION
+# ==============================================================================
+# 
+# THE PROBLEM: 
+# Pandoc (the engine behind Quarto) automatically forces all Markdown numbered 
+# lists to count forward (1, 2, 3...), even if you type (10, 9, 8). 
+#
+# THE SOLUTION (The Two-Pass Algorithm):
+# To count backward, the function must know the TOTAL number of items in a list 
+# before it prints the first one. Since R executes code linearly top-to-bottom, 
+# this requires saving state across two separate document compilations ("knits").
+#
+# STEP-BY-STEP LOGIC:
+# 1. Initialization & Scoping: 
+#    The function creates a hidden global environment (`.ritem_env`) to track  
+#    state during the knit. It names its memory file (the .rds aux file) based 
+#    on the specific .qmd file being compiled. This prevents List A in "CV.qmd" 
+#    from accidentally overwriting List B in "Syllabus.qmd".
+#
+# 2. Loading Previous State (Pass 2): 
+#    If the document has been knitted before, it loads `prev_totals` from the  
+#    .rds file. This tells the function exactly how many items were in each list 
+#    last time.
+#
+# 3. Handling List Breaks (The "new" signal):
+#    If `ritem("new")` is called, it increments the list counter and resets the 
+#    item counter to 0. It returns an empty string so it doesn't leave stray 
+#    marks in the document.
+#
+# 4. Counting & Checkpointing (Pass 1):
+#    Every time `ritem()` is called for an item, it increments the item counter, 
+#    updates `curr_totals` in memory, and immediately saves to the .rds file. 
+#    Saving on EVERY call guarantees the final count is preserved even if the 
+#    rest of the document fails to compile.
+#
+# 5. The Reverse Math:
+#    It calculates the display number as: (Total Items - Current Item + 1).
+#    *Fallback:* If this is the very first time knitting (no `prev_totals`), 
+#    it just prints forward (1, 2, 3...) so the document doesn't crash.
+#
+# 6. Pandoc Bypassing (Output):
+#    To stop Pandoc from destroying the reverse numbers, it outputs:
+#    `<!-- --> \n\n %d.`
+#    The empty HTML comment acts as a brick wall, forcing Pandoc to end the 
+#    previous list and start a brand new list precisely at the calculated number.
+#    Because this outputs standard Markdown list syntax, 4-space indented 
+#    sublists nested underneath it will parse perfectly.
+#
+# 7. Formatting & Styling (Typst & HTML CSS):
+#    Because Pandoc is forced to generate individual list blocks (via <!-- -->),
+#    we must manually override the appearance in both output formats to achieve 
+#    the [1], [2] style:
+#    - TYPST: A custom `#show enum` rule intercepts these generated lists, strips 
+#      Pandoc's hardcoded "1." format, applies the "[1]" numbering, and preserves 
+#      the reverse `start` number without triggering an infinite recursion loop.
+#    - HTML/CSS: Custom CSS overrides Bootstrap's default numbering by hiding 
+#      the standard list-style and injecting `content: "[" counter(list-item) "]"` 
+#      via the `::marker` pseudo-element. It also strictly manages margins so 
+#      4-space indented sublists align perfectly with the parent text.
+# ==============================================================================
+
 ritem <- function(n = NULL) {
   # 1. Initialize environment on the very first call per knit session
   if (!exists(".ritem_env", envir = globalenv())) {
