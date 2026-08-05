@@ -1,5 +1,5 @@
 ---
-title: "CURRICULUM VITAE of LONGHAI LI (Aug 04, 2026)"
+title: "CURRICULUM VITAE of LONGHAI LI (Aug 05, 2026)"
 filters: 
   - resources/coursetable.lua
 engine: knitr
@@ -57,7 +57,7 @@ HTML / CSS RULES FOR REVERSE LISTS
     margin-top: 0.5em;
     margin-bottom: 0.6em;
     text-align: left;
-    margin-left: 1.2em;
+    margin-left: 0em;
     padding-left: 2em;
     text-indent: -2em;
   }
@@ -65,7 +65,7 @@ HTML / CSS RULES FOR REVERSE LISTS
   /* 2. ALIGNING SUBLISTS perfectly under the text */
   p:has(.ritem-num) + ul,
   p:has(.ritem-num) + ol {
-    margin-left: 3.2em; 
+    margin-left: 2em; 
   }
 
   /* 3. PREVENT DEEPLY NESTED LISTS from inheriting the massive left margin */
@@ -82,7 +82,7 @@ HTML / CSS RULES FOR REVERSE LISTS
     width: 1.7em;
     text-align: right;
     font-weight: 600;
-    padding-right: 0.5em;   
+    padding-right: 1em;   
     box-sizing: border-box;
   }
 
@@ -3344,6 +3344,6 @@ HTML / CSS RULES FOR REVERSE LISTS
 
 ```{=html}
 <footer>
-Last updated on August 04, 2026.
+Last updated on August 05, 2026.
 </footer>
 ```
