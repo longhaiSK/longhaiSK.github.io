@@ -3,6 +3,7 @@ project:
   render: 
     - "*.qmd"
 engine: knitr
+keep-md: true
 format:
   html:
     toc: false         # Disable Quarto's TOC generation
@@ -33,19 +34,29 @@ format:
       - text: |
           #show figure: set block(breakable: true)
 
-          // 1. Top-level settings (Applies to your "DEGREES" list)
-          #set enum(indent: 1em, body-indent: 0.75em, numbering: "[1]")
-          #set list(indent: 0em, body-indent: 0.75em) // Decreased from 3.5em
+          // 1. Global spacing and indents
+          #set enum(indent: 1em, body-indent: 0.75em)
+          #set list(indent: 2em, body-indent: 0.75em)
 
-          // 2. Nested settings (Applies to lists genuinely nested inside an enum/list)
-          #show list: it => { set list(indent: 1em); it }
-          #show enum: it => { 
-            set list(indent: 1em) 
-            set enum(indent: 1em) 
+          // 2. Nested bullet list rule
+          #show list: it => { 
+            set list(indent: 1em)
             it 
           }
 
-
-
-
-
+          // 3. The Numbering Enforcer (with recursion safety)
+          #show enum: it => { 
+            set list(indent: 1em)
+            
+            // If it already has the right numbering, return it as-is to break the loop
+            if it.numbering == "[1]" {
+              it
+            } else {
+              // Otherwise, rebuild the list to strip Pandoc's formatting
+              enum(
+                numbering: "[1]",
+                start: it.start,    // Keeps your reverse number
+                ..it.children       // Keeps all the actual items and sublists
+              )
+            }
+          }
