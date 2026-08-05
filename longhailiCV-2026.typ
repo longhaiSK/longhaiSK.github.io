@@ -402,19 +402,17 @@
 )
 #show figure: set block(breakable: true)
 
+// 1. Top-level settings (Applies to your "DEGREES" list)
 #set enum(indent: 1em, body-indent: 0.75em, numbering: "[1]")
-#set list(indent: 3.5em, body-indent: 0.75em)
+#set list(indent: 0em, body-indent: 0.75em) // Decreased from 3.5em
 
-// genuinely nested lists stack on the parent's body offset,
-// so give them a small increment rather than a full 3.5em
+// 2. Nested settings (Applies to lists genuinely nested inside an enum/list)
 #show list: it => { set list(indent: 1em); it }
-#show enum: it => { set list(indent: 1em); set enum(indent: 1em); it }
-
-#let color-link = rgb("#4f2fcd")
-#let color-ref = rgb("#1a1ad6")
-#show link: set text(fill: color-link)
-#show ref: set text(fill: color-ref)
-#show cite: set text(fill: color-ref)
+#show enum: it => { 
+  set list(indent: 1em) 
+  set enum(indent: 1em) 
+  it 
+}
 #let brand-color = (:)
 #let brand-color-background = (:)
 #let brand-logo = (:)
@@ -427,7 +425,7 @@
 )
 
 #show: doc => article(
-  title: [CURRICULUM VITAE of LONGHAI LI (Jul 30, 2026)],
+  title: [CURRICULUM VITAE of LONGHAI LI (Aug 04, 2026)],
   fontsize: 11pt,
   toc_title: [Table of contents],
   toc_depth: 3,
