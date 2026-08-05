@@ -1916,6 +1916,15 @@ HTML / CSS RULES FOR REVERSE LISTS
 
 
 
+**2026-2027**
+
+
+
+<!-- -->
+
+34. Z-residuals for diagnosing Bayesian Models. Presented at: 2026 ICSA-Canada Symposium, Montreal, Canada; August 7, 2026
+
+
 **2025-2026**
 
 
@@ -1925,6 +1934,7 @@ HTML / CSS RULES FOR REVERSE LISTS
 <!-- -->
 
 33. Z-residuals for Checking Bayesian Models. Presented at: University of Calgary, Calgary, AB, Canada; July 28, 2025
+
 
 
 <!-- -->
