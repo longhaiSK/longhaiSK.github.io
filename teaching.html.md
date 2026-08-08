@@ -1,73 +1,48 @@
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+---
+title: "Teaching Activities of Prof. Longhai Li"
+engine: knitr
+format: html
+metadata-files:
+  - _website.yaml
+---
 
-<meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.37">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Teaching Activities of Prof.&nbsp;Longhai Li</title>
-<style>
-/* Default styles provided by pandoc.
-** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-*/
-code{white-space: pre-wrap;}
-span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
-div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-ul.task-list{list-style: none;}
-ul.task-list li input[type="checkbox"] {
-  width: 0.8em;
-  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
-  vertical-align: middle;
+```{=typst}
+// ====================================================================
+// TYPST RULES FOR REVERSE LISTS 
+// ====================================================================
+#show figure: set block(breakable: true)
+
+// 1. Global spacing and indents
+#set enum(indent: 1em, body-indent: 0.75em)
+#set list(indent: 2em, body-indent: 0.75em)
+
+// 2. Nested bullet list rule
+#show list: it => { 
+  set list(indent: 1em)
+  it 
 }
-</style>
 
-
-<script src="teaching_files/libs/quarto-html/quarto.js" type="module"></script>
-<script src="teaching_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="teaching_files/libs/quarto-html/popper.min.js"></script>
-<script src="teaching_files/libs/bootstrap/bootstrap.min.js"></script>
-<link href="teaching_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="teaching_files/libs/bootstrap/bootstrap-ae6ce3dd47742f55bf1fca80fcd39a0d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
-<script src="/resources/mathjax.js"></script>
-<script src="/resources/rendernav.js" defer=""></script>
-<script src="/resources/loadtoc.js" defer=""></script>
-
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
-<link rel="stylesheet" href="/resources/mystyles.css">
-<link rel="stylesheet" href="/resources/iconstyles.css">
-</head>
-
-<body class="quarto-light">
-
-<div id="quarto-content" class="page-columns page-rows-contents page-layout-full">
-
-<main class="content column-page" id="quarto-document-content">
-
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">Teaching Activities of Prof.&nbsp;Longhai Li</h1>
-</div>
-
-
-
-<div class="quarto-title-meta column-page">
-
-    
+// 3. The Numbering Enforcer (with recursion safety)
+#show enum: it => { 
+  set list(indent: 1em)
   
-    
-  </div>
-  
+  // If it already has the right numbering, return it as-is to break the loop
+  if it.numbering == "[1]" {
+    it
+  } else {
+    // Otherwise, rebuild the list to strip Pandoc's formatting
+    enum(
+      numbering: "[1]",
+      start: it.start,    // Keeps your reverse number
+      ..it.children       // Keeps all the actual items and sublists
+    )
+  }
+}
+```
 
-
-</header>
-
-
+```{=html}
 <!-- 
 ====================================================================
 HTML / CSS RULES FOR REVERSE LISTS
@@ -95,64 +70,85 @@ HTML / CSS RULES FOR REVERSE LISTS
     content: normal !important;
   }
 </style>
-<section id="overview" class="level2">
-<h2 data-anchor-id="overview">Overview</h2>
-<p>Prof.&nbsp;Li’s teaching integrates cutting-edge computational data science tools with practical real-world applications. He trains students in modern programming languages and reproducible reporting frameworks, utilizing dynamic simulations to make complex statistical theorems accessible. Additionally, he extends learning beyond the classroom by actively involving undergraduate students in hands-on research projects and the development of open-source statistical software.</p>
-</section>
-<section id="textbooks" class="level2">
-<h2 data-anchor-id="textbooks">Textbooks</h2>
+```
+
+
+## Overview
+
+Prof. Li’s teaching integrates cutting-edge computational data science tools with practical real-world applications. He trains students in modern programming languages and reproducible reporting frameworks, utilizing dynamic simulations to make complex statistical theorems accessible. Additionally, he extends learning beyond the classroom by actively involving undergraduate students in hands-on research projects and the development of open-source statistical software.
+
+## Textbooks
+
+ 
+
+
+
 <!-- -->
-<ol start="3" type="1">
-<li><a href="teaching/stat850/mathstat/index.html"><strong>Theory of Statistical Inference</strong></a> <a href="teaching/stat850/mathstat/mathstat-LLI.pdf"><strong>[PDF]</strong></a></li>
-</ol>
+
+3. [**Theory of Statistical Inference**](teaching/stat850/mathstat/index.html) [**[PDF]**](teaching/stat850/mathstat/mathstat-LLI.pdf)
+
+
 <!-- -->
-<ol start="2" type="1">
-<li><a href="teaching/stat851/theorylm/index.html"><strong>Theory of Linear Models</strong></a> <a href="teaching/stat851/theorylm/stat_lin_theory.pdf"><strong>[PDF]</strong></a></li>
-</ol>
+
+2. [**Theory of Linear Models**](teaching/stat851/theorylm/index.html) [**[PDF]**](teaching/stat851/theorylm/stat_lin_theory.pdf)
+
+
 <!-- -->
-<ol type="1">
-<li><a href="teaching/stat845/book/index.html"><strong>Statistical Inference and Learning Methods for Research</strong></a> <a href="teaching/stat845/book/stat_inference_learning.pdf"><strong>[PDF]</strong></a></li>
-</ol>
-</section>
-<section id="materials-of-selected-courses" class="level2">
-<h2 data-anchor-id="materials-of-selected-courses">Materials of Selected Courses</h2>
+
+1. [**Statistical Inference and Learning Methods for Research**](teaching/stat845/book/index.html) [**[PDF]**](teaching/stat845/book/stat_inference_learning.pdf)
+
+## Materials of Selected Courses
+
+ 
+
+
+
 <!-- -->
-<ol start="8" type="1">
-<li><a href="teaching/stat245/">STAT 245: Introduction to Statistical Methods</a></li>
-</ol>
+
+8. [STAT 245: Introduction to Statistical Methods](teaching/stat245/)
+
+
 <!-- -->
-<ol start="7" type="1">
-<li><a href="teaching/stat342/">STAT 342: Mathematical Statistics</a></li>
-</ol>
+
+7. [STAT 342: Mathematical Statistics](teaching/stat342/)
+
+
 <!-- -->
-<ol start="6" type="1">
-<li><a href="teaching/stat345/">STAT 345/834: Design and Analysis of Experiments</a></li>
-</ol>
+
+6. [STAT 345/834: Design and Analysis of Experiments](teaching/stat345/)
+
+
 <!-- -->
-<ol start="5" type="1">
-<li><a href="teaching/stat348/">STAT 348: Sampling Techniques</a></li>
-</ol>
+
+5. [STAT 348: Sampling Techniques](teaching/stat348/)
+
+
 <!-- -->
-<ol start="4" type="1">
-<li><a href="teaching/stat812/">STAT 812/420: Computational Statistics</a></li>
-</ol>
+
+4. [STAT 812/420: Computational Statistics](teaching/stat812/)
+
+
 <!-- -->
-<ol start="3" type="1">
-<li><a href="teaching/stat845/">STAT 845: Statistical Methods for Research</a></li>
-</ol>
+
+3. [STAT 845: Statistical Methods for Research](teaching/stat845/)
+
+
 <!-- -->
-<ol start="2" type="1">
-<li><a href="teaching/stat850/">STAT 850/442: Mathematical Statistics and Statistical Inference</a></li>
-</ol>
+
+2. [STAT 850/442: Mathematical Statistics and Statistical Inference](teaching/stat850/)
+
+
 <!-- -->
-<ol type="1">
-<li><a href="teaching/stat851/">STAT 851/443: Linear Statistical Models</a></li>
-</ol>
-</section>
-<section id="list-of-taught-courses" class="level2">
-<h2 data-anchor-id="list-of-taught-courses">List of Taught Courses</h2>
-<div class="cell">
-<div class="cell-output-display">
+
+1. [STAT 851/443: Linear Statistical Models](teaching/stat851/)
+
+## List of Taught Courses
+
+
+::: {.cell}
+::: {.cell-output-display}
+
+```{=html}
 <div id="gareyoynhh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>#gareyoynhh table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
@@ -602,59 +598,38 @@ HTML / CSS RULES FOR REVERSE LISTS
   height: 0px !important;
 }
 </style>
-
-<table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
-<thead>
-<tr class="gt_col_headings header">
-<th id="Applied_Stat" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Applied Statistics</th>
-<th id="Stat_Theory_Algorithms" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Statistical Theory and Algorithms</th>
-</tr>
-</thead>
-<tbody class="gt_table_body">
-<tr class="odd">
-<td class="gt_row gt_left" headers="Applied_Stat"><a href="https://catalogue.usask.ca/STAT-244">STAT 244: Elementary Statistical Concepts</a></td>
-<td class="gt_row gt_left" headers="Stat_Theory_Algorithms"><a href="https://catalogue.usask.ca/STAT-241">STAT 241: Probability Theory</a></td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left" headers="Applied_Stat"><a href="teaching/stat245/">STAT 245: Introduction to Statistical Methods</a></td>
-<td class="gt_row gt_left" headers="Stat_Theory_Algorithms"><a href="https://catalogue.usask.ca/STAT-242">STAT 242: Statistical Theory and Methodology</a></td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="Applied_Stat"><a href="teaching/stat345/">STAT 345: Design and Analysis of Experiments</a></td>
-<td class="gt_row gt_left" headers="Stat_Theory_Algorithms"><a href="teaching/stat342/">STAT 342: Probability and Mathematical Statistics</a></td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left" headers="Applied_Stat"><a href="teaching/stat348/">STAT 348: Sampling Techniques</a></td>
-<td class="gt_row gt_left" headers="Stat_Theory_Algorithms"><a href="teaching/stat850/">STAT 442/850: Statistical Inference</a></td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="Applied_Stat"><a href="teaching/stat345/">STAT 834: Advanced Experimental Design</a></td>
-<td class="gt_row gt_left" headers="Stat_Theory_Algorithms"><a href="teaching/stat851/">STAT 443/851: Linear Statistical Models</a></td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left" headers="Applied_Stat"><a href="teaching/stat845/">STAT 845: Statistical Methods for Research</a></td>
-<td class="gt_row gt_left" headers="Stat_Theory_Algorithms"><a href="teaching/stat812/">STAT 420/812: Computational Statistics</a></td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="Applied_Stat"><a href="https://catalogue.usask.ca/STAT-848">STAT 848: Multivariate Data Analysis</a></td>
-<td class="gt_row gt_left" headers="Stat_Theory_Algorithms"><a href="https://catalogue.usask.ca/202003/STAT-841">STAT 841: Probability Theory</a></td>
-</tr>
-</tbody>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Applied_Stat">Applied Statistics</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Stat_Theory_Algorithms">Statistical Theory and Algorithms</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="Applied_Stat" class="gt_row gt_left"><span data-qmd-base64="W1NUQVQgMjQ0OiBFbGVtZW50YXJ5IFN0YXRpc3RpY2FsIENvbmNlcHRzXShodHRwczovL2NhdGFsb2d1ZS51c2Fzay5jYS9TVEFULTI0NCk="><span class='gt_from_md'><a href="https://catalogue.usask.ca/STAT-244">STAT 244: Elementary Statistical Concepts</a></span></span></td>
+<td headers="Stat_Theory_Algorithms" class="gt_row gt_left"><span data-qmd-base64="W1NUQVQgMjQxOiBQcm9iYWJpbGl0eSBUaGVvcnldKGh0dHBzOi8vY2F0YWxvZ3VlLnVzYXNrLmNhL1NUQVQtMjQxKQ=="><span class='gt_from_md'><a href="https://catalogue.usask.ca/STAT-241">STAT 241: Probability Theory</a></span></span></td></tr>
+    <tr><td headers="Applied_Stat" class="gt_row gt_left"><span data-qmd-base64="W1NUQVQgMjQ1OiBJbnRyb2R1Y3Rpb24gdG8gU3RhdGlzdGljYWwgTWV0aG9kc10odGVhY2hpbmcvc3RhdDI0NS8p"><span class='gt_from_md'><a href="teaching/stat245/">STAT 245: Introduction to Statistical Methods</a></span></span></td>
+<td headers="Stat_Theory_Algorithms" class="gt_row gt_left"><span data-qmd-base64="W1NUQVQgMjQyOiBTdGF0aXN0aWNhbCBUaGVvcnkgYW5kIE1ldGhvZG9sb2d5XShodHRwczovL2NhdGFsb2d1ZS51c2Fzay5jYS9TVEFULTI0Mik="><span class='gt_from_md'><a href="https://catalogue.usask.ca/STAT-242">STAT 242: Statistical Theory and Methodology</a></span></span></td></tr>
+    <tr><td headers="Applied_Stat" class="gt_row gt_left"><span data-qmd-base64="W1NUQVQgMzQ1OiBEZXNpZ24gYW5kIEFuYWx5c2lzIG9mIEV4cGVyaW1lbnRzXSh0ZWFjaGluZy9zdGF0MzQ1Lyk="><span class='gt_from_md'><a href="teaching/stat345/">STAT 345: Design and Analysis of Experiments</a></span></span></td>
+<td headers="Stat_Theory_Algorithms" class="gt_row gt_left"><span data-qmd-base64="W1NUQVQgMzQyOiBQcm9iYWJpbGl0eSBhbmQgTWF0aGVtYXRpY2FsIFN0YXRpc3RpY3NdKHRlYWNoaW5nL3N0YXQzNDIvKQ=="><span class='gt_from_md'><a href="teaching/stat342/">STAT 342: Probability and Mathematical Statistics</a></span></span></td></tr>
+    <tr><td headers="Applied_Stat" class="gt_row gt_left"><span data-qmd-base64="W1NUQVQgMzQ4OiBTYW1wbGluZyBUZWNobmlxdWVzXSh0ZWFjaGluZy9zdGF0MzQ4Lyk="><span class='gt_from_md'><a href="teaching/stat348/">STAT 348: Sampling Techniques</a></span></span></td>
+<td headers="Stat_Theory_Algorithms" class="gt_row gt_left"><span data-qmd-base64="W1NUQVQgNDQyLzg1MDogU3RhdGlzdGljYWwgSW5mZXJlbmNlXSh0ZWFjaGluZy9zdGF0ODUwLyk="><span class='gt_from_md'><a href="teaching/stat850/">STAT 442/850: Statistical Inference</a></span></span></td></tr>
+    <tr><td headers="Applied_Stat" class="gt_row gt_left"><span data-qmd-base64="W1NUQVQgODM0OiBBZHZhbmNlZCBFeHBlcmltZW50YWwgRGVzaWduXSh0ZWFjaGluZy9zdGF0MzQ1Lyk="><span class='gt_from_md'><a href="teaching/stat345/">STAT 834: Advanced Experimental Design</a></span></span></td>
+<td headers="Stat_Theory_Algorithms" class="gt_row gt_left"><span data-qmd-base64="W1NUQVQgNDQzLzg1MTogTGluZWFyIFN0YXRpc3RpY2FsIE1vZGVsc10odGVhY2hpbmcvc3RhdDg1MS8p"><span class='gt_from_md'><a href="teaching/stat851/">STAT 443/851: Linear Statistical Models</a></span></span></td></tr>
+    <tr><td headers="Applied_Stat" class="gt_row gt_left"><span data-qmd-base64="W1NUQVQgODQ1OiBTdGF0aXN0aWNhbCBNZXRob2RzIGZvciBSZXNlYXJjaF0odGVhY2hpbmcvc3RhdDg0NS8p"><span class='gt_from_md'><a href="teaching/stat845/">STAT 845: Statistical Methods for Research</a></span></span></td>
+<td headers="Stat_Theory_Algorithms" class="gt_row gt_left"><span data-qmd-base64="W1NUQVQgNDIwLzgxMjogQ29tcHV0YXRpb25hbCBTdGF0aXN0aWNzXSh0ZWFjaGluZy9zdGF0ODEyLyk="><span class='gt_from_md'><a href="teaching/stat812/">STAT 420/812: Computational Statistics</a></span></span></td></tr>
+    <tr><td headers="Applied_Stat" class="gt_row gt_left"><span data-qmd-base64="W1NUQVQgODQ4OiBNdWx0aXZhcmlhdGUgRGF0YSBBbmFseXNpc10oaHR0cHM6Ly9jYXRhbG9ndWUudXNhc2suY2EvU1RBVC04NDgp"><span class='gt_from_md'><a href="https://catalogue.usask.ca/STAT-848">STAT 848: Multivariate Data Analysis</a></span></span></td>
+<td headers="Stat_Theory_Algorithms" class="gt_row gt_left"><span data-qmd-base64="W1NUQVQgODQxOiBQcm9iYWJpbGl0eSBUaGVvcnldKGh0dHBzOi8vY2F0YWxvZ3VlLnVzYXNrLmNhLzIwMjAwMy9TVEFULTg0MSk="><span class='gt_from_md'><a href="https://catalogue.usask.ca/202003/STAT-841">STAT 841: Probability Theory</a></span></span></td></tr>
+  </tbody>
+  
 </table>
+</div>
+```
 
-</div>
-</div>
-</div>
+:::
+:::
+
+
 <footer>
 Last updated on August 07, 2026.
 </footer>
-</section>
-
-</main>
-<!-- /main column -->
-</div> <!-- /content -->
-
-
-
-
-</body></html>
