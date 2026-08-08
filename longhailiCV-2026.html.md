@@ -1,5 +1,5 @@
 ---
-title: "CURRICULUM VITAE of LONGHAI LI (Aug 05, 2026)"
+title: "CURRICULUM VITAE of LONGHAI LI (Aug 07, 2026)"
 filters: 
   - resources/coursetable.lua
 engine: knitr
@@ -51,28 +51,37 @@ metadata-files:
 HTML / CSS RULES FOR REVERSE LISTS
 ==================================================================== 
 -->
+<!-- 
+====================================================================
+HTML / CSS RULES FOR REVERSE LISTS
+==================================================================== 
+-->
 <style>
   
+/* 1. OVERRIDE BOOTSTRAP NUMBERING */
+ol > li {
+  list-style-type: none !important; 
+}
 
-  /* 5. OVERRIDE BOOTSTRAP NUMBERING to format exactly as [1] */
-  ol > li {
-    list-style-type: none !important; 
-  }
+/* 2. Use ::before with the built-in 'list-item' counter for iOS compatibility */
+ol > li::before {
+  content: "[" counter(list-item) "] ";
+  font-weight: 600;
+  margin-right: 4px; /* Adds a small gap between the bracket and your text */
+}
 
-  ol > li::marker {
-    content: "[" counter(list-item) "] " !important;
-    font-weight: 600;
-  }
+/* 3. PROTECT NESTED BULLETS */
+ol ul > li {
+  list-style-type: disc !important;
+}
 
-  /* 6. PROTECT NESTED BULLETS so they retain their standard dots */
-  ol ul > li {
-    list-style-type: disc !important;
-  }
-  
-  ol ul > li::marker {
-    content: normal !important;
-  }
+/* Ensure the nested bullets don't accidentally inherit the bracket styling */
+ol ul > li::before {
+  content: none !important;
+}
+
 </style>
+
 ```
 
 
@@ -1922,7 +1931,7 @@ HTML / CSS RULES FOR REVERSE LISTS
 
 <!-- -->
 
-34. Z-residuals for diagnosing Bayesian Models. Presented at: 2026 ICSA-Canada Symposium, Montreal, Canada; August 7, 2026
+34. Z-residuals for diagnosing Bayesian Models. Presented at: University of Toronto, Biostatistics Seminar, 1 September, 2026
 
 
 **2025-2026**
@@ -3329,6 +3338,6 @@ HTML / CSS RULES FOR REVERSE LISTS
 
 ```{=html}
 <footer>
-Last updated on August 05, 2026.
+Last updated on August 07, 2026.
 </footer>
 ```
