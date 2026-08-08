@@ -48,28 +48,37 @@ metadata-files:
 HTML / CSS RULES FOR REVERSE LISTS
 ==================================================================== 
 -->
+<!-- 
+====================================================================
+HTML / CSS RULES FOR REVERSE LISTS
+==================================================================== 
+-->
 <style>
   
+/* 1. OVERRIDE BOOTSTRAP NUMBERING */
+ol > li {
+  list-style-type: none !important; 
+}
 
-  /* 5. OVERRIDE BOOTSTRAP NUMBERING to format exactly as [1] */
-  ol > li {
-    list-style-type: none !important; 
-  }
+/* 2. Use ::before with the built-in 'list-item' counter for iOS compatibility */
+ol > li::before {
+  content: "[" counter(list-item) "] ";
+  font-weight: 600;
+  margin-right: 4px; /* Adds a small gap between the bracket and your text */
+}
 
-  ol > li::marker {
-    content: "[" counter(list-item) "] " !important;
-    font-weight: 600;
-  }
+/* 3. PROTECT NESTED BULLETS */
+ol ul > li {
+  list-style-type: disc !important;
+}
 
-  /* 6. PROTECT NESTED BULLETS so they retain their standard dots */
-  ol ul > li {
-    list-style-type: disc !important;
-  }
-  
-  ol ul > li::marker {
-    content: normal !important;
-  }
+/* Ensure the nested bullets don't accidentally inherit the bracket styling */
+ol ul > li::before {
+  content: none !important;
+}
+
 </style>
+
 ```
 
 
@@ -85,17 +94,17 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
 
 <!-- -->
 
-3. [**Theory of Statistical Inference**](teaching/stat850/mathstat/index.html) [**[PDF]**](teaching/stat850/mathstat/mathstat-LLI.pdf)
+3. [**Theory of Statistical Inference**](teaching/stat850/mathstat/index.html); [**[PDF]**](teaching/stat850/mathstat/mathstat-LLI.pdf)
 
 
 <!-- -->
 
-2. [**Theory of Linear Models**](teaching/stat851/theorylm/index.html) [**[PDF]**](teaching/stat851/theorylm/stat_lin_theory.pdf)
+2. [**Theory of Linear Models**](teaching/stat851/theorylm/index.html); [**[PDF]**](teaching/stat851/theorylm/stat_lin_theory.pdf)
 
 
 <!-- -->
 
-1. [**Statistical Inference and Learning Methods for Research**](teaching/stat845/book/index.html) [**[PDF]**](teaching/stat845/book/stat_inference_learning.pdf)
+1. [**Statistical Inference and Learning Methods for Research**](teaching/stat845/book/index.html); [**[PDF]**](teaching/stat845/book/stat_inference_learning.pdf)
 
 ## Materials of Selected Courses
 
@@ -149,23 +158,23 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
 ::: {.cell-output-display}
 
 ```{=html}
-<div id="gareyoynhh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#gareyoynhh table {
+<div id="uudiptkgcn" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#uudiptkgcn table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#gareyoynhh thead, #gareyoynhh tbody, #gareyoynhh tfoot, #gareyoynhh tr, #gareyoynhh td, #gareyoynhh th {
+#uudiptkgcn thead, #uudiptkgcn tbody, #uudiptkgcn tfoot, #uudiptkgcn tr, #uudiptkgcn td, #uudiptkgcn th {
   border-style: none;
 }
 
-#gareyoynhh p {
+#uudiptkgcn p {
   margin: 0;
   padding: 0;
 }
 
-#gareyoynhh .gt_table {
+#uudiptkgcn .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -191,12 +200,12 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   border-left-color: #D3D3D3;
 }
 
-#gareyoynhh .gt_caption {
+#uudiptkgcn .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#gareyoynhh .gt_title {
+#uudiptkgcn .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -208,7 +217,7 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   border-bottom-width: 0;
 }
 
-#gareyoynhh .gt_subtitle {
+#uudiptkgcn .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -220,7 +229,7 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   border-top-width: 0;
 }
 
-#gareyoynhh .gt_heading {
+#uudiptkgcn .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -232,13 +241,13 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   border-right-color: #D3D3D3;
 }
 
-#gareyoynhh .gt_bottom_border {
+#uudiptkgcn .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#gareyoynhh .gt_col_headings {
+#uudiptkgcn .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -253,7 +262,7 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   border-right-color: #D3D3D3;
 }
 
-#gareyoynhh .gt_col_heading {
+#uudiptkgcn .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -273,7 +282,7 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   overflow-x: hidden;
 }
 
-#gareyoynhh .gt_column_spanner_outer {
+#uudiptkgcn .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -285,15 +294,15 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   padding-right: 4px;
 }
 
-#gareyoynhh .gt_column_spanner_outer:first-child {
+#uudiptkgcn .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#gareyoynhh .gt_column_spanner_outer:last-child {
+#uudiptkgcn .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#gareyoynhh .gt_column_spanner {
+#uudiptkgcn .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -305,11 +314,11 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   width: 100%;
 }
 
-#gareyoynhh .gt_spanner_row {
+#uudiptkgcn .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#gareyoynhh .gt_group_heading {
+#uudiptkgcn .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -335,7 +344,7 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   text-align: left;
 }
 
-#gareyoynhh .gt_empty_group_heading {
+#uudiptkgcn .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -350,15 +359,15 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   vertical-align: middle;
 }
 
-#gareyoynhh .gt_from_md > :first-child {
+#uudiptkgcn .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#gareyoynhh .gt_from_md > :last-child {
+#uudiptkgcn .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#gareyoynhh .gt_row {
+#uudiptkgcn .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -377,7 +386,7 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   overflow-x: hidden;
 }
 
-#gareyoynhh .gt_stub {
+#uudiptkgcn .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -390,7 +399,7 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   padding-right: 5px;
 }
 
-#gareyoynhh .gt_stub_row_group {
+#uudiptkgcn .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -404,15 +413,15 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   vertical-align: top;
 }
 
-#gareyoynhh .gt_row_group_first td {
+#uudiptkgcn .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#gareyoynhh .gt_row_group_first th {
+#uudiptkgcn .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#gareyoynhh .gt_summary_row {
+#uudiptkgcn .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -422,16 +431,16 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   padding-right: 5px;
 }
 
-#gareyoynhh .gt_first_summary_row {
+#uudiptkgcn .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#gareyoynhh .gt_first_summary_row.thick {
+#uudiptkgcn .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#gareyoynhh .gt_last_summary_row {
+#uudiptkgcn .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -441,7 +450,7 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   border-bottom-color: #D3D3D3;
 }
 
-#gareyoynhh .gt_grand_summary_row {
+#uudiptkgcn .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -451,7 +460,7 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   padding-right: 5px;
 }
 
-#gareyoynhh .gt_first_grand_summary_row {
+#uudiptkgcn .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -461,7 +470,7 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   border-top-color: #D3D3D3;
 }
 
-#gareyoynhh .gt_last_grand_summary_row_top {
+#uudiptkgcn .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -471,11 +480,11 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   border-bottom-color: #D3D3D3;
 }
 
-#gareyoynhh .gt_striped {
+#uudiptkgcn .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#gareyoynhh .gt_table_body {
+#uudiptkgcn .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -484,7 +493,7 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   border-bottom-color: #D3D3D3;
 }
 
-#gareyoynhh .gt_footnotes {
+#uudiptkgcn .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -498,7 +507,7 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   border-right-color: #D3D3D3;
 }
 
-#gareyoynhh .gt_footnote {
+#uudiptkgcn .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -507,7 +516,7 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   padding-right: 5px;
 }
 
-#gareyoynhh .gt_sourcenotes {
+#uudiptkgcn .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -521,7 +530,7 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   border-right-color: #D3D3D3;
 }
 
-#gareyoynhh .gt_sourcenote {
+#uudiptkgcn .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -529,72 +538,72 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   padding-right: 5px;
 }
 
-#gareyoynhh .gt_left {
+#uudiptkgcn .gt_left {
   text-align: left;
 }
 
-#gareyoynhh .gt_center {
+#uudiptkgcn .gt_center {
   text-align: center;
 }
 
-#gareyoynhh .gt_right {
+#uudiptkgcn .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#gareyoynhh .gt_font_normal {
+#uudiptkgcn .gt_font_normal {
   font-weight: normal;
 }
 
-#gareyoynhh .gt_font_bold {
+#uudiptkgcn .gt_font_bold {
   font-weight: bold;
 }
 
-#gareyoynhh .gt_font_italic {
+#uudiptkgcn .gt_font_italic {
   font-style: italic;
 }
 
-#gareyoynhh .gt_super {
+#uudiptkgcn .gt_super {
   font-size: 65%;
 }
 
-#gareyoynhh .gt_footnote_marks {
+#uudiptkgcn .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#gareyoynhh .gt_asterisk {
+#uudiptkgcn .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#gareyoynhh .gt_indent_1 {
+#uudiptkgcn .gt_indent_1 {
   text-indent: 5px;
 }
 
-#gareyoynhh .gt_indent_2 {
+#uudiptkgcn .gt_indent_2 {
   text-indent: 10px;
 }
 
-#gareyoynhh .gt_indent_3 {
+#uudiptkgcn .gt_indent_3 {
   text-indent: 15px;
 }
 
-#gareyoynhh .gt_indent_4 {
+#uudiptkgcn .gt_indent_4 {
   text-indent: 20px;
 }
 
-#gareyoynhh .gt_indent_5 {
+#uudiptkgcn .gt_indent_5 {
   text-indent: 25px;
 }
 
-#gareyoynhh .katex-display {
+#uudiptkgcn .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#gareyoynhh div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#uudiptkgcn div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
