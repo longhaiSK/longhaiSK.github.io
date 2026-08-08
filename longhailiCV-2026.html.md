@@ -46,11 +46,7 @@ metadata-files:
 ```
 
 ```{=html}
-<!-- 
-====================================================================
-HTML / CSS RULES FOR REVERSE LISTS
-==================================================================== 
--->
+
 <!-- 
 ====================================================================
 HTML / CSS RULES FOR REVERSE LISTS
@@ -67,7 +63,7 @@ ol > li {
 ol > li::before {
   content: "[" counter(list-item) "] ";
   font-weight: 600;
-  margin-right: 4px; /* Adds a small gap between the bracket and your text */
+  margin-right: 5px; /* Adds a small gap between the bracket and your text */
 }
 
 /* 3. PROTECT NESTED BULLETS */
@@ -78,6 +74,11 @@ ol ul > li {
 /* Ensure the nested bullets don't accidentally inherit the bracket styling */
 ol ul > li::before {
   content: none !important;
+}
+
+/* Force paragraph text inside list items to stay inline */
+ol > li > p {
+  display: inline;
 }
 
 </style>
