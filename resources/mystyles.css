@@ -11,7 +11,7 @@
 }
 
 html {
-  font-size: 15px !important; /* Locks the base rem calculation */
+  font-size: 16px !important; /* Locks the base rem calculation */
   -webkit-text-size-adjust: 100%; /* Prevents mobile browsers from auto-scaling */
   scroll-behavior: auto !important;
   /* Removed margin-bottom: 500px to prevent ghost scrolling */
@@ -90,7 +90,13 @@ h2 {
 
 h3 { font-size: 1.1em; } 
 
-p { margin: 1em 0em; padding-left: 0em; }
+p { 
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-left: auto;
+    margin-right: auto;
+
+    padding-left: 0em; }
 
 p.small { font-size: 0.9em; }
 p.big { font-size: 1.2em; }
@@ -135,46 +141,46 @@ p.big { font-size: 1.2em; }
 
 a { color: #007bff; text-decoration: none; }
 a:hover { text-decoration: underline; }
-
-/* Setting handing numbered ordered list in [ ] */
+/* Base list resets */
 ul { 
   margin-left: 3em; 
   padding-left: 0;
 }
 
 ol { 
-  margin-left: 1em; 
+  margin-left: 0em; 
   padding-left: 0;
 }
 
-ol ul{
+ol ul {
   margin-left: 1.5em; 
   padding-left: 0;
 }
-/* Create the hanging indent for top-level OL items */
+
+/* 1. SETUP HANGING INDENT (Override Bootstrap) */
 ol > li {
   list-style-type: none !important;
-  padding-left: 2.5em; /* Creates space for the text block to align */
-  text-indent: -2.5em; /* Pulls ONLY the first line (and custom label) to the left */
+  position: relative;  /* Crucial: Contains the absolute positioned label */
+  padding-left: 3.5em; /* Creates a clean, uniform space for the text block */
+  margin-bottom: 0.5em; 
 }
 
-/* 1. OVERRIDE BOOTSTRAP NUMBERING */
-ol > li {
-  list-style-type: none !important; 
-}
-
-/* 2. Use ::before with the built-in 'list-item' counter for iOS compatibility */
+/* 2. RIGHT-ALIGN THE LABELS ( [1] vs [10] ) */
 ol > li::before {
-  content: "[" counter(list-item) "] ";
+  content: "[" counter(list-item) "]";
+  position: absolute;
+  left: 0;             /* Pins label to the left of the list item */
+  top: 0;              /* Aligns label with the first line of text */
+  width: 2.8em;        /* Fixed width ensures labels take up the exact same space */
+  text-align: right;   /* Pushes [1] and [10] to align flush-right within the fixed width */
   font-weight: 600;
-  margin-right: 5px; /* Adds a small gap between the bracket and your text */
 }
 
-/* 3. PROTECT NESTED BULLETS & RESET HANGING INDENT */
+/* 3. PROTECT NESTED BULLETS & RESET */
 ol ul > li {
   list-style-type: disc !important;
-  padding-left: 0 !important; /* Resets the padding added by ol > li */
-  text-indent: 0 !important;  /* Resets the negative indent inherited from ol > li */
+  position: static;    /* Resets the relative positioning for nested items */
+  padding-left: 0 !important; 
 }
 
 /* Ensure the nested bullets don't accidentally inherit the bracket styling */
@@ -185,6 +191,7 @@ ol ul > li::before {
 /* Force paragraph text inside list items to stay inline */
 ol > li > p {
   display: inline;
+  margin: 0; 
 }
 
 /* ==========================================================================

@@ -1,5 +1,5 @@
 ---
-title: "CURRICULUM VITAE of LONGHAI LI (Aug 08, 2026)"
+title: "CURRICULUM VITAE of LONGHAI LI (Aug 09, 2026)"
 filters: 
   - resources/coursetable.lua
 engine: knitr
@@ -3299,6 +3299,6 @@ metadata-files:
 
 ```{=html}
 <footer>
-Last updated on August 08, 2026.
+Last updated on August 09, 2026.
 </footer>
 ```
