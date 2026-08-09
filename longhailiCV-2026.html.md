@@ -1886,7 +1886,7 @@ metadata-files:
 
 
 
-<!-- 
+
 
 **2026-2027**
 
@@ -1896,7 +1896,7 @@ metadata-files:
 
 34. Z-residuals for diagnosing Bayesian Models. Presented at: University of Toronto, Biostatistics Seminar, 1 September, 2026 
 
--->
+
 
 
 **2025-2026**
