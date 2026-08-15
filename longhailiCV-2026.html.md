@@ -1,5 +1,5 @@
 ---
-title: "CURRICULUM VITAE of LONGHAI LI (Aug 09, 2026)"
+title: "CURRICULUM VITAE of LONGHAI LI (Aug 14, 2026)"
 filters: 
   - resources/coursetable.lua
 engine: knitr
@@ -1639,7 +1639,7 @@ metadata-files:
 
 1. Feng, C. X. and  Li, L ., 2016. Modeling Zero Inflation and Overdispersion in the Length of Hospital Stay for Patients with Ischaemic Heart Disease, in the book Advanced Statistical Methods in Big-Data Sciences, edited by D. Chen, J. Chen, X. Lu, G. Yi and H. Yu, Springer, Chapter 3, pp. 35-53.
 
-## 12. PAPERS IN REFERRED JOURNALS
+## 12. PAPERS IN REFEREED JOURNALS
 
 
 **2026-2027**
@@ -1860,7 +1860,7 @@ metadata-files:
 
 1. Li, L., Neal, R.M., 2008. Compressing Parameters in Bayesian High-order Models with Application to Logistic Sequence Models. *Bayesian Analysis*, 3(4), 793–822. [https://doi.org/10.1214/08-BA330](https://doi.org/10.1214/08-BA330) [[**PDF**](/doc/seqpred/seqpred.pdf)]; [[**slides**](/doc/seqpred/seqpred-ssc.pdf)]; [[**software**](/software/BPHO/release.html)].
 
-## 13. REFERRED CONFERENCE PUBLICATIONS
+## 13. REFEREED CONFERENCE PUBLICATIONS
 
 
 
@@ -3303,6 +3303,6 @@ metadata-files:
 
 ```{=html}
 <footer>
-Last updated on August 09, 2026.
+Last updated on August 14, 2026.
 </footer>
 ```
