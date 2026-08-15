@@ -1,14 +1,10 @@
 ---
 title: "CURRICULUM VITAE of LONGHAI LI (Aug 14, 2026)"
-filters:
-  - _extensions/profweb/coursetable.lua
 engine: knitr
 format:
   profweb-html: default
   profweb-typst: default
 ---
-
-
 
 
 

@@ -497,13 +497,10 @@
 == 9.1 Scheduled Instructional Activity
 <scheduled-instructional-activity>
 #block[
-#[
-#set table(inset: (x: 5pt, y: 2.5pt))
-#set par(leading: 0.45em)
 #strong[2025-2026]
 
 #table(
-  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
+  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -518,7 +515,7 @@
 #strong[2024-2025]
 
 #table(
-  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
+  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -532,7 +529,7 @@
 #strong[2023-2024]
 
 #table(
-  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
+  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -548,7 +545,7 @@
 #strong[2022-2023]
 
 #table(
-  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
+  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -564,7 +561,7 @@
 #strong[2021-2022]
 
 #table(
-  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
+  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -580,7 +577,7 @@
 #strong[2020-2021]
 
 #table(
-  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
+  columns: 7,
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -591,7 +588,7 @@
 #strong[2019-2020]
 
 #table(
-  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
+  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -606,7 +603,7 @@
 #strong[2018-2019]
 
 #table(
-  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
+  columns: 7,
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -619,7 +616,7 @@
 #strong[2017-2018]
 
 #table(
-  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
+  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -632,7 +629,7 @@
 #strong[2016-2017]
 
 #table(
-  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
+  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -645,7 +642,7 @@
 #strong[2015-2016]
 
 #table(
-  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
+  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -659,7 +656,7 @@
 #strong[2014-2015]
 
 #table(
-  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
+  columns: (19.23%, 7.69%, 42.31%, 7.69%, 7.69%, 7.69%, 7.69%),
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -675,7 +672,7 @@
 #strong[2012-2013]
 
 #table(
-  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
+  columns: 7,
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -688,7 +685,7 @@
 #strong[2011-2012]
 
 #table(
-  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
+  columns: 7,
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -701,7 +698,7 @@
 #strong[2010-2011]
 
 #table(
-  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
+  columns: 7,
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -714,7 +711,7 @@
 #strong[2009-2010]
 
 #table(
-  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
+  columns: 7,
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -729,7 +726,7 @@
 #strong[2008-2009]
 
 #table(
-  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
+  columns: 7,
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
@@ -739,14 +736,13 @@
 #strong[2007-2008]
 
 #table(
-  columns: (15%, 8%, 40%, 7%, 7%, 7%, 7%),
+  columns: 7,
   align: (auto,auto,auto,auto,auto,auto,auto,),
   table.header([COURSE], [TERM], [TITLE], [TYPE], [ENRL], [YIH], [YCSH],),
   table.hline(),
   [STAT 342], [T1], [Mathematical Statistics], [LEC], [7], [39], [273],
   [STAT 846], [T2], [Computational Statistics], [LEC], [5], [39], [195],
 )
-]
 ]
 == 9.2 Unscheduled Instructional Activity
 <unscheduled-instructional-activity>
