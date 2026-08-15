@@ -1,0 +1,47 @@
+---
+title: "STAT 348 Sampling Techniques"
+engine: knitr
+format: profweb-html
+---
+
+## Description
+
+Theory and applications of sampling from finite populations. Includes: simple random sampling, stratified random sampling, cluster sampling, systematic sampling, probability proportionate to size sampling, and the difference, ratio and regression methods of estimation.
+
+**Prerequisites:** STAT 242, or STAT 245, or STAT 246
+
+
+
+## Syllabi
+
+[2026 Fall](./syllabi/syllabus2026.html){.btn .btn-primary role="button"}
+
+## A List of Topics with R Demonstration
+
+
+1. [Basics of R and Rmarkdown](introR/introR.html)
+2. [Simple Random Sampling](SRS/srs.html)
+3. [Stratified Random Sampling](STRAT/strata.html)
+4. [Ratio and Regression Estimation](Ratio_Reg_est/ratio.html)
+5. [Cluster Sampling](Cluster/cluster.html)
+6. [Unequal Probability Sampling](UPS/ups.html)
+
+
+
+:::{.callout-important icon="false"}
+* R markdown files for generating the above html files can be found from [this Github folder](https://github.com/longhaiSK/longhaiSK.github.io/tree/main/teaching/stat348_rdemo/).
+
+
+* Most examples and datasets are taken from [**Sampling: Design and Analysis**, 2nd Edition, by Sharon L. Lohr, published by Brooks/Cole.](https://www.sharonlohr.com/sampling-design-and-analysis-2e)
+:::
+## Googlesheets Calculator
+
+[Googlesheets Calculator for Sampling Survey](https://docs.google.com/spreadsheets/d/18EbvJqHDn1uNI4pyXmkF0nV1-hZNCmmEpUk8DmwFblg/edit?usp=sharing)
+
+
+
+<footer>
+Last updated on August 14, 2026.
+</footer>
+
+

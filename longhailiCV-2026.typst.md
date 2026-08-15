@@ -1,10 +1,11 @@
 ---
-title: "CURRICULUM VITAE of LONGHAI LI (Aug 04, 2026)"
-filters: 
-  - resources/coursetable.lua
+title: "CURRICULUM VITAE of LONGHAI LI (Aug 14, 2026)"
+filters:
+  - _extensions/profweb/coursetable.lua
 engine: knitr
-metadata-files:
-  - _website.yaml 
+format:
+  profweb-html: default
+  profweb-typst: default
 ---
 
 
@@ -43,67 +44,6 @@ metadata-files:
     )
   }
 }
-```
-
-```{=html}
-<!-- 
-====================================================================
-HTML / CSS RULES FOR REVERSE LISTS
-==================================================================== 
--->
-<style>
-  /* 1. OVERALL POSITION & SPACING for the paragraph holding the number */
-  p:has(.ritem-num) {
-    margin-top: 0.5em;
-    margin-bottom: 0.6em;
-    text-align: left;
-    margin-left: 1.2em;
-    padding-left: 2em;
-    text-indent: -2em;
-  }
-
-  /* 2. ALIGNING SUBLISTS perfectly under the text */
-  p:has(.ritem-num) + ul,
-  p:has(.ritem-num) + ol {
-    margin-left: 3.2em; 
-  }
-
-  /* 3. PREVENT DEEPLY NESTED LISTS from inheriting the massive left margin */
-  p:has(.ritem-num) + ul ul,
-  p:has(.ritem-num) + ol ol,
-  p:has(.ritem-num) + ul ol,
-  p:has(.ritem-num) + ol ul {
-    margin-left: 0.5em;
-  }
-
-  /* 4. THE NUMBER BOX DIMENSIONS */
-  .ritem-num {
-    display: inline-block;
-    width: 1.7em;
-    text-align: right;
-    font-weight: 600;
-    padding-right: 0.5em;   
-    box-sizing: border-box;
-  }
-
-  /* 5. OVERRIDE BOOTSTRAP NUMBERING to format exactly as [1] */
-  ol > li {
-    list-style-type: none !important; 
-  }
-
-  ol > li::marker {
-    content: "[" counter(list-item) "] " !important;
-  }
-
-  /* 6. PROTECT NESTED BULLETS so they retain their standard dots */
-  ol ul > li {
-    list-style-type: disc !important;
-  }
-  
-  ol ul > li::marker {
-    content: normal !important;
-  }
-</style>
 ```
 
 
@@ -982,7 +922,13 @@ HTML / CSS RULES FOR REVERSE LISTS
 
 ### 10.5 Staff Supervision
 
-  * Saima Khosa, faculty mentoring, Sept. 2022- Dec. 2022.
+
+
+
+
+<!-- -->
+
+1. Saima Khosa, faculty mentoring, Sept. 2022- Dec. 2022.
 
 ### 10.6 Thesis Committee Memberships
 
@@ -1694,7 +1640,7 @@ HTML / CSS RULES FOR REVERSE LISTS
 
 1. Feng, C. X. and  Li, L ., 2016. Modeling Zero Inflation and Overdispersion in the Length of Hospital Stay for Patients with Ischaemic Heart Disease, in the book Advanced Statistical Methods in Big-Data Sciences, edited by D. Chen, J. Chen, X. Lu, G. Yi and H. Yu, Springer, Chapter 3, pp. 35-53.
 
-## 12. PAPERS IN REFERRED JOURNALS
+## 12. PAPERS IN REFEREED JOURNALS
 
 
 **2026-2027**
@@ -1915,7 +1861,7 @@ HTML / CSS RULES FOR REVERSE LISTS
 
 1. Li, L., Neal, R.M., 2008. Compressing Parameters in Bayesian High-order Models with Application to Logistic Sequence Models. *Bayesian Analysis*, 3(4), 793–822. [https://doi.org/10.1214/08-BA330](https://doi.org/10.1214/08-BA330) [[**PDF**](/doc/seqpred/seqpred.pdf)]; [[**slides**](/doc/seqpred/seqpred-ssc.pdf)]; [[**software**](/software/BPHO/release.html)].
 
-## 13. REFERRED CONFERENCE PUBLICATIONS
+## 13. REFEREED CONFERENCE PUBLICATIONS
 
 
 
@@ -1941,6 +1887,19 @@ HTML / CSS RULES FOR REVERSE LISTS
 
 
 
+
+
+**2026-2027**
+
+
+
+<!-- -->
+
+34. Z-residuals for diagnosing Bayesian Models. Presented at: University of Toronto, Biostatistics Seminar, 1 September, 2026 
+
+
+
+
 **2025-2026**
 
 
@@ -1950,6 +1909,7 @@ HTML / CSS RULES FOR REVERSE LISTS
 <!-- -->
 
 33. Z-residuals for Checking Bayesian Models. Presented at: University of Calgary, Calgary, AB, Canada; July 28, 2025
+
 
 
 <!-- -->
@@ -3344,6 +3304,6 @@ HTML / CSS RULES FOR REVERSE LISTS
 
 ```{=html}
 <footer>
-Last updated on August 04, 2026.
+Last updated on August 14, 2026.
 </footer>
 ```

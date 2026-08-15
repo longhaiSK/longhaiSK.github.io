@@ -419,7 +419,7 @@
 )
 
 #show: doc => article(
-  title: [CURRICULUM VITAE of LONGHAI LI (Aug 04, 2026)],
+  title: [CURRICULUM VITAE of LONGHAI LI (Aug 14, 2026)],
   fontsize: 11pt,
   toc_title: [Table of contents],
   toc_depth: 3,
@@ -1267,7 +1267,7 @@
 
 == 10.5 Staff Supervision
 <staff-supervision>
-- Saima Khosa, faculty mentoring, Sept.~2022- Dec.~2022.
++ Saima Khosa, faculty mentoring, Sept.~2022- Dec.~2022.
 
 == 10.6 Thesis Committee Memberships
 <thesis-committee-memberships>
@@ -1323,8 +1323,8 @@
 <chapters-in-books>
 + Feng, C. X. and Li, L ., 2016. Modeling Zero Inflation and Overdispersion in the Length of Hospital Stay for Patients with Ischaemic Heart Disease, in the book Advanced Statistical Methods in Big-Data Sciences, edited by D. Chen, J. Chen, X. Lu, G. Yi and H. Yu, Springer, Chapter 3, pp.~35-53.
 
-= 12. PAPERS IN REFERRED JOURNALS
-<papers-in-referred-journals>
+= 12. PAPERS IN REFEREED JOURNALS
+<papers-in-refereed-journals>
 #strong[2026-2027]
 
 #block[
@@ -1524,8 +1524,8 @@
 
 + Li, L., Neal, R.M., 2008. Compressing Parameters in Bayesian High-order Models with Application to Logistic Sequence Models. #emph[Bayesian Analysis], 3(4), 793--822. #link("https://doi.org/10.1214/08-BA330") \[#link("./doc/seqpred/seqpred.pdf")[#strong[PDF]]\]; \[#link("./doc/seqpred/seqpred-ssc.pdf")[#strong[slides]]\]; \[#link("./software/BPHO/release.html")[#strong[software]]\].
 
-= 13. REFERRED CONFERENCE PUBLICATIONS
-<referred-conference-publications>
+= 13. REFEREED CONFERENCE PUBLICATIONS
+<refereed-conference-publications>
 #block[
 #set enum(numbering: "1.", start: 3)
 + Yin, W., Li, L., Wu, F.-X., 2021. A Graph Attention Neural Network for Diagnosing ASD with fMRI Data, in: 2021 IEEE International Conference on Bioinformatics and Biomedicine (BIBM). pp.~1131--1136. #link("https://doi.org/10.1109/BIBM52615.2021.9669849")
@@ -1542,6 +1542,13 @@
 <presentations>
 == 14.1 Invited Presentations
 <invited-presentations>
+#strong[2026-2027]
+
+#block[
+#set enum(numbering: "1.", start: 34)
++ Z-residuals for diagnosing Bayesian Models. Presented at: University of Toronto, Biostatistics Seminar, 1 September, 2026
+]
+
 #strong[2025-2026]
 
 #block[
