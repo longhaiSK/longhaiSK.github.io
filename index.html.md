@@ -69,6 +69,6 @@ statistical learning, cross-validation, hierarchical modelling, survival modelli
 
 
 <footer>
-Last updated on August 14, 2026.
+Last updated on August 15, 2026.
 </footer>
 
