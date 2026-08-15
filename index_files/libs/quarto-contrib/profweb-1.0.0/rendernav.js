@@ -1,5 +1,23 @@
 // renderNavigation.js: A single script to create and manage the entire navigation bar.
 
+// Resolve the folder this script was loaded from, so bundled assets (e.g. logo.png)
+// are found next to it wherever Quarto copies the profweb extension's dependencies,
+// instead of assuming a site-root /resources/ path.
+function getProfwebBaseUrl() {
+    if (document.currentScript && document.currentScript.src) {
+        return document.currentScript.src.replace(/[^/]+$/, '');
+    }
+    const scripts = document.getElementsByTagName('script');
+    for (const el of scripts) {
+        if (el.src && el.src.indexOf('rendernav.js') !== -1) {
+            return el.src.replace(/[^/]+$/, '');
+        }
+    }
+    return '';
+}
+
+const PROFWEB_BASE_URL = getProfwebBaseUrl();
+
 function setupNavigation() {
     
     function normalizePath(path) {
@@ -139,7 +157,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <nav class="responsive-nav">
             <div class="nav-brand">
                 
-                <img src="/resources/logo.png" class="nav-logo" alt="LOGO">
+                <img src="${PROFWEB_BASE_URL}logo.png" class="nav-logo" alt="LOGO">
                 <button class="btn"><span class="nav-prof-name">Professor Longhai Li</span></button>
 
             </div>

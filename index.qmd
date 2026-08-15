@@ -8,22 +8,22 @@ format: profweb-html
 
 :::: {.columns}
 
-::: {.column width="85%"}
+::: {.column width="80%"}
 
 [**Prof. Longhai Li &nbsp; <span style="position: relative; top: -0.1em;">👤</span>**](./longhailiCV-2026.html){style="font-size: 1.5rem; text-decoration: none;"}
 
-[Department of Mathematics and Statistics](http://artsandscience.usask.ca/math/){target="_blank"} \
-[University of Saskatchewan](http://www.usask.ca/){target="_blank"}
+<i class="fa-solid fa-building-columns contact-icon"></i>[Department of Mathematics and Statistics](http://artsandscience.usask.ca/math/){target="_blank"} \
+<i class="fa-solid fa-graduation-cap contact-icon"></i>[University of Saskatchewan](http://www.usask.ca/){target="_blank"}
 
-106 Wiggins Road, MCLN 219 \
+<i class="fa-solid fa-location-dot contact-icon"></i>106 Wiggins Road, MCLN 219 
 Saskatoon, SK, CANADA, S7N5E6 \
-Email: [longhai.li@usask.ca](mailto:longhai.li@usask.ca) \
-Homepage: <https://longhaisk.github.io> \
-Official Profile: <https://artsandscience.usask.ca/profile/LLi>
+<i class="fa-solid fa-envelope contact-icon"></i>[longhai.li@usask.ca](mailto:longhai.li@usask.ca) \
+<i class="fa-solid fa-house contact-icon"></i><https://longhaisk.github.io> \
+<i class="fa-solid fa-id-card contact-icon"></i><https://artsandscience.usask.ca/profile/LLi>
 :::
 
-::: {.column width="15%"}
-![](images/longhai-profile.jpg){width="100%" fig-align="left" alt="Longhai Li Picture in 2024"}
+::: {.column width="20%"}
+![](images/longhai-profile.jpg){ height="100%" fig-align="left" alt="Longhai Li Picture in 2024"}
 :::
 
 <br>
