@@ -2,7 +2,7 @@ function Pandoc(doc)
   quarto.doc.add_html_dependency({
     name = "profweb",
     version = "1.0.0",
-    scripts = {"rendernav.js", "loadtoc.js"},
+    scripts = {"rendernav.js", "loadtoc.js", "trunurl.js"},
     stylesheets = {"mystyles.css", "iconstyles.css"},
     resources = {"logo.png"},
     links = {
