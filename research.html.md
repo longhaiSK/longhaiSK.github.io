@@ -65,5 +65,5 @@ Many granting agencies including NSERC, CFI, CANSSI, CFREF, and MITACS have supp
 * [**Preprints**](./longhailiCV-2026.html#15-2-technical-reports)
 
 <footer>
-Last updated on August 15, 2026.
+Last updated on August 17, 2026.
 </footer>
