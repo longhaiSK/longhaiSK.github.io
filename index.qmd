@@ -7,7 +7,7 @@ format: profweb-html
 
 :::: {.columns}
 
-::: {.column width="80%"}
+::: {.column width="80%" .profile-text-col}
 
 [**Professor Longhai Li**](./longhailiCV-2026.html){style="font-size: 1.2rem; text-decoration: none;"}
 <br><br>
@@ -17,12 +17,14 @@ format: profweb-html
 [<i class="fa-solid fa-location-dot contact-icon"></i>106 Wiggins Road, Saskatoon, SK, CANADA, S7N5E6](https://maps.google.com/?q=106+Wiggins+Road+MCLN+219+Saskatoon+SK+S7N5E6+Canada){target="_blank"} \
 [<i class="fa-solid fa-envelope contact-icon"></i>longhai.li@usask.ca](mailto:longhai.li@usask.ca) \
 [<i class="fa-solid fa-house contact-icon"></i>https://longhaisk.github.io](https://longhaisk.github.io) \
-[<i class="fa-solid fa-id-card contact-icon"></i>https://artsandscience.usask.ca/profile/LLi](https://artsandscience.usask.ca/profile/LLi)
+[<i class="fa-solid fa-id-card contact-icon"></i>https://artsandscience.usask.ca/profile/LLi](https://artsandscience.usask.ca/profile/LLi) \
+[<i class="ai ai-google-scholar contact-icon"></i>Google Scholar](https://scholar.google.ca/citations?user=S3mYTmwAAAAJ&hl=en){target="_blank"} \
+[<i class="ai ai-clarivate contact-icon"></i>Web of Science](https://www.webofscience.com/wos/author/record/ABF-2953-2020){target="_blank"}
 :::
 
-::: {.column width="20%"}
+::: {.column width="20%" .profile-img-col}
 ```{=html}
-<img src="images/longhai-profile.jpg" style="width: 100%; height: 100%; object-fit: cover; object-position: center top; border-radius: 4px; display: block;" alt="Longhai Li Picture in 2024">
+<img src="images/longhai-profile.jpg" style="width: 100%; height: 100%; object-fit: cover; object-position: right top; border-radius: 4px; display: block;" alt="Longhai Li Picture in 2024">
 ```
 :::
 
