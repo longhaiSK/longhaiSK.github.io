@@ -38,23 +38,23 @@ Computationally intensive methods have become widely used in statistical inferen
 ::: {.cell-output-display}
 
 ```{=html}
-<div id="trxktntcbp" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#trxktntcbp table {
+<div id="quokahtclt" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#quokahtclt table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#trxktntcbp thead, #trxktntcbp tbody, #trxktntcbp tfoot, #trxktntcbp tr, #trxktntcbp td, #trxktntcbp th {
+#quokahtclt thead, #quokahtclt tbody, #quokahtclt tfoot, #quokahtclt tr, #quokahtclt td, #quokahtclt th {
   border-style: none;
 }
 
-#trxktntcbp p {
+#quokahtclt p {
   margin: 0;
   padding: 0;
 }
 
-#trxktntcbp .gt_table {
+#quokahtclt .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -80,12 +80,12 @@ Computationally intensive methods have become widely used in statistical inferen
   border-left-color: #D3D3D3;
 }
 
-#trxktntcbp .gt_caption {
+#quokahtclt .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#trxktntcbp .gt_title {
+#quokahtclt .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -97,7 +97,7 @@ Computationally intensive methods have become widely used in statistical inferen
   border-bottom-width: 0;
 }
 
-#trxktntcbp .gt_subtitle {
+#quokahtclt .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -109,7 +109,7 @@ Computationally intensive methods have become widely used in statistical inferen
   border-top-width: 0;
 }
 
-#trxktntcbp .gt_heading {
+#quokahtclt .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -121,13 +121,13 @@ Computationally intensive methods have become widely used in statistical inferen
   border-right-color: #D3D3D3;
 }
 
-#trxktntcbp .gt_bottom_border {
+#quokahtclt .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#trxktntcbp .gt_col_headings {
+#quokahtclt .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -142,7 +142,7 @@ Computationally intensive methods have become widely used in statistical inferen
   border-right-color: #D3D3D3;
 }
 
-#trxktntcbp .gt_col_heading {
+#quokahtclt .gt_col_heading {
   color: #333333;
   background-color: #F0F0F0;
   font-size: 100%;
@@ -162,7 +162,7 @@ Computationally intensive methods have become widely used in statistical inferen
   overflow-x: hidden;
 }
 
-#trxktntcbp .gt_column_spanner_outer {
+#quokahtclt .gt_column_spanner_outer {
   color: #333333;
   background-color: #F0F0F0;
   font-size: 100%;
@@ -174,15 +174,15 @@ Computationally intensive methods have become widely used in statistical inferen
   padding-right: 4px;
 }
 
-#trxktntcbp .gt_column_spanner_outer:first-child {
+#quokahtclt .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#trxktntcbp .gt_column_spanner_outer:last-child {
+#quokahtclt .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#trxktntcbp .gt_column_spanner {
+#quokahtclt .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -194,11 +194,11 @@ Computationally intensive methods have become widely used in statistical inferen
   width: 100%;
 }
 
-#trxktntcbp .gt_spanner_row {
+#quokahtclt .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#trxktntcbp .gt_group_heading {
+#quokahtclt .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -224,7 +224,7 @@ Computationally intensive methods have become widely used in statistical inferen
   text-align: left;
 }
 
-#trxktntcbp .gt_empty_group_heading {
+#quokahtclt .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -239,15 +239,15 @@ Computationally intensive methods have become widely used in statistical inferen
   vertical-align: middle;
 }
 
-#trxktntcbp .gt_from_md > :first-child {
+#quokahtclt .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#trxktntcbp .gt_from_md > :last-child {
+#quokahtclt .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#trxktntcbp .gt_row {
+#quokahtclt .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -266,7 +266,7 @@ Computationally intensive methods have become widely used in statistical inferen
   overflow-x: hidden;
 }
 
-#trxktntcbp .gt_stub {
+#quokahtclt .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -279,7 +279,7 @@ Computationally intensive methods have become widely used in statistical inferen
   padding-right: 5px;
 }
 
-#trxktntcbp .gt_stub_row_group {
+#quokahtclt .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -293,15 +293,15 @@ Computationally intensive methods have become widely used in statistical inferen
   vertical-align: top;
 }
 
-#trxktntcbp .gt_row_group_first td {
+#quokahtclt .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#trxktntcbp .gt_row_group_first th {
+#quokahtclt .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#trxktntcbp .gt_summary_row {
+#quokahtclt .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -311,16 +311,16 @@ Computationally intensive methods have become widely used in statistical inferen
   padding-right: 5px;
 }
 
-#trxktntcbp .gt_first_summary_row {
+#quokahtclt .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#trxktntcbp .gt_first_summary_row.thick {
+#quokahtclt .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#trxktntcbp .gt_last_summary_row {
+#quokahtclt .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -330,7 +330,7 @@ Computationally intensive methods have become widely used in statistical inferen
   border-bottom-color: #D3D3D3;
 }
 
-#trxktntcbp .gt_grand_summary_row {
+#quokahtclt .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -340,7 +340,7 @@ Computationally intensive methods have become widely used in statistical inferen
   padding-right: 5px;
 }
 
-#trxktntcbp .gt_first_grand_summary_row {
+#quokahtclt .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -350,7 +350,7 @@ Computationally intensive methods have become widely used in statistical inferen
   border-top-color: #D3D3D3;
 }
 
-#trxktntcbp .gt_last_grand_summary_row_top {
+#quokahtclt .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -360,11 +360,11 @@ Computationally intensive methods have become widely used in statistical inferen
   border-bottom-color: #D3D3D3;
 }
 
-#trxktntcbp .gt_striped {
+#quokahtclt .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#trxktntcbp .gt_table_body {
+#quokahtclt .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -373,7 +373,7 @@ Computationally intensive methods have become widely used in statistical inferen
   border-bottom-color: #D3D3D3;
 }
 
-#trxktntcbp .gt_footnotes {
+#quokahtclt .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -387,7 +387,7 @@ Computationally intensive methods have become widely used in statistical inferen
   border-right-color: #D3D3D3;
 }
 
-#trxktntcbp .gt_footnote {
+#quokahtclt .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -396,7 +396,7 @@ Computationally intensive methods have become widely used in statistical inferen
   padding-right: 5px;
 }
 
-#trxktntcbp .gt_sourcenotes {
+#quokahtclt .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -410,7 +410,7 @@ Computationally intensive methods have become widely used in statistical inferen
   border-right-color: #D3D3D3;
 }
 
-#trxktntcbp .gt_sourcenote {
+#quokahtclt .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -418,72 +418,72 @@ Computationally intensive methods have become widely used in statistical inferen
   padding-right: 5px;
 }
 
-#trxktntcbp .gt_left {
+#quokahtclt .gt_left {
   text-align: left;
 }
 
-#trxktntcbp .gt_center {
+#quokahtclt .gt_center {
   text-align: center;
 }
 
-#trxktntcbp .gt_right {
+#quokahtclt .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#trxktntcbp .gt_font_normal {
+#quokahtclt .gt_font_normal {
   font-weight: normal;
 }
 
-#trxktntcbp .gt_font_bold {
+#quokahtclt .gt_font_bold {
   font-weight: bold;
 }
 
-#trxktntcbp .gt_font_italic {
+#quokahtclt .gt_font_italic {
   font-style: italic;
 }
 
-#trxktntcbp .gt_super {
+#quokahtclt .gt_super {
   font-size: 65%;
 }
 
-#trxktntcbp .gt_footnote_marks {
+#quokahtclt .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#trxktntcbp .gt_asterisk {
+#quokahtclt .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#trxktntcbp .gt_indent_1 {
+#quokahtclt .gt_indent_1 {
   text-indent: 5px;
 }
 
-#trxktntcbp .gt_indent_2 {
+#quokahtclt .gt_indent_2 {
   text-indent: 10px;
 }
 
-#trxktntcbp .gt_indent_3 {
+#quokahtclt .gt_indent_3 {
   text-indent: 15px;
 }
 
-#trxktntcbp .gt_indent_4 {
+#quokahtclt .gt_indent_4 {
   text-indent: 20px;
 }
 
-#trxktntcbp .gt_indent_5 {
+#quokahtclt .gt_indent_5 {
   text-indent: 25px;
 }
 
-#trxktntcbp .katex-display {
+#quokahtclt .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#trxktntcbp div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#quokahtclt div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -586,23 +586,23 @@ After completing this course, students are expected to grasp the following knowl
 ::: {.cell-output-display}
 
 ```{=html}
-<div id="wmvbqfrahm" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#wmvbqfrahm table {
+<div id="szurzfcyzq" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#szurzfcyzq table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#wmvbqfrahm thead, #wmvbqfrahm tbody, #wmvbqfrahm tfoot, #wmvbqfrahm tr, #wmvbqfrahm td, #wmvbqfrahm th {
+#szurzfcyzq thead, #szurzfcyzq tbody, #szurzfcyzq tfoot, #szurzfcyzq tr, #szurzfcyzq td, #szurzfcyzq th {
   border-style: none;
 }
 
-#wmvbqfrahm p {
+#szurzfcyzq p {
   margin: 0;
   padding: 0;
 }
 
-#wmvbqfrahm .gt_table {
+#szurzfcyzq .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -628,12 +628,12 @@ After completing this course, students are expected to grasp the following knowl
   border-left-color: #D3D3D3;
 }
 
-#wmvbqfrahm .gt_caption {
+#szurzfcyzq .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#wmvbqfrahm .gt_title {
+#szurzfcyzq .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -645,7 +645,7 @@ After completing this course, students are expected to grasp the following knowl
   border-bottom-width: 0;
 }
 
-#wmvbqfrahm .gt_subtitle {
+#szurzfcyzq .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -657,7 +657,7 @@ After completing this course, students are expected to grasp the following knowl
   border-top-width: 0;
 }
 
-#wmvbqfrahm .gt_heading {
+#szurzfcyzq .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -669,13 +669,13 @@ After completing this course, students are expected to grasp the following knowl
   border-right-color: #D3D3D3;
 }
 
-#wmvbqfrahm .gt_bottom_border {
+#szurzfcyzq .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#wmvbqfrahm .gt_col_headings {
+#szurzfcyzq .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -690,7 +690,7 @@ After completing this course, students are expected to grasp the following knowl
   border-right-color: #D3D3D3;
 }
 
-#wmvbqfrahm .gt_col_heading {
+#szurzfcyzq .gt_col_heading {
   color: #333333;
   background-color: #E0E0E0;
   font-size: 100%;
@@ -710,7 +710,7 @@ After completing this course, students are expected to grasp the following knowl
   overflow-x: hidden;
 }
 
-#wmvbqfrahm .gt_column_spanner_outer {
+#szurzfcyzq .gt_column_spanner_outer {
   color: #333333;
   background-color: #E0E0E0;
   font-size: 100%;
@@ -722,15 +722,15 @@ After completing this course, students are expected to grasp the following knowl
   padding-right: 4px;
 }
 
-#wmvbqfrahm .gt_column_spanner_outer:first-child {
+#szurzfcyzq .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#wmvbqfrahm .gt_column_spanner_outer:last-child {
+#szurzfcyzq .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#wmvbqfrahm .gt_column_spanner {
+#szurzfcyzq .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -742,11 +742,11 @@ After completing this course, students are expected to grasp the following knowl
   width: 100%;
 }
 
-#wmvbqfrahm .gt_spanner_row {
+#szurzfcyzq .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#wmvbqfrahm .gt_group_heading {
+#szurzfcyzq .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -772,7 +772,7 @@ After completing this course, students are expected to grasp the following knowl
   text-align: left;
 }
 
-#wmvbqfrahm .gt_empty_group_heading {
+#szurzfcyzq .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -787,15 +787,15 @@ After completing this course, students are expected to grasp the following knowl
   vertical-align: middle;
 }
 
-#wmvbqfrahm .gt_from_md > :first-child {
+#szurzfcyzq .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#wmvbqfrahm .gt_from_md > :last-child {
+#szurzfcyzq .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#wmvbqfrahm .gt_row {
+#szurzfcyzq .gt_row {
   padding-top: 5px;
   padding-bottom: 5px;
   padding-left: 5px;
@@ -814,7 +814,7 @@ After completing this course, students are expected to grasp the following knowl
   overflow-x: hidden;
 }
 
-#wmvbqfrahm .gt_stub {
+#szurzfcyzq .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -827,7 +827,7 @@ After completing this course, students are expected to grasp the following knowl
   padding-right: 5px;
 }
 
-#wmvbqfrahm .gt_stub_row_group {
+#szurzfcyzq .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -841,15 +841,15 @@ After completing this course, students are expected to grasp the following knowl
   vertical-align: top;
 }
 
-#wmvbqfrahm .gt_row_group_first td {
+#szurzfcyzq .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#wmvbqfrahm .gt_row_group_first th {
+#szurzfcyzq .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#wmvbqfrahm .gt_summary_row {
+#szurzfcyzq .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -859,16 +859,16 @@ After completing this course, students are expected to grasp the following knowl
   padding-right: 5px;
 }
 
-#wmvbqfrahm .gt_first_summary_row {
+#szurzfcyzq .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#wmvbqfrahm .gt_first_summary_row.thick {
+#szurzfcyzq .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#wmvbqfrahm .gt_last_summary_row {
+#szurzfcyzq .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -878,7 +878,7 @@ After completing this course, students are expected to grasp the following knowl
   border-bottom-color: #D3D3D3;
 }
 
-#wmvbqfrahm .gt_grand_summary_row {
+#szurzfcyzq .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -888,7 +888,7 @@ After completing this course, students are expected to grasp the following knowl
   padding-right: 5px;
 }
 
-#wmvbqfrahm .gt_first_grand_summary_row {
+#szurzfcyzq .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -898,7 +898,7 @@ After completing this course, students are expected to grasp the following knowl
   border-top-color: #D3D3D3;
 }
 
-#wmvbqfrahm .gt_last_grand_summary_row_top {
+#szurzfcyzq .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -908,11 +908,11 @@ After completing this course, students are expected to grasp the following knowl
   border-bottom-color: #D3D3D3;
 }
 
-#wmvbqfrahm .gt_striped {
+#szurzfcyzq .gt_striped {
   background-color: #F5F5F5;
 }
 
-#wmvbqfrahm .gt_table_body {
+#szurzfcyzq .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -921,7 +921,7 @@ After completing this course, students are expected to grasp the following knowl
   border-bottom-color: #D3D3D3;
 }
 
-#wmvbqfrahm .gt_footnotes {
+#szurzfcyzq .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -935,7 +935,7 @@ After completing this course, students are expected to grasp the following knowl
   border-right-color: #D3D3D3;
 }
 
-#wmvbqfrahm .gt_footnote {
+#szurzfcyzq .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -944,7 +944,7 @@ After completing this course, students are expected to grasp the following knowl
   padding-right: 5px;
 }
 
-#wmvbqfrahm .gt_sourcenotes {
+#szurzfcyzq .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -958,7 +958,7 @@ After completing this course, students are expected to grasp the following knowl
   border-right-color: #D3D3D3;
 }
 
-#wmvbqfrahm .gt_sourcenote {
+#szurzfcyzq .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -966,72 +966,72 @@ After completing this course, students are expected to grasp the following knowl
   padding-right: 5px;
 }
 
-#wmvbqfrahm .gt_left {
+#szurzfcyzq .gt_left {
   text-align: left;
 }
 
-#wmvbqfrahm .gt_center {
+#szurzfcyzq .gt_center {
   text-align: center;
 }
 
-#wmvbqfrahm .gt_right {
+#szurzfcyzq .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#wmvbqfrahm .gt_font_normal {
+#szurzfcyzq .gt_font_normal {
   font-weight: normal;
 }
 
-#wmvbqfrahm .gt_font_bold {
+#szurzfcyzq .gt_font_bold {
   font-weight: bold;
 }
 
-#wmvbqfrahm .gt_font_italic {
+#szurzfcyzq .gt_font_italic {
   font-style: italic;
 }
 
-#wmvbqfrahm .gt_super {
+#szurzfcyzq .gt_super {
   font-size: 65%;
 }
 
-#wmvbqfrahm .gt_footnote_marks {
+#szurzfcyzq .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#wmvbqfrahm .gt_asterisk {
+#szurzfcyzq .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#wmvbqfrahm .gt_indent_1 {
+#szurzfcyzq .gt_indent_1 {
   text-indent: 5px;
 }
 
-#wmvbqfrahm .gt_indent_2 {
+#szurzfcyzq .gt_indent_2 {
   text-indent: 10px;
 }
 
-#wmvbqfrahm .gt_indent_3 {
+#szurzfcyzq .gt_indent_3 {
   text-indent: 15px;
 }
 
-#wmvbqfrahm .gt_indent_4 {
+#szurzfcyzq .gt_indent_4 {
   text-indent: 20px;
 }
 
-#wmvbqfrahm .gt_indent_5 {
+#szurzfcyzq .gt_indent_5 {
   text-indent: 25px;
 }
 
-#wmvbqfrahm .katex-display {
+#szurzfcyzq .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#wmvbqfrahm div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#szurzfcyzq div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
