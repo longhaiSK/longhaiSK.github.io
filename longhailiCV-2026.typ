@@ -2052,378 +2052,405 @@
 
 = 18. PRACTICE OF PROFESSIONAL SKILLS
 <practice-of-professional-skills>
+== 18.1 Journal Refereeing
+<journal-refereeing>
 #strong[2026-2027]
 
 #block[
-#set enum(numbering: "1.", start: 70)
+#set enum(numbering: "1.", start: 44)
++ Refereeing for #emph[Biometrical Journal], August 2026
+]
+
+#block[
+#set enum(numbering: "1.", start: 43)
 + Refereeing for #emph[Journal of Computational and Graphical Statistics], July 2026
 ]
 
 #block[
-#set enum(numbering: "1.", start: 69)
+#set enum(numbering: "1.", start: 42)
 + Refereeing for #emph[Bioinformatics], July, 2026
 ]
 
 #strong[2025-2026]
 
 #block[
-#set enum(numbering: "1.", start: 68)
+#set enum(numbering: "1.", start: 41)
 + Refereeing for #emph[Journal of Statistical Computation and Simulation], June, 2026
 ]
 
 #block[
-#set enum(numbering: "1.", start: 67)
+#set enum(numbering: "1.", start: 40)
 + Refereeing for #emph[Journal of Statistical Computation and Simulation], April, 2026
 ]
 
 #block[
-#set enum(numbering: "1.", start: 66)
+#set enum(numbering: "1.", start: 39)
 + Refereeing for #emph[Journal of the Royal Statistical Society: Series C], April 2026
 ]
 
 #block[
-#set enum(numbering: "1.", start: 65)
+#set enum(numbering: "1.", start: 38)
 + Refereeing for #emph[Bioinformatics], March 2026
 ]
 
 #block[
-#set enum(numbering: "1.", start: 64)
+#set enum(numbering: "1.", start: 37)
 + Refereeing for #emph[Journal of Computational and Graphical Statistics], March 2026
 ]
 
 #block[
-#set enum(numbering: "1.", start: 63)
-+ External Referee for a tenure and promotion of SFU, Dec.~2025
-]
-
-#block[
-#set enum(numbering: "1.", start: 62)
-+ External Examiner for the doctoral thesis by Xiaoqing Zhang at University of Regina, Dec.~8, 2025
-]
-
-#block[
-#set enum(numbering: "1.", start: 61)
+#set enum(numbering: "1.", start: 36)
 + Refereeing for #emph[Journal of Statistical Computation and Simulation], Dec.~2025
 ]
 
 #block[
-#set enum(numbering: "1.", start: 60)
+#set enum(numbering: "1.", start: 35)
 + Refereeing for #emph[Journal of Computational and Graphical Statistics], Sept.~2025
 ]
 
 #block[
-#set enum(numbering: "1.", start: 59)
-+ External Examiner for the doctoral thesis by Na Zhang at University of Alberta, August 28, 2025
-]
-
-#block[
-#set enum(numbering: "1.", start: 58)
+#set enum(numbering: "1.", start: 34)
 + Refereeing for #emph[Journal of the Royal Statistical Society: Series C], August 2025
 ]
 
 #block[
-#set enum(numbering: "1.", start: 57)
+#set enum(numbering: "1.", start: 33)
 + Refereeing for #emph[Journal of Applied Statistics], August 2025
-]
-
-#strong[2024-2025]
-
-#block[
-#set enum(numbering: "1.", start: 56)
-+ Organizing an invited Session for the 7th Symposium of ICSA Canada Chapter, McGill University, August 2026
-]
-
-#block[
-#set enum(numbering: "1.", start: 55)
-+ Organizing an invited Session for 2025 SSC Annual Meeting, Saskatoon, SK, Canada, June 2025
 ]
 
 #strong[2023-2024]
 
 #block[
-#set enum(numbering: "1.", start: 54)
-+ External Examiner for the doctoral thesis by Yuping Yang at SFU, June 25, 2024
-]
-
-#block[
-#set enum(numbering: "1.", start: 53)
+#set enum(numbering: "1.", start: 32)
 + Refereeing for #emph[Journal of Computational and Graphical Statistics], Sept.~2024
 ]
 
 #block[
-#set enum(numbering: "1.", start: 52)
+#set enum(numbering: "1.", start: 31)
 + Refereeing for #emph[Journal of Applied Statistics], Jan.~2024
-]
-
-#block[
-#set enum(numbering: "1.", start: 51)
-+ Review an MITACS Accelerate Grant, Dec.~2023
 ]
 
 #strong[2022-2023]
 
 #block[
-#set enum(numbering: "1.", start: 50)
+#set enum(numbering: "1.", start: 30)
 + Refereeing for #emph[Statistical Methods in Medical Research], April 2023
 ]
 
 #block[
-#set enum(numbering: "1.", start: 49)
+#set enum(numbering: "1.", start: 29)
 + Refereeing for #emph[Statistical Methods in Medical Research], Jan.~2023
 ]
 
 #block[
-#set enum(numbering: "1.", start: 48)
+#set enum(numbering: "1.", start: 28)
 + Refereeing for #emph[Journal of Computational and Graphical Statistics], Jan.~2023
 ]
 
 #block[
-#set enum(numbering: "1.", start: 47)
+#set enum(numbering: "1.", start: 27)
 + Refereeing for #emph[Statistical Methods in Medical Research], Aug.~2022
 ]
 
 #block[
-#set enum(numbering: "1.", start: 46)
-+ External Examiner for the M.Sc. thesis by Xiangling Ji, University of Victoria, 27 July 2022
-]
-
-#block[
-#set enum(numbering: "1.", start: 45)
+#set enum(numbering: "1.", start: 26)
 + Refereeing for #emph[Canadian Journal of Statistics], July 2022
 ]
 
 #strong[2021-2022]
 
 #block[
-#set enum(numbering: "1.", start: 44)
-+ Organizer of an invited session for ICSA Canada Symposium 2022, Banff, AB, Canada, July 2022
-]
-
-#block[
-#set enum(numbering: "1.", start: 43)
-+ External Examiner for one NSERC IDG application
-]
-
-#block[
-#set enum(numbering: "1.", start: 42)
-+ External Examiner for another NSERC IDG application
-]
-
-#block[
-#set enum(numbering: "1.", start: 41)
-+ External Examiner for one MITACS Accelerate grant application
-]
-
-#block[
-#set enum(numbering: "1.", start: 40)
-+ Reviewer for a Canada Research Chair Position
-]
-
-#block[
-#set enum(numbering: "1.", start: 39)
-+ External M.Sc. Thesis Examiner for Zhongyuan Zhang, University of Toronto
-]
-
-#block[
-#set enum(numbering: "1.", start: 38)
+#set enum(numbering: "1.", start: 25)
 + Refereeing for #emph[Statistical Methods in Medical Research]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 37)
+#set enum(numbering: "1.", start: 24)
 + Refereeing for #emph[Journal of Statistical Computation and Simulation]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 36)
+#set enum(numbering: "1.", start: 23)
 + Refereeing for #emph[BMC Cancer]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 35)
+#set enum(numbering: "1.", start: 22)
 + Refereeing for #emph[Journal of Computational and Graphical Statistics]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 34)
+#set enum(numbering: "1.", start: 21)
 + Refereeing for #emph[Canadian Journal of Statistics]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 33)
+#set enum(numbering: "1.", start: 20)
 + Refereeing for #emph[IEEE Transactions on Neural Networks and Learning Systems]
 ]
 
 #strong[2020-2021]
 
 #block[
-#set enum(numbering: "1.", start: 32)
-+ Grant refereeing for an application to MITACS Accelerate, May 2021
-]
-
-#block[
-#set enum(numbering: "1.", start: 31)
-+ External Examination for a PhD thesis of University of Montreal, May 2021
-]
-
-#block[
-#set enum(numbering: "1.", start: 30)
-+ Grant refereeing for an application to NSERC IDG, Jan.~2021
-]
-
-#block[
-#set enum(numbering: "1.", start: 29)
+#set enum(numbering: "1.", start: 19)
 + Refereeing for #emph[Statistics in Medicine]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 28)
+#set enum(numbering: "1.", start: 18)
 + Refereeing for #emph[Computational Statistics and Data Analysis]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 27)
+#set enum(numbering: "1.", start: 17)
 + Refereeing for #emph[Frontiers in Genetics]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 26)
+#set enum(numbering: "1.", start: 16)
 + Refereeing for #emph[Statistical Methods for Medical Research]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 25)
+#set enum(numbering: "1.", start: 15)
 + Refereeing for #emph[Journal of Statistical Computation and Simulation]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 24)
+#set enum(numbering: "1.", start: 14)
 + Refereeing for #emph[BMC Cancer]
 ]
 
 #strong[2019-2020]
 
 #block[
-#set enum(numbering: "1.", start: 23)
-+ External doctoral thesis examiner for Shijia Wang, Simon Fraser University
-]
-
-#block[
-#set enum(numbering: "1.", start: 22)
-+ External doctoral thesis examiner for Kexin Luo, Western University
-]
-
-#block[
-#set enum(numbering: "1.", start: 21)
-+ Grant Refereeing for an application to MITACS
-]
-
-#block[
-#set enum(numbering: "1.", start: 20)
-+ Grant Refereeing for an application to NSERC IDG
-]
-
-#block[
-#set enum(numbering: "1.", start: 19)
+#set enum(numbering: "1.", start: 13)
 + Refereeing for #emph[Computational Statistics and Data Analysis]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 18)
+#set enum(numbering: "1.", start: 12)
 + Refereeing for #emph[Frontiers in Genetics]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 17)
+#set enum(numbering: "1.", start: 11)
 + Refereeing for #emph[Communications in Statistics - Simulation and Computation]
 ]
 
 #strong[2017-2018]
 
 #block[
-#set enum(numbering: "1.", start: 16)
-+ Referee a NSERC discovery grant application
-]
-
-#block[
-#set enum(numbering: "1.", start: 15)
+#set enum(numbering: "1.", start: 10)
 + Refereeing for #emph[Canadian Journal of Statistics]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 14)
+#set enum(numbering: "1.", start: 9)
 + Refereeing for #emph[Journal of Royal Statistical Society (C)]
 ]
 
 #strong[2016-2017]
 
 #block[
-#set enum(numbering: "1.", start: 13)
-+ Referee two applications for MITACS Accelerate Grant
-]
-
-#block[
-#set enum(numbering: "1.", start: 12)
+#set enum(numbering: "1.", start: 8)
 + Refereeing for #emph[Statistics in Medicine]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 11)
+#set enum(numbering: "1.", start: 7)
 + Refereeing for #emph[Statistics and Computing]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 10)
+#set enum(numbering: "1.", start: 6)
 + Refereeing for #emph[PLOS ONE]
-]
-
-#strong[2015-2016]
-
-#block[
-#set enum(numbering: "1.", start: 9)
-+ Organizer, Invited session “Recent Advances in Statistical Inference Methods in Regression Models for Complex and Big Data”, China Statistics Conference, June 2016, Qingdao, China
-]
-
-#block[
-#set enum(numbering: "1.", start: 8)
-+ Refereeing application for NSERC individual discovery grant (2015)
 ]
 
 #strong[2013-2014]
 
 #block[
-#set enum(numbering: "1.", start: 7)
-+ Reviewing and revision services for an SHRF Establishment Grant application (Prof.~Kelly Penz), funded 2013
-]
-
-#block[
-#set enum(numbering: "1.", start: 6)
+#set enum(numbering: "1.", start: 5)
 + Refereeing for #emph[Biometrika]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 5)
+#set enum(numbering: "1.", start: 4)
 + Refereeing for #emph[Statistics In Medicine]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 4)
+#set enum(numbering: "1.", start: 3)
 + Refereeing for #emph[Statistical Papers]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 3)
+#set enum(numbering: "1.", start: 2)
 + Refereeing for #emph[Computational Statistics]
 ]
 
++ Refereeing for #emph[Statistica Sinica]
+
+== 18.2 Institutional Review
+<institutional-review>
+#strong[2025-2026]
+
+#block[
+#set enum(numbering: "1.", start: 10)
++ External Referee for a Tenure and Promotion Case, Simon Fraser University, Dec.~2025
+]
+
+#block[
+#set enum(numbering: "1.", start: 9)
++ External Examiner for the doctoral thesis by Xiaoqing Zhang, University of Regina, Dec.~8, 2025
+]
+
+#block[
+#set enum(numbering: "1.", start: 8)
++ External Examiner for the doctoral thesis by Na Zhang, University of Alberta, August 28, 2025
+]
+
+#strong[2023-2024]
+
+#block[
+#set enum(numbering: "1.", start: 7)
++ External Examiner for the doctoral thesis by Yuping Yang, Simon Fraser University, June 25, 2024
+]
+
+#strong[2022-2023]
+
+#block[
+#set enum(numbering: "1.", start: 6)
++ External Examiner for the M.Sc. thesis by Xiangling Ji, University of Victoria, July 27, 2022
+]
+
+#strong[2021-2022]
+
+#block[
+#set enum(numbering: "1.", start: 5)
++ External Reviewer for a Canada Research Chair Position application
+]
+
+#block[
+#set enum(numbering: "1.", start: 4)
++ External Examiner for the M.Sc. thesis by Zhongyuan Zhang, University of Toronto
+]
+
+#strong[2020-2021]
+
+#block[
+#set enum(numbering: "1.", start: 3)
++ External Examiner for the doctoral thesis, University of Montreal, May 2021
+]
+
+#strong[2019-2020]
+
 #block[
 #set enum(numbering: "1.", start: 2)
-+ Refereeing for #emph[Statistica Sinica]
++ External Examiner for the doctoral thesis by Shijia Wang, Simon Fraser University
+]
+
++ External Examiner for the doctoral thesis by Kexin Luo, Western University
+
+== 18.3 Grant Refereeing
+<grant-refereeing>
+#strong[2023-2024]
+
+#block[
+#set enum(numbering: "1.", start: 12)
++ Refereeing for a MITACS Accelerate Grant application, Dec.~2023
+]
+
+#strong[2021-2022]
+
+#block[
+#set enum(numbering: "1.", start: 11)
++ Refereeing for a NSERC IDG application
+]
+
+#block[
+#set enum(numbering: "1.", start: 10)
++ Refereeing for a NSERC IDG application
+]
+
+#block[
+#set enum(numbering: "1.", start: 9)
++ Refereeing for a MITACS Accelerate Grant application
+]
+
+#strong[2020-2021]
+
+#block[
+#set enum(numbering: "1.", start: 8)
++ Refereeing for a MITACS Accelerate Grant application, May 2021
+]
+
+#block[
+#set enum(numbering: "1.", start: 7)
++ Refereeing for a NSERC IDG application, Jan.~2021
+]
+
+#strong[2019-2020]
+
+#block[
+#set enum(numbering: "1.", start: 6)
++ Refereeing for a MITACS Grant application
+]
+
+#block[
+#set enum(numbering: "1.", start: 5)
++ Refereeing for a NSERC IDG application
+]
+
+#strong[2017-2018]
+
+#block[
+#set enum(numbering: "1.", start: 4)
++ Refereeing for a NSERC Discovery Grant application
+]
+
+#strong[2016-2017]
+
+#block[
+#set enum(numbering: "1.", start: 3)
++ Refereeing for two MITACS Accelerate Grant applications
+]
+
+#strong[2015-2016]
+
+#block[
+#set enum(numbering: "1.", start: 2)
++ Refereeing for a NSERC Discovery Grant application, 2015
 ]
 
 #strong[2011-2012]
 
-+ Refereeing application for NSERC individual discovery grant (2011)
++ Refereeing for a NSERC Discovery Grant application, 2011
+
+== 18.4 Conference/Session Organizing
+<conferencesession-organizing>
+#strong[2024-2025]
+
+#block[
+#set enum(numbering: "1.", start: 4)
++ Organizing an invited Session for the 7th Symposium of ICSA Canada Chapter, McGill University, August 2026
+]
+
+#block[
+#set enum(numbering: "1.", start: 3)
++ Organizing an invited Session for 2025 SSC Annual Meeting, Saskatoon, SK, Canada, June 2025
+]
+
+#strong[2021-2022]
+
+#block[
+#set enum(numbering: "1.", start: 2)
++ Organizer of an invited session for ICSA Canada Symposium 2022, Banff, AB, Canada, July 2022
+]
+
+#strong[2015-2016]
+
++ Organizer, Invited session “Recent Advances in Statistical Inference Methods in Regression Models for Complex and Big Data”, China Statistics Conference, June 2016, Qingdao, China
 
 = 19. ADMINISTRATIVE SERVICE
 <administrative-service>

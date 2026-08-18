@@ -2479,96 +2479,73 @@ format:
 
 ## 18. PRACTICE OF PROFESSIONAL SKILLS
 
+### 18.1 Journal Refereeing
 
 
 
 **2026-2027**
 
 
+<!-- -->
+
+44. Refereeing for *Biometrical Journal*, August 2026
+
 
 <!-- -->
 
-70. Refereeing for *Journal of Computational and Graphical Statistics*, July 2026
+43. Refereeing for *Journal of Computational and Graphical Statistics*, July 2026
 
 
 <!-- -->
 
-69. Refereeing for *Bioinformatics*, July, 2026
+42. Refereeing for *Bioinformatics*, July, 2026
 
 **2025-2026**
 
 
 <!-- -->
 
-68. Refereeing for *Journal of Statistical Computation and Simulation*, June, 2026
+41. Refereeing for *Journal of Statistical Computation and Simulation*, June, 2026
 
 
 <!-- -->
 
-67. Refereeing for *Journal of Statistical Computation and Simulation*, April, 2026
+40. Refereeing for *Journal of Statistical Computation and Simulation*, April, 2026
 
 
 <!-- -->
 
-66. Refereeing for *Journal of the Royal Statistical Society: Series C*, April 2026
+39. Refereeing for *Journal of the Royal Statistical Society: Series C*, April 2026
 
 
 <!-- -->
 
-65. Refereeing for *Bioinformatics*, March 2026
+38. Refereeing for *Bioinformatics*, March 2026
 
 
 <!-- -->
 
-64. Refereeing for *Journal of Computational and Graphical Statistics*, March 2026
+37. Refereeing for *Journal of Computational and Graphical Statistics*, March 2026
 
 
 <!-- -->
 
-63. External Referee for a tenure and promotion of SFU, Dec. 2025
+36. Refereeing for *Journal of Statistical Computation and Simulation*, Dec. 2025
 
 
 <!-- -->
 
-62. External Examiner for the doctoral thesis by Xiaoqing Zhang at University of Regina, Dec. 8, 2025
+35. Refereeing for *Journal of Computational and Graphical Statistics*, Sept. 2025
 
 
 <!-- -->
 
-61. Refereeing for *Journal of Statistical Computation and Simulation*, Dec. 2025
+34. Refereeing for *Journal of the Royal Statistical Society: Series C*, August 2025
 
 
 <!-- -->
 
-60. Refereeing for *Journal of Computational and Graphical Statistics*, Sept. 2025
-
-
-<!-- -->
-
-59. External Examiner for the doctoral thesis by Na Zhang at University of Alberta, August 28, 2025
-
-
-<!-- -->
-
-58. Refereeing for *Journal of the Royal Statistical Society: Series C*, August 2025
-
-
-<!-- -->
-
-57. Refereeing for *Journal of Applied Statistics*, August 2025
-
-**2024-2025**
-
-
-
-<!-- -->
-
-56. Organizing an invited Session for the 7th Symposium of ICSA Canada Chapter, McGill University, August 2026
-
-
-<!-- -->
-
-55. Organizing an invited Session for 2025 SSC Annual Meeting, Saskatoon, SK, Canada, June 2025
+33. Refereeing for *Journal of Applied Statistics*, August 2025
 
 **2023-2024**
 
@@ -2576,22 +2553,12 @@ format:
 
 <!-- -->
 
-54. External Examiner for the doctoral thesis by Yuping Yang at SFU, June 25, 2024
+32. Refereeing for *Journal of Computational and Graphical Statistics*, Sept. 2024
 
 
 <!-- -->
 
-53. Refereeing for *Journal of Computational and Graphical Statistics*, Sept. 2024
-
-
-<!-- -->
-
-52. Refereeing for *Journal of Applied Statistics*, Jan. 2024
-
-
-<!-- -->
-
-51. Review an MITACS Accelerate Grant, Dec. 2023
+31. Refereeing for *Journal of Applied Statistics*, Jan. 2024
 
 **2022-2023**
 
@@ -2599,32 +2566,27 @@ format:
 
 <!-- -->
 
-50. Refereeing for *Statistical Methods in Medical Research*, April 2023
+30. Refereeing for *Statistical Methods in Medical Research*, April 2023
 
 
 <!-- -->
 
-49. Refereeing for *Statistical Methods in Medical Research*, Jan. 2023
+29. Refereeing for *Statistical Methods in Medical Research*, Jan. 2023
 
 
 <!-- -->
 
-48. Refereeing for *Journal of Computational and Graphical Statistics*, Jan. 2023
+28. Refereeing for *Journal of Computational and Graphical Statistics*, Jan. 2023
 
 
 <!-- -->
 
-47. Refereeing for *Statistical Methods in Medical Research*, Aug. 2022
+27. Refereeing for *Statistical Methods in Medical Research*, Aug. 2022
 
 
 <!-- -->
 
-46. External Examiner for the M.Sc. thesis by Xiangling Ji, University of Victoria, 27 July 2022
-
-
-<!-- -->
-
-45. Refereeing for *Canadian Journal of Statistics*, July 2022
+26. Refereeing for *Canadian Journal of Statistics*, July 2022
 
 **2021-2022**
 
@@ -2632,62 +2594,32 @@ format:
 
 <!-- -->
 
-44. Organizer of an invited session for ICSA Canada Symposium 2022, Banff, AB, Canada, July 2022
+25. Refereeing for *Statistical Methods in Medical Research*
 
 
 <!-- -->
 
-43. External Examiner for one NSERC IDG application
+24. Refereeing for *Journal of Statistical Computation and Simulation*
 
 
 <!-- -->
 
-42. External Examiner for another NSERC IDG application
+23. Refereeing for *BMC Cancer*
 
 
 <!-- -->
 
-41. External Examiner for one MITACS Accelerate grant application
+22. Refereeing for *Journal of Computational and Graphical Statistics*
 
 
 <!-- -->
 
-40. Reviewer for a Canada Research Chair Position
+21. Refereeing for *Canadian Journal of Statistics*
 
 
 <!-- -->
 
-39. External M.Sc. Thesis Examiner for Zhongyuan Zhang, University of Toronto
-
-
-<!-- -->
-
-38. Refereeing for *Statistical Methods in Medical Research*
-
-
-<!-- -->
-
-37. Refereeing for *Journal of Statistical Computation and Simulation*
-
-
-<!-- -->
-
-36. Refereeing for *BMC Cancer*
-
-
-<!-- -->
-
-35. Refereeing for *Journal of Computational and Graphical Statistics*
-
-
-<!-- -->
-
-34. Refereeing for *Canadian Journal of Statistics*
-
-
-<!-- -->
-
-33. Refereeing for *IEEE Transactions on Neural Networks and Learning Systems*
+20. Refereeing for *IEEE Transactions on Neural Networks and Learning Systems*
 
 **2020-2021**
 
@@ -2695,47 +2627,32 @@ format:
 
 <!-- -->
 
-32. Grant refereeing for an application to MITACS Accelerate, May 2021
+19. Refereeing for *Statistics in Medicine*
 
 
 <!-- -->
 
-31. External Examination for a PhD thesis of University of Montreal, May 2021
+18. Refereeing for *Computational Statistics and Data Analysis*
 
 
 <!-- -->
 
-30. Grant refereeing for an application to NSERC IDG, Jan. 2021
+17. Refereeing for *Frontiers in Genetics*
 
 
 <!-- -->
 
-29. Refereeing for *Statistics in Medicine*
+16. Refereeing for *Statistical Methods for Medical Research*
 
 
 <!-- -->
 
-28. Refereeing for *Computational Statistics and Data Analysis*
+15. Refereeing for *Journal of Statistical Computation and Simulation*
 
 
 <!-- -->
 
-27. Refereeing for *Frontiers in Genetics*
-
-
-<!-- -->
-
-26. Refereeing for *Statistical Methods for Medical Research*
-
-
-<!-- -->
-
-25. Refereeing for *Journal of Statistical Computation and Simulation*
-
-
-<!-- -->
-
-24. Refereeing for *BMC Cancer*
+14. Refereeing for *BMC Cancer*
 
 **2019-2020**
 
@@ -2743,37 +2660,17 @@ format:
 
 <!-- -->
 
-23. External doctoral thesis examiner for Shijia Wang, Simon Fraser University
+13. Refereeing for *Computational Statistics and Data Analysis*
 
 
 <!-- -->
 
-22. External doctoral thesis examiner for Kexin Luo, Western University
+12. Refereeing for *Frontiers in Genetics*
 
 
 <!-- -->
 
-21. Grant Refereeing for an application to MITACS
-
-
-<!-- -->
-
-20. Grant Refereeing for an application to NSERC IDG
-
-
-<!-- -->
-
-19. Refereeing for *Computational Statistics and Data Analysis*
-
-
-<!-- -->
-
-18. Refereeing for *Frontiers in Genetics*
-
-
-<!-- -->
-
-17. Refereeing for *Communications in Statistics - Simulation and Computation*
+11. Refereeing for *Communications in Statistics - Simulation and Computation*
 
 **2017-2018**
 
@@ -2781,17 +2678,12 @@ format:
 
 <!-- -->
 
-16. Referee a NSERC discovery grant application
+10. Refereeing for *Canadian Journal of Statistics*
 
 
 <!-- -->
 
-15. Refereeing for *Canadian Journal of Statistics*
-
-
-<!-- -->
-
-14. Refereeing for *Journal of Royal Statistical Society (C)*
+9. Refereeing for *Journal of Royal Statistical Society (C)*
 
 **2016-2017**
 
@@ -2799,35 +2691,17 @@ format:
 
 <!-- -->
 
-13. Referee two applications for MITACS Accelerate Grant
+8. Refereeing for *Statistics in Medicine*
 
 
 <!-- -->
 
-12. Refereeing for *Statistics in Medicine*
+7. Refereeing for *Statistics and Computing*
 
 
 <!-- -->
 
-11. Refereeing for *Statistics and Computing*
-
-
-<!-- -->
-
-10. Refereeing for *PLOS ONE*
-
-**2015-2016**
-
-
-
-<!-- -->
-
-9. Organizer, Invited session “Recent Advances in Statistical Inference Methods in Regression Models for Complex and Big Data”, China Statistics Conference, June 2016, Qingdao, China
-
-
-<!-- -->
-
-8. Refereeing application for NSERC individual discovery grant (2015)
+6. Refereeing for *PLOS ONE*
 
 **2013-2014**
 
@@ -2835,32 +2709,179 @@ format:
 
 <!-- -->
 
-7. Reviewing and revision services for an SHRF Establishment Grant application (Prof. Kelly Penz), funded 2013
+5. Refereeing for *Biometrika*
 
 
 <!-- -->
 
-6. Refereeing for *Biometrika*
+4. Refereeing for *Statistics In Medicine*
 
 
 <!-- -->
 
-5. Refereeing for *Statistics In Medicine*
+3. Refereeing for *Statistical Papers*
 
 
 <!-- -->
 
-4. Refereeing for *Statistical Papers*
+2. Refereeing for *Computational Statistics*
 
 
 <!-- -->
 
-3. Refereeing for *Computational Statistics*
+1. Refereeing for *Statistica Sinica*
+
+### 18.2 Institutional Review
+
+
+
+**2025-2026**
+
 
 
 <!-- -->
 
-2. Refereeing for *Statistica Sinica*
+10. External Referee for a Tenure and Promotion Case, Simon Fraser University, Dec. 2025
+
+
+<!-- -->
+
+9. External Examiner for the doctoral thesis by Xiaoqing Zhang, University of Regina, Dec. 8, 2025
+
+
+<!-- -->
+
+8. External Examiner for the doctoral thesis by Na Zhang, University of Alberta, August 28, 2025
+
+**2023-2024**
+
+
+
+<!-- -->
+
+7. External Examiner for the doctoral thesis by Yuping Yang, Simon Fraser University, June 25, 2024
+
+**2022-2023**
+
+
+
+<!-- -->
+
+6. External Examiner for the M.Sc. thesis by Xiangling Ji, University of Victoria, July 27, 2022
+
+**2021-2022**
+
+
+
+<!-- -->
+
+5. External Reviewer for a Canada Research Chair Position application
+
+
+<!-- -->
+
+4. External Examiner for the M.Sc. thesis by Zhongyuan Zhang, University of Toronto
+
+**2020-2021**
+
+
+
+<!-- -->
+
+3. External Examiner for the doctoral thesis, University of Montreal, May 2021
+
+**2019-2020**
+
+
+
+<!-- -->
+
+2. External Examiner for the doctoral thesis by Shijia Wang, Simon Fraser University
+
+
+<!-- -->
+
+1. External Examiner for the doctoral thesis by Kexin Luo, Western University
+
+### 18.3 Grant Refereeing
+
+
+
+**2023-2024**
+
+
+
+<!-- -->
+
+12. Refereeing for a MITACS Accelerate Grant application, Dec. 2023
+
+**2021-2022**
+
+
+
+<!-- -->
+
+11. Refereeing for a NSERC IDG application
+
+
+<!-- -->
+
+10. Refereeing for a NSERC IDG application
+
+
+<!-- -->
+
+9. Refereeing for a MITACS Accelerate Grant application
+
+**2020-2021**
+
+
+
+<!-- -->
+
+8. Refereeing for a MITACS Accelerate Grant application, May 2021
+
+
+<!-- -->
+
+7. Refereeing for a NSERC IDG application, Jan. 2021
+
+**2019-2020**
+
+
+
+<!-- -->
+
+6. Refereeing for a MITACS Grant application
+
+
+<!-- -->
+
+5. Refereeing for a NSERC IDG application
+
+**2017-2018**
+
+
+
+<!-- -->
+
+4. Refereeing for a NSERC Discovery Grant application
+
+**2016-2017**
+
+
+
+<!-- -->
+
+3. Refereeing for two MITACS Accelerate Grant applications
+
+**2015-2016**
+
+
+
+<!-- -->
+
+2. Refereeing for a NSERC Discovery Grant application, 2015
 
 **2011-2012**
 
@@ -2868,7 +2889,40 @@ format:
 
 <!-- -->
 
-1. Refereeing application for NSERC individual discovery grant (2011)
+1. Refereeing for a NSERC Discovery Grant application, 2011
+
+### 18.4 Conference/Session Organizing
+
+
+
+**2024-2025**
+
+
+
+<!-- -->
+
+4. Organizing an invited Session for the 7th Symposium of ICSA Canada Chapter, McGill University, August 2026
+
+
+<!-- -->
+
+3. Organizing an invited Session for 2025 SSC Annual Meeting, Saskatoon, SK, Canada, June 2025
+
+**2021-2022**
+
+
+
+<!-- -->
+
+2. Organizer of an invited session for ICSA Canada Symposium 2022, Banff, AB, Canada, July 2022
+
+**2015-2016**
+
+
+
+<!-- -->
+
+1. Organizer, Invited session “Recent Advances in Statistical Inference Methods in Regression Models for Complex and Big Data”, China Statistics Conference, June 2016, Qingdao, China
 
 ## 19. ADMINISTRATIVE SERVICE
 
