@@ -35,44 +35,26 @@ After completing this course, students are expected to grasp the following knowl
 
 
 ::: {.cell}
-::: {.cell-output .cell-output-stderr}
-
-```
-Warning: package 'gt' was built under R version 4.5.2
-```
-
-
-:::
-
-::: {.cell-output .cell-output-stderr}
-
-```
-Warning: package 'dplyr' was built under R version 4.5.2
-```
-
-
-:::
-
 ::: {.cell-output-display}
 
 ```{=html}
-<div id="qlpajvrmdx" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#qlpajvrmdx table {
+<div id="rahakrawxs" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#rahakrawxs table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#qlpajvrmdx thead, #qlpajvrmdx tbody, #qlpajvrmdx tfoot, #qlpajvrmdx tr, #qlpajvrmdx td, #qlpajvrmdx th {
+#rahakrawxs thead, #rahakrawxs tbody, #rahakrawxs tfoot, #rahakrawxs tr, #rahakrawxs td, #rahakrawxs th {
   border-style: none;
 }
 
-#qlpajvrmdx p {
+#rahakrawxs p {
   margin: 0;
   padding: 0;
 }
 
-#qlpajvrmdx .gt_table {
+#rahakrawxs .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -98,12 +80,12 @@ Warning: package 'dplyr' was built under R version 4.5.2
   border-left-color: #D3D3D3;
 }
 
-#qlpajvrmdx .gt_caption {
+#rahakrawxs .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#qlpajvrmdx .gt_title {
+#rahakrawxs .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -115,7 +97,7 @@ Warning: package 'dplyr' was built under R version 4.5.2
   border-bottom-width: 0;
 }
 
-#qlpajvrmdx .gt_subtitle {
+#rahakrawxs .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -127,7 +109,7 @@ Warning: package 'dplyr' was built under R version 4.5.2
   border-top-width: 0;
 }
 
-#qlpajvrmdx .gt_heading {
+#rahakrawxs .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -139,13 +121,13 @@ Warning: package 'dplyr' was built under R version 4.5.2
   border-right-color: #D3D3D3;
 }
 
-#qlpajvrmdx .gt_bottom_border {
+#rahakrawxs .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#qlpajvrmdx .gt_col_headings {
+#rahakrawxs .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -160,7 +142,7 @@ Warning: package 'dplyr' was built under R version 4.5.2
   border-right-color: #D3D3D3;
 }
 
-#qlpajvrmdx .gt_col_heading {
+#rahakrawxs .gt_col_heading {
   color: #333333;
   background-color: #E0E0E0;
   font-size: 100%;
@@ -180,7 +162,7 @@ Warning: package 'dplyr' was built under R version 4.5.2
   overflow-x: hidden;
 }
 
-#qlpajvrmdx .gt_column_spanner_outer {
+#rahakrawxs .gt_column_spanner_outer {
   color: #333333;
   background-color: #E0E0E0;
   font-size: 100%;
@@ -192,15 +174,15 @@ Warning: package 'dplyr' was built under R version 4.5.2
   padding-right: 4px;
 }
 
-#qlpajvrmdx .gt_column_spanner_outer:first-child {
+#rahakrawxs .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#qlpajvrmdx .gt_column_spanner_outer:last-child {
+#rahakrawxs .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#qlpajvrmdx .gt_column_spanner {
+#rahakrawxs .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -212,11 +194,11 @@ Warning: package 'dplyr' was built under R version 4.5.2
   width: 100%;
 }
 
-#qlpajvrmdx .gt_spanner_row {
+#rahakrawxs .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#qlpajvrmdx .gt_group_heading {
+#rahakrawxs .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -242,7 +224,7 @@ Warning: package 'dplyr' was built under R version 4.5.2
   text-align: left;
 }
 
-#qlpajvrmdx .gt_empty_group_heading {
+#rahakrawxs .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -257,15 +239,15 @@ Warning: package 'dplyr' was built under R version 4.5.2
   vertical-align: middle;
 }
 
-#qlpajvrmdx .gt_from_md > :first-child {
+#rahakrawxs .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#qlpajvrmdx .gt_from_md > :last-child {
+#rahakrawxs .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#qlpajvrmdx .gt_row {
+#rahakrawxs .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -284,7 +266,7 @@ Warning: package 'dplyr' was built under R version 4.5.2
   overflow-x: hidden;
 }
 
-#qlpajvrmdx .gt_stub {
+#rahakrawxs .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -297,7 +279,7 @@ Warning: package 'dplyr' was built under R version 4.5.2
   padding-right: 5px;
 }
 
-#qlpajvrmdx .gt_stub_row_group {
+#rahakrawxs .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -311,15 +293,15 @@ Warning: package 'dplyr' was built under R version 4.5.2
   vertical-align: top;
 }
 
-#qlpajvrmdx .gt_row_group_first td {
+#rahakrawxs .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#qlpajvrmdx .gt_row_group_first th {
+#rahakrawxs .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#qlpajvrmdx .gt_summary_row {
+#rahakrawxs .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -329,16 +311,16 @@ Warning: package 'dplyr' was built under R version 4.5.2
   padding-right: 5px;
 }
 
-#qlpajvrmdx .gt_first_summary_row {
+#rahakrawxs .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#qlpajvrmdx .gt_first_summary_row.thick {
+#rahakrawxs .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#qlpajvrmdx .gt_last_summary_row {
+#rahakrawxs .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -348,7 +330,7 @@ Warning: package 'dplyr' was built under R version 4.5.2
   border-bottom-color: #D3D3D3;
 }
 
-#qlpajvrmdx .gt_grand_summary_row {
+#rahakrawxs .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -358,7 +340,7 @@ Warning: package 'dplyr' was built under R version 4.5.2
   padding-right: 5px;
 }
 
-#qlpajvrmdx .gt_first_grand_summary_row {
+#rahakrawxs .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -368,7 +350,7 @@ Warning: package 'dplyr' was built under R version 4.5.2
   border-top-color: #D3D3D3;
 }
 
-#qlpajvrmdx .gt_last_grand_summary_row_top {
+#rahakrawxs .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -378,11 +360,11 @@ Warning: package 'dplyr' was built under R version 4.5.2
   border-bottom-color: #D3D3D3;
 }
 
-#qlpajvrmdx .gt_striped {
+#rahakrawxs .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#qlpajvrmdx .gt_table_body {
+#rahakrawxs .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -391,7 +373,7 @@ Warning: package 'dplyr' was built under R version 4.5.2
   border-bottom-color: #D3D3D3;
 }
 
-#qlpajvrmdx .gt_footnotes {
+#rahakrawxs .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -405,7 +387,7 @@ Warning: package 'dplyr' was built under R version 4.5.2
   border-right-color: #D3D3D3;
 }
 
-#qlpajvrmdx .gt_footnote {
+#rahakrawxs .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -414,7 +396,7 @@ Warning: package 'dplyr' was built under R version 4.5.2
   padding-right: 5px;
 }
 
-#qlpajvrmdx .gt_sourcenotes {
+#rahakrawxs .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -428,7 +410,7 @@ Warning: package 'dplyr' was built under R version 4.5.2
   border-right-color: #D3D3D3;
 }
 
-#qlpajvrmdx .gt_sourcenote {
+#rahakrawxs .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -436,72 +418,72 @@ Warning: package 'dplyr' was built under R version 4.5.2
   padding-right: 5px;
 }
 
-#qlpajvrmdx .gt_left {
+#rahakrawxs .gt_left {
   text-align: left;
 }
 
-#qlpajvrmdx .gt_center {
+#rahakrawxs .gt_center {
   text-align: center;
 }
 
-#qlpajvrmdx .gt_right {
+#rahakrawxs .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#qlpajvrmdx .gt_font_normal {
+#rahakrawxs .gt_font_normal {
   font-weight: normal;
 }
 
-#qlpajvrmdx .gt_font_bold {
+#rahakrawxs .gt_font_bold {
   font-weight: bold;
 }
 
-#qlpajvrmdx .gt_font_italic {
+#rahakrawxs .gt_font_italic {
   font-style: italic;
 }
 
-#qlpajvrmdx .gt_super {
+#rahakrawxs .gt_super {
   font-size: 65%;
 }
 
-#qlpajvrmdx .gt_footnote_marks {
+#rahakrawxs .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#qlpajvrmdx .gt_asterisk {
+#rahakrawxs .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#qlpajvrmdx .gt_indent_1 {
+#rahakrawxs .gt_indent_1 {
   text-indent: 5px;
 }
 
-#qlpajvrmdx .gt_indent_2 {
+#rahakrawxs .gt_indent_2 {
   text-indent: 10px;
 }
 
-#qlpajvrmdx .gt_indent_3 {
+#rahakrawxs .gt_indent_3 {
   text-indent: 15px;
 }
 
-#qlpajvrmdx .gt_indent_4 {
+#rahakrawxs .gt_indent_4 {
   text-indent: 20px;
 }
 
-#qlpajvrmdx .gt_indent_5 {
+#rahakrawxs .gt_indent_5 {
   text-indent: 25px;
 }
 
-#qlpajvrmdx .katex-display {
+#rahakrawxs .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#qlpajvrmdx div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#rahakrawxs div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -553,23 +535,23 @@ Warning: package 'dplyr' was built under R version 4.5.2
 ::: {.cell-output-display}
 
 ```{=html}
-<div id="uslblpqhcm" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#uslblpqhcm table {
+<div id="noqwwdwzxr" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#noqwwdwzxr table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#uslblpqhcm thead, #uslblpqhcm tbody, #uslblpqhcm tfoot, #uslblpqhcm tr, #uslblpqhcm td, #uslblpqhcm th {
+#noqwwdwzxr thead, #noqwwdwzxr tbody, #noqwwdwzxr tfoot, #noqwwdwzxr tr, #noqwwdwzxr td, #noqwwdwzxr th {
   border-style: none;
 }
 
-#uslblpqhcm p {
+#noqwwdwzxr p {
   margin: 0;
   padding: 0;
 }
 
-#uslblpqhcm .gt_table {
+#noqwwdwzxr .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -595,12 +577,12 @@ Warning: package 'dplyr' was built under R version 4.5.2
   border-left-color: #D3D3D3;
 }
 
-#uslblpqhcm .gt_caption {
+#noqwwdwzxr .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#uslblpqhcm .gt_title {
+#noqwwdwzxr .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -612,7 +594,7 @@ Warning: package 'dplyr' was built under R version 4.5.2
   border-bottom-width: 0;
 }
 
-#uslblpqhcm .gt_subtitle {
+#noqwwdwzxr .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -624,7 +606,7 @@ Warning: package 'dplyr' was built under R version 4.5.2
   border-top-width: 0;
 }
 
-#uslblpqhcm .gt_heading {
+#noqwwdwzxr .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -636,13 +618,13 @@ Warning: package 'dplyr' was built under R version 4.5.2
   border-right-color: #D3D3D3;
 }
 
-#uslblpqhcm .gt_bottom_border {
+#noqwwdwzxr .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#uslblpqhcm .gt_col_headings {
+#noqwwdwzxr .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -657,7 +639,7 @@ Warning: package 'dplyr' was built under R version 4.5.2
   border-right-color: #D3D3D3;
 }
 
-#uslblpqhcm .gt_col_heading {
+#noqwwdwzxr .gt_col_heading {
   color: #333333;
   background-color: #E0E0E0;
   font-size: 100%;
@@ -677,7 +659,7 @@ Warning: package 'dplyr' was built under R version 4.5.2
   overflow-x: hidden;
 }
 
-#uslblpqhcm .gt_column_spanner_outer {
+#noqwwdwzxr .gt_column_spanner_outer {
   color: #333333;
   background-color: #E0E0E0;
   font-size: 100%;
@@ -689,15 +671,15 @@ Warning: package 'dplyr' was built under R version 4.5.2
   padding-right: 4px;
 }
 
-#uslblpqhcm .gt_column_spanner_outer:first-child {
+#noqwwdwzxr .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#uslblpqhcm .gt_column_spanner_outer:last-child {
+#noqwwdwzxr .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#uslblpqhcm .gt_column_spanner {
+#noqwwdwzxr .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -709,11 +691,11 @@ Warning: package 'dplyr' was built under R version 4.5.2
   width: 100%;
 }
 
-#uslblpqhcm .gt_spanner_row {
+#noqwwdwzxr .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#uslblpqhcm .gt_group_heading {
+#noqwwdwzxr .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -739,7 +721,7 @@ Warning: package 'dplyr' was built under R version 4.5.2
   text-align: left;
 }
 
-#uslblpqhcm .gt_empty_group_heading {
+#noqwwdwzxr .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -754,15 +736,15 @@ Warning: package 'dplyr' was built under R version 4.5.2
   vertical-align: middle;
 }
 
-#uslblpqhcm .gt_from_md > :first-child {
+#noqwwdwzxr .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#uslblpqhcm .gt_from_md > :last-child {
+#noqwwdwzxr .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#uslblpqhcm .gt_row {
+#noqwwdwzxr .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -781,7 +763,7 @@ Warning: package 'dplyr' was built under R version 4.5.2
   overflow-x: hidden;
 }
 
-#uslblpqhcm .gt_stub {
+#noqwwdwzxr .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -794,7 +776,7 @@ Warning: package 'dplyr' was built under R version 4.5.2
   padding-right: 5px;
 }
 
-#uslblpqhcm .gt_stub_row_group {
+#noqwwdwzxr .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -808,15 +790,15 @@ Warning: package 'dplyr' was built under R version 4.5.2
   vertical-align: top;
 }
 
-#uslblpqhcm .gt_row_group_first td {
+#noqwwdwzxr .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#uslblpqhcm .gt_row_group_first th {
+#noqwwdwzxr .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#uslblpqhcm .gt_summary_row {
+#noqwwdwzxr .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -826,16 +808,16 @@ Warning: package 'dplyr' was built under R version 4.5.2
   padding-right: 5px;
 }
 
-#uslblpqhcm .gt_first_summary_row {
+#noqwwdwzxr .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#uslblpqhcm .gt_first_summary_row.thick {
+#noqwwdwzxr .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#uslblpqhcm .gt_last_summary_row {
+#noqwwdwzxr .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -845,7 +827,7 @@ Warning: package 'dplyr' was built under R version 4.5.2
   border-bottom-color: #D3D3D3;
 }
 
-#uslblpqhcm .gt_grand_summary_row {
+#noqwwdwzxr .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -855,7 +837,7 @@ Warning: package 'dplyr' was built under R version 4.5.2
   padding-right: 5px;
 }
 
-#uslblpqhcm .gt_first_grand_summary_row {
+#noqwwdwzxr .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -865,7 +847,7 @@ Warning: package 'dplyr' was built under R version 4.5.2
   border-top-color: #D3D3D3;
 }
 
-#uslblpqhcm .gt_last_grand_summary_row_top {
+#noqwwdwzxr .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -875,11 +857,11 @@ Warning: package 'dplyr' was built under R version 4.5.2
   border-bottom-color: #D3D3D3;
 }
 
-#uslblpqhcm .gt_striped {
+#noqwwdwzxr .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#uslblpqhcm .gt_table_body {
+#noqwwdwzxr .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -888,7 +870,7 @@ Warning: package 'dplyr' was built under R version 4.5.2
   border-bottom-color: #D3D3D3;
 }
 
-#uslblpqhcm .gt_footnotes {
+#noqwwdwzxr .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -902,7 +884,7 @@ Warning: package 'dplyr' was built under R version 4.5.2
   border-right-color: #D3D3D3;
 }
 
-#uslblpqhcm .gt_footnote {
+#noqwwdwzxr .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -911,7 +893,7 @@ Warning: package 'dplyr' was built under R version 4.5.2
   padding-right: 5px;
 }
 
-#uslblpqhcm .gt_sourcenotes {
+#noqwwdwzxr .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -925,7 +907,7 @@ Warning: package 'dplyr' was built under R version 4.5.2
   border-right-color: #D3D3D3;
 }
 
-#uslblpqhcm .gt_sourcenote {
+#noqwwdwzxr .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -933,72 +915,72 @@ Warning: package 'dplyr' was built under R version 4.5.2
   padding-right: 5px;
 }
 
-#uslblpqhcm .gt_left {
+#noqwwdwzxr .gt_left {
   text-align: left;
 }
 
-#uslblpqhcm .gt_center {
+#noqwwdwzxr .gt_center {
   text-align: center;
 }
 
-#uslblpqhcm .gt_right {
+#noqwwdwzxr .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#uslblpqhcm .gt_font_normal {
+#noqwwdwzxr .gt_font_normal {
   font-weight: normal;
 }
 
-#uslblpqhcm .gt_font_bold {
+#noqwwdwzxr .gt_font_bold {
   font-weight: bold;
 }
 
-#uslblpqhcm .gt_font_italic {
+#noqwwdwzxr .gt_font_italic {
   font-style: italic;
 }
 
-#uslblpqhcm .gt_super {
+#noqwwdwzxr .gt_super {
   font-size: 65%;
 }
 
-#uslblpqhcm .gt_footnote_marks {
+#noqwwdwzxr .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#uslblpqhcm .gt_asterisk {
+#noqwwdwzxr .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#uslblpqhcm .gt_indent_1 {
+#noqwwdwzxr .gt_indent_1 {
   text-indent: 5px;
 }
 
-#uslblpqhcm .gt_indent_2 {
+#noqwwdwzxr .gt_indent_2 {
   text-indent: 10px;
 }
 
-#uslblpqhcm .gt_indent_3 {
+#noqwwdwzxr .gt_indent_3 {
   text-indent: 15px;
 }
 
-#uslblpqhcm .gt_indent_4 {
+#noqwwdwzxr .gt_indent_4 {
   text-indent: 20px;
 }
 
-#uslblpqhcm .gt_indent_5 {
+#noqwwdwzxr .gt_indent_5 {
   text-indent: 25px;
 }
 
-#uslblpqhcm .katex-display {
+#noqwwdwzxr .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#uslblpqhcm div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#noqwwdwzxr div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>

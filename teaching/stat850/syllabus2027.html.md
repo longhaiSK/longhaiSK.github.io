@@ -40,23 +40,23 @@ This course requires a strong command of multivariate calculus, alongside a rigo
 ::: {.cell-output-display}
 
 ```{=html}
-<div id="dhbdupynst" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#dhbdupynst table {
+<div id="wdwrdxweik" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#wdwrdxweik table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#dhbdupynst thead, #dhbdupynst tbody, #dhbdupynst tfoot, #dhbdupynst tr, #dhbdupynst td, #dhbdupynst th {
+#wdwrdxweik thead, #wdwrdxweik tbody, #wdwrdxweik tfoot, #wdwrdxweik tr, #wdwrdxweik td, #wdwrdxweik th {
   border-style: none;
 }
 
-#dhbdupynst p {
+#wdwrdxweik p {
   margin: 0;
   padding: 0;
 }
 
-#dhbdupynst .gt_table {
+#wdwrdxweik .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -82,12 +82,12 @@ This course requires a strong command of multivariate calculus, alongside a rigo
   border-left-color: #D3D3D3;
 }
 
-#dhbdupynst .gt_caption {
+#wdwrdxweik .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#dhbdupynst .gt_title {
+#wdwrdxweik .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -99,7 +99,7 @@ This course requires a strong command of multivariate calculus, alongside a rigo
   border-bottom-width: 0;
 }
 
-#dhbdupynst .gt_subtitle {
+#wdwrdxweik .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -111,7 +111,7 @@ This course requires a strong command of multivariate calculus, alongside a rigo
   border-top-width: 0;
 }
 
-#dhbdupynst .gt_heading {
+#wdwrdxweik .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -123,13 +123,13 @@ This course requires a strong command of multivariate calculus, alongside a rigo
   border-right-color: #D3D3D3;
 }
 
-#dhbdupynst .gt_bottom_border {
+#wdwrdxweik .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#dhbdupynst .gt_col_headings {
+#wdwrdxweik .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -144,7 +144,7 @@ This course requires a strong command of multivariate calculus, alongside a rigo
   border-right-color: #D3D3D3;
 }
 
-#dhbdupynst .gt_col_heading {
+#wdwrdxweik .gt_col_heading {
   color: #333333;
   background-color: #F0F0F0;
   font-size: 100%;
@@ -164,7 +164,7 @@ This course requires a strong command of multivariate calculus, alongside a rigo
   overflow-x: hidden;
 }
 
-#dhbdupynst .gt_column_spanner_outer {
+#wdwrdxweik .gt_column_spanner_outer {
   color: #333333;
   background-color: #F0F0F0;
   font-size: 100%;
@@ -176,15 +176,15 @@ This course requires a strong command of multivariate calculus, alongside a rigo
   padding-right: 4px;
 }
 
-#dhbdupynst .gt_column_spanner_outer:first-child {
+#wdwrdxweik .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#dhbdupynst .gt_column_spanner_outer:last-child {
+#wdwrdxweik .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#dhbdupynst .gt_column_spanner {
+#wdwrdxweik .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -196,11 +196,11 @@ This course requires a strong command of multivariate calculus, alongside a rigo
   width: 100%;
 }
 
-#dhbdupynst .gt_spanner_row {
+#wdwrdxweik .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#dhbdupynst .gt_group_heading {
+#wdwrdxweik .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -226,7 +226,7 @@ This course requires a strong command of multivariate calculus, alongside a rigo
   text-align: left;
 }
 
-#dhbdupynst .gt_empty_group_heading {
+#wdwrdxweik .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -241,15 +241,15 @@ This course requires a strong command of multivariate calculus, alongside a rigo
   vertical-align: middle;
 }
 
-#dhbdupynst .gt_from_md > :first-child {
+#wdwrdxweik .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#dhbdupynst .gt_from_md > :last-child {
+#wdwrdxweik .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#dhbdupynst .gt_row {
+#wdwrdxweik .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -268,7 +268,7 @@ This course requires a strong command of multivariate calculus, alongside a rigo
   overflow-x: hidden;
 }
 
-#dhbdupynst .gt_stub {
+#wdwrdxweik .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -281,7 +281,7 @@ This course requires a strong command of multivariate calculus, alongside a rigo
   padding-right: 5px;
 }
 
-#dhbdupynst .gt_stub_row_group {
+#wdwrdxweik .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -295,15 +295,15 @@ This course requires a strong command of multivariate calculus, alongside a rigo
   vertical-align: top;
 }
 
-#dhbdupynst .gt_row_group_first td {
+#wdwrdxweik .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#dhbdupynst .gt_row_group_first th {
+#wdwrdxweik .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#dhbdupynst .gt_summary_row {
+#wdwrdxweik .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -313,16 +313,16 @@ This course requires a strong command of multivariate calculus, alongside a rigo
   padding-right: 5px;
 }
 
-#dhbdupynst .gt_first_summary_row {
+#wdwrdxweik .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#dhbdupynst .gt_first_summary_row.thick {
+#wdwrdxweik .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#dhbdupynst .gt_last_summary_row {
+#wdwrdxweik .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -332,7 +332,7 @@ This course requires a strong command of multivariate calculus, alongside a rigo
   border-bottom-color: #D3D3D3;
 }
 
-#dhbdupynst .gt_grand_summary_row {
+#wdwrdxweik .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -342,7 +342,7 @@ This course requires a strong command of multivariate calculus, alongside a rigo
   padding-right: 5px;
 }
 
-#dhbdupynst .gt_first_grand_summary_row {
+#wdwrdxweik .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -352,7 +352,7 @@ This course requires a strong command of multivariate calculus, alongside a rigo
   border-top-color: #D3D3D3;
 }
 
-#dhbdupynst .gt_last_grand_summary_row_top {
+#wdwrdxweik .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -362,11 +362,11 @@ This course requires a strong command of multivariate calculus, alongside a rigo
   border-bottom-color: #D3D3D3;
 }
 
-#dhbdupynst .gt_striped {
+#wdwrdxweik .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#dhbdupynst .gt_table_body {
+#wdwrdxweik .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -375,7 +375,7 @@ This course requires a strong command of multivariate calculus, alongside a rigo
   border-bottom-color: #D3D3D3;
 }
 
-#dhbdupynst .gt_footnotes {
+#wdwrdxweik .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -389,7 +389,7 @@ This course requires a strong command of multivariate calculus, alongside a rigo
   border-right-color: #D3D3D3;
 }
 
-#dhbdupynst .gt_footnote {
+#wdwrdxweik .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -398,7 +398,7 @@ This course requires a strong command of multivariate calculus, alongside a rigo
   padding-right: 5px;
 }
 
-#dhbdupynst .gt_sourcenotes {
+#wdwrdxweik .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -412,7 +412,7 @@ This course requires a strong command of multivariate calculus, alongside a rigo
   border-right-color: #D3D3D3;
 }
 
-#dhbdupynst .gt_sourcenote {
+#wdwrdxweik .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -420,72 +420,72 @@ This course requires a strong command of multivariate calculus, alongside a rigo
   padding-right: 5px;
 }
 
-#dhbdupynst .gt_left {
+#wdwrdxweik .gt_left {
   text-align: left;
 }
 
-#dhbdupynst .gt_center {
+#wdwrdxweik .gt_center {
   text-align: center;
 }
 
-#dhbdupynst .gt_right {
+#wdwrdxweik .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#dhbdupynst .gt_font_normal {
+#wdwrdxweik .gt_font_normal {
   font-weight: normal;
 }
 
-#dhbdupynst .gt_font_bold {
+#wdwrdxweik .gt_font_bold {
   font-weight: bold;
 }
 
-#dhbdupynst .gt_font_italic {
+#wdwrdxweik .gt_font_italic {
   font-style: italic;
 }
 
-#dhbdupynst .gt_super {
+#wdwrdxweik .gt_super {
   font-size: 65%;
 }
 
-#dhbdupynst .gt_footnote_marks {
+#wdwrdxweik .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#dhbdupynst .gt_asterisk {
+#wdwrdxweik .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#dhbdupynst .gt_indent_1 {
+#wdwrdxweik .gt_indent_1 {
   text-indent: 5px;
 }
 
-#dhbdupynst .gt_indent_2 {
+#wdwrdxweik .gt_indent_2 {
   text-indent: 10px;
 }
 
-#dhbdupynst .gt_indent_3 {
+#wdwrdxweik .gt_indent_3 {
   text-indent: 15px;
 }
 
-#dhbdupynst .gt_indent_4 {
+#wdwrdxweik .gt_indent_4 {
   text-indent: 20px;
 }
 
-#dhbdupynst .gt_indent_5 {
+#wdwrdxweik .gt_indent_5 {
   text-indent: 25px;
 }
 
-#dhbdupynst .katex-display {
+#wdwrdxweik .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#dhbdupynst div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#wdwrdxweik div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -585,23 +585,23 @@ After completing this course, students are expected to grasp the following knowl
 ::: {.cell-output-display}
 
 ```{=html}
-<div id="zquowhxsij" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#zquowhxsij table {
+<div id="fzwwyvwmps" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#fzwwyvwmps table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#zquowhxsij thead, #zquowhxsij tbody, #zquowhxsij tfoot, #zquowhxsij tr, #zquowhxsij td, #zquowhxsij th {
+#fzwwyvwmps thead, #fzwwyvwmps tbody, #fzwwyvwmps tfoot, #fzwwyvwmps tr, #fzwwyvwmps td, #fzwwyvwmps th {
   border-style: none;
 }
 
-#zquowhxsij p {
+#fzwwyvwmps p {
   margin: 0;
   padding: 0;
 }
 
-#zquowhxsij .gt_table {
+#fzwwyvwmps .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -627,12 +627,12 @@ After completing this course, students are expected to grasp the following knowl
   border-left-color: #D3D3D3;
 }
 
-#zquowhxsij .gt_caption {
+#fzwwyvwmps .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#zquowhxsij .gt_title {
+#fzwwyvwmps .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -644,7 +644,7 @@ After completing this course, students are expected to grasp the following knowl
   border-bottom-width: 0;
 }
 
-#zquowhxsij .gt_subtitle {
+#fzwwyvwmps .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -656,7 +656,7 @@ After completing this course, students are expected to grasp the following knowl
   border-top-width: 0;
 }
 
-#zquowhxsij .gt_heading {
+#fzwwyvwmps .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -668,13 +668,13 @@ After completing this course, students are expected to grasp the following knowl
   border-right-color: #D3D3D3;
 }
 
-#zquowhxsij .gt_bottom_border {
+#fzwwyvwmps .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#zquowhxsij .gt_col_headings {
+#fzwwyvwmps .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -689,7 +689,7 @@ After completing this course, students are expected to grasp the following knowl
   border-right-color: #D3D3D3;
 }
 
-#zquowhxsij .gt_col_heading {
+#fzwwyvwmps .gt_col_heading {
   color: #333333;
   background-color: #E0E0E0;
   font-size: 100%;
@@ -709,7 +709,7 @@ After completing this course, students are expected to grasp the following knowl
   overflow-x: hidden;
 }
 
-#zquowhxsij .gt_column_spanner_outer {
+#fzwwyvwmps .gt_column_spanner_outer {
   color: #333333;
   background-color: #E0E0E0;
   font-size: 100%;
@@ -721,15 +721,15 @@ After completing this course, students are expected to grasp the following knowl
   padding-right: 4px;
 }
 
-#zquowhxsij .gt_column_spanner_outer:first-child {
+#fzwwyvwmps .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#zquowhxsij .gt_column_spanner_outer:last-child {
+#fzwwyvwmps .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#zquowhxsij .gt_column_spanner {
+#fzwwyvwmps .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -741,11 +741,11 @@ After completing this course, students are expected to grasp the following knowl
   width: 100%;
 }
 
-#zquowhxsij .gt_spanner_row {
+#fzwwyvwmps .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#zquowhxsij .gt_group_heading {
+#fzwwyvwmps .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -771,7 +771,7 @@ After completing this course, students are expected to grasp the following knowl
   text-align: left;
 }
 
-#zquowhxsij .gt_empty_group_heading {
+#fzwwyvwmps .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -786,15 +786,15 @@ After completing this course, students are expected to grasp the following knowl
   vertical-align: middle;
 }
 
-#zquowhxsij .gt_from_md > :first-child {
+#fzwwyvwmps .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#zquowhxsij .gt_from_md > :last-child {
+#fzwwyvwmps .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#zquowhxsij .gt_row {
+#fzwwyvwmps .gt_row {
   padding-top: 5px;
   padding-bottom: 5px;
   padding-left: 5px;
@@ -813,7 +813,7 @@ After completing this course, students are expected to grasp the following knowl
   overflow-x: hidden;
 }
 
-#zquowhxsij .gt_stub {
+#fzwwyvwmps .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -826,7 +826,7 @@ After completing this course, students are expected to grasp the following knowl
   padding-right: 5px;
 }
 
-#zquowhxsij .gt_stub_row_group {
+#fzwwyvwmps .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -840,15 +840,15 @@ After completing this course, students are expected to grasp the following knowl
   vertical-align: top;
 }
 
-#zquowhxsij .gt_row_group_first td {
+#fzwwyvwmps .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#zquowhxsij .gt_row_group_first th {
+#fzwwyvwmps .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#zquowhxsij .gt_summary_row {
+#fzwwyvwmps .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -858,16 +858,16 @@ After completing this course, students are expected to grasp the following knowl
   padding-right: 5px;
 }
 
-#zquowhxsij .gt_first_summary_row {
+#fzwwyvwmps .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#zquowhxsij .gt_first_summary_row.thick {
+#fzwwyvwmps .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#zquowhxsij .gt_last_summary_row {
+#fzwwyvwmps .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -877,7 +877,7 @@ After completing this course, students are expected to grasp the following knowl
   border-bottom-color: #D3D3D3;
 }
 
-#zquowhxsij .gt_grand_summary_row {
+#fzwwyvwmps .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -887,7 +887,7 @@ After completing this course, students are expected to grasp the following knowl
   padding-right: 5px;
 }
 
-#zquowhxsij .gt_first_grand_summary_row {
+#fzwwyvwmps .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -897,7 +897,7 @@ After completing this course, students are expected to grasp the following knowl
   border-top-color: #D3D3D3;
 }
 
-#zquowhxsij .gt_last_grand_summary_row_top {
+#fzwwyvwmps .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -907,11 +907,11 @@ After completing this course, students are expected to grasp the following knowl
   border-bottom-color: #D3D3D3;
 }
 
-#zquowhxsij .gt_striped {
+#fzwwyvwmps .gt_striped {
   background-color: #F5F5F5;
 }
 
-#zquowhxsij .gt_table_body {
+#fzwwyvwmps .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -920,7 +920,7 @@ After completing this course, students are expected to grasp the following knowl
   border-bottom-color: #D3D3D3;
 }
 
-#zquowhxsij .gt_footnotes {
+#fzwwyvwmps .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -934,7 +934,7 @@ After completing this course, students are expected to grasp the following knowl
   border-right-color: #D3D3D3;
 }
 
-#zquowhxsij .gt_footnote {
+#fzwwyvwmps .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -943,7 +943,7 @@ After completing this course, students are expected to grasp the following knowl
   padding-right: 5px;
 }
 
-#zquowhxsij .gt_sourcenotes {
+#fzwwyvwmps .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -957,7 +957,7 @@ After completing this course, students are expected to grasp the following knowl
   border-right-color: #D3D3D3;
 }
 
-#zquowhxsij .gt_sourcenote {
+#fzwwyvwmps .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -965,72 +965,72 @@ After completing this course, students are expected to grasp the following knowl
   padding-right: 5px;
 }
 
-#zquowhxsij .gt_left {
+#fzwwyvwmps .gt_left {
   text-align: left;
 }
 
-#zquowhxsij .gt_center {
+#fzwwyvwmps .gt_center {
   text-align: center;
 }
 
-#zquowhxsij .gt_right {
+#fzwwyvwmps .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#zquowhxsij .gt_font_normal {
+#fzwwyvwmps .gt_font_normal {
   font-weight: normal;
 }
 
-#zquowhxsij .gt_font_bold {
+#fzwwyvwmps .gt_font_bold {
   font-weight: bold;
 }
 
-#zquowhxsij .gt_font_italic {
+#fzwwyvwmps .gt_font_italic {
   font-style: italic;
 }
 
-#zquowhxsij .gt_super {
+#fzwwyvwmps .gt_super {
   font-size: 65%;
 }
 
-#zquowhxsij .gt_footnote_marks {
+#fzwwyvwmps .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#zquowhxsij .gt_asterisk {
+#fzwwyvwmps .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#zquowhxsij .gt_indent_1 {
+#fzwwyvwmps .gt_indent_1 {
   text-indent: 5px;
 }
 
-#zquowhxsij .gt_indent_2 {
+#fzwwyvwmps .gt_indent_2 {
   text-indent: 10px;
 }
 
-#zquowhxsij .gt_indent_3 {
+#fzwwyvwmps .gt_indent_3 {
   text-indent: 15px;
 }
 
-#zquowhxsij .gt_indent_4 {
+#fzwwyvwmps .gt_indent_4 {
   text-indent: 20px;
 }
 
-#zquowhxsij .gt_indent_5 {
+#fzwwyvwmps .gt_indent_5 {
   text-indent: 25px;
 }
 
-#zquowhxsij .katex-display {
+#fzwwyvwmps .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#zquowhxsij div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#fzwwyvwmps div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>

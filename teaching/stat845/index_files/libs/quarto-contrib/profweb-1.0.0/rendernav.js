@@ -1,5 +1,23 @@
 // renderNavigation.js: A single script to create and manage the entire navigation bar.
 
+// Resolve the folder this script was loaded from, so bundled assets (e.g. logo.png)
+// are found next to it wherever Quarto copies the profweb extension's dependencies,
+// instead of assuming a site-root /resources/ path.
+function getProfwebBaseUrl() {
+    if (document.currentScript && document.currentScript.src) {
+        return document.currentScript.src.replace(/[^/]+$/, '');
+    }
+    const scripts = document.getElementsByTagName('script');
+    for (const el of scripts) {
+        if (el.src && el.src.indexOf('rendernav.js') !== -1) {
+            return el.src.replace(/[^/]+$/, '');
+        }
+    }
+    return '';
+}
+
+const PROFWEB_BASE_URL = getProfwebBaseUrl();
+
 function setupNavigation() {
     
     function normalizePath(path) {
@@ -15,7 +33,7 @@ function setupNavigation() {
         const normalizedCurrentPath = normalizePath(window.location.pathname);
         const navLinks = document.querySelectorAll('#navigation-placeholder .nav-links a');
         navLinks.forEach(link => {
-            const button = link.querySelector('button.btn');
+            const button = link.querySelector('button.navbtn');
             if (button) {
                 button.classList.remove('active');
                 const hrefAttribute = link.getAttribute('href');
@@ -139,8 +157,8 @@ document.addEventListener('DOMContentLoaded', function() {
         <nav class="responsive-nav">
             <div class="nav-brand">
                 
-                <img src="/resources/logo.png" class="nav-logo" alt="LOGO">
-                <button class="btn"><span class="nav-prof-name">Professor Longhai Li</span></button>
+                <img src="${PROFWEB_BASE_URL}logo.png" class="nav-logo" alt="LOGO">
+                <button class="navbtn"><span class="nav-prof-name">Professor Longhai Li</span></button>
 
             </div>
             <button class="hamburger-menu" aria-label="Toggle menu" aria-expanded="false">
@@ -149,9 +167,9 @@ document.addEventListener('DOMContentLoaded', function() {
              <span class="hamburger-bar"></span>
             </button>
             <ul class="nav-links">
-                <li class="nav-li"><a href="/index.html"><button class="btn">Home</button></a></li>
-                <li class="nav-li"><a href="/research.html"><button class="btn">Research</button></a></li>
-                <li class="nav-li"><a href="/teaching.html"><button class="btn">Courses</button></a></li>
+                <li class="nav-li"><a href="/index.html"><button class="navbtn">Home</button></a></li>
+                <li class="nav-li"><a href="/research.html"><button class="navbtn">Research</button></a></li>
+                <li class="nav-li"><a href="/teaching.html"><button class="navbtn">Courses</button></a></li>
                 <li class="nav-li">
                     <form id="site-search-form" class="search-form" role="search">
                         <input id="search-query" type="search" class="search-input" placeholder="Search this site...">
