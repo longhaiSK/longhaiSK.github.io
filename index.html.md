@@ -9,8 +9,6 @@ format: profweb-html
 
 ::: {.column width="80%" .profile-text-col}
 
-[**Professor Longhai Li**](./longhailiCV-2026.html){style="font-size: 1.2rem; text-decoration: none;"}
-<br><br>
 [<i class="fa-solid fa-building-columns contact-icon"></i>Department of Mathematics and Statistics](http://artsandscience.usask.ca/math/){target="_blank"} \
 [<i class="fa-solid fa-graduation-cap contact-icon"></i>University of Saskatchewan](http://www.usask.ca/){target="_blank"}
 
@@ -18,8 +16,10 @@ format: profweb-html
 [<i class="fa-solid fa-envelope contact-icon"></i>longhai.li@usask.ca](mailto:longhai.li@usask.ca) \
 [<i class="fa-solid fa-house contact-icon"></i>https://longhaisk.github.io](https://longhaisk.github.io) \
 [<i class="fa-solid fa-id-card contact-icon"></i>https://artsandscience.usask.ca/profile/LLi](https://artsandscience.usask.ca/profile/LLi) \
-[<i class="ai ai-google-scholar contact-icon"></i>Google Scholar](https://scholar.google.ca/citations?user=S3mYTmwAAAAJ&hl=en){target="_blank"} \
-[<i class="ai ai-clarivate contact-icon"></i>Web of Science](https://www.webofscience.com/wos/author/record/ABF-2953-2020){target="_blank"}
+[<i class="fa-solid fa-user-graduate contact-icon"></i>Google Scholar](https://scholar.google.ca/citations?user=S3mYTmwAAAAJ&hl=en){target="_blank"} \
+[<i class="fa-solid fa-chart-line contact-icon"></i>Web of Science](https://www.webofscience.com/wos/author/record/ABF-2953-2020){target="_blank"}\
+[<i class="fa-solid fa-fingerprint contact-icon"></i>ORCID](https://orcid.org/0000-0002-3074-8584){target="_blank"}
+    
 :::
 
 ::: {.column width="20%" .profile-img-col}
