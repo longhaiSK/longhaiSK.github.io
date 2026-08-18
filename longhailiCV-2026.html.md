@@ -1,5 +1,5 @@
 ---
-title: "CURRICULUM VITAE of LONGHAI LI (Aug 17, 2026)"
+title: "CURRICULUM VITAE of LONGHAI LI (Aug 18, 2026)"
 engine: knitr
 format:
   profweb-html: default
@@ -2253,6 +2253,11 @@ format:
 
 
 
+<!-- -->
+
+13. Li, L., 2026. An entropy-based coefficient of determination with adjustment of optimization bias. [arXiv preprint arXiv:2608.06624](https://doi.org/10.48550/arXiv.2608.06624). Posted August 2026. 
+
+
 
 <!-- -->
 
@@ -3300,6 +3305,6 @@ format:
 
 ```{=html}
 <footer>
-Last updated on August 17, 2026.
+Last updated on August 18, 2026.
 </footer>
 ```

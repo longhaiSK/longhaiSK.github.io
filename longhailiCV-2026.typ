@@ -419,7 +419,7 @@
 )
 
 #show: doc => article(
-  title: [CURRICULUM VITAE of LONGHAI LI (Aug 17, 2026)],
+  title: [CURRICULUM VITAE of LONGHAI LI (Aug 18, 2026)],
   fontsize: 11pt,
   toc_title: [Table of contents],
   toc_depth: 3,
@@ -1858,6 +1858,11 @@
 
 == 15.2 Technical Reports
 <techical-reports>
+#block[
+#set enum(numbering: "1.", start: 13)
++ Li, L., 2026. An entropy-based coefficient of determination with adjustment of optimization bias. #link("https://doi.org/10.48550/arXiv.2608.06624")[arXiv preprint arXiv:2608.06624]. Posted August 2026.
+]
+
 #block[
 #set enum(numbering: "1.", start: 12)
 + Wu, T., Feng, C. and Li, L., 2023. Cross-validatory Z-Residual for Diagnosing Shared Frailty Models. #link("https://doi.org/10.48550/arXiv.2303.09616"). 32 pages, 14 figures.
