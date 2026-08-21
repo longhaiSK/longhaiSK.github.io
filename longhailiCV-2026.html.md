@@ -1,5 +1,5 @@
 ---
-title: "CURRICULUM VITAE of LONGHAI LI (Aug 18, 2026)"
+title: "CURRICULUM VITAE of LONGHAI LI (Aug 21, 2026)"
 engine: knitr
 format:
   profweb-html: default
@@ -1645,7 +1645,7 @@ format:
 
 <!-- -->
 
-34. Wu, T., Gao, WE, Feng, C., and Li, L., Z-residuals for Diagnosing Bayesian Models, *Journal of American Statistical Association*, under revision.
+34. Wu, T., Gao, WE, Feng, C., and Li, L., Z-residuals for Diagnosing Bayesian Models, *Journal of American Statistical Association*, under revision. [[**Slides**](https://zresidual-slides-jasa-r1.longhai-li.workers.dev/)]
 
 **2025-2026**
  
@@ -2196,7 +2196,7 @@ format:
 
 <!-- -->
 
-11. Wu, T. and Li, L., 2026. `Zresidual`: Computing and Diagnosing Gaussian-like Residuals. [[Github]](https://tiw150.github.io/Zresidual/index.html) [[Demo]](https://tiw150.github.io/Zresidual_demo.html). Version 0.1-0 on Github (2026).
+11. Wu, T. and Li, L., 2026. `Zresidual`: Computing and Diagnosing Gaussian-like Residuals. [[pkgdown site]](https://tiw150.github.io/Zresidual/index.html). Version 0.1-0 on Github (April 2026); Version 0.2-0 on Github (August 2026). 
 
 
 <!-- -->
@@ -2255,7 +2255,7 @@ format:
 
 <!-- -->
 
-13. Li, L., 2026. An entropy-based coefficient of determination with adjustment of optimization bias. [arXiv preprint arXiv:2608.06624](https://doi.org/10.48550/arXiv.2608.06624). Posted August 2026. 
+13. Li, L., 2026. An entropy-based coefficient of determination with adjustment of optimization bias. [arXiv preprint arXiv:2608.06624](https://doi.org/10.48550/arXiv.2608.06624). August 2026. 
 
 
 
@@ -3359,6 +3359,6 @@ format:
 
 ```{=html}
 <footer>
-Last updated on August 18, 2026.
+Last updated on August 21, 2026.
 </footer>
 ```

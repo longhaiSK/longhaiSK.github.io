@@ -419,7 +419,7 @@
 )
 
 #show: doc => article(
-  title: [CURRICULUM VITAE of LONGHAI LI (Aug 18, 2026)],
+  title: [CURRICULUM VITAE of LONGHAI LI (Aug 21, 2026)],
   fontsize: 11pt,
   toc_title: [Table of contents],
   toc_depth: 3,
@@ -1325,7 +1325,7 @@
 
 #block[
 #set enum(numbering: "1.", start: 34)
-+ Wu, T., Gao, WE, Feng, C., and Li, L., Z-residuals for Diagnosing Bayesian Models, #emph[Journal of American Statistical Association], under revision.
++ Wu, T., Gao, WE, Feng, C., and Li, L., Z-residuals for Diagnosing Bayesian Models, #emph[Journal of American Statistical Association], under revision. \[#link("https://zresidual-slides-jasa-r1.longhai-li.workers.dev/")[#strong[Slides]]\]
 ]
 
 #strong[2025-2026]
@@ -1806,7 +1806,7 @@
 <research-software>
 #block[
 #set enum(numbering: "1.", start: 11)
-+ Wu, T. and Li, L., 2026. #NormalTok("Zresidual");: Computing and Diagnosing Gaussian-like Residuals. #link("https://tiw150.github.io/Zresidual/index.html")[\[Github\]] #link("https://tiw150.github.io/Zresidual_demo.html")[\[Demo\]]. Version 0.1-0 on Github (2026).
++ Wu, T. and Li, L., 2026. #NormalTok("Zresidual");: Computing and Diagnosing Gaussian-like Residuals. #link("https://tiw150.github.io/Zresidual/index.html")[\[pkgdown site\]]. Version 0.1-0 on Github (April 2026); Version 0.2-0 on Github (August 2026).
 ]
 
 #block[
@@ -1860,7 +1860,7 @@
 <techical-reports>
 #block[
 #set enum(numbering: "1.", start: 13)
-+ Li, L., 2026. An entropy-based coefficient of determination with adjustment of optimization bias. #link("https://doi.org/10.48550/arXiv.2608.06624")[arXiv preprint arXiv:2608.06624]. Posted August 2026.
++ Li, L., 2026. An entropy-based coefficient of determination with adjustment of optimization bias. #link("https://doi.org/10.48550/arXiv.2608.06624")[arXiv preprint arXiv:2608.06624]. August 2026.
 ]
 
 #block[
