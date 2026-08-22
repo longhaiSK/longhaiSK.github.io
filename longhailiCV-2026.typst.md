@@ -1,5 +1,5 @@
 ---
-title: "CURRICULUM VITAE of LONGHAI LI (Aug 21, 2026)"
+title: "CURRICULUM VITAE of LONGHAI LI (Aug 22, 2026)"
 engine: knitr
 format:
   profweb-html: default
@@ -287,9 +287,11 @@ format:
 
 :::
 
+
 ```{=html}
 </details>
 ```
+
 ### 9.2 Unscheduled Instructional Activity
 
   * Creating and assessing PhD qualifying exam on Mathematical Statistics, July 2021.
@@ -3717,6 +3719,6 @@ format:
 
 ```{=html}
 <footer>
-Last updated on August 21, 2026.
+Last updated on August 22, 2026.
 </footer>
 ```

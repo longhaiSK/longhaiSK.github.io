@@ -167,6 +167,26 @@
         font-weight: 600;
         color: #0056b3 !important;
       }
+
+      /* Edit CV button (local dev only) */
+      #toc-edit-cv {
+        margin-top: 0.8rem;
+        padding-top: 0.8rem;
+        border-top: 1px solid var(--toc-border);
+        font-size: 13px;
+      }
+      #toc-edit-cv a {
+        display: inline-flex !important;
+        align-items: center; gap: 5px;
+        font-weight: 600;
+        color: #fff !important;
+        background: royalblue;
+        padding: 4px 10px;
+        border-radius: 4px;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      #toc-edit-cv a:hover { background: #274bdb; color: #fff !important; }
     `;
     document.head.appendChild(style);
   }
@@ -287,16 +307,38 @@
     content.appendChild(box);
   }
 
+  // ===== "Edit CV" button (local dev only, every page) =====
+  // localserver.py (~/Github/bin, run in place of `python3 -m http.server`)
+  // serves the whole site, including this very page, so if you're viewing
+  // any page from localhost at all, that same server is already up -- no
+  // separate process or reachability check needed, just a plain link.
+  // Shown on every page (not just the CV) so it's reachable no matter
+  // where on the site you're browsing.
+
+  function isLocalHost() {
+    return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  }
+
+  function addEditLink(content) {
+    if (!isLocalHost()) return;
+
+    const editUrl = `${window.location.origin}/updateCV.html`;
+    const box = document.createElement('div');
+    box.id = 'toc-edit-cv';
+    box.innerHTML = `<a href="${editUrl}" target="_blank" rel="noopener">✎ Edit CV</a>`;
+    content.appendChild(box);
+  }
+
   function init() {
     injectStyles();
     const { toggle, panel } = createShell();
-    
+
     toggle.onclick = toggleMobileTOC;
     $('#toc-close', panel).onclick = toggleMobileTOC;
-    
+
     const content = $('#toc-content', panel);
     const existing = findExistingTOC();
-    
+
     if (existing) {
       content.innerHTML = '';
       content.appendChild(existing.cloneNode(true));
@@ -306,6 +348,7 @@
       content.appendChild(buildFromHeadings());
     }
 
+    addEditLink(content);
     addPdfLink(content);
   }
 

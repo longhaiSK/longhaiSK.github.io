@@ -67,5 +67,5 @@ Many granting agencies including NSERC, CFI, CANSSI, CFREF, and MITACS have supp
 
 
 <footer>
-Last updated on August 17, 2026.
+Last updated on August 22, 2026.
 </footer>

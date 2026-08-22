@@ -41,7 +41,7 @@ Theory and applications of sampling from finite populations. Includes: simple ra
 
 
 <footer>
-Last updated on August 17, 2026.
+Last updated on August 22, 2026.
 </footer>
 
 
