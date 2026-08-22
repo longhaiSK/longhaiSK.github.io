@@ -188,6 +188,21 @@ def get_groups_for(lines, category, subcategory):
     return find_groups(lines, leaf.body_start, leaf.end)
 
 
+def build_nav(lines):
+    """Precompute category -> subcategory -> [group titles] once, so the
+    selector comboboxes are plain dict/list lookups instead of re-parsing
+    the whole document on every click or keystroke. Rebuilt at load and
+    after Save; jump_to_selection still parses the live box text (cheaply,
+    via a cache of its own) to find exact line numbers to jump to."""
+    categories = get_categories(lines)
+    nav = {}
+    for cat in categories:
+        subcats = get_subcategories(lines, cat)
+        subs = subcats if subcats else [cat]
+        nav[cat] = {sub: [t for t, _ in get_groups_for(lines, cat, sub)] for sub in subs}
+    return categories, nav
+
+
 def compute_insert_point(lines, category, subcategory, group_title):
     """Where a new (not-yet-existing) group_title's block belongs: sorted by
     year for year-range groups, otherwise the top of the leaf's entry list."""
@@ -260,8 +275,8 @@ class UpdateCVApp(tk.Tk):
 
         full_text = CV_FILE.read_text()
         lines = full_text.splitlines(keepends=True)
-        categories = get_categories(lines)
-        if not categories:
+        self.categories, self.nav = build_nav(lines)
+        if not self.categories:
             messagebox.showerror("No categories found",
                                   "No headers with `r ritem(\"new\")` were found in the file.")
             self.destroy()
@@ -277,7 +292,7 @@ class UpdateCVApp(tk.Tk):
         ttk.Label(frm, text="Category:").grid(row=0, column=0, sticky="w")
         self.category_var = tk.StringVar()
         self.category_box = ttk.Combobox(frm, textvariable=self.category_var,
-                                          values=categories, state="readonly", width=55)
+                                          values=self.categories, state="readonly", width=55)
         self.category_box.grid(row=0, column=1, sticky="we", padx=(8, 0))
         self.category_box.bind("<<ComboboxSelected>>", lambda e: self.on_category_change())
 
@@ -307,6 +322,9 @@ class UpdateCVApp(tk.Tk):
         self.entry_box = tk.Text(self, height=12, wrap="word", undo=True)
         self.entry_box.pack(fill="both", expand=True, padx=10, pady=(2, 0))
         self.entry_box.insert("1.0", full_text)
+        self._lines_cache = lines
+        self.entry_box.edit_modified(False)
+        self._sel_range = None
 
         btn_frm = ttk.Frame(self)
         btn_frm.pack(fill="x", **pad)
@@ -318,25 +336,28 @@ class UpdateCVApp(tk.Tk):
         self.status_var = tk.StringVar(value="")
         ttk.Label(self, textvariable=self.status_var, foreground="#0a7d00").pack(anchor="w", **pad)
 
-        self.category_var.set(categories[0])
+        self.category_var.set(self.categories[0])
         self.on_category_change()
 
     def box_lines(self):
-        return self.entry_box.get("1.0", "end-1c").splitlines(keepends=True)
+        """Live box text as a lines list, cached and only re-fetched from the
+        Tk widget (an expensive cross-boundary call for a whole-file buffer)
+        when it's actually been edited since the last fetch."""
+        if self._lines_cache is None or self.entry_box.edit_modified():
+            self._lines_cache = self.entry_box.get("1.0", "end-1c").splitlines(keepends=True)
+            self.entry_box.edit_modified(False)
+        return self._lines_cache
 
     def on_category_change(self):
-        lines = self.box_lines()
         category = self.category_var.get()
-        subcats = get_subcategories(lines, category)
-        values = subcats if subcats else [category]
+        values = list(self.nav.get(category, {}).keys()) or [category]
         self.subcat_box["values"] = values
         self.subcat_var.set(values[0])
         self.on_subcat_change()
 
     def on_subcat_change(self):
-        lines = self.box_lines()
-        groups = get_groups_for(lines, self.category_var.get(), self.subcat_var.get())
-        titles = [t for t, _ in groups]
+        category, subcategory = self.category_var.get(), self.subcat_var.get()
+        titles = self.nav.get(category, {}).get(subcategory, [])
         self.group_box["values"] = titles
         if titles and all(YEAR_RANGE_RE.match(t) for t in titles):
             self.group_var.set(default_academic_year())
@@ -359,9 +380,12 @@ class UpdateCVApp(tk.Tk):
             return
 
         tk_start, tk_end = f"{start + 1}.0", f"{end + 1}.0"
-        self.entry_box.tag_remove("sel", "1.0", "end")
+        if self._sel_range:
+            self.entry_box.tag_remove("sel", *self._sel_range)
+            self._sel_range = None
         if mode == "replace" and end > start:
             self.entry_box.tag_add("sel", tk_start, tk_end)
+            self._sel_range = (tk_start, tk_end)
         self.entry_box.mark_set("insert", tk_start)
         self.entry_box.see(tk_start)
 
@@ -384,16 +408,13 @@ class UpdateCVApp(tk.Tk):
         self.write_box_to_file()
 
         category, subcategory = self.category_var.get(), self.subcat_var.get()
-        lines = self.box_lines()
-        categories = get_categories(lines)
-        if category in categories:
-            self.category_box["values"] = categories
-            subcats = get_subcategories(lines, category)
-            values = subcats if subcats else [category]
+        self.categories, self.nav = build_nav(self.box_lines())
+        if category in self.categories:
+            self.category_box["values"] = self.categories
+            values = list(self.nav[category].keys())
             self.subcat_box["values"] = values
             if subcategory in values:
-                groups = get_groups_for(lines, category, subcategory)
-                self.group_box["values"] = [t for t, _ in groups]
+                self.group_box["values"] = self.nav[category][subcategory]
 
         self.status_var.set(f"Saved {CV_FILE.name}.")
 

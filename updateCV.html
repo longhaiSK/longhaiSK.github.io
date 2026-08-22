@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Update CV</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 16px; height: 100vh;
+    display: flex; flex-direction: column; gap: 8px;
+    font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    color: #1a1a1a; background: #fff;
+  }
+  .file-label { color: #555; }
+  .controls {
+    display: grid; grid-template-columns: 110px 1fr; row-gap: 8px; column-gap: 8px;
+    align-items: center; max-width: 720px;
+  }
+  .controls label.field-label { text-align: left; color: #1a1a1a; }
+  select, input[type=text], #groupInput {
+    font: inherit; padding: 4px 6px; border: 1px solid #999; border-radius: 4px; background: #fff;
+  }
+  select { width: 100%; }
+  #groupInput { width: 220px; }
+  .hint { grid-column: 2; color: #888; font-size: 12px; margin-top: -4px; }
+  #modeLabel { color: #a05a00; min-height: 1.2em; }
+  #statusLabel { color: #0a7d00; min-height: 1.2em; }
+  .editor-label { color: #1a1a1a; }
+  .editor-wrap {
+    position: relative; flex: 1; min-height: 200px;
+    border: 1px solid #999; border-radius: 4px; background: #fff; overflow: hidden;
+  }
+  #highlightLayer, #editor {
+    position: absolute; inset: 0; margin: 0; padding: 8px; border: 0;
+    font: 13px/20px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    white-space: pre; overflow: auto;
+    box-sizing: border-box;
+  }
+  #highlightLayer { color: transparent; pointer-events: none; overflow: hidden; }
+  #highlightLayer mark { background: #ffe08a; color: transparent; border-radius: 2px; }
+  #editor { background: transparent; color: #1a1a1a; resize: none; caret-color: #1a1a1a; }
+  .buttons { display: flex; gap: 8px; }
+  button {
+    font: inherit; padding: 6px 14px; border: 1px solid #999; border-radius: 4px;
+    background: #f2f2f2; cursor: pointer;
+  }
+  button:hover { background: #e6e6e6; }
+  button:disabled { opacity: 0.5; cursor: default; }
+  button.primary { background: #2a6fdb; border-color: #2a6fdb; color: #fff; }
+  button.primary:hover { background: #2560bf; }
+</style>
+</head>
+<body>
+  <div class="file-label">File: <span id="fileName">…</span></div>
+
+  <div class="controls">
+    <label class="field-label" for="categorySelect">Category:</label>
+    <select id="categorySelect"></select>
+
+    <label class="field-label" for="subcatSelect">Subcategory:</label>
+    <select id="subcatSelect"></select>
+
+    <label class="field-label" for="groupInput">Year / Type:</label>
+    <input id="groupInput" list="groupList" autocomplete="off">
+    <datalist id="groupList"></datalist>
+
+    <div class="hint">(pick an existing one, type a new year/topic, or leave blank if this list has no groups)</div>
+  </div>
+
+  <div id="modeLabel"></div>
+
+  <div class="editor-label">File contents (the selectors above just jump the cursor here — edit and Save writes the whole file back):</div>
+  <div class="editor-wrap">
+    <pre id="highlightLayer" aria-hidden="true"></pre>
+    <textarea id="editor" spellcheck="false" wrap="off"></textarea>
+  </div>
+
+  <div class="buttons">
+    <button id="saveBtn" class="primary">Save</button>
+    <button id="renderBtn">Render && Open in Browser</button>
+    <button id="quitBtn">Quit Server</button>
+  </div>
+
+  <div id="statusLabel"></div>
+
+<script>
+'use strict';
+
+// ---- Parsing/navigation logic, ported 1:1 from updateCV.py -------------
+
+const HEADER_RE = /^(#{2,3})\s+(.*\S)\s*$/;
+const ATTR_BLOCK_RE = /\{([^{}]*)\}\s*$/;
+const ID_IN_ATTR_RE = /#([^\s}]+)/;
+const BOLD_HEADER_RE = /^\*\*(.+)\*\*\s*$/;
+const NEW_LIST_RE = /`r\s+ritem\(\s*["']new["']\s*\)`/;
+const ITEM_RE = /^`r\s+ritem\(\s*\)`/;
+const YEAR_RANGE_RE = /^(\d{4})-(\d{4})$/;
+
+function splitKeepEnds(text) {
+  const lines = [];
+  let start = 0;
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] === '\n') {
+      lines.push(text.slice(start, i + 1));
+      start = i + 1;
+    }
+  }
+  if (start < text.length) lines.push(text.slice(start));
+  return lines;
+}
+
+function splitHeaderTitle(rawTitle) {
+  const m = ATTR_BLOCK_RE.exec(rawTitle);
+  if (!m) return [rawTitle.trim(), null];
+  const idm = ID_IN_ATTR_RE.exec(m[1]);
+  return [rawTitle.slice(0, m.index).trim(), idm ? idm[1] : null];
+}
+
+function slugify(title) {
+  let t = title.toLowerCase();
+  t = t.replace(/[^a-z0-9_\-. ]/g, '');
+  t = t.replace(/ /g, '-');
+  t = t.replace(/^[^a-z]+/, '');
+  return t || 'section';
+}
+
+function defaultAcademicYear(now = new Date()) {
+  const y = now.getFullYear();
+  const m = now.getMonth() + 1;
+  return m >= 7 ? `${y}-${y + 1}` : `${y - 1}-${y}`;
+}
+
+function parseHeaders(lines) {
+  const raw = [];
+  for (let i = 0; i < lines.length; i++) {
+    const m = HEADER_RE.exec(lines[i]);
+    if (m) {
+      const [title, explicitId] = splitHeaderTitle(m[2]);
+      raw.push({ level: m[1].length, title, line: i, bodyStart: i + 1, end: lines.length, explicitId });
+    }
+  }
+  for (let idx = 0; idx < raw.length; idx++) {
+    const h = raw[idx];
+    for (let j = idx + 1; j < raw.length; j++) {
+      if (raw[j].level <= h.level) { h.end = raw[j].line; break; }
+    }
+  }
+  return raw;
+}
+
+function anchorFor(header) {
+  return header.explicitId || slugify(header.title);
+}
+
+function hasRitem(lines, start, end) {
+  for (let k = start; k < end; k++) if (lines[k].includes('ritem(')) return true;
+  return false;
+}
+
+function getCategories(lines) {
+  return parseHeaders(lines)
+    .filter(h => h.level === 2 && hasRitem(lines, h.bodyStart, h.end))
+    .map(h => h.title);
+}
+
+function getSubcategories(lines, category) {
+  const headers = parseHeaders(lines);
+  const cat = headers.find(h => h.level === 2 && h.title === category);
+  if (!cat) throw new Error(`category not found: ${category}`);
+  return headers
+    .filter(h => h.level === 3 && cat.line < h.line && h.line < cat.end && hasRitem(lines, h.bodyStart, h.end))
+    .map(h => h.title);
+}
+
+function getHeader(lines, category, subcategory) {
+  const headers = parseHeaders(lines);
+  const cat = headers.find(h => h.level === 2 && h.title === category);
+  if (!cat) throw new Error(`category not found: ${category}`);
+  if (subcategory && subcategory !== category) {
+    const sub = headers.find(h => h.level === 3 && h.title === subcategory && cat.line < h.line && h.line < cat.end);
+    if (!sub) throw new Error(`subcategory not found: ${subcategory}`);
+    return sub;
+  }
+  return cat;
+}
+const getLeaf = getHeader;
+
+function findGroups(lines, start, end) {
+  const out = [];
+  for (let k = start; k < end; k++) {
+    const m = BOLD_HEADER_RE.exec(lines[k]);
+    if (m) out.push([m[1].trim(), k]);
+  }
+  return out;
+}
+
+function groupEntryZone(lines, groups, idx, leafEnd) {
+  const headerLine = groups[idx][1];
+  const end = idx + 1 < groups.length ? groups[idx + 1][1] : leafEnd;
+  let s = headerLine + 1;
+  while (s < end && lines[s].trim() === '') s++;
+  if (s < end && NEW_LIST_RE.test(lines[s])) {
+    s++;
+    while (s < end && lines[s].trim() === '') s++;
+  }
+  return [s, end];
+}
+
+function leafEntryZone(lines, start, end) {
+  let s = start;
+  while (s < end && lines[s].trim() === '') s++;
+  if (s < end && NEW_LIST_RE.test(lines[s])) {
+    s++;
+    while (s < end && lines[s].trim() === '') s++;
+  }
+  return s;
+}
+
+function findFirstEntrySpan(lines, searchStart, boundary) {
+  let first = null;
+  for (let k = searchStart; k < boundary; k++) {
+    if (ITEM_RE.test(lines[k].trim())) { first = k; break; }
+  }
+  if (first === null) return [null, null];
+  let second = null;
+  for (let k = first + 1; k < boundary; k++) {
+    if (ITEM_RE.test(lines[k].trim())) { second = k; break; }
+  }
+  if (second !== null) return [first, second];
+  let end = boundary;
+  while (end > first + 1 && lines[end - 1].trim() === '') end--;
+  return [first, end];
+}
+
+function getGroupsFor(lines, category, subcategory) {
+  const leaf = getLeaf(lines, category, subcategory);
+  return findGroups(lines, leaf.bodyStart, leaf.end);
+}
+
+function buildNav(lines) {
+  const categories = getCategories(lines);
+  const nav = {};
+  for (const cat of categories) {
+    const subcats = getSubcategories(lines, cat);
+    const subs = subcats.length ? subcats : [cat];
+    nav[cat] = {};
+    for (const sub of subs) {
+      nav[cat][sub] = getGroupsFor(lines, cat, sub).map(g => g[0]);
+    }
+  }
+  return { categories, nav };
+}
+
+function computeInsertPoint(lines, category, subcategory, groupTitle) {
+  const leaf = getLeaf(lines, category, subcategory);
+  const groups = findGroups(lines, leaf.bodyStart, leaf.end);
+  groupTitle = (groupTitle || '').trim();
+  const ymatch = YEAR_RANGE_RE.test(groupTitle);
+  const allYears = groups.length > 0 && groups.every(([t]) => YEAR_RANGE_RE.test(t));
+  if (groups.length && ymatch && allYears) {
+    const targetYear = parseInt(groupTitle.split('-')[0], 10);
+    let insertBefore = leaf.end;
+    for (const [title, hline] of groups) {
+      if (targetYear > parseInt(title.split('-')[0], 10)) { insertBefore = hline; break; }
+    }
+    return insertBefore;
+  }
+  return leafEntryZone(lines, leaf.bodyStart, leaf.end);
+}
+
+function computeJump(lines, category, subcategory, groupTitle) {
+  const leaf = getLeaf(lines, category, subcategory);
+  const groups = findGroups(lines, leaf.bodyStart, leaf.end);
+  groupTitle = (groupTitle || '').trim();
+
+  for (let idx = 0; idx < groups.length; idx++) {
+    const [title, hline] = groups[idx];
+    if (title.toLowerCase() === groupTitle.toLowerCase()) {
+      const [s, e] = groupEntryZone(lines, groups, idx, leaf.end);
+      const [first, end] = findFirstEntrySpan(lines, s, e);
+      if (first === null) return [hline, hline + 1, 'replace'];
+      return [hline, end, 'replace'];
+    }
+  }
+
+  if (!groups.length) {
+    if (!groupTitle) {
+      const s = leafEntryZone(lines, leaf.bodyStart, leaf.end);
+      const [first, end] = findFirstEntrySpan(lines, s, leaf.end);
+      if (first === null) return [s, s, 'replace'];
+      return [first, end, 'replace'];
+    }
+    const insertAt = computeInsertPoint(lines, category, subcategory, groupTitle);
+    return [insertAt, insertAt, 'insert'];
+  }
+
+  if (!groupTitle) {
+    return [leaf.bodyStart, leaf.bodyStart, 'blocked'];
+  }
+
+  const insertAt = computeInsertPoint(lines, category, subcategory, groupTitle);
+  return [insertAt, insertAt, 'insert'];
+}
+
+// ---- UI wiring -----------------------------------------------------------
+
+const fileNameSpan = document.getElementById('fileName');
+const categorySelect = document.getElementById('categorySelect');
+const subcatSelect = document.getElementById('subcatSelect');
+const groupInput = document.getElementById('groupInput');
+const groupList = document.getElementById('groupList');
+const modeLabel = document.getElementById('modeLabel');
+const editor = document.getElementById('editor');
+const highlightLayer = document.getElementById('highlightLayer');
+const saveBtn = document.getElementById('saveBtn');
+const renderBtn = document.getElementById('renderBtn');
+const quitBtn = document.getElementById('quitBtn');
+const statusLabel = document.getElementById('statusLabel');
+
+let cfg = { fileName: '', htmlPort: 8080, cvStem: '' };
+let categories = [];
+let nav = {};
+
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function updateHighlight(text, startChar, endChar) {
+  if (startChar === null || endChar === null || endChar <= startChar) {
+    highlightLayer.textContent = text;
+    return;
+  }
+  const before = escapeHtml(text.slice(0, startChar));
+  const sel = escapeHtml(text.slice(startChar, endChar));
+  const after = escapeHtml(text.slice(endChar));
+  highlightLayer.innerHTML = before + '<mark>' + sel + '</mark>' + after;
+}
+
+function charOffsetForLine(lines, lineIdx) {
+  let n = 0;
+  for (let i = 0; i < lineIdx; i++) n += lines[i].length;
+  return n;
+}
+
+const LINE_HEIGHT = 20; // must match the CSS line-height on #editor/#highlightLayer
+
+function scrollToLine(lineIdx) {
+  const target = lineIdx * LINE_HEIGHT;
+  const centered = Math.max(0, target - editor.clientHeight / 2 + LINE_HEIGHT / 2);
+  editor.scrollTop = centered;
+  highlightLayer.scrollTop = centered;
+}
+
+editor.addEventListener('scroll', () => {
+  highlightLayer.scrollTop = editor.scrollTop;
+  highlightLayer.scrollLeft = editor.scrollLeft;
+});
+
+function jumpToSelection(focusEditor) {
+  const text = editor.value;
+  const lines = splitKeepEnds(text);
+  const category = categorySelect.value, subcategory = subcatSelect.value, groupTitle = groupInput.value;
+
+  let start, end, mode;
+  try {
+    [start, end, mode] = computeJump(lines, category, subcategory, groupTitle);
+  } catch (e) {
+    return;
+  }
+
+  const startChar = charOffsetForLine(lines, start);
+  const endChar = charOffsetForLine(lines, end);
+
+  updateHighlight(text, mode === 'replace' ? startChar : null, mode === 'replace' ? endChar : null);
+  scrollToLine(start);
+
+  if (focusEditor) {
+    editor.focus();
+    editor.setSelectionRange(startChar, mode === 'replace' ? endChar : startChar);
+  }
+
+  if (mode === 'replace') {
+    modeLabel.textContent = 'Jumped to the existing entry — edit in place, or add lines above it for a newest entry, then Save.';
+  } else if (mode === 'insert') {
+    modeLabel.textContent = `Cursor placed where “${groupTitle.trim()}” belongs — type the new **header** and entry here, then Save.`;
+  } else {
+    modeLabel.textContent = 'This list is grouped — choose or type a Year/Type above to jump to it.';
+  }
+}
+
+function populateGroupList(titles) {
+  groupList.innerHTML = '';
+  for (const t of titles) {
+    const opt = document.createElement('option');
+    opt.value = t;
+    groupList.appendChild(opt);
+  }
+}
+
+function onCategoryChange() {
+  const category = categorySelect.value;
+  const values = Object.keys(nav[category] || {});
+  const subVals = values.length ? values : [category];
+  subcatSelect.innerHTML = '';
+  for (const v of subVals) {
+    const opt = document.createElement('option');
+    opt.value = v; opt.textContent = v;
+    subcatSelect.appendChild(opt);
+  }
+  subcatSelect.value = subVals[0];
+  onSubcatChange();
+}
+
+function onSubcatChange() {
+  const category = categorySelect.value, subcategory = subcatSelect.value;
+  const titles = (nav[category] || {})[subcategory] || [];
+  populateGroupList(titles);
+  if (titles.length && titles.every(t => YEAR_RANGE_RE.test(t))) {
+    groupInput.value = defaultAcademicYear();
+  } else if (titles.length) {
+    groupInput.value = titles[0];
+  } else {
+    groupInput.value = '';
+  }
+  jumpToSelection(true);
+}
+
+categorySelect.addEventListener('change', onCategoryChange);
+subcatSelect.addEventListener('change', onSubcatChange);
+groupInput.addEventListener('input', () => jumpToSelection(false));
+groupInput.addEventListener('change', () => jumpToSelection(true));
+groupInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); jumpToSelection(true); }
+});
+
+function currentAnchor() {
+  const lines = splitKeepEnds(editor.value);
+  const headers = parseHeaders(lines);
+  const category = categorySelect.value, subcategory = subcatSelect.value;
+  const cat = headers.find(h => h.level === 2 && h.title === category);
+  if (!cat) return undefined;
+  if (subcategory && subcategory !== category) {
+    const sub = headers.find(h => h.level === 3 && h.title === subcategory && cat.line < h.line && h.line < cat.end);
+    if (sub) return anchorFor(sub);
+  }
+  return anchorFor(cat);
+}
+
+function renderUrl(anchor) {
+  const base = `http://localhost:${cfg.htmlPort}/${cfg.cvStem}.html`;
+  return anchor ? `${base}#${anchor}` : base;
+}
+
+async function writeBoxToFile() {
+  const text = editor.value;
+  const res = await fetch('/api/save', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text }),
+  });
+  return res.json();
+}
+
+function refreshNavAfterSave() {
+  const lines = splitKeepEnds(editor.value);
+  const built = buildNav(lines);
+  categories = built.categories;
+  nav = built.nav;
+
+  const category = categorySelect.value, subcategory = subcatSelect.value;
+  if (categories.includes(category)) {
+    categorySelect.innerHTML = '';
+    for (const c of categories) {
+      const opt = document.createElement('option');
+      opt.value = c; opt.textContent = c;
+      categorySelect.appendChild(opt);
+    }
+    categorySelect.value = category;
+    const values = Object.keys(nav[category] || {});
+    if (values.includes(subcategory)) {
+      populateGroupList(nav[category][subcategory]);
+    }
+  }
+}
+
+saveBtn.addEventListener('click', async () => {
+  saveBtn.disabled = true;
+  try {
+    const data = await writeBoxToFile();
+    if (!data.ok) { alert('Save failed: ' + data.error); return; }
+    refreshNavAfterSave();
+    statusLabel.textContent = `Saved ${cfg.fileName}.`;
+  } finally {
+    saveBtn.disabled = false;
+  }
+});
+
+renderBtn.addEventListener('click', async () => {
+  renderBtn.disabled = true;
+  try {
+    statusLabel.textContent = 'Saving…';
+    const saveData = await writeBoxToFile();
+    if (!saveData.ok) { alert('Save failed: ' + saveData.error); return; }
+    refreshNavAfterSave();
+
+    const anchor = currentAnchor();
+    for (const passNum of [1, 2]) {
+      statusLabel.textContent = `Rendering (pass ${passNum}/2)…`;
+      const res = await fetch('/api/render', { method: 'POST' });
+      const data = await res.json();
+      if (!data.ok) {
+        statusLabel.textContent = 'Render failed.';
+        alert(`quarto render failed (pass ${passNum}/2):\n\n${data.error}`);
+        return;
+      }
+    }
+    const url = renderUrl(anchor);
+    statusLabel.textContent = `Rendered. Opening ${url} …`;
+    window.open(url, '_blank');
+  } finally {
+    renderBtn.disabled = false;
+  }
+});
+
+quitBtn.addEventListener('click', async () => {
+  if (!confirm('Stop the local update-CV server?')) return;
+  try { await fetch('/api/shutdown', { method: 'POST' }); } catch (e) { /* server just went away */ }
+  statusLabel.textContent = 'Server stopped. You can close this tab.';
+  for (const b of document.querySelectorAll('button')) b.disabled = true;
+});
+
+async function init() {
+  cfg = await (await fetch('/api/config')).json();
+  fileNameSpan.textContent = cfg.fileName;
+  document.title = `Update CV — ${cfg.fileName}`;
+
+  const fileRes = await (await fetch('/api/file')).json();
+  if (!fileRes.ok) {
+    statusLabel.textContent = '';
+    alert('Cannot find file: ' + fileRes.error);
+    for (const b of document.querySelectorAll('button')) b.disabled = true;
+    return;
+  }
+  editor.value = fileRes.text;
+
+  const built = buildNav(splitKeepEnds(fileRes.text));
+  categories = built.categories;
+  nav = built.nav;
+  if (!categories.length) {
+    alert('No headers with `r ritem("new")` were found in the file.');
+    for (const b of document.querySelectorAll('button')) b.disabled = true;
+    return;
+  }
+
+  categorySelect.innerHTML = '';
+  for (const c of categories) {
+    const opt = document.createElement('option');
+    opt.value = c; opt.textContent = c;
+    categorySelect.appendChild(opt);
+  }
+  categorySelect.value = categories[0];
+  onCategoryChange();
+}
+
+init();
+</script>
+</body>
+</html>
