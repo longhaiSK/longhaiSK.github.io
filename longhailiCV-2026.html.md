@@ -2568,7 +2568,7 @@ format:
 
 <!-- -->
 
-17. **NSERC Individual Discovery Grant (No. 2026-07053)** – *Prediction-based Methods for Statistical Learning and Inference in Biosciences and Epidemiology*, $185,000 (37K per year), 2026-2031, PI.
+17. **NSERC Individual Discovery Grant (No. 2026-07053)** – *Prediction-based Methods for Statistical Learning and Inference in Biosciences and Epidemiology*, $185,000 (37K per year), 2026-2031, Sole PI.
 
 
 
