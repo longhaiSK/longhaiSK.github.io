@@ -992,6 +992,11 @@
 #strong[Master's Students]
 
 #block[
+#set enum(numbering: "1.", start: 19)
++ #strong[Malki Gunawardhana], M.Sc., Statistics, Math & Stat.
+]
+
+#block[
 #set enum(numbering: "1.", start: 18)
 + #strong[Dananji Egodage (Shashiprabha)], M.Sc., Statistics, Math & Stat, Co-supervised with Prof.~Cindy Feng, 2023--2025 (Defended: Aug.~30, 2025)
 
@@ -1804,6 +1809,11 @@
 <reports-and-other-outputs>
 == 15.1 Software Released Publicly
 <research-software>
+#block[
+#set enum(numbering: "1.", start: 12)
++ Wu, T. and Li, L., 2027. #NormalTok("Zresidual");: Computing and Diagnosing Gaussian-like Residuals. #link("https://tiw150.github.io/Zresidual/index.html")[\[pkgdown site\]]. Version 0.1-0 on Github (April 2026); Version 0.2-0 on Github (August 2026).
+]
+
 #block[
 #set enum(numbering: "1.", start: 11)
 + Wu, T. and Li, L., 2026. #NormalTok("Zresidual");: Computing and Diagnosing Gaussian-like Residuals. #link("https://tiw150.github.io/Zresidual/index.html")[\[pkgdown site\]]. Version 0.1-0 on Github (April 2026); Version 0.2-0 on Github (August 2026).

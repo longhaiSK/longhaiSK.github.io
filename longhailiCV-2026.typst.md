@@ -555,6 +555,7 @@ format:
 
 
 
+
 **Ph.D. Students**
 
 
@@ -599,6 +600,11 @@ format:
 
 
 
+
+
+<!-- -->
+
+19. **Malki Gunawardhana**, M.Sc., Statistics,  Math & Stat. 
 
 
 
@@ -2192,6 +2198,11 @@ format:
 
 
 
+
+
+<!-- -->
+
+12. Wu, T. and Li, L., 2027. `Zresidual`: Computing and Diagnosing Gaussian-like Residuals. [[pkgdown site]](https://tiw150.github.io/Zresidual/index.html). Version 0.1-0 on Github (April 2026); Version 0.2-0 on Github (August 2026).
 
 
 <!-- -->
