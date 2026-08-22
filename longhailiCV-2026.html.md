@@ -58,8 +58,8 @@ format:
 ## 2. DEGREES
 
   * Ph.D.,  University of Toronto, 2007, Statistics \
-    - **Supervisor**: [Radford M. Neal](https://glizen.com/radfordneal/)\
-    - **Thesis**: Bayesian Classification and Regression with High Dimensional Features
+    - Supervisor: [Radford M. Neal](https://glizen.com/radfordneal/)\
+    - Thesis: Bayesian Classification and Regression with High Dimensional Features
   * M.Sc., University of Toronto, 2003, Statistics
   * B.Sc.,  University of Science and Technology of China, 2002, Statistics.
 
