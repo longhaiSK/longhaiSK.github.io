@@ -307,25 +307,41 @@
     content.appendChild(box);
   }
 
-  // ===== "Edit CV" button (local dev only, every page) =====
-  // localserver.py (~/Github/bin, run in place of `python3 -m http.server`)
-  // serves the whole site, including this very page, so if you're viewing
-  // any page from localhost at all, that same server is already up -- no
-  // separate process or reachability check needed, just a plain link.
-  // Shown on every page (not just the CV) so it's reachable no matter
-  // where on the site you're browsing.
+  // ===== "Edit" button (local dev only, only where an editor exists) =====
+  // A page gets an Edit button iff a `<pagename>_update.html` sibling sits
+  // next to it (e.g. longhailiCV-2026.html -> longhailiCV-2026_update.html)
+  // -- same existence-check pattern as the PDF link above. localserver.py
+  // (~/Github/bin, run in place of `python3 -m http.server`) serves the
+  // whole site, including this very page, so if you're viewing any page
+  // from localhost at all, that same server is already up to serve the
+  // editor too -- no separate process needed, just a plain link.
 
   function isLocalHost() {
     return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
   }
 
-  function addEditLink(content) {
-    if (!isLocalHost()) return;
+  function getUpdateHref() {
+    let p = window.location.pathname;
+    if (p.endsWith('/')) p += 'index.html';
+    if (!/\.html?$/i.test(p)) return null;
+    return p.replace(/\.html?$/i, '_update.html');
+  }
 
-    const editUrl = `${window.location.origin}/updateCV.html`;
+  async function addEditLink(content) {
+    if (!isLocalHost()) return;
+    const href = getUpdateHref();
+    if (!href) return;
+
+    try {
+      const res = await fetch(href, { method: 'HEAD', cache: 'no-store' });
+      if (!res.ok) return;
+    } catch {
+      return; // network error -> silently skip, no link added
+    }
+
     const box = document.createElement('div');
     box.id = 'toc-edit-cv';
-    box.innerHTML = `<a href="${editUrl}" target="_blank" rel="noopener">✎ Edit CV</a>`;
+    box.innerHTML = `<a href="${href}" target="_blank" rel="noopener">✎ Edit Page</a>`;
     content.appendChild(box);
   }
 

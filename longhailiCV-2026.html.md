@@ -58,8 +58,8 @@ format:
 ## 2. DEGREES
 
   * Ph.D.,  University of Toronto, 2007, Statistics \
-    Supervisor: [Radford M. Neal](https://glizen.com/radfordneal/)\
-    **Thesis**: Bayesian Classification and Regression with High Dimensional Features
+    - **Supervisor**: [Radford M. Neal](https://glizen.com/radfordneal/)\
+    - **Thesis**: Bayesian Classification and Regression with High Dimensional Features
   * M.Sc., University of Toronto, 2003, Statistics
   * B.Sc.,  University of Science and Technology of China, 2002, Statistics.
 
@@ -643,7 +643,7 @@ format:
 
 <!-- -->
 
-19. **Malki Gunawardhana**, M.Sc., Statistics,  Math & Stat. 
+19. **Malki Gunawardhana**, M.Sc., Statistics,  Math & Stat. 2026-present.
 
 
 
@@ -1728,6 +1728,7 @@ format:
 ## 12. PAPERS IN REFEREED JOURNALS
 
 
+
 **2026-2027**
 
 
@@ -2370,8 +2371,6 @@ format:
 
 
 
-
-
 <!-- -->
 
 10. Li, L., 2026. R Functions for Computing Z-residuals for `survreg` and `coxph` Objects. [[URL]](https://longhaisk.github.io/software/NRSP/index.html).
@@ -2413,11 +2412,9 @@ format:
 
 
 
-
 <!-- -->
 
 4. Li, L., 2008. `gibbs.met`: Naive Gibbs Sampling with Metropolis Steps. [[CRAN]](https://cran.r-project.org/web/packages/gibbs.met/index.html) [[URL]](https://longhaisk.github.io/software/gibbs.met/release.html).
-
 
 
 

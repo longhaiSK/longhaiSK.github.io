@@ -153,14 +153,13 @@ function anchorFor(header) {
   return header.explicitId || slugify(header.title);
 }
 
-function hasRitem(lines, start, end) {
-  for (let k = start; k < end; k++) if (lines[k].includes('ritem(')) return true;
-  return false;
-}
-
 function getCategories(lines) {
+  // Every ## section is navigable, not just ones using `r ritem()` -- the
+  // box holds the whole file, so jumping to a plain-text/table section
+  // (e.g. "1. PERSONAL", "9.1 Scheduled Instructional Activity") is just
+  // as valid as jumping to a ritem()-based one.
   return parseHeaders(lines)
-    .filter(h => h.level === 2 && hasRitem(lines, h.bodyStart, h.end))
+    .filter(h => h.level === 2)
     .map(h => h.title);
 }
 
@@ -169,7 +168,7 @@ function getSubcategories(lines, category) {
   const cat = headers.find(h => h.level === 2 && h.title === category);
   if (!cat) throw new Error(`category not found: ${category}`);
   return headers
-    .filter(h => h.level === 3 && cat.line < h.line && h.line < cat.end && hasRitem(lines, h.bodyStart, h.end))
+    .filter(h => h.level === 3 && cat.line < h.line && h.line < cat.end)
     .map(h => h.title);
 }
 
@@ -374,6 +373,16 @@ function jumpToSelection(focusEditor) {
 
   updateHighlight(text, mode === 'replace' ? startChar : null, mode === 'replace' ? endChar : null);
   scrollToLine(start);
+  // Chrome restores a <textarea>'s scroll position left over from a
+  // previous page load, and that restoration can land *after* this script
+  // runs -- silently overwriting the assignment above back to wherever the
+  // box was scrolled to before. Reassert a few times on both rAF (won't
+  // fire in a backgrounded tab) and setTimeout (fires regardless, but may
+  // be throttled) to win that race (harmless no-op if nothing clobbered it).
+  for (const delay of [0, 50, 150, 300, 600]) {
+    setTimeout(() => scrollToLine(start), delay);
+  }
+  requestAnimationFrame(() => requestAnimationFrame(() => scrollToLine(start)));
 
   if (focusEditor) {
     editor.focus();
