@@ -15,8 +15,8 @@ This course requires a strong command of multivariate calculus, alongside a rigo
 
 ## Lecture Notes and Course Materials
 
-[HTML](mathstat/index.html){.btn .btn-primary role="button"}
-[PDF](mathstat/mathstat-LLI.pdf){.btn .btn-primary role="button"}
+[HTML](https://longhaisk.github.io/mathstat/){.btn .btn-primary role="button"}
+[PDF](https://longhaisk.github.io/mathstat/mathstat-LLI.pdf){.btn .btn-primary role="button"}
 [Canvas](https://canvas.usask.ca/){.btn .btn-primary role="button"}
 
 ## Course Syllabus

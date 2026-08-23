@@ -12,8 +12,8 @@ Statistical methods as they apply to scientific research, including: Experimenta
 
 ## Lecture Notes and Course Materials
 
-[HTML](book/){.btn .btn-outline-primary role="button"}
-[PDF](book/stat_inference_learning.pdf){.btn .btn-outline-primary role="button"}
+[HTML](https://longhaisk.github.io/statmethods/){.btn .btn-outline-primary role="button"}
+[PDF](https://longhaisk.github.io/statmethods/stat_inference_learning.pdf){.btn .btn-outline-primary role="button"}
 [Source qmd Code](https://github.com/longhaiSK/longhaiSK.github.io/tree/main/teaching/stat845_rdemo){.btn .btn-outline-primary role="button"}
 [Slides/Assignments/Solutions](https://usaskca1-my.sharepoint.com/my?id=%2Fpersonal%2Flol553%5Fusask%5Fca%2FDocuments%2Fteaching%2Fstat845%2Dpublic&ga=1&startedResponseCatch=true){.btn .btn-outline-primary role="button"}
 

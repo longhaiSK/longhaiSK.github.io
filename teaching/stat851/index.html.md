@@ -18,8 +18,8 @@ This is not a course on applied linear models. It is nearly a mathematical cours
 
 ## Lecture Notes and Course Materials
 
-[HTML](theorylm/index.html){.btn .btn-outline-primary role="button"}
-[PDF](theorylm/stat_lin_theory.pdf){.btn .btn-outline-primary role="button"}
+[HTML](https://longhaisk.github.io/theorylm/index.html){.btn .btn-outline-primary role="button"}
+[PDF](https://longhaisk.github.io/theorylm/stat_lin_theory.pdf){.btn .btn-outline-primary role="button"}
 [Datasets](https://github.com/longhaiSK/longhaiSK.github.io/tree/main/teaching/stat851/data){.btn .btn-outline-primary role="button"}
 [Canvas](https://canvas.usask.ca/){.btn .btn-outline-primary role="button"}
 
