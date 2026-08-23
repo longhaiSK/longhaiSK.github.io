@@ -419,7 +419,7 @@
 )
 
 #show: doc => article(
-  title: [CURRICULUM VITAE of LONGHAI LI (Aug 22, 2026)],
+  title: [CURRICULUM VITAE of LONGHAI LI (Aug 23, 2026)],
   fontsize: 11pt,
   toc_title: [Table of contents],
   toc_depth: 3,
@@ -472,8 +472,8 @@
 = 2. DEGREES
 <degrees>
 - Ph.D., University of Toronto, 2007, Statistics \
-  Supervisor: #link("https://glizen.com/radfordneal/")[Radford M. Neal] \
-  #strong[Thesis]: Bayesian Classification and Regression with High Dimensional Features
+  - Supervisor: #link("https://glizen.com/radfordneal/")[Radford M. Neal] \
+  - Thesis: Bayesian Classification and Regression with High Dimensional Features
 - M.Sc., University of Toronto, 2003, Statistics
 - B.Sc., University of Science and Technology of China, 2002, Statistics.
 
@@ -993,7 +993,7 @@
 
 #block[
 #set enum(numbering: "1.", start: 19)
-+ #strong[Malki Gunawardhana], M.Sc., Statistics, Math & Stat.
++ #strong[Malki Gunawardhana], M.Sc., Statistics, Math & Stat. 2026-present.
 ]
 
 #block[
@@ -1330,7 +1330,7 @@
 
 #block[
 #set enum(numbering: "1.", start: 34)
-+ Wu, T., Gao, WE, Feng, C., and Li, L., Z-residuals for Diagnosing Bayesian Models, #emph[Journal of American Statistical Association], under revision. \[#link("https://zresidual-slides-jasa-r1.longhai-li.workers.dev/")[#strong[Slides]]\]
++ Wu, T., Gao, WE, Feng, C., and Li, L., Z-residuals for Diagnosing Bayesian Models, #emph[Journal of American Statistical Association], under revision. \[#link("https://bayesian-zresid-slides.longhai-li.workers.dev/slides_bayesian_zresid")[#strong[Slides]]\]
 ]
 
 #strong[2025-2026]
@@ -1955,7 +1955,7 @@
 
 #block[
 #set enum(numbering: "1.", start: 17)
-+ #strong[NSERC Individual Discovery Grant (No.~2026-07053)] -- #emph[Prediction-based Methods for Statistical Learning and Inference in Biosciences and Epidemiology], \$185,000 (37K per year), 2026-2031, PI.
++ #strong[NSERC Individual Discovery Grant (No.~2026-07053)] -- #emph[Prediction-based Methods for Statistical Learning and Inference in Biosciences and Epidemiology], \$185,000 (37K per year), 2026-2031, Sole PI.
 ]
 
 #block[

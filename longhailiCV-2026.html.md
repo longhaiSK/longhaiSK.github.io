@@ -1,5 +1,5 @@
 ---
-title: "CURRICULUM VITAE of LONGHAI LI (Aug 22, 2026)"
+title: "CURRICULUM VITAE of LONGHAI LI (Aug 23, 2026)"
 engine: knitr
 format:
   profweb-html: default
@@ -1735,7 +1735,7 @@ format:
 
 <!-- -->
 
-34. Wu, T., Gao, WE, Feng, C., and Li, L., Z-residuals for Diagnosing Bayesian Models, *Journal of American Statistical Association*, under revision. [[**Slides**](https://zresidual-slides-jasa-r1.longhai-li.workers.dev/)]
+34. Wu, T., Gao, WE, Feng, C., and Li, L., Z-residuals for Diagnosing Bayesian Models, *Journal of American Statistical Association*, under revision. [[**Slides**](https://bayesian-zresid-slides.longhai-li.workers.dev/slides_bayesian_zresid)]
 
 
 **2025-2026**
@@ -3716,6 +3716,6 @@ format:
 
 ```{=html}
 <footer>
-Last updated on August 22, 2026.
+Last updated on August 23, 2026.
 </footer>
 ```

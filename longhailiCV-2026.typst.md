@@ -1,5 +1,5 @@
 ---
-title: "CURRICULUM VITAE of LONGHAI LI (Aug 22, 2026)"
+title: "CURRICULUM VITAE of LONGHAI LI (Aug 23, 2026)"
 engine: knitr
 format:
   profweb-html: default
@@ -58,8 +58,8 @@ format:
 ## 2. DEGREES
 
   * Ph.D.,  University of Toronto, 2007, Statistics \
-    Supervisor: [Radford M. Neal](https://glizen.com/radfordneal/)\
-    **Thesis**: Bayesian Classification and Regression with High Dimensional Features
+    - Supervisor: [Radford M. Neal](https://glizen.com/radfordneal/)\
+    - Thesis: Bayesian Classification and Regression with High Dimensional Features
   * M.Sc., University of Toronto, 2003, Statistics
   * B.Sc.,  University of Science and Technology of China, 2002, Statistics.
 
@@ -643,7 +643,7 @@ format:
 
 <!-- -->
 
-19. **Malki Gunawardhana**, M.Sc., Statistics,  Math & Stat. 
+19. **Malki Gunawardhana**, M.Sc., Statistics,  Math & Stat. 2026-present.
 
 
 
@@ -1728,13 +1728,14 @@ format:
 ## 12. PAPERS IN REFEREED JOURNALS
 
 
+
 **2026-2027**
 
 
 
 <!-- -->
 
-34. Wu, T., Gao, WE, Feng, C., and Li, L., Z-residuals for Diagnosing Bayesian Models, *Journal of American Statistical Association*, under revision. [[**Slides**](https://zresidual-slides-jasa-r1.longhai-li.workers.dev/)]
+34. Wu, T., Gao, WE, Feng, C., and Li, L., Z-residuals for Diagnosing Bayesian Models, *Journal of American Statistical Association*, under revision. [[**Slides**](https://bayesian-zresid-slides.longhai-li.workers.dev/slides_bayesian_zresid)]
 
 
 **2025-2026**
@@ -2370,8 +2371,6 @@ format:
 
 
 
-
-
 <!-- -->
 
 10. Li, L., 2026. R Functions for Computing Z-residuals for `survreg` and `coxph` Objects. [[URL]](https://longhaisk.github.io/software/NRSP/index.html).
@@ -2413,11 +2412,9 @@ format:
 
 
 
-
 <!-- -->
 
 4. Li, L., 2008. `gibbs.met`: Naive Gibbs Sampling with Metropolis Steps. [[CRAN]](https://cran.r-project.org/web/packages/gibbs.met/index.html) [[URL]](https://longhaisk.github.io/software/gibbs.met/release.html).
-
 
 
 
@@ -2571,7 +2568,7 @@ format:
 
 <!-- -->
 
-17. **NSERC Individual Discovery Grant (No. 2026-07053)** – *Prediction-based Methods for Statistical Learning and Inference in Biosciences and Epidemiology*, $185,000 (37K per year), 2026-2031, PI.
+17. **NSERC Individual Discovery Grant (No. 2026-07053)** – *Prediction-based Methods for Statistical Learning and Inference in Biosciences and Epidemiology*, $185,000 (37K per year), 2026-2031, Sole PI.
 
 
 
@@ -3719,6 +3716,6 @@ format:
 
 ```{=html}
 <footer>
-Last updated on August 22, 2026.
+Last updated on August 23, 2026.
 </footer>
 ```
