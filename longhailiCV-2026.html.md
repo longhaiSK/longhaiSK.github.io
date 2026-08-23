@@ -1735,7 +1735,7 @@ format:
 
 <!-- -->
 
-34. Wu, T., Gao, WE, Feng, C., and Li, L., Z-residuals for Diagnosing Bayesian Models, *Journal of American Statistical Association*, under revision. [[**Slides**](https://bayesian-zresid-slides.longhai-li.workers.dev/slides_bayesian_zresid)]
+34. Wu, T., Gao, WE, Feng, C., and Li, L., Z-residuals for Diagnosing Bayesian Models, *Journal of American Statistical Association*, under revision. [[**Slides**](https://bayesian-zresid-slides.longhai-li.workers.dev)]
 
 
 **2025-2026**
@@ -2018,7 +2018,7 @@ format:
 
 <!-- -->
 
-34. Z-residuals for diagnosing Bayesian Models. Presented at: University of Toronto, Biostatistics Seminar, 1 September, 2026 
+34. [Z-residuals: A Versatile Diagnostic Framework for Bayesian Models](https://bayesian-zresid-slides.longhai-li.workers.dev). Presented at: University of Toronto, Biostatistics Seminar, 1 September, 2026 
 
 
 

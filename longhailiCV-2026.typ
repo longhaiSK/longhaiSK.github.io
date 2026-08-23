@@ -1330,7 +1330,7 @@
 
 #block[
 #set enum(numbering: "1.", start: 34)
-+ Wu, T., Gao, WE, Feng, C., and Li, L., Z-residuals for Diagnosing Bayesian Models, #emph[Journal of American Statistical Association], under revision. \[#link("https://bayesian-zresid-slides.longhai-li.workers.dev/slides_bayesian_zresid")[#strong[Slides]]\]
++ Wu, T., Gao, WE, Feng, C., and Li, L., Z-residuals for Diagnosing Bayesian Models, #emph[Journal of American Statistical Association], under revision. \[#link("https://bayesian-zresid-slides.longhai-li.workers.dev")[#strong[Slides]]\]
 ]
 
 #strong[2025-2026]
@@ -1547,7 +1547,7 @@
 
 #block[
 #set enum(numbering: "1.", start: 34)
-+ Z-residuals for diagnosing Bayesian Models. Presented at: University of Toronto, Biostatistics Seminar, 1 September, 2026
++ #link("https://bayesian-zresid-slides.longhai-li.workers.dev")[Z-residuals: A Versatile Diagnostic Framework for Bayesian Models]. Presented at: University of Toronto, Biostatistics Seminar, 1 September, 2026
 ]
 
 #strong[2025-2026]
