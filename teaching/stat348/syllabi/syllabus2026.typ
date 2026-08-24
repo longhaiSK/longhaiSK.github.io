@@ -415,11 +415,13 @@ Textbooks are not required, but you are advised to have one of the following two
 <computing>
 We will use RStudio and R for this course.
 
-- #strong[Personal Computer:] Download R, RStudio, Positron, VS-code to your local machine.
+- #strong[Personal Computer:] Download R, RStudio/Positron/VS-code to your local machine.
 
 - #strong[USASK vlab:] If you don't have a personal computer, you can use the USask remote desktop, the browser-based vlab (#link("https://vlab.usask.ca/")),
 
 - #strong[Posit Cloud:] (#link("https://posit.cloud/")).
+
+- #strong[GitHub Codespaces:] You can also run R and RStudio in the cloud with a GitHub Codespace, without installing anything locally. See #link("https://github.com/features/codespaces").
 
 - #strong[Google Colab:] You can also run R in the cloud using Google Colaboratory. To open a notebook with R pre-configured, use this direct link: #link("https://colab.research.google.com/#create=true&language=r"). Alternatively, you can create a new notebook in Colab and change the runtime type to R (Runtime \> Change runtime type \> R).
 
