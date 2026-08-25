@@ -421,7 +421,7 @@ We will use RStudio and R for this course.
 
 - #strong[Posit Cloud:] (#link("https://posit.cloud/")).
 
-- #strong[GitHub Codespaces:] You can also run R and RStudio in the cloud with a GitHub Codespace, without installing anything locally. See #link("https://github.com/features/codespaces").
+- #strong[GitHub Codespaces:] You can also run R and RStudio in the cloud with a GitHub Codespace, without installing anything locally. See #link("https://github.com/features/codespaces")[https:\/\/github.com/codespaces].
 
 - #strong[Google Colab:] You can also run R in the cloud using Google Colaboratory. To open a notebook with R pre-configured, use this direct link: #link("https://colab.research.google.com/#create=true&language=r"). Alternatively, you can create a new notebook in Colab and change the runtime type to R (Runtime \> Change runtime type \> R).
 
