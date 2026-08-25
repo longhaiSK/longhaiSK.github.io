@@ -352,14 +352,13 @@
   inset: 6pt,
   stroke: none
 )
-#show figure: set block(breakable: true)
-#set enum(indent: 1em, body-indent: 0.75em, numbering: "[1]")
-#set list(indent: 1em, body-indent: 0.75em)
-#let color-link = rgb("#4f2fcd")
-#let color-ref = rgb("#1a1ad6")
-#show link: set text(fill: color-link)
-#show ref: set text(fill: color-ref)
-#show cite: set text(fill: color-ref)
+// Make URLs blue and underlined
+#show link: set text(fill: blue)
+#show link: underline
+
+// Make cross-references and citations blue and underlined
+#show ref: set text(fill: blue)
+#show ref: underline
 #import "@preview/fontawesome:0.5.0": *
 #let brand-color = (:)
 #let brand-color-background = (:)
@@ -473,6 +472,20 @@ After completing this course, students are expected to grasp the following knowl
   table.cell(align: horizon + left, fill: rgb("#f5f5f5"), stroke: (top: (paint: rgb("#b0b0b0"), thickness: 0.75pt)))[#set text(weight: "bold"); EM Algorithm], table.cell(align: horizon + left, fill: rgb("#f5f5f5"), stroke: (top: (paint: rgb("#b0b0b0"), thickness: 0.75pt)))[Understand the theoretical framework of the Expectation-Maximization algorithm for latent variable models.], table.cell(align: horizon + left, fill: rgb("#f5f5f5"), stroke: (top: (paint: rgb("#b0b0b0"), thickness: 0.75pt)))[Implement the EM algorithm to solve problems involving missing data or hidden states.], table.cell(align: horizon + right, fill: rgb("#f5f5f5"), stroke: (top: (paint: rgb("#b0b0b0"), thickness: 0.75pt)))[15%],
   table.cell(align: horizon + left, stroke: (top: (paint: rgb("#b0b0b0"), thickness: 0.75pt)))[#set text(weight: "bold"); Bayesian & MCMC], table.cell(align: horizon + left, stroke: (top: (paint: rgb("#b0b0b0"), thickness: 0.75pt)))[Grasp the concepts of numerical quadrature, rejection/importance sampling, and MCMC theory (Gibbs, Metropolis-Hastings).], table.cell(align: horizon + left, stroke: (top: (paint: rgb("#b0b0b0"), thickness: 0.75pt)))[Simulate from complex posterior distributions using custom MCMC algorithms and general-purpose samplers like JAGS and STAN.], table.cell(align: horizon + right, stroke: (top: (paint: rgb("#b0b0b0"), thickness: 0.75pt)))[30%],
 )}
+= Computing
+<computing>
+We will use RStudio and R for this course.
+
+- #strong[Personal Computer:] Download R, RStudio/Positron/VS-code to your local machine.
+
+- #strong[USASK vlab:] If you don't have a personal computer, you can use the USask remote desktop, the browser-based vlab (#link("https://vlab.usask.ca/")),
+
+- #strong[Posit Cloud:] (#link("https://posit.cloud/")).
+
+- #strong[GitHub Codespaces:] You can also run R and RStudio in the cloud with a GitHub Codespace, without installing anything locally. See #link("https://github.com/features/codespaces")[https:\/\/github.com/codespaces].
+
+- #strong[Google Colab:] You can also run R in the cloud using Google Colaboratory. To open a notebook with R pre-configured, use this direct link: #link("https://colab.research.google.com/#create=true&language=r"). Alternatively, you can create a new notebook in Colab and change the runtime type to R (Runtime \> Change runtime type \> R).
+
 = Evaluation
 <evaluation>
 == Grading Scheme

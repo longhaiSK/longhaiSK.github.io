@@ -167,26 +167,6 @@
         font-weight: 600;
         color: #0056b3 !important;
       }
-
-      /* Edit CV button (local dev only) */
-      #toc-edit-cv {
-        margin-top: 0.8rem;
-        padding-top: 0.8rem;
-        border-top: 1px solid var(--toc-border);
-        font-size: 13px;
-      }
-      #toc-edit-cv a {
-        display: inline-flex !important;
-        align-items: center; gap: 5px;
-        font-weight: 600;
-        color: #fff !important;
-        background: royalblue;
-        padding: 4px 10px;
-        border-radius: 4px;
-        text-decoration: none;
-        cursor: pointer;
-      }
-      #toc-edit-cv a:hover { background: #274bdb; color: #fff !important; }
     `;
     document.head.appendChild(style);
   }
@@ -307,54 +287,16 @@
     content.appendChild(box);
   }
 
-  // ===== "Edit" button (local dev only, only where an editor exists) =====
-  // A page gets an Edit button iff a `<pagename>_update.html` sibling sits
-  // next to it (e.g. longhailiCV-2026.html -> longhailiCV-2026_update.html)
-  // -- same existence-check pattern as the PDF link above. localserver.py
-  // (~/Github/bin, run in place of `python3 -m http.server`) serves the
-  // whole site, including this very page, so if you're viewing any page
-  // from localhost at all, that same server is already up to serve the
-  // editor too -- no separate process needed, just a plain link.
-
-  function isLocalHost() {
-    return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  }
-
-  function getUpdateHref() {
-    let p = window.location.pathname;
-    if (p.endsWith('/')) p += 'index.html';
-    if (!/\.html?$/i.test(p)) return null;
-    return p.replace(/\.html?$/i, '_update.html');
-  }
-
-  async function addEditLink(content) {
-    if (!isLocalHost()) return;
-    const href = getUpdateHref();
-    if (!href) return;
-
-    try {
-      const res = await fetch(href, { method: 'HEAD', cache: 'no-store' });
-      if (!res.ok) return;
-    } catch {
-      return; // network error -> silently skip, no link added
-    }
-
-    const box = document.createElement('div');
-    box.id = 'toc-edit-cv';
-    box.innerHTML = `<a href="${href}" target="_blank" rel="noopener">✎ Edit Page</a>`;
-    content.appendChild(box);
-  }
-
   function init() {
     injectStyles();
     const { toggle, panel } = createShell();
-
+    
     toggle.onclick = toggleMobileTOC;
     $('#toc-close', panel).onclick = toggleMobileTOC;
-
+    
     const content = $('#toc-content', panel);
     const existing = findExistingTOC();
-
+    
     if (existing) {
       content.innerHTML = '';
       content.appendChild(existing.cloneNode(true));
@@ -364,7 +306,6 @@
       content.appendChild(buildFromHeadings());
     }
 
-    addEditLink(content);
     addPdfLink(content);
   }
 
