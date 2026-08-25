@@ -2004,8 +2004,6 @@ format:
 1. Jin, L., McQuillan, I., and Li, L., 2016, Computational Identification of Regions that Influence Activity of Transposable Elements in the Human Genome. Proceeding of 2016 IEEE International Conference on Bioinformatics and Biomedicine, pp. 592-599.
 
 
-Here is the updated **Section 14. PRESENTATIONS** with the slide links extracted from the publications list and embedded directly into the highly matching presentation titles:
-
 ## 14. PRESENTATIONS
 
 ### 14.1 Invited Presentations
@@ -2018,7 +2016,8 @@ Here is the updated **Section 14. PRESENTATIONS** with the slide links extracted
 
 <!-- -->
 
-34. [Z-residuals: A Versatile Diagnostic Framework for Bayesian Models](https://bayesian-zresid-slides.longhai-li.workers.dev). Presented at: University of Toronto, Biostatistics Seminar, 1 September, 2026
+34. [Z-residuals: A Versatile Diagnostic Framework for Bayesian Models](https://bayesian-zresid-slides.longhai-li.workers.dev/). Presented at: University of Toronto, Biostatistics Seminar, 1 September, 2026 
+
 
 **2025-2026**
 
@@ -2026,13 +2025,14 @@ Here is the updated **Section 14. PRESENTATIONS** with the slide links extracted
 
 <!-- -->
 
-33. [Z-residuals for Checking Bayesian Models](https://bayesian-zresid-slides.longhai-li.workers.dev). Presented at: University of Calgary, Calgary, AB, Canada; July 28, 2025
+33. [Z-residuals for Checking Bayesian Models](doc/talks/Z_residuals_for_Bayesian_Models__Vancouver_talk_2025_.pdf). Presented at: University of Calgary, Calgary, AB, Canada; July 28, 2025
 
 
 
 <!-- -->
 
-32. Sparse Learning for Assessing the Association Between Gut Microbiome and Parkinson’s Disease. Presented at: The 3rd JCSDS, Hangzhou, China, July 13, 2025.
+32. [Sparse Learning for Assessing the Association Between Gut Microbiome and Parkinson’s Disease](/doc/talks/Microbiome_and_Parkinson___JSCDS_Talk_2025.pdf). Presented at: The 3rd JCSDS, Hangzhou, China, July 13, 2025.
+
 
 **2024-2025**
 
@@ -2040,13 +2040,14 @@ Here is the updated **Section 14. PRESENTATIONS** with the slide links extracted
 
 <!-- -->
 
-31. [Z-residuals for Checking Bayesian Models](https://bayesian-zresid-slides.longhai-li.workers.dev). Presented at: International Conference on Statistics and Data Science, Vancouver, BC, Canada; June 24, 2025
+31. [Z-residuals for Checking Bayesian Models](/doc/talks/Z_residuals_for_Bayesian_Models__Vancouver_talk_2025_.pdf). Presented at: International Conference on Statistics and Data Science, Vancouver, BC, Canada; June 24, 2025
 
 
 
 <!-- -->
 
-30. [Z-residuals for Checking Bayesian Hurdle Models](https://bayesian-zresid-slides.longhai-li.workers.dev). Presented at: EcoStat 2024; July 17, 2024; Beijing, China.
+30. [Z-residuals for Checking Bayesian Hurdle Models](/doc/talks/Slides_Ecostat2024.pdf). Presented at: EcoStat 2024; July 17, 2024; Beijing, China.
+
 
 **2023-2024**
 
@@ -2054,25 +2055,26 @@ Here is the updated **Section 14. PRESENTATIONS** with the slide links extracted
 
 <!-- -->
 
-29. [Z-residual Diagnostic Tool for Assessing Covariate Functional Form in Proportional Hazards Models with Shared Frailty](https://api.zotero.org/users/1693946/publications/items/WRQUGMIR/file/view), ICSA Canada Chapter Symp., June 9, 2024, Niagara Falls, Canada
+29. [Z-residual Diagnostic Tool for Assessing Covariate Functional Form in Proportional Hazards Models with Shared Frailty]("/doc/talks/Li - 2024 - Z-residual Diagnostic Tool for Assessing Covariate.pdf"), ICSA Canada Chapter Symp., June 9, 2024, Niagara Falls, Canada
 
 
 
 <!-- -->
 
-28. [Z-residual Diagnostic Tool for Assessing Covariate Functional Form in Proportional Hazards Models with Shared Frailty](https://api.zotero.org/users/1693946/publications/items/WRQUGMIR/file/view), Annual Meeting of SSC, St John’s, Canada, June 2, 2024
+28. Z-residual Diagnostic Tool for Assessing Covariate Functional Form in Proportional Hazards Models with Shared Frailty, Annual Meeting of SSC, St John’s, Canada, June 2, 2024
 
 
 
 <!-- -->
 
-27. [Z-residual Diagnostic Tool for Assessing Covariate Functional Form in Proportional Hazards Models with Shared Frailty](https://api.zotero.org/users/1693946/publications/items/WRQUGMIR/file/view), Dept. Seminar, Texas State University, USA, March 8, 2024
+27. Z-residual Diagnostic Tool for Assessing Covariate Functional Form in Proportional Hazards Models with Shared Frailty, Dept. Seminar, Texas State University, USA, March 8, 2024
 
 
 
 <!-- -->
 
-26. [Z-residual Diagnostic Tool for Assessing Covariate Functional Form in Proportional Hazards Models with Shared Frailty](https://api.zotero.org/users/1693946/publications/items/WRQUGMIR/file/view), Dept. Seminar, Sun Yat-sen University, China, Jan. 4, 2024
+26. Z-residual Diagnostic Tool for Assessing Covariate Functional Form in Proportional Hazards Models with Shared Frailty, Dept. Seminar, Sun Yat-sen University, China, Jan. 4, 2024
+
 
 **2022-2023**
 
@@ -2080,19 +2082,20 @@ Here is the updated **Section 14. PRESENTATIONS** with the slide links extracted
 
 <!-- -->
 
-25. Cross-validatory Residual Diagnostics for Bayesian Spatial Models, Annual Meeting of SSC, Ottawa, May 29, 2023
+25. [Cross-validatory Residual Diagnostics for Bayesian Spatial Models](/doc/talks/CV_z_residual_ssc_2022.pdf), Annual Meeting of SSC, Ottawa, May 29, 2023
 
 
 
 <!-- -->
 
-24. [Model Diagnostics for Censored Regression via Randomized Survival Probabilities](https://api.zotero.org/users/1693946/publications/items/Z7WFLYHB/file/view), the 5th ICSA Canada Symposium, 9 July 2022, Banff, AB, Canada
+24. [Model Diagnostics for Censored Regression via Randomized Survival Probabilities](/doc/talks/NRSP_sim_paper_slides_UofV.pdf), the 5th ICSA Canada Symposium, 9 July 2022, Banff, AB, Canada
 
 
 
 <!-- -->
 
-23. [Model Diagnostics for Censored Regression via Randomized Survival Probabilities](https://api.zotero.org/users/1693946/publications/items/Z7WFLYHB/file/view), 17 Aug. 2022, Statistics Conference in Genomics, Pharmaceutical Science, and Health Data Science, University of Victoria, Victoria, BC, Canada
+23. [Model Diagnostics for Censored Regression via Randomized Survival Probabilities](/doc/talks/NRSP_sim_paper_slides_UofV.pdf), 17 Aug. 2022, Statistics Conference in Genomics, Pharmaceutical Science, and Health Data Science, University of Victoria, Victoria, BC, Canada
+
 
 **2021-2022**
 
@@ -2100,13 +2103,14 @@ Here is the updated **Section 14. PRESENTATIONS** with the slide links extracted
 
 <!-- -->
 
-22. [Randomized quantile residuals for diagnosing zero-inflated generalized linear mixed models with applications to microbiome count data](https://www.google.com/search?q=/doc/talks/rqr_glmm_ssc2022.pdf), SSC Annual Meeting (virtual), May 2022.
+22. [Randomized quantile residuals for diagnosing zero-inflated generalized linear mixed models with applications to microbiome count data](/doc/talks/rqr_glmm_ssc2022.pdf), SSC Annual Meeting (virtual), May 2022.
 
 
 
 <!-- -->
 
-21. [Model Diagnostics for Censored Regression via Randomized Survival Probabilities](https://api.zotero.org/users/1693946/publications/items/Z7WFLYHB/file/view), The 6th Canadian Conference in Applied Statistics, Hosted by Concordia University (virtual), 16 July 2021.
+21. [Model Diagnostics for Censored Regression via Randomized Survival Probabilities](/doc/talks/NRSP_sim_paper_slides_UofV.pdf), The 6th Canadian Conference in Applied Statistics, Hosted by Concordia University (virtual), 16 July 2021.
+
 
 **2019-2020**
 
@@ -2114,7 +2118,8 @@ Here is the updated **Section 14. PRESENTATIONS** with the slide links extracted
 
 <!-- -->
 
-20. [Estimating Cross-validatory Predictive P-values with Integrated Importance Sampling for Disease Mapping Models](https://www.google.com/search?q=/doc/talks/dmpvalues_ssc.pdf), Aug. 2019, the 4th ICSA-Canada Symposium held at Queen’s University.
+20. [Estimating Cross-validatory Predictive P-values with Integrated Importance Sampling for Disease Mapping Models](/doc/talks/dmpvalues_kingston.pdf), Aug. 2019, the 4th ICSA-Canada Symposium held at Queen’s University.
+
 
 **2018-2019**
 
@@ -2122,7 +2127,8 @@ Here is the updated **Section 14. PRESENTATIONS** with the slide links extracted
 
 <!-- -->
 
-19. Feature Selection Bias in Assessing the Predictivity of SNPs for Alzheimer's Disease, June 2019, Seminar talk, University of Manitoba, Canada
+19. [Feature Selection Bias in Assessing the Predictivity of SNPs for Alzheimer's Disease](/doc/talks/fsbad_UofM.pdf), June 2019, Seminar talk, University of Manitoba, Canada
+
 
 **2017-2018**
 
@@ -2130,13 +2136,14 @@ Here is the updated **Section 14. PRESENTATIONS** with the slide links extracted
 
 <!-- -->
 
-18. [Randomized Quantile Residuals for Checking GLMM with Application to Zero-inflated Microbiome Data](https://www.google.com/search?q=/doc/talks/rqr_glmm_ssc2022.pdf), June 2018, Annual Meeting of Statistical Society of Canada, McGill University, Canada.
+18. Randomized Quantile Residuals for Checking GLMM with Application to Zero-inflated Microbiome Data, June 2018, Annual Meeting of Statistical Society of Canada, McGill University, Canada.
 
 
 
 <!-- -->
 
-17. [Fully Bayesian Classification with Heavy-tailed Priors for Selection in High-Dimensional Features with Grouping Structure](https://www.google.com/search?q=/doc/bplr/bplrslides-mgill.pdf), Aug. 2017, the 3rd ICSA-Canada Symposium held at Vancouver.
+17. Fully Bayesian Classification with Heavy-tailed Priors for Selection in High-Dimensional Features with Grouping Structure, Aug. 2017, the 3rd ICSA-Canada Symposium held at Vancouver.
+
 
 **2016-2017**
 
@@ -2150,7 +2157,7 @@ Here is the updated **Section 14. PRESENTATIONS** with the slide links extracted
 
 <!-- -->
 
-15. [Fully Bayesian Classification with Heavy-tailed Priors for Selection in High-Dimensional Features with Grouping Structure](https://www.google.com/search?q=/doc/bplr/bplrslides-mgill.pdf), June 2017, Seminar talk, School of Mathematical Sciences, Xiamen University, China.
+15. Fully Bayesian Classification with Heavy-tailed Priors for Selection in High-Dimensional Features with Grouping Structure, June 2017, Seminar talk, School of Mathematical Sciences, Xiamen University, China.
 
 
 
@@ -2162,13 +2169,14 @@ Here is the updated **Section 14. PRESENTATIONS** with the slide links extracted
 
 <!-- -->
 
-13. [Estimating Cross-validatory Predictive P-values with Integrated Importance Sampling for Disease Mapping Models](https://www.google.com/search?q=/doc/talks/dmpvalues_ssc.pdf), June 2017, Annual Meeting of Statistical Society of Canada, University of Manitoba, Canada.
+13. [Estimating Cross-validatory Predictive P-values with Integrated Importance Sampling for Disease Mapping Models](/doc/talks/dmpvalues_ssc.pdf), June 2017, Annual Meeting of Statistical Society of Canada, University of Manitoba, Canada.
 
 
 
 <!-- -->
 
-12. [Fully Bayesian Classification with Heavy-tailed Priors for Selection in High-Dimensional Features with Grouping Structure](https://www.google.com/search?q=/doc/bplr/bplrslides-mgill.pdf), Dec., 2016, Wuhan University, China.
+12. Fully Bayesian Classification with Heavy-tailed Priors for Selection in High-Dimensional Features with Grouping Structure, Dec., 2016, Wuhan University, China.
+
 
 **2015-2016**
 
@@ -2176,25 +2184,26 @@ Here is the updated **Section 14. PRESENTATIONS** with the slide links extracted
 
 <!-- -->
 
-11. [Cross-validatory Model Comparison and Divergent Regions Detection using iIS for Disease Mapping](https://www.google.com/search?q=/doc/iis/iisslides-manitoba.pdf), Seminar of Dept of Math & Stat, University of Calgary, April 2016, Calgary, AB.
+11. [Cross-validatory Model Comparison and Divergent Regions Detection using iIS for Disease Mapping](/doc/talks/iisslides-UofC.pdf), Seminar of Dept of Math & Stat, University of Calgary, April 2016, Calgary, AB.
 
 
 
 <!-- -->
 
-10. [Cross-validatory Model Comparison and Divergent Regions Detection using iIS for Disease Mapping](https://www.google.com/search?q=/doc/iis/iisslides-manitoba.pdf), Seminar of Dept of Math & Stat, University of Alberta, Edmonton, AB.
+10. [Cross-validatory Model Comparison and Divergent Regions Detection using iIS for Disease Mapping](/doc/talks/iisslides-UofA.pdf), Seminar of Dept of Math & Stat, University of Alberta, Edmonton, AB.
 
 
 
 <!-- -->
 
-9. [Cross-validatory Model Comparison and Divergent Regions Detection using iIS for Disease Mapping](https://www.google.com/search?q=/doc/iis/iisslides-manitoba.pdf), Seminar of Department of Statistics, University of Manitoba, Jan. 2016, Winnipeg, MB.
+9. [Cross-validatory Model Comparison and Divergent Regions Detection using iIS for Disease Mapping](/doc/talks/iisslides-manitoba.pdf), Seminar of Department of Statistics, University of Manitoba, Jan. 2016, Winnipeg, MB.
 
 
 
 <!-- -->
 
-8. [Bias-corrected Hierarchical Bayesian Classification with a Selected Subset of High-dimensional Features](https://www.google.com/search?q=/doc/bcbcsf/shanghaistat2015_calgary_longhai_li.pdf), ICSA Canada Chapter Annual Meeting, University of Calgary, Aug. 2015, Calgary, AB.
+8. [Bias-corrected Hierarchical Bayesian Classification with a Selected Subset of High-dimensional Features](/doc/bcbcsf/shanghaistat2015_calgary_longhai_li.pdf), ICSA Canada Chapter Annual Meeting, University of Calgary, Aug. 2015, Calgary, AB.
+
 
 **2014-2015**
 
@@ -2202,13 +2211,14 @@ Here is the updated **Section 14. PRESENTATIONS** with the slide links extracted
 
 <!-- -->
 
-7. [Approximating Cross-validatory Predictive Evaluation in Bayesian Latent Variables Models with Integrated IS and WAIC](https://www.google.com/search?q=/doc/iis/iisslides-manitoba.pdf), Dec. 2014, Tongji University, Shanghai, China.
+7. [Approximating Cross-validatory Predictive Evaluation in Bayesian Latent Variables Models with Integrated IS and WAIC](/doc/iis/iisslides-tongji.pdf), Dec. 2014, Tongji University, Shanghai, China.
 
 
 
 <!-- -->
 
-6. An Introduction to Microarray Data. Workshop on “Statistical Issues in Biomarker and Drug Co-development”, Nov. 2014, Fields Institute, Toronto, ON, Canada.
+6. [An Introduction to Microarray Data](/doc/talks/intro_microarray_lli.pdf). Workshop on “Statistical Issues in Biomarker and Drug Co-development”, Nov. 2014, Fields Institute, Toronto, ON, Canada.
+
 
 **2013-2014**
 
@@ -2216,7 +2226,8 @@ Here is the updated **Section 14. PRESENTATIONS** with the slide links extracted
 
 <!-- -->
 
-5. [Approximating Cross-validatory Predictive Evaluation in Bayesian Latent Variables Models with Integrated IS and WAIC](https://www.google.com/search?q=/doc/iis/iisslides-manitoba.pdf). Statistics Seminar, April, Kansas State University, Manhattan, Kansas, USA.
+5. [Approximating Cross-validatory Predictive Evaluation in Bayesian Latent Variables Models with Integrated IS and WAIC](/doc/iis/iisslides-ksu.pdf). Statistics Seminar, April, Kansas State University, Manhattan, Kansas, USA.
+
 
 **2011-2012**
 
@@ -2224,7 +2235,8 @@ Here is the updated **Section 14. PRESENTATIONS** with the slide links extracted
 
 <!-- -->
 
-4. [High-dimensional Feature Selection Using Hierarchical Bayesian Logistic Regression with Heavy-tailed Priors](https://www.google.com/search?q=/doc/bplr/bplrslides-mgill.pdf). CRM-ISM-GERAD Colloque de Statistique, April, McGill University, Montreal, Quebec, Canada.
+4. [High-dimensional Feature Selection Using Hierarchical Bayesian Logistic Regression with Heavy-tailed Priors](/doc/bplr/bplrslides-mgill.pdf). CRM-ISM-GERAD Colloque de Statistique, April, McGill University, Montreal, Quebec, Canada.
+
 
 **2010-2011**
 
@@ -2240,13 +2252,15 @@ Here is the updated **Section 14. PRESENTATIONS** with the slide links extracted
 
 2. High-dimensional Classification using Hierarchical Bayesian Polychotomous Logistic Regression Models. Colloquia talk, Sept., Penn State University, University Park, PA, USA.
 
+
 **2007-2008**
 
 
 
 <!-- -->
 
-1. [Avoiding Bias from Feature Selection](https://www.google.com/search?q=/doc/naivebayes/uktalk.pdf). CRISM 'workshop on Bayesian Analysis of High-dimensional Data, April, University of Warwick, Coventry, UK.
+1. [Avoiding Bias from Feature Selection](/doc/naivebayes/uktalk.pdf). CRISM 'workshop on Bayesian Analysis of High-dimensional Data, April, University of Warwick, Coventry, UK.
+
 
 ### 14.2 Contributed Presentations
 
@@ -2258,7 +2272,8 @@ Here is the updated **Section 14. PRESENTATIONS** with the slide links extracted
 
 <!-- -->
 
-10. [Approximating Cross-validatory Predictive Evaluation in Bayesian Latent Variables Models with Integrated IS and WAIC](https://www.google.com/search?q=/doc/iis/iisslides-manitoba.pdf). Annual Meeting of Statistical Society of Canada, May 27, 2014, Toronto, ON, Canada.
+10. [Approximating Cross-validatory Predictive Evaluation in Bayesian Latent Variables Models with Integrated IS and WAIC](/doc/iis/iisslides-ssc.pdf). Annual Meeting of Statistical Society of Canada, May 27, 2014, Toronto, ON, Canada.
+
 
 **2010-2011**
 
@@ -2267,6 +2282,7 @@ Here is the updated **Section 14. PRESENTATIONS** with the slide links extracted
 <!-- -->
 
 9. High-dimensional Classification using Hierarchical Bayesian Polychotomous Logistic Regression Models. The 8th ICSA International Conference, Dec. 20, 2010, Guangzhou, China.
+
 
 **2009-2010**
 
@@ -2280,7 +2296,8 @@ Here is the updated **Section 14. PRESENTATIONS** with the slide links extracted
 
 <!-- -->
 
-7. [Are Bayesian Inferences Weak for Wasserman’s Example?](https://www.google.com/search?q=/doc/wman/ssc10talk.pdf) Annual Meeting of Statistical Society of Canada, May 25, 2010, Quebec City, QC, Canada.
+7. [Are Bayesian Inferences Weak for Wasserman’s Example?](/doc/wman/ssc10talk.pdf) Annual Meeting of Statistical Society of Canada, May 25, 2010, Quebec City, QC, Canada.
+
 
 **2008-2009**
 
@@ -2296,13 +2313,15 @@ Here is the updated **Section 14. PRESENTATIONS** with the slide links extracted
 
 5. Calibrating Predictions Based on a Selected Subset of Features from Bayesian Gaussian Classification Models. Bayesian Biostatistics Conference, January, Houston, TX, USA.
 
+
 **2007-2008**
 
 
 
 <!-- -->
 
-4. [Compressing Parameters in Bayesian High-order Models](https://www.google.com/search?q=/doc/seqpred/seqpred-ssc.pdf). Annual Meeting of Statistical Society of Canada, May, Ottawa, ON, Canada.
+4. [Compressing Parameters in Bayesian High-order Models](/doc/seqpred/seqpred-ssc.pdf). Annual Meeting of Statistical Society of Canada, May, Ottawa, ON, Canada.
+
 
 **2006-2007**
 
@@ -2310,7 +2329,8 @@ Here is the updated **Section 14. PRESENTATIONS** with the slide links extracted
 
 <!-- -->
 
-3. [Compressing Parameters in Bayesian Models with High-order Interactions](https://www.google.com/search?q=/doc/seqpred/seqpred-ssc.pdf). The 3rd Monte Carlo Workshop, Harvard University, May, Cambridge, MA, USA.
+3. Compressing Parameters in Bayesian Models with High-order Interactions. The 3rd Monte Carlo Workshop, Harvard University, May, Cambridge, MA, USA.
+
 
 **2005-2006**
 
@@ -2318,7 +2338,7 @@ Here is the updated **Section 14. PRESENTATIONS** with the slide links extracted
 
 <!-- -->
 
-2. [Avoiding Bias from Feature Selection in Regression and Classification Models](https://www.google.com/search?q=/doc/naivebayes/uktalk.pdf). Joint Statistical Meeting, August, Seattle, WA, USA.
+2. [Avoiding Bias from Feature Selection in Regression and Classification Models](/doc/naivebayes/slide_bias_jsm.pdf). Joint Statistical Meeting, August, Seattle, WA, USA.
 
 
 
