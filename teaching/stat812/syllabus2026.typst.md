@@ -1,5 +1,6 @@
 ---
-title: "STAT 812/420 Computational Statistics (Univ. of Saskatchewan, 2026-09)"
+title: "STAT 812/420 Computational Statistics"
+subtitle: "Univ. of Saskatchewan, 2026-09"
 engine: knitr
 format: 
   profweb-html: default
@@ -10,7 +11,7 @@ format:
 
 ## Description
 
-Computationally intensive methods have become widely used in statistical inference. The objective of this course is to teach students important computational techniques used in statistical inference (evaluation of statistical methods, MLE and Bayesian inference). After learning this course, students are expected to gain understanding of algorithms behind statistical inferential methods, be able to develop new statistical methods, be able to use computer to investigate the properties of statistical methods, and be able to implement a combination of standard statistical toolkits for analyzing real data sets. 
+This course covers the fundamental concepts in computational methods used the areas of statistics, machine learning, and data sciences. The topics include Introduction to R programming; Computer Arithmetics (Overflow, Underflow, Rounding Error); Monte Carlo Methods (RNG, Inverting CDF Sampling, Simulation for Estimation and Testing); Maximum Likelihood Estimation (Univariate Optimization, Multivariate Optimization, EM Algorithm); and Bayesian Inference & MCMC (Intro to Bayesian Inference, Numerical Quadrature, Laplace Approximation, Rejection Sampling, Importance Sampling, Convergence, Gibbs Sampling, Metropolis-Hastings Sampling, General-purpose Samplers like JAGS and STAN). After learning this course, students are expected to gain an understanding of the algorithms behind these statistical inferential methods, be able to develop new statistical methods, use computers to investigate the properties of statistical methods, and implement a combination of standard statistical toolkits for analyzing real data sets.
 
 ## Prerequisites
 
@@ -42,23 +43,23 @@ Computationally intensive methods have become widely used in statistical inferen
 ::: {.cell-output-display}
 
 ```{=html}
-<div id="behhrkelak" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#behhrkelak table {
+<div id="uydockgfnw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#uydockgfnw table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#behhrkelak thead, #behhrkelak tbody, #behhrkelak tfoot, #behhrkelak tr, #behhrkelak td, #behhrkelak th {
+#uydockgfnw thead, #uydockgfnw tbody, #uydockgfnw tfoot, #uydockgfnw tr, #uydockgfnw td, #uydockgfnw th {
   border-style: none;
 }
 
-#behhrkelak p {
+#uydockgfnw p {
   margin: 0;
   padding: 0;
 }
 
-#behhrkelak .gt_table {
+#uydockgfnw .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -84,12 +85,12 @@ Computationally intensive methods have become widely used in statistical inferen
   border-left-color: #D3D3D3;
 }
 
-#behhrkelak .gt_caption {
+#uydockgfnw .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#behhrkelak .gt_title {
+#uydockgfnw .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -101,7 +102,7 @@ Computationally intensive methods have become widely used in statistical inferen
   border-bottom-width: 0;
 }
 
-#behhrkelak .gt_subtitle {
+#uydockgfnw .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -113,7 +114,7 @@ Computationally intensive methods have become widely used in statistical inferen
   border-top-width: 0;
 }
 
-#behhrkelak .gt_heading {
+#uydockgfnw .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -125,13 +126,13 @@ Computationally intensive methods have become widely used in statistical inferen
   border-right-color: #D3D3D3;
 }
 
-#behhrkelak .gt_bottom_border {
+#uydockgfnw .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#behhrkelak .gt_col_headings {
+#uydockgfnw .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -146,7 +147,7 @@ Computationally intensive methods have become widely used in statistical inferen
   border-right-color: #D3D3D3;
 }
 
-#behhrkelak .gt_col_heading {
+#uydockgfnw .gt_col_heading {
   color: #333333;
   background-color: #F0F0F0;
   font-size: 100%;
@@ -166,7 +167,7 @@ Computationally intensive methods have become widely used in statistical inferen
   overflow-x: hidden;
 }
 
-#behhrkelak .gt_column_spanner_outer {
+#uydockgfnw .gt_column_spanner_outer {
   color: #333333;
   background-color: #F0F0F0;
   font-size: 100%;
@@ -178,15 +179,15 @@ Computationally intensive methods have become widely used in statistical inferen
   padding-right: 4px;
 }
 
-#behhrkelak .gt_column_spanner_outer:first-child {
+#uydockgfnw .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#behhrkelak .gt_column_spanner_outer:last-child {
+#uydockgfnw .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#behhrkelak .gt_column_spanner {
+#uydockgfnw .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -198,11 +199,11 @@ Computationally intensive methods have become widely used in statistical inferen
   width: 100%;
 }
 
-#behhrkelak .gt_spanner_row {
+#uydockgfnw .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#behhrkelak .gt_group_heading {
+#uydockgfnw .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -228,7 +229,7 @@ Computationally intensive methods have become widely used in statistical inferen
   text-align: left;
 }
 
-#behhrkelak .gt_empty_group_heading {
+#uydockgfnw .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -243,15 +244,15 @@ Computationally intensive methods have become widely used in statistical inferen
   vertical-align: middle;
 }
 
-#behhrkelak .gt_from_md > :first-child {
+#uydockgfnw .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#behhrkelak .gt_from_md > :last-child {
+#uydockgfnw .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#behhrkelak .gt_row {
+#uydockgfnw .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -270,7 +271,7 @@ Computationally intensive methods have become widely used in statistical inferen
   overflow-x: hidden;
 }
 
-#behhrkelak .gt_stub {
+#uydockgfnw .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -283,7 +284,7 @@ Computationally intensive methods have become widely used in statistical inferen
   padding-right: 5px;
 }
 
-#behhrkelak .gt_stub_row_group {
+#uydockgfnw .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -297,15 +298,15 @@ Computationally intensive methods have become widely used in statistical inferen
   vertical-align: top;
 }
 
-#behhrkelak .gt_row_group_first td {
+#uydockgfnw .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#behhrkelak .gt_row_group_first th {
+#uydockgfnw .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#behhrkelak .gt_summary_row {
+#uydockgfnw .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -315,16 +316,16 @@ Computationally intensive methods have become widely used in statistical inferen
   padding-right: 5px;
 }
 
-#behhrkelak .gt_first_summary_row {
+#uydockgfnw .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#behhrkelak .gt_first_summary_row.thick {
+#uydockgfnw .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#behhrkelak .gt_last_summary_row {
+#uydockgfnw .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -334,7 +335,7 @@ Computationally intensive methods have become widely used in statistical inferen
   border-bottom-color: #D3D3D3;
 }
 
-#behhrkelak .gt_grand_summary_row {
+#uydockgfnw .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -344,7 +345,7 @@ Computationally intensive methods have become widely used in statistical inferen
   padding-right: 5px;
 }
 
-#behhrkelak .gt_first_grand_summary_row {
+#uydockgfnw .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -354,7 +355,7 @@ Computationally intensive methods have become widely used in statistical inferen
   border-top-color: #D3D3D3;
 }
 
-#behhrkelak .gt_last_grand_summary_row_top {
+#uydockgfnw .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -364,11 +365,11 @@ Computationally intensive methods have become widely used in statistical inferen
   border-bottom-color: #D3D3D3;
 }
 
-#behhrkelak .gt_striped {
+#uydockgfnw .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#behhrkelak .gt_table_body {
+#uydockgfnw .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -377,7 +378,7 @@ Computationally intensive methods have become widely used in statistical inferen
   border-bottom-color: #D3D3D3;
 }
 
-#behhrkelak .gt_footnotes {
+#uydockgfnw .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -391,7 +392,7 @@ Computationally intensive methods have become widely used in statistical inferen
   border-right-color: #D3D3D3;
 }
 
-#behhrkelak .gt_footnote {
+#uydockgfnw .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -400,7 +401,7 @@ Computationally intensive methods have become widely used in statistical inferen
   padding-right: 5px;
 }
 
-#behhrkelak .gt_sourcenotes {
+#uydockgfnw .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -414,7 +415,7 @@ Computationally intensive methods have become widely used in statistical inferen
   border-right-color: #D3D3D3;
 }
 
-#behhrkelak .gt_sourcenote {
+#uydockgfnw .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -422,72 +423,72 @@ Computationally intensive methods have become widely used in statistical inferen
   padding-right: 5px;
 }
 
-#behhrkelak .gt_left {
+#uydockgfnw .gt_left {
   text-align: left;
 }
 
-#behhrkelak .gt_center {
+#uydockgfnw .gt_center {
   text-align: center;
 }
 
-#behhrkelak .gt_right {
+#uydockgfnw .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#behhrkelak .gt_font_normal {
+#uydockgfnw .gt_font_normal {
   font-weight: normal;
 }
 
-#behhrkelak .gt_font_bold {
+#uydockgfnw .gt_font_bold {
   font-weight: bold;
 }
 
-#behhrkelak .gt_font_italic {
+#uydockgfnw .gt_font_italic {
   font-style: italic;
 }
 
-#behhrkelak .gt_super {
+#uydockgfnw .gt_super {
   font-size: 65%;
 }
 
-#behhrkelak .gt_footnote_marks {
+#uydockgfnw .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#behhrkelak .gt_asterisk {
+#uydockgfnw .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#behhrkelak .gt_indent_1 {
+#uydockgfnw .gt_indent_1 {
   text-indent: 5px;
 }
 
-#behhrkelak .gt_indent_2 {
+#uydockgfnw .gt_indent_2 {
   text-indent: 10px;
 }
 
-#behhrkelak .gt_indent_3 {
+#uydockgfnw .gt_indent_3 {
   text-indent: 15px;
 }
 
-#behhrkelak .gt_indent_4 {
+#uydockgfnw .gt_indent_4 {
   text-indent: 20px;
 }
 
-#behhrkelak .gt_indent_5 {
+#uydockgfnw .gt_indent_5 {
   text-indent: 25px;
 }
 
-#behhrkelak .katex-display {
+#uydockgfnw .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#behhrkelak div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#uydockgfnw div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -507,66 +508,62 @@ Computationally intensive methods have become widely used in statistical inferen
     </tr>
   </thead>
   <tbody class="gt_table_body">
-    <tr><td headers="Date" class="gt_row gt_left">Aug 31</td>
+    <tr><td headers="Date" class="gt_row gt_left">Sep 07</td>
 <td headers="Acad_Week" class="gt_row gt_center">1</td>
 <td headers="Topic" class="gt_row gt_left">1 Introduction: Stat. Inference, R, R Studio, Quarto</td>
-<td headers="Task" class="gt_row gt_left"><span data-qmd-base64="KipDb3Vyc2UgU3RhcnRzIChTZXAgMDIpKio="><span class='gt_from_md'><strong>Course Starts (Sep 02)</strong></span></span></td></tr>
-    <tr><td headers="Date" class="gt_row gt_left gt_striped">Sep 07</td>
+<td headers="Task" class="gt_row gt_left"><span data-qmd-base64="KipDb3Vyc2UgU3RhcnRzIChTZXAgMDgpKio="><span class='gt_from_md'><strong>Course Starts (Sep 08)</strong></span></span></td></tr>
+    <tr><td headers="Date" class="gt_row gt_left gt_striped">Sep 14</td>
 <td headers="Acad_Week" class="gt_row gt_center gt_striped">2</td>
 <td headers="Topic" class="gt_row gt_left gt_striped">2 Computer Arithmetics: Overflow, Underflow, Rounding Error</td>
 <td headers="Task" class="gt_row gt_left gt_striped"></td></tr>
-    <tr><td headers="Date" class="gt_row gt_left">Sep 14</td>
+    <tr><td headers="Date" class="gt_row gt_left">Sep 21</td>
 <td headers="Acad_Week" class="gt_row gt_center">3</td>
 <td headers="Topic" class="gt_row gt_left">3 Monte Carlo Methods: RNG, Inverting CDF Sampling</td>
 <td headers="Task" class="gt_row gt_left"></td></tr>
-    <tr><td headers="Date" class="gt_row gt_left gt_striped">Sep 21</td>
+    <tr><td headers="Date" class="gt_row gt_left gt_striped">Sep 28</td>
 <td headers="Acad_Week" class="gt_row gt_center gt_striped">4</td>
 <td headers="Topic" class="gt_row gt_left gt_striped">3 Monte Carlo Methods: Simulation for Estimation and Testing</td>
 <td headers="Task" class="gt_row gt_left gt_striped"></td></tr>
-    <tr><td headers="Date" class="gt_row gt_left">Sep 28</td>
+    <tr><td headers="Date" class="gt_row gt_left">Oct 05</td>
 <td headers="Acad_Week" class="gt_row gt_center">5</td>
 <td headers="Topic" class="gt_row gt_left">4 Maximum Likelihood Estimation: Univariate Optimization</td>
 <td headers="Task" class="gt_row gt_left"><span data-qmd-base64="KipBc3NpZ25tZW50IDEgZHVlKio="><span class='gt_from_md'><strong>Assignment 1 due</strong></span></span></td></tr>
-    <tr><td headers="Date" class="gt_row gt_left gt_striped">Oct 05</td>
+    <tr><td headers="Date" class="gt_row gt_left gt_striped">Oct 12</td>
 <td headers="Acad_Week" class="gt_row gt_center gt_striped">6</td>
 <td headers="Topic" class="gt_row gt_left gt_striped">4 Maximum Likelihood Estimation: Multivariate Optimization</td>
 <td headers="Task" class="gt_row gt_left gt_striped"></td></tr>
-    <tr><td headers="Date" class="gt_row gt_left">Oct 12</td>
+    <tr><td headers="Date" class="gt_row gt_left">Oct 19</td>
 <td headers="Acad_Week" class="gt_row gt_center">7</td>
 <td headers="Topic" class="gt_row gt_left">4 Maximum Likelihood Estimation: EM Algorithm</td>
 <td headers="Task" class="gt_row gt_left"></td></tr>
-    <tr><td headers="Date" class="gt_row gt_left gt_striped">Oct 19</td>
+    <tr><td headers="Date" class="gt_row gt_left gt_striped">Oct 26</td>
 <td headers="Acad_Week" class="gt_row gt_center gt_striped">8</td>
 <td headers="Topic" class="gt_row gt_left gt_striped">5 Bayesian Inference &amp; MCMC: Intro Bayesian Inference and Numerical Quadrature</td>
 <td headers="Task" class="gt_row gt_left gt_striped"><span data-qmd-base64="KipBc3NpZ25tZW50IDIgZHVlKio="><span class='gt_from_md'><strong>Assignment 2 due</strong></span></span></td></tr>
-    <tr><td headers="Date" class="gt_row gt_left">Oct 26</td>
+    <tr><td headers="Date" class="gt_row gt_left">Nov 02</td>
 <td headers="Acad_Week" class="gt_row gt_center">9</td>
 <td headers="Topic" class="gt_row gt_left">5 Bayesian Inference &amp; MCMC: Laplace Approx, Rejection Sampling</td>
 <td headers="Task" class="gt_row gt_left"><span data-qmd-base64="KipNaWR0ZXJtIChkdXJpbmcgY2xhc3MpKio="><span class='gt_from_md'><strong>Midterm (during class)</strong></span></span></td></tr>
-    <tr><td headers="Date" class="gt_row gt_left gt_striped">Nov 02</td>
-<td headers="Acad_Week" class="gt_row gt_center gt_striped">10</td>
-<td headers="Topic" class="gt_row gt_left gt_striped">5 Bayesian Inference &amp; MCMC: Importance Sampling</td>
-<td headers="Task" class="gt_row gt_left gt_striped"></td></tr>
-    <tr><td headers="Date" class="gt_row gt_left" style="background-color: #D1E7DD; font-style: italic; font-weight: bold;">Nov 09</td>
-<td headers="Acad_Week" class="gt_row gt_center" style="background-color: #D1E7DD; font-style: italic; font-weight: bold;">N/A</td>
-<td headers="Topic" class="gt_row gt_left" style="background-color: #D1E7DD; font-style: italic; font-weight: bold;">—</td>
-<td headers="Task" class="gt_row gt_left" style="background-color: #D1E7DD; font-style: italic; font-weight: bold;"><span data-qmd-base64="KipSZWFkaW5nIFdlZWsg4oCTIE5vIGNsYXNzZXMqKg=="><span class='gt_from_md'><strong>Reading Week – No classes</strong></span></span></td></tr>
-    <tr><td headers="Date" class="gt_row gt_left gt_striped">Nov 16</td>
+    <tr><td headers="Date" class="gt_row gt_left gt_striped" style="background-color: #D1E7DD; font-style: italic; font-weight: bold;">Nov 09</td>
+<td headers="Acad_Week" class="gt_row gt_center gt_striped" style="background-color: #D1E7DD; font-style: italic; font-weight: bold;">N/A</td>
+<td headers="Topic" class="gt_row gt_left gt_striped" style="background-color: #D1E7DD; font-style: italic; font-weight: bold;">—</td>
+<td headers="Task" class="gt_row gt_left gt_striped" style="background-color: #D1E7DD; font-style: italic; font-weight: bold;"><span data-qmd-base64="KipSZWFkaW5nIFdlZWsg4oCTIE5vIGNsYXNzZXMqKg=="><span class='gt_from_md'><strong>Reading Week – No classes</strong></span></span></td></tr>
+    <tr><td headers="Date" class="gt_row gt_left">Nov 16</td>
+<td headers="Acad_Week" class="gt_row gt_center">10</td>
+<td headers="Topic" class="gt_row gt_left">5 Bayesian Inference &amp; MCMC: Importance Sampling</td>
+<td headers="Task" class="gt_row gt_left"></td></tr>
+    <tr><td headers="Date" class="gt_row gt_left gt_striped">Nov 23</td>
 <td headers="Acad_Week" class="gt_row gt_center gt_striped">11</td>
 <td headers="Topic" class="gt_row gt_left gt_striped">5 Bayesian Inference &amp; MCMC: Convergence, Gibbs Sampling</td>
 <td headers="Task" class="gt_row gt_left gt_striped"></td></tr>
-    <tr><td headers="Date" class="gt_row gt_left">Nov 23</td>
+    <tr><td headers="Date" class="gt_row gt_left">Nov 30</td>
 <td headers="Acad_Week" class="gt_row gt_center">12</td>
 <td headers="Topic" class="gt_row gt_left">5 Bayesian Inference &amp; MCMC: Metropolis-Hastings Sampling</td>
 <td headers="Task" class="gt_row gt_left"></td></tr>
-    <tr><td headers="Date" class="gt_row gt_left gt_striped">Nov 30</td>
+    <tr><td headers="Date" class="gt_row gt_left gt_striped">Dec 07</td>
 <td headers="Acad_Week" class="gt_row gt_center gt_striped">13</td>
 <td headers="Topic" class="gt_row gt_left gt_striped">5 Bayesian Inference &amp; MCMC: General-purpose Samplers (JAGS, STAN)</td>
-<td headers="Task" class="gt_row gt_left gt_striped"><span data-qmd-base64="KipBc3NpZ25tZW50IDMgZHVlKio="><span class='gt_from_md'><strong>Assignment 3 due</strong></span></span></td></tr>
-    <tr><td headers="Date" class="gt_row gt_left">Dec 07</td>
-<td headers="Acad_Week" class="gt_row gt_center">14</td>
-<td headers="Topic" class="gt_row gt_left">TBD</td>
-<td headers="Task" class="gt_row gt_left"><span data-qmd-base64="KipDb3Vyc2UgRW5kcyAoRGVjIDA3KSoq"><span class='gt_from_md'><strong>Course Ends (Dec 07)</strong></span></span></td></tr>
+<td headers="Task" class="gt_row gt_left gt_striped"><span data-qmd-base64="KipBc3NpZ25tZW50IDMgZHVlKio8YnI+KipDb3Vyc2UgRW5kcyAoRGVjIDA3KSoq"><span class='gt_from_md'><strong>Assignment 3 due</strong><br><strong>Course Ends (Dec 07)</strong></span></span></td></tr>
   </tbody>
   
 </table>
@@ -590,23 +587,23 @@ After completing this course, students are expected to grasp the following knowl
 ::: {.cell-output-display}
 
 ```{=html}
-<div id="huadoznvxn" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#huadoznvxn table {
+<div id="yrcnilbdlp" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#yrcnilbdlp table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#huadoznvxn thead, #huadoznvxn tbody, #huadoznvxn tfoot, #huadoznvxn tr, #huadoznvxn td, #huadoznvxn th {
+#yrcnilbdlp thead, #yrcnilbdlp tbody, #yrcnilbdlp tfoot, #yrcnilbdlp tr, #yrcnilbdlp td, #yrcnilbdlp th {
   border-style: none;
 }
 
-#huadoznvxn p {
+#yrcnilbdlp p {
   margin: 0;
   padding: 0;
 }
 
-#huadoznvxn .gt_table {
+#yrcnilbdlp .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -632,12 +629,12 @@ After completing this course, students are expected to grasp the following knowl
   border-left-color: #D3D3D3;
 }
 
-#huadoznvxn .gt_caption {
+#yrcnilbdlp .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#huadoznvxn .gt_title {
+#yrcnilbdlp .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -649,7 +646,7 @@ After completing this course, students are expected to grasp the following knowl
   border-bottom-width: 0;
 }
 
-#huadoznvxn .gt_subtitle {
+#yrcnilbdlp .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -661,7 +658,7 @@ After completing this course, students are expected to grasp the following knowl
   border-top-width: 0;
 }
 
-#huadoznvxn .gt_heading {
+#yrcnilbdlp .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -673,13 +670,13 @@ After completing this course, students are expected to grasp the following knowl
   border-right-color: #D3D3D3;
 }
 
-#huadoznvxn .gt_bottom_border {
+#yrcnilbdlp .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#huadoznvxn .gt_col_headings {
+#yrcnilbdlp .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -694,7 +691,7 @@ After completing this course, students are expected to grasp the following knowl
   border-right-color: #D3D3D3;
 }
 
-#huadoznvxn .gt_col_heading {
+#yrcnilbdlp .gt_col_heading {
   color: #333333;
   background-color: #E0E0E0;
   font-size: 100%;
@@ -714,7 +711,7 @@ After completing this course, students are expected to grasp the following knowl
   overflow-x: hidden;
 }
 
-#huadoznvxn .gt_column_spanner_outer {
+#yrcnilbdlp .gt_column_spanner_outer {
   color: #333333;
   background-color: #E0E0E0;
   font-size: 100%;
@@ -726,15 +723,15 @@ After completing this course, students are expected to grasp the following knowl
   padding-right: 4px;
 }
 
-#huadoznvxn .gt_column_spanner_outer:first-child {
+#yrcnilbdlp .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#huadoznvxn .gt_column_spanner_outer:last-child {
+#yrcnilbdlp .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#huadoznvxn .gt_column_spanner {
+#yrcnilbdlp .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -746,11 +743,11 @@ After completing this course, students are expected to grasp the following knowl
   width: 100%;
 }
 
-#huadoznvxn .gt_spanner_row {
+#yrcnilbdlp .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#huadoznvxn .gt_group_heading {
+#yrcnilbdlp .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -776,7 +773,7 @@ After completing this course, students are expected to grasp the following knowl
   text-align: left;
 }
 
-#huadoznvxn .gt_empty_group_heading {
+#yrcnilbdlp .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -791,15 +788,15 @@ After completing this course, students are expected to grasp the following knowl
   vertical-align: middle;
 }
 
-#huadoznvxn .gt_from_md > :first-child {
+#yrcnilbdlp .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#huadoznvxn .gt_from_md > :last-child {
+#yrcnilbdlp .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#huadoznvxn .gt_row {
+#yrcnilbdlp .gt_row {
   padding-top: 5px;
   padding-bottom: 5px;
   padding-left: 5px;
@@ -818,7 +815,7 @@ After completing this course, students are expected to grasp the following knowl
   overflow-x: hidden;
 }
 
-#huadoznvxn .gt_stub {
+#yrcnilbdlp .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -831,7 +828,7 @@ After completing this course, students are expected to grasp the following knowl
   padding-right: 5px;
 }
 
-#huadoznvxn .gt_stub_row_group {
+#yrcnilbdlp .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -845,15 +842,15 @@ After completing this course, students are expected to grasp the following knowl
   vertical-align: top;
 }
 
-#huadoznvxn .gt_row_group_first td {
+#yrcnilbdlp .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#huadoznvxn .gt_row_group_first th {
+#yrcnilbdlp .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#huadoznvxn .gt_summary_row {
+#yrcnilbdlp .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -863,16 +860,16 @@ After completing this course, students are expected to grasp the following knowl
   padding-right: 5px;
 }
 
-#huadoznvxn .gt_first_summary_row {
+#yrcnilbdlp .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#huadoznvxn .gt_first_summary_row.thick {
+#yrcnilbdlp .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#huadoznvxn .gt_last_summary_row {
+#yrcnilbdlp .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -882,7 +879,7 @@ After completing this course, students are expected to grasp the following knowl
   border-bottom-color: #D3D3D3;
 }
 
-#huadoznvxn .gt_grand_summary_row {
+#yrcnilbdlp .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -892,7 +889,7 @@ After completing this course, students are expected to grasp the following knowl
   padding-right: 5px;
 }
 
-#huadoznvxn .gt_first_grand_summary_row {
+#yrcnilbdlp .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -902,7 +899,7 @@ After completing this course, students are expected to grasp the following knowl
   border-top-color: #D3D3D3;
 }
 
-#huadoznvxn .gt_last_grand_summary_row_top {
+#yrcnilbdlp .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -912,11 +909,11 @@ After completing this course, students are expected to grasp the following knowl
   border-bottom-color: #D3D3D3;
 }
 
-#huadoznvxn .gt_striped {
+#yrcnilbdlp .gt_striped {
   background-color: #F5F5F5;
 }
 
-#huadoznvxn .gt_table_body {
+#yrcnilbdlp .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -925,7 +922,7 @@ After completing this course, students are expected to grasp the following knowl
   border-bottom-color: #D3D3D3;
 }
 
-#huadoznvxn .gt_footnotes {
+#yrcnilbdlp .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -939,7 +936,7 @@ After completing this course, students are expected to grasp the following knowl
   border-right-color: #D3D3D3;
 }
 
-#huadoznvxn .gt_footnote {
+#yrcnilbdlp .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -948,7 +945,7 @@ After completing this course, students are expected to grasp the following knowl
   padding-right: 5px;
 }
 
-#huadoznvxn .gt_sourcenotes {
+#yrcnilbdlp .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -962,7 +959,7 @@ After completing this course, students are expected to grasp the following knowl
   border-right-color: #D3D3D3;
 }
 
-#huadoznvxn .gt_sourcenote {
+#yrcnilbdlp .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -970,72 +967,72 @@ After completing this course, students are expected to grasp the following knowl
   padding-right: 5px;
 }
 
-#huadoznvxn .gt_left {
+#yrcnilbdlp .gt_left {
   text-align: left;
 }
 
-#huadoznvxn .gt_center {
+#yrcnilbdlp .gt_center {
   text-align: center;
 }
 
-#huadoznvxn .gt_right {
+#yrcnilbdlp .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#huadoznvxn .gt_font_normal {
+#yrcnilbdlp .gt_font_normal {
   font-weight: normal;
 }
 
-#huadoznvxn .gt_font_bold {
+#yrcnilbdlp .gt_font_bold {
   font-weight: bold;
 }
 
-#huadoznvxn .gt_font_italic {
+#yrcnilbdlp .gt_font_italic {
   font-style: italic;
 }
 
-#huadoznvxn .gt_super {
+#yrcnilbdlp .gt_super {
   font-size: 65%;
 }
 
-#huadoznvxn .gt_footnote_marks {
+#yrcnilbdlp .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#huadoznvxn .gt_asterisk {
+#yrcnilbdlp .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#huadoznvxn .gt_indent_1 {
+#yrcnilbdlp .gt_indent_1 {
   text-indent: 5px;
 }
 
-#huadoznvxn .gt_indent_2 {
+#yrcnilbdlp .gt_indent_2 {
   text-indent: 10px;
 }
 
-#huadoznvxn .gt_indent_3 {
+#yrcnilbdlp .gt_indent_3 {
   text-indent: 15px;
 }
 
-#huadoznvxn .gt_indent_4 {
+#yrcnilbdlp .gt_indent_4 {
   text-indent: 20px;
 }
 
-#huadoznvxn .gt_indent_5 {
+#yrcnilbdlp .gt_indent_5 {
   text-indent: 25px;
 }
 
-#huadoznvxn .katex-display {
+#yrcnilbdlp .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#huadoznvxn div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#yrcnilbdlp div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1149,8 +1146,8 @@ Recording of the lectures will only be allowed in certain circumstances. Please 
 
 ## Use of Generative AI and Electronic Devices
 
-* AI for Learning vs. Assessment. Students are free (and **encouraged**) to use Generative AI tools as a study aid to understand course concepts, debug code, or explain complex theorems. However, **all submitted work for assignments must be your own.** You must write your own solutions. Directly copying text, derivations, or code from an AI tool and submitting it as your own may receive a **severe penalty** (up to receiving a 0% on the assignment).
-* Electronic Devices During Tests. All term tests and the final exam are **Open Book**, meaning you may bring printed notes, textbooks, and lecture slides.
-* **No Electronic Devices:** You are **NOT allowed** to use laptops, tablets, smartwatches, or any other electronic devices during the exam.
-* **Phone Exception:** You are permitted to bring a smartphone, but it must remain stowed away during the writing period. It may **only** be used at the very end of the exam for the specific purpose of taking photos of your answer sheets for submission (if required). Using the phone for any other reason during the exam will be treated as academic misconduct.
+* **AI for Learning vs. Assessment**. Students are free (and **encouraged**) to use Generative AI tools as a study aid to understand course concepts, debug code, or explain complex theorems. However, **all submitted work for assignments must be your own.** You must write your own solutions. Directly copying text, derivations, or code from an AI tool and submitting it as your own may receive a **severe penalty** (up to receiving a 0% on the assignment).
+* **Electronic Devices**. All term tests and the final exam are **Open Book**, meaning you may bring printed notes, textbooks, and lecture slides.
+  * **No Electronic Devices:** You are **NOT allowed** to use laptops, tablets, smartwatches, or any other electronic devices during the exam.
+  * **Phone Exception:** You are permitted to bring a smartphone, but it must remain stowed away during the writing period. It may **only** be used at the very end of the exam for the specific purpose of taking photos of your answer sheets for submission (if required). Using the phone for any other reason during the exam will be treated as academic misconduct.
 
