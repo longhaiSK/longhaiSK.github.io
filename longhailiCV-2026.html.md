@@ -2151,7 +2151,7 @@ format:
 
 <!-- -->
 
-16. Randomized Quantile Residuals: an Omnibus Model Diagnostic Tool with Unified Reference Distribution, June 2017, Seminar talk, School of Mathematical Sciences, Xiamen University, China.
+16. [Randomized Quantile Residuals: an Omnibus Model Diagnostic Tool with Unified Reference Distribution](/doc/talks/rqrslides.pdf), June 2017, Seminar talk, School of Mathematical Sciences, Xiamen University, China.
 
 
 
@@ -2175,7 +2175,7 @@ format:
 
 <!-- -->
 
-12. Fully Bayesian Classification with Heavy-tailed Priors for Selection in High-Dimensional Features with Grouping Structure, Dec., 2016, Wuhan University, China.
+12. [Fully Bayesian Classification with Heavy-tailed Priors for Selection in High-Dimensional Features with Grouping Structure](/doc/robit/robitslides.pdf), Dec., 2016, Wuhan University, China.
 
 
 **2015-2016**

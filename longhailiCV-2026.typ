@@ -1655,7 +1655,7 @@
 
 #block[
 #set enum(numbering: "1.", start: 16)
-+ Randomized Quantile Residuals: an Omnibus Model Diagnostic Tool with Unified Reference Distribution, June 2017, Seminar talk, School of Mathematical Sciences, Xiamen University, China.
++ #link("./doc/talks/rqrslides.pdf")[Randomized Quantile Residuals: an Omnibus Model Diagnostic Tool with Unified Reference Distribution], June 2017, Seminar talk, School of Mathematical Sciences, Xiamen University, China.
 ]
 
 #block[
@@ -1675,7 +1675,7 @@
 
 #block[
 #set enum(numbering: "1.", start: 12)
-+ Fully Bayesian Classification with Heavy-tailed Priors for Selection in High-Dimensional Features with Grouping Structure, Dec., 2016, Wuhan University, China.
++ #link("./doc/robit/robitslides.pdf")[Fully Bayesian Classification with Heavy-tailed Priors for Selection in High-Dimensional Features with Grouping Structure], Dec., 2016, Wuhan University, China.
 ]
 
 #strong[2015-2016]
