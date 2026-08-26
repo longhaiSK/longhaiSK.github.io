@@ -26,5 +26,5 @@ An introduction to the principles of experimental design and analysis of varianc
 Thanks to [Prof. Chunfang Devon Lin](https://sites.google.com/view/cdlin/)'s lecture notes on the same topics. Some examples are taken from the textbook [*Design and Analysis of Experiments*](https://www.wiley.com/en-br/Design+and+Analysis+of+Experiments%2C+10th+Edition-p-9781119492443) by Douglas C. Montgomery.
 
 <footer>
-Last updated on August 22, 2026.
+Last updated on August 25, 2026.
 </footer>
