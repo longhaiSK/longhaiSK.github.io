@@ -32,16 +32,16 @@ Theory and applications of sampling from finite populations. Includes: simple ra
 * R markdown files for generating the above html files can be found from [this Github folder](https://github.com/longhaiSK/longhaiSK.github.io/tree/main/teaching/stat348_rdemo/).
 
 
-* Most examples and datasets are taken from [**Sampling: Design and Analysis**, 2nd Edition, by Sharon L. Lohr, published by Brooks/Cole.](https://www.sharonlohr.com/sampling-design-and-analysis-2e)
+* Most examples and datasets are taken from [**Sampling: Design and Analysis**, by Sharon L. Lohr, published by Brooks/Cole](https://www.sharonlohr.com/sampling-design-and-analysis-2e).
 :::
 ## Googlesheets Calculator
 
-[Googlesheets Calculator for Sampling Survey](https://docs.google.com/spreadsheets/d/18EbvJqHDn1uNI4pyXmkF0nV1-hZNCmmEpUk8DmwFblg/edit?usp=sharing)
+### [Googlesheets Calculator for Sampling Survey](https://docs.google.com/spreadsheets/d/18EbvJqHDn1uNI4pyXmkF0nV1-hZNCmmEpUk8DmwFblg/edit?usp=sharing)
 
 
 
 <footer>
-Last updated on August 25, 2026.
+Last updated on August 26, 2026.
 </footer>
 
 
