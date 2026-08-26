@@ -419,7 +419,8 @@
 )
 
 #show: doc => article(
-  title: [CURRICULUM VITAE of LONGHAI LI (Aug 25, 2026)],
+  title: [CURRICULUM VITAE of LONGHAI LI],
+  subtitle: [Aug 25, 2026],
   fontsize: 11pt,
   toc_title: [Table of contents],
   toc_depth: 3,

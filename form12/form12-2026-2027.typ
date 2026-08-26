@@ -1,0 +1,609 @@
+// Simple numbering for non-book documents
+#let equation-numbering = "(1)"
+#let callout-numbering = "1"
+#let subfloat-numbering(n-super, subfloat-idx) = {
+  numbering("1a", n-super, subfloat-idx)
+}
+
+// Theorem configuration for theorion
+// Simple numbering for non-book documents (no heading inheritance)
+#let theorem-inherited-levels = 0
+
+// Theorem numbering format (can be overridden by extensions for appendix support)
+// This function returns the numbering pattern to use
+#let theorem-numbering(loc) = "1.1"
+
+// Default theorem render function
+#let theorem-render(prefix: none, title: "", full-title: auto, body) = {
+  if full-title != "" and full-title != auto and full-title != none {
+    strong[#full-title.]
+    h(0.5em)
+  }
+  body
+}
+// Some definitions presupposed by pandoc's typst output.
+#let content-to-string(content) = {
+  if content.has("text") {
+    content.text
+  } else if content.has("children") {
+    content.children.map(content-to-string).join("")
+  } else if content.has("body") {
+    content-to-string(content.body)
+  } else if content == [ ] {
+    " "
+  }
+}
+
+#let horizontalrule = line(start: (25%,0%), end: (75%,0%))
+
+#let endnote(num, contents) = [
+  #stack(dir: ltr, spacing: 3pt, super[#num], contents)
+]
+
+#show terms.item: it => block(breakable: false)[
+  #text(weight: "bold")[#it.term]
+  #block(inset: (left: 1.5em, top: -0.4em))[#it.description]
+]
+
+// Some quarto-specific definitions.
+
+#show raw.where(block: true): set block(
+    fill: luma(230),
+    width: 100%,
+    inset: 8pt,
+    radius: 2pt
+  )
+
+#let block_with_new_content(old_block, new_content) = {
+  let fields = old_block.fields()
+  let _ = fields.remove("body")
+  if fields.at("below", default: none) != none {
+    // TODO: this is a hack because below is a "synthesized element"
+    // according to the experts in the typst discord...
+    fields.below = fields.below.abs
+  }
+  block.with(..fields)(new_content)
+}
+
+#let empty(v) = {
+  if type(v) == str {
+    // two dollar signs here because we're technically inside
+    // a Pandoc template :grimace:
+    v.matches(regex("^\\s*$")).at(0, default: none) != none
+  } else if type(v) == content {
+    if v.at("text", default: none) != none {
+      return empty(v.text)
+    }
+    for child in v.at("children", default: ()) {
+      if not empty(child) {
+        return false
+      }
+    }
+    return true
+  }
+
+}
+
+// Subfloats
+// This is a technique that we adapted from https://github.com/tingerrr/subpar/
+#let quartosubfloatcounter = counter("quartosubfloatcounter")
+
+#let quarto_super(
+  kind: str,
+  caption: none,
+  label: none,
+  supplement: str,
+  position: none,
+  subcapnumbering: "(a)",
+  body,
+) = {
+  context {
+    let figcounter = counter(figure.where(kind: kind))
+    let n-super = figcounter.get().first() + 1
+    set figure.caption(position: position)
+    [#figure(
+      kind: kind,
+      supplement: supplement,
+      caption: caption,
+      {
+        show figure.where(kind: kind): set figure(numbering: _ => {
+          let subfloat-idx = quartosubfloatcounter.get().first() + 1
+          subfloat-numbering(n-super, subfloat-idx)
+        })
+        show figure.where(kind: kind): set figure.caption(position: position)
+
+        show figure: it => {
+          let num = numbering(subcapnumbering, n-super, quartosubfloatcounter.get().first() + 1)
+          show figure.caption: it => block({
+            num.slice(2) // I don't understand why the numbering contains output that it really shouldn't, but this fixes it shrug?
+            [ ]
+            it.body
+          })
+
+          quartosubfloatcounter.step()
+          it
+          counter(figure.where(kind: it.kind)).update(n => n - 1)
+        }
+
+        quartosubfloatcounter.update(0)
+        body
+      }
+    )#label]
+  }
+}
+
+// callout rendering
+// this is a figure show rule because callouts are crossreferenceable
+#show figure: it => {
+  if type(it.kind) != str {
+    return it
+  }
+  let kind_match = it.kind.matches(regex("^quarto-callout-(.*)")).at(0, default: none)
+  if kind_match == none {
+    return it
+  }
+  let kind = kind_match.captures.at(0, default: "other")
+  kind = upper(kind.first()) + kind.slice(1)
+  // now we pull apart the callout and reassemble it with the crossref name and counter
+
+  // when we cleanup pandoc's emitted code to avoid spaces this will have to change
+  let old_callout = it.body.children.at(1).body.children.at(1)
+  let old_title_block = old_callout.body.children.at(0)
+  let children = old_title_block.body.body.children
+  let old_title = if children.len() == 1 {
+    children.at(0)  // no icon: title at index 0
+  } else {
+    children.at(1)  // with icon: title at index 1
+  }
+
+  // TODO use custom separator if available
+  // Use the figure's counter display which handles chapter-based numbering
+  // (when numbering is a function that includes the heading counter)
+  let callout_num = it.counter.display(it.numbering)
+  let new_title = if empty(old_title) {
+    [#kind #callout_num]
+  } else {
+    [#kind #callout_num: #old_title]
+  }
+
+  let new_title_block = block_with_new_content(
+    old_title_block,
+    block_with_new_content(
+      old_title_block.body,
+      if children.len() == 1 {
+        new_title  // no icon: just the title
+      } else {
+        children.at(0) + new_title  // with icon: preserve icon block + new title
+      }))
+
+  align(left, block_with_new_content(old_callout,
+    block(below: 0pt, new_title_block) +
+    old_callout.body.children.at(1)))
+}
+
+// 2023-10-09: #fa-icon("fa-info") is not working, so we'll eval "#fa-info()" instead
+#let callout(body: [], title: "Callout", background_color: rgb("#dddddd"), icon: none, icon_color: black, body_background_color: white) = {
+  block(
+    breakable: false, 
+    fill: background_color, 
+    stroke: (paint: icon_color, thickness: 0.5pt, cap: "round"), 
+    width: 100%, 
+    radius: 2pt,
+    block(
+      inset: 1pt,
+      width: 100%, 
+      below: 0pt, 
+      block(
+        fill: background_color,
+        width: 100%,
+        inset: 8pt)[#if icon != none [#text(icon_color, weight: 900)[#icon] ]#title]) +
+      if(body != []){
+        block(
+          inset: 1pt, 
+          width: 100%, 
+          block(fill: body_background_color, width: 100%, inset: 8pt, body))
+      }
+    )
+}
+
+
+// syntax highlighting functions from skylighting:
+/* Function definitions for syntax highlighting generated by skylighting: */
+#let EndLine() = raw("\n")
+#let Skylighting(fill: none, number: false, start: 1, sourcelines) = {
+   let blocks = []
+   let lnum = start - 1
+   let bgcolor = rgb("#f1f3f5")
+   for ln in sourcelines {
+     if number {
+       lnum = lnum + 1
+       blocks = blocks + box(width: if start + sourcelines.len() > 999 { 30pt } else { 24pt }, text(fill: rgb("#aaaaaa"), [ #lnum ]))
+     }
+     blocks = blocks + ln + EndLine()
+   }
+   block(fill: bgcolor, width: 100%, inset: 8pt, radius: 2pt, blocks)
+}
+#let AlertTok(s) = text(fill: rgb("#ad0000"),raw(s))
+#let AnnotationTok(s) = text(fill: rgb("#5e5e5e"),raw(s))
+#let AttributeTok(s) = text(fill: rgb("#657422"),raw(s))
+#let BaseNTok(s) = text(fill: rgb("#ad0000"),raw(s))
+#let BuiltInTok(s) = text(fill: rgb("#003b4f"),raw(s))
+#let CharTok(s) = text(fill: rgb("#20794d"),raw(s))
+#let CommentTok(s) = text(fill: rgb("#5e5e5e"),raw(s))
+#let CommentVarTok(s) = text(style: "italic",fill: rgb("#5e5e5e"),raw(s))
+#let ConstantTok(s) = text(fill: rgb("#8f5902"),raw(s))
+#let ControlFlowTok(s) = text(weight: "bold",fill: rgb("#003b4f"),raw(s))
+#let DataTypeTok(s) = text(fill: rgb("#ad0000"),raw(s))
+#let DecValTok(s) = text(fill: rgb("#ad0000"),raw(s))
+#let DocumentationTok(s) = text(style: "italic",fill: rgb("#5e5e5e"),raw(s))
+#let ErrorTok(s) = text(fill: rgb("#ad0000"),raw(s))
+#let ExtensionTok(s) = text(fill: rgb("#003b4f"),raw(s))
+#let FloatTok(s) = text(fill: rgb("#ad0000"),raw(s))
+#let FunctionTok(s) = text(fill: rgb("#4758ab"),raw(s))
+#let ImportTok(s) = text(fill: rgb("#00769e"),raw(s))
+#let InformationTok(s) = text(fill: rgb("#5e5e5e"),raw(s))
+#let KeywordTok(s) = text(weight: "bold",fill: rgb("#003b4f"),raw(s))
+#let NormalTok(s) = text(fill: rgb("#003b4f"),raw(s))
+#let OperatorTok(s) = text(fill: rgb("#5e5e5e"),raw(s))
+#let OtherTok(s) = text(fill: rgb("#003b4f"),raw(s))
+#let PreprocessorTok(s) = text(fill: rgb("#ad0000"),raw(s))
+#let RegionMarkerTok(s) = text(fill: rgb("#003b4f"),raw(s))
+#let SpecialCharTok(s) = text(fill: rgb("#5e5e5e"),raw(s))
+#let SpecialStringTok(s) = text(fill: rgb("#20794d"),raw(s))
+#let StringTok(s) = text(fill: rgb("#20794d"),raw(s))
+#let VariableTok(s) = text(fill: rgb("#111111"),raw(s))
+#let VerbatimStringTok(s) = text(fill: rgb("#20794d"),raw(s))
+#let WarningTok(s) = text(style: "italic",fill: rgb("#5e5e5e"),raw(s))
+
+
+
+#let article(
+  title: none,
+  subtitle: none,
+  authors: none,
+  keywords: (),
+  date: none,
+  abstract-title: none,
+  abstract: none,
+  thanks: none,
+  cols: 1,
+  lang: "en",
+  region: "US",
+  font: none,
+  fontsize: 11pt,
+  title-size: 1.5em,
+  subtitle-size: 1.25em,
+  heading-family: none,
+  heading-weight: "bold",
+  heading-style: "normal",
+  heading-color: black,
+  heading-line-height: 0.65em,
+  mathfont: none,
+  codefont: none,
+  linestretch: 1,
+  sectionnumbering: none,
+  linkcolor: none,
+  citecolor: none,
+  filecolor: none,
+  toc: false,
+  toc_title: none,
+  toc_depth: none,
+  toc_indent: 1.5em,
+  doc,
+) = {
+  // Set document metadata for PDF accessibility
+  set document(title: title, keywords: keywords)
+  set document(
+    author: authors.map(author => content-to-string(author.name)).join(", ", last: " & "),
+  ) if authors != none and authors != ()
+  set par(
+    justify: true,
+    leading: linestretch * 0.65em
+  )
+  set text(lang: lang,
+           region: region,
+           size: fontsize)
+  set text(font: font) if font != none
+  show math.equation: set text(font: mathfont) if mathfont != none
+  show raw: set text(font: codefont) if codefont != none
+
+  set heading(numbering: sectionnumbering)
+
+  show link: set text(fill: rgb(content-to-string(linkcolor))) if linkcolor != none
+  show ref: set text(fill: rgb(content-to-string(citecolor))) if citecolor != none
+  show link: this => {
+    if filecolor != none and type(this.dest) == label {
+      text(this, fill: rgb(content-to-string(filecolor)))
+    } else {
+      text(this)
+    }
+   }
+
+  let has-title-block = title != none or (authors != none and authors != ()) or date != none or abstract != none
+  if has-title-block {
+    place(
+      top,
+      float: true,
+      scope: "parent",
+      clearance: 4mm,
+      block(below: 1em, width: 100%)[
+
+        #if title != none {
+          align(center, block(inset: 2em)[
+            #set par(leading: heading-line-height) if heading-line-height != none
+            #set text(font: heading-family) if heading-family != none
+            #set text(weight: heading-weight)
+            #set text(style: heading-style) if heading-style != "normal"
+            #set text(fill: heading-color) if heading-color != black
+
+            #text(size: title-size)[#title #if thanks != none {
+              footnote(thanks, numbering: "*")
+              counter(footnote).update(n => n - 1)
+            }]
+            #(if subtitle != none {
+              parbreak()
+              text(size: subtitle-size)[#subtitle]
+            })
+          ])
+        }
+
+        #if authors != none and authors != () {
+          let count = authors.len()
+          let ncols = calc.min(count, 3)
+          grid(
+            columns: (1fr,) * ncols,
+            row-gutter: 1.5em,
+            ..authors.map(author =>
+                align(center)[
+                  #author.name \
+                  #author.affiliation \
+                  #author.email
+                ]
+            )
+          )
+        }
+
+        #if date != none {
+          align(center)[#block(inset: 1em)[
+            #date
+          ]]
+        }
+
+        #if abstract != none {
+          block(inset: 2em)[
+          #text(weight: "semibold")[#abstract-title] #h(1em) #abstract
+          ]
+        }
+      ]
+    )
+  }
+
+  if toc {
+    let title = if toc_title == none {
+      auto
+    } else {
+      toc_title
+    }
+    block(above: 0em, below: 2em)[
+    #outline(
+      title: toc_title,
+      depth: toc_depth,
+      indent: toc_indent
+    );
+    ]
+  }
+
+  doc
+}
+
+#set table(
+  inset: 6pt,
+  stroke: none
+)
+// Make URLs blue and underlined
+#show link: set text(fill: blue)
+#show link: underline
+
+// Make cross-references and citations blue and underlined
+#show ref: set text(fill: blue)
+#show ref: underline
+#let brand-color = (:)
+#let brand-color-background = (:)
+#let brand-logo = (:)
+
+#set page(
+  paper: "us-letter",
+  margin: (bottom: 25mm,top: 25mm,x: 20mm,),
+  numbering: "1",
+  columns: 1,
+)
+
+#show: doc => article(
+  fontsize: 11pt,
+  toc_title: [Table of contents],
+  toc_depth: 3,
+  doc,
+)
+
+#align(right)[#text(size: 14pt, weight: "bold")[Form 1]]
+#v(1em)
+#grid(
+  columns: (1fr, 1fr),
+  row-gutter: 1em,
+  [*Name:* #underline[Longhai Li]], [*Date:* #underline[June 30, 2027]],
+  [*College:* #underline[Arts & Science]], [*Department:* #underline[Mathematics & Statistics]]
+)
+#v(0.5em)
+#line(length: 100%)
+#v(1em)
+#align(center)[
+  #strong[
+    INFORMATION FOR UPDATE OF CURRICULUM VITAE -- NEW ITEMS \
+    (ITEMS NOT PREVIOUSLY REPORTED) \
+    The cut off date for items to be reported is JUNE 30.
+  ]
+]
+#table(
+  columns: 2,
+  align: (auto,auto,),
+  [#strong[Name:] Longhai Li], [#strong[Date:] June 30, 2027],
+  [#strong[College:] Arts & Science], [#strong[Department:] Mathematics & Statistics],
+)
+// ====================================================================
+// TYPST RULES FOR REVERSE LISTS 
+// ====================================================================
+#show figure: set block(breakable: true)
+
+// 1. Global spacing and indents
+#set enum(indent: 1em, body-indent: 0.75em)
+#set list(indent: 2em, body-indent: 0.75em)
+
+// 2. Nested bullet list rule
+#show list: it => { 
+  set list(indent: 1em)
+  it 
+}
+
+// 3. The Numbering Enforcer (with recursion safety)
+#show enum: it => { 
+  set list(indent: 1em)
+  
+  // If it already has the right numbering, return it as-is to break the loop
+  if it.numbering == "[1]" {
+    it
+  } else {
+    // Otherwise, rebuild the list to strip Pandoc's formatting
+    enum(
+      numbering: "[1]",
+      start: it.start,    // Keeps your reverse number
+      ..it.children       // Keeps all the actual items and sublists
+    )
+  }
+}
+#block[
+]
+= 10. SUPERVISION AND ADVISORY ACTIVITIES
+<supervision-and-advisory-activities>
+== 10.2 Graduate Student Supervision
+<graduate-student-supervision>
+#block[
+#set enum(numbering: "1.", start: 2)
++ #strong[Jing Wang], Ph.D., Biostatistics, School of Public Health, Co-supervised with Prof.~Li Xing, 2023--2026 (Transferred to other supervisor)
+]
+
++ #strong[Malki Gunawardhana], M.Sc., Statistics, Math & Stat. 2026-present.
+
+== 10.4 Supervision of Post-Doctoral Fellows and Research Associates
+<supervision-of-post-doctoral-fellows-and-research-associates>
++ Tingxuan Wu, University of Saskatchewan, Postdoc Research Associate, Jan.~2025 -- July 2026.
+
+== 10.6 Thesis Committee Memberships
+<thesis-committee-memberships>
+#{set text(font: ("system-ui", "Segoe UI", "Roboto", "Helvetica", "Arial", "sans-serif", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji") , size: 9pt); table(
+  columns: (5%, 25%, 5%, 20%, 30%, 10%),
+  align: (center,left,center,left,left,center,),
+  table.header(table.cell(align: bottom + center, fill: rgb("#d9d9d9"))[#set text(size: 1.0em , weight: "bold" , fill: rgb("#333333")); \#], table.cell(align: bottom + left, fill: rgb("#d9d9d9"))[#set text(size: 1.0em , weight: "bold" , fill: rgb("#333333")); NAME], table.cell(align: bottom + center, fill: rgb("#d9d9d9"))[#set text(size: 1.0em , weight: "bold" , fill: rgb("#333333")); DEG], table.cell(align: bottom + left, fill: rgb("#d9d9d9"))[#set text(size: 1.0em , weight: "bold" , fill: rgb("#333333")); PROGRAM], table.cell(align: bottom + left, fill: rgb("#d9d9d9"))[#set text(size: 1.0em , weight: "bold" , fill: rgb("#333333")); TIME FRAME], table.cell(align: bottom + center, fill: rgb("#d9d9d9"))[#set text(size: 1.0em , weight: "bold" , fill: rgb("#333333")); ROLE],),
+  table.hline(),
+  table.cell(align: horizon + center)[31], table.cell(align: horizon + left)[Tiansui Wu], table.cell(align: horizon + center)[M.Sc.], table.cell(align: horizon + left)[Biostatistics], table.cell(align: horizon + left)[2025--Present], table.cell(align: horizon + center)[Chair],
+  table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[30], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Prabhawi Kahatapitiye], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Ph.D.], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Statistics], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[2025--Present], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Member],
+  table.cell(align: horizon + center)[29], table.cell(align: horizon + left)[Rasel Kabir], table.cell(align: horizon + center)[Ph.D.], table.cell(align: horizon + left)[Biostatistics], table.cell(align: horizon + left)[2025--Present], table.cell(align: horizon + center)[Chair],
+  table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[27], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Lina Li], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Ph.D.], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[Biostatistics], table.cell(align: horizon + left, fill: rgb(128, 128, 128, 5%))[2023--Present], table.cell(align: horizon + center, fill: rgb(128, 128, 128, 5%))[Member],
+  table.cell(align: horizon + center)[22], table.cell(align: horizon + left)[Han Wang], table.cell(align: horizon + center)[Ph.D.], table.cell(align: horizon + left)[Sociology], table.cell(align: horizon + left)[2020--Present], table.cell(align: horizon + center)[Cognate],
+)}
+= 12. PAPERS IN REFEREED JOURNALS
+<papers-in-refereed-journals>
+#strong[2026-2027]
+
++ Wu, T., Gao, WE, Feng, C., and Li, L., Z-residuals for Diagnosing Bayesian Models, #emph[Journal of American Statistical Association], under revision. \[#link("https://bayesian-zresid-slides.longhai-li.workers.dev")[#strong[Slides]]\]
+
+= 14. PRESENTATIONS
+<presentations>
+== 14.1 Invited Presentations
+<invited-presentations>
+#strong[2026-2027]
+
++ #link("https://bayesian-zresid-slides.longhai-li.workers.dev/")[Z-residuals: A Versatile Diagnostic Framework for Bayesian Models]. Presented at: University of Toronto, Biostatistics Seminar, 1 September, 2026
+
+= 15. REPORTS AND OTHER OUTPUTS
+<reports-and-other-outputs>
+== 15.1 Software Released Publicly
+<research-software>
+#block[
+#set enum(numbering: "1.", start: 4)
++ Wu, T. and Li, L., 2027. #NormalTok("Zresidual");: Computing and Diagnosing Gaussian-like Residuals. #link("https://tiw150.github.io/Zresidual/index.html")[\[pkgdown site\]]. Version 0.1-0 on Github (April 2026); Version 0.2-0 on Github (August 2026); Version 0.2-0 on CRAN (August 2026).
+]
+
+#block[
+#set enum(numbering: "1.", start: 3)
++ Li, L., 2026. R Functions for Computing Z-residuals for #NormalTok("survreg"); and #NormalTok("coxph"); Objects. #link("https://longhaisk.github.io/software/NRSP/index.html")[\[URL\]].
+]
+
+#block[
+#set enum(numbering: "1.", start: 2)
++ Li, L. and Liu, S., 2019--2026. #NormalTok("HTLR");: Bayesian Logistic Regression with Hyper-LASSO priors. DOI: 10.32614/CRAN.package.HTLR. #link("https://cran.r-project.org/web/packages/HTLR/index.html")[\[CRAN\]] #link("https://longhaisk.github.io/HTLR")[\[Github\]] #link("https://longhaisk.github.io/software/BLRHL/index.html")[\[URL\]]. Version 0.4 (2019), version 0.4-1 (2019), version 0.4-2 (2020), version 0.4-3 (2020), version 0.4-4 (2022), version 1.0 (2026).
+]
+
++ Li, L., 2011--2026. #NormalTok("BCBCSF");: Bias-corrected Bayesian Classification with Selected Features. DOI: 10.32614/CRAN.package.BCBCSF. #link("https://cran.r-project.org/web/packages/BCBCSF/index.html")[\[CRAN\]] #link("https://longhaisk.github.io/software/BCBCSF/index.html")[\[URL\]]. Version 0.0-0 (2011), version 0.0-1 (2011), version 0.0-2 (2012), version 1.0-0 (2013), version 1.0-1 (2015), updated to version 1.0-2 (2026).
+
+== 15.2 Technical Reports
+<techical-reports>
++ Li, L., 2026. An entropy-based coefficient of determination with adjustment of optimization bias. #link("https://doi.org/10.48550/arXiv.2608.06624")[arXiv preprint arXiv:2608.06624]. August 2026.
+
+= 18. PRACTICE OF PROFESSIONAL SKILLS
+<practice-of-professional-skills>
+== 18.1 Journal Refereeing
+<journal-refereeing>
+#strong[2026-2027]
+
+#block[
+#set enum(numbering: "1.", start: 3)
++ Refereeing for #emph[Biometrical Journal], August 2026
+]
+
+#block[
+#set enum(numbering: "1.", start: 2)
++ Refereeing for #emph[Journal of Computational and Graphical Statistics], July 2026
+]
+
++ Refereeing for #emph[Bioinformatics], July, 2026
+
+= 19. ADMINISTRATIVE SERVICE
+<administrative-service>
+== 19.1 University Committees
+<university-committees>
+#strong[2026-2027]
+
++ Chair, Collaborative Biostatistics Program, University of Saskatchewan.
+
+#colbreak()
+
+#align(right)[#text(size: 14pt, weight: "bold")[Form 2]]
+#v(1em)
+#grid(
+  columns: (1fr, 1fr),
+  row-gutter: 1em,
+  [*Name:* #underline[Longhai Li]], [*Date:* #underline[June 30, 2027]],
+  [*College:* #underline[Arts & Science]], [*Department:* #underline[Mathematics & Statistics]]
+)
+#v(0.5em)
+#line(length: 100%)
+#v(1em)
+#align(center)[
+  #strong[
+    INFORMATION FOR UPDATE OF CURRICULUM VITAE \
+    (REVISION OF ITEMS PREVIOUSLY REPORTED AND CONSIDERED) \
+    #v(0.5em)
+    The cut off date for items to be reported is JUNE 30.
+  ]
+]
+#v(2em)
+#align(center)[*Nothing to report for timeframe: 2026-2027*]
+#table(
+  columns: 2,
+  align: (auto,auto,),
+  [#strong[Name:] Longhai Li], [#strong[Date:] June 30, 2027],
+  [#strong[College:] Arts & Science], [#strong[Department:] Mathematics & Statistics],
+)
+
+
+

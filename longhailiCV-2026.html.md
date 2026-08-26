@@ -1,5 +1,6 @@
 ---
-title: "CURRICULUM VITAE of LONGHAI LI (Aug 25, 2026)"
+title: "CURRICULUM VITAE of LONGHAI LI"
+subtitle: "Aug 25, 2026"
 engine: knitr
 format:
   profweb-html: default

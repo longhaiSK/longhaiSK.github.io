@@ -48,38 +48,22 @@ Many granting agencies including NSERC, CFI, CANSSI, CFREF, and MITACS have supp
 
 ## Past and Current Team Members 
 
-### [Post-doctoral Fellows](./longhailiCV-2026.html#10-4-supervision-of-post-doctoral-fellows-and-research-associates)
+### <i class="bi bi-stack"></i> [Post-doctoral Fellows](./longhailiCV-2026.html#10-4-supervision-of-post-doctoral-fellows-and-research-associates)
 
-### [Graduate Students](./longhailiCV-2026.html#10-2-graduate-student-supervision)
+### <i class="bi bi-mortarboard-fill"></i> [Graduate Students](./longhailiCV-2026.html#10-2-graduate-student-supervision)
 
-### [Undergraduate Students](./longhailiCV-2026.html#10-1-undergraduate-student-supervision)
+### <i class="bi bi-book-half"></i> [Undergraduate Students](./longhailiCV-2026.html#10-1-undergraduate-student-supervision)
 
 ## Publications
 
-::: {style="margin-left: 1em; font-size: 1.1em;"}
+### <i class="bi bi-journal-text"></i> [Papers in Refereed Journals](./longhailiCV-2026.html#12-papers-in-refereed-journals)
 
-::: {style="margin-bottom: 0.6em;"}
-<i class="bi bi-journal-text"></i> [**Papers in Refereed Journals**](./longhailiCV-2026.html#12-papers-in-refereed-journals)
-:::
+### <i class="bi bi-code-square"></i> [Software Released Publicly](./longhailiCV-2026.html#15-1-software-released-publicly)
 
-::: {style="margin-bottom: 0.6em;"}
-<i class="bi bi-code-square"></i> [**Software Released Publicly**](./longhailiCV-2026.html#15-1-software-released-publicly)
-:::
+### <i class="bi bi-globe"></i> [Apps and Websites](./longhailiCV-2026.html#15-3-online-apps)
 
-::: {style="margin-bottom: 0.6em;"}
-<i class="bi bi-globe"></i> [**Apps and Websites**](./longhailiCV-2026.html#15-3-online-apps)
-:::
+### <i class="bi bi-file-earmark-richtext"></i> [Refereed Conference Publications](./longhailiCV-2026.html#13-refereed-conference-publications)
 
-::: {style="margin-bottom: 0.6em;"}
-<i class="bi bi-file-earmark-richtext"></i> [**Refereed Conference Publications**](./longhailiCV-2026.html#13-refereed-conference-publications)
-:::
+### <i class="bi bi-easel"></i> [Presentations](./longhailiCV-2026.html#14-presentations)
 
-::: {style="margin-bottom: 0.6em;"}
-<i class="bi bi-easel"></i> [**Presentations**](./longhailiCV-2026.html#14-presentations)
-:::
-
-::: {style="margin-bottom: 0.6em;"}
-<i class="bi bi-file-earmark-text"></i> [**Preprints**](./longhailiCV-2026.html#15-2-technical-reports)
-:::
-
-:::
+### <i class="bi bi-file-earmark-text"></i> [Preprints](./longhailiCV-2026.html#15-2-technical-reports)
