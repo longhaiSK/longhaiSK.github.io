@@ -48,23 +48,14 @@ Many granting agencies including NSERC, CFI, CANSSI, CFREF, and MITACS have supp
 
 ## Past and Current Team Members 
 
-::: {style="margin-left: 1em; font-size: 1.1em;"}
+### [Post-doctoral Fellows](./longhailiCV-2026.html#10-4-supervision-of-post-doctoral-fellows-and-research-associates)
 
-::: {style="margin-bottom: 0.6em;"}
-[**Post-doctoral Fellows**](./longhailiCV-2026.html#10-4-supervision-of-post-doctoral-fellows-and-research-associates)
-:::
+### [Graduate Students](./longhailiCV-2026.html#10-2-graduate-student-supervision)
 
-::: {style="margin-bottom: 0.6em;"}
-[**Graduate Students**](./longhailiCV-2026.html#10-2-graduate-student-supervision)
-:::
-
-::: {style="margin-bottom: 0.6em;"}
-[**Undergraduate Students**](./longhailiCV-2026.html#10-1-undergraduate-student-supervision)
-:::
-
-:::
+### [Undergraduate Students](./longhailiCV-2026.html#10-1-undergraduate-student-supervision)
 
 ## Publications
+
 ::: {style="margin-left: 1em; font-size: 1.1em;"}
 
 ::: {style="margin-bottom: 0.6em;"}
