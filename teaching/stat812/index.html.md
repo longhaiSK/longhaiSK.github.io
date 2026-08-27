@@ -20,12 +20,9 @@ Computationally intensive methods have become widely used in statistical inferen
 
 [2026 Fall Term](./syllabus2026.html){.btn .btn-primary role="button"}
 
-## Textbook
+## Course Materials
 
-[HTML](https://longhaisk.github.io/compstat){.btn}
-
-:::{.callout-note}
-The R markdown sources for producing the HTML files listed above can be found in this [Github folder](https://github.com/longhaiSK/longhaiSK.github.io/tree/main/teaching/stat812_rdemo/rdemo).
-
-:::
-
+[HTML Book](https://longhaisk.github.io/compstat){.btn}
+\
+\
+[Handwritten Lecture Notes](https://usaskca1-my.sharepoint.com/:f:/g/personal/lol553_usask_ca/IgBLkZz42Ct3RJgzJRi7660_AftKSZxRzlDvsYLxoJe7v-0?e=SRhsih){.btn}
