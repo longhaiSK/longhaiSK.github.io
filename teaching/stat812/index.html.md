@@ -20,29 +20,9 @@ Computationally intensive methods have become widely used in statistical inferen
 
 [2026 Fall Term](./syllabus2026.html){.btn .btn-primary role="button"}
 
+## Textbook
 
-## List of Topics with Associated Course Materials
-
-| Topic | Academic Week |
-|:---|:---:|
-| **1. Introduction to Statistical Inference and R** | |
-| 1.1 [A very short introduction to R and Rstudio](http://cran.r-project.org/doc/contrib/Torfs+Brauer-Short-R-Intro.pdf), [Introduction to R by R core team](http://cran.r-project.org/doc/manuals/R-intro.pdf) <br> 1.2 [R code for introducing basic R features](rdemo/unit01_introduction_longer.html) (Unit 1) | 1 |
-| **2. Computer Arithmetic** | |
-| 2.1 [Overflow, underflow and rounding errors](rdemo/unit02_comparith.pdf) (Unit 2) | 2 |
-| **3. Basics of Monte Carlo Methods** | |
-| 3.1 [Random numbers generator and inverting CDF sampling](rdemo/unit03_sampling_basics.pdf) (Unit 3) | 3 |
-| 3.2 [Simulation for Studying Point Estimation and Hypothesis Testing](rdemo/unit04_simulation.pdf) (Unit 4) | 4 |
-| **4. Maximum Likelihood Estimation and Optimization Methods** | |
-| 4.1 **Univariate Optimization** <br> • [Introduction to maximum likelihood estimation](https://en.wikipedia.org/wiki/Maximum_likelihood_estimation) <br> • [Univariate Optimization](rdemo/unit05_MLE1.html) (Unit 5) <br> • [A Shiny App for Finding Square Root using Newton Method](https://longhai.shinyapps.io/newtonsqrt/) | 5 |
-| 4.2 [Multivariate Optimization Methods](rdemo/unit06_MLEm.html) (Unit 6) | 6 |
-| 4.3 **EM Algorithm** <br> • [Introduction to EM algorithm](https://en.wikipedia.org/wiki/Expectation%E2%80%93maximization_algorithm) <br> • [EM Algorithm](rdemo/unit07_em.html) (Unit 7) | 7 |
-| **5. Bayesian Inference and Advanced Monte Carlo Methods** | |
-| 5.1 **Introduction to Bayesian Inference** <br> 5.2 **Numerical Quadrature** <br> • [Animations for Demonstrating Numerical Integration](https://www.geogebra.org/m/dhyaznAc) <br> • [Numerical Quadrature](rdemo/unit08_integral.pdf) (Unit 8) | 8 |
-| 5.3 [Laplace Approximation](rdemo/unit09_laplace.pdf) (Unit 9) <br> 5.4 [Rejection Sampling](rdemo/unit10_rejection_sampling.pdf) (Unit 10) | 9 |
-| 5.5 [Importance Sampling](rdemo/unit11_importance_sampling.html) (Unit 11) | 10 |
-| 5.6 [Introduction to MCMC Convergence](rdemo/unit11_mcmc_intro.html) (Unit 12) <br> 5.7 [Gibbs sampling](rdemo/unit12_gibbs.html) (Unit 13) | 11 |
-| 5.8 **Metropolis-Hastings Sampling** <br> • [Metropolis-Hasting Sampling (animation)](https://chi-feng.github.io/mcmc-demo/) <br> • [Metropolis-Hastings Sampling](rdemo/unit14_MHsampling.html) (Unit 14) | 12 |
-| 5.9 **General-purpose Samplers** <br> • [JAGS sampling](rdemo/unit15_jags.html) <br> • [STAN sampling for a stochastic volatility model](rdemo/unit16_stan.html) (Unit 16) | 13 |
+[HTML](https://longhaisk.github.io/compstat){.btn}
 
 :::{.callout-note}
 The R markdown sources for producing the HTML files listed above can be found in this [Github folder](https://github.com/longhaiSK/longhaiSK.github.io/tree/main/teaching/stat812_rdemo/rdemo).
