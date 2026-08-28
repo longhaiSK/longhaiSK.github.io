@@ -11,32 +11,31 @@ Theory and applications of sampling from finite populations. Includes: simple ra
 **Prerequisites:** STAT 242, or STAT 245, or STAT 246
 
 
+## Course Materials
+
+
+1. [Handwritten Lecture Notes](https://usaskca1-my.sharepoint.com/:f:/g/personal/lol553_usask_ca/IgB-mkIW_Pz8T7fdCs4DwlCoAYxtJjYQUq8HylzLFvOudQw?e=6Dka24)
+
+2. R Demonstrations
+
+   1. [Basics of R and Rmarkdown](introR/introR.html)
+   2. [Simple Random Sampling](SRS/srs.html)
+   3. [Stratified Random Sampling](STRAT/strata.html)
+   4. [Ratio and Regression Estimation](Ratio_Reg_est/ratio.html)
+   5. [Cluster Sampling](Cluster/cluster.html)
+   6. [Unequal Probability Sampling](UPS/ups.html)
+
+
+   :::{.callout-note icon="false"}
+   R markdown files for generating the above html files can be found from [this Github folder](https://github.com/longhaiSK/longhaiSK.github.io/tree/main/teaching/stat348_rdemo/).
+   :::
+
+3. [Googlesheets Calculator for Sampling Survey](https://docs.google.com/spreadsheets/d/18EbvJqHDn1uNI4pyXmkF0nV1-hZNCmmEpUk8DmwFblg/edit?usp=sharing)
+
+
 
 ## Syllabi
 
 ### [2026 Fall](./syllabi/syllabus2026.html)
-
-## Course Materials
-
-
-### [Handwritten Lecture Notes](https://usaskca1-my.sharepoint.com/:f:/g/personal/lol553_usask_ca/IgB-mkIW_Pz8T7fdCs4DwlCoAYxtJjYQUq8HylzLFvOudQw?e=6Dka24)
-
-### R Demonstrations
-
-
-1. [Basics of R and Rmarkdown](introR/introR.html)
-2. [Simple Random Sampling](SRS/srs.html)
-3. [Stratified Random Sampling](STRAT/strata.html)
-4. [Ratio and Regression Estimation](Ratio_Reg_est/ratio.html)
-5. [Cluster Sampling](Cluster/cluster.html)
-6. [Unequal Probability Sampling](UPS/ups.html)
-
-
-:::{.callout-note icon="false"}
-R markdown files for generating the above html files can be found from [this Github folder](https://github.com/longhaiSK/longhaiSK.github.io/tree/main/teaching/stat348_rdemo/).
-:::
-
-### [Googlesheets Calculator for Sampling Survey](https://docs.google.com/spreadsheets/d/18EbvJqHDn1uNI4pyXmkF0nV1-hZNCmmEpUk8DmwFblg/edit?usp=sharing)
-
 
 

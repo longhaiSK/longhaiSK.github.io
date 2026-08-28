@@ -18,10 +18,10 @@ Computationally intensive methods have become widely used in statistical inferen
 
 ## Syllabi
 
-### [2026 Fall Term](./syllabus2026.html)
+1. [2026 Fall Term](./syllabus2026.html)
 
 ## Course Materials
 
-### [HTML Book](https://longhaisk.github.io/compstat)
+1. [HTML Book](https://longhaisk.github.io/compstat)
 
-### [Handwritten Lecture Notes](https://usaskca1-my.sharepoint.com/:f:/g/personal/lol553_usask_ca/IgBLkZz42Ct3RJgzJRi7660_AftKSZxRzlDvsYLxoJe7v-0?e=SRhsih)
+2. [Handwritten Lecture Notes](https://usaskca1-my.sharepoint.com/:f:/g/personal/lol553_usask_ca/IgBLkZz42Ct3RJgzJRi7660_AftKSZxRzlDvsYLxoJe7v-0?e=SRhsih)
