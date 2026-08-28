@@ -6,8 +6,7 @@ format: profweb-html
 
 ## Description
 
-Computationally intensive methods have become widely used in statistical inference. The objective of this course is to teach students important computational techniques used in statistical inference (evaluation of statistical methods, MLE and Bayesian inference). After learning this course, students are expected to gain understanding of algorithms behind statistical inferential methods, be able to develop new statistical methods, be able to use computer to investigate the properties of statistical methods, and be able to implement a combination of standard statistical toolkits for analyzing real data sets. 
-
+This course covers the fundamental concepts in computational methods used the areas of statistics, machine learning, and data sciences. The topics include Introduction to R programming; Computer Arithmetics (Overflow, Underflow, Rounding Error); Monte Carlo Methods (RNG, Inverting CDF Sampling, Simulation for Estimation and Testing); Maximum Likelihood Estimation (Univariate Optimization, Multivariate Optimization, EM Algorithm); and Bayesian Inference & MCMC (Intro to Bayesian Inference, Numerical Quadrature, Laplace Approximation, Rejection Sampling, Importance Sampling, Convergence, Gibbs Sampling, Metropolis-Hastings Sampling, General-purpose Samplers like JAGS and STAN). After learning this course, students are expected to gain an understanding of the algorithms behind these statistical inferential methods, be able to develop new statistical methods, use computers to investigate the properties of statistical methods, and implement a combination of standard statistical toolkits for analyzing real data sets.
 
 ## Prerequisites
 
@@ -16,12 +15,13 @@ Computationally intensive methods have become widely used in statistical inferen
 * Calculus-based Probability (eg. STAT 342 or STAT 241)
 * Multiple Linear Regression (eg. STAT 344)
 
-## Syllabi
-
-1. [2026 Fall Term](./syllabus2026.html)
 
 ## Course Materials
 
 1. [HTML Book](https://longhaisk.github.io/compstat)
-
 2. [Handwritten Lecture Notes](https://usaskca1-my.sharepoint.com/:f:/g/personal/lol553_usask_ca/IgBLkZz42Ct3RJgzJRi7660_AftKSZxRzlDvsYLxoJe7v-0?e=SRhsih)
+
+
+## Syllabi
+
+1. [2026 Fall Term](./syllabus2026.html)
