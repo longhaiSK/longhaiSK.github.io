@@ -199,6 +199,8 @@ a {
 }
 
 a:hover { text-decoration: underline; }
+
+
 /* Base list resets */
 ul { 
   margin-top: 0.5em;
@@ -217,6 +219,8 @@ ol ul {
   margin-left: 1.5em; 
   padding-left: 0;
 }
+
+
 
 /* 1. SETUP HANGING INDENT (Override Bootstrap) */
 ul > li {
@@ -241,6 +245,13 @@ ol > li::before {
   font-weight: 600;
 }
 
+/* Force paragraph text inside list items to stay inline */
+ol > li > p {
+  display: inline;
+  margin: 0; 
+}
+
+
 /* 3. PROTECT NESTED BULLETS & RESET */
 ol ul > li {
   list-style-type: disc !important;
@@ -253,10 +264,28 @@ ol ul > li::before {
   content: none !important;
 }
 
-/* Force paragraph text inside list items to stay inline */
-ol > li > p {
-  display: inline;
-  margin: 0; 
+/* 3. PROTECT NESTED BULLETS & RESET */
+ol ol {
+  list-style-type: none;       /* Remove default browser numbering */
+  padding-left: 0;             /* Remove nested list indentation */
+  margin-left: 0;              
+  counter-reset: nested-item;  /* Initialize a custom counter */
+}
+
+ol ol > li {
+  position: static;            /* Resets relative positioning from parent */
+  padding-left: 0 !important; 
+  counter-increment: nested-item; /* Increase counter on each list item */
+}
+
+/* Apply the (1) formatting */
+ol ol > li::before {
+  content: "(" counter(nested-item) ") " !important;
+  position: static;            /* FIX: Stops it from flying up to the parent list item */
+  width: auto;                 /* FIX: Removes the 2.5em fixed width from the parent rule */
+  text-align: left;            /* FIX: Overrides the right-alignment */
+  font-weight: normal;         
+  margin-right: 4px;           
 }
 
 /* ==========================================================================
@@ -605,7 +634,7 @@ footer {
 /* ==========================================================================
    9. MEDIA QUERIES (MOBILE OPTIMIZATIONS)
    ========================================================================== */
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 962px) {
   p {
     text-align: left !important;
   }

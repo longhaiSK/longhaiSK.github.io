@@ -386,16 +386,17 @@ This course covers the fundamental concepts in computational methods used the ar
 
 = Prerequisites
 <prerequisites>
-- Multivariate calculus (MATH 225)
-- Linear algebra (MATH 164)
-- Calculus-based Probability (eg. STAT 342 or STAT 241)
-- Multiple Linear Regression (eg. STAT 344)
++ Multivariate calculus (MATH 225)
++ Linear algebra (MATH 164)
++ Calculus-based Probability (eg. STAT 342 or STAT 241)
++ Multiple Linear Regression (eg. STAT 344)
 
-= Instructor
-<instructor>
+= Contact of Instructor
+<contact-of-instructor>
 - #link("https://longhaisk.github.io")[Longhai Li], Professor
 - Department of Mathematics and Statistics, University of Saskatchewan
 - Email: longhai.li\@usask.ca.
+- #strong[Don't send messages in Canvas, which I don't check. ]
 
 = Times and Places
 <times-and-places>
@@ -405,9 +406,7 @@ This course covers the fundamental concepts in computational methods used the ar
 
 = Textbook and Course Materials
 <textbook-and-course-materials>
-- #link("index.html")[The course page] contains the links to my lecture notes and assingments.
-
-- #strong[Recommended Text:] #link("index.html")[My own lecture note].
+#link("index.html")[The course page] contains the links to my lecture notes and other materials. No textbooks are required.
 
 = Tentative Schedule / List of Topics
 <tentative-schedule-list-of-topics>

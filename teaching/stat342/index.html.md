@@ -43,5 +43,5 @@ This course deals with basic probability concepts at a moderately rigorous level
 * **Lecture 21:** [Convergence in Distribution, Central Limit Theorem, Continuous Mapping and Slustky Theorems, Applications to Sample Means.](Lec21.key.pdf)
 
 <footer>
-Last updated on August 27, 2026.
+Last updated on August 31, 2026.
 </footer>
