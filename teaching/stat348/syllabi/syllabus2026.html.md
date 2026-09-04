@@ -32,7 +32,7 @@ Textbooks are not required, but you are advised to have one of the following two
 * **Recommended Text 2:** *Elementary Survey Sampling*, 7th Edition, by Richard L. Scheaffer, William Mendenhall III, R. Lyman Ott, Kenneth G. Gerow (ISBN-13: 978-0-8400-5361-9). We will roughly cover materials in Chapters 1-9.
 
 * **Lecture Notes:** Available from a shared OneDrive folder with the link given on Canvas (the password is also released on the Canvas page). Assignment questions, solutions, and R code for demonstration are all in this folder.
-* **R Code and Spreadsheet Demonstration:** [https://longhaisk.github.io/teaching/stat348_rdemo/stat348.html](https://longhaisk.github.io/teaching/stat348_rdemo/)
+* **R Code and Spreadsheet Demonstration:** [https://longhaisk.github.io/teaching/stat348/](https://longhaisk.github.io/teaching/stat348/)
 
 ## Computing
 
@@ -55,23 +55,23 @@ We will use RStudio and R for this course.
 ::: {.cell-output-display}
 
 ```{=html}
-<div id="lglgwypnqa" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#lglgwypnqa table {
+<div id="koyunimyen" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#koyunimyen table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#lglgwypnqa thead, #lglgwypnqa tbody, #lglgwypnqa tfoot, #lglgwypnqa tr, #lglgwypnqa td, #lglgwypnqa th {
+#koyunimyen thead, #koyunimyen tbody, #koyunimyen tfoot, #koyunimyen tr, #koyunimyen td, #koyunimyen th {
   border-style: none;
 }
 
-#lglgwypnqa p {
+#koyunimyen p {
   margin: 0;
   padding: 0;
 }
 
-#lglgwypnqa .gt_table {
+#koyunimyen .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -97,12 +97,12 @@ We will use RStudio and R for this course.
   border-left-color: #D3D3D3;
 }
 
-#lglgwypnqa .gt_caption {
+#koyunimyen .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#lglgwypnqa .gt_title {
+#koyunimyen .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -114,7 +114,7 @@ We will use RStudio and R for this course.
   border-bottom-width: 0;
 }
 
-#lglgwypnqa .gt_subtitle {
+#koyunimyen .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -126,7 +126,7 @@ We will use RStudio and R for this course.
   border-top-width: 0;
 }
 
-#lglgwypnqa .gt_heading {
+#koyunimyen .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -138,13 +138,13 @@ We will use RStudio and R for this course.
   border-right-color: #D3D3D3;
 }
 
-#lglgwypnqa .gt_bottom_border {
+#koyunimyen .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#lglgwypnqa .gt_col_headings {
+#koyunimyen .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -159,7 +159,7 @@ We will use RStudio and R for this course.
   border-right-color: #D3D3D3;
 }
 
-#lglgwypnqa .gt_col_heading {
+#koyunimyen .gt_col_heading {
   color: #333333;
   background-color: #F0F0F0;
   font-size: 100%;
@@ -179,7 +179,7 @@ We will use RStudio and R for this course.
   overflow-x: hidden;
 }
 
-#lglgwypnqa .gt_column_spanner_outer {
+#koyunimyen .gt_column_spanner_outer {
   color: #333333;
   background-color: #F0F0F0;
   font-size: 100%;
@@ -191,15 +191,15 @@ We will use RStudio and R for this course.
   padding-right: 4px;
 }
 
-#lglgwypnqa .gt_column_spanner_outer:first-child {
+#koyunimyen .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#lglgwypnqa .gt_column_spanner_outer:last-child {
+#koyunimyen .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#lglgwypnqa .gt_column_spanner {
+#koyunimyen .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -211,11 +211,11 @@ We will use RStudio and R for this course.
   width: 100%;
 }
 
-#lglgwypnqa .gt_spanner_row {
+#koyunimyen .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#lglgwypnqa .gt_group_heading {
+#koyunimyen .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -241,7 +241,7 @@ We will use RStudio and R for this course.
   text-align: left;
 }
 
-#lglgwypnqa .gt_empty_group_heading {
+#koyunimyen .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -256,15 +256,15 @@ We will use RStudio and R for this course.
   vertical-align: middle;
 }
 
-#lglgwypnqa .gt_from_md > :first-child {
+#koyunimyen .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#lglgwypnqa .gt_from_md > :last-child {
+#koyunimyen .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#lglgwypnqa .gt_row {
+#koyunimyen .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -283,7 +283,7 @@ We will use RStudio and R for this course.
   overflow-x: hidden;
 }
 
-#lglgwypnqa .gt_stub {
+#koyunimyen .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -296,7 +296,7 @@ We will use RStudio and R for this course.
   padding-right: 5px;
 }
 
-#lglgwypnqa .gt_stub_row_group {
+#koyunimyen .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -310,15 +310,15 @@ We will use RStudio and R for this course.
   vertical-align: top;
 }
 
-#lglgwypnqa .gt_row_group_first td {
+#koyunimyen .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#lglgwypnqa .gt_row_group_first th {
+#koyunimyen .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#lglgwypnqa .gt_summary_row {
+#koyunimyen .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -328,16 +328,16 @@ We will use RStudio and R for this course.
   padding-right: 5px;
 }
 
-#lglgwypnqa .gt_first_summary_row {
+#koyunimyen .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#lglgwypnqa .gt_first_summary_row.thick {
+#koyunimyen .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#lglgwypnqa .gt_last_summary_row {
+#koyunimyen .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -347,7 +347,7 @@ We will use RStudio and R for this course.
   border-bottom-color: #D3D3D3;
 }
 
-#lglgwypnqa .gt_grand_summary_row {
+#koyunimyen .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -357,7 +357,7 @@ We will use RStudio and R for this course.
   padding-right: 5px;
 }
 
-#lglgwypnqa .gt_first_grand_summary_row {
+#koyunimyen .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -367,7 +367,7 @@ We will use RStudio and R for this course.
   border-top-color: #D3D3D3;
 }
 
-#lglgwypnqa .gt_last_grand_summary_row_top {
+#koyunimyen .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -377,11 +377,11 @@ We will use RStudio and R for this course.
   border-bottom-color: #D3D3D3;
 }
 
-#lglgwypnqa .gt_striped {
+#koyunimyen .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#lglgwypnqa .gt_table_body {
+#koyunimyen .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -390,7 +390,7 @@ We will use RStudio and R for this course.
   border-bottom-color: #D3D3D3;
 }
 
-#lglgwypnqa .gt_footnotes {
+#koyunimyen .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -404,7 +404,7 @@ We will use RStudio and R for this course.
   border-right-color: #D3D3D3;
 }
 
-#lglgwypnqa .gt_footnote {
+#koyunimyen .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -413,7 +413,7 @@ We will use RStudio and R for this course.
   padding-right: 5px;
 }
 
-#lglgwypnqa .gt_sourcenotes {
+#koyunimyen .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -427,7 +427,7 @@ We will use RStudio and R for this course.
   border-right-color: #D3D3D3;
 }
 
-#lglgwypnqa .gt_sourcenote {
+#koyunimyen .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -435,72 +435,72 @@ We will use RStudio and R for this course.
   padding-right: 5px;
 }
 
-#lglgwypnqa .gt_left {
+#koyunimyen .gt_left {
   text-align: left;
 }
 
-#lglgwypnqa .gt_center {
+#koyunimyen .gt_center {
   text-align: center;
 }
 
-#lglgwypnqa .gt_right {
+#koyunimyen .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#lglgwypnqa .gt_font_normal {
+#koyunimyen .gt_font_normal {
   font-weight: normal;
 }
 
-#lglgwypnqa .gt_font_bold {
+#koyunimyen .gt_font_bold {
   font-weight: bold;
 }
 
-#lglgwypnqa .gt_font_italic {
+#koyunimyen .gt_font_italic {
   font-style: italic;
 }
 
-#lglgwypnqa .gt_super {
+#koyunimyen .gt_super {
   font-size: 65%;
 }
 
-#lglgwypnqa .gt_footnote_marks {
+#koyunimyen .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#lglgwypnqa .gt_asterisk {
+#koyunimyen .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#lglgwypnqa .gt_indent_1 {
+#koyunimyen .gt_indent_1 {
   text-indent: 5px;
 }
 
-#lglgwypnqa .gt_indent_2 {
+#koyunimyen .gt_indent_2 {
   text-indent: 10px;
 }
 
-#lglgwypnqa .gt_indent_3 {
+#koyunimyen .gt_indent_3 {
   text-indent: 15px;
 }
 
-#lglgwypnqa .gt_indent_4 {
+#koyunimyen .gt_indent_4 {
   text-indent: 20px;
 }
 
-#lglgwypnqa .gt_indent_5 {
+#koyunimyen .gt_indent_5 {
   text-indent: 25px;
 }
 
-#lglgwypnqa .katex-display {
+#koyunimyen .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#lglgwypnqa div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#koyunimyen div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -603,23 +603,23 @@ After completing this course, students are expected to grasp the following knowl
 ::: {.cell-output-display}
 
 ```{=html}
-<div id="fnofdziyki" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#fnofdziyki table {
+<div id="umbbznfogx" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#umbbznfogx table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#fnofdziyki thead, #fnofdziyki tbody, #fnofdziyki tfoot, #fnofdziyki tr, #fnofdziyki td, #fnofdziyki th {
+#umbbznfogx thead, #umbbznfogx tbody, #umbbznfogx tfoot, #umbbznfogx tr, #umbbznfogx td, #umbbznfogx th {
   border-style: none;
 }
 
-#fnofdziyki p {
+#umbbznfogx p {
   margin: 0;
   padding: 0;
 }
 
-#fnofdziyki .gt_table {
+#umbbznfogx .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -645,12 +645,12 @@ After completing this course, students are expected to grasp the following knowl
   border-left-color: #D3D3D3;
 }
 
-#fnofdziyki .gt_caption {
+#umbbznfogx .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#fnofdziyki .gt_title {
+#umbbznfogx .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -662,7 +662,7 @@ After completing this course, students are expected to grasp the following knowl
   border-bottom-width: 0;
 }
 
-#fnofdziyki .gt_subtitle {
+#umbbznfogx .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -674,7 +674,7 @@ After completing this course, students are expected to grasp the following knowl
   border-top-width: 0;
 }
 
-#fnofdziyki .gt_heading {
+#umbbznfogx .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -686,13 +686,13 @@ After completing this course, students are expected to grasp the following knowl
   border-right-color: #D3D3D3;
 }
 
-#fnofdziyki .gt_bottom_border {
+#umbbznfogx .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#fnofdziyki .gt_col_headings {
+#umbbznfogx .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -707,7 +707,7 @@ After completing this course, students are expected to grasp the following knowl
   border-right-color: #D3D3D3;
 }
 
-#fnofdziyki .gt_col_heading {
+#umbbznfogx .gt_col_heading {
   color: #333333;
   background-color: #F0F0F0;
   font-size: 100%;
@@ -727,7 +727,7 @@ After completing this course, students are expected to grasp the following knowl
   overflow-x: hidden;
 }
 
-#fnofdziyki .gt_column_spanner_outer {
+#umbbznfogx .gt_column_spanner_outer {
   color: #333333;
   background-color: #F0F0F0;
   font-size: 100%;
@@ -739,15 +739,15 @@ After completing this course, students are expected to grasp the following knowl
   padding-right: 4px;
 }
 
-#fnofdziyki .gt_column_spanner_outer:first-child {
+#umbbznfogx .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#fnofdziyki .gt_column_spanner_outer:last-child {
+#umbbznfogx .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#fnofdziyki .gt_column_spanner {
+#umbbznfogx .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -759,11 +759,11 @@ After completing this course, students are expected to grasp the following knowl
   width: 100%;
 }
 
-#fnofdziyki .gt_spanner_row {
+#umbbznfogx .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#fnofdziyki .gt_group_heading {
+#umbbznfogx .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -789,7 +789,7 @@ After completing this course, students are expected to grasp the following knowl
   text-align: left;
 }
 
-#fnofdziyki .gt_empty_group_heading {
+#umbbznfogx .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -804,15 +804,15 @@ After completing this course, students are expected to grasp the following knowl
   vertical-align: middle;
 }
 
-#fnofdziyki .gt_from_md > :first-child {
+#umbbznfogx .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#fnofdziyki .gt_from_md > :last-child {
+#umbbznfogx .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#fnofdziyki .gt_row {
+#umbbznfogx .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -831,7 +831,7 @@ After completing this course, students are expected to grasp the following knowl
   overflow-x: hidden;
 }
 
-#fnofdziyki .gt_stub {
+#umbbznfogx .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -844,7 +844,7 @@ After completing this course, students are expected to grasp the following knowl
   padding-right: 5px;
 }
 
-#fnofdziyki .gt_stub_row_group {
+#umbbznfogx .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -858,15 +858,15 @@ After completing this course, students are expected to grasp the following knowl
   vertical-align: top;
 }
 
-#fnofdziyki .gt_row_group_first td {
+#umbbznfogx .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#fnofdziyki .gt_row_group_first th {
+#umbbznfogx .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#fnofdziyki .gt_summary_row {
+#umbbznfogx .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -876,16 +876,16 @@ After completing this course, students are expected to grasp the following knowl
   padding-right: 5px;
 }
 
-#fnofdziyki .gt_first_summary_row {
+#umbbznfogx .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#fnofdziyki .gt_first_summary_row.thick {
+#umbbznfogx .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#fnofdziyki .gt_last_summary_row {
+#umbbznfogx .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -895,7 +895,7 @@ After completing this course, students are expected to grasp the following knowl
   border-bottom-color: #D3D3D3;
 }
 
-#fnofdziyki .gt_grand_summary_row {
+#umbbznfogx .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -905,7 +905,7 @@ After completing this course, students are expected to grasp the following knowl
   padding-right: 5px;
 }
 
-#fnofdziyki .gt_first_grand_summary_row {
+#umbbznfogx .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -915,7 +915,7 @@ After completing this course, students are expected to grasp the following knowl
   border-top-color: #D3D3D3;
 }
 
-#fnofdziyki .gt_last_grand_summary_row_top {
+#umbbznfogx .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -925,11 +925,11 @@ After completing this course, students are expected to grasp the following knowl
   border-bottom-color: #D3D3D3;
 }
 
-#fnofdziyki .gt_striped {
+#umbbznfogx .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#fnofdziyki .gt_table_body {
+#umbbznfogx .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -938,7 +938,7 @@ After completing this course, students are expected to grasp the following knowl
   border-bottom-color: #D3D3D3;
 }
 
-#fnofdziyki .gt_footnotes {
+#umbbznfogx .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -952,7 +952,7 @@ After completing this course, students are expected to grasp the following knowl
   border-right-color: #D3D3D3;
 }
 
-#fnofdziyki .gt_footnote {
+#umbbznfogx .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -961,7 +961,7 @@ After completing this course, students are expected to grasp the following knowl
   padding-right: 5px;
 }
 
-#fnofdziyki .gt_sourcenotes {
+#umbbznfogx .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -975,7 +975,7 @@ After completing this course, students are expected to grasp the following knowl
   border-right-color: #D3D3D3;
 }
 
-#fnofdziyki .gt_sourcenote {
+#umbbznfogx .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -983,72 +983,72 @@ After completing this course, students are expected to grasp the following knowl
   padding-right: 5px;
 }
 
-#fnofdziyki .gt_left {
+#umbbznfogx .gt_left {
   text-align: left;
 }
 
-#fnofdziyki .gt_center {
+#umbbznfogx .gt_center {
   text-align: center;
 }
 
-#fnofdziyki .gt_right {
+#umbbznfogx .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#fnofdziyki .gt_font_normal {
+#umbbznfogx .gt_font_normal {
   font-weight: normal;
 }
 
-#fnofdziyki .gt_font_bold {
+#umbbznfogx .gt_font_bold {
   font-weight: bold;
 }
 
-#fnofdziyki .gt_font_italic {
+#umbbznfogx .gt_font_italic {
   font-style: italic;
 }
 
-#fnofdziyki .gt_super {
+#umbbznfogx .gt_super {
   font-size: 65%;
 }
 
-#fnofdziyki .gt_footnote_marks {
+#umbbznfogx .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#fnofdziyki .gt_asterisk {
+#umbbznfogx .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#fnofdziyki .gt_indent_1 {
+#umbbznfogx .gt_indent_1 {
   text-indent: 5px;
 }
 
-#fnofdziyki .gt_indent_2 {
+#umbbznfogx .gt_indent_2 {
   text-indent: 10px;
 }
 
-#fnofdziyki .gt_indent_3 {
+#umbbznfogx .gt_indent_3 {
   text-indent: 15px;
 }
 
-#fnofdziyki .gt_indent_4 {
+#umbbznfogx .gt_indent_4 {
   text-indent: 20px;
 }
 
-#fnofdziyki .gt_indent_5 {
+#umbbznfogx .gt_indent_5 {
   text-indent: 25px;
 }
 
-#fnofdziyki .katex-display {
+#umbbznfogx .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#fnofdziyki div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#umbbznfogx div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1160,4 +1160,3 @@ Recording of the lectures will only be allowed in certain circumstances. Please 
 * Electronic Devices During Tests. All term tests and the final exam are **Open Book**, meaning you may bring printed notes, textbooks, and lecture slides.
   * **No Electronic Devices:** You are **NOT allowed** to use laptops, tablets, smartwatches, or any other electronic devices during the exam.
   * **Phone Exception:** You are permitted to bring a smartphone, but it must remain stowed away during the writing period. It may **only** be used at the very end of the exam for the specific purpose of taking photos of your answer sheets for submission (if required). Using the phone for any other reason during the exam will be treated as academic misconduct.
-

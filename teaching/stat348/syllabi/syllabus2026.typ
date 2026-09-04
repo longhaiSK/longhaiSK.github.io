@@ -409,7 +409,7 @@ Textbooks are not required, but you are advised to have one of the following two
 
 - #strong[Lecture Notes:] Available from a shared OneDrive folder with the link given on Canvas (the password is also released on the Canvas page). Assignment questions, solutions, and R code for demonstration are all in this folder.
 
-- #strong[R Code and Spreadsheet Demonstration:] #link("https://longhaisk.github.io/teaching/stat348_rdemo/")[https:\/\/longhaisk.github.io/teaching/stat348\_rdemo/stat348.html]
+- #strong[R Code and Spreadsheet Demonstration:] #link("https://longhaisk.github.io/teaching/stat348/")
 
 = Computing
 <computing>
