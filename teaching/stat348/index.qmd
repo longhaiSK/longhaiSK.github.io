@@ -16,8 +16,9 @@ Theory and applications of sampling from finite populations. Includes: simple ra
 
 1. [Handwritten Lecture Notes](https://usaskca1-my.sharepoint.com/:f:/g/personal/lol553_usask_ca/IgB-mkIW_Pz8T7fdCs4DwlCoAYxtJjYQUq8HylzLFvOudQw?e=6Dka24)
 
-2. [HTML Book](https://longhaisk.github.io/sampling)
+2. [HTML Book for Detailed R Demonstration](https://longhaisk.github.io/sampling)
 
+2. [HTML Slides](https://longhaisk.github.io/sampling-slides)
 
 3. [Googlesheets Calculator for Sampling Survey](https://docs.google.com/spreadsheets/d/18EbvJqHDn1uNI4pyXmkF0nV1-hZNCmmEpUk8DmwFblg/edit?usp=sharing)
 
