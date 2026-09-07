@@ -18,8 +18,8 @@ This course covers the fundamental concepts in computational methods used the ar
 
 ## Course Materials
 
-1. [HTML Book](https://longhaisk.github.io/compstat)
-2. [Handwritten Lecture Notes](https://usaskca1-my.sharepoint.com/:f:/g/personal/lol553_usask_ca/IgBLkZz42Ct3RJgzJRi7660_AftKSZxRzlDvsYLxoJe7v-0?e=SRhsih)
+1. [HTML Book with Detailed R Demo](https://longhaisk.github.io/compstat/)
+2. [HTML Lecture Slides](https://longhaisk.github.io/compstat-slides/)
 
 
 ## Syllabi
