@@ -1,0 +1,707 @@
+/* ==========================================================================
+   1. VARIABLES & RESET
+   ========================================================================== */
+:root {
+  --background: white;
+  --textcolor: black;
+  --linkcolor: royalblue;
+  --menubackground: #c5c5c5;
+  --navtextcolor: royalblue;
+  --nav-height: 60px;
+  --transition-speed: 0s;
+}
+
+html {
+  font-size: 16px !important; /* Locks the base rem calculation */
+  -webkit-text-size-adjust: 100%; /* Prevents mobile browsers from auto-scaling */
+  scroll-behavior: auto !important;
+  /* Removed margin-bottom: 500px to prevent ghost scrolling */
+}
+
+body {
+  margin: 20px;
+  padding-top: var(--nav-height);
+  padding-bottom: 20px; /* Buffer space at the bottom of the body */
+  padding-right: 15px;
+  background: var(--background);
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 15px;
+  font-weight: normal;
+  color: var(--textcolor);
+  line-height: 1.5em;
+}
+
+.hidden-block {
+  display: none;
+}
+
+
+
+/* ==========================================================================
+   2. LAYOUT & CONTAINERS
+   ========================================================================== */
+main, .main {
+  max-width: 900px;
+  margin: 0 auto; /* Centers the element */
+  /* Critical: Creates white space so the footer doesn't cover the last line */
+  padding-bottom: 0px !important; 
+  margin-bottom: 0px;
+  text-align: left;
+}
+
+.content {
+  padding: 0px;
+}
+
+/* Make content span the full browser width */
+.main-container { 
+  max-width: 100% !important; 
+  width: 100% !important; 
+}
+
+/* Ensure figures use full width nicely */
+img, .figure, .figure > img { 
+  max-width: 100% !important; 
+  width: 100% !important; 
+  height: auto; 
+}
+table {
+  margin-left: 2ch; /* Indents all tables by exactly one space */
+}
+
+/* ==========================================================================
+   3. TYPOGRAPHY & LINKS
+   ========================================================================== */
+h1, h2, h3, h4, h5, h6 {
+  scroll-margin-top: 80px;
+}
+
+h1 { 
+    font-size: 1.6em; 
+     
+}
+
+h2 {
+  font-size: 1.4em;
+  color: black;
+  border-bottom: 2px solid lightgrey;
+  padding-bottom: 10px;
+  margin-top: 40px;
+}
+
+/* Manual heading number pulled out by headernum.lua; positioned so wrapped
+   heading text hangs under the text instead of under the number. Scoped to
+   :has(.header-num) so only actually-numbered headings get the hanging
+   indent -- plain/unnumbered headings (teaching.html, research.html,
+   index.html, etc.) keep their normal flush-left layout. */
+h2:has(.header-num),
+h3:has(.header-num) {
+  position: relative;   /* contains the absolutely positioned .header-num */
+}
+h2:has(.header-num) { padding-left: 1.6em; }
+h3:has(.header-num) { padding-left: 2.2em; /* wider than h2, to fit two-part subsection numbers */ }
+
+h2 .header-num,
+h3 .header-num {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+/* Quarto zeroes the top margin of the very first h2 in main content
+   (main.content>section:first-of-type>h2:nth-child(1){margin-top:0}) so a
+   page title isn't followed by extra space. That rule also swallows the
+   gap here, where a ::: columns block (not a heading) comes first, so
+   restore it with a selector of matching specificity. */
+main.content > section:first-of-type > h2:nth-child(1) {
+  margin-top: 40px;
+}
+
+h3 {
+  font-size: 1.1em;
+  margin-left: 0em;
+  margin-bottom: 0.1em;
+  font-weight: bold;
+}
+
+/* Bootstrap sets a{font-weight:400;text-decoration:underline;...} which,
+   despite h3 a being more specific overall, still wins for these two
+   properties since h3 never declares them itself for the <a> element --
+   an explicit declaration always beats an inherited one. */
+h3 a {
+  font-weight: inherit;
+  text-decoration: inherit;
+}
+
+p { 
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-left: auto;
+    margin-right: auto;
+
+    padding-left: 0em; }
+
+p.small { font-size: 0.9em; }
+p.big { font-size: 1.2em; }
+
+.course-tables {
+  font-size: 0.6em;
+  padding-right: 4em;
+  padding-left: 2em;
+  width: 80%; /* Confines the width to 80% of its parent container */
+}
+
+.course-tables {
+  font-size: 0.8em;
+  padding-right: 4em;
+  padding-left: 2em;
+  width: 80%; 
+}
+
+.title {
+  text-align: center;
+  color: #0d10e3; /* White text looks best on blue */
+  padding: 15px 15px; /* Added more padding for breathing room */
+  margin-bottom: 10px !important;
+  
+  /* Fancy gradient background gradually changing from white to light blue */
+  background: linear-gradient(to bottom,  #dce7f0, #c9e0f3);
+  
+  /* Soft rounded corners and subtle shadow for depth */
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.subtitle.lead {
+  text-align: center !important;
+  color: grey
+}
+
+/* Reduces the vertical spacing inside the header and data cells */
+.course-tables th,
+.course-tables td {
+  padding-top: 0px;    /* Adjust these pixel values to get the exact height you want */
+  padding-bottom: 0px;
+}
+
+
+
+a {
+  color: #007bff; text-decoration: none;
+  /* The modern standard: breaks the word only if it cannot fit on its own line */
+  overflow-wrap: break-word; 
+  
+  /* Fallback for older browsers */
+  word-wrap: break-word;     
+  
+  /* Adds extra reliability in WebKit browsers for long unbroken strings like URLs */
+  word-break: break-word;    
+}
+
+a:hover { text-decoration: underline; }
+
+
+/* Base list resets */
+ul { 
+  margin-top: 0.5em;
+  margin-left: 2.5em; 
+  padding-left: 0;
+}
+
+ol { 
+  margin-top: 0.5em;
+  margin-left: 0em; 
+  padding-left: 0;
+}
+
+ol ul {
+  margin-top: 0.5em;
+  margin-left: 1.5em; 
+  padding-left: 0;
+}
+
+
+
+/* 1. SETUP HANGING INDENT (Override Bootstrap) */
+ul > li {
+    margin-bottom: 0.5em;
+}
+
+ol > li {
+  list-style-type: none !important;
+  position: relative;  /* Crucial: Contains the absolute positioned label */
+  padding-left: 3em; /* Creates a clean, uniform space for the text block */
+  margin-bottom: 0.5em;
+}
+
+/* 2. RIGHT-ALIGN THE LABELS ( [1] vs [10] ) */
+ol > li::before {
+  content: "[" counter(list-item) "]";
+  position: absolute;
+  left: 0;             /* Pins label to the left of the list item */
+  top: 0;              /* Aligns label with the first line of text */
+  width: 2.5em;        /* Fixed width ensures labels take up the exact same space */
+  text-align: right;   /* Pushes [1] and [10] to align flush-right within the fixed width */
+  font-weight: 600;
+}
+
+/* Force paragraph text inside list items to stay inline */
+ol > li > p {
+  display: inline;
+  margin: 0; 
+}
+
+
+/* 3. PROTECT NESTED BULLETS & RESET */
+ol ul > li {
+  list-style-type: disc !important;
+  position: static;    /* Resets the relative positioning for nested items */
+  padding-left: 0 !important; 
+}
+
+/* Ensure the nested bullets don't accidentally inherit the bracket styling */
+ol ul > li::before {
+  content: none !important;
+}
+
+/* 3. PROTECT NESTED BULLETS & RESET */
+ol ol {
+  list-style-type: none;       /* Remove default browser numbering */
+  padding-left: 0;             /* Remove nested list indentation */
+  margin-left: 0;              
+  counter-reset: nested-item;  /* Initialize a custom counter */
+}
+
+ol ol > li {
+  position: static;            /* Resets relative positioning from parent */
+  padding-left: 0 !important; 
+  counter-increment: nested-item; /* Increase counter on each list item */
+}
+
+/* Apply the (1) formatting */
+ol ol > li::before {
+  content: "(" counter(nested-item) ") " !important;
+  position: static;            /* FIX: Stops it from flying up to the parent list item */
+  width: auto;                 /* FIX: Removes the 2.5em fixed width from the parent rule */
+  text-align: left;            /* FIX: Overrides the right-alignment */
+  font-weight: normal;         
+  margin-right: 4px;           
+}
+
+/* ==========================================================================
+   4. NAVIGATION BAR
+   ========================================================================== */
+.responsive-nav {
+  background-color: var(--menubackground);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--nav-height);
+  z-index: 1000;
+  font-family: Sans-Serif;
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--navtextcolor);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 10px 0;
+  box-sizing: border-box;
+}
+
+/* Brand Section (Logo + Prof Name) */
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  font-size: 1.2em;
+}
+
+.nav-brand a { 
+  color: inherit; 
+  text-decoration: none; 
+}
+
+.nav-logo {
+  height: 55px;
+  width: auto !important;
+  display: block;
+  flex: 0 0 auto;
+}
+
+/* Static Prof Name: Keeps .navbtn styling but disables all interaction */
+.nav-brand .navbtn {
+  cursor: default;
+  pointer-events: none; /* Disables hover/click entirely */
+  background-color: transparent;
+}
+
+.nav-prof-name {
+  white-space: nowrap;
+  text-decoration: none !important;
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 16pt;
+}
+
+/* Navigation Links Container */
+.nav-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+/* Individual List Items in Nav */
+.nav-li {
+  list-style: none;
+  margin: 0;
+  padding: 0 0.5em;
+}
+
+/* Optional: If you still have an <a> wrapping the prof-name, this cleans it up */
+.nav-li a:has(.nav-prof-name):hover {
+    text-decoration: none;
+    color: inherit;
+    cursor: default;
+}
+
+/* ==========================================================================
+   5. UI COMPONENTS (BUTTONS & HAMBURGER)
+   ========================================================================== */
+.btn {
+  color: royalblue;
+  font-weight: bold;
+  font-size: 1.1rem;
+  text-decoration: none;
+  background-color: lightgrey;
+  border: 0;
+  outline: none;
+  border-radius: 5px;
+  margin-right: 10px;
+  min-width: 50px;
+  text-align: center;
+  cursor: pointer;
+  white-space: nowrap;
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+.btn:hover {
+  color: var(--linkcolor);
+  background-color: lightgrey;
+  text-decoration: underline;
+}
+
+.btn.active { color: var(--linkcolor); }
+
+/* Navbar Buttons: white text over the royal-blue nav bar */
+.navbtn {
+  color: var(--navtextcolor);
+  font-weight: bold;
+  font-size: 1.1rem;
+  text-decoration: none;
+  background-color: transparent;
+  border: 0;
+  outline: none;
+  border-radius: 5px;
+  margin-right: 10px;
+  min-width: 50px;
+  text-align: center;
+  cursor: pointer;
+  white-space: nowrap;
+  padding: 1px;
+}
+
+.navbtn:hover {
+  text-decoration: underline;
+}
+
+.navbtn.active {text-decoration: underline; }
+
+.button {
+  border: 0;
+  outline: none;
+  padding: 5px;
+  background-color: lightgrey;
+  border-radius: 5px;
+  font-weight: 600;
+  font-size: 1rem;
+  min-width: 80px;
+  cursor: pointer;
+}
+
+
+.button:hover {
+  color: var(--linkcolor);
+  text-decoration: underline;
+  background-color: lightcyan;
+}
+
+.arrow { cursor: pointer; }
+
+/* Hamburger Menu (With Aspect Ratio Fix) */
+.hamburger-menu {
+  display: none; 
+  flex-direction: column;
+  justify-content: space-between;
+  width: 30px;
+  height: 22px;
+  
+  /* 1. Remove the "Box" appearance */
+  background: transparent !important; 
+  border: none !important;            
+  outline: none !important;           
+  -webkit-tap-highlight-color: transparent; /* Removes blue flash on mobile tap */
+  
+  /* 2. Positioning */
+  cursor: pointer;
+  padding: 0;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  
+  /* 3. Push to the right margin with a small visible space */
+  margin-left: auto;  /* Forces it all the way to the right */
+  margin-right: 5px;  /* Leaves a tiny gap before the screen edge */
+}
+
+.hamburger-bar {
+  width: 100%;
+  height: 3px;
+  background-color: var(--navtextcolor);
+  border-radius: 2px;
+  transition: all 0.3s ease-in-out;
+}
+
+.hamburger-menu.active .hamburger-bar:nth-child(1) { transform: translateY(9.5px) rotate(45deg); }
+.hamburger-menu.active .hamburger-bar:nth-child(2) { opacity: 0; }
+.hamburger-menu.active .hamburger-bar:nth-child(3) { transform: translateY(-9.5px) rotate(-45deg); }
+
+/* ==========================================================================
+   6. SEARCH UI
+   ========================================================================== */
+.search-form {
+  display: flex;
+  align-items: center;
+}
+
+.search-input {
+  width: 0;
+  padding: 0;
+  border: none;
+  opacity: 0;
+  transition: all var(--transition-speed) ease-in-out;
+}
+
+.search-input.active {
+  width: 200px;
+  padding: 10px 12px;
+  opacity: 1;
+  border: 1px solid #ccc;
+  border-right: none;
+  border-radius: 6px 0 0 6px;
+  font-size: 16px;
+}
+
+.search-input.active:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.search-btn {
+  background-color: #e0e0e0;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-radius var(--transition-speed) ease-in-out;
+  color: #333;
+}
+
+.search-btn:hover { background-color: #d0d0d0; }
+.search-input.active + .search-btn { border-radius: 0 6px 6px 0; }
+.search-icon { width: 20px; height: 20px; }
+
+.contact-icon {
+  color: var(--linkcolor);
+  width: 1.1em;
+  margin-right: 0.4em;
+  text-align: center;
+}
+
+
+/* ==========================================================================
+   7. TABLE OF CONTENTS (ToC)
+   ========================================================================== */
+#toc-container {
+  position: fixed;
+  /* CRITICAL CHANGE: Instead of -100%, we leave +20px visible as the slim bar */
+  transform: translateX(calc(-100% + 20px));
+  left: 0;
+  top: var(--nav-height);
+  width: 300px;
+  /* max-height is now handled automatically by JS! */
+  overflow-y: auto;
+  z-index: 999;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-left: none;
+  border-radius: 0 8px 8px 0;
+  /* We add 20px right padding to ensure text doesn't touch the sliver edge */
+  padding: 15px 35px 15px 15px; 
+  font-family: Arial, sans-serif;
+  box-sizing: border-box;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  transition: transform var(--transition-speed) ease-in-out;
+}
+
+#toc-container.active { 
+  transform: translateX(0); 
+}
+
+#toc-toggle-button {
+  position: fixed;
+  /* CRITICAL CHANGE: Push button 20px to the right so it attaches to the slim bar */
+  left: 20px; 
+  top: var(--nav-height);
+  z-index: 1001;
+  background-color: #e0e0e0;
+  border: 1px solid #ccc;
+  border-left: none;
+  padding: 2px;
+  cursor: pointer;
+  border-radius: 0 8px 8px 0;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s, transform var(--transition-speed) ease-in-out;
+}
+
+#toc-toggle-button.active { 
+  /* Push the button exactly 300px (the width of the ToC) */
+  transform: translateX(300px); 
+}
+
+#toc-toggle-button:hover { background-color: #d0d0d0; }
+#toc-toggle-button.active { transform: translateX(300px); }
+#toc-toggle-button svg { width: 40px; height: 40px; color: royalblue; display: block; transition: transform 0.3s ease-in-out; }
+#toc-toggle-button.active svg { transform: scale(0.9); }
+
+.toc-title { margin-top: 0; margin-bottom: 10px; font-size: 1.1em; font-weight: bold; color: black; }
+.toc-list { list-style-type: disc; padding-left: 20px; margin: 0; }
+.toc-sublist { list-style-type: circle; padding-left: 20px; }
+.toc-link { text-decoration: none; color: royalblue; display: block; padding: 4px 0; font-size: 1em; }
+.toc-link:hover { text-decoration: underline; }
+
+#toc-container .toc-up-link.icon-only {
+  display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px;
+  border: 1px solid currentColor; border-radius: 7px; margin: 0.35rem 0; text-decoration: none;
+}
+#toc-container .toc-up-link.icon-only svg { width: 22px; height: 22px; }
+#toc-container .toc-up-link.icon-only:hover { opacity: 0.85; }
+#toc-container .toc-up-link.icon-only.disabled { opacity: 0.5; pointer-events: none; }
+
+/* Quarto Specific Override */
+#quarto-margin-sidebar nav#TOC {
+  position: static !important;
+  top: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* ==========================================================================
+   8. FOOTER
+   ========================================================================== */
+footer {
+  background-color: #f0f0f0;
+  font-style: italic;
+  color: #333;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  text-align: left;
+  padding: 0px 10px 0px 20px;
+  box-sizing: border-box;
+  z-index: 1050; /* Ensure footer stays above general content */
+}
+
+/* ==========================================================================
+   9. MEDIA QUERIES (MOBILE OPTIMIZATIONS)
+   ========================================================================== */
+@media screen and (max-width: 962px) {
+  p {
+    text-align: left !important;
+  }
+
+  /* Reset body padding so the main container handles the spacing */
+  body {
+    padding-left: 0 !important;
+    padding-right: 15px !important;
+  }
+
+  /* * Asymmetrical Padding for Mobile:
+   * Top: 0
+   * Right: 50px (Prevents text from overlapping the floating ToC menu)
+   * Bottom: 0
+   * Left: 15px (Keeps text comfortably away from the left edge)
+   */
+  
+  .responsive-nav {
+    padding: 0 15px;
+  }
+
+  .nav-links {
+    display: none; /* Handled via .active toggle */
+    position: absolute;
+    top: var(--nav-height);
+    right: 15px;
+    left: auto;
+    width: 280px;
+    flex-direction: column;
+    background-color: var(--menubackground);
+    padding: 0px;
+    border-radius: 8px;
+    box-shadow: 0px 5px 15px rgba(0,0,0,0.15);
+    border: 1px solid #ccc;
+    z-index: 999;
+    text-align: right;
+    align-items: flex-end;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px) scale(0.98);
+    transform-origin: top right;
+    transition: opacity 0.2s ease-out, transform 0.2s ease-out, visibility 0.2s;
+    overflow-y: auto; /* Required for the JS max-height clipping to work smoothly */
+  }
+
+  .nav-links.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+    display: flex;
+  }
+
+  .nav-links li {
+    margin: 10px 0;
+    width: auto;
+  }
+
+  .nav-links .navbtn {
+    font-size: 1.0rem;
+    padding: 12px 20px;
+  }
+
+  .hamburger-menu {
+    display: flex;
+  }
+
+  #toc-container .toc-link {
+    font-size: 1.0em; 
+  }
+}
