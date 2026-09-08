@@ -1,7 +1,18 @@
 ---
 title: "STAT 812/420 Computational Statistics"
 engine: knitr
-format: profweb-html
+format: 
+  profweb-html:
+    include-in-header:
+      - text: |
+          <style>
+          ol li  {
+             margin-bottom: 1em;
+             
+          }
+          ol li a {font-weight: bold; }
+          </style>
+
 ---
 
 ## Description
@@ -20,6 +31,7 @@ This course covers the fundamental concepts in computational methods used the ar
 
 1. [HTML Book with Detailed R Demo](https://longhaisk.github.io/compstat/)
 2. [HTML Lecture Slides](https://longhaisk.github.io/compstat-slides/)
+3. [One-drive folder for Assignments](https://usaskca1-my.sharepoint.com/:f:/g/personal/lol553_usask_ca/IgDx-SEhuq_kSJStlP6vZGQ2AeUjsg0RQ_sJNmZIRV1WhIk)
 
 
 ## Syllabi
