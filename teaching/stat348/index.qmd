@@ -20,8 +20,10 @@ Theory and applications of sampling from finite populations. Includes: simple ra
 
 2. [HTML Slides](https://longhaisk.github.io/sampling-slides)
 
+
 3. [Googlesheets Calculator for Sampling Survey](https://docs.google.com/spreadsheets/d/18EbvJqHDn1uNI4pyXmkF0nV1-hZNCmmEpUk8DmwFblg/edit?usp=sharing)
 
+2. [One-Drive Folders for Assignments](https://usaskca1-my.sharepoint.com/:f:/g/personal/lol553_usask_ca/IgBb3ERpZ5woQKdtlVSZCw3uAf7PYh6Jdn09IAISUH65ee0)
 
 
 ## Syllabi
