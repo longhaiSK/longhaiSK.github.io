@@ -68,3 +68,6 @@ statistical learning, cross-validation, hierarchical modelling, survival modelli
   </a>
 </div>
 
+## [Free/busy Calendar](https://outlook.cloud.microsoft/calendar/published/d4363c18d5164b508f68f40a10fcc720@mail.usask.ca/92d646bcdc454ae8a308ff30e63d88e54802148830375945233/calendar.html){style="font-weight: bold;"}
+
+
