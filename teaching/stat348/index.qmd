@@ -4,6 +4,16 @@ engine: knitr
 format: profweb-html
 ---
 
+```{=html}
+<style>
+li a {
+  font-weight: bold;
+  display: inline-block;
+  margin-bottom: 0.5em;
+}
+</style>
+```
+
 ## Description
 
 Theory and applications of sampling from finite populations. Includes: simple random sampling, stratified random sampling, cluster sampling, systematic sampling, probability proportionate to size sampling, and the difference, ratio and regression methods of estimation.
@@ -14,9 +24,8 @@ Theory and applications of sampling from finite populations. Includes: simple ra
 ## Course Materials
 
 
-1. [Handwritten Lecture Notes](https://usaskca1-my.sharepoint.com/:f:/g/personal/lol553_usask_ca/IgB-mkIW_Pz8T7fdCs4DwlCoAYxtJjYQUq8HylzLFvOudQw?e=6Dka24)
 
-2. [HTML Book for Detailed R Demonstration](https://longhaisk.github.io/sampling)
+1. [HTML Book for Detailed R Demonstration](https://longhaisk.github.io/sampling)
 
 2. [HTML Slides](https://longhaisk.github.io/sampling-slides)
 
@@ -25,6 +34,7 @@ Theory and applications of sampling from finite populations. Includes: simple ra
 
 2. [One-Drive Folders for Assignments](https://usaskca1-my.sharepoint.com/:f:/g/personal/lol553_usask_ca/IgBb3ERpZ5woQKdtlVSZCw3uAf7PYh6Jdn09IAISUH65ee0)
 
+1. [Handwritten Lecture Notes](https://usaskca1-my.sharepoint.com/:f:/g/personal/lol553_usask_ca/IgB-mkIW_Pz8T7fdCs4DwlCoAYxtJjYQUq8HylzLFvOudQw?e=6Dka24)
 
 ## Syllabi
 
