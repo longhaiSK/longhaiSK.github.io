@@ -3706,6 +3706,6 @@ format:
 
 ```{=html}
 <footer>
-Last updated on September 12, 2026.
+Last updated on September 15, 2026.
 </footer>
 ```
