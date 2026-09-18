@@ -4,6 +4,17 @@ engine: knitr
 format: profweb-html
 ---
 
+```{=html}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('a[href^="http"]').forEach(a => {
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+  });
+});
+</script>
+```
+
 ## Description
 
 This course is an introduction to basic statistical methods including frequency distributions, elementary probability, confidence intervals and tests of significance, analysis of variance, regression and correlation, contingency tables, and goodness of fit. The following is a list of demonstration html files organized by the topics.
@@ -34,5 +45,5 @@ Rmarkdown and other supporting files for producing the above html files can be f
 
 
 <footer>
-Last updated on September 07, 2026.
+Last updated on September 18, 2026.
 </footer>

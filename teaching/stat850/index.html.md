@@ -4,6 +4,16 @@ engine: knitr
 format: profweb-html
 ---
 
+```{=html}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('a[href^="http"]').forEach(a => {
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+  });
+});
+</script>
+```
 
 ## Description
 

@@ -12,6 +12,14 @@ li a {
   margin-bottom: 0.5em;
 }
 </style>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('a[href^="http"]').forEach(a => {
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+  });
+});
+</script>
 ```
 
 ## Description

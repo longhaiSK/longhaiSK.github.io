@@ -4,6 +4,17 @@ engine: knitr
 format: profweb-html
 ---
 
+```{=html}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('a[href^="http"]').forEach(a => {
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+  });
+});
+</script>
+```
+
 ## Description
 
 An introduction to the principles of experimental design and analysis of variance based on linear models. Topics includes: randomization, blocking, factorial experiments, confounding, random effects, analysis of covariance. Emphasis will be on fundamental principles and data analysis techniques using R rather than on mathematical theory. 
@@ -26,5 +37,5 @@ An introduction to the principles of experimental design and analysis of varianc
 Thanks to [Prof. Chunfang Devon Lin](https://sites.google.com/view/cdlin/)'s lecture notes on the same topics. Some examples are taken from the textbook [*Design and Analysis of Experiments*](https://www.wiley.com/en-br/Design+and+Analysis+of+Experiments%2C+10th+Edition-p-9781119492443) by Douglas C. Montgomery.
 
 <footer>
-Last updated on September 07, 2026.
+Last updated on September 18, 2026.
 </footer>

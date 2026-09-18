@@ -4,6 +4,17 @@ engine: knitr
 format: profweb-html
 ---
 
+```{=html}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('a[href^="http"]').forEach(a => {
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+  });
+});
+</script>
+```
+
 ## Description
 
 Statistical methods as they apply to scientific research, including: Experimental design, blocking and confounding, analysis of multifactor experiments, multiple regression, and model building.
@@ -79,5 +90,5 @@ Learning computational techniques using statistical software is an integral part
 
 
 <footer>
-Last updated on September 07, 2026.
+Last updated on September 18, 2026.
 </footer>
