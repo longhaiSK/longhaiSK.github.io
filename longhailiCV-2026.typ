@@ -420,7 +420,7 @@
 
 #show: doc => article(
   title: [CURRICULUM VITAE of LONGHAI LI],
-  subtitle: [Sep 12, 2026],
+  subtitle: [Sep 21, 2026],
   fontsize: 11pt,
   toc_title: [Table of contents],
   toc_depth: 3,
@@ -460,15 +460,16 @@
 }
 = 1. PERSONAL
 <personal>
-- Official webpage: #link("https://artsandscience.usask.ca/profile/LLi")
-- Professional web site: #link("https://longhaisk.github.io")
-- Phone: +1 (306) 966-6095
-- Email: #link("mailto:longhai.li@usask.ca")[longhai.li\@usask.ca]
-- Address: \
-  Department of Mathematics & Statistics \
-  University of Saskatchewan \
-  106 Wiggins RD \
-  Saskatoon, SK, S7W0G8 CANADA
+#link("http://artsandscience.usask.ca/math/")[Department of Mathematics and Statistics] \
+#link("http://www.usask.ca/")[University of Saskatchewan] \
+#link("https://maps.google.com/?q=106+Wiggins+Road+MCLN+219+Saskatoon+SK+S7N5E6+Canada")[106 Wiggins Road, Saskatoon, SK, CANADA] \
+
+#link("mailto:longhai.li@usask.ca")[longhai.li\@usask.ca] \
+#link("https://longhaisk.github.io")[https:\/\/longhaisk.github.io] \
+#link("https://artsandscience.usask.ca/profile/LLi")[https:\/\/artsandscience.usask.ca/profile/LLi] \
+#link("https://scholar.google.ca/citations?user=S3mYTmwAAAAJ&hl=en")[ Google Scholar] \
+#link("https://www.webofscience.com/wos/author/record/ABF-2953-2020")[Web of Science] \
+#link("https://orcid.org/0000-0002-3074-8584")[ORCID]
 
 = 2. DEGREES
 <degrees>

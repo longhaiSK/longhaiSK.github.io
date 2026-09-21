@@ -1,6 +1,6 @@
 ---
 title: "CURRICULUM VITAE of LONGHAI LI"
-subtitle: "Sep 12, 2026"
+subtitle: "Sep 21, 2026"
 engine: knitr
 format:
   profweb-html: default
@@ -46,15 +46,17 @@ format:
 
 ## 1. PERSONAL
 
-  * Official webpage: [https://artsandscience.usask.ca/profile/LLi](https://artsandscience.usask.ca/profile/LLi) 
-  * Professional web site: [https://longhaisk.github.io](https://longhaisk.github.io) 
-  * Phone: +1 (306) 966-6095 
-  * Email: [longhai.li@usask.ca](mailto:longhai.li@usask.ca)
-  * Address:\
-    Department of Mathematics & Statistics \
-    University of Saskatchewan\
-    106 Wiggins RD\
-    Saskatoon, SK, S7W0G8 CANADA
+  
+[<i class="fa-solid fa-building-columns contact-icon"></i>Department of Mathematics and Statistics](http://artsandscience.usask.ca/math/){target="_blank"} \
+[<i class="fa-solid fa-graduation-cap contact-icon"></i>University of Saskatchewan](http://www.usask.ca/){target="_blank"}\
+[<i class="fa-solid fa-location-dot contact-icon"></i>106 Wiggins Road, Saskatoon, SK, CANADA](https://maps.google.com/?q=106+Wiggins+Road+MCLN+219+Saskatoon+SK+S7N5E6+Canada){target="_blank"} \
+
+[<i class="fa-solid fa-envelope contact-icon"></i>longhai.li@usask.ca](mailto:longhai.li@usask.ca) \
+[<i class="fa-solid fa-house contact-icon"></i>https://longhaisk.github.io](https://longhaisk.github.io) \
+[<i class="fa-solid fa-id-card contact-icon"></i>https://artsandscience.usask.ca/profile/LLi](https://artsandscience.usask.ca/profile/LLi) \
+[<i class="ai ai-google-scholar contact-icon" style="font-size: 1.5em; margin-left: -0.2em; margin-right: 0em;"></i> Google Scholar](https://scholar.google.ca/citations?user=S3mYTmwAAAAJ&hl=en){target="_blank"} \
+[<i class="ai ai-clarivate contact-icon"></i>Web of Science](https://www.webofscience.com/wos/author/record/ABF-2953-2020){target="_blank"} \
+[<i class="ai ai-orcid contact-icon"></i>ORCID](https://orcid.org/0000-0002-3074-8584){target="_blank"}
 
 ## 2. DEGREES
 
@@ -3703,9 +3705,3 @@ format:
 
 1. Judge for case study competition, Annual Meeting of Statistical Society of Canada (June 2017)
 
-
-```{=html}
-<footer>
-Last updated on September 15, 2026.
-</footer>
-```

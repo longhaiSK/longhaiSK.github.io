@@ -90,5 +90,5 @@ Learning computational techniques using statistical software is an integral part
 
 
 <footer>
-Last updated on September 18, 2026.
+Last updated on September 21, 2026.
 </footer>
