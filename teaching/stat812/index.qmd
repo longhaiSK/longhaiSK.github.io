@@ -41,7 +41,8 @@ This course covers the fundamental concepts in computational methods used the ar
 
 1. [HTML Book with Detailed R Demo](https://longhaisk.github.io/compstat/)
 2. [HTML Lecture Slides](https://longhaisk.github.io/compstat-slides/)
-3. [One-drive folder for Assignments](https://usaskca1-my.sharepoint.com/:f:/g/personal/lol553_usask_ca/IgDx-SEhuq_kSJStlP6vZGQ2AeUjsg0RQ_sJNmZIRV1WhIk)
+3. [Shinylive Apps for Statistical Computation](https://longhaisk.github.io/compstat/shinyliveapps_compstat/)
+4. [One-drive folder for Assignments](https://usaskca1-my.sharepoint.com/:f:/g/personal/lol553_usask_ca/IgDx-SEhuq_kSJStlP6vZGQ2AeUjsg0RQ_sJNmZIRV1WhIk)
 
 
 ## Syllabi
