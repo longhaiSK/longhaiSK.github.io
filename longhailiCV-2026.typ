@@ -420,7 +420,7 @@
 
 #show: doc => article(
   title: [CURRICULUM VITAE of LONGHAI LI],
-  subtitle: [Sep 21, 2026],
+  subtitle: [Sep 28, 2026],
   fontsize: 11pt,
   toc_title: [Table of contents],
   toc_depth: 3,
@@ -2062,6 +2062,11 @@
 == 18.1 Journal Refereeing
 <journal-refereeing>
 #strong[2026-2027]
+
+#block[
+#set enum(numbering: "1.", start: 45)
++ Reviewing for #emph[Biometrical], Sept, 2026
+]
 
 #block[
 #set enum(numbering: "1.", start: 44)
