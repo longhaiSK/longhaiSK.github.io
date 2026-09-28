@@ -1,7 +1,9 @@
 ---
 title: "STAT 348 Sampling Techniques"
 engine: knitr
-format: profweb-html
+format:
+  profweb-html:
+    link-external-newwindow: true
 ---
 
 ```{=html}
@@ -12,14 +14,6 @@ li a {
   margin-bottom: 0.5em;
 }
 </style>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  document.querySelectorAll('a[href^="http"]').forEach(a => {
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
-  });
-});
-</script>
 ```
 
 ## Description
@@ -32,11 +26,11 @@ Theory and applications of sampling from finite populations. Includes: simple ra
 ## Course Materials
 
 
-
 1. [HTML Book for Detailed R Demonstration](https://longhaisk.github.io/sampling)
 
 2. [HTML Slides](https://longhaisk.github.io/sampling-slides)
 
+3. [Shinylive App](https://longhaisk.github.io/sampling/shinyliveapps_sampling.html)
 
 3. [Googlesheets Calculator for Sampling Survey](https://docs.google.com/spreadsheets/d/18EbvJqHDn1uNI4pyXmkF0nV1-hZNCmmEpUk8DmwFblg/edit?usp=sharing)
 
@@ -46,6 +40,6 @@ Theory and applications of sampling from finite populations. Includes: simple ra
 
 ## Syllabi
 
-1. [2026 Fall](./syllabi/syllabus2026.html)
+1. [2026 Fall](./syllabi/syllabus2026.html){target="_blank"}
 
 
