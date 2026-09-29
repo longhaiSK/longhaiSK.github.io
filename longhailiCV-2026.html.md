@@ -1708,7 +1708,7 @@ format:
 
 <!-- -->
 
-1. Soltanifar, M., Li, L., and Rosenthal, J., 2010. A Collection of Exercises in Advanced Probability Theory - the solutions manual of all even-numbered exercises from “A First Look at Rigorous Probability Theory”, World Scientific Publishing, (Second Edition, 2006), Singapore.
+2. Soltanifar, M., Li, L., and Rosenthal, J., 2010. A Collection of Exercises in Advanced Probability Theory - the solutions manual of all even-numbered exercises from “A First Look at Rigorous Probability Theory”, World Scientific Publishing, (Second Edition, 2006), Singapore.
 
 
 
@@ -1738,7 +1738,7 @@ format:
 
 <!-- -->
 
-1. Wu, T., Gao, WE, Feng, C., and Li, L., Z-residuals for Diagnosing Bayesian Models, *Journal of American Statistical Association*, under revision. [[**Slides**](https://bayesian-zresid-slides.longhai-li.workers.dev)]
+34. Wu, T., Gao, WE, Feng, C., and Li, L., Z-residuals for Diagnosing Bayesian Models, *Journal of American Statistical Association*, under revision. [[**Slides**](https://bayesian-zresid-slides.longhai-li.workers.dev)]
 
 
 **2025-2026**
@@ -1747,13 +1747,13 @@ format:
 
 <!-- -->
 
-1. Wu, T., Li, L., and Feng, C., $Z$-residuals Diagnostics for Cox Proportional Hazards Models: Distinguishing Functional Form Misspecification from Nonproportional Hazards, with an Application to Biliary Cirrhosis Survival Times, *Canadian Journal of Statistics*, Accepted on June 5, 2026.
+33. Wu, T., Li, L., and Feng, C., $Z$-residuals Diagnostics for Cox Proportional Hazards Models: Distinguishing Functional Form Misspecification from Nonproportional Hazards, with an Application to Biliary Cirrhosis Survival Times, *Canadian Journal of Statistics*, Accepted on June 5, 2026.
 
 
 
 <!-- -->
 
-1. Nolan, J., Su, C., Li, L., 2025. Evaluating Railroad Duopoly Behavior: A Market Level Analysis. *Review of Network Economics* 24, 87–111. [https://doi.org/10.1515/rne-2025-0034](https://doi.org/10.1515/rne-2025-0034)
+32. Nolan, J., Su, C., Li, L., 2025. Evaluating Railroad Duopoly Behavior: A Market Level Analysis. *Review of Network Economics* 24, 87–111. [https://doi.org/10.1515/rne-2025-0034](https://doi.org/10.1515/rne-2025-0034)
 
                    
 **2024-2025**
@@ -1762,19 +1762,19 @@ format:
 
 <!-- -->
 
-1. Wu, T., Feng, C., Li, L., 2025. Cross-validatory Z-Residual for Diagnosing Shared Frailty Models. *The American Statistician*, 79(2), 198–211. [https://doi.org/10.1080/00031305.2024.2421370](https://doi.org/10.1080/00031305.2024.2421370) [[**PDF**](/doc/cv_zresidual_final.pdf)]; [[**Free Reprints**](https://www.tandfonline.com/eprint/9CQD3QCVP56MCVKFZWEY/full?target=10.1080/00031305.2024.2421370)]; [[**slides**](https://api.zotero.org/users/1693946/publications/items/7FZTDQ3Z/file/view)]; [[**Z-residual on Github**](https://tiw150.github.io/Zresidual/index.html)]; [[**Demo**](https://tiw150.github.io/CV_Zresidual_demo.html)]
+31. Wu, T., Feng, C., Li, L., 2025. Cross-validatory Z-Residual for Diagnosing Shared Frailty Models. *The American Statistician*, 79(2), 198–211. [https://doi.org/10.1080/00031305.2024.2421370](https://doi.org/10.1080/00031305.2024.2421370) [[**PDF**](/doc/cv_zresidual_final.pdf)]; [[**Free Reprints**](https://www.tandfonline.com/eprint/9CQD3QCVP56MCVKFZWEY/full?target=10.1080/00031305.2024.2421370)]; [[**slides**](https://api.zotero.org/users/1693946/publications/items/7FZTDQ3Z/file/view)]; [[**Z-residual on Github**](https://tiw150.github.io/Zresidual/index.html)]; [[**Demo**](https://tiw150.github.io/CV_Zresidual_demo.html)]
 
 
 
 <!-- -->
 
-1. Wu, T., Li, L., Feng, C., 2025. Z-residual diagnostic tool for assessing covariate functional form in shared frailty models. *Journal of Applied Statistics*, 52(1), 28–58. [https://doi.org/10.1080/02664763.2024.2355551](https://doi.org/10.1080/02664763.2024.2355551) [[**PDF**](/doc/jas_z_residual_nolinear.pdf)]; [[**Z-residual on Github**](https://tiw150.github.io/Zresidual/index.html)]; [[**Demo**](https://tiw150.github.io/Zresidual_demo.html)] [[**slides**](https://api.zotero.org/users/1693946/publications/items/WRQUGMIR/file/view)]
+30. Wu, T., Li, L., Feng, C., 2025. Z-residual diagnostic tool for assessing covariate functional form in shared frailty models. *Journal of Applied Statistics*, 52(1), 28–58. [https://doi.org/10.1080/02664763.2024.2355551](https://doi.org/10.1080/02664763.2024.2355551) [[**PDF**](/doc/jas_z_residual_nolinear.pdf)]; [[**Z-residual on Github**](https://tiw150.github.io/Zresidual/index.html)]; [[**Demo**](https://tiw150.github.io/Zresidual_demo.html)] [[**slides**](https://api.zotero.org/users/1693946/publications/items/WRQUGMIR/file/view)]
 
 
 
 <!-- -->
 
-1. Wu, T., Feng, C., Li, L., 2025. A Comparison of Estimation Methods for Shared Gamma Frailty Models. *Statistics in Biosciences*, Volume 17, pages 791–812. [https://doi.org/10.1007/s12561-024-09444-7](https://doi.org/10.1007/s12561-024-09444-7) [[**PDF**](/doc/sib_compfrailty.pdf)]
+29. Wu, T., Feng, C., Li, L., 2025. A Comparison of Estimation Methods for Shared Gamma Frailty Models. *Statistics in Biosciences*, Volume 17, pages 791–812. [https://doi.org/10.1007/s12561-024-09444-7](https://doi.org/10.1007/s12561-024-09444-7) [[**PDF**](/doc/sib_compfrailty.pdf)]
 
   
 **2023-2024**
@@ -1783,7 +1783,7 @@ format:
 
 <!-- -->
 
-1. Feng, C., Li, L., Xu, C., 2023. Advancements in predicting and modeling rare event outcomes for enhanced decision-making. *BMC Medical Research Methodology* 23, Article 243 (pp. 1-3). [https://doi.org/10.1186/s12874-023-02060-x](https://doi.org/10.1186/s12874-023-02060-x)
+28. Feng, C., Li, L., Xu, C., 2023. Advancements in predicting and modeling rare event outcomes for enhanced decision-making. *BMC Medical Research Methodology* 23, Article 243 (pp. 1-3). [https://doi.org/10.1186/s12874-023-02060-x](https://doi.org/10.1186/s12874-023-02060-x)
 
 
 **2021-2022**
@@ -1792,25 +1792,25 @@ format:
 
 <!-- -->
 
-1. Yin, W., Li, L., Wu, F.-X., 2022. A semi-supervised autoencoder for autism disease diagnosis. *Neurocomputing*, 483, 140–147. [https://doi.org/10.1016/j.neucom.2022.02.017](https://doi.org/10.1016/j.neucom.2022.02.017)
+27. Yin, W., Li, L., Wu, F.-X., 2022. A semi-supervised autoencoder for autism disease diagnosis. *Neurocomputing*, 483, 140–147. [https://doi.org/10.1016/j.neucom.2022.02.017](https://doi.org/10.1016/j.neucom.2022.02.017)
 
 
 
 <!-- -->
 
-1. Cheng, H., Wang, W., Li, L., 2022. Determinants of Citizen Acceptance of White-Collar Crime in China. *Journal of Asian and African Studies*, 59(3), 826-843. [https://doi.org/10.1177/00219096221123742](https://doi.org/10.1177/00219096221123742) (Published OnlineFirst; final pagination may vary.)
+26. Cheng, H., Wang, W., Li, L., 2022. Determinants of Citizen Acceptance of White-Collar Crime in China. *Journal of Asian and African Studies*, 59(3), 826-843. [https://doi.org/10.1177/00219096221123742](https://doi.org/10.1177/00219096221123742) (Published OnlineFirst; final pagination may vary.)
 
 
 
 <!-- -->
 
-1. Yin, W., Li, L., Wu, F.-X., 2022. Corrigendum to “Deep learning for brain disorder diagnosis based on fMRI images, Neurocomputing 469 (2022) 332–345”. *Neurocomputing* 509, 271. [https://doi.org/10.1016/j.neucom.2022.08.074](https://doi.org/10.1016/j.neucom.2022.08.074)
+25. Yin, W., Li, L., Wu, F.-X., 2022. Corrigendum to “Deep learning for brain disorder diagnosis based on fMRI images, Neurocomputing 469 (2022) 332–345”. *Neurocomputing* 509, 271. [https://doi.org/10.1016/j.neucom.2022.08.074](https://doi.org/10.1016/j.neucom.2022.08.074)
 
 
 
 <!-- -->
 
-1. Yin, W., Li, L., Wu, F.-X., 2022. Deep learning for brain disorder diagnosis based on fMRI images. *Neurocomputing* 469, 332–345. [https://doi.org/10.1016/j.neucom.2020.05.113](https://doi.org/10.1016/j.neucom.2020.05.113)
+24. Yin, W., Li, L., Wu, F.-X., 2022. Deep learning for brain disorder diagnosis based on fMRI images. *Neurocomputing* 469, 332–345. [https://doi.org/10.1016/j.neucom.2020.05.113](https://doi.org/10.1016/j.neucom.2020.05.113)
 
 
 **2020-2021**
@@ -1819,19 +1819,19 @@ format:
 
 <!-- -->
 
-1. Bai, W., Dong, M., Li, L., Feng, C., Xu, W., 2021. Randomized quantile residuals for diagnosing zero-inflated generalized linear mixed models with applications to microbiome count data. *BMC Bioinformatics* 22, Article 564 (pp. 1-17). [https://doi.org/10.1186/s12859-021-04371-6](https://doi.org/10.1186/s12859-021-04371-6) [[**slides**](/doc/talks/rqr_glmm_ssc2022.pdf)].
+23. Bai, W., Dong, M., Li, L., Feng, C., Xu, W., 2021. Randomized quantile residuals for diagnosing zero-inflated generalized linear mixed models with applications to microbiome count data. *BMC Bioinformatics* 22, Article 564 (pp. 1-17). [https://doi.org/10.1186/s12859-021-04371-6](https://doi.org/10.1186/s12859-021-04371-6) [[**slides**](/doc/talks/rqr_glmm_ssc2022.pdf)].
 
 
 
 <!-- -->
 
-1. Li, L., Wu, T., Feng, C., 2021. Model Diagnostics for Censored Regression via Randomized Survival Probabilities. *Statistics in Medicine* 40(6), 1482–1497. [https://doi.org/10.1002/sim.8852](https://doi.org/10.1002/sim.8852) [[**PDF**](/doc/1911.00198v4.pdf)]; [[**R Functions and Demonstration**](./software/NRSP)]; [[**slides**](https://api.zotero.org/users/1693946/publications/items/Z7WFLYHB/file/view)];
+22. Li, L., Wu, T., Feng, C., 2021. Model Diagnostics for Censored Regression via Randomized Survival Probabilities. *Statistics in Medicine* 40(6), 1482–1497. [https://doi.org/10.1002/sim.8852](https://doi.org/10.1002/sim.8852) [[**PDF**](/doc/1911.00198v4.pdf)]; [[**R Functions and Demonstration**](./software/NRSP)]; [[**slides**](https://api.zotero.org/users/1693946/publications/items/Z7WFLYHB/file/view)];
 
 
 
 <!-- -->
 
-1. Dagasso, G., Yan, Y., Wang, L., Li, L., Kutcher, R., Zhang, W., Jin, L., 2021. Leveraging Machine Learning to Advance Genome-Wide Association Studies. *International Journal of Data Mining and Bioinformatics*, 25(1/2), 17–36. [https://doi.org/10.1504/ijdmb.2021.116881](https://doi.org/10.1504/ijdmb.2021.116881)
+21. Dagasso, G., Yan, Y., Wang, L., Li, L., Kutcher, R., Zhang, W., Jin, L., 2021. Leveraging Machine Learning to Advance Genome-Wide Association Studies. *International Journal of Data Mining and Bioinformatics*, 25(1/2), 17–36. [https://doi.org/10.1504/ijdmb.2021.116881](https://doi.org/10.1504/ijdmb.2021.116881)
 
 
 **2019-2020**
@@ -1840,25 +1840,25 @@ format:
 
 <!-- -->
 
-1. Dong, M., Li, L., Chen, M., Kusalik, A., Xu, W., 2020. Predictive analysis methods for human microbiome data with application to Parkinson’s disease. *PLOS ONE* 15(8), e0237779 (pp. 1-20). [https://doi.org/10.1371/journal.pone.0237779](https://doi.org/10.1371/journal.pone.0237779)
+20. Dong, M., Li, L., Chen, M., Kusalik, A., Xu, W., 2020. Predictive analysis methods for human microbiome data with application to Parkinson’s disease. *PLOS ONE* 15(8), e0237779 (pp. 1-20). [https://doi.org/10.1371/journal.pone.0237779](https://doi.org/10.1371/journal.pone.0237779)
 
 
 
 <!-- -->
 
-1. Feng, C., Li, L., Sadeghpour, A., 2020. A comparison of residual diagnosis tools for diagnosing regression models for count data. *BMC Medical Research Methodology* 20, Article 175 (pp. 1-11). [https://doi.org/10.1186/s12874-020-01055-2](https://doi.org/10.1186/s12874-020-01055-2) [[**R code used in this paper**](https://github.com/longhaiSK/longhaiSK.github.io/tree/main/software/RQR)]
+19. Feng, C., Li, L., Sadeghpour, A., 2020. A comparison of residual diagnosis tools for diagnosing regression models for count data. *BMC Medical Research Methodology* 20, Article 175 (pp. 1-11). [https://doi.org/10.1186/s12874-020-01055-2](https://doi.org/10.1186/s12874-020-01055-2) [[**R code used in this paper**](https://github.com/longhaiSK/longhaiSK.github.io/tree/main/software/RQR)]
 
 
 
 <!-- -->
 
-1. Jiang, L., Greenwood, C.M.T., Yao, W., Li, L., 2020. Bayesian Hyper-LASSO Classification for Feature Selection with Application to Endometrial Cancer RNA-seq Data. *Scientific Reports* 10, Article 9747 (pp. 1-12). [https://doi.org/10.1038/s41598-020-66466-z](https://doi.org/10.1038/s41598-020-66466-z)
+18. Jiang, L., Greenwood, C.M.T., Yao, W., Li, L., 2020. Bayesian Hyper-LASSO Classification for Feature Selection with Application to Endometrial Cancer RNA-seq Data. *Scientific Reports* 10, Article 9747 (pp. 1-12). [https://doi.org/10.1038/s41598-020-66466-z](https://doi.org/10.1038/s41598-020-66466-z)
 
 
 
 <!-- -->
 
-1. Soltanifar, M., Li, L., and Rosenthal, J. S., 2010. A Collection of Exercises in Advanced Probability Theory, World Scientific Publishing, Singapore. [[**PDF**](http://www.worldscientific.com/doi/suppl/10.1142/6300/suppl_file/6300-solutionsmanual_free.pdf)].
+17. Soltanifar, M., Li, L., and Rosenthal, J. S., 2010. A Collection of Exercises in Advanced Probability Theory, World Scientific Publishing, Singapore. [[**PDF**](http://www.worldscientific.com/doi/suppl/10.1142/6300/suppl_file/6300-solutionsmanual_free.pdf)].
 
 
 **2018-2019**
@@ -1867,7 +1867,7 @@ format:
 
 <!-- -->
 
-1. Shi, J., Yan, Y., Links, M.G., Li, L., Dillon, J.-A.R., Horsch, M., Kusalik, A., 2019. Antimicrobial resistance genetic factor identification from whole-genome sequence data using deep feature selection. *BMC Bioinformatics* 20, Article 535 (pp. 1-14). [https://doi.org/10.1186/s12859-019-3054-4](https://doi.org/10.1186/s12859-019-3054-4)
+16. Shi, J., Yan, Y., Links, M.G., Li, L., Dillon, J.-A.R., Horsch, M., Kusalik, A., 2019. Antimicrobial resistance genetic factor identification from whole-genome sequence data using deep feature selection. *BMC Bioinformatics* 20, Article 535 (pp. 1-14). [https://doi.org/10.1186/s12859-019-3054-4](https://doi.org/10.1186/s12859-019-3054-4)
 
 
 **2017-2018**
@@ -1876,13 +1876,13 @@ format:
 
 <!-- -->
 
-1. Essien, S. K., Feng, C., Sun, W., Farag, M., Li, L., Gao, Y., 2018. Sleep duration and sleep disturbances in association with falls among the middle-aged and older adults in China: a population-based nationwide study. *BMC Geriatrics* 18, Article 196 (pp. 1-9). [https://doi.org/10.1186/s12877-018-0889-x](https://doi.org/10.1186/s12877-018-0889-x)
+15. Essien, S. K., Feng, C., Sun, W., Farag, M., Li, L., Gao, Y., 2018. Sleep duration and sleep disturbances in association with falls among the middle-aged and older adults in China: a population-based nationwide study. *BMC Geriatrics* 18, Article 196 (pp. 1-9). [https://doi.org/10.1186/s12877-018-0889-x](https://doi.org/10.1186/s12877-018-0889-x)
 
 
 
 <!-- -->
 
-1. Li, L., Yao, W., 2018. Fully Bayesian Logistic Regression with Hyper-Lasso Priors for High-dimensional Feature Selection. *Journal of Statistical Computation and Simulation*, 88(14), 2827–2851. [https://doi.org/10.1080/00949655.2018.1490418](https://doi.org/10.1080/00949655.2018.1490418) [[**PDF**](http://arxiv.org/abs/1405.3319)]; [[**software**](/software/BLRHL/index.html)]; [[**slides**](/doc/bplr/bplrslides-mgill.pdf)].
+14. Li, L., Yao, W., 2018. Fully Bayesian Logistic Regression with Hyper-Lasso Priors for High-dimensional Feature Selection. *Journal of Statistical Computation and Simulation*, 88(14), 2827–2851. [https://doi.org/10.1080/00949655.2018.1490418](https://doi.org/10.1080/00949655.2018.1490418) [[**PDF**](http://arxiv.org/abs/1405.3319)]; [[**software**](/software/BLRHL/index.html)]; [[**slides**](/doc/bplr/bplrslides-mgill.pdf)].
 
 
 **2016-2017**
@@ -1891,19 +1891,19 @@ format:
 
 <!-- -->
 
-1. Jin, L., McQuillan, I., Li, L., 2017. Computational Identification of Harmful Mutation Regions to the Activity of Transposable Elements. *BMC Genomics* 18, Article 862 (pp. 1-10). [https://doi.org/10.1186/s12864-017-4227-z](https://doi.org/10.1186/s12864-017-4227-z)
+13. Jin, L., McQuillan, I., Li, L., 2017. Computational Identification of Harmful Mutation Regions to the Activity of Transposable Elements. *BMC Genomics* 18, Article 862 (pp. 1-10). [https://doi.org/10.1186/s12864-017-4227-z](https://doi.org/10.1186/s12864-017-4227-z)
 
 
 
 <!-- -->
 
-1. Li, L., Feng, C.X., Qiu, S., 2017. Estimating Cross-validatory Predictive P-values with Integrated Importance Sampling for Disease Mapping Models. *Statistics in Medicine*, 36(14), 2220–2236. [https://doi.org/10.1002/sim.7278](https://doi.org/10.1002/sim.7278) [[**PDF**](http://arxiv.org/abs/1603.07668)]; [[**slides**](/doc/talks/dmpvalues_ssc.pdf)]; [[**R Functions**](/software/dmpvalues/dmpvalues-larynx.R)].
+12. Li, L., Feng, C.X., Qiu, S., 2017. Estimating Cross-validatory Predictive P-values with Integrated Importance Sampling for Disease Mapping Models. *Statistics in Medicine*, 36(14), 2220–2236. [https://doi.org/10.1002/sim.7278](https://doi.org/10.1002/sim.7278) [[**PDF**](http://arxiv.org/abs/1603.07668)]; [[**slides**](/doc/talks/dmpvalues_ssc.pdf)]; [[**R Functions**](/software/dmpvalues/dmpvalues-larynx.R)].
 
 
 
 <!-- -->
 
-1. Feng, C. X., Rostami, M., Li, L., 2017. Impact of Misspecified Residual Correlation Structure on the Parameter Estimates in a Shared Spatial Frailty Model. *Journal of Statistical Computation and Simulation*, 87(12), 2384–2410. [https://doi.org/10.1080/00949655.2017.1332196](https://doi.org/10.1080/00949655.2017.1332196)
+11. Feng, C. X., Rostami, M., Li, L., 2017. Impact of Misspecified Residual Correlation Structure on the Parameter Estimates in a Shared Spatial Frailty Model. *Journal of Statistical Computation and Simulation*, 87(12), 2384–2410. [https://doi.org/10.1080/00949655.2017.1332196](https://doi.org/10.1080/00949655.2017.1332196)
 
 
 **2015-2016**
@@ -1912,7 +1912,7 @@ format:
 
 <!-- -->
 
-1. Li, L., Qiu, S., Zhang, B., Feng, C.X., 2016. Approximating Cross-validatory Predictive Evaluation in Bayesian Latent Variables Models with Integrated IS and WAIC. *Statistics and Computing*, 26(4), 881–897. [https://doi.org/10.1007/s11222-015-9577-2](https://doi.org/10.1007/s11222-015-9577-2) [[**PDF**](http://arxiv.org/abs/1404.2918)]; [[**slides**](/doc/iis/iisslides-manitoba.pdf)].
+10. Li, L., Qiu, S., Zhang, B., Feng, C.X., 2016. Approximating Cross-validatory Predictive Evaluation in Bayesian Latent Variables Models with Integrated IS and WAIC. *Statistics and Computing*, 26(4), 881–897. [https://doi.org/10.1007/s11222-015-9577-2](https://doi.org/10.1007/s11222-015-9577-2) [[**PDF**](http://arxiv.org/abs/1404.2918)]; [[**slides**](/doc/iis/iisslides-manitoba.pdf)].
 
 
 **2013-2014**
@@ -1921,13 +1921,13 @@ format:
 
 <!-- -->
 
-1. Yao, W., Li, L., 2014. A New Regression Model: Modal Linear Regression. *Scandinavian Journal of Statistics*, 41(3), 656–671. [https://doi.org/10.1111/sjos.12054](https://doi.org/10.1111/sjos.12054) [[**PDF**](/doc/others/modlin.pdf)].
+9. Yao, W., Li, L., 2014. A New Regression Model: Modal Linear Regression. *Scandinavian Journal of Statistics*, 41(3), 656–671. [https://doi.org/10.1111/sjos.12054](https://doi.org/10.1111/sjos.12054) [[**PDF**](/doc/others/modlin.pdf)].
 
 
 
 <!-- -->
 
-1. Yao, W., Li, L., 2014. Bayesian Mixture Labeling by Minimizing Deviance of Classification Probabilities to Reference Labels. *Journal of Statistical Computation and Simulation*, 84(2), 310–323.
+8. Yao, W., Li, L., 2014. Bayesian Mixture Labeling by Minimizing Deviance of Classification Probabilities to Reference Labels. *Journal of Statistical Computation and Simulation*, 84(2), 310–323.
 
 
 **2011-2012**
@@ -1936,19 +1936,19 @@ format:
 
 <!-- -->
 
-1. Khan, S. A., Rana, M., Li, L., Dubin, J. A., 2012. A Comparative Case Study to Monitor and Understand Atmospheric CFC Decline with the Spatial-Longitudinal Bent-Cable Model. *International Journal of Statistics and Probability*, 1(2), 56–68.
+7. Khan, S. A., Rana, M., Li, L., Dubin, J. A., 2012. A Comparative Case Study to Monitor and Understand Atmospheric CFC Decline with the Spatial-Longitudinal Bent-Cable Model. *International Journal of Statistics and Probability*, 1(2), 56–68.
 
 
 
 <!-- -->
 
-1. Li, L., 2012. Bias-corrected Hierarchical Bayesian Classification with a Selected Subset of High-dimensional Features. *Journal of American Statistical Association*, 107(497), 120–134. [https://doi.org/10.1198/JASA.2011.AP10446](https://doi.org/10.1198/JASA.2011.AP10446) [[**PDF**](/doc/bcbcsf/jasapaper.pdf)]; [[**software**](/software/BCBCSF)]; [[**slides**](/doc/bcbcsf/shanghaistat2015_calgary_longhai_li.pdf)].
+6. Li, L., 2012. Bias-corrected Hierarchical Bayesian Classification with a Selected Subset of High-dimensional Features. *Journal of American Statistical Association*, 107(497), 120–134. [https://doi.org/10.1198/JASA.2011.AP10446](https://doi.org/10.1198/JASA.2011.AP10446) [[**PDF**](/doc/bcbcsf/jasapaper.pdf)]; [[**software**](/software/BCBCSF)]; [[**slides**](/doc/bcbcsf/shanghaistat2015_calgary_longhai_li.pdf)].
 
 
 
 <!-- -->
 
-1. Sajobi, T.T., Lix, L. M., Dansu, B. M., Laverty, W., Li, L., 2012. Robust Descriptive Discriminant Analysis for Repeated Measures Data. *Computational Statistics & Data Analysis*, 56(9), 2782–2794. [https://doi.org/10.1016/j.csda.2012.02.029](https://doi.org/10.1016/j.csda.2012.02.029)
+5. Sajobi, T.T., Lix, L. M., Dansu, B. M., Laverty, W., Li, L., 2012. Robust Descriptive Discriminant Analysis for Repeated Measures Data. *Computational Statistics & Data Analysis*, 56(9), 2782–2794. [https://doi.org/10.1016/j.csda.2012.02.029](https://doi.org/10.1016/j.csda.2012.02.029)
 
 
 **2010-2011**
@@ -1957,7 +1957,7 @@ format:
 
 <!-- -->
 
-1. Sajobi, T. T., Lix, L., Li, L., Laverty, W., 2011. Discriminant Analysis for Repeated Measures Data: Effects of Mean and Covariance Misspecification on Bias and Error in Discriminant Function Coefficients. *Journal of Modern Applied Statistical Methods*, 10(2), 571–582. [https://doi.org/10.22237/jmasm/1320120840](https://doi.org/10.22237/jmasm/1320120840)
+4. Sajobi, T. T., Lix, L., Li, L., Laverty, W., 2011. Discriminant Analysis for Repeated Measures Data: Effects of Mean and Covariance Misspecification on Bias and Error in Discriminant Function Coefficients. *Journal of Modern Applied Statistical Methods*, 10(2), 571–582. [https://doi.org/10.22237/jmasm/1320120840](https://doi.org/10.22237/jmasm/1320120840)
 
 
 **2009-2010**
@@ -1966,7 +1966,7 @@ format:
 
 <!-- -->
 
-1. Li, L., 2010. Are Bayesian Inferences Weak for Wasserman’s Example? *Communications in Statistics – Simulation and Computation*, 39(4), 655–667. [https://doi.org/10.1080/03610910903576540](https://doi.org/10.1080/03610910903576540) [[**PDF**](/doc/wman/wman-r1-online.pdf)]; [[**slides**](/doc/wman/ssc10talk.pdf)].
+3. Li, L., 2010. Are Bayesian Inferences Weak for Wasserman’s Example? *Communications in Statistics – Simulation and Computation*, 39(4), 655–667. [https://doi.org/10.1080/03610910903576540](https://doi.org/10.1080/03610910903576540) [[**PDF**](/doc/wman/wman-r1-online.pdf)]; [[**slides**](/doc/wman/ssc10talk.pdf)].
 
 
 **2007-2008**
@@ -1975,7 +1975,7 @@ format:
 
 <!-- -->
 
-1. Li, L., Zhang, J., Neal, R.M., 2008. A method for avoiding bias from features selection with application to naive Bayes classification models. *Bayesian Analysis*, 3(1), 171–196. [https://doi.org/10.1214/08-BA307](https://doi.org/10.1214/08-BA307) [[**PDF**](/doc/naivebayes/naivebayes.pdf)]; [[**slides**](/doc/naivebayes/uktalk.pdf)]; [[**software**](/software/predbayescor/release.html)].
+2. Li, L., Zhang, J., Neal, R.M., 2008. A method for avoiding bias from features selection with application to naive Bayes classification models. *Bayesian Analysis*, 3(1), 171–196. [https://doi.org/10.1214/08-BA307](https://doi.org/10.1214/08-BA307) [[**PDF**](/doc/naivebayes/naivebayes.pdf)]; [[**slides**](/doc/naivebayes/uktalk.pdf)]; [[**software**](/software/predbayescor/release.html)].
 
 
 
@@ -1992,13 +1992,13 @@ format:
 
 <!-- -->
 
-1. Yin, W., Li, L., Wu, F.-X., 2021. A Graph Attention Neural Network for Diagnosing ASD with fMRI Data, in: 2021 IEEE International Conference on Bioinformatics and Biomedicine (BIBM). pp. 1131–1136. [https://doi.org/10.1109/BIBM52615.2021.9669849](https://doi.org/10.1109/BIBM52615.2021.9669849)
+3. Yin, W., Li, L., Wu, F.-X., 2021. A Graph Attention Neural Network for Diagnosing ASD with fMRI Data, in: 2021 IEEE International Conference on Bioinformatics and Biomedicine (BIBM). pp. 1131–1136. [https://doi.org/10.1109/BIBM52615.2021.9669849](https://doi.org/10.1109/BIBM52615.2021.9669849)
 
 
 
 <!-- -->
 
-1. Dagasso, G., Yan, Y., Wang, L., Li, L., Kutcher, R., Zhang, W., Jin, L., 2020. Comprehensive-GWAS: a pipeline for genome-wide association studies utilizing cross-validation to assess the predictivity of genetic variations, in: 2020 IEEE International Conference on Bioinformatics and Biomedicine (BIBM). Presented at the 2020 IEEE International Conference on Bioinformatics and Biomedicine (BIBM), pp. 1361–1367. [https://doi.org/10.1109/BIBM49941.2020.9313355](https://doi.org/10.1109/BIBM49941.2020.9313355)
+2. Dagasso, G., Yan, Y., Wang, L., Li, L., Kutcher, R., Zhang, W., Jin, L., 2020. Comprehensive-GWAS: a pipeline for genome-wide association studies utilizing cross-validation to assess the predictivity of genetic variations, in: 2020 IEEE International Conference on Bioinformatics and Biomedicine (BIBM). Presented at the 2020 IEEE International Conference on Bioinformatics and Biomedicine (BIBM), pp. 1361–1367. [https://doi.org/10.1109/BIBM49941.2020.9313355](https://doi.org/10.1109/BIBM49941.2020.9313355)
 
 
 
@@ -2019,7 +2019,7 @@ format:
 
 <!-- -->
 
-1. [Z-residuals: A Versatile Diagnostic Framework for Bayesian Models](https://bayesian-zresid-slides.longhai-li.workers.dev/). Presented at: University of Toronto, Biostatistics Seminar, 1 September, 2026 
+34. [Z-residuals: A Versatile Diagnostic Framework for Bayesian Models](https://bayesian-zresid-slides.longhai-li.workers.dev/). Presented at: University of Toronto, Biostatistics Seminar, 1 September, 2026 
 
 
 **2025-2026**
@@ -2028,13 +2028,13 @@ format:
 
 <!-- -->
 
-1. [Z-residuals for Checking Bayesian Models](doc/talks/Z_residuals_for_Bayesian_Models__Vancouver_talk_2025_.pdf). Presented at: University of Calgary, Calgary, AB, Canada; July 28, 2025
+33. [Z-residuals for Checking Bayesian Models](doc/talks/Z_residuals_for_Bayesian_Models__Vancouver_talk_2025_.pdf). Presented at: University of Calgary, Calgary, AB, Canada; July 28, 2025
 
 
 
 <!-- -->
 
-1. [Sparse Learning for Assessing the Association Between Gut Microbiome and Parkinson’s Disease](/doc/talks/Microbiome_and_Parkinson___JSCDS_Talk_2025.pdf). Presented at: The 3rd JCSDS, Hangzhou, China, July 13, 2025.
+32. [Sparse Learning for Assessing the Association Between Gut Microbiome and Parkinson’s Disease](/doc/talks/Microbiome_and_Parkinson___JSCDS_Talk_2025.pdf). Presented at: The 3rd JCSDS, Hangzhou, China, July 13, 2025.
 
 
 **2024-2025**
@@ -2043,13 +2043,13 @@ format:
 
 <!-- -->
 
-1. [Z-residuals for Checking Bayesian Models](/doc/talks/Z_residuals_for_Bayesian_Models__Vancouver_talk_2025_.pdf). Presented at: International Conference on Statistics and Data Science, Vancouver, BC, Canada; June 24, 2025
+31. [Z-residuals for Checking Bayesian Models](/doc/talks/Z_residuals_for_Bayesian_Models__Vancouver_talk_2025_.pdf). Presented at: International Conference on Statistics and Data Science, Vancouver, BC, Canada; June 24, 2025
 
 
 
 <!-- -->
 
-1. [Z-residuals for Checking Bayesian Hurdle Models](/doc/talks/Slides_Ecostat2024.pdf). Presented at: EcoStat 2024; July 17, 2024; Beijing, China.
+30. [Z-residuals for Checking Bayesian Hurdle Models](/doc/talks/Slides_Ecostat2024.pdf). Presented at: EcoStat 2024; July 17, 2024; Beijing, China.
 
 
 **2023-2024**
@@ -2058,25 +2058,25 @@ format:
 
 <!-- -->
 
-1. [Z-residual Diagnostic Tool for Assessing Covariate Functional Form in Proportional Hazards Models with Shared Frailty]("/doc/talks/Li - 2024 - Z-residual Diagnostic Tool for Assessing Covariate.pdf"), ICSA Canada Chapter Symp., June 9, 2024, Niagara Falls, Canada
+29. [Z-residual Diagnostic Tool for Assessing Covariate Functional Form in Proportional Hazards Models with Shared Frailty]("/doc/talks/Li - 2024 - Z-residual Diagnostic Tool for Assessing Covariate.pdf"), ICSA Canada Chapter Symp., June 9, 2024, Niagara Falls, Canada
 
 
 
 <!-- -->
 
-1. Z-residual Diagnostic Tool for Assessing Covariate Functional Form in Proportional Hazards Models with Shared Frailty, Annual Meeting of SSC, St John’s, Canada, June 2, 2024
+28. Z-residual Diagnostic Tool for Assessing Covariate Functional Form in Proportional Hazards Models with Shared Frailty, Annual Meeting of SSC, St John’s, Canada, June 2, 2024
 
 
 
 <!-- -->
 
-1. Z-residual Diagnostic Tool for Assessing Covariate Functional Form in Proportional Hazards Models with Shared Frailty, Dept. Seminar, Texas State University, USA, March 8, 2024
+27. Z-residual Diagnostic Tool for Assessing Covariate Functional Form in Proportional Hazards Models with Shared Frailty, Dept. Seminar, Texas State University, USA, March 8, 2024
 
 
 
 <!-- -->
 
-1. Z-residual Diagnostic Tool for Assessing Covariate Functional Form in Proportional Hazards Models with Shared Frailty, Dept. Seminar, Sun Yat-sen University, China, Jan. 4, 2024
+26. Z-residual Diagnostic Tool for Assessing Covariate Functional Form in Proportional Hazards Models with Shared Frailty, Dept. Seminar, Sun Yat-sen University, China, Jan. 4, 2024
 
 
 **2022-2023**
@@ -2085,19 +2085,19 @@ format:
 
 <!-- -->
 
-1. [Cross-validatory Residual Diagnostics for Bayesian Spatial Models](/doc/talks/CV_z_residual_ssc_2022.pdf), Annual Meeting of SSC, Ottawa, May 29, 2023
+25. [Cross-validatory Residual Diagnostics for Bayesian Spatial Models](/doc/talks/CV_z_residual_ssc_2022.pdf), Annual Meeting of SSC, Ottawa, May 29, 2023
 
 
 
 <!-- -->
 
-1. [Model Diagnostics for Censored Regression via Randomized Survival Probabilities](/doc/talks/NRSP_sim_paper_slides_UofV.pdf), the 5th ICSA Canada Symposium, 9 July 2022, Banff, AB, Canada
+24. [Model Diagnostics for Censored Regression via Randomized Survival Probabilities](/doc/talks/NRSP_sim_paper_slides_UofV.pdf), the 5th ICSA Canada Symposium, 9 July 2022, Banff, AB, Canada
 
 
 
 <!-- -->
 
-1. [Model Diagnostics for Censored Regression via Randomized Survival Probabilities](/doc/talks/NRSP_sim_paper_slides_UofV.pdf), 17 Aug. 2022, Statistics Conference in Genomics, Pharmaceutical Science, and Health Data Science, University of Victoria, Victoria, BC, Canada
+23. [Model Diagnostics for Censored Regression via Randomized Survival Probabilities](/doc/talks/NRSP_sim_paper_slides_UofV.pdf), 17 Aug. 2022, Statistics Conference in Genomics, Pharmaceutical Science, and Health Data Science, University of Victoria, Victoria, BC, Canada
 
 
 **2021-2022**
@@ -2106,13 +2106,13 @@ format:
 
 <!-- -->
 
-1. [Randomized quantile residuals for diagnosing zero-inflated generalized linear mixed models with applications to microbiome count data](/doc/talks/rqr_glmm_ssc2022.pdf), SSC Annual Meeting (virtual), May 2022.
+22. [Randomized quantile residuals for diagnosing zero-inflated generalized linear mixed models with applications to microbiome count data](/doc/talks/rqr_glmm_ssc2022.pdf), SSC Annual Meeting (virtual), May 2022.
 
 
 
 <!-- -->
 
-1. [Model Diagnostics for Censored Regression via Randomized Survival Probabilities](/doc/talks/NRSP_sim_paper_slides_UofV.pdf), The 6th Canadian Conference in Applied Statistics, Hosted by Concordia University (virtual), 16 July 2021.
+21. [Model Diagnostics for Censored Regression via Randomized Survival Probabilities](/doc/talks/NRSP_sim_paper_slides_UofV.pdf), The 6th Canadian Conference in Applied Statistics, Hosted by Concordia University (virtual), 16 July 2021.
 
 
 **2019-2020**
@@ -2121,7 +2121,7 @@ format:
 
 <!-- -->
 
-1. [Estimating Cross-validatory Predictive P-values with Integrated Importance Sampling for Disease Mapping Models](/doc/talks/dmpvalues_kingston.pdf), Aug. 2019, the 4th ICSA-Canada Symposium held at Queen’s University.
+20. [Estimating Cross-validatory Predictive P-values with Integrated Importance Sampling for Disease Mapping Models](/doc/talks/dmpvalues_kingston.pdf), Aug. 2019, the 4th ICSA-Canada Symposium held at Queen’s University.
 
 
 **2018-2019**
@@ -2130,7 +2130,7 @@ format:
 
 <!-- -->
 
-1. [Feature Selection Bias in Assessing the Predictivity of SNPs for Alzheimer's Disease](/doc/talks/fsbad_UofM.pdf), June 2019, Seminar talk, University of Manitoba, Canada
+19. [Feature Selection Bias in Assessing the Predictivity of SNPs for Alzheimer's Disease](/doc/talks/fsbad_UofM.pdf), June 2019, Seminar talk, University of Manitoba, Canada
 
 
 **2017-2018**
@@ -2139,13 +2139,13 @@ format:
 
 <!-- -->
 
-1. Randomized Quantile Residuals for Checking GLMM with Application to Zero-inflated Microbiome Data, June 2018, Annual Meeting of Statistical Society of Canada, McGill University, Canada.
+18. Randomized Quantile Residuals for Checking GLMM with Application to Zero-inflated Microbiome Data, June 2018, Annual Meeting of Statistical Society of Canada, McGill University, Canada.
 
 
 
 <!-- -->
 
-1. Fully Bayesian Classification with Heavy-tailed Priors for Selection in High-Dimensional Features with Grouping Structure, Aug. 2017, the 3rd ICSA-Canada Symposium held at Vancouver.
+17. Fully Bayesian Classification with Heavy-tailed Priors for Selection in High-Dimensional Features with Grouping Structure, Aug. 2017, the 3rd ICSA-Canada Symposium held at Vancouver.
 
 
 **2016-2017**
@@ -2154,31 +2154,31 @@ format:
 
 <!-- -->
 
-1. [Randomized Quantile Residuals: an Omnibus Model Diagnostic Tool with Unified Reference Distribution](/doc/talks/rqrslides.pdf), June 2017, Seminar talk, School of Mathematical Sciences, Xiamen University, China.
+16. [Randomized Quantile Residuals: an Omnibus Model Diagnostic Tool with Unified Reference Distribution](/doc/talks/rqrslides.pdf), June 2017, Seminar talk, School of Mathematical Sciences, Xiamen University, China.
 
 
 
 <!-- -->
 
-1. Fully Bayesian Classification with Heavy-tailed Priors for Selection in High-Dimensional Features with Grouping Structure, June 2017, Seminar talk, School of Mathematical Sciences, Xiamen University, China.
+15. Fully Bayesian Classification with Heavy-tailed Priors for Selection in High-Dimensional Features with Grouping Structure, June 2017, Seminar talk, School of Mathematical Sciences, Xiamen University, China.
 
 
 
 <!-- -->
 
-1. Randomized Quantile Residuals: an Omnibus Model Diagnostic Tool with Unified Reference Distribution, June 2017, Seminar talk, Department of Biostatistics, Southern Medical University, Guangzhou, China.
+14. Randomized Quantile Residuals: an Omnibus Model Diagnostic Tool with Unified Reference Distribution, June 2017, Seminar talk, Department of Biostatistics, Southern Medical University, Guangzhou, China.
 
 
 
 <!-- -->
 
-1. [Estimating Cross-validatory Predictive P-values with Integrated Importance Sampling for Disease Mapping Models](/doc/talks/dmpvalues_ssc.pdf), June 2017, Annual Meeting of Statistical Society of Canada, University of Manitoba, Canada.
+13. [Estimating Cross-validatory Predictive P-values with Integrated Importance Sampling for Disease Mapping Models](/doc/talks/dmpvalues_ssc.pdf), June 2017, Annual Meeting of Statistical Society of Canada, University of Manitoba, Canada.
 
 
 
 <!-- -->
 
-1. [Fully Bayesian Classification with Heavy-tailed Priors for Selection in High-Dimensional Features with Grouping Structure](/doc/robit/robitslides.pdf), Dec., 2016, Wuhan University, China.
+12. [Fully Bayesian Classification with Heavy-tailed Priors for Selection in High-Dimensional Features with Grouping Structure](/doc/robit/robitslides.pdf), Dec., 2016, Wuhan University, China.
 
 
 **2015-2016**
@@ -2187,25 +2187,25 @@ format:
 
 <!-- -->
 
-1. [Cross-validatory Model Comparison and Divergent Regions Detection using iIS for Disease Mapping](/doc/talks/iisslides-UofC.pdf), Seminar of Dept of Math & Stat, University of Calgary, April 2016, Calgary, AB.
+11. [Cross-validatory Model Comparison and Divergent Regions Detection using iIS for Disease Mapping](/doc/talks/iisslides-UofC.pdf), Seminar of Dept of Math & Stat, University of Calgary, April 2016, Calgary, AB.
 
 
 
 <!-- -->
 
-1. [Cross-validatory Model Comparison and Divergent Regions Detection using iIS for Disease Mapping](/doc/talks/iisslides-UofA.pdf), Seminar of Dept of Math & Stat, University of Alberta, Edmonton, AB.
+10. [Cross-validatory Model Comparison and Divergent Regions Detection using iIS for Disease Mapping](/doc/talks/iisslides-UofA.pdf), Seminar of Dept of Math & Stat, University of Alberta, Edmonton, AB.
 
 
 
 <!-- -->
 
-1. [Cross-validatory Model Comparison and Divergent Regions Detection using iIS for Disease Mapping](/doc/talks/iisslides-manitoba.pdf), Seminar of Department of Statistics, University of Manitoba, Jan. 2016, Winnipeg, MB.
+9. [Cross-validatory Model Comparison and Divergent Regions Detection using iIS for Disease Mapping](/doc/talks/iisslides-manitoba.pdf), Seminar of Department of Statistics, University of Manitoba, Jan. 2016, Winnipeg, MB.
 
 
 
 <!-- -->
 
-1. [Bias-corrected Hierarchical Bayesian Classification with a Selected Subset of High-dimensional Features](/doc/bcbcsf/shanghaistat2015_calgary_longhai_li.pdf), ICSA Canada Chapter Annual Meeting, University of Calgary, Aug. 2015, Calgary, AB.
+8. [Bias-corrected Hierarchical Bayesian Classification with a Selected Subset of High-dimensional Features](/doc/bcbcsf/shanghaistat2015_calgary_longhai_li.pdf), ICSA Canada Chapter Annual Meeting, University of Calgary, Aug. 2015, Calgary, AB.
 
 
 **2014-2015**
@@ -2214,13 +2214,13 @@ format:
 
 <!-- -->
 
-1. [Approximating Cross-validatory Predictive Evaluation in Bayesian Latent Variables Models with Integrated IS and WAIC](/doc/iis/iisslides-tongji.pdf), Dec. 2014, Tongji University, Shanghai, China.
+7. [Approximating Cross-validatory Predictive Evaluation in Bayesian Latent Variables Models with Integrated IS and WAIC](/doc/iis/iisslides-tongji.pdf), Dec. 2014, Tongji University, Shanghai, China.
 
 
 
 <!-- -->
 
-1. [An Introduction to Microarray Data](/doc/talks/intro_microarray_lli.pdf). Workshop on “Statistical Issues in Biomarker and Drug Co-development”, Nov. 2014, Fields Institute, Toronto, ON, Canada.
+6. [An Introduction to Microarray Data](/doc/talks/intro_microarray_lli.pdf). Workshop on “Statistical Issues in Biomarker and Drug Co-development”, Nov. 2014, Fields Institute, Toronto, ON, Canada.
 
 
 **2013-2014**
@@ -2229,7 +2229,7 @@ format:
 
 <!-- -->
 
-1. [Approximating Cross-validatory Predictive Evaluation in Bayesian Latent Variables Models with Integrated IS and WAIC](/doc/iis/iisslides-ksu.pdf). Statistics Seminar, April, Kansas State University, Manhattan, Kansas, USA.
+5. [Approximating Cross-validatory Predictive Evaluation in Bayesian Latent Variables Models with Integrated IS and WAIC](/doc/iis/iisslides-ksu.pdf). Statistics Seminar, April, Kansas State University, Manhattan, Kansas, USA.
 
 
 **2011-2012**
@@ -2238,7 +2238,7 @@ format:
 
 <!-- -->
 
-1. [High-dimensional Feature Selection Using Hierarchical Bayesian Logistic Regression with Heavy-tailed Priors](/doc/bplr/bplrslides-mgill.pdf). CRM-ISM-GERAD Colloque de Statistique, April, McGill University, Montreal, Quebec, Canada.
+4. [High-dimensional Feature Selection Using Hierarchical Bayesian Logistic Regression with Heavy-tailed Priors](/doc/bplr/bplrslides-mgill.pdf). CRM-ISM-GERAD Colloque de Statistique, April, McGill University, Montreal, Quebec, Canada.
 
 
 **2010-2011**
@@ -2247,13 +2247,13 @@ format:
 
 <!-- -->
 
-1. High-dimensional Classification using Hierarchical Bayesian Polychotomous Logistic Regression Models. Colloquia talk, Jan., The University of Western Ontario, London, ON, Canada.
+3. High-dimensional Classification using Hierarchical Bayesian Polychotomous Logistic Regression Models. Colloquia talk, Jan., The University of Western Ontario, London, ON, Canada.
 
 
 
 <!-- -->
 
-1. High-dimensional Classification using Hierarchical Bayesian Polychotomous Logistic Regression Models. Colloquia talk, Sept., Penn State University, University Park, PA, USA.
+2. High-dimensional Classification using Hierarchical Bayesian Polychotomous Logistic Regression Models. Colloquia talk, Sept., Penn State University, University Park, PA, USA.
 
 
 **2007-2008**
@@ -2275,7 +2275,7 @@ format:
 
 <!-- -->
 
-1. [Approximating Cross-validatory Predictive Evaluation in Bayesian Latent Variables Models with Integrated IS and WAIC](/doc/iis/iisslides-ssc.pdf). Annual Meeting of Statistical Society of Canada, May 27, 2014, Toronto, ON, Canada.
+10. [Approximating Cross-validatory Predictive Evaluation in Bayesian Latent Variables Models with Integrated IS and WAIC](/doc/iis/iisslides-ssc.pdf). Annual Meeting of Statistical Society of Canada, May 27, 2014, Toronto, ON, Canada.
 
 
 **2010-2011**
@@ -2284,7 +2284,7 @@ format:
 
 <!-- -->
 
-1. High-dimensional Classification using Hierarchical Bayesian Polychotomous Logistic Regression Models. The 8th ICSA International Conference, Dec. 20, 2010, Guangzhou, China.
+9. High-dimensional Classification using Hierarchical Bayesian Polychotomous Logistic Regression Models. The 8th ICSA International Conference, Dec. 20, 2010, Guangzhou, China.
 
 
 **2009-2010**
@@ -2293,13 +2293,13 @@ format:
 
 <!-- -->
 
-1. Sajobi, T., Lix, L., Laverty, W., and Li, L., 2010. Discriminant Analysis for Repeated Measures Data: Effects of Covariance Structure on Bias and Error in Discriminant Function Coefficients. Annual Meeting of Statistical Society of Canada, May 24, 2010, Quebec City, QC, Canada.
+8. Sajobi, T., Lix, L., Laverty, W., and Li, L., 2010. Discriminant Analysis for Repeated Measures Data: Effects of Covariance Structure on Bias and Error in Discriminant Function Coefficients. Annual Meeting of Statistical Society of Canada, May 24, 2010, Quebec City, QC, Canada.
 
 
 
 <!-- -->
 
-1. [Are Bayesian Inferences Weak for Wasserman’s Example?](/doc/wman/ssc10talk.pdf) Annual Meeting of Statistical Society of Canada, May 25, 2010, Quebec City, QC, Canada.
+7. [Are Bayesian Inferences Weak for Wasserman’s Example?](/doc/wman/ssc10talk.pdf) Annual Meeting of Statistical Society of Canada, May 25, 2010, Quebec City, QC, Canada.
 
 
 **2008-2009**
@@ -2308,13 +2308,13 @@ format:
 
 <!-- -->
 
-1. Calibrating Predictions Based on a Selected Subset of Features from Bayesian Gaussian Classification Models. Annual meeting of Statistical Society of Canada, January, Vancouver, BC, Canada.
+6. Calibrating Predictions Based on a Selected Subset of Features from Bayesian Gaussian Classification Models. Annual meeting of Statistical Society of Canada, January, Vancouver, BC, Canada.
 
 
 
 <!-- -->
 
-1. Calibrating Predictions Based on a Selected Subset of Features from Bayesian Gaussian Classification Models. Bayesian Biostatistics Conference, January, Houston, TX, USA.
+5. Calibrating Predictions Based on a Selected Subset of Features from Bayesian Gaussian Classification Models. Bayesian Biostatistics Conference, January, Houston, TX, USA.
 
 
 **2007-2008**
@@ -2323,7 +2323,7 @@ format:
 
 <!-- -->
 
-1. [Compressing Parameters in Bayesian High-order Models](/doc/seqpred/seqpred-ssc.pdf). Annual Meeting of Statistical Society of Canada, May, Ottawa, ON, Canada.
+4. [Compressing Parameters in Bayesian High-order Models](/doc/seqpred/seqpred-ssc.pdf). Annual Meeting of Statistical Society of Canada, May, Ottawa, ON, Canada.
 
 
 **2006-2007**
@@ -2332,7 +2332,7 @@ format:
 
 <!-- -->
 
-1. Compressing Parameters in Bayesian Models with High-order Interactions. The 3rd Monte Carlo Workshop, Harvard University, May, Cambridge, MA, USA.
+3. Compressing Parameters in Bayesian Models with High-order Interactions. The 3rd Monte Carlo Workshop, Harvard University, May, Cambridge, MA, USA.
 
 
 **2005-2006**
@@ -2341,7 +2341,7 @@ format:
 
 <!-- -->
 
-1. [Avoiding Bias from Feature Selection in Regression and Classification Models](/doc/naivebayes/slide_bias_jsm.pdf). Joint Statistical Meeting, August, Seattle, WA, USA.
+2. [Avoiding Bias from Feature Selection in Regression and Classification Models](/doc/naivebayes/slide_bias_jsm.pdf). Joint Statistical Meeting, August, Seattle, WA, USA.
 
 
 
@@ -2359,66 +2359,66 @@ format:
 
 <!-- -->
 
-1. Wu, T. and Li, L., 2027. `Zresidual`: Computing and Diagnosing Gaussian-like Residuals. [[pkgdown site]](https://tiw150.github.io/Zresidual/index.html). Version 0.1-0 on Github (April 2026); Version 0.2-0 on Github (August 2026); Version 0.2-0 on CRAN (August 2026).
+11. Wu, T. and Li, L., 2027. `Zresidual`: Computing and Diagnosing Gaussian-like Residuals. [[pkgdown site]](https://tiw150.github.io/Zresidual/index.html). Version 0.1-0 on Github (April 2026); Version 0.2-0 on Github (August 2026); Version 0.2-0 on CRAN (August 2026).
 
 
 
 <!-- -->
 
-1. Li, L., 2026. R Functions for Computing Z-residuals for `survreg` and `coxph` Objects. [[URL]](https://longhaisk.github.io/software/NRSP/index.html).
-
-
-
-
-<!-- -->
-
-1. Li, L., et al., 2021. Real-time estimates of $R_t$ for Covid-19 in Canada. [[URL]](https://longhaisk.github.io/CanadaCovidRt/). 
+10. Li, L., 2026. R Functions for Computing Z-residuals for `survreg` and `coxph` Objects. [[URL]](https://longhaisk.github.io/software/NRSP/index.html).
 
 
 
 
 <!-- -->
 
-1. Li, L. and Liu, S., 2019--2026. `HTLR`: Bayesian Logistic Regression with Hyper-LASSO priors. DOI: 10.32614/CRAN.package.HTLR. [[CRAN]](https://cran.r-project.org/web/packages/HTLR/index.html) [[Github]](https://longhaisk.github.io/HTLR) [[URL]](https://longhaisk.github.io/software/BLRHL/index.html). Version 0.4 (2019), version 0.4-1 (2019), version 0.4-2 (2020), version 0.4-3 (2020), version 0.4-4 (2022), version 1.0 (2026).
+9. Li, L., et al., 2021. Real-time estimates of $R_t$ for Covid-19 in Canada. [[URL]](https://longhaisk.github.io/CanadaCovidRt/). 
 
 
 
 
 <!-- -->
 
-1. Li, L., 2011--2026. `BCBCSF`: Bias-corrected Bayesian Classification with Selected Features. DOI: 10.32614/CRAN.package.BCBCSF.  [[CRAN]](https://cran.r-project.org/web/packages/BCBCSF/index.html) [[URL]](https://longhaisk.github.io/software/BCBCSF/index.html). Version 0.0-0 (2011), version 0.0-1 (2011), version 0.0-2 (2012), version 1.0-0 (2013), version 1.0-1 (2015), updated to version 1.0-2 (2026).
+8. Li, L. and Liu, S., 2019--2026. `HTLR`: Bayesian Logistic Regression with Hyper-LASSO priors. DOI: 10.32614/CRAN.package.HTLR. [[CRAN]](https://cran.r-project.org/web/packages/HTLR/index.html) [[Github]](https://longhaisk.github.io/HTLR) [[URL]](https://longhaisk.github.io/software/BLRHL/index.html). Version 0.4 (2019), version 0.4-1 (2019), version 0.4-2 (2020), version 0.4-3 (2020), version 0.4-4 (2022), version 1.0 (2026).
 
 
 
 
 <!-- -->
 
-1. Li, L., 2018. `HTLR`: Bayesian Logistic Regression with Hyper-LASSO priors. [[URL]](https://longhaisk.github.io/software/BLRHL/index.html). Pre-CRAN version (2018).
+7. Li, L., 2011--2026. `BCBCSF`: Bias-corrected Bayesian Classification with Selected Features. DOI: 10.32614/CRAN.package.BCBCSF.  [[CRAN]](https://cran.r-project.org/web/packages/BCBCSF/index.html) [[URL]](https://longhaisk.github.io/software/BCBCSF/index.html). Version 0.0-0 (2011), version 0.0-1 (2011), version 0.0-2 (2012), version 1.0-0 (2013), version 1.0-1 (2015), updated to version 1.0-2 (2026).
 
 
 
 
 <!-- -->
 
-1. Li, L., 2016. `iIS`: R code for computing predictive p-values in disease mapping models. [[URL]](https://longhaisk.github.io/software/dmpvalues/dmpvalues-larynx.R). 
+6. Li, L., 2018. `HTLR`: Bayesian Logistic Regression with Hyper-LASSO priors. [[URL]](https://longhaisk.github.io/software/BLRHL/index.html). Pre-CRAN version (2018).
 
-
-
-<!-- -->
-
-1. Li, L., 2008. `gibbs.met`: Naive Gibbs Sampling with Metropolis Steps. [[CRAN]](https://cran.r-project.org/web/packages/gibbs.met/index.html) [[URL]](https://longhaisk.github.io/software/gibbs.met/release.html).
 
 
 
 <!-- -->
 
-1. Li, L., 2008. `BPHO`: Bayesian Prediction with High-order Interactions. [[CRAN]](https://cran.r-project.org/web/packages/BPHO/index.html) [[URL]](https://longhaisk.github.io/software/BPHO/release.html).
+5. Li, L., 2016. `iIS`: R code for computing predictive p-values in disease mapping models. [[URL]](https://longhaisk.github.io/software/dmpvalues/dmpvalues-larynx.R). 
 
 
 
 <!-- -->
 
-1. Li, L., 2007. `predmixcor`: Classification rule based on Bayesian mixture models with feature selection bias corrected. [[CRAN]](https://cran.r-project.org/web/packages/predmixcor/index.html) [[URL]](https://longhaisk.github.io/software/predmixcor/release.html). 
+4. Li, L., 2008. `gibbs.met`: Naive Gibbs Sampling with Metropolis Steps. [[CRAN]](https://cran.r-project.org/web/packages/gibbs.met/index.html) [[URL]](https://longhaisk.github.io/software/gibbs.met/release.html).
+
+
+
+<!-- -->
+
+3. Li, L., 2008. `BPHO`: Bayesian Prediction with High-order Interactions. [[CRAN]](https://cran.r-project.org/web/packages/BPHO/index.html) [[URL]](https://longhaisk.github.io/software/BPHO/release.html).
+
+
+
+<!-- -->
+
+2. Li, L., 2007. `predmixcor`: Classification rule based on Bayesian mixture models with feature selection bias corrected. [[CRAN]](https://cran.r-project.org/web/packages/predmixcor/index.html) [[URL]](https://longhaisk.github.io/software/predmixcor/release.html). 
 
 
 
@@ -2434,74 +2434,74 @@ format:
 
 <!-- -->
 
-1. Li, L., 2026. An entropy-based coefficient of determination with adjustment of optimization bias. [arXiv preprint arXiv:2608.06624](https://doi.org/10.48550/arXiv.2608.06624). August 2026. 
+13. Li, L., 2026. An entropy-based coefficient of determination with adjustment of optimization bias. [arXiv preprint arXiv:2608.06624](https://doi.org/10.48550/arXiv.2608.06624). August 2026. 
 
 
 
 
 <!-- -->
 
-1. Wu, T., Feng, C. and Li, L., 2023. Cross-validatory Z-Residual for Diagnosing Shared Frailty Models. [https://doi.org/10.48550/arXiv.2303.09616](https://doi.org/10.48550/arXiv.2303.09616). 32 pages, 14 figures.
+12. Wu, T., Feng, C. and Li, L., 2023. Cross-validatory Z-Residual for Diagnosing Shared Frailty Models. [https://doi.org/10.48550/arXiv.2303.09616](https://doi.org/10.48550/arXiv.2303.09616). 32 pages, 14 figures.
 
 
 
 <!-- -->
 
-1. Wu, T., Li, L. and Feng, C., 2023. Z-residual diagnostics for detecting misspecification of the functional form of covariates for shared frailty models. [https://doi.org/10.48550/arXiv.2302.09106](https://doi.org/10.48550/arXiv.2302.09106). 21 pages, 7 figures.
+11. Wu, T., Li, L. and Feng, C., 2023. Z-residual diagnostics for detecting misspecification of the functional form of covariates for shared frailty models. [https://doi.org/10.48550/arXiv.2302.09106](https://doi.org/10.48550/arXiv.2302.09106). 21 pages, 7 figures.
 
 
 
 <!-- -->
 
-1. Li, L., Wu, T. and Feng, C., 2019. Model diagnostics for censored regression via randomized survival probabilities. [https://doi.org/10.48550/arXiv.1911.00198](https://doi.org/10.48550/arXiv.1911.00198). 12 pages. (Journal-ref: Statistics in Medicine, 2021, 40(6), 1482-1497).
+10. Li, L., Wu, T. and Feng, C., 2019. Model diagnostics for censored regression via randomized survival probabilities. [https://doi.org/10.48550/arXiv.1911.00198](https://doi.org/10.48550/arXiv.1911.00198). 12 pages. (Journal-ref: Statistics in Medicine, 2021, 40(6), 1482-1497).
 
 
 
 <!-- -->
 
-1. Feng, C., Sadeghpour, A. and Li, L., 2017. Randomized Predictive P-values: A Versatile Model Diagnostic Tool with Unified Reference Distribution. [https://doi.org/10.48550/arXiv.1708.08527](https://doi.org/10.48550/arXiv.1708.08527). 26 pages. (Journal-ref: BMC Medical Research Methodology, 2020, 20(175)).
+9. Feng, C., Sadeghpour, A. and Li, L., 2017. Randomized Predictive P-values: A Versatile Model Diagnostic Tool with Unified Reference Distribution. [https://doi.org/10.48550/arXiv.1708.08527](https://doi.org/10.48550/arXiv.1708.08527). 26 pages. (Journal-ref: BMC Medical Research Methodology, 2020, 20(175)).
 
 
 
 <!-- -->
 
-1. Jiang, L., Li, L. and Yao, W., 2016. Fully Bayesian Classification with Heavy-tailed Priors for Selection in High-dimensional Features with Grouping Structure. [https://doi.org/10.48550/arXiv.1607.00098](https://doi.org/10.48550/arXiv.1607.00098). 31 pages. (Journal-ref: Sci Rep, 2020, 10(9747)).
+8. Jiang, L., Li, L. and Yao, W., 2016. Fully Bayesian Classification with Heavy-tailed Priors for Selection in High-dimensional Features with Grouping Structure. [https://doi.org/10.48550/arXiv.1607.00098](https://doi.org/10.48550/arXiv.1607.00098). 31 pages. (Journal-ref: Sci Rep, 2020, 10(9747)).
 
 
 
 <!-- -->
 
-1. Li, L., Feng, C.X. and Qiu, S., 2016. Estimating Cross-validatory Predictive P-values with Integrated Importance Sampling for Disease Mapping Models. [https://doi.org/10.48550/arXiv.1603.07668](https://doi.org/10.48550/arXiv.1603.07668). 18 pages. (Journal-ref: Statistics in Medicine, 2017, 36(14), 2220-2236).
+7. Li, L., Feng, C.X. and Qiu, S., 2016. Estimating Cross-validatory Predictive P-values with Integrated Importance Sampling for Disease Mapping Models. [https://doi.org/10.48550/arXiv.1603.07668](https://doi.org/10.48550/arXiv.1603.07668). 18 pages. (Journal-ref: Statistics in Medicine, 2017, 36(14), 2220-2236).
 
 
 
 <!-- -->
 
-1. Li, L. and Yao, W., 2014. Fully Bayesian Logistic Regression with Hyper-Lasso Priors for High-dimensional Feature Selection. [https://doi.org/10.48550/arXiv.1405.3319](https://doi.org/10.48550/arXiv.1405.3319). 33 pages. (Journal-ref: Journal of Statistical Computation and Simulation, 2018, 88(14), 2827-2851).
+6. Li, L. and Yao, W., 2014. Fully Bayesian Logistic Regression with Hyper-Lasso Priors for High-dimensional Feature Selection. [https://doi.org/10.48550/arXiv.1405.3319](https://doi.org/10.48550/arXiv.1405.3319). 33 pages. (Journal-ref: Journal of Statistical Computation and Simulation, 2018, 88(14), 2827-2851).
 
 
 
 <!-- -->
 
-1. Li, L., Qiu, S., Zhang, B. and Feng, C.X., 2014. Approximating Cross-validatory Predictive Evaluation in Bayesian Latent Variables Models with Integrated IS and WAIC. [https://doi.org/10.48550/arXiv.1404.2918](https://doi.org/10.48550/arXiv.1404.2918). 38 pages. (Journal-ref: Statistics and Computing, 2016, 26(4), 881-897).
+5. Li, L., Qiu, S., Zhang, B. and Feng, C.X., 2014. Approximating Cross-validatory Predictive Evaluation in Bayesian Latent Variables Models with Integrated IS and WAIC. [https://doi.org/10.48550/arXiv.1404.2918](https://doi.org/10.48550/arXiv.1404.2918). 38 pages. (Journal-ref: Statistics and Computing, 2016, 26(4), 881-897).
 
 
 
 <!-- -->
 
-1. Li, L. and Yao, W., 2013. High-dimensional Feature Selection Using Hierarchical Bayesian Logistic Regression with Heavy-tailed Priors. [https://doi.org/10.48550/arXiv.1308.4690](https://doi.org/10.48550/arXiv.1308.4690). (Earlier version of arXiv:1405.3319).
+4. Li, L. and Yao, W., 2013. High-dimensional Feature Selection Using Hierarchical Bayesian Logistic Regression with Heavy-tailed Priors. [https://doi.org/10.48550/arXiv.1308.4690](https://doi.org/10.48550/arXiv.1308.4690). (Earlier version of arXiv:1405.3319).
 
 
 
 <!-- -->
 
-1. Li, L. and Neal, R.M., 2007. A Method for Compressing Parameters in Bayesian Models with Application to Logistic Sequence Prediction Models. [https://doi.org/10.48550/arXiv.0711.4983](https://doi.org/10.48550/arXiv.0711.4983). 29 pages. (Journal-ref: Bayesian Analysis, 2008, 3(4), 793-822).
+3. Li, L. and Neal, R.M., 2007. A Method for Compressing Parameters in Bayesian Models with Application to Logistic Sequence Prediction Models. [https://doi.org/10.48550/arXiv.0711.4983](https://doi.org/10.48550/arXiv.0711.4983). 29 pages. (Journal-ref: Bayesian Analysis, 2008, 3(4), 793-822).
 
 
 
 <!-- -->
 
-1. Li, L., 2007. Bayesian Classification and Regression with High Dimensional Features. [https://doi.org/10.48550/arXiv.0709.2936](https://doi.org/10.48550/arXiv.0709.2936). PhD Thesis Submitted to University of Toronto, 129 pages.
+2. Li, L., 2007. Bayesian Classification and Regression with High Dimensional Features. [https://doi.org/10.48550/arXiv.0709.2936](https://doi.org/10.48550/arXiv.0709.2936). PhD Thesis Submitted to University of Toronto, 129 pages.
 
 
 
@@ -2518,25 +2518,25 @@ format:
 
 <!-- -->
 
-1. **Students' Grade Calculator:** A Shinylive app that can [calculate students' grades](./software/calcmark_shiny/) with fine-grained controls and output.
+5. **Students' Grade Calculator:** A Shinylive app that can [calculate students' grades](./software/calcmark_shiny/) with fine-grained controls and output.
 
 
 
 <!-- -->
 
-1. **Animation of Finding $\sqrt{S}$:** [A Shinylive App for Finding Square Root using Newton Method](./software/sqrt/)
+4. **Animation of Finding $\sqrt{S}$:** [A Shinylive App for Finding Square Root using Newton Method](./software/sqrt/)
 
 
 
 <!-- -->
 
-1. **Abbreviation Extractor for Documents with Latex Equations:** A shinylive  app that can [extract abbreviations](software/abbr/extract_abbr.html) in the source text with latex equations.
+3. **Abbreviation Extractor for Documents with Latex Equations:** A shinylive  app that can [extract abbreviations](software/abbr/extract_abbr.html) in the source text with latex equations.
 
 
 
 <!-- -->
 
-1. [Real-time estimates of the reproduction rate ($R_t$) of Canada and its provinces](./CanadaCovidRt/), a website maintained until Feb 2022.
+2. [Real-time estimates of the reproduction rate ($R_t$) of Canada and its provinces](./CanadaCovidRt/), a website maintained until Feb 2022.
 
 
 
@@ -2560,14 +2560,14 @@ format:
 
 <!-- -->
 
-1. **NSERC Individual Discovery Grant (No. 2026-07053)** – *Prediction-based Methods for Statistical Learning and Inference in Biosciences and Epidemiology*, $185,000 (37K per year), 2026-2031, Sole PI.
+17. **NSERC Individual Discovery Grant (No. 2026-07053)** – *Prediction-based Methods for Statistical Learning and Inference in Biosciences and Epidemiology*, $185,000 (37K per year), 2026-2031, Sole PI.
 
 
 
 
 <!-- -->
 
-1. **CANSSI** – *Statistical Methodologies and Computational Tools to Identify Microbial Correlates of Canadian Bee Gut Health*, [Collaborative Research Team Projects – Project 29](https://canssi.ca/story/crt-29/), 2025-2028, Co-PI.
+16. **CANSSI** – *Statistical Methodologies and Computational Tools to Identify Microbial Correlates of Canadian Bee Gut Health*, [Collaborative Research Team Projects – Project 29](https://canssi.ca/story/crt-29/), 2025-2028, Co-PI.
 
 
 **2021-2022**
@@ -2576,7 +2576,7 @@ format:
 
 <!-- -->
 
-1. **MITACS Accelerate Grant** – *Geospatial Artificial Intelligence Algorithms for Automating Manual Observation Associated with Wheat Production*, $280,000, 2021-2025, PI.
+15. **MITACS Accelerate Grant** – *Geospatial Artificial Intelligence Algorithms for Automating Manual Observation Associated with Wheat Production*, $280,000, 2021-2025, PI.
 
 
 **2020-2021**
@@ -2585,7 +2585,7 @@ format:
 
 <!-- -->
 
-1. **MITACS Accelerate Grant** – *Develop a web-based geospatial artificial intelligence framework to track, visualize, analyze, model, and predict infectious disease spread in real-time*, $105,000, 2020-2021, PI.
+14. **MITACS Accelerate Grant** – *Develop a web-based geospatial artificial intelligence framework to track, visualize, analyze, model, and predict infectious disease spread in real-time*, $105,000, 2020-2021, PI.
 
 
 **2019-2020**
@@ -2594,7 +2594,7 @@ format:
 
 <!-- -->
 
-1. **NSERC Individual Discovery Grant** – *[Predictive Methods for Analyzing High-throughput and Spatial-temporal Data](https://cognit.ca/en/project/207670)*, $140,000 (20K per year), 2019-2026, PI.
+13. **NSERC Individual Discovery Grant** – *[Predictive Methods for Analyzing High-throughput and Spatial-temporal Data](https://cognit.ca/en/project/207670)*, $140,000 (20K per year), 2019-2026, PI.
 
 
 **2017-2018**
@@ -2603,7 +2603,7 @@ format:
 
 <!-- -->
 
-1. **The Western Canadian Universities Collaborative Project Seed Funding** – *Genome-wide diet-gene interaction analysis for risk of psychiatric comorbidity in inflammatory bowel disease*, $20,000, 2017-2019, Co-PI.
+12. **The Western Canadian Universities Collaborative Project Seed Funding** – *Genome-wide diet-gene interaction analysis for risk of psychiatric comorbidity in inflammatory bowel disease*, $20,000, 2017-2019, Co-PI.
 
 
 **2016-2017**
@@ -2612,14 +2612,14 @@ format:
 
 <!-- -->
 
-1. **Canada First Research Excellence Fund (CFREF)** - *Designing Crops for Global Food Security, Genotype & Environment to Phenotype*, $756,918, 2016-2019, Co-Investigator (PI: Prof. Kusalik).
+11. **Canada First Research Excellence Fund (CFREF)** - *Designing Crops for Global Food Security, Genotype & Environment to Phenotype*, $756,918, 2016-2019, Co-Investigator (PI: Prof. Kusalik).
 
 
 
 
 <!-- -->
 
-1. **MITACS Accelerate Internship** – *Applications of Neural Network Curve Fitting Methods for Least-squares Monte Carlo Simulations in Financial Risk Management*, $15,000, 2016, PI.
+10. **MITACS Accelerate Internship** – *Applications of Neural Network Curve Fitting Methods for Least-squares Monte Carlo Simulations in Financial Risk Management*, $15,000, 2016, PI.
 
 
 **2014-2015**
@@ -2628,7 +2628,7 @@ format:
 
 <!-- -->
 
-1. **NSERC Individual Discovery Grant** – *[Bayesian Methods for High-dimensional and Correlated Data](https://cognit.ca/en/project/13450)*, $70,000, 2014-2019, PI.
+9. **NSERC Individual Discovery Grant** – *[Bayesian Methods for High-dimensional and Correlated Data](https://cognit.ca/en/project/13450)*, $70,000, 2014-2019, PI.
 
 
 **2011-2012**
@@ -2637,7 +2637,7 @@ format:
 
 <!-- -->
 
-1. **NSERC Individual Discovery Grant ECR Supplement** – *Efficient Bayesian Analysis for Complex Models*, $5,000/year, 2011-2014, PI.
+8. **NSERC Individual Discovery Grant ECR Supplement** – *Efficient Bayesian Analysis for Complex Models*, $5,000/year, 2011-2014, PI.
 
 
 **2009-2010**
@@ -2646,13 +2646,13 @@ format:
 
 <!-- -->
 
-1. **NSERC Individual Discovery Grant** – *[Efficient Bayesian Analysis for Complex Models](https://www.nserc-crsng.gc.ca/ase-oro/Details-Detailles_eng.asp?id=527993)*, $80,000, 2009-2014, PI.
+7. **NSERC Individual Discovery Grant** – *[Efficient Bayesian Analysis for Complex Models](https://www.nserc-crsng.gc.ca/ase-oro/Details-Detailles_eng.asp?id=527993)*, $80,000, 2009-2014, PI.
 
 
 
 <!-- -->
 
-1. **CFI Leaders Opportunity Funds** – *A Computer Cluster for Research on Efficient Bayesian Statistical Methods*, $160,000, 2009, PI.
+6. **CFI Leaders Opportunity Funds** – *A Computer Cluster for Research on Efficient Bayesian Statistical Methods*, $160,000, 2009, PI.
 
 
 **2008-2009**
@@ -2661,25 +2661,25 @@ format:
 
 <!-- -->
 
-1. **MITACS Accelerate Internship** – *Clustering Analysis for Detecting the Types of Vehicles*, $15,000, 2008, Co-PI with Prof. Laverty.
+5. **MITACS Accelerate Internship** – *Clustering Analysis for Detecting the Types of Vehicles*, $15,000, 2008, Co-PI with Prof. Laverty.
 
 
 
 <!-- -->
 
-1. **University of Saskatchewan President's Award**, $5,000, 2008, PI.
+4. **University of Saskatchewan President's Award**, $5,000, 2008, PI.
 
 
 
 <!-- -->
 
-1. **College of Graduate Studies and Research at the University of Saskatchewan Award**, $15,000, 2008, PI.
+3. **College of Graduate Studies and Research at the University of Saskatchewan Award**, $15,000, 2008, PI.
 
 
 
 <!-- -->
 
-1. **College of Arts and Science at the University of Saskatchewan – Supplemental start-up operating grant**, $15,000, 2008, PI.
+2. **College of Arts and Science at the University of Saskatchewan – Supplemental start-up operating grant**, $15,000, 2008, PI.
 
 
 **2007-2008**
@@ -2702,25 +2702,25 @@ format:
 
 <!-- -->
 
-1. Reviewing for *Biometrical*, Sept, 2026
+45. Reviewing for *Biometrical*, Sept, 2026
 
 
 
 <!-- -->
 
-1. Refereeing for *Biometrical Journal*, August 2026
+44. Refereeing for *Biometrical Journal*, August 2026
 
 
 
 <!-- -->
 
-1. Refereeing for *Journal of Computational and Graphical Statistics*, July 2026
+43. Refereeing for *Journal of Computational and Graphical Statistics*, July 2026
 
 
 
 <!-- -->
 
-1. Refereeing for *Bioinformatics*, July, 2026
+42. Refereeing for *Bioinformatics*, July, 2026
 
 
 **2025-2026**
@@ -2728,55 +2728,55 @@ format:
 
 <!-- -->
 
-1. Refereeing for *Journal of Statistical Computation and Simulation*, June, 2026
+41. Refereeing for *Journal of Statistical Computation and Simulation*, June, 2026
 
 
 
 <!-- -->
 
-1. Refereeing for *Journal of Statistical Computation and Simulation*, April, 2026
+40. Refereeing for *Journal of Statistical Computation and Simulation*, April, 2026
 
 
 
 <!-- -->
 
-1. Refereeing for *Journal of the Royal Statistical Society: Series C*, April 2026
+39. Refereeing for *Journal of the Royal Statistical Society: Series C*, April 2026
 
 
 
 <!-- -->
 
-1. Refereeing for *Bioinformatics*, March 2026
+38. Refereeing for *Bioinformatics*, March 2026
 
 
 
 <!-- -->
 
-1. Refereeing for *Journal of Computational and Graphical Statistics*, March 2026
+37. Refereeing for *Journal of Computational and Graphical Statistics*, March 2026
 
 
 
 <!-- -->
 
-1. Refereeing for *Journal of Statistical Computation and Simulation*, Dec. 2025
+36. Refereeing for *Journal of Statistical Computation and Simulation*, Dec. 2025
 
 
 
 <!-- -->
 
-1. Refereeing for *Journal of Computational and Graphical Statistics*, Sept. 2025
+35. Refereeing for *Journal of Computational and Graphical Statistics*, Sept. 2025
 
 
 
 <!-- -->
 
-1. Refereeing for *Journal of the Royal Statistical Society: Series C*, August 2025
+34. Refereeing for *Journal of the Royal Statistical Society: Series C*, August 2025
 
 
 
 <!-- -->
 
-1. Refereeing for *Journal of Applied Statistics*, August 2025
+33. Refereeing for *Journal of Applied Statistics*, August 2025
 
 
 **2023-2024**
@@ -2785,13 +2785,13 @@ format:
 
 <!-- -->
 
-1. Refereeing for *Journal of Computational and Graphical Statistics*, Sept. 2024
+32. Refereeing for *Journal of Computational and Graphical Statistics*, Sept. 2024
 
 
 
 <!-- -->
 
-1. Refereeing for *Journal of Applied Statistics*, Jan. 2024
+31. Refereeing for *Journal of Applied Statistics*, Jan. 2024
 
 
 **2022-2023**
@@ -2800,31 +2800,31 @@ format:
 
 <!-- -->
 
-1. Refereeing for *Statistical Methods in Medical Research*, April 2023
+30. Refereeing for *Statistical Methods in Medical Research*, April 2023
 
 
 
 <!-- -->
 
-1. Refereeing for *Statistical Methods in Medical Research*, Jan. 2023
+29. Refereeing for *Statistical Methods in Medical Research*, Jan. 2023
 
 
 
 <!-- -->
 
-1. Refereeing for *Journal of Computational and Graphical Statistics*, Jan. 2023
+28. Refereeing for *Journal of Computational and Graphical Statistics*, Jan. 2023
 
 
 
 <!-- -->
 
-1. Refereeing for *Statistical Methods in Medical Research*, Aug. 2022
+27. Refereeing for *Statistical Methods in Medical Research*, Aug. 2022
 
 
 
 <!-- -->
 
-1. Refereeing for *Canadian Journal of Statistics*, July 2022
+26. Refereeing for *Canadian Journal of Statistics*, July 2022
 
 
 **2021-2022**
@@ -2833,37 +2833,37 @@ format:
 
 <!-- -->
 
-1. Refereeing for *Statistical Methods in Medical Research*
+25. Refereeing for *Statistical Methods in Medical Research*
 
 
 
 <!-- -->
 
-1. Refereeing for *Journal of Statistical Computation and Simulation*
+24. Refereeing for *Journal of Statistical Computation and Simulation*
 
 
 
 <!-- -->
 
-1. Refereeing for *BMC Cancer*
+23. Refereeing for *BMC Cancer*
 
 
 
 <!-- -->
 
-1. Refereeing for *Journal of Computational and Graphical Statistics*
+22. Refereeing for *Journal of Computational and Graphical Statistics*
 
 
 
 <!-- -->
 
-1. Refereeing for *Canadian Journal of Statistics*
+21. Refereeing for *Canadian Journal of Statistics*
 
 
 
 <!-- -->
 
-1. Refereeing for *IEEE Transactions on Neural Networks and Learning Systems*
+20. Refereeing for *IEEE Transactions on Neural Networks and Learning Systems*
 
 
 **2020-2021**
@@ -2872,37 +2872,37 @@ format:
 
 <!-- -->
 
-1. Refereeing for *Statistics in Medicine*
+19. Refereeing for *Statistics in Medicine*
 
 
 
 <!-- -->
 
-1. Refereeing for *Computational Statistics and Data Analysis*
+18. Refereeing for *Computational Statistics and Data Analysis*
 
 
 
 <!-- -->
 
-1. Refereeing for *Frontiers in Genetics*
+17. Refereeing for *Frontiers in Genetics*
 
 
 
 <!-- -->
 
-1. Refereeing for *Statistical Methods for Medical Research*
+16. Refereeing for *Statistical Methods for Medical Research*
 
 
 
 <!-- -->
 
-1. Refereeing for *Journal of Statistical Computation and Simulation*
+15. Refereeing for *Journal of Statistical Computation and Simulation*
 
 
 
 <!-- -->
 
-1. Refereeing for *BMC Cancer*
+14. Refereeing for *BMC Cancer*
 
 
 **2019-2020**
@@ -2911,19 +2911,19 @@ format:
 
 <!-- -->
 
-1. Refereeing for *Computational Statistics and Data Analysis*
+13. Refereeing for *Computational Statistics and Data Analysis*
 
 
 
 <!-- -->
 
-1. Refereeing for *Frontiers in Genetics*
+12. Refereeing for *Frontiers in Genetics*
 
 
 
 <!-- -->
 
-1. Refereeing for *Communications in Statistics - Simulation and Computation*
+11. Refereeing for *Communications in Statistics - Simulation and Computation*
 
 
 **2017-2018**
@@ -2932,13 +2932,13 @@ format:
 
 <!-- -->
 
-1. Refereeing for *Canadian Journal of Statistics*
+10. Refereeing for *Canadian Journal of Statistics*
 
 
 
 <!-- -->
 
-1. Refereeing for *Journal of Royal Statistical Society (C)*
+9. Refereeing for *Journal of Royal Statistical Society (C)*
 
 
 **2016-2017**
@@ -2947,19 +2947,19 @@ format:
 
 <!-- -->
 
-1. Refereeing for *Statistics in Medicine*
+8. Refereeing for *Statistics in Medicine*
 
 
 
 <!-- -->
 
-1. Refereeing for *Statistics and Computing*
+7. Refereeing for *Statistics and Computing*
 
 
 
 <!-- -->
 
-1. Refereeing for *PLOS ONE*
+6. Refereeing for *PLOS ONE*
 
 
 **2013-2014**
@@ -2968,25 +2968,25 @@ format:
 
 <!-- -->
 
-1. Refereeing for *Biometrika*
+5. Refereeing for *Biometrika*
 
 
 
 <!-- -->
 
-1. Refereeing for *Statistics In Medicine*
+4. Refereeing for *Statistics In Medicine*
 
 
 
 <!-- -->
 
-1. Refereeing for *Statistical Papers*
+3. Refereeing for *Statistical Papers*
 
 
 
 <!-- -->
 
-1. Refereeing for *Computational Statistics*
+2. Refereeing for *Computational Statistics*
 
 
 
@@ -3005,19 +3005,19 @@ format:
 
 <!-- -->
 
-1. External Referee for a Tenure and Promotion Case, Simon Fraser University, Dec. 2025
+10. External Referee for a Tenure and Promotion Case, Simon Fraser University, Dec. 2025
 
 
 
 <!-- -->
 
-1. External Examiner for the doctoral thesis by Xiaoqing Zhang, University of Regina, Dec. 8, 2025
+9. External Examiner for the doctoral thesis by Xiaoqing Zhang, University of Regina, Dec. 8, 2025
 
 
 
 <!-- -->
 
-1. External Examiner for the doctoral thesis by Na Zhang, University of Alberta, August 28, 2025
+8. External Examiner for the doctoral thesis by Na Zhang, University of Alberta, August 28, 2025
 
 
 **2023-2024**
@@ -3026,7 +3026,7 @@ format:
 
 <!-- -->
 
-1. External Examiner for the doctoral thesis by Yuping Yang, Simon Fraser University, June 25, 2024
+7. External Examiner for the doctoral thesis by Yuping Yang, Simon Fraser University, June 25, 2024
 
 
 **2022-2023**
@@ -3035,7 +3035,7 @@ format:
 
 <!-- -->
 
-1. External Examiner for the M.Sc. thesis by Xiangling Ji, University of Victoria, July 27, 2022
+6. External Examiner for the M.Sc. thesis by Xiangling Ji, University of Victoria, July 27, 2022
 
 
 **2021-2022**
@@ -3044,13 +3044,13 @@ format:
 
 <!-- -->
 
-1. External Reviewer for a Canada Research Chair Position application
+5. External Reviewer for a Canada Research Chair Position application
 
 
 
 <!-- -->
 
-1. External Examiner for the M.Sc. thesis by Zhongyuan Zhang, University of Toronto
+4. External Examiner for the M.Sc. thesis by Zhongyuan Zhang, University of Toronto
 
 
 **2020-2021**
@@ -3059,7 +3059,7 @@ format:
 
 <!-- -->
 
-1. External Examiner for the doctoral thesis, University of Montreal, May 2021
+3. External Examiner for the doctoral thesis, University of Montreal, May 2021
 
 
 **2019-2020**
@@ -3068,7 +3068,7 @@ format:
 
 <!-- -->
 
-1. External Examiner for the doctoral thesis by Shijia Wang, Simon Fraser University
+2. External Examiner for the doctoral thesis by Shijia Wang, Simon Fraser University
 
 
 
@@ -3087,7 +3087,7 @@ format:
 
 <!-- -->
 
-1. Refereeing for a MITACS Accelerate Grant application, Dec. 2023
+12. Refereeing for a MITACS Accelerate Grant application, Dec. 2023
 
 
 **2021-2022**
@@ -3096,19 +3096,19 @@ format:
 
 <!-- -->
 
-1. Refereeing for a NSERC IDG application
+11. Refereeing for a NSERC IDG application
 
 
 
 <!-- -->
 
-1. Refereeing for a NSERC IDG application
+10. Refereeing for a NSERC IDG application
 
 
 
 <!-- -->
 
-1. Refereeing for a MITACS Accelerate Grant application
+9. Refereeing for a MITACS Accelerate Grant application
 
 
 **2020-2021**
@@ -3117,13 +3117,13 @@ format:
 
 <!-- -->
 
-1. Refereeing for a MITACS Accelerate Grant application, May 2021
+8. Refereeing for a MITACS Accelerate Grant application, May 2021
 
 
 
 <!-- -->
 
-1. Refereeing for a NSERC IDG application, Jan. 2021
+7. Refereeing for a NSERC IDG application, Jan. 2021
 
 
 **2019-2020**
@@ -3132,13 +3132,13 @@ format:
 
 <!-- -->
 
-1. Refereeing for a MITACS Grant application
+6. Refereeing for a MITACS Grant application
 
 
 
 <!-- -->
 
-1. Refereeing for a NSERC IDG application
+5. Refereeing for a NSERC IDG application
 
 
 **2017-2018**
@@ -3147,7 +3147,7 @@ format:
 
 <!-- -->
 
-1. Refereeing for a NSERC Discovery Grant application
+4. Refereeing for a NSERC Discovery Grant application
 
 
 **2016-2017**
@@ -3156,7 +3156,7 @@ format:
 
 <!-- -->
 
-1. Refereeing for two MITACS Accelerate Grant applications
+3. Refereeing for two MITACS Accelerate Grant applications
 
 
 **2015-2016**
@@ -3165,7 +3165,7 @@ format:
 
 <!-- -->
 
-1. Refereeing for a NSERC Discovery Grant application, 2015
+2. Refereeing for a NSERC Discovery Grant application, 2015
 
 
 **2011-2012**
@@ -3187,13 +3187,13 @@ format:
 
 <!-- -->
 
-1. Organizing an invited Session for the 7th Symposium of ICSA Canada Chapter, McGill University, August 2026
+4. Organizing an invited Session for the 7th Symposium of ICSA Canada Chapter, McGill University, August 2026
 
 
 
 <!-- -->
 
-1. Organizing an invited Session for 2025 SSC Annual Meeting, Saskatoon, SK, Canada, June 2025
+3. Organizing an invited Session for 2025 SSC Annual Meeting, Saskatoon, SK, Canada, June 2025
 
 
 **2021-2022**
@@ -3202,7 +3202,7 @@ format:
 
 <!-- -->
 
-1. Organizer of an invited session for ICSA Canada Symposium 2022, Banff, AB, Canada, July 2022
+2. Organizer of an invited session for ICSA Canada Symposium 2022, Banff, AB, Canada, July 2022
 
 
 **2015-2016**
@@ -3226,7 +3226,7 @@ format:
 
 <!-- -->
 
-1. Chair, Collaborative Biostatistics Program, University of Saskatchewan.
+11. Chair, Collaborative Biostatistics Program, University of Saskatchewan.
 
 
 
@@ -3237,13 +3237,13 @@ format:
 
 <!-- -->
 
-1. Chair, Collaborative Biostatistics Program, University of Saskatchewan.
+10. Chair, Collaborative Biostatistics Program, University of Saskatchewan.
 
 
 
 <!-- -->
 
-1. USASK NSERC Discovery Grant (DG), Internal Reviewer.
+9. USASK NSERC Discovery Grant (DG), Internal Reviewer.
 
 
 **2020-2021**
@@ -3252,7 +3252,7 @@ format:
 
 <!-- -->
 
-1. USASK NSERC Discovery Grant (DG), Internal Reviewer.
+8. USASK NSERC Discovery Grant (DG), Internal Reviewer.
 
 
 **2019-2020**
@@ -3261,7 +3261,7 @@ format:
 
 <!-- -->
 
-1. Chair, Collaborative Biostatistics Program, University of Saskatchewan.
+7. Chair, Collaborative Biostatistics Program, University of Saskatchewan.
 
 
 **2018-2019**
@@ -3270,7 +3270,7 @@ format:
 
 <!-- -->
 
-1. Member, Academic Programming Committee, University of Saskatchewan.
+6. Member, Academic Programming Committee, University of Saskatchewan.
 
 
 **2017-2018**
@@ -3279,7 +3279,7 @@ format:
 
 <!-- -->
 
-1. Member, Academic Programming Committee, University of Saskatchewan.
+5. Member, Academic Programming Committee, University of Saskatchewan.
 
 
 **2016-2017**
@@ -3288,13 +3288,13 @@ format:
 
 <!-- -->
 
-1. Member, Academic Programming Committee, University of Saskatchewan.
+4. Member, Academic Programming Committee, University of Saskatchewan.
 
 
 
 <!-- -->
 
-1. Member, University of Saskatchewan Bioinformatics Program Committee.
+3. Member, University of Saskatchewan Bioinformatics Program Committee.
 
 
 **2015-2016**
@@ -3303,7 +3303,7 @@ format:
 
 <!-- -->
 
-1. Member, University of Saskatchewan Bioinformatics Program Committee.
+2. Member, University of Saskatchewan Bioinformatics Program Committee.
 
 
 **2013-2014**
@@ -3325,19 +3325,19 @@ format:
 
 <!-- -->
 
-1. Member, Budgeting and Planning Committee, Dept of Math & Stat
+45. Member, Budgeting and Planning Committee, Dept of Math & Stat
 
 
 
 <!-- -->
 
-1. Co-Chair, Undergraduate Committee (Statistics), Dept of Math & Stat
+44. Co-Chair, Undergraduate Committee (Statistics), Dept of Math & Stat
 
 
 
 <!-- -->
 
-1. Member, Graduate Program Committee in Statistics, Dept of Math & Stat
+43. Member, Graduate Program Committee in Statistics, Dept of Math & Stat
 
 
 **2024-2025**
@@ -3346,13 +3346,13 @@ format:
 
 <!-- -->
 
-1. Member, Graduate Program Committee in Statistics, Dept of Math & Stat
+42. Member, Graduate Program Committee in Statistics, Dept of Math & Stat
 
 
 
 <!-- -->
 
-1. Search subcommittee for a faculty position in statistics
+41. Search subcommittee for a faculty position in statistics
 
 
 **2023-2024**
@@ -3361,13 +3361,13 @@ format:
 
 <!-- -->
 
-1. Member, Graduate Program Committee in Statistics, Dept of Math & Stat
+40. Member, Graduate Program Committee in Statistics, Dept of Math & Stat
 
 
 
 <!-- -->
 
-1. Member, Sub Search Committee, 4-Year Lecturer Position
+39. Member, Sub Search Committee, 4-Year Lecturer Position
 
 
 **2022-2023**
@@ -3376,25 +3376,25 @@ format:
 
 <!-- -->
 
-1. Statistics Advisor (credit transferring for the whole university)
+38. Statistics Advisor (credit transferring for the whole university)
 
 
 
 <!-- -->
 
-1. Member, Department Promotion (Associate) Committee (1-Case), Dept of Math & Stat
+37. Member, Department Promotion (Associate) Committee (1-Case), Dept of Math & Stat
 
 
 
 <!-- -->
 
-1. Member, Department Renewals and Tenure Committee (1-Case: Tenure), Dept of Math & Stat
+36. Member, Department Renewals and Tenure Committee (1-Case: Tenure), Dept of Math & Stat
 
 
 
 <!-- -->
 
-1. Member, Department Promotion (Full) Committee (1-Case), Dept of Math & Stat
+35. Member, Department Promotion (Full) Committee (1-Case), Dept of Math & Stat
 
 
 **2021-2022**
@@ -3403,25 +3403,25 @@ format:
 
 <!-- -->
 
-1. Statistics Advisor (credit transferring for the whole university)
+34. Statistics Advisor (credit transferring for the whole university)
 
 
 
 <!-- -->
 
-1. Member, Department Renewals and Tenure Committee (1-Case), Dept of Math & Stat
+33. Member, Department Renewals and Tenure Committee (1-Case), Dept of Math & Stat
 
 
 
 <!-- -->
 
-1. Member, Department Promotion (Full) Committee (1-Case), Dept of Math & Stat
+32. Member, Department Promotion (Full) Committee (1-Case), Dept of Math & Stat
 
 
 
 <!-- -->
 
-1. Search subcommittee for a 4-year term lecturer position (two rounds of searching, Jan 2022--June 2022)
+31. Search subcommittee for a 4-year term lecturer position (two rounds of searching, Jan 2022--June 2022)
 
 
 **2019-2020**
@@ -3430,31 +3430,31 @@ format:
 
 <!-- -->
 
-1. Member, Tenure Committee (1 case), Dept of Math & Stat
+30. Member, Tenure Committee (1 case), Dept of Math & Stat
 
 
 
 <!-- -->
 
-1. Member, Promotion Committee (1 case), Dept of Math & Stat
+29. Member, Promotion Committee (1 case), Dept of Math & Stat
 
 
 
 <!-- -->
 
-1. Member, Renewal of Probation Committee (1 case), Dept of Math & Stat
+28. Member, Renewal of Probation Committee (1 case), Dept of Math & Stat
 
 
 
 <!-- -->
 
-1. Member, Graduate Committee, Dept of Math & Stat
+27. Member, Graduate Committee, Dept of Math & Stat
 
 
 
 <!-- -->
 
-1. Organizer, Team discussion towards renovating undergraduate statistics program, Dept of Math & Stat
+26. Organizer, Team discussion towards renovating undergraduate statistics program, Dept of Math & Stat
 
 
 **2018-2019**
@@ -3463,19 +3463,19 @@ format:
 
 <!-- -->
 
-1. Committee Member, Data Science Boot Camp, University of Saskatchewan (June 10–21, 2019)
+25. Committee Member, Data Science Boot Camp, University of Saskatchewan (June 10–21, 2019)
 
 
 
 <!-- -->
 
-1. Member, Curriculum Renewal Committee, Dept of Math & Stat, Term 1
+24. Member, Curriculum Renewal Committee, Dept of Math & Stat, Term 1
 
 
 
 <!-- -->
 
-1. Member, Undergraduate Committee, Dept of Math & Stat, Term 1
+23. Member, Undergraduate Committee, Dept of Math & Stat, Term 1
 
 
 **2017-2018**
@@ -3484,13 +3484,13 @@ format:
 
 <!-- -->
 
-1. Member, Salary Review Committee, Dept of Math & Stat, University of Saskatchewan
+22. Member, Salary Review Committee, Dept of Math & Stat, University of Saskatchewan
 
 
 
 <!-- -->
 
-1. Member, Search Committee, Dept of Math & Stat, University of Saskatchewan
+21. Member, Search Committee, Dept of Math & Stat, University of Saskatchewan
 
 
 **2016-2017**
@@ -3499,37 +3499,37 @@ format:
 
 <!-- -->
 
-1. Member, Sub Search Committee for a joint position in ``data science/big data'', College of Arts and Science, University of Saskatchewan.
+20. Member, Sub Search Committee for a joint position in ``data science/big data'', College of Arts and Science, University of Saskatchewan.
 
 
 
 <!-- -->
 
-1. Member, Graduate Committee, Dept of Math & Stat
+19. Member, Graduate Committee, Dept of Math & Stat
 
 
 
 <!-- -->
 
-1. Member, Sub Search Committee, APA position, Dept of Math & Stat, University of Saskatchewan
+18. Member, Sub Search Committee, APA position, Dept of Math & Stat, University of Saskatchewan
 
 
 
 <!-- -->
 
-1. Member, Sub Search Committee, 4 lecturer positions, Dept of Math & Stat, University of Saskatchewan
+17. Member, Sub Search Committee, 4 lecturer positions, Dept of Math & Stat, University of Saskatchewan
 
 
 
 <!-- -->
 
-1. Organizer, Statistics and Probability Alumni Networking Day (Nov. 2016)
+16. Organizer, Statistics and Probability Alumni Networking Day (Nov. 2016)
 
 
 
 <!-- -->
 
-1. Organizer, Qualifying Exams for Trisha Lawrence (Nov. 2016)
+15. Organizer, Qualifying Exams for Trisha Lawrence (Nov. 2016)
 
 
 **2015-2016**
@@ -3538,25 +3538,25 @@ format:
 
 <!-- -->
 
-1. Member, Graduate Committee, Dept of Math & Stat
+14. Member, Graduate Committee, Dept of Math & Stat
 
 
 
 <!-- -->
 
-1. Organizer, Student Seminar Day, Dept of Math & Stat (May 2016)
+13. Organizer, Student Seminar Day, Dept of Math & Stat (May 2016)
 
 
 
 <!-- -->
 
-1. Team leader, submission of U of S courses for accreditation by the Statistical Society of Canada (May 2016)
+12. Team leader, submission of U of S courses for accreditation by the Statistical Society of Canada (May 2016)
 
 
 
 <!-- -->
 
-1. Organizer, Qualifying Exams for Trisha Lawrence (May 2016)
+11. Organizer, Qualifying Exams for Trisha Lawrence (May 2016)
 
 
 **2014-2015**
@@ -3565,19 +3565,19 @@ format:
 
 <!-- -->
 
-1. Member, Academic Program Committee, College of Arts and Science.
+10. Member, Academic Program Committee, College of Arts and Science.
 
 
 
 <!-- -->
 
-1. Member, Graduate Committee, Dept of Math & Stat
+9. Member, Graduate Committee, Dept of Math & Stat
 
 
 
 <!-- -->
 
-1. Organizer, Seminar Series, Dept of Math & Stat
+8. Organizer, Seminar Series, Dept of Math & Stat
 
 
 **2012-2013**
@@ -3586,19 +3586,19 @@ format:
 
 <!-- -->
 
-1. Member, Curriculum Renewal Committee, Dept of Math & Stat
+7. Member, Curriculum Renewal Committee, Dept of Math & Stat
 
 
 
 <!-- -->
 
-1. Member, Budget Planning Committee, Dept of Math & Stat
+6. Member, Budget Planning Committee, Dept of Math & Stat
 
 
 
 <!-- -->
 
-1. Member, Colloquium Committee, Dept of Math & Stat
+5. Member, Colloquium Committee, Dept of Math & Stat
 
 
 **2011-2012**
@@ -3607,19 +3607,19 @@ format:
 
 <!-- -->
 
-1. Member, Salary Review Committee, Dept of Math & Stat, University of Saskatchewan
+4. Member, Salary Review Committee, Dept of Math & Stat, University of Saskatchewan
 
 
 
 <!-- -->
 
-1. Organizer, Seminar Series, Dept of Math & Stat
+3. Organizer, Seminar Series, Dept of Math & Stat
 
 
 
 <!-- -->
 
-1. Member, Colloquium Committee, Dept of Math & Stat
+2. Member, Colloquium Committee, Dept of Math & Stat
 
 
 **2009-2010**
@@ -3643,13 +3643,13 @@ format:
 
 <!-- -->
 
-1. Member of NSERC Discovery Grant EG 1508 Committee
+9. Member of NSERC Discovery Grant EG 1508 Committee
 
 
 
 <!-- -->
 
-1. Local Organizing Committee, 2025 Annual Meeting of the Statistical Society of Canada held at the U of S
+8. Local Organizing Committee, 2025 Annual Meeting of the Statistical Society of Canada held at the U of S
 
 
 **2023-2024**
@@ -3658,7 +3658,7 @@ format:
 
 <!-- -->
 
-1. Member of NSERC Discovery Grant EG 1508 Committee
+7. Member of NSERC Discovery Grant EG 1508 Committee
 
 
 **2022-2023**
@@ -3667,13 +3667,13 @@ format:
 
 <!-- -->
 
-1. Member of NSERC Discovery Grant EG 1508 Committee
+6. Member of NSERC Discovery Grant EG 1508 Committee
 
 
 
 <!-- -->
 
-1. Co-editor for a special issue "Prediction Methods for Rare Diseases or Outcomes" in the journal *BMC Medical Research Methodology*
+5. Co-editor for a special issue "Prediction Methods for Rare Diseases or Outcomes" in the journal *BMC Medical Research Methodology*
 
 
 **2021-2022**
@@ -3682,7 +3682,7 @@ format:
 
 <!-- -->
 
-1. Member, CANSSI-SK Health Research Collaborating Center. Participate Substantially in organizing a semester-long seminar series
+4. Member, CANSSI-SK Health Research Collaborating Center. Participate Substantially in organizing a semester-long seminar series
 
 
 **2019-2020**
@@ -3691,7 +3691,7 @@ format:
 
 <!-- -->
 
-1. Program Committee Member for the 4th ICSA-Canada Symposium, Queens University (Aug. 2019)
+3. Program Committee Member for the 4th ICSA-Canada Symposium, Queens University (Aug. 2019)
 
 
 **2017-2018**
@@ -3700,7 +3700,7 @@ format:
 
 <!-- -->
 
-1. Co-chair of the scientific program, the 3rd ICSA Canada Chapter Symposium held in Vancouver (Aug. 2017)
+2. Co-chair of the scientific program, the 3rd ICSA Canada Chapter Symposium held in Vancouver (Aug. 2017)
 
 
 **2016-2017**
