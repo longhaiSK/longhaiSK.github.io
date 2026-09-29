@@ -37,6 +37,11 @@ This course covers the fundamental concepts in computational methods used the ar
 * Multiple Linear Regression (eg. STAT 344)
 
 
+## Office Hours
+
+Thursday 1:00-2:00 PM, in MCLN 219, or online via [Zoom](https://usask-ca.zoom.us/j/94222643016?pwd=EydaTzqBYyw0tQWKFQlDFYE9Iu84dn.1).
+
+
 ## Course Materials
 
 1. [HTML Book with Detailed R Demo](https://longhaisk.github.io/compstat/)
@@ -47,4 +52,4 @@ This course covers the fundamental concepts in computational methods used the ar
 
 ## Syllabi
 
-1. [2026 Fall Term](./syllabus2026.html)
+1. [2026 Fall Term](./syllabi/syllabus2026.html)
