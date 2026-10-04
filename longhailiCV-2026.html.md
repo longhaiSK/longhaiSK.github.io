@@ -3226,13 +3226,13 @@ format:
 
 <!-- -->
 
-11. Chair, Collaborative Biostatistics Program, University of Saskatchewan.
+12. Chair, Collaborative Biostatistics Program, University of Saskatchewan.
 
 
 
 <!-- -->
 
-10. USASK NSERC Discovery Grant (DG), Internal Reviewer.
+11. USASK NSERC Discovery Grant (DG), Internal Reviewer.
 
 
 **2025-2026**
@@ -3241,13 +3241,13 @@ format:
 
 <!-- -->
 
-9. Chair, Collaborative Biostatistics Program, University of Saskatchewan.
+10. Chair, Collaborative Biostatistics Program, University of Saskatchewan.
 
 
 
 <!-- -->
 
-8. USASK NSERC Discovery Grant (DG), Internal Reviewer.
+9. USASK NSERC Discovery Grant (DG), Internal Reviewer.
 
 
 **2020-2021**
@@ -3256,7 +3256,7 @@ format:
 
 <!-- -->
 
-7. USASK NSERC Discovery Grant (DG), Internal Reviewer.
+8. USASK NSERC Discovery Grant (DG), Internal Reviewer.
 
 
 **2019-2020**
@@ -3265,7 +3265,7 @@ format:
 
 <!-- -->
 
-6. Chair, Collaborative Biostatistics Program, University of Saskatchewan.
+7. Chair, Collaborative Biostatistics Program, University of Saskatchewan.
 
 
 **2018-2019**
@@ -3274,7 +3274,7 @@ format:
 
 <!-- -->
 
-5. Member, Academic Programming Committee, University of Saskatchewan.
+6. Member, Academic Programming Committee, University of Saskatchewan.
 
 
 **2017-2018**
@@ -3283,7 +3283,7 @@ format:
 
 <!-- -->
 
-4. Member, Academic Programming Committee, University of Saskatchewan.
+5. Member, Academic Programming Committee, University of Saskatchewan.
 
 
 **2016-2017**
@@ -3292,13 +3292,13 @@ format:
 
 <!-- -->
 
-3. Member, Academic Programming Committee, University of Saskatchewan.
+4. Member, Academic Programming Committee, University of Saskatchewan.
 
 
 
 <!-- -->
 
-2. Member, University of Saskatchewan Bioinformatics Program Committee.
+3. Member, University of Saskatchewan Bioinformatics Program Committee.
 
 
 **2015-2016**
@@ -3307,7 +3307,7 @@ format:
 
 <!-- -->
 
-1. Member, University of Saskatchewan Bioinformatics Program Committee.
+2. Member, University of Saskatchewan Bioinformatics Program Committee.
 
 
 **2013-2014**
@@ -3316,7 +3316,7 @@ format:
 
 <!-- -->
 
-0. Dean's Designate for the Ph.D. Defense of Rui Zhang, Department of Veterinary Microbiology, June 12, 2014.
+1. Dean's Designate for the Ph.D. Defense of Rui Zhang, Department of Veterinary Microbiology, June 12, 2014.
 
 
 ### 19.2 College and Departmental Committees
