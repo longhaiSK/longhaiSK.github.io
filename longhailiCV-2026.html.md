@@ -1,6 +1,6 @@
 ---
 title: "CURRICULUM VITAE of LONGHAI LI"
-subtitle: "Sep 28, 2026"
+subtitle: "Oct 04, 2026"
 engine: knitr
 format:
   profweb-html: default
@@ -3230,6 +3230,10 @@ format:
 
 
 
+<!-- -->
+
+10. USASK NSERC Discovery Grant (DG), Internal Reviewer.
+
 
 **2025-2026**
 
@@ -3237,16 +3241,7 @@ format:
 
 <!-- -->
 
-10. Chair, Collaborative Biostatistics Program, University of Saskatchewan.
-
-
-
-<!-- -->
-
-9. USASK NSERC Discovery Grant (DG), Internal Reviewer.
-
-
-**2020-2021**
+9. Chair, Collaborative Biostatistics Program, University of Saskatchewan.
 
 
 
@@ -3255,13 +3250,22 @@ format:
 8. USASK NSERC Discovery Grant (DG), Internal Reviewer.
 
 
+**2020-2021**
+
+
+
+<!-- -->
+
+7. USASK NSERC Discovery Grant (DG), Internal Reviewer.
+
+
 **2019-2020**
 
 
 
 <!-- -->
 
-7. Chair, Collaborative Biostatistics Program, University of Saskatchewan.
+6. Chair, Collaborative Biostatistics Program, University of Saskatchewan.
 
 
 **2018-2019**
@@ -3270,7 +3274,7 @@ format:
 
 <!-- -->
 
-6. Member, Academic Programming Committee, University of Saskatchewan.
+5. Member, Academic Programming Committee, University of Saskatchewan.
 
 
 **2017-2018**
@@ -3279,7 +3283,7 @@ format:
 
 <!-- -->
 
-5. Member, Academic Programming Committee, University of Saskatchewan.
+4. Member, Academic Programming Committee, University of Saskatchewan.
 
 
 **2016-2017**
@@ -3288,16 +3292,7 @@ format:
 
 <!-- -->
 
-4. Member, Academic Programming Committee, University of Saskatchewan.
-
-
-
-<!-- -->
-
-3. Member, University of Saskatchewan Bioinformatics Program Committee.
-
-
-**2015-2016**
+3. Member, Academic Programming Committee, University of Saskatchewan.
 
 
 
@@ -3306,13 +3301,22 @@ format:
 2. Member, University of Saskatchewan Bioinformatics Program Committee.
 
 
+**2015-2016**
+
+
+
+<!-- -->
+
+1. Member, University of Saskatchewan Bioinformatics Program Committee.
+
+
 **2013-2014**
 
 
 
 <!-- -->
 
-1. Dean's Designate for the Ph.D. Defense of Rui Zhang, Department of Veterinary Microbiology, June 12, 2014.
+0. Dean's Designate for the Ph.D. Defense of Rui Zhang, Department of Veterinary Microbiology, June 12, 2014.
 
 
 ### 19.2 College and Departmental Committees
