@@ -46,14 +46,17 @@ format:
 
 ## 1. PERSONAL
 
-
+**Address** \
 [Department of Mathematics and Statistics](http://artsandscience.usask.ca/math/){target="_blank"} \
 [University of Saskatchewan](http://www.usask.ca/){target="_blank"}\
 [106 Wiggins Road, Saskatoon, SK, CANADA](https://maps.google.com/?q=106+Wiggins+Road+MCLN+219+Saskatoon+SK+S7N5E6+Canada){target="_blank"} \
+[longhai.li@usask.ca](mailto:longhai.li@usask.ca)
 
-[longhai.li@usask.ca](mailto:longhai.li@usask.ca) \
+**Websites** \
 [https://longhaisk.github.io](https://longhaisk.github.io) \
-[https://artsandscience.usask.ca/profile/LLi](https://artsandscience.usask.ca/profile/LLi) \
+[https://artsandscience.usask.ca/profile/LLi](https://artsandscience.usask.ca/profile/LLi)
+
+**Research Profiles** \
 [Google Scholar](https://scholar.google.ca/citations?user=S3mYTmwAAAAJ&hl=en){target="_blank"} \
 [Web of Science](https://www.webofscience.com/wos/author/record/ABF-2953-2020){target="_blank"} \
 [ORCID](https://orcid.org/0000-0002-3074-8584){target="_blank"}

@@ -460,13 +460,17 @@
 }
 = 1. PERSONAL
 <personal>
+#strong[Address] \
 #link("http://artsandscience.usask.ca/math/")[Department of Mathematics and Statistics] \
 #link("http://www.usask.ca/")[University of Saskatchewan] \
 #link("https://maps.google.com/?q=106+Wiggins+Road+MCLN+219+Saskatoon+SK+S7N5E6+Canada")[106 Wiggins Road, Saskatoon, SK, CANADA] \
+#link("mailto:longhai.li@usask.ca")[longhai.li\@usask.ca]
 
-#link("mailto:longhai.li@usask.ca")[longhai.li\@usask.ca] \
+#strong[Websites] \
 #link("https://longhaisk.github.io") \
-#link("https://artsandscience.usask.ca/profile/LLi") \
+#link("https://artsandscience.usask.ca/profile/LLi")
+
+#strong[Research Profiles] \
 #link("https://scholar.google.ca/citations?user=S3mYTmwAAAAJ&hl=en")[Google Scholar] \
 #link("https://www.webofscience.com/wos/author/record/ABF-2953-2020")[Web of Science] \
 #link("https://orcid.org/0000-0002-3074-8584")[ORCID]
