@@ -420,7 +420,7 @@
 
 #show: doc => article(
   title: [CURRICULUM VITAE of LONGHAI LI],
-  subtitle: [Sep 28, 2026],
+  subtitle: [Oct 04, 2026],
   fontsize: 11pt,
   toc_title: [Table of contents],
   toc_depth: 3,
@@ -2471,8 +2471,13 @@
 #strong[2026-2027]
 
 #block[
-#set enum(numbering: "1.", start: 11)
+#set enum(numbering: "1.", start: 12)
 + Chair, Collaborative Biostatistics Program, University of Saskatchewan.
+]
+
+#block[
+#set enum(numbering: "1.", start: 11)
++ USASK NSERC Discovery Grant (DG), Internal Reviewer.
 ]
 
 #strong[2025-2026]

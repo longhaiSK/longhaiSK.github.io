@@ -1,6 +1,6 @@
 ---
 title: "CURRICULUM VITAE of LONGHAI LI"
-subtitle: "Sep 28, 2026"
+subtitle: "Oct 04, 2026"
 engine: knitr
 format:
   profweb-html: default
@@ -3226,9 +3226,13 @@ format:
 
 <!-- -->
 
-11. Chair, Collaborative Biostatistics Program, University of Saskatchewan.
+12. Chair, Collaborative Biostatistics Program, University of Saskatchewan.
 
 
+
+<!-- -->
+
+11. USASK NSERC Discovery Grant (DG), Internal Reviewer.
 
 
 **2025-2026**
