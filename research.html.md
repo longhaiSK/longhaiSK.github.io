@@ -48,22 +48,30 @@ Many granting agencies including NSERC, CFI, CANSSI, CFREF, and MITACS have supp
 
 ## Past and Current Team Members 
 
-### <i class="bi bi-stack"></i>      [Post-doctoral Fellows](./longhailiCV-2026.html#10-4-supervision-of-post-doctoral-fellows-and-research-associates)
+::: {.btn-grid}
 
-### <i class="bi bi-mortarboard-fill"></i>      [Graduate Students](./longhailiCV-2026.html#10-2-graduate-student-supervision)
+[![](images/icons/stack.svg)<span>Post-doctoral Fellows</span>](./longhailiCV-2026.html#10-4-supervision-of-post-doctoral-fellows-and-research-associates)
 
-### <i class="bi bi-book-half"></i>      [Undergraduate Students](./longhailiCV-2026.html#10-1-undergraduate-student-supervision)
+[![](images/icons/mortarboard-fill.svg)<span>Graduate Students</span>](./longhailiCV-2026.html#10-2-graduate-student-supervision)
+
+[![](images/icons/book-half.svg)<span>Undergraduate Students</span>](./longhailiCV-2026.html#10-1-undergraduate-student-supervision)
+
+:::
 
 ## Publications
 
-### <i class="bi bi-journal-text"></i>      [Papers in Refereed Journals](./longhailiCV-2026.html#12-papers-in-refereed-journals)
+::: {.btn-grid}
 
-### <i class="bi bi-code-square"></i>      [Software Released Publicly](./longhailiCV-2026.html#15-1-software-released-publicly)
+[![](images/icons/journal-text.svg)<span>Papers in Refereed Journals</span>](./longhailiCV-2026.html#12-papers-in-refereed-journals)
 
-### <i class="bi bi-globe"></i>      [Apps and Websites](./longhailiCV-2026.html#15-3-online-apps)
+[![](images/icons/code-square.svg)<span>Software Released Publicly</span>](./longhailiCV-2026.html#15-1-software-released-publicly)
 
-### <i class="bi bi-file-earmark-richtext"></i>      [Refereed Conference Publications](./longhailiCV-2026.html#13-refereed-conference-publications)
+[![](images/icons/globe.svg)<span>Apps and Websites</span>](./longhailiCV-2026.html#15-3-online-apps)
 
-### <i class="bi bi-easel"></i>      [Presentations](./longhailiCV-2026.html#14-presentations)
+[![](images/icons/file-earmark-richtext.svg)<span>Refereed Conference Publications</span>](./longhailiCV-2026.html#13-refereed-conference-publications)
 
-### <i class="bi bi-file-earmark-text"></i>      [Preprints](./longhailiCV-2026.html#15-2-technical-reports)
+[![](images/icons/easel.svg)<span>Presentations</span>](./longhailiCV-2026.html#14-presentations)
+
+[![](images/icons/file-earmark-text.svg)<span>Preprints</span>](./longhailiCV-2026.html#15-2-technical-reports)
+
+:::
