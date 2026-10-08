@@ -30,7 +30,7 @@ Theory and applications of sampling from finite populations. Includes: simple ra
 
 2. [HTML Slides](https://longhaisk.github.io/sampling-slides)
 
-3. [Shinylive App](https://longhaisk.github.io/sampling/shinyliveapps_sampling.html)
+3. [Shinylive Apps](https://longhaisk.github.io/sampling/shinylives_sampling/)
 
 3. [Googlesheets Calculator for Sampling Survey](https://docs.google.com/spreadsheets/d/18EbvJqHDn1uNI4pyXmkF0nV1-hZNCmmEpUk8DmwFblg/edit?usp=sharing)
 
