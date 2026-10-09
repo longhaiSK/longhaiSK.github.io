@@ -68,9 +68,9 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
 
 [![](images/icons/stat345.svg)<span>STAT 345/834: Design and Analysis of Experiments</span>](teaching/stat345/)
 
-[![](images/icons/stat348.svg)<span>STAT 348: Sampling Techniques</span>](teaching/stat348/){.highlight}
+[![](images/icons/stat348.svg)<span>STAT 348: Sampling Techniques</span>](https://longhaisk.github.io/sampling/){.highlight}
 
-[![](images/icons/stat812.svg)<span>STAT 812/420: Computational Statistics</span>](teaching/stat812/){.highlight}
+[![](images/icons/stat812.svg)<span>STAT 812/420: Computational Statistics</span>](https://longhaisk.github.io/compstat/){.highlight}
 
 [![](images/icons/stat845.svg)<span>STAT 845: Statistical Methods for Research</span>](teaching/stat845/)
 
@@ -87,23 +87,23 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
 ::: {.cell-output-display}
 
 ```{=html}
-<div id="dqwosffihs" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#dqwosffihs table {
+<div id="bqjrgcezrf" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#bqjrgcezrf table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#dqwosffihs thead, #dqwosffihs tbody, #dqwosffihs tfoot, #dqwosffihs tr, #dqwosffihs td, #dqwosffihs th {
+#bqjrgcezrf thead, #bqjrgcezrf tbody, #bqjrgcezrf tfoot, #bqjrgcezrf tr, #bqjrgcezrf td, #bqjrgcezrf th {
   border-style: none;
 }
 
-#dqwosffihs p {
+#bqjrgcezrf p {
   margin: 0;
   padding: 0;
 }
 
-#dqwosffihs .gt_table {
+#bqjrgcezrf .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -129,12 +129,12 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   border-left-color: #D3D3D3;
 }
 
-#dqwosffihs .gt_caption {
+#bqjrgcezrf .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#dqwosffihs .gt_title {
+#bqjrgcezrf .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -146,7 +146,7 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   border-bottom-width: 0;
 }
 
-#dqwosffihs .gt_subtitle {
+#bqjrgcezrf .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -158,7 +158,7 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   border-top-width: 0;
 }
 
-#dqwosffihs .gt_heading {
+#bqjrgcezrf .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -170,13 +170,13 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   border-right-color: #D3D3D3;
 }
 
-#dqwosffihs .gt_bottom_border {
+#bqjrgcezrf .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#dqwosffihs .gt_col_headings {
+#bqjrgcezrf .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -191,7 +191,7 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   border-right-color: #D3D3D3;
 }
 
-#dqwosffihs .gt_col_heading {
+#bqjrgcezrf .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -211,7 +211,7 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   overflow-x: hidden;
 }
 
-#dqwosffihs .gt_column_spanner_outer {
+#bqjrgcezrf .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -223,15 +223,15 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   padding-right: 4px;
 }
 
-#dqwosffihs .gt_column_spanner_outer:first-child {
+#bqjrgcezrf .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#dqwosffihs .gt_column_spanner_outer:last-child {
+#bqjrgcezrf .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#dqwosffihs .gt_column_spanner {
+#bqjrgcezrf .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -243,11 +243,11 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   width: 100%;
 }
 
-#dqwosffihs .gt_spanner_row {
+#bqjrgcezrf .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#dqwosffihs .gt_group_heading {
+#bqjrgcezrf .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -273,7 +273,7 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   text-align: left;
 }
 
-#dqwosffihs .gt_empty_group_heading {
+#bqjrgcezrf .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -288,15 +288,15 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   vertical-align: middle;
 }
 
-#dqwosffihs .gt_from_md > :first-child {
+#bqjrgcezrf .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#dqwosffihs .gt_from_md > :last-child {
+#bqjrgcezrf .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#dqwosffihs .gt_row {
+#bqjrgcezrf .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -315,7 +315,7 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   overflow-x: hidden;
 }
 
-#dqwosffihs .gt_stub {
+#bqjrgcezrf .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -328,7 +328,7 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   padding-right: 5px;
 }
 
-#dqwosffihs .gt_stub_row_group {
+#bqjrgcezrf .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -342,15 +342,15 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   vertical-align: top;
 }
 
-#dqwosffihs .gt_row_group_first td {
+#bqjrgcezrf .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#dqwosffihs .gt_row_group_first th {
+#bqjrgcezrf .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#dqwosffihs .gt_summary_row {
+#bqjrgcezrf .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -360,16 +360,16 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   padding-right: 5px;
 }
 
-#dqwosffihs .gt_first_summary_row {
+#bqjrgcezrf .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#dqwosffihs .gt_first_summary_row.thick {
+#bqjrgcezrf .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#dqwosffihs .gt_last_summary_row {
+#bqjrgcezrf .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -379,7 +379,7 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   border-bottom-color: #D3D3D3;
 }
 
-#dqwosffihs .gt_grand_summary_row {
+#bqjrgcezrf .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -389,7 +389,7 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   padding-right: 5px;
 }
 
-#dqwosffihs .gt_first_grand_summary_row {
+#bqjrgcezrf .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -399,7 +399,7 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   border-top-color: #D3D3D3;
 }
 
-#dqwosffihs .gt_last_grand_summary_row_top {
+#bqjrgcezrf .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -409,11 +409,11 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   border-bottom-color: #D3D3D3;
 }
 
-#dqwosffihs .gt_striped {
+#bqjrgcezrf .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#dqwosffihs .gt_table_body {
+#bqjrgcezrf .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -422,7 +422,7 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   border-bottom-color: #D3D3D3;
 }
 
-#dqwosffihs .gt_footnotes {
+#bqjrgcezrf .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -436,7 +436,7 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   border-right-color: #D3D3D3;
 }
 
-#dqwosffihs .gt_footnote {
+#bqjrgcezrf .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -445,7 +445,7 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   padding-right: 5px;
 }
 
-#dqwosffihs .gt_sourcenotes {
+#bqjrgcezrf .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -459,7 +459,7 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   border-right-color: #D3D3D3;
 }
 
-#dqwosffihs .gt_sourcenote {
+#bqjrgcezrf .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -467,72 +467,72 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
   padding-right: 5px;
 }
 
-#dqwosffihs .gt_left {
+#bqjrgcezrf .gt_left {
   text-align: left;
 }
 
-#dqwosffihs .gt_center {
+#bqjrgcezrf .gt_center {
   text-align: center;
 }
 
-#dqwosffihs .gt_right {
+#bqjrgcezrf .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#dqwosffihs .gt_font_normal {
+#bqjrgcezrf .gt_font_normal {
   font-weight: normal;
 }
 
-#dqwosffihs .gt_font_bold {
+#bqjrgcezrf .gt_font_bold {
   font-weight: bold;
 }
 
-#dqwosffihs .gt_font_italic {
+#bqjrgcezrf .gt_font_italic {
   font-style: italic;
 }
 
-#dqwosffihs .gt_super {
+#bqjrgcezrf .gt_super {
   font-size: 65%;
 }
 
-#dqwosffihs .gt_footnote_marks {
+#bqjrgcezrf .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#dqwosffihs .gt_asterisk {
+#bqjrgcezrf .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#dqwosffihs .gt_indent_1 {
+#bqjrgcezrf .gt_indent_1 {
   text-indent: 5px;
 }
 
-#dqwosffihs .gt_indent_2 {
+#bqjrgcezrf .gt_indent_2 {
   text-indent: 10px;
 }
 
-#dqwosffihs .gt_indent_3 {
+#bqjrgcezrf .gt_indent_3 {
   text-indent: 15px;
 }
 
-#dqwosffihs .gt_indent_4 {
+#bqjrgcezrf .gt_indent_4 {
   text-indent: 20px;
 }
 
-#dqwosffihs .gt_indent_5 {
+#bqjrgcezrf .gt_indent_5 {
   text-indent: 25px;
 }
 
-#dqwosffihs .katex-display {
+#bqjrgcezrf .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#dqwosffihs div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#bqjrgcezrf div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -550,12 +550,12 @@ Prof. Li’s teaching integrates cutting-edge computational data science tools w
 <td headers="Stat_Theory_Algorithms" class="gt_row gt_left"><span data-qmd-base64="W1NUQVQgMjQyOiBTdGF0aXN0aWNhbCBUaGVvcnkgYW5kIE1ldGhvZG9sb2d5XShodHRwczovL2NhdGFsb2d1ZS51c2Fzay5jYS9TVEFULTI0Mik="><span class='gt_from_md'><a href="https://catalogue.usask.ca/STAT-242">STAT 242: Statistical Theory and Methodology</a></span></span></td></tr>
     <tr><td headers="Applied_Stat" class="gt_row gt_left"><span data-qmd-base64="W1NUQVQgMzQ1OiBEZXNpZ24gYW5kIEFuYWx5c2lzIG9mIEV4cGVyaW1lbnRzXSh0ZWFjaGluZy9zdGF0MzQ1Lyk="><span class='gt_from_md'><a href="teaching/stat345/">STAT 345: Design and Analysis of Experiments</a></span></span></td>
 <td headers="Stat_Theory_Algorithms" class="gt_row gt_left"><span data-qmd-base64="W1NUQVQgMzQyOiBQcm9iYWJpbGl0eSBhbmQgTWF0aGVtYXRpY2FsIFN0YXRpc3RpY3NdKHRlYWNoaW5nL3N0YXQzNDIvKQ=="><span class='gt_from_md'><a href="teaching/stat342/">STAT 342: Probability and Mathematical Statistics</a></span></span></td></tr>
-    <tr><td headers="Applied_Stat" class="gt_row gt_left"><span data-qmd-base64="W1NUQVQgMzQ4OiBTYW1wbGluZyBUZWNobmlxdWVzXSh0ZWFjaGluZy9zdGF0MzQ4Lyk="><span class='gt_from_md'><a href="teaching/stat348/">STAT 348: Sampling Techniques</a></span></span></td>
+    <tr><td headers="Applied_Stat" class="gt_row gt_left"><span data-qmd-base64="W1NUQVQgMzQ4OiBTYW1wbGluZyBUZWNobmlxdWVzXShodHRwczovL2xvbmdoYWlzay5naXRodWIuaW8vc2FtcGxpbmcvKQ=="><span class='gt_from_md'><a href="https://longhaisk.github.io/sampling/">STAT 348: Sampling Techniques</a></span></span></td>
 <td headers="Stat_Theory_Algorithms" class="gt_row gt_left"><span data-qmd-base64="W1NUQVQgNDQyLzg1MDogU3RhdGlzdGljYWwgSW5mZXJlbmNlXSh0ZWFjaGluZy9zdGF0ODUwLyk="><span class='gt_from_md'><a href="teaching/stat850/">STAT 442/850: Statistical Inference</a></span></span></td></tr>
     <tr><td headers="Applied_Stat" class="gt_row gt_left"><span data-qmd-base64="W1NUQVQgODM0OiBBZHZhbmNlZCBFeHBlcmltZW50YWwgRGVzaWduXSh0ZWFjaGluZy9zdGF0MzQ1Lyk="><span class='gt_from_md'><a href="teaching/stat345/">STAT 834: Advanced Experimental Design</a></span></span></td>
 <td headers="Stat_Theory_Algorithms" class="gt_row gt_left"><span data-qmd-base64="W1NUQVQgNDQzLzg1MTogTGluZWFyIFN0YXRpc3RpY2FsIE1vZGVsc10odGVhY2hpbmcvc3RhdDg1MS8p"><span class='gt_from_md'><a href="teaching/stat851/">STAT 443/851: Linear Statistical Models</a></span></span></td></tr>
     <tr><td headers="Applied_Stat" class="gt_row gt_left"><span data-qmd-base64="W1NUQVQgODQ1OiBTdGF0aXN0aWNhbCBNZXRob2RzIGZvciBSZXNlYXJjaF0odGVhY2hpbmcvc3RhdDg0NS8p"><span class='gt_from_md'><a href="teaching/stat845/">STAT 845: Statistical Methods for Research</a></span></span></td>
-<td headers="Stat_Theory_Algorithms" class="gt_row gt_left"><span data-qmd-base64="W1NUQVQgNDIwLzgxMjogQ29tcHV0YXRpb25hbCBTdGF0aXN0aWNzXSh0ZWFjaGluZy9zdGF0ODEyLyk="><span class='gt_from_md'><a href="teaching/stat812/">STAT 420/812: Computational Statistics</a></span></span></td></tr>
+<td headers="Stat_Theory_Algorithms" class="gt_row gt_left"><span data-qmd-base64="W1NUQVQgNDIwLzgxMjogQ29tcHV0YXRpb25hbCBTdGF0aXN0aWNzXShodHRwczovL2xvbmdoYWlzay5naXRodWIuaW8vY29tcHN0YXQvKQ=="><span class='gt_from_md'><a href="https://longhaisk.github.io/compstat/">STAT 420/812: Computational Statistics</a></span></span></td></tr>
     <tr><td headers="Applied_Stat" class="gt_row gt_left"><span data-qmd-base64="W1NUQVQgODQ4OiBNdWx0aXZhcmlhdGUgRGF0YSBBbmFseXNpc10oaHR0cHM6Ly9jYXRhbG9ndWUudXNhc2suY2EvU1RBVC04NDgp"><span class='gt_from_md'><a href="https://catalogue.usask.ca/STAT-848">STAT 848: Multivariate Data Analysis</a></span></span></td>
 <td headers="Stat_Theory_Algorithms" class="gt_row gt_left"><span data-qmd-base64="W1NUQVQgODQxOiBQcm9iYWJpbGl0eSBUaGVvcnldKGh0dHBzOi8vY2F0YWxvZ3VlLnVzYXNrLmNhLzIwMjAwMy9TVEFULTg0MSk="><span class='gt_from_md'><a href="https://catalogue.usask.ca/202003/STAT-841">STAT 841: Probability Theory</a></span></span></td></tr>
   </tbody>
