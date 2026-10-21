@@ -1,6 +1,6 @@
 ---
 title: "CURRICULUM VITAE of LONGHAI LI"
-subtitle: "Oct 05, 2026"
+subtitle: "Oct 21, 2026"
 engine: knitr
 format:
   profweb-html: default
@@ -2705,7 +2705,13 @@ format:
 
 <!-- -->
 
-45. Reviewing for *Biometrical*, Sept, 2026
+46. Refereeing for *Biometrical Journal*, Oct 2026
+
+
+
+<!-- -->
+
+45. Reviewing for *Biometrical Journal*, Sept, 2026
 
 
 
