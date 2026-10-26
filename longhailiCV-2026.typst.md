@@ -1,6 +1,6 @@
 ---
 title: "CURRICULUM VITAE of LONGHAI LI"
-subtitle: "Oct 21, 2026"
+subtitle: "Oct 26, 2026"
 engine: knitr
 format:
   profweb-html: default
@@ -2706,44 +2706,50 @@ format:
 
 <!-- -->
 
-46. Refereeing for *Communications in Statistics - Theory and Methods*, Oct 2026
+49. Refereeing for *Communications in Statistics - Theory and Methods*, Oct 2026
 
 
 
 <!-- -->
 
-45. Refereeing for *Biometrical Journal*, Oct 2026
+48. Refereeing for *Biometrical Journal*, Oct 2026
 
 
 
 <!-- -->
 
-44. Refereeing for *Bioinformatics*, Oct 2026
+47. Refereeing for *Journal of the Royal Statistical Society: Series C*, Oct 2026
+
+
+
+<!-- -->
+
+46. Refereeing for *Bioinformatics*, Oct 2026
 
 
 
 
 <!-- -->
 
-43. Reviewing for *Biometrical Journal*, Sept, 2026
+45. Reviewing for *Biometrical Journal*, Sept, 2026
 
 
 
 <!-- -->
 
-42. Refereeing for *Biometrical Journal*, August 2026
+44. Refereeing for *Biometrical Journal*, August 2026
 
 
 
 <!-- -->
 
-41. Refereeing for *Journal of Computational and Graphical Statistics*, July 2026
+43. Refereeing for *Journal of Computational and Graphical Statistics*, July 2026
 
 
 
 <!-- -->
 
-40. Refereeing for *Bioinformatics*, July, 2026
+42. Refereeing for *Bioinformatics*, July, 2026
 
 
 **2025-2026**
@@ -2751,55 +2757,55 @@ format:
 
 <!-- -->
 
-39. Refereeing for *Journal of Statistical Computation and Simulation*, June, 2026
+41. Refereeing for *Journal of Statistical Computation and Simulation*, June, 2026
 
 
 
 <!-- -->
 
-38. Refereeing for *Journal of Statistical Computation and Simulation*, April, 2026
+40. Refereeing for *Journal of Statistical Computation and Simulation*, April, 2026
 
 
 
 <!-- -->
 
-37. Refereeing for *Journal of the Royal Statistical Society: Series C*, April 2026
+39. Refereeing for *Journal of the Royal Statistical Society: Series C*, April 2026
 
 
 
 <!-- -->
 
-36. Refereeing for *Bioinformatics*, March 2026
+38. Refereeing for *Bioinformatics*, March 2026
 
 
 
 <!-- -->
 
-35. Refereeing for *Journal of Computational and Graphical Statistics*, March 2026
+37. Refereeing for *Journal of Computational and Graphical Statistics*, March 2026
 
 
 
 <!-- -->
 
-34. Refereeing for *Journal of Statistical Computation and Simulation*, Dec. 2025
+36. Refereeing for *Journal of Statistical Computation and Simulation*, Dec. 2025
 
 
 
 <!-- -->
 
-33. Refereeing for *Journal of Computational and Graphical Statistics*, Sept. 2025
+35. Refereeing for *Journal of Computational and Graphical Statistics*, Sept. 2025
 
 
 
 <!-- -->
 
-32. Refereeing for *Journal of the Royal Statistical Society: Series C*, August 2025
+34. Refereeing for *Journal of the Royal Statistical Society: Series C*, August 2025
 
 
 
 <!-- -->
 
-31. Refereeing for *Journal of Applied Statistics*, August 2025
+33. Refereeing for *Journal of Applied Statistics*, August 2025
 
 
 **2023-2024**
@@ -2808,13 +2814,13 @@ format:
 
 <!-- -->
 
-30. Refereeing for *Journal of Computational and Graphical Statistics*, Sept. 2024
+32. Refereeing for *Journal of Computational and Graphical Statistics*, Sept. 2024
 
 
 
 <!-- -->
 
-29. Refereeing for *Journal of Applied Statistics*, Jan. 2024
+31. Refereeing for *Journal of Applied Statistics*, Jan. 2024
 
 
 **2022-2023**
@@ -2823,31 +2829,31 @@ format:
 
 <!-- -->
 
-28. Refereeing for *Statistical Methods in Medical Research*, April 2023
+30. Refereeing for *Statistical Methods in Medical Research*, April 2023
 
 
 
 <!-- -->
 
-27. Refereeing for *Statistical Methods in Medical Research*, Jan. 2023
+29. Refereeing for *Statistical Methods in Medical Research*, Jan. 2023
 
 
 
 <!-- -->
 
-26. Refereeing for *Journal of Computational and Graphical Statistics*, Jan. 2023
+28. Refereeing for *Journal of Computational and Graphical Statistics*, Jan. 2023
 
 
 
 <!-- -->
 
-25. Refereeing for *Statistical Methods in Medical Research*, Aug. 2022
+27. Refereeing for *Statistical Methods in Medical Research*, Aug. 2022
 
 
 
 <!-- -->
 
-24. Refereeing for *Canadian Journal of Statistics*, July 2022
+26. Refereeing for *Canadian Journal of Statistics*, July 2022
 
 
 **2021-2022**
@@ -2856,37 +2862,37 @@ format:
 
 <!-- -->
 
-23. Refereeing for *Statistical Methods in Medical Research*
+25. Refereeing for *Statistical Methods in Medical Research*
 
 
 
 <!-- -->
 
-22. Refereeing for *Journal of Statistical Computation and Simulation*
+24. Refereeing for *Journal of Statistical Computation and Simulation*
 
 
 
 <!-- -->
 
-21. Refereeing for *BMC Cancer*
+23. Refereeing for *BMC Cancer*
 
 
 
 <!-- -->
 
-20. Refereeing for *Journal of Computational and Graphical Statistics*
+22. Refereeing for *Journal of Computational and Graphical Statistics*
 
 
 
 <!-- -->
 
-19. Refereeing for *Canadian Journal of Statistics*
+21. Refereeing for *Canadian Journal of Statistics*
 
 
 
 <!-- -->
 
-18. Refereeing for *IEEE Transactions on Neural Networks and Learning Systems*
+20. Refereeing for *IEEE Transactions on Neural Networks and Learning Systems*
 
 
 **2020-2021**
@@ -2895,37 +2901,37 @@ format:
 
 <!-- -->
 
-17. Refereeing for *Statistics in Medicine*
+19. Refereeing for *Statistics in Medicine*
 
 
 
 <!-- -->
 
-16. Refereeing for *Computational Statistics and Data Analysis*
+18. Refereeing for *Computational Statistics and Data Analysis*
 
 
 
 <!-- -->
 
-15. Refereeing for *Frontiers in Genetics*
+17. Refereeing for *Frontiers in Genetics*
 
 
 
 <!-- -->
 
-14. Refereeing for *Statistical Methods for Medical Research*
+16. Refereeing for *Statistical Methods for Medical Research*
 
 
 
 <!-- -->
 
-13. Refereeing for *Journal of Statistical Computation and Simulation*
+15. Refereeing for *Journal of Statistical Computation and Simulation*
 
 
 
 <!-- -->
 
-12. Refereeing for *BMC Cancer*
+14. Refereeing for *BMC Cancer*
 
 
 **2019-2020**
@@ -2934,19 +2940,19 @@ format:
 
 <!-- -->
 
-11. Refereeing for *Computational Statistics and Data Analysis*
+13. Refereeing for *Computational Statistics and Data Analysis*
 
 
 
 <!-- -->
 
-10. Refereeing for *Frontiers in Genetics*
+12. Refereeing for *Frontiers in Genetics*
 
 
 
 <!-- -->
 
-9. Refereeing for *Communications in Statistics - Simulation and Computation*
+11. Refereeing for *Communications in Statistics - Simulation and Computation*
 
 
 **2017-2018**
@@ -2955,13 +2961,13 @@ format:
 
 <!-- -->
 
-8. Refereeing for *Canadian Journal of Statistics*
+10. Refereeing for *Canadian Journal of Statistics*
 
 
 
 <!-- -->
 
-7. Refereeing for *Journal of Royal Statistical Society (C)*
+9. Refereeing for *Journal of Royal Statistical Society (C)*
 
 
 **2016-2017**
@@ -2970,19 +2976,19 @@ format:
 
 <!-- -->
 
-6. Refereeing for *Statistics in Medicine*
+8. Refereeing for *Statistics in Medicine*
 
 
 
 <!-- -->
 
-5. Refereeing for *Statistics and Computing*
+7. Refereeing for *Statistics and Computing*
 
 
 
 <!-- -->
 
-4. Refereeing for *PLOS ONE*
+6. Refereeing for *PLOS ONE*
 
 
 **2013-2014**
@@ -2991,31 +2997,31 @@ format:
 
 <!-- -->
 
-3. Refereeing for *Biometrika*
+5. Refereeing for *Biometrika*
 
 
 
 <!-- -->
 
-2. Refereeing for *Statistics In Medicine*
+4. Refereeing for *Statistics In Medicine*
 
 
 
 <!-- -->
 
-1. Refereeing for *Statistical Papers*
+3. Refereeing for *Statistical Papers*
 
 
 
 <!-- -->
 
-0. Refereeing for *Computational Statistics*
+2. Refereeing for *Computational Statistics*
 
 
 
 <!-- -->
 
--1. Refereeing for *Statistica Sinica*
+1. Refereeing for *Statistica Sinica*
 
 
 ### 18.2 Institutional Review

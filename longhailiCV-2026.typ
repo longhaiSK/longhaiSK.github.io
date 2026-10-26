@@ -420,7 +420,7 @@
 
 #show: doc => article(
   title: [CURRICULUM VITAE of LONGHAI LI],
-  subtitle: [Oct 21, 2026],
+  subtitle: [Oct 26, 2026],
   fontsize: 11pt,
   toc_title: [Table of contents],
   toc_depth: 3,
@@ -2068,256 +2068,264 @@
 #strong[2026-2027]
 
 #block[
-#set enum(numbering: "1.", start: 46)
+#set enum(numbering: "1.", start: 49)
 + Refereeing for #emph[Communications in Statistics - Theory and Methods], Oct 2026
 ]
 
 #block[
-#set enum(numbering: "1.", start: 45)
+#set enum(numbering: "1.", start: 48)
 + Refereeing for #emph[Biometrical Journal], Oct 2026
 ]
 
 #block[
-#set enum(numbering: "1.", start: 44)
+#set enum(numbering: "1.", start: 47)
++ Refereeing for #emph[Journal of the Royal Statistical Society: Series C], Oct 2026
+]
+
+#block[
+#set enum(numbering: "1.", start: 46)
 + Refereeing for #emph[Bioinformatics], Oct 2026
 ]
 
 #block[
-#set enum(numbering: "1.", start: 43)
+#set enum(numbering: "1.", start: 45)
 + Reviewing for #emph[Biometrical Journal], Sept, 2026
 ]
 
 #block[
-#set enum(numbering: "1.", start: 42)
+#set enum(numbering: "1.", start: 44)
 + Refereeing for #emph[Biometrical Journal], August 2026
 ]
 
 #block[
-#set enum(numbering: "1.", start: 41)
+#set enum(numbering: "1.", start: 43)
 + Refereeing for #emph[Journal of Computational and Graphical Statistics], July 2026
 ]
 
 #block[
-#set enum(numbering: "1.", start: 40)
+#set enum(numbering: "1.", start: 42)
 + Refereeing for #emph[Bioinformatics], July, 2026
 ]
 
 #strong[2025-2026]
 
 #block[
-#set enum(numbering: "1.", start: 39)
+#set enum(numbering: "1.", start: 41)
 + Refereeing for #emph[Journal of Statistical Computation and Simulation], June, 2026
 ]
 
 #block[
-#set enum(numbering: "1.", start: 38)
+#set enum(numbering: "1.", start: 40)
 + Refereeing for #emph[Journal of Statistical Computation and Simulation], April, 2026
 ]
 
 #block[
-#set enum(numbering: "1.", start: 37)
+#set enum(numbering: "1.", start: 39)
 + Refereeing for #emph[Journal of the Royal Statistical Society: Series C], April 2026
 ]
 
 #block[
-#set enum(numbering: "1.", start: 36)
+#set enum(numbering: "1.", start: 38)
 + Refereeing for #emph[Bioinformatics], March 2026
 ]
 
 #block[
-#set enum(numbering: "1.", start: 35)
+#set enum(numbering: "1.", start: 37)
 + Refereeing for #emph[Journal of Computational and Graphical Statistics], March 2026
 ]
 
 #block[
-#set enum(numbering: "1.", start: 34)
+#set enum(numbering: "1.", start: 36)
 + Refereeing for #emph[Journal of Statistical Computation and Simulation], Dec.~2025
 ]
 
 #block[
-#set enum(numbering: "1.", start: 33)
+#set enum(numbering: "1.", start: 35)
 + Refereeing for #emph[Journal of Computational and Graphical Statistics], Sept.~2025
 ]
 
 #block[
-#set enum(numbering: "1.", start: 32)
+#set enum(numbering: "1.", start: 34)
 + Refereeing for #emph[Journal of the Royal Statistical Society: Series C], August 2025
 ]
 
 #block[
-#set enum(numbering: "1.", start: 31)
+#set enum(numbering: "1.", start: 33)
 + Refereeing for #emph[Journal of Applied Statistics], August 2025
 ]
 
 #strong[2023-2024]
 
 #block[
-#set enum(numbering: "1.", start: 30)
+#set enum(numbering: "1.", start: 32)
 + Refereeing for #emph[Journal of Computational and Graphical Statistics], Sept.~2024
 ]
 
 #block[
-#set enum(numbering: "1.", start: 29)
+#set enum(numbering: "1.", start: 31)
 + Refereeing for #emph[Journal of Applied Statistics], Jan.~2024
 ]
 
 #strong[2022-2023]
 
 #block[
-#set enum(numbering: "1.", start: 28)
+#set enum(numbering: "1.", start: 30)
 + Refereeing for #emph[Statistical Methods in Medical Research], April 2023
 ]
 
 #block[
-#set enum(numbering: "1.", start: 27)
+#set enum(numbering: "1.", start: 29)
 + Refereeing for #emph[Statistical Methods in Medical Research], Jan.~2023
 ]
 
 #block[
-#set enum(numbering: "1.", start: 26)
+#set enum(numbering: "1.", start: 28)
 + Refereeing for #emph[Journal of Computational and Graphical Statistics], Jan.~2023
 ]
 
 #block[
-#set enum(numbering: "1.", start: 25)
+#set enum(numbering: "1.", start: 27)
 + Refereeing for #emph[Statistical Methods in Medical Research], Aug.~2022
 ]
 
 #block[
-#set enum(numbering: "1.", start: 24)
+#set enum(numbering: "1.", start: 26)
 + Refereeing for #emph[Canadian Journal of Statistics], July 2022
 ]
 
 #strong[2021-2022]
 
 #block[
-#set enum(numbering: "1.", start: 23)
+#set enum(numbering: "1.", start: 25)
 + Refereeing for #emph[Statistical Methods in Medical Research]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 22)
+#set enum(numbering: "1.", start: 24)
 + Refereeing for #emph[Journal of Statistical Computation and Simulation]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 21)
+#set enum(numbering: "1.", start: 23)
 + Refereeing for #emph[BMC Cancer]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 20)
+#set enum(numbering: "1.", start: 22)
 + Refereeing for #emph[Journal of Computational and Graphical Statistics]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 19)
+#set enum(numbering: "1.", start: 21)
 + Refereeing for #emph[Canadian Journal of Statistics]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 18)
+#set enum(numbering: "1.", start: 20)
 + Refereeing for #emph[IEEE Transactions on Neural Networks and Learning Systems]
 ]
 
 #strong[2020-2021]
 
 #block[
-#set enum(numbering: "1.", start: 17)
+#set enum(numbering: "1.", start: 19)
 + Refereeing for #emph[Statistics in Medicine]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 16)
+#set enum(numbering: "1.", start: 18)
 + Refereeing for #emph[Computational Statistics and Data Analysis]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 15)
+#set enum(numbering: "1.", start: 17)
 + Refereeing for #emph[Frontiers in Genetics]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 14)
+#set enum(numbering: "1.", start: 16)
 + Refereeing for #emph[Statistical Methods for Medical Research]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 13)
+#set enum(numbering: "1.", start: 15)
 + Refereeing for #emph[Journal of Statistical Computation and Simulation]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 12)
+#set enum(numbering: "1.", start: 14)
 + Refereeing for #emph[BMC Cancer]
 ]
 
 #strong[2019-2020]
 
 #block[
-#set enum(numbering: "1.", start: 11)
+#set enum(numbering: "1.", start: 13)
 + Refereeing for #emph[Computational Statistics and Data Analysis]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 10)
+#set enum(numbering: "1.", start: 12)
 + Refereeing for #emph[Frontiers in Genetics]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 9)
+#set enum(numbering: "1.", start: 11)
 + Refereeing for #emph[Communications in Statistics - Simulation and Computation]
 ]
 
 #strong[2017-2018]
 
 #block[
-#set enum(numbering: "1.", start: 8)
+#set enum(numbering: "1.", start: 10)
 + Refereeing for #emph[Canadian Journal of Statistics]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 7)
+#set enum(numbering: "1.", start: 9)
 + Refereeing for #emph[Journal of Royal Statistical Society (C)]
 ]
 
 #strong[2016-2017]
 
 #block[
-#set enum(numbering: "1.", start: 6)
+#set enum(numbering: "1.", start: 8)
 + Refereeing for #emph[Statistics in Medicine]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 5)
+#set enum(numbering: "1.", start: 7)
 + Refereeing for #emph[Statistics and Computing]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 4)
+#set enum(numbering: "1.", start: 6)
 + Refereeing for #emph[PLOS ONE]
 ]
 
 #strong[2013-2014]
 
 #block[
-#set enum(numbering: "1.", start: 3)
+#set enum(numbering: "1.", start: 5)
 + Refereeing for #emph[Biometrika]
 ]
 
 #block[
-#set enum(numbering: "1.", start: 2)
+#set enum(numbering: "1.", start: 4)
 + Refereeing for #emph[Statistics In Medicine]
 ]
 
+#block[
+#set enum(numbering: "1.", start: 3)
 + Refereeing for #emph[Statistical Papers]
+]
 
 #block[
-#set enum(numbering: "1.", start: 0)
+#set enum(numbering: "1.", start: 2)
 + Refereeing for #emph[Computational Statistics]
 ]
 
-\-1. Refereeing for #emph[Statistica Sinica]
++ Refereeing for #emph[Statistica Sinica]
 
 == 18.2 Institutional Review
 <institutional-review>
