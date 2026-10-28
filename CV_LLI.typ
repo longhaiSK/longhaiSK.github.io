@@ -420,7 +420,7 @@
 
 #show: doc => article(
   title: [CURRICULUM VITAE of LONGHAI LI],
-  subtitle: [Oct 26, 2026],
+  subtitle: [Oct 27, 2026],
   fontsize: 11pt,
   toc_title: [Table of contents],
   toc_depth: 3,
@@ -1343,7 +1343,7 @@
 
 #block[
 #set enum(numbering: "1.", start: 33)
-+ Wu, T., Li, L., and Feng, C., $Z$-residuals Diagnostics for Cox Proportional Hazards Models: Distinguishing Functional Form Misspecification from Nonproportional Hazards, with an Application to Biliary Cirrhosis Survival Times, #emph[Canadian Journal of Statistics], Accepted on June 5, 2026.
++ Wu, T., Li, L., Feng, C., 2026. $Z$-residuals Diagnostics for Cox Models: Functional-form Misspecification versus Nonproportional Hazards. #emph[Canadian Journal of Statistics], published online October 27, 2026. #link("https://doi.org/10.1002/cjs.70087")
 ]
 
 #block[
